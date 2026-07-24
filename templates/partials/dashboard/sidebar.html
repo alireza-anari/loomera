@@ -1,0 +1,176 @@
+{% with profile_url=dashboard_profile_url|default:'#' %}
+<aside id="dashboard-sidebar"
+       class="fixed inset-y-0 right-0 z-[80] flex w-[min(21.5rem,calc(100vw-1rem))] translate-x-full flex-col overflow-visible border-l border-loomera-primary/15 bg-[linear-gradient(180deg,#EEE7FA_0%,#F6F0FF_42%,#EFEAF5_100%)] text-loomera-textPrimary shadow-[0_24px_80px_rgba(46,42,60,0.16)] backdrop-blur-xl transition-[width,transform] duration-300 ease-out lg:w-[22rem] lg:translate-x-0 lg:shadow-[0_16px_45px_rgba(46,42,60,0.07)]"
+       data-dashboard-sidebar
+       data-sidebar-state="expanded"
+       aria-label="ناوبری پنل مدیریت Loomera">
+      <div class="relative flex h-24 shrink-0 items-center justify-center overflow-visible border-b border-loomera-primary/10 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_46%),linear-gradient(180deg,#F8F3FF_0%,#EFE7FA_100%)] px-4">
+        <a href="{{ profile_url }}"
+          class="flex min-w-0 flex-1 flex-col items-center justify-center rounded-[22px] px-1 py-2 transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"
+          aria-label="پروفایل مجموعه">
+
+          <div class="flex h-11 w-full min-w-0 items-center justify-center overflow-hidden">
+            <span class="hidden h-10 w-10 shrink-0 items-center justify-center rounded-[18px] bg-white/80 shadow-sm ring-1 ring-loomera-primary/10"
+                  data-sidebar-collapsed-only>
+              {% include "partials/brand/logo.html" with variant="glyph" class_name="lm-brand-glyph" alt_text="Loomera" %}
+            </span>
+
+            <span class="mx-auto block max-w-[10.5rem] origin-center scale-[0.68] text-center"
+                  data-sidebar-expanded-only>
+              {% include "partials/brand/logo.html" with variant="header" class_name="lm-brand-logo lm-brand-logo--shell" alt_text="Loomera" %}
+            </span>
+          </div>
+
+          <div class="mt-2 min-w-0 text-center" data-sidebar-label>
+            <h2 class="truncate text-base font-black text-loomera-textPrimary">{{ dashboard_header.salon_name }}</h2>
+            <p class="mt-1 truncate text-xs font-medium text-loomera-textMuted">{{ dashboard_header.manager_name }}</p>
+          </div>
+        </a>
+
+        <button type="button"
+                class="absolute -left-5 top-1/2 z-[70] hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-2xl border border-loomera-primary/20 bg-white text-loomera-primary shadow-[0_14px_34px_rgba(70,55,120,0.22)] transition hover:-translate-y-[52%] hover:border-loomera-primary/35 hover:bg-loomera-primarySoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 lg:inline-flex"
+                aria-label="جمع کردن منو"
+                aria-pressed="false"
+                data-sidebar-collapse>
+          <i class="fa-solid fa-angles-right" data-sidebar-collapse-icon aria-hidden="true"></i>
+        </button>
+
+        <button type="button"
+                class="absolute left-4 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 shrink-0 items-center justify-center rounded-2xl border border-loomera-primary/15 bg-white/90 text-loomera-primary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 lg:hidden"
+                aria-label="بستن منو"
+                data-sidebar-close>
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+
+  <div class="shrink-0 border-b border-loomera-borderSoft px-3 py-4 lg:px-4" data-sidebar-label>
+    <div class="rounded-[26px] border border-loomera-borderSoft bg-gradient-to-br from-white via-loomera-primarySoft/35 to-loomera-bgSubtle p-4 shadow-lm-soft">
+      <div class="flex items-start gap-3">
+        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl {% if dashboard_header.is_active %}bg-loomera-accentSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
+          <i class="{% if dashboard_role == "stylist" %}fa-regular fa-user{% else %}fa-solid fa-store{% endif %}" aria-hidden="true"></i>
+        </span>
+        <div class="min-w-0 flex-1">
+          <div class="flex min-w-0 items-center gap-2">
+            <p class="truncate text-sm font-black text-loomera-textPrimary">{{ dashboard_header.status_panel_title|default:"وضعیت محیط کاری" }}</p>
+            <span class="inline-flex shrink-0 items-center rounded-full px-2 py-1 text-[10px] font-black {% if dashboard_header.is_active %}bg-loomera-accentSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
+              {% if dashboard_header.is_active %}فعال{% else %}غیرفعال{% endif %}
+            </span>
+          </div>
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ dashboard_header.working_hours }}</p>
+          {% if dashboard_role == "stylist" %}
+            <div class="mt-3">
+              {% if stylist_active_memberships and stylist_active_memberships|length > 1 %}
+                <form method="post" action="{% url 'dashboards:set_stylist_active_salon' %}" class="space-y-2">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ dashboard_current_path }}">
+
+                  <label class="block">
+                    <span class="mb-1 block text-[10px] font-black text-loomera-textMuted">
+                      مجموعه فعال
+                    </span>
+                    <select
+                      name="salon_id"
+                      class="w-full rounded-2xl border border-loomera-borderSoft bg-white/90 px-3 py-2 text-xs font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
+                    >
+                      {% for membership in stylist_active_memberships %}
+                        <option value="{{ membership.salon_id }}" {% if stylist_salon and membership.salon_id == stylist_salon.id %}selected{% endif %}>
+                          {{ membership.salon.salon_name }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </label>
+
+                  <button
+                    type="submit"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-3 py-2 text-[11px] font-black text-white shadow-sm transition hover:bg-loomera-primaryHover"
+                  >
+                    <i class="fa-solid fa-arrows-rotate text-[10px]" aria-hidden="true"></i>
+                    تغییر مجموعه فعال
+                  </button>
+                </form>
+              {% else %}
+                <div class="inline-flex w-full items-center justify-between gap-2 rounded-2xl border border-loomera-borderSoft bg-white/80 px-3 py-2 text-[11px] text-loomera-textSecondary">
+                  <span class="font-bold">مجموعه فعال</span>
+                  <strong class="truncate text-loomera-primaryText">
+                    {{ dashboard_header.active_salon_name|default:"بدون مجموعه فعال" }}
+                  </strong>
+                </div>
+              {% endif %}
+            </div>
+          {% else %}
+            <div class="mt-3 flex flex-wrap gap-2 text-[11px]">
+              <span class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white/80 px-3 py-2 text-loomera-textSecondary">
+                <i class="fa-regular fa-bell text-loomera-primary" aria-hidden="true"></i>
+                <span>{{ dashboard_header.pending_approvals }} {{ dashboard_header.pending_approvals_label|default:"مورد در انتظار" }}</span>
+              </span>
+              <span class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white/80 px-3 py-2 text-loomera-textSecondary">
+                <i class="fa-solid fa-user-group text-loomera-primary" aria-hidden="true"></i>
+                <span>{{ dashboard_header.team_count }} {{ dashboard_header.team_count_label|default:"عضو فعال" }}</span>
+              </span>
+            </div>
+          {% endif %}
+          <a href="{{ profile_url }}"
+             class="mt-3 inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-primary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+            <span>{{ dashboard_profile_label|default:"پروفایل مجموعه" }}</span>
+            <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 [scrollbar-width:thin] [scrollbar-color:rgba(115,92,190,0.32)_transparent]">
+    {% for section in dashboard_sidebar_sections %}
+      <div class="lm-dashboard-sidebar-section mb-5 last:mb-0" data-sidebar-section="{{ section.key|default:'section' }}">
+        <p class="mb-3 px-2 text-[11px] font-black tracking-tight text-loomera-textMuted" data-sidebar-label>{{ section.label }}</p>
+        <nav class="lm-dashboard-sidebar-section__nav space-y-1.5" aria-label="{{ section.label }}">
+          {% for item in section.items %}
+            {% if item.is_available %}
+              <a href="{{ item.url }}"
+                 title="{{ item.label }}"
+                 {% if item.is_active %}aria-current="page"{% endif %}
+                 class="lm-dashboard-sidebar-item group relative flex min-h-[3.25rem] items-start gap-3 rounded-2xl px-3 py-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 data-[sidebar-collapsed=true]:justify-center data-[sidebar-collapsed=true]:px-2 {% if item.is_active %}is-active bg-loomera-primary text-white shadow-[0_14px_32px_rgba(115,92,190,0.22)]{% else %}text-loomera-textSecondary hover:bg-loomera-primarySoft/55 hover:text-loomera-primary{% endif %}">
+                <span class="mt-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[1.15rem] text-lg transition {% if item.is_active %}bg-white/18 text-white shadow-sm ring-1 ring-white/20{% else %}bg-white text-loomera-primary shadow-sm ring-1 ring-loomera-primary/10 group-hover:bg-loomera-primary group-hover:text-white group-hover:ring-loomera-primary/30{% endif %}" data-sidebar-item-icon>
+                  <i class="{{ item.icon }}" aria-hidden="true"></i>
+                </span>
+                <span class="pointer-events-none absolute right-[calc(100%+0.7rem)] top-1/2 z-50 hidden -translate-y-1/2 whitespace-nowrap rounded-2xl bg-slate-900 px-3 py-2 text-[11px] font-black text-white opacity-0 shadow-lg transition group-hover:opacity-100 lg:group-data-[sidebar-collapsed=true]:inline-flex" data-sidebar-collapsed-tooltip>
+                  {{ item.label }}
+                </span>
+                <span class="min-w-0 flex-1 transition-opacity duration-200" data-sidebar-label>
+                  <span class="block truncate text-sm font-black">{{ item.label }}</span>
+                  <span class="mt-1 block truncate text-xs {% if item.is_active %}text-white/82{% else %}text-loomera-textMuted{% endif %}">{{ item.caption }}</span>
+                </span>
+              </a>
+            {% else %}
+              <span class="lm-dashboard-sidebar-item is-disabled group flex min-h-[3.25rem] cursor-not-allowed items-start gap-3 rounded-2xl border border-dashed border-loomera-border bg-loomera-bgSubtle px-3 py-3 text-loomera-textMuted opacity-80 data-[sidebar-collapsed=true]:justify-center data-[sidebar-collapsed=true]:px-2"
+                    title="{{ item.label }}"
+                    aria-disabled="true">
+                <span class="mt-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[1.15rem] bg-white text-base text-loomera-textMuted shadow-sm ring-1 ring-loomera-borderSoft" data-sidebar-item-icon>
+                  <i class="{{ item.icon }}" aria-hidden="true"></i>
+                </span>
+                <span class="min-w-0 flex-1 transition-opacity duration-200" data-sidebar-label>
+                  <span class="flex min-w-0 items-center gap-2 text-sm font-bold"><span class="truncate">{{ item.label }}</span>{% if item.is_locked %}
+                    <span class="shrink-0 rounded-full bg-white px-2 py-0.5 text-[10px] font-black text-loomera-textMuted">
+                      {{ item.lock_reason|default:"در دسترس نیست" }}
+                    </span>
+                  {% endif %}</span>
+                  <span class="mt-1 block truncate text-xs text-loomera-textMuted">{{ item.caption }}</span>
+                </span>
+              </span>
+            {% endif %}
+          {% endfor %}
+        </nav>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="shrink-0 border-t border-loomera-borderSoft p-3 lg:p-4">
+    <a href="{% url 'accounts:logout' %}"
+       class="flex min-h-12 items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary shadow-sm transition hover:border-loomera-danger/25 hover:bg-loomera-dangerSoft hover:text-loomera-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"
+       title="خروج از حساب">
+      <span data-sidebar-label>خروج از حساب</span>
+      <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+    </a>
+  </div>
+</aside>
+{% endwith %}

@@ -1,0 +1,236 @@
+{% extends "dashboard_template.html" %}
+{% block title %}مرکز اعلان‌ها{% endblock %}
+
+{% block content %}
+  {% url 'dashboards:appointment_calendar' salon.id as appointment_calendar_url %}
+  {% url 'dashboards:finance_reports' as finance_reports_url %}
+  {% url 'dashboards:salons_customers_page' as customers_url %}
+
+  <section class="min-w-0 max-w-full space-y-4 overflow-hidden lg:space-y-5" data-dashboard-page="notifications-center">
+    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="notifications-center-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
+
+      <div class="relative flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div class="min-w-0">
+          <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+            <i class="fa-regular fa-bell text-[10px]" aria-hidden="true"></i>
+            <span class="truncate">اعلان‌ها و پیگیری‌ها</span>
+          </span>
+
+          <h1 id="notifications-center-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+            مرکز اعلان‌های مدیر مجموعه
+          </h1>
+
+          <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+            همه اعلان‌های رزرو، مالی، مشتری و تیم در یک لیست واحد نمایش داده می‌شوند. با سرچ و فیلتر سریع، اعلان موردنظر را پیدا کن و وارد صفحه مرتبط شو.
+          </p>
+        </div>
+
+        <div class="grid min-w-0 grid-cols-2 gap-3 sm:min-w-[300px]">
+          <article class="rounded-[22px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-soft">
+            <p class="text-[11px] font-bold text-loomera-textMuted">کل اعلان‌ها</p>
+            <strong class="mt-2 block text-2xl font-black text-loomera-textPrimary">{{ notification_center.items|length }}</strong>
+          </article>
+
+          <article class="rounded-[22px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-soft">
+            <p class="text-[11px] font-bold text-loomera-textMuted">خوانده‌نشده</p>
+            <strong class="mt-2 block text-2xl font-black text-loomera-textPrimary">
+              {% for tab in notification_center.tabs %}
+                {% if tab.key == 'all' %}{{ tab.unread_count }}{% endif %}
+              {% endfor %}
+            </strong>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" aria-labelledby="notifications-list-title">
+      <header class="border-b border-loomera-borderSoft bg-white/96 p-4 sm:p-5 lg:p-6">
+        <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">لیست اعلان‌ها</p>
+            <h2 id="notifications-list-title" class="mt-1 text-lg font-black text-loomera-textPrimary">
+              جستجو و فیلتر اعلان‌ها
+            </h2>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
+              هر اعلان در یک کارت جدا نمایش داده می‌شود تا عنوان، توضیح، دسته و زمان با هم قاطی نشوند.
+            </p>
+          </div>
+
+          <div class="inline-flex w-full items-center justify-between gap-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3 text-xs font-black text-loomera-textSecondary sm:w-auto">
+            <span>نتیجه قابل نمایش</span>
+            <strong class="text-loomera-primaryText" data-notification-visible-count>{{ notification_center.items|length }}</strong>
+          </div>
+        </div>
+
+        <div class="mt-5 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3" data-notification-tools>
+          <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <label class="relative block min-w-0 flex-1">
+              <span class="sr-only">جستجوی اعلان‌ها</span>
+              <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
+              <input
+                type="search"
+                class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
+                placeholder="جستجو با عنوان، توضیح، دسته یا زمان"
+                data-notification-search
+              >
+            </label>
+
+            <div class="flex gap-2 overflow-x-auto pb-1 lg:max-w-[42rem]" aria-label="فیلتر سریع اعلان‌ها">
+              <button type="button" class="shrink-0 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-notification-filter="all">همه</button>
+              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-notification-filter="unread">خوانده‌نشده</button>
+              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-notification-filter="finance">مالی</button>
+              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-notification-filter="appointments">نوبت‌ها</button>
+              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-notification-filter="customer">مشتری</button>
+              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-notification-filter="stylist">متخصص</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="p-4 sm:p-5 lg:p-6">
+        <div class="grid gap-4" data-notification-list>
+          {% for item in notification_center.items %}
+            <a
+              href="{{ item.url }}"
+              class="group block min-w-0 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-card"
+              data-notification-card
+              data-notification-category="{{ item.category }}"
+              data-notification-unread="{% if item.is_unread %}true{% else %}false{% endif %}"
+              data-notification-search-value="{{ item.title }} {{ item.description }} {{ item.meta }} {{ item.category_label }}"
+            >
+              <article class="min-w-0">
+                <header class="flex min-w-0 items-start gap-3 border-b border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4 sm:p-5">
+                  <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm ring-1 ring-loomera-borderSoft">
+                    <i class="{{ item.icon }}" aria-hidden="true"></i>
+                  </span>
+
+                  <div class="min-w-0 flex-1">
+                    <div class="flex min-w-0 flex-wrap items-center gap-2">
+                      <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-3 py-1 text-[11px] font-bold text-loomera-textMuted ring-1 ring-loomera-borderSoft">
+                        <i class="{{ item.category_icon }} text-[10px]" aria-hidden="true"></i>
+                        {{ item.category_label }}
+                      </span>
+
+                      {% if item.is_unread %}
+                        <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-primarySoft px-2.5 py-1 text-[10px] font-black text-loomera-primaryText">
+                          جدید
+                        </span>
+                      {% else %}
+                        <span class="inline-flex shrink-0 items-center rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-loomera-textMuted ring-1 ring-loomera-borderSoft">
+                          خوانده‌شده
+                        </span>
+                      {% endif %}
+                    </div>
+
+                    <h3 class="mt-3 text-base font-black leading-7 text-loomera-textPrimary">
+                      {{ item.title }}
+                    </h3>
+                  </div>
+                </header>
+
+                <div class="p-4 sm:p-5">
+                  <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-4">
+                    <p class="text-sm leading-8 text-loomera-textSecondary">
+                      {{ item.description }}
+                    </p>
+                  </div>
+
+                  <footer class="mt-4 flex flex-col gap-3 border-t border-loomera-borderSoft pt-4 sm:flex-row sm:items-center sm:justify-between">
+                    <span class="inline-flex w-fit items-center gap-2 rounded-full bg-loomera-bgSubtle px-3 py-2 text-[11px] font-bold text-loomera-textMuted ring-1 ring-loomera-borderSoft">
+                      <i class="fa-regular fa-clock text-[10px]" aria-hidden="true"></i>
+                      {{ item.meta }}
+                    </span>
+
+                    <span class="inline-flex w-fit items-center gap-2 rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText transition group-hover:bg-loomera-primary group-hover:text-white">
+                      مشاهده صفحه مرتبط
+                      <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                    </span>
+                  </footer>
+                </div>
+              </article>
+            </a>
+          {% empty %}
+            <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-8 text-center text-sm leading-7 text-loomera-textMuted">
+              هنوز اعلانی برای این مجموعه ثبت نشده است.
+            </div>
+          {% endfor %}
+
+          <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-8 text-center text-sm leading-7 text-loomera-textMuted" data-notification-empty>
+            اعلانی با این جستجو یا فیلتر پیدا نشد.
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const cards = Array.from(document.querySelectorAll("[data-notification-card]"));
+      const searchInput = document.querySelector("[data-notification-search]");
+      const filterButtons = Array.from(document.querySelectorAll("[data-notification-filter]"));
+      const emptyState = document.querySelector("[data-notification-empty]");
+      const visibleCount = document.querySelector("[data-notification-visible-count]");
+      let activeFilter = "all";
+
+      const toPersianDigits = (value) => String(value || 0).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
+
+      const setButtonState = () => {
+        filterButtons.forEach((button) => {
+          const active = button.dataset.notificationFilter === activeFilter;
+
+          button.classList.toggle("border-loomera-primary/20", active);
+          button.classList.toggle("bg-loomera-primarySoft", active);
+          button.classList.toggle("text-loomera-primaryText", active);
+
+          button.classList.toggle("border-loomera-borderSoft", !active);
+          button.classList.toggle("bg-white", !active);
+          button.classList.toggle("text-loomera-textSecondary", !active);
+
+          button.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+      };
+
+      const matchesFilter = (card) => {
+        if (activeFilter === "all") return true;
+        if (activeFilter === "unread") return card.dataset.notificationUnread === "true";
+        return card.dataset.notificationCategory === activeFilter;
+      };
+
+      const applyFilters = () => {
+        const query = (searchInput?.value || "").trim().toLowerCase();
+        let count = 0;
+
+        cards.forEach((card) => {
+          const haystack = (card.dataset.notificationSearchValue || card.textContent || "").toLowerCase();
+          const visible = matchesFilter(card) && (!query || haystack.includes(query));
+
+          card.classList.toggle("hidden", !visible);
+
+          if (visible) count += 1;
+        });
+
+        emptyState?.classList.toggle("hidden", count !== 0);
+
+        if (visibleCount) {
+          visibleCount.textContent = toPersianDigits(count);
+        }
+
+        setButtonState();
+      };
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          activeFilter = button.dataset.notificationFilter || "all";
+          applyFilters();
+        });
+      });
+
+      searchInput?.addEventListener("input", applyFilters);
+      applyFilters();
+    });
+  </script>
+{% endblock %}

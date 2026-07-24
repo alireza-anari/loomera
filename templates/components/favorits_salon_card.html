@@ -1,0 +1,79 @@
+{% load static %}
+{% load humanize %}
+
+<article
+  class="group relative h-full overflow-hidden rounded-[1.8rem] border border-loomera-borderSoft bg-white shadow-lm-soft transition hover:-translate-y-1 hover:border-loomera-primary/25 hover:shadow-lm-card"
+  data-salon-card
+  data-favorite-card
+  data-salon-id="{{ salon.id }}"
+>
+  <a href="{{ salon.get_absolute_url }}" class="block" aria-label="مشاهده {{ salon.salon_name }}">
+    <div class="relative aspect-[4/3] overflow-hidden bg-loomera-bgSubtle">
+      {% if salon.cover_image %}
+        <img src="{{ salon.cover_image.url }}" alt="{{ salon.salon_name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+      {% elif salon.image %}
+        <img src="{{ salon.image.url }}" alt="{{ salon.salon_name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+      {% elif salon.logo %}
+        <div class="flex h-full w-full items-center justify-center bg-loomera-primarySoft">
+          <img src="{{ salon.logo.url }}" alt="{{ salon.salon_name }}" class="h-24 w-24 rounded-3xl object-cover shadow-lm-soft">
+        </div>
+      {% else %}
+        <div class="flex h-full w-full items-center justify-center bg-loomera-primarySoft text-4xl text-loomera-primary">
+          <i class="fa-solid fa-spa" aria-hidden="true"></i>
+        </div>
+      {% endif %}
+
+      <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent"></div>
+
+      <span class="absolute right-3 top-3 rounded-full bg-white/92 px-3 py-1 text-xs font-black text-loomera-primary shadow-lm-soft backdrop-blur">
+        ذخیره‌شده
+      </span>
+
+      <div class="absolute bottom-3 right-3 left-3 flex items-center justify-between gap-3">
+        <span class="inline-flex items-center gap-1 rounded-full bg-white/92 px-3 py-1 text-xs font-black text-loomera-textPrimary shadow-lm-soft backdrop-blur">
+          <i class="fa-solid fa-star text-yellow-400" aria-hidden="true"></i>
+          {% firstof salon.average_score salon.average_rating salon.rating "۰" %}
+        </span>
+
+        {% if salon.neighborhood %}
+          <span class="min-w-0 truncate rounded-full bg-black/35 px-3 py-1 text-xs font-bold text-white backdrop-blur">
+            {{ salon.neighborhood.name }}
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="p-4">
+      <h3 class="line-clamp-1 text-base font-black text-loomera-textPrimary">
+        {{ salon.salon_name }}
+      </h3>
+
+      {% if salon.address %}
+        <p class="mt-2 flex items-start gap-2 text-xs leading-6 text-loomera-textMuted">
+          <i class="fa-solid fa-location-dot mt-1 text-loomera-primary" aria-hidden="true"></i>
+          <span class="line-clamp-2">{{ salon.address }}</span>
+        </p>
+      {% endif %}
+
+      <div class="mt-4 flex items-center justify-between gap-3 border-t border-loomera-borderSoft pt-3">
+        <span class="text-xs font-bold text-loomera-textMuted">مشاهده و رزرو</span>
+        <span class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primary transition group-hover:bg-loomera-primary group-hover:text-white">
+          رزرو
+          <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+  </a>
+
+  <button
+    type="button"
+    data-favorite-button
+    data-salon-id="{{ salon.id }}"
+    data-favorite-url="{% url 'csf:add_favorite' %}"
+    aria-pressed="true"
+    aria-label="حذف {{ salon.salon_name }} از علاقه‌مندی‌ها"
+    class="absolute left-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/92 text-red-500 shadow-lm-soft backdrop-blur transition hover:scale-105"
+  >
+    <i class="fa-solid fa-heart" aria-hidden="true"></i>
+  </button>
+</article>

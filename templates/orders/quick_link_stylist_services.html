@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}انتخاب خدمت برای رزرو سریع{% endblock %}
+
+{% block content %}
+<article class="min-h-dvh bg-loomera-bg pb-32 text-loomera-textPrimary lg:pb-16" data-page="quick-link-stylist-services">
+  <!-- Mobile header -->
+  <header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 backdrop-blur lg:hidden">
+    <div class="flex items-center justify-between gap-3">
+      <a href="{% url 'salons:detail_salon' salon.id %}" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft" aria-label="بازگشت به مجموعه">
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </a>
+      <div class="min-w-0 text-center">
+        <p class="truncate text-xs font-bold text-loomera-textMuted">رزرو سریع متخصص</p>
+        <h1 class="truncate text-sm font-black text-loomera-textPrimary">{{ stylist.get_fullName }}</h1>
+      </div>
+      <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-loomera-primarySoft text-loomera-primary" aria-hidden="true">
+        <i class="fa-solid fa-scissors"></i>
+      </span>
+    </div>
+  </header>
+
+  <div class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:py-8 xl:px-0">
+    <main class="min-w-0 space-y-5">
+      <!-- Hero -->
+      <section class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface shadow-lm-card">
+        <div class="relative isolate p-5 sm:p-6 lg:p-8">
+          <div class="absolute inset-x-0 top-0 -z-10 h-36 bg-gradient-to-l from-loomera-primary/16 via-loomera-primarySoft/70 to-loomera-accentSoft/70" aria-hidden="true"></div>
+
+          <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div class="flex min-w-0 items-start gap-4">
+              <div class="relative h-20 w-20 shrink-0 overflow-hidden rounded-[1.6rem] border border-white/70 bg-white shadow-lm-soft">
+                {% if stylist.profile_image %}
+                  <img src="{{ stylist.profile_image.url }}" alt="{{ stylist.get_fullName }}" class="h-full w-full object-cover">
+                {% else %}
+                  <div class="flex h-full w-full items-center justify-center bg-loomera-primarySoft text-2xl font-black text-loomera-primary">
+                    {{ stylist.get_fullName|first }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="min-w-0 pt-1">
+                <p class="inline-flex rounded-full bg-white/80 px-3 py-1 text-xs font-black text-loomera-primary shadow-lm-soft ring-1 ring-loomera-borderSoft">رزرو سریع متخصص</p>
+                <h1 class="mt-3 text-2xl font-black leading-tight text-loomera-textPrimary sm:text-3xl">
+                  {{ stylist.get_fullName }}
+                </h1>
+                <p class="mt-2 text-sm font-bold text-loomera-textSecondary">{{ salon.salon_name }}</p>
+                <p class="mt-3 max-w-2xl text-sm leading-7 text-loomera-textMuted">
+                  خدمت‌های قابل ارائه توسط این متخصص را انتخاب کن؛ در مرحله بعد فقط زمان‌های همین متخصص برای رزرو نمایش داده می‌شود.
+                </p>
+              </div>
+            </div>
+
+            <a href="{% url 'salons:detail_salon' salon.id %}" class="hidden shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/50 lg:inline-flex">
+              <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+              <span>بازگشت به مجموعه</span>
+            </a>
+          </div>
+
+          <div class="mt-6 grid gap-3 sm:grid-cols-3">
+            <div class="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-lm-soft backdrop-blur">
+              <p class="text-xs font-bold text-loomera-textMuted">تعداد خدمات</p>
+              <strong class="mt-1 block text-lg font-black text-loomera-textPrimary">{{ service_cards|length }} خدمت</strong>
+            </div>
+            <div class="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-lm-soft backdrop-blur">
+              <p class="text-xs font-bold text-loomera-textMuted">متخصص انتخاب‌شده</p>
+              <strong class="mt-1 block truncate text-lg font-black text-loomera-textPrimary">{{ stylist.get_fullName }}</strong>
+            </div>
+            <div class="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-lm-soft backdrop-blur">
+              <p class="text-xs font-bold text-loomera-textMuted">مرحله بعد</p>
+              <strong class="mt-1 block text-lg font-black text-loomera-textPrimary">انتخاب زمان</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {% if messages %}
+        <section class="space-y-2" aria-label="پیام‌های سیستم">
+          {% for message in messages %}
+            <div class="rounded-3xl border {% if message.tags == 'error' %}border-red-200 bg-red-50 text-red-700{% elif message.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-700{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary{% endif %} px-4 py-3 text-sm font-bold shadow-lm-soft">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </section>
+      {% endif %}
+
+      <!-- Services form -->
+      <form method="post" id="quickStylistServicesForm" class="space-y-5">
+        {% csrf_token %}
+        <input type="hidden" name="salon_id" value="{{ salon.id }}">
+        <input type="hidden" name="stylist_id" value="{{ stylist.user_id }}">
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5 lg:p-6" aria-labelledby="quickServicesTitle">
+          <div class="flex flex-col gap-3 border-b border-loomera-borderSoft pb-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p class="text-xs font-black uppercase tracking-[0.2em] text-loomera-primary">انتخاب خدمت</p>
+              <h2 id="quickServicesTitle" class="mt-2 text-xl font-black text-loomera-textPrimary">خدمات قابل رزرو با {{ stylist.get_fullName }}</h2>
+              <p class="mt-2 text-sm leading-7 text-loomera-textMuted">می‌توانی یک یا چند خدمت را انتخاب کنی.</p>
+            </div>
+            <span class="inline-flex w-fit rounded-full bg-loomera-primarySoft px-3 py-1.5 text-xs font-black text-loomera-primary">
+              <span data-selected-count>0</span>
+              <span class="mr-1">انتخاب‌شده</span>
+            </span>
+          </div>
+
+          <div class="mt-4 grid gap-3" role="list" aria-label="خدمات متخصص">
+            {% for item in service_cards %}
+              <label data-service-card class="group block cursor-pointer" role="listitem">
+                <span data-card-surface class="block rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/20 sm:p-5">
+                  <span class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <span class="flex min-w-0 items-start gap-3">
+                      <input
+                        type="checkbox"
+                        name="selected_services"
+                        value="{{ item.id }}"
+                        class="mt-1 h-5 w-5 shrink-0 rounded border-loomera-borderSoft text-loomera-primary accent-loomera-primary focus:ring-loomera-focusRing/40"
+                        {% if item.is_selected %}checked{% endif %}
+                      >
+                      <span class="min-w-0">
+                        <strong class="block text-base font-black text-loomera-textPrimary">{{ item.name }}</strong>
+                        <span class="mt-2 block text-sm leading-7 text-loomera-textMuted">{{ item.summary }}</span>
+                      </span>
+                    </span>
+
+                    <span class="grid shrink-0 grid-cols-2 gap-2 sm:w-44 sm:grid-cols-1">
+                      <span class="rounded-2xl border border-loomera-borderSoft bg-white/75 px-3 py-2 text-center">
+                        <span class="block text-[11px] font-bold text-loomera-textMuted">قیمت</span>
+                        <strong class="mt-1 block text-xs font-black text-loomera-textPrimary">{{ item.price_label }}</strong>
+                      </span>
+                      <span class="rounded-2xl border border-loomera-borderSoft bg-white/75 px-3 py-2 text-center">
+                        <span class="block text-[11px] font-bold text-loomera-textMuted">مدت</span>
+                        <strong class="mt-1 block text-xs font-black text-loomera-textPrimary">{{ item.duration_label }}</strong>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </label>
+            {% empty %}
+              <div class="rounded-[1.75rem] border border-dashed border-loomera-border bg-loomera-bgSubtle p-6 text-center">
+                <span class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-lm-soft">
+                  <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+                </span>
+                <h3 class="mt-4 text-base font-black text-loomera-textPrimary">خدمتی برای این متخصص پیدا نشد</h3>
+                <p class="mt-2 text-sm leading-7 text-loomera-textMuted">از صفحه مجموعه، متخصص یا خدمت دیگری را انتخاب کن.</p>
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <div class="hidden lg:block">
+          <button type="submit" data-submit-button class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-6 py-4 text-sm font-black text-white shadow-lm-card transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
+            <span>ادامه برای انتخاب زمان</span>
+            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+          </button>
+        </div>
+      </form>
+    </main>
+
+    <!-- Desktop sidebar -->
+    <aside class="hidden lg:block">
+      <div class="sticky top-24 space-y-4">
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-elevated" aria-label="خلاصه رزرو سریع">
+          <p class="text-xs font-black uppercase tracking-[0.2em] text-loomera-primary">خلاصه انتخاب</p>
+          <h2 class="mt-2 text-lg font-black text-loomera-textPrimary">{{ salon.salon_name }}</h2>
+          <p class="mt-2 text-sm font-bold text-loomera-textSecondary">{{ stylist.get_fullName }}</p>
+
+          <div class="mt-5 rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-xs font-bold text-loomera-textMuted">خدمات انتخاب‌شده</span>
+              <strong class="text-base font-black text-loomera-textPrimary"><span data-selected-count>0</span> خدمت</strong>
+            </div>
+            <p class="mt-3 text-xs leading-6 text-loomera-textMuted">در مرحله بعد، زمان‌های قابل رزرو همین متخصص را می‌بینی.</p>
+          </div>
+
+          <button form="quickStylistServicesForm" type="submit" data-submit-button class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3.5 text-sm font-black text-white shadow-lm-card transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
+            <span>ادامه برای انتخاب زمان</span>
+            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+          </button>
+        </section>
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-soft" aria-label="مراحل رزرو">
+          <h3 class="text-sm font-black text-loomera-textPrimary">مسیر رزرو</h3>
+          <ol class="mt-4 space-y-3 text-sm text-loomera-textSecondary">
+            <li class="flex items-start gap-3">
+              <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-loomera-primary text-xs font-black text-white">۱</span>
+              <span class="pt-1">انتخاب خدمت‌های موردنظر</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-loomera-primarySoft text-xs font-black text-loomera-primary">۲</span>
+              <span class="pt-1">انتخاب تاریخ و ساعت</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-loomera-primarySoft text-xs font-black text-loomera-primary">۳</span>
+              <span class="pt-1">مرور و ثبت نهایی رزرو</span>
+            </li>
+          </ol>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile sticky CTA -->
+  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur lg:hidden">
+    <div class="mx-auto max-w-md space-y-3">
+      <div class="flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3">
+        <span class="text-xs font-bold text-loomera-textMuted">خدمات انتخاب‌شده</span>
+        <strong class="text-sm font-black text-loomera-textPrimary"><span data-selected-count>0</span> خدمت</strong>
+      </div>
+      <button form="quickStylistServicesForm" type="submit" data-submit-button class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-4 text-sm font-black text-white shadow-lm-card transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
+        <span>ادامه برای انتخاب زمان</span>
+        <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</article>
+{% endblock %}
+
+{% block js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("quickStylistServicesForm");
+    if (!form) return;
+
+    const checkboxes = Array.from(form.querySelectorAll('input[name="selected_services"]'));
+    const counters = Array.from(document.querySelectorAll("[data-selected-count]"));
+    const submitButtons = Array.from(document.querySelectorAll("[data-submit-button]"));
+
+    function syncServiceCard(checkbox) {
+      const card = checkbox.closest("[data-service-card]");
+      const surface = card?.querySelector("[data-card-surface]");
+      if (!surface) return;
+
+      surface.classList.toggle("border-loomera-primary/60", checkbox.checked);
+      surface.classList.toggle("bg-loomera-primarySoft/45", checkbox.checked);
+      surface.classList.toggle("shadow-lm-card", checkbox.checked);
+    }
+
+    function updateSummary() {
+      const selectedCount = checkboxes.filter((checkbox) => checkbox.checked).length;
+      counters.forEach((counter) => {
+        counter.textContent = String(selectedCount);
+      });
+      submitButtons.forEach((button) => {
+        button.classList.toggle("opacity-70", selectedCount === 0);
+      });
+      checkboxes.forEach(syncServiceCard);
+    }
+
+    checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", updateSummary);
+    });
+
+    form.addEventListener("submit", function (event) {
+      const selectedCount = checkboxes.filter((checkbox) => checkbox.checked).length;
+      if (selectedCount > 0) return;
+
+      event.preventDefault();
+      window.alert("حداقل یک خدمت را برای این متخصص انتخاب کنید.");
+      const firstCard = document.querySelector("[data-service-card]");
+      firstCard?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    updateSummary();
+  });
+</script>
+{% endblock %}

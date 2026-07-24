@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ورود با شبکه‌های اجتماعی{% endblock %}
+{% block body_attrs %}data-page="social-login-info"{% endblock %}
+
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-28 text-loomera-textPrimary lg:pb-16">
+  <!-- Mobile header -->
+  <header class="sticky top-0 z-30 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 shadow-sm backdrop-blur lg:hidden">
+    <div class="flex items-center gap-3">
+      <a href="{% url 'accounts:customer_settings' %}"
+         class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition active:scale-95"
+         aria-label="بازگشت به تنظیمات">
+        <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+      </a>
+
+      <div class="min-w-0 flex-1">
+        <h1 class="truncate text-base font-black text-loomera-textPrimary">ورود با شبکه‌های اجتماعی</h1>
+        <p class="mt-1 truncate text-xs font-semibold text-loomera-textMuted">وضعیت اتصال روش‌های ورود</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 pt-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-6 lg:pt-8 xl:px-0">
+    <div class="min-w-0 space-y-5">
+      <!-- Hero -->
+      <section class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-card">
+        <div class="relative isolate p-5 lg:p-7">
+          <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_34%),linear-gradient(135deg,rgba(238,232,250,0.92),rgba(255,255,255,0.98))]"></div>
+
+          <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div class="min-w-0">
+              <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-loomera-primary/15 bg-white/70 px-3 py-1 text-xs font-black text-loomera-primary shadow-sm backdrop-blur">
+                <i class="fa-solid fa-share-nodes text-[11px]" aria-hidden="true"></i>
+                <span>روش‌های ورود Loomera</span>
+              </div>
+
+              <h2 class="text-2xl font-black leading-9 text-loomera-textPrimary lg:text-4xl lg:leading-[3.2rem]">ورود با شبکه‌های اجتماعی</h2>
+              <p class="mt-2 max-w-2xl text-sm font-semibold leading-7 text-loomera-textMuted">
+                در حال حاضر ورود اصلی لومرا با شماره موبایل و رمز عبور انجام می‌شود تا تجربه ورود، بازیابی رمز و مدیریت رزروها پایدار بماند.
+              </p>
+            </div>
+
+            <a href="{% url 'accounts:customer_settings' %}"
+               class="hidden w-full shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 sm:w-auto lg:inline-flex">
+              <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+              <span>بازگشت به تنظیمات</span>
+            </a>
+          </div>
+
+          <div class="mt-5 grid gap-3 sm:grid-cols-3">
+            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
+              <p class="text-xs font-black text-loomera-textMuted">وضعیت فعلی</p>
+              <strong class="mt-2 flex items-center gap-2 text-sm font-black leading-7 text-loomera-textPrimary">
+                <span class="h-2.5 w-2.5 rounded-full bg-loomera-warning"></span>
+                غیرفعال
+              </strong>
+            </div>
+            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
+              <p class="text-xs font-black text-loomera-textMuted">روش پیشنهادی</p>
+              <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">شماره موبایل</strong>
+            </div>
+            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
+              <p class="text-xs font-black text-loomera-textMuted">حساب فعلی</p>
+              <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">رزروها حفظ می‌شوند</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Current status -->
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5" aria-labelledby="social-status-title">
+        <div class="rounded-[1.75rem] border border-loomera-primary/15 bg-loomera-primarySoft/70 p-4 lg:p-5">
+          <div class="flex gap-3">
+            <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm">
+              <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0">
+              <h2 id="social-status-title" class="text-base font-black text-loomera-textPrimary">این قابلیت فعلاً فعال نیست</h2>
+              <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                برای کاربران داخل ایران، ورود با شماره موبایل و رمز عبور فعلاً پایدارترین مسیر است. به همین دلیل، اتصال گوگل، اپل یا سایر شبکه‌ها تا زمان آماده‌سازی کامل فعال نشده است.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Guidance cards -->
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5" aria-labelledby="social-help-title">
+        <div class="mb-4">
+          <p class="text-xs font-black uppercase tracking-[0.25em] text-loomera-primary">راهنمای ورود</p>
+          <h2 id="social-help-title" class="mt-2 text-xl font-black text-loomera-textPrimary">الان از چه روشی استفاده کنم؟</h2>
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-2">
+          <article class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft">
+            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+              <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">ورود با شماره موبایل</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+              با شماره موبایل وارد شو تا رزروها، کیف پول، علاقه‌مندی‌ها و اطلاعات حساب بدون تغییر در دسترس باشند.
+            </p>
+          </article>
+
+          <article class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft">
+            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+              <i class="fa-solid fa-key" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">بازیابی رمز عبور</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+              اگر رمز عبور را فراموش کردی، از مسیر بازیابی رمز عبور استفاده کن و بعد با همان حساب قبلی وارد شو.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Future plan -->
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5" aria-labelledby="social-future-title">
+        <div class="mb-4 flex items-start gap-3">
+          <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-bgSubtle text-loomera-primary">
+            <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0">
+            <p class="text-xs font-black uppercase tracking-[0.25em] text-loomera-primary">به‌زودی</p>
+            <h2 id="social-future-title" class="mt-2 text-xl font-black text-loomera-textPrimary">وقتی این قابلیت آماده شود چه اتفاقی می‌افتد؟</h2>
+          </div>
+        </div>
+
+        <div class="grid gap-3">
+          <div class="flex gap-3 rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft">
+            <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-loomera-primary"></span>
+            <p class="text-sm font-semibold leading-7 text-loomera-textMuted">حساب فعلی بدون از دست رفتن نوبت‌ها، کیف پول و تاریخچه رزرو به روش‌های جدید متصل می‌شود.</p>
+          </div>
+          <div class="flex gap-3 rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft">
+            <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-loomera-primary"></span>
+            <p class="text-sm font-semibold leading-7 text-loomera-textMuted">قبل از فعال شدن، قوانین اتصال حساب و حفظ امنیت ورود در همین بخش نمایش داده می‌شود.</p>
+          </div>
+          <div class="flex gap-3 rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft">
+            <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-loomera-primary"></span>
+            <p class="text-sm font-semibold leading-7 text-loomera-textMuted">تا آن زمان، تغییر رمز و تنظیمات اعلان‌ها از بخش تنظیمات حساب قابل مدیریت است.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Actions -->
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5" aria-label="اقدام‌های سریع">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <a href="{% url 'accounts:change_password' %}"
+             class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-5 py-3 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/40">
+            <i class="fa-solid fa-key text-xs" aria-hidden="true"></i>
+            <span>تغییر رمز عبور</span>
+          </a>
+          <a href="{% url 'main:contact' %}?issue=other"
+             class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+            <i class="fa-regular fa-message text-xs" aria-hidden="true"></i>
+            <span>تماس با پشتیبانی</span>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="hidden lg:block">
+      <div class="sticky top-24 space-y-4">
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+          <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">روش امن فعلی</p>
+          <h2 class="mt-2 text-lg font-black text-loomera-textPrimary">ورود با موبایل</h2>
+          <p class="mt-3 text-sm font-semibold leading-7 text-loomera-textMuted">
+            برای جلوگیری از ایجاد حساب‌های تکراری، فعلاً شماره موبایل روش اصلی ورود و شناسایی حساب در Loomera است.
+          </p>
+          <a href="{% url 'accounts:change_password' %}"
+             class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+            <i class="fa-solid fa-shield-halved text-xs" aria-hidden="true"></i>
+            <span>مدیریت رمز عبور</span>
+          </a>
+        </section>
+
+        <nav class="rounded-[2rem] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft" aria-label="میانبرهای تنظیمات">
+          <a href="{% url 'accounts:customer_settings' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <i class="fa-solid fa-gear w-5 text-center" aria-hidden="true"></i>
+            <span>تنظیمات</span>
+          </a>
+          <a href="{% url 'accounts:notification_settings' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <i class="fa-regular fa-bell w-5 text-center" aria-hidden="true"></i>
+            <span>اعلان‌ها</span>
+          </a>
+          <a href="{% url 'accounts:customer_panel' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <i class="fa-solid fa-house w-5 text-center" aria-hidden="true"></i>
+            <span>حساب من</span>
+          </a>
+        </nav>
+
+        <p class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-center text-xs font-bold text-loomera-textMuted">
+          پس از فعال‌سازی، وضعیت اتصال حساب‌ها در همین صفحه نمایش داده می‌شود.
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile CTA -->
+  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur lg:hidden">
+    <div class="mx-auto flex max-w-md gap-3">
+      <a href="{% url 'accounts:customer_settings' %}"
+         class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm"
+         aria-label="بازگشت به تنظیمات">
+        <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+      </a>
+      <a href="{% url 'main:contact' %}?issue=other"
+         class="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition active:scale-[0.99]">
+        <i class="fa-regular fa-message text-xs" aria-hidden="true"></i>
+        <span>تماس با پشتیبانی</span>
+      </a>
+    </div>
+  </div>
+</main>
+{% endblock %}

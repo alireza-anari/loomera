@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <title>social-template-carousel-inner</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1350" fill="#FCFBFE"/>
+<rect x="84" y="84" width="912" height="1182" rx="42" fill="#FFFFFF" stroke="#DDD8E8"/>
+<g id="badge"><rect x="128" y="126" width="176" height="40" rx="18" fill="#F4F1F8" stroke="#DDD8E8"/><text x="286" y="152" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#57526E" text-anchor="end">Carousel Inner</text></g>
+<text x="948" y="238" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="56" font-weight="650" fill="#2E2A3C" text-anchor="end">عنوان اسلاید</text>
+<text x="948" y="304" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="27" fill="#57526E" text-anchor="end">هر اسلاید یک پیام اصلی و 2 تا 4 chunk محتوایی داشته باشد.</text>
+<g>
+  <rect x="128" y="380" width="824" height="154" rx="28" fill="#F8F5FE"/>
+  <text x="904" y="452" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" font-weight="600" fill="#2E2A3C" text-anchor="end">1. عنوان بخش اول</text>
+  <text x="904" y="500" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" fill="#57526E" text-anchor="end">بدنه‌ی توضیح در 1 تا 2 خط کوتاه و readable.</text>
+</g>
+<g>
+  <rect x="128" y="566" width="824" height="154" rx="28" fill="#F4F1F8"/>
+  <text x="904" y="638" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" font-weight="600" fill="#2E2A3C" text-anchor="end">2. عنوان بخش دوم</text>
+  <text x="904" y="686" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" fill="#57526E" text-anchor="end">در این قاب می‌توان آیکون، UI cue یا mini artwork هم اضافه کرد.</text>
+</g>
+<g>
+  <rect x="128" y="752" width="824" height="154" rx="28" fill="#F8F5FE"/>
+  <text x="904" y="824" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" font-weight="600" fill="#2E2A3C" text-anchor="end">3. عنوان بخش سوم</text>
+  <text x="904" y="872" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" fill="#57526E" text-anchor="end">ساختار و spacing باید در همه‌ی inner slideها ثابت بماند.</text>
+</g>
+<rect x="128" y="1036" width="824" height="112" rx="28" fill="#FFFFFF" stroke="#DDD8E8"/>
+<text x="904" y="1102" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" fill="#57526E" text-anchor="end">footer cue / CTA / source note</text>
+<rect x="128" y="1178" width="120" height="48" rx="24" fill="#F4F1F8"/><text x="188" y="1210" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#735CBE" text-anchor="middle">02 / 05</text>
+
+</svg>

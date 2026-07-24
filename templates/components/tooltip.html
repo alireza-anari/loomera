@@ -1,0 +1,41 @@
+{# templates/components/tooltip.html #}
+
+{% with pos=position|default:"top" %}
+<span
+  class="relative inline-flex shrink-0 items-center"
+  data-tooltip-toggle="true"
+>
+  <button
+    type="button"
+    class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-xs text-loomera-textMuted shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus:outline-none focus:ring-4 focus:ring-loomera-primary/10"
+    aria-label="{{ label|default:'نمایش توضیحات' }}"
+    aria-expanded="false"
+  >
+    <i class="fa-solid {{ icon_class|default:'fa-circle-question' }}" aria-hidden="true"></i>
+  </button>
+
+  <span
+    class="
+      tooltip-panel
+      pointer-events-none absolute z-40 w-[min(18rem,calc(100vw-2rem))]
+      rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3
+      text-right text-xs font-bold leading-7 text-loomera-textSecondary
+      opacity-0 shadow-lm-card ring-1 ring-black/5 transition duration-200
+      {% if pos == 'top' %}
+        bottom-full mb-2 left-0
+      {% elif pos == 'bottom' %}
+        top-full mt-2 left-0
+      {% elif pos == 'left' %}
+        left-full ml-2 top-1/2 -translate-y-1/2
+      {% elif pos == 'right' %}
+        right-full mr-2 top-1/2 -translate-y-1/2
+      {% else %}
+        bottom-full mb-2 left-0
+      {% endif %}
+    "
+    role="tooltip"
+  >
+    {{ text }}
+  </span>
+</span>
+{% endwith %}

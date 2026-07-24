@@ -1,0 +1,153 @@
+{
+  "meta": {
+    "brand": "Loomera",
+    "language": "fa-IR",
+    "direction": "rtl",
+    "version": "1.0"
+  },
+  "principles": {
+    "tone": ["calm", "trusted", "refined", "human", "clear"],
+    "directness": {
+      "discovery": "gentle-direct",
+      "booking": "clear-direct",
+      "checkout": "explicit-direct",
+      "support": "warm-direct"
+    }
+  },
+  "cta": {
+    "discovery": {
+      "view_details": "مشاهده جزئیات",
+      "review_services": "بررسی خدمات",
+      "review_times": "بررسی زمان‌ها",
+      "clear_filters": "تغییر فیلترها",
+      "new_search": "جست‌وجوی جدید"
+    },
+    "booking": {
+      "book_now": "رزرو نوبت",
+      "choose_specialist": "انتخاب متخصص",
+      "choose_time": "انتخاب زمان",
+      "review_booking": "مرور رزرو",
+      "continue": "ادامه"
+    },
+    "checkout": {
+      "confirm_continue": "تأیید و ادامه",
+      "pay_and_confirm": "پرداخت و ثبت نهایی",
+      "choose_payment_method": "انتخاب روش پرداخت",
+      "back_to_booking": "بازگشت به رزرو",
+      "retry_payment": "دوباره تلاش می‌کنم"
+    },
+    "account": {
+      "save_changes": "ذخیره تغییرات",
+      "edit_info": "ویرایش اطلاعات",
+      "complete_account": "تکمیل حساب",
+      "add_payment_method": "افزودن روش پرداخت"
+    },
+    "support": {
+      "contact_support": "تماس با پشتیبانی",
+      "submit_request": "ثبت درخواست",
+      "view_help": "مشاهده راهنما",
+      "track_request": "پیگیری درخواست"
+    },
+    "destructive": {
+      "cancel_booking": "لغو رزرو",
+      "delete": "حذف",
+      "discard_changes": "خروج بدون ذخیره",
+      "cancel": "انصراف"
+    }
+  },
+  "state": {
+    "success": {
+      "booking_created": {
+        "title": "نوبت شما ثبت شد",
+        "body": "جزئیات رزرو در همین صفحه و در بخش نوبت‌های من در دسترس است."
+      },
+      "payment_completed": {
+        "title": "پرداخت با موفقیت انجام شد",
+        "body": "رزرو شما نهایی شد و جزئیات آن در بخش نوبت‌های من در دسترس است."
+      },
+      "saved": {
+        "title": "تغییرات ذخیره شد"
+      }
+    },
+    "error": {
+      "payment_failed": {
+        "title": "پرداخت کامل نشد",
+        "body": "مبلغی کسر نشده است. لطفاً دوباره تلاش کنید.",
+        "action": "دوباره تلاش می‌کنم"
+      },
+      "network_failed": {
+        "title": "اتصال برقرار نشد",
+        "body": "لطفاً چند لحظه دیگر دوباره تلاش کنید."
+      },
+      "slot_unavailable": {
+        "title": "این زمان در دسترس نیست",
+        "body": "لطفاً زمان دیگری انتخاب کنید."
+      }
+    },
+    "pending": {
+      "payment_processing": {
+        "title": "در حال بررسی پرداخت..."
+      },
+      "booking_processing": {
+        "title": "در حال ثبت رزرو..."
+      },
+      "otp_sending": {
+        "title": "در حال ارسال کد تأیید..."
+      }
+    },
+    "empty": {
+      "no_results": {
+        "title": "نتیجه‌ای پیدا نشد",
+        "body": "می‌توانید جست‌وجو یا فیلترها را تغییر دهید.",
+        "action": "تغییر فیلترها"
+      },
+      "no_bookings": {
+        "title": "هنوز نوبتی ندارید",
+        "body": "خدمات را ببینید و زمان مناسب خود را انتخاب کنید.",
+        "action": "مشاهده خدمات"
+      },
+      "no_notifications": {
+        "title": "هنوز اعلانی ندارید",
+        "body": "اطلاع‌رسانی‌های مهم رزرو و پرداخت در این بخش نمایش داده می‌شود."
+      }
+    },
+    "validation": {
+      "required": "این فیلد را کامل کنید.",
+      "invalid_phone": "شماره موبایل را با فرمت درست وارد کنید.",
+      "invalid_email": "ایمیل را با فرمت درست وارد کنید.",
+      "invalid_otp": "کد تأیید معتبر نیست."
+    },
+    "confirmation": {
+      "cancel_booking": {
+        "title": "لغو رزرو",
+        "body": "آیا می‌خواهید این رزرو را لغو کنید؟ جزئیات شرایط لغو پیش از تأیید نمایش داده می‌شود.",
+        "primary_action": "لغو رزرو",
+        "secondary_action": "بازگشت"
+      }
+    },
+    "security": {
+      "session_expired": {
+        "title": "نشست شما پایان یافته است",
+        "body": "برای ادامه، لطفاً دوباره وارد شوید.",
+        "action": "ورود دوباره"
+      }
+    }
+  },
+  "label": {
+    "status": {
+      "confirmed": "تأیید شد",
+      "pending": "در انتظار",
+      "completed": "انجام شد",
+      "cancelled": "لغو شد",
+      "failed": "ناموفق",
+      "refunded": "بازگشت وجه",
+      "needs_attention": "نیازمند اقدام"
+    },
+    "badge": {
+      "new": "جدید",
+      "popular": "پرطرفدار",
+      "premium": "ویژه",
+      "verified": "تأییدشده"
+    }
+  }
+}

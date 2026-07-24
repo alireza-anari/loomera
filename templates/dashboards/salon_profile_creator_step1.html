@@ -1,0 +1,105 @@
+{% extends "dashboard_template.html" %}
+{% load salons_filters %}
+
+{% block title %}شروع ساخت مجموعه{% endblock %}
+
+{% block content %}
+  {% url 'dashboards:salon_manager_dashboard' as dashboard_url %}
+
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible" data-dashboard-workspace-root data-salon-step-one-page>
+    <header class="relative overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6 lg:p-7" aria-labelledby="salon-step-one-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-32 bg-[linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
+
+      <div class="relative flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="min-w-0">
+          <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+            <i class="fa-solid fa-store text-[10px]" aria-hidden="true"></i>
+            <span>مرحله ۱ از ۸</span>
+          </span>
+          <h1 id="salon-step-one-title" class="mt-4 text-xl font-black leading-8 text-loomera-textPrimary sm:text-3xl">
+            اطلاعات اولیه مجموعه
+          </h1>
+          <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textSecondary">
+            فقط نام مجموعه و شماره تماس اصلی را وارد کن. جزئیات بیشتر در مراحل بعد تکمیل می‌شود.
+          </p>
+        </div>
+
+        <div class="flex shrink-0 flex-wrap gap-2">
+          <span class="inline-flex items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary shadow-sm">
+            <i class="fa-solid fa-pen text-loomera-primaryText" aria-hidden="true"></i>
+            اطلاعات پایه
+          </span>
+          <span class="inline-flex items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textMuted shadow-sm">
+            بعدی: آدرس مجموعه
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <form method="post" class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]" data-step-one-form>
+      {% csrf_token %}
+
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6" aria-labelledby="step-one-form-title">
+        <div class="mb-5 flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">شروع ساخت پروفایل</p>
+            <h2 id="step-one-form-title" class="mt-1 text-lg font-black text-loomera-textPrimary">نام و شماره تماس مجموعه</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+            <i class="fa-solid fa-shop" aria-hidden="true"></i>
+          </span>
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="mb-4 rounded-[20px] border border-loomera-danger/20 bg-loomera-dangerSoft px-4 py-3 text-sm leading-7 text-loomera-danger">
+            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="grid gap-4 lg:grid-cols-2">
+          <div>
+            <label for="{{ form.salon_name.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textSecondary">نام مجموعه</label>
+            {{ form.salon_name|add_class:"w-full rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}
+            {% for error in form.salon_name.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+          </div>
+
+          <div>
+            <label for="{{ form.phone_number.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textSecondary">شماره تماس اصلی</label>
+            {{ form.phone_number|add_class:"w-full rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3.5 text-left text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}
+            {% for error in form.phone_number.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <a href="{{ dashboard_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
+            <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
+            بازگشت به داشبورد
+          </a>
+          <button type="submit" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+            ذخیره و ادامه
+            <i class="fa-solid fa-arrow-left-long text-xs" aria-hidden="true"></i>
+          </button>
+        </div>
+      </section>
+
+      <aside class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" aria-label="راهنمای کوتاه مرحله اول">
+        <h2 class="text-sm font-black text-loomera-textPrimary">راهنمای کوتاه</h2>
+        <ul class="mt-4 space-y-3 text-xs leading-6 text-loomera-textMuted">
+          <li class="flex gap-2">
+            <i class="fa-solid fa-circle-check mt-1 text-loomera-primaryText" aria-hidden="true"></i>
+            <span>نام مجموعه همان چیزی است که در داشبورد و صفحه عمومی دیده می‌شود.</span>
+          </li>
+          <li class="flex gap-2">
+            <i class="fa-solid fa-circle-check mt-1 text-loomera-primaryText" aria-hidden="true"></i>
+            <span>شماره تماس را بعداً از پروفایل مجموعه هم می‌توانی اصلاح کنی.</span>
+          </li>
+        </ul>
+
+        <div class="mt-5 rounded-[22px] border border-loomera-primary/10 bg-loomera-primarySoft/45 p-4">
+          <p class="text-xs font-black text-loomera-primaryText">مرحله بعد</p>
+          <p class="mt-2 text-xs leading-6 text-loomera-textSecondary">بعد از ذخیره، وارد مرحله آدرس و موقعیت مجموعه می‌شوی.</p>
+        </div>
+      </aside>
+    </form>
+  </section>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends "dashboard_template.html" %}
+{% load jalali_extras %}
+{% block title %}درخواست‌های دریافت درآمد متخصصان{% endblock %}
+{% block content %}
+  <section class="rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div>
+        <span class="inline-flex items-center gap-2 rounded-full border border-violet-100 bg-violet-50 px-3 py-1 text-[11px] font-bold text-violet-700">
+          <i class="fa-solid fa-money-bill-transfer text-[10px]"></i>
+          <span>دریافت درآمد متخصصان</span>
+        </span>
+        <h1 class="mt-4 text-2xl font-black text-slate-950">درخواست‌های دریافت درآمد متخصصان</h1>
+        <p class="mt-2 max-w-4xl text-sm leading-7 text-slate-500">
+          درخواست‌های دریافت درآمد ثبت‌شده توسط متخصصان را بررسی کن؛ اگر پرداخت بانکی بود رسید واریز را پیوست کن، و اگر پرداخت نقدی بود بدون رسید تأیید کن.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href="{% url 'dashboards:finance_stylist_wallets' %}"
+           class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700">
+          <i class="fa-solid fa-wallet text-xs"></i>
+          <span>حساب مالی متخصصان</span>
+        </a>
+        <a href="{% url 'dashboards:finance_cost_center' %}"
+           class="inline-flex items-center gap-2 rounded-full bg-loomera-primary px-4 py-3 text-sm font-bold text-white">
+          <i class="fa-solid fa-scale-balanced text-xs"></i>
+          <span>هزینه‌ها و سهم‌ها</span>
+        </a>
+      </div>
+    </div>
+  </section>
+  <section class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    {% for card in summary_cards %}
+      <article class="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+        <p class="text-xs font-bold text-slate-500">{{ card.label }}</p>
+        <p class="mt-3 text-lg font-black text-slate-950">{{ card.value }}</p>
+      </article>
+    {% endfor %}
+  </section>
+  <section class="mt-6 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-lg font-black text-slate-950">لیست درخواست‌ها</h2>
+    <div class="mt-5 overflow-x-auto">
+      <table class="min-w-full text-right text-sm">
+        <thead>
+          <tr class="border-b border-slate-200 text-xs text-slate-500">
+            <th class="py-3 pl-4">متخصص</th>
+            <th class="py-3 pl-4">مبلغ</th>
+            <th class="py-3 pl-4">تاریخ درخواست</th>
+            <th class="py-3 pl-4">تاریخ بررسی</th>
+            <th class="py-3 pl-4">شبا</th>
+            <th class="py-3 pl-4">صاحب حساب</th>
+            <th class="py-3 pl-4">وضعیت</th>
+            <th class="py-3 pl-4">رسید اختیاری و عملیات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in withdrawals %}
+            <tr class="border-b border-slate-100 align-top">
+              <td class="py-4 pl-4 font-black text-slate-950">{{ item.wallet.stylist }}</td>
+              <td class="py-4 pl-4 text-slate-700">{{ item.amount|floatformat:0 }} تومان</td>
+              <td class="py-4 pl-4 text-slate-600">
+                <p class="font-bold text-slate-700">{{ item.created_at|jalali_datetime }}</p>
+              </td>
+              <td class="py-4 pl-4 text-slate-600">
+                {% if item.reviewed_at %}
+                  <p class="font-bold text-slate-700">{{ item.reviewed_at|jalali_datetime }}</p>
+                {% else %}
+                  <span class="text-xs text-slate-400">هنوز بررسی نشده</span>
+                {% endif %}
+              </td>
+              <td class="py-4 pl-4 text-slate-600" dir="ltr">{{ item.iban }}</td>
+              <td class="py-4 pl-4 text-slate-600">{{ item.account_holder_name }}</td>
+              <td class="py-4 pl-4">
+                <span class="rounded-full px-3 py-1 text-xs font-bold {% if item.status == 'approved' %}bg-emerald-50 text-emerald-700{% elif item.status == 'rejected' %}bg-rose-50 text-rose-700{% elif item.status == 'cancelled' %}bg-slate-100 text-slate-600{% else %}bg-amber-50 text-amber-700{% endif %}">
+                  {{ item.get_status_display }}
+                </span>
+              </td>
+              <td class="py-4 pl-4">
+                {% if item.status == "pending" %}
+                  <form method="post" enctype="multipart/form-data" class="space-y-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="withdrawal_id" value="{{ item.id }}">
+                    <textarea name="note"
+                              rows="2"
+                              class="w-64 max-w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs"
+                              placeholder="یادداشت اختیاری"></textarea>
+                    <label class="block w-64 max-w-full rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/60 px-3 py-3 text-xs leading-6 text-emerald-800">
+                      <span class="font-black">رسید واریز <span class="font-bold text-emerald-600/70">اختیاری</span></span>
+                      <span class="mt-1 block text-emerald-700/80">اگر پرداخت بانکی انجام شده، تصویر یا فایل رسید را آپلود کن؛ برای پرداخت نقدی می‌توانی بدون رسید تأیید کنی.</span>
+                      <input type="file"
+                             name="payment_receipt"
+                             accept="image/jpeg,image/png,application/pdf"
+                             class="mt-2 block w-full text-[11px] text-emerald-900 file:ml-3 file:rounded-full file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-bold file:text-emerald-700">
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                      <button name="action"
+                              value="approve"
+                              class="rounded-full bg-emerald-600 px-3 py-2 text-xs font-bold text-white">
+                        تأیید دریافت
+                      </button>
+                      <button name="action"
+                              value="reject"
+                              class="rounded-full bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700">
+                        رد و بازگشت مانده
+                      </button>
+                      <button name="action"
+                              value="cancel"
+                              class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700">لغو</button>
+                    </div>
+                  </form>
+                {% else %}
+                  <div class="space-y-2 text-xs text-slate-500">
+                    <span>بررسی شده</span>
+                    {% if item.payment_receipt %}
+                      <a href="{{ item.payment_receipt.url }}"
+                         target="_blank"
+                         rel="noopener"
+                         class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 font-bold text-emerald-700">
+                        <i class="fa-solid fa-receipt text-[10px]"></i> مشاهده رسید
+                      </a>
+                    {% else %}
+                      <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 font-bold text-slate-600">
+                        <i class="fa-solid fa-money-bill-wave text-[10px]"></i> بدون رسید / پرداخت نقدی
+                      </span>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" class="py-8 text-center text-sm text-slate-500">هنوز درخواست دریافت درآمدی ثبت نشده است.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

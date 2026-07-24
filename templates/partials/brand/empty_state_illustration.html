@@ -1,0 +1,29 @@
+{% load static %}
+{% with state_key=state|default:"generic" alt_value=alt_text|default:"" %}
+  {% if state_key == "dashboard-empty" %}
+    {% static "branding/empty-states/light/empty-state-dashboard-empty-light.svg" as state_src %}
+  {% elif state_key == "no-availability" %}
+    {% static "branding/empty-states/light/empty-state-no-availability-light.svg" as state_src %}
+  {% elif state_key == "no-bookings" %}
+    {% static "branding/empty-states/light/empty-state-no-bookings-light.svg" as state_src %}
+  {% elif state_key == "no-favorites" %}
+    {% static "branding/empty-states/light/empty-state-no-favorites-light.svg" as state_src %}
+  {% elif state_key == "no-gallery" %}
+    {% static "branding/empty-states/light/empty-state-no-gallery-light.svg" as state_src %}
+  {% elif state_key == "no-notifications" %}
+    {% static "branding/empty-states/light/empty-state-no-notifications-light.svg" as state_src %}
+  {% elif state_key == "no-payment-method" %}
+    {% static "branding/empty-states/light/empty-state-no-payment-method-light.svg" as state_src %}
+  {% elif state_key == "no-results" %}
+    {% static "branding/empty-states/light/empty-state-no-results-light.svg" as state_src %}
+  {% elif state_key == "no-services" %}
+    {% static "branding/empty-states/light/empty-state-no-services-light.svg" as state_src %}
+  {% elif state_key == "no-support" %}
+    {% static "branding/empty-states/light/empty-state-no-support-light.svg" as state_src %}
+  {% elif state_key == "welcome" %}
+    {% static "branding/empty-states/light/empty-state-welcome-light.svg" as state_src %}
+  {% else %}
+    {% static "branding/empty-states/light/empty-state-generic-light.svg" as state_src %}
+  {% endif %}
+  <img src="{{ state_src }}" alt="{{ alt_value }}" class="{{ class_name|default:'lm-empty-illustration' }}" loading="lazy" decoding="async">
+{% endwith %}

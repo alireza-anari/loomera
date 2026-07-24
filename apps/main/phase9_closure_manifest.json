@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "phase": "9",
+  "closure_date": "2026-07-19",
+  "status": "local_completed",
+  "environment_status": {
+    "local": "completed",
+    "staging": "not_executed_budget_postponed",
+    "production": "unchanged"
+  },
+  "runtime_policy": {
+    "debug": true,
+    "online_payment_enabled": false,
+    "payment_method": "pay_in_salon",
+    "email_backend": "django.core.mail.backends.dummy.EmailBackend",
+    "messaging_outbound_enabled": false,
+    "celery_enabled": false,
+    "scheduled_processing": "Liara cron and Django management commands"
+  },
+  "acceptance_salon_slugs": [
+    "local-seed-salon-1",
+    "local-seed-salon-2",
+    "local-seed-salon-3",
+    "local-seed-salon-4",
+    "local-seed-salon-5"
+  ],
+  "acceptance_tests": [
+    {
+      "label": "apps.main.test_local_beta_acceptance_seed",
+      "suite": "booking"
+    },
+    {
+      "label": "apps.main.test_local_beta_booking_acceptance",
+      "suite": "booking"
+    },
+    {
+      "label": "apps.orders.test_no_show_lifecycle_stage",
+      "suite": "booking"
+    },
+    {
+      "label": "apps.dashboards.test_no_show_operational_status",
+      "suite": "booking"
+    },
+    {
+      "label": "apps.main.test_local_beta_operational_scope_acceptance",
+      "suite": "booking"
+    },
+    {
+      "label": "apps.main.test_local_beta_notification_acceptance",
+      "suite": "messaging"
+    },
+    {
+      "label": "apps.main.test_local_beta_metrics_export_cleanup_acceptance",
+      "suite": "payments"
+    }
+  ],
+  "required_artifacts": [
+    "apps/main/management/commands/seed_local_demo_data.py",
+    "apps/main/test_local_beta_acceptance_seed.py",
+    "apps/main/test_local_beta_booking_acceptance.py",
+    "apps/orders/test_no_show_lifecycle_stage.py",
+    "apps/dashboards/test_no_show_operational_status.py",
+    "apps/main/test_local_beta_operational_scope_acceptance.py",
+    "apps/main/test_local_beta_notification_acceptance.py",
+    "apps/main/test_local_beta_metrics_export_cleanup_acceptance.py",
+    "apps/main/test_phase9_acceptance_registry.py",
+    "apps/main/management/commands/local_beta_acceptance_check.py",
+    "apps/main/test_local_beta_acceptance_check.py",
+    "apps/main/phase9_closure.py",
+    "apps/main/phase9_closure_manifest.json",
+    "apps/main/test_phase9_closure_manifest.py",
+    "docs/phase_9_local_beta_acceptance_report.md"
+  ],
+  "completed_workstreams": [
+    {
+      "id": "9.1",
+      "title": "Five-Salon Acceptance Dataset",
+      "status": "completed"
+    },
+    {
+      "id": "9.2",
+      "title": "Five-Salon Web Booking Acceptance",
+      "status": "completed"
+    },
+    {
+      "id": "9.3A",
+      "title": "No-show Operational Handling",
+      "status": "completed"
+    },
+    {
+      "id": "9.3B",
+      "title": "Manager and Multi-Salon Stylist Scope Acceptance",
+      "status": "completed"
+    },
+    {
+      "id": "9.4A",
+      "title": "Safe Notification Pipeline Acceptance",
+      "status": "completed"
+    },
+    {
+      "id": "9.4B",
+      "title": "Metrics, Export and Cleanup Acceptance",
+      "status": "completed"
+    },
+    {
+      "id": "9.5A",
+      "title": "Final Acceptance Test Registry Audit",
+      "status": "completed"
+    },
+    {
+      "id": "9.5B",
+      "title": "Local Beta Acceptance Command",
+      "status": "completed"
+    },
+    {
+      "id": "9.5C",
+      "title": "Final Local Rehearsal and Closure",
+      "status": "completed"
+    }
+  ],
+  "final_commands": [
+    "python manage.py seed_local_demo_data --reset --beta-acceptance --days 14",
+    "python manage.py local_beta_acceptance_check --keepdb --failfast"
+  ],
+  "local_rehearsal": {
+    "date": "2026-07-19",
+    "status": "passed",
+    "five_salon_readiness": {
+      "total": 5,
+      "ready": 5,
+      "incomplete": 0,
+      "without_bookable_path": 0
+    },
+    "local_beta_acceptance": {
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0
+    },
+    "release_readiness": {
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0
+    },
+    "recorded_structural_guard_modules": 11,
+    "recorded_structural_tests": 53,
+    "recorded_release_regression_modules": 66,
+    "recorded_release_regression_tests": 407
+  }
+}

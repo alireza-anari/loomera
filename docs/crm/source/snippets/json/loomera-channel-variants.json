@@ -1,0 +1,7 @@
+{
+  "crm-template-welcome": {"push":"به Loomera خوش آمدید. خدمات beauty و wellness را روشن‌تر پیدا و آرام‌تر رزرو کنید.","sms":"به Loomera خوش آمدید. برای شروع، خدمات و زمان‌های قابل رزرو را مرور کنید: {{discovery_url}}","inapp_title":"به Loomera خوش آمدید","inapp_body":"از جست‌وجو شروع کنید و گزینه‌های مناسب را با جزئیات روشن‌تر ببینید."},
+  "crm-template-abandoned-booking": {"push":"رزرو شما هنوز کامل نشده است. جزئیات را مرور کنید و هر زمان آماده بودید ادامه دهید.","sms":"رزرو شما در Loomera نهایی نشده است. ادامه رزرو: {{booking_resume_url}}","inapp_title":"رزرو نیمه‌تمام","inapp_body":"جزئیات رزرو آماده مرور است؛ می‌توانید ادامه دهید یا زمان را تغییر دهید."},
+  "crm-template-booking-reminder": {"push":"یادآوری نوبت: {{service_name}}، {{appointment_time}}. جزئیات در Loomera آماده است.","sms":"یادآوری Loomera: نوبت {{service_name}} شما {{appointment_date}} ساعت {{appointment_time}} است. جزئیات: {{appointment_url}}","inapp_title":"یادآوری نوبت","inapp_body":"زمان و جزئیات مراجعه را قبل از رفتن مرور کنید."},
+  "crm-template-payment-recovery": {"push":"پرداخت کامل نشد. رزرو پس از پرداخت موفق نهایی می‌شود.","sms":"پرداخت رزرو کامل نشد. برای تلاش دوباره: {{payment_retry_url}}","inapp_title":"پرداخت کامل نشد","inapp_body":"می‌توانید دوباره تلاش کنید یا مسیر پشتیبانی را ببینید."},
+  "crm-template-support-followup": {"push":"درخواست پشتیبانی شما به‌روزرسانی شد.","sms":"درخواست پشتیبانی Loomera به‌روزرسانی شد: {{support_url}}","inapp_title":"به‌روزرسانی پشتیبانی","inapp_body":"اگر هنوز ابهامی هست، از همان مسیر پاسخ دهید."}
+}

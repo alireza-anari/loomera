@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title desc">
+<title>Loomera amenity icon — Refreshments</title>
+<desc>cup + restrained steam / compact / light mode</desc>
+
+<g>
+<path d="M22 28H44V39C44 43 40 46 36 46H30C26 46 22 43 22 39V28" stroke="#6B55B3" stroke-width="4.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M44 31H47C49.2 31 51 32.8 51 35C51 37.2 49.2 39 47 39H44" stroke="#6B55B3" stroke-width="3.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M28 20C28 23 30 23 30 26" stroke="#6B55B3" stroke-width="3.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M35 18C35 21 37 21 37 24" stroke="#6B55B3" stroke-width="3.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+</svg>

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}صفحه پیدا نشد | Loomera{% endblock %}
+{% block meta_description %}صفحه‌ای که دنبال آن هستید در لومرا پیدا نشد.{% endblock %}
+{% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
+{% block body_attrs %}data-page="error_404"{% endblock %}
+
+{% block content %}
+<section class="relative isolate min-h-[calc(100vh-10rem)] overflow-hidden px-4 py-10 sm:px-6 lg:py-16">
+  <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+    <div class="absolute right-[-6rem] top-[-8rem] h-72 w-72 rounded-full bg-loomera-primary/10 blur-3xl"></div>
+    <div class="absolute bottom-[-8rem] left-[-6rem] h-80 w-80 rounded-full bg-loomera-accent/20 blur-3xl"></div>
+  </div>
+
+  <div class="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
+    <div class="overflow-hidden rounded-[2.25rem] border border-loomera-borderSoft bg-white shadow-lm-elevated">
+      <div class="relative overflow-hidden bg-loomera-textPrimary px-6 py-9 text-white sm:px-8 lg:px-10 lg:py-12">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,.45),transparent_26rem),radial-gradient(circle_at_bottom_left,rgba(167,200,161,.28),transparent_24rem)]"></div>
+
+        <div class="relative">
+          <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-black text-white/85 backdrop-blur">
+            <i class="fa-solid fa-compass" aria-hidden="true"></i>
+            خطای ۴۰۴
+          </span>
+
+          <h1 class="mt-5 max-w-2xl text-3xl font-black leading-[1.5] sm:text-4xl lg:text-5xl">
+            این صفحه در لومرا پیدا نشد
+          </h1>
+
+          <p class="mt-4 max-w-2xl text-sm font-medium leading-8 text-white/75 sm:text-base">
+            آدرس واردشده ممکن است تغییر کرده باشد یا صفحه‌ای که می‌خواستید دیگر در دسترس نباشد. از جستجو یا صفحه کشف مجموعه‌ها ادامه بدهید.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid gap-4 p-5 sm:grid-cols-2 sm:p-6 lg:p-8">
+        <a href="/" class="group rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-5 transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/70">
+          <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-lm-soft transition group-hover:bg-loomera-primary group-hover:text-white">
+            <i class="fa-solid fa-house" aria-hidden="true"></i>
+          </span>
+          <strong class="mt-4 block text-base font-black text-loomera-textPrimary">بازگشت به خانه</strong>
+          <span class="mt-2 block text-sm leading-7 text-loomera-textMuted">از صفحه اصلی دوباره مسیرت را شروع کن.</span>
+        </a>
+
+        <a href="{% url 'search:search_page' %}" class="group rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-5 transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/70">
+          <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-lm-soft transition group-hover:bg-loomera-primary group-hover:text-white">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          </span>
+          <strong class="mt-4 block text-base font-black text-loomera-textPrimary">جستجوی مجموعه‌ها</strong>
+          <span class="mt-2 block text-sm leading-7 text-loomera-textMuted">مجموعه، خدمت یا محله موردنظرت را پیدا کن.</span>
+        </a>
+      </div>
+    </div>
+
+    <aside class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:p-6">
+      <div class="flex items-start gap-4">
+        <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-accentSoft text-loomera-primary">
+          <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+        </span>
+        <div>
+          <h2 class="text-base font-black text-loomera-textPrimary">پیشنهاد سریع</h2>
+          <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
+            اگر از لینک قدیمی وارد شده‌ای، نام مجموعه یا خدمت را در جستجو وارد کن؛ نتیجه‌های جدید همان‌جا نمایش داده می‌شوند.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-5 rounded-[1.5rem] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-4 text-sm leading-7 text-loomera-textSecondary">
+        <p class="font-black text-loomera-textPrimary">کد خطا: 404</p>
+        <p class="mt-1">صفحه پیدا نشد، اما مسیر رزرو همچنان از صفحه جستجو در دسترس است.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

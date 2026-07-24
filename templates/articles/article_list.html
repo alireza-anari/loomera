@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+{% load articles_extras %}
+
+{% block title %}{{ list_title }} | مجله لومرا{% endblock %}
+{% block meta_description %}{{ list_description }}{% endblock %}
+{% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
+{% block body_attrs %}data-page="magazine-list"{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-loomera-bg pb-20">
+  <section class="bg-white">
+    <div class="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:py-14 xl:px-0">
+      <a href="{% url 'articles:magazine_home' %}" class="mb-5 inline-flex items-center gap-2 text-sm font-black text-loomera-primary">
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        مجله لومرا
+      </a>
+
+      <h1 class="text-3xl font-black text-loomera-textPrimary lg:text-4xl">{{ list_title }}</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-8 text-loomera-textMuted">{{ list_description }}</p>
+    </div>
+  </section>
+
+  <section class="mx-auto mt-8 w-full max-w-7xl px-4 sm:px-6 xl:px-0">
+    {% if articles %}
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {% for article in articles %}
+          {% include "articles/partials/article_card.html" with article=article %}
+        {% endfor %}
+      </div>
+
+      {% if is_paginated %}
+        <nav class="mt-8 flex items-center justify-center gap-2" aria-label="صفحه‌بندی">
+          {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary shadow-lm-soft">قبلی</a>
+          {% endif %}
+
+          <span class="rounded-full bg-loomera-primarySoft px-4 py-2 text-sm font-black text-loomera-primary">
+            صفحه {{ page_obj.number|fa_digits }} از {{ page_obj.paginator.num_pages|fa_digits }}
+          </span>
+
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary shadow-lm-soft">بعدی</a>
+          {% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <div class="rounded-[2rem] border border-dashed border-loomera-borderSoft bg-white p-8 text-center shadow-lm-card">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+          <i class="fa-regular fa-newspaper text-2xl" aria-hidden="true"></i>
+        </div>
+        <h2 class="mt-4 text-lg font-black text-loomera-textPrimary">هنوز مقاله‌ای در این بخش منتشر نشده</h2>
+        <p class="mt-2 text-sm leading-7 text-loomera-textMuted">به‌زودی مطالب جدید اینجا نمایش داده می‌شود.</p>
+      </div>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <title>social-template-trust-review-square</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1080" fill="url(#gradV)"/>
+<rect x="84" y="84" width="912" height="912" rx="44" fill="#FFFFFF" stroke="#DDD8E8"/>
+<g id="badge"><rect x="128" y="126" width="256" height="40" rx="18" fill="#F4F1F8" stroke="#DDD8E8"/><text x="366" y="152" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#57526E" text-anchor="end">Trust / Proof / Review</text></g>
+<g id="logo-slot"><rect x="824" y="132" width="138" height="34" rx="10" fill="none" stroke="#DDD8E8" stroke-dasharray="6 6"/><text x="893.0" y="155" font-family="Inter, sans-serif" font-size="15" fill="#7A738F" text-anchor="middle">LOGO</text></g>
+<rect x="128" y="244" width="824" height="480" rx="42" fill="#F8F5FE"/>
+<text x="904" y="370" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="42" font-weight="650" fill="#2E2A3C" text-anchor="end">«تجربه‌ی رزرو روشن‌تر بود و
+جزئیات قبل از تصمیم مشخص بود.»</text>
+<text x="904" y="508" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="26" fill="#57526E" text-anchor="end">نقل‌قول باید کوتاه، credible و قابل‌اسکن بماند.</text>
+<rect x="128" y="770" width="256" height="76" rx="24" fill="#FFFFFF" stroke="#DDD8E8"/>
+<rect x="406" y="770" width="256" height="76" rx="24" fill="#FFFFFF" stroke="#DDD8E8"/>
+<rect x="684" y="770" width="268" height="76" rx="24" fill="#FFFFFF" stroke="#DDD8E8"/>
+<text x="352" y="818" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="22" font-weight="600" fill="#57526E" text-anchor="end">نوع خدمت</text>
+<text x="630" y="818" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="22" font-weight="600" fill="#57526E" text-anchor="end">منبع بازخورد</text>
+<text x="920" y="818" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="22" font-weight="600" fill="#57526E" text-anchor="end">cue اعتماد</text>
+
+</svg>

@@ -1,0 +1,28 @@
+<section class="lm-table-surface rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+  <div class="mb-5 flex items-center justify-between gap-3">
+    <div>
+      <h3 class="text-base font-black text-slate-950">{{ title }}</h3>
+      {% if subtitle %}<p class="mt-1 text-sm text-slate-500">{{ subtitle }}</p>{% endif %}
+    </div>
+  </div>
+  {% if rows %}
+    <div class="overflow-x-auto">
+      <table class="lm-table min-w-full divide-y divide-slate-100 text-sm">
+        <thead>
+          <tr class="text-right text-xs font-bold uppercase tracking-wide text-slate-400">
+            {% for header in headers %}<th class="px-4 py-3">{{ header }}</th>{% endfor %}
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for row in rows %}
+            <tr class="text-slate-700">
+              {% for col in row %}<td class="px-4 py-4 align-top">{{ col|default:'—' }}</td>{% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="rounded-2xl bg-slate-50 px-4 py-5 text-sm text-slate-500">هنوز داده‌ای برای این بخش ثبت نشده است.</div>
+  {% endif %}
+</section>

@@ -1,0 +1,45 @@
+{% extends "platform_admin/base.html" %}
+{% block platform_content %}
+<section class="space-y-5" dir="rtl">
+  <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="bg-gradient-to-l from-loomera-primary/10 via-white to-white p-5 lg:p-6">
+      <a class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-black text-loomera-primary ring-1 ring-loomera-borderSoft transition hover:bg-loomera-primarySoft" href="{% url 'platform_admin:settings' %}">
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        بازگشت به تنظیمات
+      </a>
+      <p class="mt-5 text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">Edit Setting</p>
+      <h1 class="mt-2 text-2xl font-black text-loomera-textPrimary">ویرایش تنظیم پلتفرم</h1>
+      <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">تغییر این مقدار در Audit log ثبت می‌شود. تنظیمات حساس را فقط وقتی تغییر بده که اثر آن را در runtime می‌دانی.</p>
+    </div>
+  </div>
+
+  <form method="post" class="max-w-4xl space-y-5 rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm lg:p-6">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="grid gap-4 lg:grid-cols-2">
+      {% for field in form %}
+        <label class="block {% if field.name == 'value' or field.name == 'description' %}lg:col-span-2{% endif %}">
+          <span class="text-xs font-black text-loomera-textMuted">{{ field.label }}</span>
+          <span class="mt-1 block">{{ field }}</span>
+          {% if field.help_text %}<span class="mt-1 block text-xs leading-6 text-loomera-textMuted">{{ field.help_text }}</span>{% endif %}
+          {% for error in field.errors %}<span class="mt-1 block text-xs font-bold text-rose-600">{{ error }}</span>{% endfor %}
+        </label>
+      {% endfor %}
+    </div>
+
+    <div class="flex flex-col gap-3 border-t border-loomera-borderSoft pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <p class="text-xs leading-6 text-loomera-textMuted">بعد از ذخیره، مقدار جدید فوراً در دیتابیس ثبت می‌شود؛ برای تنظیمات env ممکن است deploy یا restart لازم باشد.</p>
+      <button class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-6 py-3 text-sm font-black text-white shadow-sm transition hover:bg-loomera-primary/90">
+        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+        ذخیره تغییرات
+      </button>
+    </div>
+  </form>
+</section>
+{% endblock %}

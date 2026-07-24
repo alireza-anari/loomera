@@ -1,0 +1,1398 @@
+{% extends "dashboard_template.html" %}
+{% block title %}اعضای تیم{% endblock %}
+{% block head %}
+  {{ block.super }}
+  <style>
+    [data-dashboard-workspace-panel] > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    [data-dashboard-workspace-tabs][data-dashboard-workspace-tabs-pinned="true"] {
+      box-shadow: 0 18px 40px rgba(46, 42, 60, 0.12);
+    }
+    [data-request-profile-modal].flex {
+    display: flex;
+    }
+
+    [data-request-profile-dialog] {
+      max-height: min(92vh, 920px);
+    }
+
+    [data-request-profile-scroll] {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-gutter: stable;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  {% url 'dashboards:add_stylist' as add_stylist_url %}
+  {% url 'dashboards:team_managment' as team_management_url %}
+  {% url 'dashboards:scheduled_shifts' as scheduled_shifts_url %}
+  {% url 'dashboards:team_member' as team_member_url %}
+  <section class="min-w-0 max-w-full space-y-5 overflow-visible"
+           data-dashboard-page="team-member"
+           data-dashboard-workspace-root>
+    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7"
+             aria-labelledby="team-member-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]"
+           aria-hidden="true"></div>
+      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] xl:items-stretch">
+        <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
+          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+                <i class="fa-solid fa-user-group text-[10px]" aria-hidden="true"></i>
+                <span class="truncate">فهرست اعضای تیم</span>
+              </span>
+              <h1 id="team-member-title"
+                  class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+                اعضای تیم مجموعه
+              </h1>
+              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+                اعضای تیم را بر اساس وضعیت، تخصص، امتیاز، ظرفیت آینده و گروه خدمات مرور کن. تمام آمارهای این صفحه فقط مربوط به همین مجموعه است.
+              </p>
+            </div>
+            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
+              <i class="fa-solid fa-users-gear text-lg" aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
+            <a href="{{ add_stylist_url }}"
+               class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-user-plus text-xs" aria-hidden="true"></i>
+              <span class="truncate">افزودن عضو</span>
+            </a>
+            <a href="{{ scheduled_shifts_url }}"
+               class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-regular fa-calendar-days text-xs text-loomera-primaryText"
+                 aria-hidden="true"></i>
+              <span class="truncate">شیفت‌ها</span>
+            </a>
+            <a href="{{ team_management_url }}"
+               class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-layer-group text-xs text-loomera-primaryText"
+                 aria-hidden="true"></i>
+              <span class="truncate">مدیریت تیم</span>
+            </a>
+          </div>
+        </div>
+        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6"
+               aria-label="وضعیت فعلی تیم">
+          <div class="flex min-w-0 items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-[11px] font-black text-white/55">وضعیت فعلی</p>
+              <h2 class="mt-1 truncate text-lg font-black">خروجی فهرست اعضا</h2>
+            </div>
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
+              <i class="fa-solid fa-users-viewfinder" aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <div class="rounded-[22px] border border-white/10 bg-white/10 px-4 py-4">
+              <p class="text-xs font-bold text-white/55">خروجی فعلی</p>
+              <p class="mt-2 text-sm font-black text-white">{{ team_workspace.result_count_label }}</p>
+            </div>
+            <div class="rounded-[22px] border border-white/10 bg-white/10 px-4 py-4">
+              <p class="text-xs font-bold text-white/55">مرتب‌سازی فعال</p>
+              <p class="mt-2 text-sm font-black text-white">{{ team_workspace.sort_label }}</p>
+            </div>
+            <div class="rounded-[22px] border border-white/10 bg-white/10 px-4 py-4 sm:col-span-2 xl:col-span-1">
+              <p class="text-xs font-bold text-white/55">تمرکز عملیاتی</p>
+              <p class="mt-2 text-sm font-black leading-7 text-white">
+                ظرفیت تیم، اعضای آماده رزرو، اعضای بدون خدمت و دسترسی سریع به پروفایل
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+    <div class="relative min-h-[4.25rem]"
+         data-dashboard-workspace-tabs-shell
+         data-dashboard-workspace-tabs-gap="0">
+      {% if stylist_setup_handoff %}
+        <section class="overflow-hidden rounded-[28px] border shadow-lm-card {% if stylist_setup_handoff.status_tone == 'success' %} border-emerald-200 bg-emerald-50/90 {% elif stylist_setup_handoff.status_tone == 'primary' %} border-loomera-primary/20 bg-loomera-primarySoft/70 {% else %} border-amber-200 bg-amber-50/90 {% endif %}"
+                 data-stylist-setup-handoff
+                 aria-labelledby="stylist-setup-handoff-title">
+          <div class="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6">
+            <div class="flex min-w-0 items-start gap-3">
+              <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm {% if stylist_setup_handoff.status_tone == 'success' %} text-emerald-700 {% elif stylist_setup_handoff.status_tone == 'primary' %} text-loomera-primaryText {% else %} text-amber-700 {% endif %}">
+                {% if stylist_setup_handoff.status_tone == 'success' %}
+                  <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+                {% elif stylist_setup_handoff.status_tone == 'primary' %}
+                  <i class="fa-regular fa-calendar-plus" aria-hidden="true"></i>
+                {% else %}
+                  <i class="fa-solid fa-user-gear" aria-hidden="true"></i>
+                {% endif %}
+              </span>
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <p class="text-[11px] font-black {% if stylist_setup_handoff.status_tone == 'success' %} text-emerald-700 {% elif stylist_setup_handoff.status_tone == 'primary' %} text-loomera-primaryText {% else %} text-amber-700 {% endif %}">
+                    قدم بعدی راه‌اندازی عضو
+                  </p>
+                  <span class="rounded-full bg-white px-3 py-1 text-[10px] font-black {% if stylist_setup_handoff.status_tone == 'success' %} text-emerald-700 {% elif stylist_setup_handoff.status_tone == 'primary' %} text-loomera-primaryText {% else %} text-amber-700 {% endif %}">
+                    {{ stylist_setup_handoff.status_label }}
+                  </span>
+                </div>
+                <h2 id="stylist-setup-handoff-title"
+                    class="mt-2 break-words text-base font-black leading-7 text-loomera-textPrimary sm:text-lg">
+                  {{ stylist_setup_handoff.title }}
+                </h2>
+                <p class="mt-1 break-words text-sm font-bold text-loomera-textSecondary">{{ stylist_setup_handoff.stylist_name }}</p>
+                <p class="mt-2 max-w-3xl text-xs leading-6 text-loomera-textMuted sm:text-sm sm:leading-7">
+                  {{ stylist_setup_handoff.description }}
+                </p>
+              </div>
+            </div>
+            <div class="flex shrink-0 flex-col gap-2 sm:flex-row lg:max-w-md lg:flex-wrap lg:justify-end">
+              <a href="{{ stylist_setup_handoff.primary_url }}"
+                 class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"
+                 data-stylist-setup-primary>
+                <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+                {{ stylist_setup_handoff.primary_label }}
+              </a>
+              <a href="{{ stylist_setup_handoff.secondary_url }}"
+                 class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40"
+                 data-stylist-setup-secondary>{{ stylist_setup_handoff.secondary_label }}</a>
+              <a href="{{ stylist_setup_handoff.dismiss_url }}"
+                 class="inline-flex min-h-11 items-center justify-center px-3 py-2 text-xs font-bold text-loomera-textMuted transition hover:text-loomera-textPrimary"
+                 aria-label="بستن راهنمای قدم بعدی عضو">بعداً انجام می‌دهم</a>
+            </div>
+          </div>
+        </section>
+      {% endif %}
+      <nav class="relative z-40 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90"
+           data-dashboard-workspace-tabs
+           aria-label="پیمایش بخش‌های اعضای تیم">
+        <div class="flex min-w-max items-center gap-2">
+          {% if membership_request_cards %}
+            <button type="button"
+                    class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-black text-amber-800 shadow-sm transition hover:-translate-y-0.5"
+                    data-dashboard-workspace-tab
+                    data-target="#team-member-section-requests"
+                    aria-selected="true">
+              <i class="fa-solid fa-user-clock text-[10px]" aria-hidden="true"></i>
+              <span>درخواست‌ها</span>
+              <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-amber-800"
+                    data-dashboard-workspace-tab-badge>{{ membership_request_cards|length }}</span>
+            </button>
+          {% endif %}
+          <button type="button"
+                  class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5"
+                  data-dashboard-workspace-tab
+                  data-target="#team-member-section-overview"
+                  {% if not membership_request_cards %}aria-selected="true"{% endif %}>
+            <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
+            <span>نمای کلی</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText"
+                  data-dashboard-workspace-tab-badge>۴</span>
+          </button>
+          <button type="button"
+                  class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText"
+                  data-dashboard-workspace-tab
+                  data-target="#team-member-section-list">
+            <i class="fa-solid fa-users text-[10px]" aria-hidden="true"></i>
+            <span>فهرست اعضا</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted"
+                  data-dashboard-workspace-tab-badge>{{ stylist_cards|length }}</span>
+          </button>
+          <button type="button"
+                  class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText"
+                  data-dashboard-workspace-tab
+                  data-target="#team-member-section-attention">
+            <i class="fa-solid fa-triangle-exclamation text-[10px]"
+               aria-hidden="true"></i>
+            <span>نیازمند اقدام</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted"
+                  data-dashboard-workspace-tab-badge>!</span>
+          </button>
+          <button type="button"
+                  class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText"
+                  data-dashboard-workspace-tab
+                  data-target="#team-member-section-actions">
+            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
+            <span>دسترسی سریع</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted"
+                  data-dashboard-workspace-tab-badge>۳</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+    <details id="team-member-section-invites"
+             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">دعوت متخصص</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ارسال دعوت همکاری</h2>
+          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
+            متخصص با پذیرش دعوت، خودش به مجموعه اضافه می‌شود و اطلاعات شخصی‌اش فقط توسط خودش قابل ویرایش می‌ماند.
+          </p>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+      <div class="space-y-5 p-4 sm:p-5 lg:p-6">
+        <form method="post"
+              action="{% url 'dashboards:create_stylist_invite' %}"
+              class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 shadow-lm-soft">
+          {% csrf_token %}
+          <div class="grid gap-4 lg:grid-cols-4">
+            <label class="block">
+              <span class="mb-2 block text-sm font-black text-loomera-textPrimary">موبایل متخصص</span>
+              <input type="tel"
+                     name="mobile_number"
+                     inputmode="numeric"
+                     dir="ltr"
+                     required
+                     placeholder="09xxxxxxxxx"
+                     class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary focus:ring-4 focus:ring-loomera-primary/10">
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-black text-loomera-textPrimary">نام نمایشی</span>
+              <input type="text"
+                     name="invitee_name"
+                     placeholder="اختیاری"
+                     class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary focus:ring-4 focus:ring-loomera-primary/10">
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-black text-loomera-textPrimary">عنوان نقش</span>
+              <input type="text"
+                     name="role_title"
+                     placeholder="مثلاً ناخن‌کار، ماساژ، پوست"
+                     class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary focus:ring-4 focus:ring-loomera-primary/10">
+            </label>
+            <label class="block lg:col-span-1">
+              <span class="mb-2 block text-sm font-black text-loomera-textPrimary">پیام دعوت</span>
+              <input type="text"
+                     name="invite_message"
+                     maxlength="500"
+                     placeholder="پیام کوتاه برای متخصص"
+                     class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary focus:ring-4 focus:ring-loomera-primary/10">
+            </label>
+          </div>
+          <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-xs leading-6 text-loomera-textMuted">
+              اگر متخصص قبلاً ثبت‌نام کرده باشد اعلان دریافت می‌کند؛ اگر ثبت‌نام نکرده باشد، دعوت با همین شماره ذخیره می‌شود.
+            </p>
+            <button type="submit"
+                    class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
+              <i class="fa-solid fa-paper-plane text-xs" aria-hidden="true"></i>
+              ارسال دعوت
+            </button>
+          </div>
+        </form>
+        <div class="space-y-3">
+          {% for invite in sent_invite_cards %}
+            <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4">
+              <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-sm font-black text-loomera-textPrimary">{{ invite.full_name }}</h3>
+                    <span class="rounded-full px-3 py-1 text-xs font-black {{ invite.status_badge_class }}">
+                      {{ invite.status_label }}
+                    </span>
+                  </div>
+                  <p class="mt-2 text-xs text-loomera-textMuted">
+                    موبایل: {{ invite.mobile }} • نقش: {{ invite.expert }} • تاریخ دعوت: {{ invite.created_label }}
+                  </p>
+                  {% if invite.message %}
+                    <p class="mt-3 rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-sm leading-7 text-loomera-textSecondary">{{ invite.message }}</p>
+                  {% endif %}
+                  {% if not invite.is_registered %}
+                    <p class="mt-2 text-xs leading-6 text-amber-700">این متخصص هنوز با این شماره در سایت ثبت‌نام نکرده است.</p>
+                  {% endif %}
+                </div>
+                <form method="post"
+                      action="{{ invite.cancel_url }}"
+                      onsubmit="return confirm('این دعوت همکاری لغو شود؟');">
+                  {% csrf_token %}
+                  <button type="submit"
+                          class="inline-flex items-center justify-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs font-black text-rose-700 transition hover:bg-rose-100">
+                    <i class="fa-solid fa-ban text-[10px]" aria-hidden="true"></i>
+                    لغو دعوت
+                  </button>
+                </form>
+              </div>
+            </article>
+          {% empty %}
+            <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted">
+              هنوز دعوت همکاری فعالی ارسال نشده است.
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </details>
+    {% if membership_request_cards %}
+      <details id="team-member-section-requests"
+               class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-amber-200 bg-white/95 shadow-lm-card lg:scroll-mt-36"
+               data-dashboard-workspace-panel
+               open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-amber-100 bg-amber-50/80 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-amber-50 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-amber-700">نیازمند بررسی مدیر</p>
+            <h2 class="mt-1 truncate text-base font-black text-slate-950 sm:text-lg">درخواست‌های همکاری متخصصان</h2>
+            <p class="mt-1 line-clamp-1 text-xs leading-6 text-slate-600">
+              {{ team_workspace.pending_requests_label }} درخواست در انتظار تایید یا رد.
+            </p>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+        <div class="grid gap-4 p-4 sm:p-5 lg:p-6">
+          {% for request_card in membership_request_cards %}
+            <article class="rounded-[24px] border border-slate-200 bg-white p-4 shadow-lm-soft">
+              <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-base font-black text-slate-950">{{ request_card.full_name }}</h3>
+                    <span class="rounded-full px-3 py-1 text-xs font-black {{ request_card.status_badge_class }}">
+                      {{ request_card.status_label }}
+                    </span>
+                  </div>
+                  <p class="mt-2 text-sm font-bold text-slate-700">{{ request_card.expert }}</p>
+                  <p class="mt-1 text-xs text-slate-500">موبایل: {{ request_card.mobile }} • ثبت درخواست: {{ request_card.created_label }}</p>
+                  {% if request_card.message %}
+                    <p class="mt-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-600">{{ request_card.message }}</p>
+                  {% endif %}
+                </div>
+                <div class="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col">
+                  <button type="button"
+                          class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-loomera-primary/20 bg-white px-5 py-3 text-sm font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft"
+                          data-request-profile-open="{{ request_card.id }}">
+                    <i class="fa-regular fa-id-card text-xs" aria-hidden="true"></i>
+                    مشاهده پروفایل
+                  </button>
+                  <form method="post" action="{{ request_card.action_url }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="accept">
+                    <button type="submit"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-black text-white transition hover:bg-emerald-700">
+                      <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
+                      تایید همکاری
+                    </button>
+                  </form>
+                  <form method="post" action="{{ request_card.action_url }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-black text-rose-700 transition hover:bg-rose-100">
+                      <i class="fa-solid fa-xmark text-xs" aria-hidden="true"></i>
+                      رد درخواست
+                    </button>
+                  </form>
+                </div>
+              </div>
+              <div id="request-profile-modal-{{ request_card.id }}"
+                   class="fixed inset-0 z-[9999] hidden items-end justify-center bg-slate-950/70 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+                   data-request-profile-modal
+                   role="dialog"
+                   aria-modal="true"
+                   aria-labelledby="request-profile-title-{{ request_card.id }}">
+                <div class="relative mx-auto flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-[34px] border border-slate-200 bg-loomera-bg shadow-2xl sm:max-w-6xl sm:rounded-[34px]"
+                     data-request-profile-dialog>
+                  <button type="button"
+                          class="absolute left-4 top-4 z-20 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
+                          data-request-profile-close
+                          aria-label="بستن پروفایل">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                  </button>
+                  <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+                       data-request-profile-scroll>
+                    <section class="relative overflow-hidden bg-slate-950 text-white">
+                      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.34),transparent_38%),linear-gradient(180deg,rgba(15,23,42,0.78),rgba(2,6,23,0.98))]"
+                           aria-hidden="true"></div>
+                      <div class="relative grid gap-5 px-5 py-7 sm:px-7 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-end lg:px-8 lg:py-9">
+                        <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end">
+                          <div class="relative h-28 w-28 shrink-0 overflow-hidden rounded-3xl border border-white/30 bg-white/10 shadow-xl">
+                            {% if request_card.profile.profile_image_url %}
+                              <img src="{{ request_card.profile.profile_image_url }}"
+                                   alt="{{ request_card.profile.display_name }}"
+                                   class="h-full w-full object-cover">
+                            {% else %}
+                              <div class="flex h-full w-full items-center justify-center bg-loomera-primarySoft text-4xl font-black text-loomera-primaryText">
+                                {{ request_card.full_name|slice:":1" }}
+                              </div>
+                            {% endif %}
+                          </div>
+                          <div class="min-w-0">
+                            <span class="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white/85">
+                              <i class="fa-regular fa-id-card text-[10px]" aria-hidden="true"></i>
+                              پروفایل متخصص درخواست‌دهنده
+                            </span>
+                            <h3 id="request-profile-title-{{ request_card.id }}"
+                                class="text-2xl font-black leading-9 lg:text-4xl">
+                              {{ request_card.profile.display_name|default:request_card.full_name }}
+                            </h3>
+                            <p class="mt-2 text-sm font-semibold text-white/80">{{ request_card.profile.headline|default:request_card.expert }}</p>
+                            <p class="mt-1 text-xs text-white/60">
+                              {{ request_card.profile.expert|default:request_card.expert }}
+                              {% if request_card.profile.role_title %}
+                                • {{ request_card.profile.role_title }}
+                              {% endif %}
+                              {% if request_card.profile.salon_name %}
+                                در {{ request_card.profile.salon_name }}
+                              {% endif %}
+                            </p>
+                            {% if request_card.profile.is_verified %}
+                              <span class="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-black text-emerald-100 ring-1 ring-emerald-300/25">
+                                <i class="fa-solid fa-circle-check text-[10px]" aria-hidden="true"></i>
+                                متخصص تاییدشده
+                              </span>
+                            {% endif %}
+                          </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-center sm:grid-cols-4 lg:min-w-[420px]">
+                          <div class="rounded-3xl bg-white/10 p-3 backdrop-blur">
+                            <p class="text-lg font-black">{{ request_card.profile.rating_average_label|default:"۰.۰" }}</p>
+                            <p class="mt-1 text-[11px] font-bold text-white/65">امتیاز در این مجموعه</p>
+                          </div>
+                          <div class="rounded-3xl bg-white/10 p-3 backdrop-blur">
+                            <p class="text-lg font-black">{{ request_card.profile.rating_count_label|default:"۰" }}</p>
+                            <p class="mt-1 text-[11px] font-bold text-white/65">نظر در این مجموعه</p>
+                          </div>
+                          <div class="rounded-3xl bg-white/10 p-3 backdrop-blur">
+                            <p class="text-lg font-black">{{ request_card.profile.completed_count_label|default:"۰" }}</p>
+                            <p class="mt-1 text-[11px] font-bold text-white/65">نوبت تکمیل‌شده</p>
+                          </div>
+                          <div class="rounded-3xl bg-white/10 p-3 backdrop-blur">
+                            <p class="text-lg font-black">{{ request_card.profile.services_count_label|default:"۰" }}</p>
+                            <p class="mt-1 text-[11px] font-bold text-white/65">خدمت فعال</p>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <div class="grid gap-5 px-5 py-5 lg:grid-cols-[minmax(0,1fr)_330px] lg:px-7">
+                      <main class="space-y-5">
+                        <section class="rounded-3xl border border-loomera-border bg-white p-5 shadow-sm">
+                          <p class="text-[11px] font-black uppercase tracking-[0.28em] text-loomera-primaryText">معرفی</p>
+                          <h4 class="mt-1 text-lg font-black text-slate-950">درباره متخصص</h4>
+                          {% if request_card.profile.summary %}
+                            <p class="mt-3 text-sm leading-8 text-slate-600">{{ request_card.profile.summary }}</p>
+                          {% elif request_card.profile.description %}
+                            <p class="mt-3 text-sm leading-8 text-slate-600">{{ request_card.profile.description }}</p>
+                          {% else %}
+                            <p class="mt-3 rounded-3xl bg-slate-50 p-4 text-sm leading-7 text-slate-500">
+                              این متخصص هنوز توضیحی برای پروفایل خود ثبت نکرده است.
+                            </p>
+                          {% endif %}
+                        </section>
+                        <section class="rounded-3xl border border-loomera-border bg-white p-5 shadow-sm">
+                          <div class="flex items-center justify-between gap-3">
+                            <div>
+                              <p class="text-[11px] font-black uppercase tracking-[0.28em] text-loomera-primaryText">همین مجموعه</p>
+                              <h4 class="mt-1 text-lg font-black text-slate-950">خدمات قابل ارائه</h4>
+                            </div>
+                          </div>
+                          {% if request_card.profile.service_cards %}
+                            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                              {% for service in request_card.profile.service_cards %}
+                                <article class="rounded-3xl border border-loomera-borderSoft bg-slate-50 p-4">
+                                  <h5 class="font-black text-slate-900">{{ service.name }}</h5>
+                                  {% if service.description %}
+                                    <p class="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{{ service.description }}</p>
+                                  {% else %}
+                                    <p class="mt-2 text-sm leading-6 text-slate-400">توضیحی برای این خدمت ثبت نشده است.</p>
+                                  {% endif %}
+                                </article>
+                              {% endfor %}
+                            </div>
+                          {% else %}
+                            <p class="mt-4 rounded-3xl bg-slate-50 p-4 text-sm leading-7 text-slate-500">
+                              فعلاً خدمتی برای این متخصص در این مجموعه فعال نشده است.
+                            </p>
+                          {% endif %}
+                        </section>
+                        <section class="rounded-3xl border border-loomera-border bg-white p-5 shadow-sm">
+                          <p class="text-[11px] font-black uppercase tracking-[0.28em] text-loomera-primaryText">رزومه واقعی</p>
+                          <h4 class="mt-1 text-lg font-black text-slate-950">نمونه‌کارها</h4>
+                          {% if request_card.profile.portfolio_items %}
+                            <div class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
+                              {% for sample in request_card.profile.portfolio_items %}
+                                <figure class="overflow-hidden rounded-3xl border border-loomera-borderSoft bg-white shadow-sm">
+                                  {% if sample.image_url %}
+                                    <img src="{{ sample.image_url }}"
+                                         alt="نمونه‌کار {{ request_card.profile.display_name }}"
+                                         class="h-36 w-full object-cover">
+                                  {% else %}
+                                    <div class="flex h-36 w-full items-center justify-center bg-slate-100 text-xs font-black text-slate-400">
+                                      بدون تصویر
+                                    </div>
+                                  {% endif %}
+                                  <figcaption class="p-3 text-xs leading-5 text-slate-600">
+                                    {% if sample.service_name %}
+                                      <strong class="block text-sm text-slate-900">{{ sample.service_name }}</strong>
+                                    {% endif %}
+                                    {% if sample.is_verified %}
+                                      <span class="mt-2 inline-flex rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700">
+                                        کار تأییدشده
+                                      </span>
+                                    {% endif %}
+                                  </figcaption>
+                                </figure>
+                              {% endfor %}
+                            </div>
+                          {% else %}
+                            <p class="mt-4 rounded-3xl bg-slate-50 p-4 text-sm leading-7 text-slate-500">
+                              هنوز نمونه‌کار عمومی برای این متخصص ثبت نشده است.
+                            </p>
+                          {% endif %}
+                        </section>
+                        {% if request_card.message %}
+                          <section class="rounded-3xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+                            <p class="text-[11px] font-black uppercase tracking-[0.28em] text-amber-700">پیام درخواست</p>
+                            <h4 class="mt-1 text-lg font-black text-amber-950">پیام متخصص برای همکاری</h4>
+                            <p class="mt-3 text-sm leading-8 text-amber-900">{{ request_card.message }}</p>
+                          </section>
+                        {% endif %}
+                      </main>
+                      <aside class="space-y-4 lg:self-start">
+                        <section class="rounded-3xl border border-loomera-border bg-white p-5 shadow-sm">
+                          <p class="text-[11px] font-black uppercase tracking-[0.28em] text-loomera-primaryText">اطلاعات بررسی</p>
+                          <h4 class="mt-1 text-lg font-black text-slate-950">جزئیات درخواست</h4>
+                          <div class="mt-4 space-y-3 text-sm leading-7 text-slate-600">
+                            <p>
+                              <span class="font-black text-slate-900">نام:</span>
+                              {{ request_card.profile.full_name|default:request_card.full_name }}
+                            </p>
+                            <p>
+                              <span class="font-black text-slate-900">موبایل:</span>
+                              <span dir="ltr">{{ request_card.profile.mobile|default:request_card.mobile }}</span>
+                            </p>
+                            {% if request_card.profile.email %}
+                              <p>
+                                <span class="font-black text-slate-900">ایمیل:</span>
+                                <span dir="ltr">{{ request_card.profile.email }}</span>
+                              </p>
+                            {% endif %}
+                            <p>
+                              <span class="font-black text-slate-900">شروع فعالیت:</span>
+                              {{ request_card.profile.started_working_year_label|default:"ثبت نشده" }}
+                            </p>
+                            <p>
+                              <span class="font-black text-slate-900">نمایش پروفایل:</span>
+                              {{ request_card.profile.visibility_label|default:"—" }}
+                            </p>
+                          </div>
+                        </section>
+                        {% if request_card.profile.instagram or request_card.profile.telegram or request_card.profile.linkedin %}
+                          <section class="rounded-3xl border border-loomera-border bg-white p-5 shadow-sm">
+                            <p class="text-[11px] font-black uppercase tracking-[0.28em] text-loomera-primaryText">لینک‌ها</p>
+                            <h4 class="mt-1 text-lg font-black text-slate-950">لینک‌های حرفه‌ای</h4>
+                            <div class="mt-4 flex flex-wrap gap-2">
+                              {% if request_card.profile.instagram %}
+                                <a href="{{ request_card.profile.instagram }}"
+                                   target="_blank"
+                                   rel="noopener"
+                                   class="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-2 text-xs font-black text-slate-700 ring-1 ring-slate-200 hover:text-loomera-primaryText">
+                                  <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+                                  اینستاگرام
+                                </a>
+                              {% endif %}
+                              {% if request_card.profile.telegram %}
+                                <a href="{{ request_card.profile.telegram }}"
+                                   target="_blank"
+                                   rel="noopener"
+                                   class="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-2 text-xs font-black text-slate-700 ring-1 ring-slate-200 hover:text-loomera-primaryText">
+                                  <i class="fa-brands fa-telegram" aria-hidden="true"></i>
+                                  تلگرام
+                                </a>
+                              {% endif %}
+                              {% if request_card.profile.linkedin %}
+                                <a href="{{ request_card.profile.linkedin }}"
+                                   target="_blank"
+                                   rel="noopener"
+                                   class="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-2 text-xs font-black text-slate-700 ring-1 ring-slate-200 hover:text-loomera-primaryText">
+                                  <i class="fa-brands fa-linkedin" aria-hidden="true"></i>
+                                  لینکدین
+                                </a>
+                              {% endif %}
+                            </div>
+                          </section>
+                        {% endif %}
+                        <section class="rounded-3xl border border-loomera-border bg-white p-5 shadow-sm">
+                          <p class="text-[11px] font-black uppercase tracking-[0.28em] text-loomera-primaryText">حریم اطلاعات</p>
+                          <p class="mt-3 text-xs leading-7 text-slate-500">
+                            این مودال برای بررسی درخواست همکاری است. اطلاعات تماس اضطراری و جزئیات حساس شخصی نمایش داده نمی‌شود و فقط توسط خود متخصص قابل مدیریت است.
+                          </p>
+                        </section>
+                        <button type="button"
+                                class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-loomera-border bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                                data-request-profile-close>بستن پروفایل</button>
+                      </aside>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </details>
+    {% endif %}
+    <details id="team-member-section-overview"
+             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-dashboard-workspace-open-mobile="true"
+             open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">شاخص‌های فهرست اعضا</h2>
+          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">خلاصه وضعیت اعضا بر اساس فیلترهای فعلی و فقط برای همین مجموعه.</p>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+      <div class="p-4 sm:p-5 lg:p-6">
+        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 shadow-lm-soft">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-xs font-bold text-loomera-textMuted">کل اعضا</p>
+                <strong class="mt-2 block text-2xl font-black text-loomera-textPrimary">{{ team_workspace.total }}</strong>
+              </div>
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+                <i class="fa-solid fa-user-group" aria-hidden="true"></i>
+              </span>
+            </div>
+            <p class="mt-3 text-xs leading-6 text-loomera-textMuted">همه اعضای مطابق فیلترهای فعلی.</p>
+          </article>
+          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 shadow-lm-soft">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-xs font-bold text-loomera-textMuted">فعال</p>
+                <strong class="mt-2 block text-2xl font-black text-loomera-textPrimary">{{ team_workspace.active }}</strong>
+              </div>
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-successSoft text-loomera-success">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              </span>
+            </div>
+            <p class="mt-3 text-xs leading-6 text-loomera-textMuted">آماده پذیرش رزرو و برنامه‌ریزی.</p>
+          </article>
+          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 shadow-lm-soft">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-xs font-bold text-loomera-textMuted">دارای نوبت آینده</p>
+                <strong class="mt-2 block text-2xl font-black text-loomera-textPrimary">{{ team_workspace.busy_upcoming }}</strong>
+              </div>
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+                <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+              </span>
+            </div>
+            <p class="mt-3 text-xs leading-6 text-loomera-textMuted">برای کنترل ظرفیت روزانه مهم است.</p>
+          </article>
+          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 shadow-lm-soft">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-xs font-bold text-loomera-textMuted">امتیاز ۴ به بالا</p>
+                <strong class="mt-2 block text-2xl font-black text-loomera-textPrimary">{{ team_workspace.high_rated }}</strong>
+              </div>
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-warningSoft text-loomera-warning">
+                <i class="fa-solid fa-star" aria-hidden="true"></i>
+              </span>
+            </div>
+            <p class="mt-3 text-xs leading-6 text-loomera-textMuted">اعضای با رضایت بهتر مشتری.</p>
+          </article>
+        </div>
+        {% if team_workspace.active_filter_chips %}
+          <div class="mt-5 rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs font-black text-loomera-textMuted">فیلترهای فعال:</span>
+              {% for chip in team_workspace.active_filter_chips %}
+                <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText">
+                  <span class="text-loomera-textMuted">{{ chip.label }}</span>
+                  <span>{{ chip.value }}</span>
+                </span>
+              {% endfor %}
+              <a href="{{ team_member_url }}"
+                 class="mr-auto inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
+                پاک‌سازی
+                <i class="fa-solid fa-rotate-left text-[10px]" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </details>
+    <details id="team-member-section-list"
+             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">فهرست عملیاتی</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">فهرست اعضای تیم</h2>
+          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">جستجو، فیلتر، مرتب‌سازی و عملیات سریع روی اعضا.</p>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+      <div class="p-4 sm:p-5 lg:p-6">
+        <form method="get" class="mb-5" data-team-filter-form>
+          <div class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3 shadow-lm-soft sm:p-4">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+              <label class="relative block min-w-0 flex-1">
+                <span class="sr-only">جستجوی اعضای تیم</span>
+                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted"
+                   aria-hidden="true"></i>
+                <input type="text"
+                       name="q"
+                       value="{{ applied_filters.q }}"
+                       placeholder="نام، موبایل یا تخصص"
+                       data-team-member-search
+                       class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
+              </label>
+              <div class="grid grid-cols-3 gap-2 lg:flex lg:shrink-0">
+                <button type="submit"
+                        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-xs font-black text-white shadow-[0_14px_32px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5 hover:shadow-lm-card sm:text-sm">
+                  <i class="fa-solid fa-magnifying-glass text-[10px]" aria-hidden="true"></i>
+                  <span>جستجو</span>
+                </button>
+                <button type="button"
+                        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-primary/20 bg-white px-4 py-3 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5 hover:bg-loomera-primarySoft sm:text-sm"
+                        data-team-filter-open
+                        aria-haspopup="dialog"
+                        aria-expanded="false"
+                        aria-controls="teamFilterModal">
+                  <i class="fa-solid fa-sliders text-[10px]" aria-hidden="true"></i>
+                  <span>فیلترها</span>
+                  {% if team_workspace.active_filter_chips %}
+                    <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-loomera-primarySoft px-1.5 py-0.5 text-[10px] font-black text-loomera-primaryText">
+                      {{ team_workspace.active_filter_chips|length }}
+                    </span>
+                  {% endif %}
+                </button>
+                <a href="{{ team_member_url }}"
+                   class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-xs font-black text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText sm:text-sm">
+                  <i class="fa-solid fa-rotate-left text-[10px]" aria-hidden="true"></i>
+                  <span>پاک‌سازی</span>
+                </a>
+              </div>
+            </div>
+            {% if team_workspace.active_filter_chips %}
+              <div class="mt-3 flex gap-2 overflow-x-auto pb-1"
+                   aria-label="فیلترهای فعال">
+                {% for chip in team_workspace.active_filter_chips %}
+                  <span class="inline-flex shrink-0 items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-2 text-[11px] font-black text-loomera-primaryText">
+                    <span class="text-loomera-textMuted">{{ chip.label }}</span>
+                    <span>{{ chip.value }}</span>
+                  </span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          <div id="teamFilterModal"
+               class="fixed inset-0 z-[90] hidden items-end justify-center bg-loomera-textPrimary/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+               data-team-filter-modal
+               role="dialog"
+               aria-modal="true"
+               aria-labelledby="teamFilterModalTitle">
+            <div class="max-h-[88vh] w-full overflow-hidden rounded-t-[32px] border border-loomera-borderSoft bg-white shadow-lm-elevated sm:max-w-2xl sm:rounded-[32px]"
+                 data-team-filter-dialog>
+              <div class="flex items-start justify-between gap-4 border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black text-loomera-primaryText">فیلتر و مرتب‌سازی</p>
+                  <h3 id="teamFilterModalTitle"
+                      class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">
+                    تنظیم فیلترهای فهرست اعضا
+                  </h3>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
+                    وضعیت، مرتب‌سازی و گروه خدمات را انتخاب کن و نتیجه فهرست را به‌روزرسانی کن.
+                  </p>
+                </div>
+                <button type="button"
+                        class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primaryText"
+                        data-team-filter-close
+                        aria-label="بستن فیلترها">
+                  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="max-h-[calc(88vh-9rem)] overflow-y-auto px-4 py-4 sm:px-5">
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <label class="block space-y-2">
+                    <span class="text-xs font-black text-loomera-textSecondary">مرتب‌سازی</span>
+                    <select name="sort_by"
+                            class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
+                      <option value="name_asc"
+                              {% if applied_filters.sort_by == 'name_asc' %}selected{% endif %}>نام (الف تا ی)</option>
+                      <option value="name_desc"
+                              {% if applied_filters.sort_by == 'name_desc' %}selected{% endif %}>نام (ی تا الف)</option>
+                      <option value="rating_desc"
+                              {% if applied_filters.sort_by == 'rating_desc' %}selected{% endif %}>امتیاز بیشتر</option>
+                      <option value="rating_asc"
+                              {% if applied_filters.sort_by == 'rating_asc' %}selected{% endif %}>کمترین امتیاز</option>
+                      <option value="upcoming_desc"
+                              {% if applied_filters.sort_by == 'upcoming_desc' %}selected{% endif %}>بیشترین نوبت آینده</option>
+                      <option value="newest"
+                              {% if applied_filters.sort_by == 'newest' %}selected{% endif %}>جدیدترین</option>
+                      <option value="oldest"
+                              {% if applied_filters.sort_by == 'oldest' %}selected{% endif %}>قدیمی‌ترین</option>
+                    </select>
+                  </label>
+                  <label class="block space-y-2">
+                    <span class="text-xs font-black text-loomera-textSecondary">وضعیت عضو</span>
+                    <select name="status_filter"
+                            class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
+                      <option value="all"
+                              {% if applied_filters.status_filter == 'all' %}selected{% endif %}>همه وضعیت‌ها</option>
+                      <option value="active"
+                              {% if applied_filters.status_filter == 'active' %}selected{% endif %}>فعال</option>
+                      <option value="busy"
+                              {% if applied_filters.status_filter == 'busy' %}selected{% endif %}>دارای نوبت آینده</option>
+                      <option value="inactive"
+                              {% if applied_filters.status_filter == 'inactive' %}selected{% endif %}>غیرفعال</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="mt-5 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
+                  <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p class="text-xs font-black text-loomera-textPrimary">گروه‌های خدمات</p>
+                      <p class="mt-1 text-[11px] leading-6 text-loomera-textMuted">برای محدود کردن نتیجه، یک یا چند گروه را انتخاب کن.</p>
+                    </div>
+                    <span class="inline-flex w-fit items-center rounded-full bg-white px-3 py-1 text-[11px] font-black text-loomera-textMuted">
+                      {{ all_group_services|length }} گروه
+                    </span>
+                  </div>
+                  <div class="grid gap-2 sm:grid-cols-2">
+                    {% for group in all_group_services %}
+                      <label class="group relative cursor-pointer">
+                        <input type="checkbox"
+                               name="expertise"
+                               value="{{ group.id }}"
+                               {% if group.id|stringformat:"s" in applied_filters.expertise %}checked{% endif %}
+                               class="peer sr-only">
+                        <span class="flex min-h-[52px] items-center justify-between gap-3 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 peer-checked:border-loomera-primary peer-checked:bg-loomera-primarySoft peer-checked:text-loomera-primaryText peer-checked:shadow-sm">
+                          <span class="truncate">{{ group.group_title }}</span>
+                          <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current text-[9px] transition peer-checked:border-loomera-primary peer-checked:bg-loomera-primary peer-checked:text-white">
+                            <i class="fa-solid fa-check text-[9px]" aria-hidden="true"></i>
+                          </span>
+                        </span>
+                      </label>
+                    {% empty %}
+                      <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-white px-4 py-5 text-sm leading-7 text-loomera-textMuted sm:col-span-2">
+                        هنوز گروه خدمات فعالی برای فیلتر وجود ندارد.
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col-reverse gap-2 border-t border-loomera-borderSoft bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                <a href="{{ team_member_url }}"
+                   class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
+                  پاک‌سازی همه
+                </a>
+                <div class="flex gap-2">
+                  <button type="button"
+                          class="inline-flex min-h-11 flex-1 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle sm:flex-none"
+                          data-team-filter-close>انصراف</button>
+                  <button type="submit"
+                          class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_14px_32px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5 hover:shadow-lm-card sm:flex-none">
+                    <i class="fa-solid fa-filter text-[10px]" aria-hidden="true"></i>
+                    اعمال فیلترها
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        {% if stylist_cards %}
+          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+               data-team-member-grid>
+            {% for stylist in stylist_cards %}
+              <article class="group min-w-0 rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card"
+                       data-team-member-card
+                       data-team-member-search-value="{{ stylist.full_name }} {{ stylist.expert }} {{ stylist.mobile }} {{ stylist.service_names|join:' ' }}"
+                       data-team-member-status="{% if stylist.is_active %}active{% else %}inactive{% endif %}"
+                       data-team-member-busy="{{ stylist.upcoming_count }}"
+                       data-team-member-services="{{ stylist.services_count }}"
+                       data-team-member-rating="{{ stylist.avg_score }}">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex min-w-0 items-center gap-3">
+                    {% if stylist.profile_image %}
+                      <img src="{{ stylist.profile_image.url }}"
+                           alt="{{ stylist.full_name }}"
+                           class="h-14 w-14 shrink-0 rounded-2xl object-cover ring-1 ring-loomera-borderSoft">
+                    {% else %}
+                      <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-base font-black text-loomera-primaryText">
+                        {{ stylist.initial }}
+                      </span>
+                    {% endif %}
+                    <div class="min-w-0">
+                      <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ stylist.full_name }}</h3>
+                      <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ stylist.expert }}</p>
+                      <p class="mt-1 text-[11px] text-loomera-textMuted ltr">{{ stylist.mobile|default:"بدون شماره ثبت‌شده" }}</p>
+                    </div>
+                  </div>
+                  <span class="inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[11px] font-black {{ stylist.status_badge_class }}">
+                    {{ stylist.status_label }}
+                  </span>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                  <div class="rounded-2xl bg-white px-3 py-3">
+                    <p class="text-[11px] font-bold text-loomera-textMuted">خدمات همین مجموعه</p>
+                    <p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ stylist.services_count_label }}</p>
+                  </div>
+                  <div class="rounded-2xl bg-white px-3 py-3">
+                    <p class="text-[11px] font-bold text-loomera-textMuted">نوبت آینده همین مجموعه</p>
+                    <p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ stylist.upcoming_count_label }}</p>
+                  </div>
+                  <div class="col-span-2 rounded-2xl bg-white px-3 py-3">
+                    <div class="flex items-center justify-between gap-3">
+                      <p class="text-[11px] font-bold text-loomera-textMuted">امتیاز</p>
+                      <span class="inline-flex items-center gap-1 rounded-full bg-loomera-warningSoft px-2.5 py-1 text-[11px] font-black text-loomera-warning">
+                        <i class="fa-solid fa-star" aria-hidden="true"></i>
+                        <span>{{ stylist.rating_label }}</span>
+                      </span>
+                    </div>
+                    <p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ stylist.avg_score_label }}</p>
+                  </div>
+                </div>
+                {% if not stylist.service_names or not stylist.is_active %}
+                  <div class="mt-4 rounded-2xl border border-loomera-warning/20 bg-loomera-warningSoft px-3 py-3 text-xs leading-6 text-loomera-warning">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <p class="font-black">نیازمند اقدام</p>
+                        <p class="mt-1">
+                          {% if not stylist.service_names %}
+                            این عضو هنوز در همین مجموعه خدمت متصل ندارد.
+                          {% elif not stylist.is_active %}
+                            وضعیت همکاری این عضو در همین مجموعه غیرفعال است.
+                          {% endif %}
+                        </p>
+                      </div>
+                      <i class="fa-solid fa-triangle-exclamation shrink-0 pt-1"
+                         aria-hidden="true"></i>
+                    </div>
+                  </div>
+                {% endif %}
+                <div class="mt-4 rounded-2xl border border-loomera-borderSoft bg-white/90 px-3 py-3 text-xs leading-6 text-loomera-textMuted">
+                  {% if stylist.service_names %}
+                    <span class="font-black text-loomera-textSecondary">خدمات همین مجموعه:</span>
+                    {{ stylist.service_names|join:"، " }}
+                    {% if stylist.has_more_services %}
+                      <span class="text-loomera-textMuted">+ {{ stylist.extra_services_count_label }} مورد دیگر</span>
+                    {% endif %}
+                  {% else %}
+                    هنوز خدمتی از همین مجموعه به این عضو متصل نشده است.
+                  {% endif %}
+                </div>
+                <div class="mt-4 flex flex-wrap items-center gap-2">
+                  <a href="{{ stylist.overview_url }}"
+                     class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
+                    <span>پروفایل عضو</span>
+                    <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                  </a>
+                  <a href="{{ stylist.edit_url }}"
+                     class="inline-flex items-center gap-2 rounded-full bg-loomera-primary px-3 py-2 text-xs font-black text-white shadow-sm transition hover:opacity-95">
+                    <span>ویرایش</span>
+                    <i class="fa-solid fa-pen text-[10px]" aria-hidden="true"></i>
+                  </a>
+                  <form method="post" action="{{ stylist.toggle_url }}">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-black text-white transition {% if stylist.is_active %} bg-loomera-danger shadow-[0_10px_24px_rgba(244,63,94,0.18)] hover:opacity-90 {% else %} bg-loomera-success shadow-[0_10px_24px_rgba(16,185,129,0.18)] hover:opacity-90 {% endif %}">
+                      {% if stylist.is_active %}
+                        <i class="fa-solid fa-user-slash text-[10px]" aria-hidden="true"></i>
+                        <span>غیرفعال‌کردن</span>
+                      {% else %}
+                        <i class="fa-solid fa-user-check text-[10px]" aria-hidden="true"></i>
+                        <span>فعال‌کردن</span>
+                      {% endif %}
+                    </button>
+                  </form>
+                  {% if stylist.can_end_collaboration %}
+                    <form method="post"
+                          action="{{ stylist.end_collaboration_url }}"
+                          onsubmit="return confirm('همکاری این متخصص با همین مجموعه پایان یابد؟ اگر نوبت فعال یا آینده وجود داشته باشد عملیات انجام نمی‌شود و ابتدا باید نوبت‌ها تعیین تکلیف شوند.');">
+                      {% csrf_token %}
+                      <button type="submit"
+                              class="inline-flex items-center justify-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-700 transition hover:bg-rose-100">
+                        <i class="fa-solid fa-user-xmark text-[10px]" aria-hidden="true"></i>
+                        <span>اتمام همکاری</span>
+                      </button>
+                    </form>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+            <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3"
+                 data-team-member-empty>عضوی با این جستجو یا فیلتر سریع پیدا نشد.</div>
+          </div>
+        {% else %}
+          <div class="rounded-[28px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 p-8 text-center">
+            <span class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="fa-solid fa-user-group text-xl" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-4 text-lg font-black text-loomera-textPrimary">هنوز عضوی برای تیم ثبت نشده است</h3>
+            <p class="mx-auto mt-2 max-w-xl text-sm leading-7 text-loomera-textMuted">
+              برای شروع می‌توانی اولین متخصص مجموعه را اضافه کنی و بعد خدمات و شیفت‌ها را به او متصل کنی.
+            </p>
+            <a href="{{ add_stylist_url }}"
+               class="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5">
+              <i class="fa-solid fa-user-plus text-xs" aria-hidden="true"></i>
+              افزودن عضو تیم
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </details>
+    <details id="team-member-section-attention"
+             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">کنترل کیفیت تیم</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">اعضای نیازمند اقدام</h2>
+          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">اعضای غیرفعال، بدون خدمت در همین مجموعه یا بدون ظرفیت آینده را سریع پیدا کن.</p>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+      <div class="p-4 sm:p-5 lg:p-6">
+        <div class="grid gap-3 md:grid-cols-3">
+          <a href="{{ team_member_url }}?status_filter=inactive"
+             class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-white hover:shadow-lm-soft">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-bgSubtle text-loomera-textSecondary">
+              <i class="fa-solid fa-user-slash" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">اعضای غیرفعال</h3>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای بازبینی وضعیت همکاری و فعال‌سازی دوباره.</p>
+          </a>
+          <button type="button"
+                  class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 text-right transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-white hover:shadow-lm-soft"
+                  data-team-member-filter-jump="no-service">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-warningSoft text-loomera-warning">
+              <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">بدون خدمت متصل</h3>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">اعضایی که برای رزروپذیری همین مجموعه باید خدمت داشته باشند.</p>
+          </button>
+          <a href="{{ scheduled_shifts_url }}"
+             class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-white hover:shadow-lm-soft">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="fa-regular fa-calendar-days" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">برنامه و ظرفیت</h3>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">اگر عضو فعال است ولی نوبت آینده ندارد، برنامه او را بررسی کن.</p>
+          </a>
+        </div>
+      </div>
+    </details>
+    <details id="team-member-section-actions"
+             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">دسترسی سریع مدیریت تیم</h2>
+          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">مسیرهای پرتکرار بعد از مرور فهرست اعضا.</p>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+      <div class="p-4 sm:p-5 lg:p-6">
+        <div class="grid gap-3 md:grid-cols-3">
+          <a href="{{ add_stylist_url }}"
+             class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
+            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">افزودن عضو جدید</h3>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">افزودن متخصص تازه به تیم مجموعه.</p>
+          </a>
+          <a href="{{ scheduled_shifts_url }}"
+             class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
+            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="fa-regular fa-calendar-days" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">شیفت‌ها و مرخصی</h3>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">تنظیم ظرفیت کاری اعضا و کنترل روزهای تعطیل.</p>
+          </a>
+          <a href="{{ team_management_url }}"
+             class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
+            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">داشبورد مدیریت تیم</h3>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">نمای تحلیلی‌تر از ظرفیت، پوشش خدمات و وضعیت تیم.</p>
+          </a>
+        </div>
+      </div>
+    </details>
+  </section>
+{% endblock %}
+{% block js %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const cards = Array.from(document.querySelectorAll("[data-team-member-card]"));
+      const quickFilterButtons = Array.from(document.querySelectorAll("[data-team-member-filter]"));
+      const searchInput = document.querySelector("[data-team-member-search]");
+      const emptyState = document.querySelector("[data-team-member-empty]");
+      const listSection = document.getElementById("team-member-section-list");
+
+      const filterModal = document.querySelector("[data-team-filter-modal]");
+      const filterDialog = document.querySelector("[data-team-filter-dialog]");
+      const filterOpenButton = document.querySelector("[data-team-filter-open]");
+      const filterCloseButtons = Array.from(document.querySelectorAll("[data-team-filter-close]"));
+
+      const requestProfileModals = Array.from(document.querySelectorAll("[data-request-profile-modal]"));
+      const requestProfileOpenButtons = Array.from(document.querySelectorAll("[data-request-profile-open]"));
+
+      let activeFilter = "all";
+
+      requestProfileModals.forEach(function (modal) {
+        if (modal.parentElement !== document.body) {
+          document.body.appendChild(modal);
+        }
+        modal.setAttribute("aria-hidden", "true");
+      });
+
+      const hasOpenFilterModal = function () {
+        return Boolean(filterModal && !filterModal.classList.contains("hidden"));
+      };
+
+      const hasOpenProfileModal = function () {
+        return requestProfileModals.some(function (modal) {
+          return !modal.classList.contains("hidden");
+        });
+      };
+
+      const lockPageScroll = function () {
+        document.documentElement.classList.add("overflow-hidden");
+        document.body.classList.add("overflow-hidden");
+      };
+
+      const unlockPageScrollIfSafe = function () {
+        if (!hasOpenFilterModal() && !hasOpenProfileModal()) {
+          document.documentElement.classList.remove("overflow-hidden");
+          document.body.classList.remove("overflow-hidden");
+        }
+      };
+
+      const openFilterModal = function () {
+        if (!filterModal) return;
+
+        filterModal.classList.remove("hidden");
+        filterModal.classList.add("flex");
+        lockPageScroll();
+
+        filterOpenButton?.setAttribute("aria-expanded", "true");
+
+        window.setTimeout(function () {
+          const firstFocusable = filterModal.querySelector("select, input, button, a[href]");
+          firstFocusable?.focus();
+        }, 60);
+      };
+
+      const closeFilterModal = function () {
+        if (!filterModal) return;
+
+        filterModal.classList.add("hidden");
+        filterModal.classList.remove("flex");
+        filterOpenButton?.setAttribute("aria-expanded", "false");
+
+        unlockPageScrollIfSafe();
+      };
+
+      const openRequestProfileModal = function (id) {
+        const modal = document.getElementById(`request-profile-modal-${id}`);
+        if (!modal) return;
+
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        modal.setAttribute("aria-hidden", "false");
+        lockPageScroll();
+
+        window.setTimeout(function () {
+          const firstFocusable = modal.querySelector("[data-request-profile-close], button, a[href], input, textarea, select");
+          firstFocusable?.focus();
+        }, 60);
+      };
+
+      const closeRequestProfileModal = function (modal) {
+        if (!modal) return;
+
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+        modal.setAttribute("aria-hidden", "true");
+
+        unlockPageScrollIfSafe();
+      };
+
+      requestProfileOpenButtons.forEach(function (button) {
+        button.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          openRequestProfileModal(button.dataset.requestProfileOpen);
+        });
+      });
+
+      requestProfileModals.forEach(function (modal) {
+        modal.addEventListener("click", function (event) {
+          if (event.target === modal) {
+            closeRequestProfileModal(modal);
+          }
+        });
+
+        modal.querySelectorAll("[data-request-profile-close]").forEach(function (button) {
+          button.addEventListener("click", function (event) {
+            event.preventDefault();
+            closeRequestProfileModal(modal);
+          });
+        });
+
+        const dialog = modal.querySelector("[data-request-profile-dialog]");
+        dialog?.addEventListener("click", function (event) {
+          event.stopPropagation();
+        });
+      });
+
+      filterOpenButton?.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        openFilterModal();
+      });
+
+      filterCloseButtons.forEach(function (button) {
+        button.addEventListener("click", function (event) {
+          event.preventDefault();
+          closeFilterModal();
+        });
+      });
+
+      filterModal?.addEventListener("click", function (event) {
+        if (event.target === filterModal) {
+          closeFilterModal();
+        }
+      });
+
+      filterDialog?.addEventListener("click", function (event) {
+        event.stopPropagation();
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key !== "Escape") return;
+
+        if (hasOpenFilterModal()) {
+          closeFilterModal();
+        }
+
+        requestProfileModals.forEach(function (modal) {
+          if (!modal.classList.contains("hidden")) {
+            closeRequestProfileModal(modal);
+          }
+        });
+      });
+
+      const toNumber = function (value) {
+        const normalized = String(value || "")
+          .replace(/[۰٠]/g, "0")
+          .replace(/[۱١]/g, "1")
+          .replace(/[۲٢]/g, "2")
+          .replace(/[۳٣]/g, "3")
+          .replace(/[۴٤]/g, "4")
+          .replace(/[۵٥]/g, "5")
+          .replace(/[۶٦]/g, "6")
+          .replace(/[۷٧]/g, "7")
+          .replace(/[۸٨]/g, "8")
+          .replace(/[۹٩]/g, "9");
+
+        const parsed = Number.parseFloat(normalized);
+        return Number.isFinite(parsed) ? parsed : 0;
+      };
+
+      const setButtonState = function () {
+        quickFilterButtons.forEach(function (button) {
+          const active = button.dataset.teamMemberFilter === activeFilter;
+
+          button.classList.toggle("border-loomera-primary/20", active);
+          button.classList.toggle("bg-loomera-primarySoft", active);
+          button.classList.toggle("text-loomera-primaryText", active);
+
+          button.classList.toggle("border-loomera-borderSoft", !active);
+          button.classList.toggle("bg-white", !active);
+          button.classList.toggle("text-loomera-textSecondary", !active);
+
+          button.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+      };
+
+      const matchesFilter = function (card) {
+        const status = card.dataset.teamMemberStatus || "active";
+        const busy = toNumber(card.dataset.teamMemberBusy);
+        const services = toNumber(card.dataset.teamMemberServices);
+        const rating = toNumber(card.dataset.teamMemberRating);
+
+        if (activeFilter === "active") return status === "active";
+        if (activeFilter === "inactive") return status === "inactive";
+        if (activeFilter === "busy") return busy > 0;
+        if (activeFilter === "no-service") return services <= 0;
+        if (activeFilter === "high-rated") return rating >= 4;
+
+        return true;
+      };
+
+      const applyFilters = function () {
+        const query = (searchInput?.value || "").trim().toLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach(function (card) {
+          const searchValue = (card.dataset.teamMemberSearchValue || card.textContent || "").toLowerCase();
+          const visible = matchesFilter(card) && (!query || searchValue.includes(query));
+
+          card.classList.toggle("hidden", !visible);
+
+          if (visible) {
+            visibleCount += 1;
+          }
+        });
+
+        emptyState?.classList.toggle("hidden", visibleCount !== 0);
+        setButtonState();
+
+        if (window.LoomeraDashboardWorkspace?.refresh) {
+          window.LoomeraDashboardWorkspace.refresh(
+            document.querySelector("[data-dashboard-workspace-root]") || document
+          );
+        }
+      };
+
+      quickFilterButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          activeFilter = button.dataset.teamMemberFilter || "all";
+          applyFilters();
+        });
+      });
+
+      searchInput?.addEventListener("input", applyFilters);
+
+      document.querySelectorAll("[data-team-member-filter-jump]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          activeFilter = button.dataset.teamMemberFilterJump || "all";
+
+          if (listSection) {
+            listSection.open = true;
+
+            const tab = document.querySelector('[data-dashboard-workspace-tab][data-target="#team-member-section-list"]');
+            tab?.click();
+          }
+
+          applyFilters();
+        });
+      });
+
+      applyFilters();
+    });
+  </script>
+{% endblock %}

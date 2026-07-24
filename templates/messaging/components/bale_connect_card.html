@@ -1,0 +1,41 @@
+<section class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" aria-label="اتصال ربات بله">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="min-w-0">
+      <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+        <i class="fa-solid fa-robot text-[10px]" aria-hidden="true"></i>
+        <span>ربات بله</span>
+      </span>
+      {% if connected %}
+        <h2 class="mt-3 text-base font-black text-loomera-textPrimary sm:text-lg">ربات بله فعال است</h2>
+        <p class="mt-2 text-xs leading-6 text-loomera-textMuted">
+          حساب بله شما به لومرا متصل شده است. منوها، لینک‌های سریع و اعلان‌های مجاز از همین اتصال استفاده می‌کنند.
+        </p>
+      {% else %}
+        <h2 class="mt-3 text-base font-black text-loomera-textPrimary sm:text-lg">فعال‌کردن ربات بله</h2>
+        <p class="mt-2 text-xs leading-6 text-loomera-textMuted">
+          برای دریافت منوهای سریع و اعلان‌های مجاز، ربات بله را به حساب خود وصل کنید. اکشن‌های حساس در بتا همچنان غیرفعال می‌مانند.
+        </p>
+      {% endif %}
+    </div>
+
+    <div class="flex shrink-0 flex-col gap-2 sm:min-w-44">
+      {% if connected %}
+        <a href="{{ status_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-700 transition hover:bg-emerald-100">
+          <i class="fa-solid fa-circle-check text-xs" aria-hidden="true"></i>
+          <span>مدیریت اتصال</span>
+        </a>
+      {% elif ready %}
+        <a href="{{ quick_connect_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_16px_34px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5 hover:opacity-95">
+          <i class="fa-solid fa-link text-xs" aria-hidden="true"></i>
+          <span>فعال کردن ربات بله</span>
+        </a>
+      {% else %}
+        <button type="button" disabled class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 py-3 text-sm font-black text-slate-500">
+          <i class="fa-solid fa-circle-exclamation text-xs" aria-hidden="true"></i>
+          <span>فعلاً غیرفعال</span>
+        </button>
+      {% endif %}
+      <a href="{{ status_url }}" class="text-center text-xs font-bold text-loomera-primaryText hover:text-loomera-primary">جزئیات اتصال</a>
+    </div>
+  </div>
+</section>

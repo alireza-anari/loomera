@@ -1,0 +1,61 @@
+.env
+.env.*
+venv/
+.venv/
+node_modules/
+media/
+private_media/
+staticfiles/
+__pycache__/
+*.pyc
+*.pyo
+*.sqlite3
+*.db
+*.log
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+*.dump
+*.backup
+*.sql
+.pytest_cache/
+.coverage
+htmlcov/
+.git/
+.github/
+.vscode/
+.idea/
+requirements-freeze-check.txt
+node_check_tailwind.log
+
+# Local patch/review artifacts — never deploy
+/loomera_stage*.py
+/phase_*.py
+/stage14*.txt
+
+# Local design iterations and temporary exports
+/ChatGPT Image*.png
+/loomera_business_card_*.png
+/loomera_mirror_label_print_art.png
+/loomera_table_stand_*.png
+/loomera_table_stand_print_notes.txt
+
+# Local inspection artifacts
+/*_audit.txt
+/*_extract.txt
+
+# One-off local patch and audit artifacts
+/apply_phase9_closure.py
+/phase_*.py
+/loomera_stage*.py
+/stage14*.txt
+
+# Temporary root-level design iterations
+/ChatGPT Image*.png
+/loomera_business_card_*.png
+/loomera_mirror_label_print_art.png
+/loomera_table_stand_*.png
+/loomera_table_stand_print_notes.txt
+

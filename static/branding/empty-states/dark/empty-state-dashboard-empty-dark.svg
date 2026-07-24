@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" fill="none" role="img" aria-labelledby="title desc">
+<title>Loomera — No Dashboard Data / Empty Module</title>
+<desc>Loomera empty state artwork for No Dashboard Data / Empty Module, dark mode, abstract calm utility style.</desc>
+<defs>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#A688E6" flood-opacity="0.08"/>
+  </filter>
+  <linearGradient id="halo" x1="70" y1="35" x2="250" y2="185" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#2A2340"/>
+    <stop offset="1" stop-color="#2C2440"/>
+  </linearGradient>
+  <linearGradient id="panel" x1="40" y1="44" x2="280" y2="196" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#211C2E"/>
+    <stop offset="1" stop-color="#261F38"/>
+  </linearGradient>
+</defs>
+<rect width="320" height="240" rx="28" fill="#16131F"/>
+<rect x="24" y="20" width="272" height="192" rx="24" fill="url(#panel)" stroke="#312B43"/>
+<ellipse cx="160" cy="190" rx="62" ry="10" fill="rgba(166,136,230,0.12)"/>
+<circle cx="160" cy="108" r="72" fill="url(#halo)"/>
+<path d="M55 90C61 83 68 80 76 81C80 69 90 63 100 63C111 63 121 69 126 79C132 77 138 78 144 84C149 89 151 96 149 102H54C52 97 52 93 55 90Z" fill="#251F33"/>
+<circle cx="255" cy="66" r="4" fill="#C1A8F0" opacity="0.9"/>
+<circle cx="266" cy="78" r="2.5" fill="#98BA93" opacity="0.9"/>
+
+
+<rect x="98" y="146" width="124" height="10" rx="5" fill="#312B43"/>
+<path d="M94 154H226" stroke="#403955" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
+
+<rect x="104" y="80" width="112" height="76" rx="20" fill="#211C2E" stroke="#C1A8F0" stroke-width="4"/>
+<rect x="118" y="96" width="28" height="18" rx="6" fill="#2A2340"/>
+<rect x="152" y="96" width="22" height="18" rx="6" fill="#312B43"/>
+<rect x="180" y="96" width="22" height="18" rx="6" fill="#312B43"/>
+<path d="M122 136C134 126 144 130 152 122C160 114 170 116 180 108C188 102 196 106 202 112" stroke="#A688E6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="202" cy="112" r="4.5" fill="#98BA93"/>
+</svg>

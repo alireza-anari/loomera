@@ -1,0 +1,25 @@
+{% load static %}
+{% with key=asset_key|default:"premium-experience" alt_value=alt_text|default:"امکانات مجموعه" %}
+  {% if key == "parking" %}
+    {% static "branding/amenities/compact-light/amenity-icon-parking.svg" as icon_src %}
+  {% elif key == "wifi" %}
+    {% static "branding/amenities/compact-light/amenity-icon-wifi.svg" as icon_src %}
+  {% elif key == "card-payment" %}
+    {% static "branding/amenities/compact-light/amenity-icon-card-payment.svg" as icon_src %}
+  {% elif key == "near-transit" %}
+    {% static "branding/amenities/compact-light/amenity-icon-near-transit.svg" as icon_src %}
+  {% elif key == "private-room" %}
+    {% static "branding/amenities/compact-light/amenity-icon-private-room.svg" as icon_src %}
+  {% elif key == "quiet-space" %}
+    {% static "branding/amenities/compact-light/amenity-icon-quiet-space.svg" as icon_src %}
+  {% elif key == "waiting-area" %}
+    {% static "branding/amenities/compact-light/amenity-icon-waiting-area.svg" as icon_src %}
+  {% elif key == "wheelchair-access" %}
+    {% static "branding/amenities/compact-light/amenity-icon-wheelchair-access.svg" as icon_src %}
+  {% elif key == "refreshments" %}
+    {% static "branding/amenities/compact-light/amenity-icon-refreshments.svg" as icon_src %}
+  {% else %}
+    {% static "branding/amenities/compact-light/amenity-icon-premium-experience.svg" as icon_src %}
+  {% endif %}
+  <img src="{{ icon_src }}" alt="{{ alt_value }}" class="{{ class_name|default:'lm-amenity-icon' }}" loading="lazy" decoding="async">
+{% endwith %}

@@ -1,0 +1,36 @@
+{% if stylist.salon_profile_url %}<a href="{{ stylist.salon_profile_url }}" class="block focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40 rounded-3xl" aria-label="مشاهده پروفایل {{ stylist.get_fullName }}">{% endif %}
+<div class="team-member lm-team-card lm-component-card lm-card lm-card--interactive min-w-[8.25rem] rounded-3xl border border-loomera-border bg-white p-3 text-center shadow-sm" role="listitem" aria-label="متخصص {{ stylist.get_fullName }}">
+  <div class="relative mx-auto w-20">
+    {% if stylist.profile_image_url %}
+      <img src="{{ stylist.profile_image_url }}"
+          alt="{{ stylist.get_fullName }}"
+          class="h-20 w-20 rounded-full border border-gray-200 object-cover shadow-sm"
+          loading="lazy"
+          decoding="async" />
+    {% elif stylist.profile_image %}
+      <img src="{{ stylist.profile_image.url }}"
+          alt="{{ stylist.get_fullName }}"
+          class="h-20 w-20 rounded-full border border-gray-200 object-cover shadow-sm"
+          loading="lazy"
+          decoding="async" />
+    {% else %}
+      <div class="flex h-20 w-20 items-center justify-center rounded-full border border-gray-200 bg-loomera-primarySoft text-xl font-black text-loomera-primaryText">
+        {{ stylist.get_fullName|slice:":1" }}
+      </div>
+    {% endif %}
+
+    <div class="absolute -bottom-2 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs font-bold shadow">
+      <span>{{ stylist.avg_score|floatformat:1|default:"—" }}</span>
+      <i class="fa-solid fa-star text-xs text-yellow-400" aria-hidden="true"></i>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <p class="truncate text-sm font-black text-slate-900">{% firstof stylist.professional_display_name stylist.get_fullName %}</p>
+    {% if stylist.expert %}<p class="mt-1 truncate text-xs text-slate-500">{{ stylist.expert }}</p>{% endif %}
+    {% if stylist.salon_profile_url %}
+      <span class="mt-3 inline-flex rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText">مشاهده رزومه</span>
+    {% endif %}
+  </div>
+</div>
+{% if stylist.salon_profile_url %}</a>{% endif %}

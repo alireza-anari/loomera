@@ -1,0 +1,146 @@
+{
+  "name": "Loomera Empty State Illustration Set",
+  "version": "1.0.0",
+  "brand": "Loomera",
+  "variants": [
+    "light",
+    "dark"
+  ],
+  "format": "svg",
+  "artboard": {
+    "width": 320,
+    "height": 240
+  },
+  "tokens": {
+    "light": {
+      "bg": "#FCFBFE",
+      "surface": "#FFFFFF",
+      "surfaceSoft": "#F4F1F8",
+      "border": "#DDD8E8",
+      "borderSoft": "#ECE8F2",
+      "line": "#D5D0E0",
+      "primary": "#735CBE",
+      "secondary": "#9B80E0",
+      "accent": "#A7C8A1",
+      "primarySoft": "#EEE8FA",
+      "calmGlow": "#F2ECFE",
+      "cardHighlight": "#F8F5FE",
+      "dashboardAccent": "#DCCFF8",
+      "bookingHighlight": "#F1F7EF"
+    },
+    "dark": {
+      "bg": "#16131F",
+      "surface": "#211C2E",
+      "surfaceSoft": "#251F33",
+      "border": "#3B3550",
+      "borderSoft": "#312B43",
+      "line": "#403955",
+      "primary": "#A688E6",
+      "secondary": "#C1A8F0",
+      "accent": "#98BA93",
+      "primarySoft": "#2A2340",
+      "calmGlow": "#2C2440",
+      "cardHighlight": "#261F38",
+      "dashboardAccent": "#3A3157",
+      "bookingHighlight": "#233126"
+    }
+  },
+  "assets": [
+    {
+      "slug": "empty-state-no-results",
+      "title": "No Search Results",
+      "files": {
+        "light": "assets/svg/light/empty-state-no-results-light.svg",
+        "dark": "assets/svg/dark/empty-state-no-results-dark.svg"
+      }
+    },
+    {
+      "slug": "empty-state-no-bookings",
+      "title": "No Bookings Yet",
+      "files": {
+        "light": "assets/svg/light/empty-state-no-bookings-light.svg",
+        "dark": "assets/svg/dark/empty-state-no-bookings-dark.svg"
+      }
+    },
+    {
+      "slug": "empty-state-no-availability",
+      "title": "No Availability",
+      "files": {
+        "light": "assets/svg/light/empty-state-no-availability-light.svg",
+        "dark": "assets/svg/dark/empty-state-no-availability-dark.svg"
+      }
+    },
+    {
+      "slug": "empty-state-no-notifications",
+      "title": "No Notifications",
+      "files": {
+        "light": "assets/svg/light/empty-state-no-notifications-light.svg",
+        "dark": "assets/svg/dark/empty-state-no-notifications-dark.svg"
+      }
+    },
+    {
+      "slug": "empty-state-no-favorites",
+      "title": "No Favorites",
+      "files": {
+        "light": "assets/svg/light/empty-state-no-favorites-light.svg",
+        "dark": "assets/svg/dark/empty-state-no-favorites-dark.svg"
+      }
+    },
+    {
+      "slug": "empty-state-no-support",
+      "title": "No Support Requests",
+      "files": {
+        "light": "assets/svg/light/empty-state-no-support-light.svg",
+        "dark": "assets/svg/dark/empty-state-no-support-dark.svg"
+      }
+    },
+    {
+      "slug": "empty-state-no-payment-method",
+      "title": "No Saved Payment Method",
+      "files": {
+        "light": "assets/svg/light/empty-state-no-payment-method-light.svg",
+        "dark": "assets/svg/dark/empty-state-no-payment-method-dark.svg"
+      }
+    },
+    {
+      "slug": "empty-state-no-services",
+      "title": "No Services Yet",
+      "files": {
+        "light": "assets/svg/light/empty-state-no-services-light.svg",
+        "dark": "assets/svg/dark/empty-state-no-services-dark.svg"
+      }
+    },
+    {
+      "slug": "empty-state-no-gallery",
+      "title": "No Gallery / No Media Yet",
+      "files": {
+        "light": "assets/svg/light/empty-state-no-gallery-light.svg",
+        "dark": "assets/svg/dark/empty-state-no-gallery-dark.svg"
+      }
+    },
+    {
+      "slug": "empty-state-dashboard-empty",
+      "title": "No Dashboard Data / Empty Module",
+      "files": {
+        "light": "assets/svg/light/empty-state-dashboard-empty-light.svg",
+        "dark": "assets/svg/dark/empty-state-dashboard-empty-dark.svg"
+      }
+    },
+    {
+      "slug": "empty-state-welcome",
+      "title": "First-Time Account / Welcome",
+      "files": {
+        "light": "assets/svg/light/empty-state-welcome-light.svg",
+        "dark": "assets/svg/dark/empty-state-welcome-dark.svg"
+      }
+    },
+    {
+      "slug": "empty-state-generic",
+      "title": "Generic Empty State Fallback",
+      "files": {
+        "light": "assets/svg/light/empty-state-generic-light.svg",
+        "dark": "assets/svg/dark/empty-state-generic-dark.svg"
+      }
+    }
+  ]
+}

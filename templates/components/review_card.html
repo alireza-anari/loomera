@@ -1,0 +1,58 @@
+{# 
+  کامپوننت کارت دیدگاه
+  ورودی‌ها:
+    - review : آبجکت/کانتکست دیدگاه (همون c)
+    - compact: اگر True باشد نسخه کوچیک‌تر برای لیست کوتاه
+#}
+
+<div class="bg-white border border-fuchsia-200 rounded-xl p-3 mb-2 text-sm">
+  <div class="flex items-center gap-2 mb-1.5">
+    {% if review.avatar_url %}
+      <img src="{{ review.avatar_url }}"
+           alt="{{ review.user_full_name }}"
+           class="w-8 h-8 rounded-full object-cover" />
+    {% else %}
+      <img src="/static/images/default-avatar.png"
+           alt="کاربر"
+           class="w-8 h-8 rounded-full object-cover" />
+    {% endif %}
+
+    <div class="flex flex-col">
+      <div class="flex items-center gap-1">
+        <span class="font-semibold text-[13px]">{{ review.user_full_name }}</span>
+        {% if review.is_pending %}
+          <span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+            در انتظار تأیید
+          </span>
+        {% endif %}
+      </div>
+      <span class="text-[11px] text-gray-400">{{ review.date }}</span>
+    </div>
+  </div>
+
+  {% if review.score %}
+    <div class="mb-1">
+      {% include "components/rating_stars.html" with
+        value=review.score
+        show_number=False
+        size_class="text-[11px]"
+      %}
+    </div>
+  {% else %}
+    <div class="text-[11px] text-gray-400 mb-1">بدون امتیاز</div>
+  {% endif %}
+
+  <p class="text-[13px] text-gray-700 leading-6">
+    {{ review.comment_text }}
+  </p>
+
+  <div class="mt-1 text-[11px] text-gray-500">
+    {% if review.stylist_name %}
+      <span><strong>متخصص:</strong> {{ review.stylist_name }}</span>
+    {% endif %}
+    {% if review.service_name %}
+      <span class="mx-1">|</span>
+      <span><strong>خدمت:</strong> {{ review.service_name }}</span>
+    {% endif %}
+  </div>
+</div>

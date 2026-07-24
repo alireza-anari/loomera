@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+{% load static dashboard_ui %}
+<html lang="fa" dir="rtl" class="h-full scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <title>{% block title %}{{ page_title|default:"داشبورد مجموعه" }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}داشبورد مدیریت Loomera برای پیگیری نوبت‌ها، خدمات، تیم و عملیات مجموعه.{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}داشبورد Loomera{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}مدیریت آرام‌تر و دقیق‌تر عملیات مجموعه در Loomera.{% endblock %}">
+  <meta name="twitter:title" content="{% block twitter_title %}داشبورد Loomera{% endblock %}">
+  <script>
+    document.documentElement.setAttribute("data-theme", "light");
+  </script>
+  <meta name="twitter:description" content="{% block twitter_description %}مدیریت آرام‌تر و دقیق‌تر عملیات مجموعه در Loomera.{% endblock %}">
+  {% include "partials/brand/head_assets.html" %}
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <link rel="stylesheet" href="{% static 'css/loomera-brand.css' %}">
+  <link rel="stylesheet" href="{% static 'css/loomera-palette-override.css' %}">
+  <link rel="stylesheet" href="{% static 'css/loomera-typography.css' %}">
+  <link rel="stylesheet" href="{% static 'css/fontawesome/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/jalalidatepicker/jalalidatepicker.min.css' %}">
+
+  {% block head %}{% endblock %}
+</head>
+
+<body class="lm-shell lm-partner-shell lm-dashboard-canvas min-h-full overflow-x-hidden bg-loomera-bg text-loomera-textPrimary antialiased {% block shell_body_class %}{% endblock %}" data-shell="partner-dashboard" {% block body_attrs %}data-page="dashboard-layout"{% endblock %}>
+  <div class="lm-partner-shell-root relative min-h-dvh overflow-x-hidden bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.12),transparent_34%),linear-gradient(180deg,#FCFBFE_0%,#F7F6FA_100%)]" data-dashboard-root>
+    {% dashboard_sidebar %}
+
+    <div id="dashboard-overlay"
+         class="fixed inset-0 z-40 hidden bg-slate-950/35 lg:hidden"
+         data-dashboard-overlay></div>
+
+    <div id="dashboard-content-wrapper"
+         class="lm-dashboard-content-shell min-h-dvh min-w-0 transition-[padding] duration-300 ease-out lg:pr-[22rem]"
+         data-dashboard-content>
+      {% dashboard_navbar %}
+
+      <main class="lm-dashboard-main px-3 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] pt-24 sm:px-5 lg:px-8 lg:pb-10 lg:pt-28">
+        <div class="lm-dashboard-content-container mx-auto w-full max-w-[1680px] min-w-0">
+          {% include "partials/messages.html" %}
+
+          {% if not hide_dashboard_header and dashboard_active_key == "overview" %}
+            <div>
+              {% dashboard_header %}
+            </div>
+          {% endif %}
+
+          <div class="lm-dashboard-workspace-frame min-w-0 max-w-full space-y-5" data-dashboard-workspace-frame>
+            {% block dashboard_workspace_header %}{% endblock %}
+            {% block dashboard_workspace_actions %}{% endblock %}
+            {% block dashboard_workspace_tabs %}{% endblock %}
+
+            <section class="lm-dashboard-section mt-4 min-w-0 max-w-full space-y-6 overflow-x-hidden lg:mt-6" data-dashboard-workspace-content>
+              {% block content %}{% endblock %}
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    {% dashboard_mobile_nav %}
+    {% include "dashboards/partials/dashboard_help_fab.html" %}
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const messages = document.querySelectorAll("[data-flash-message]");
+
+      messages.forEach((message, index) => {
+        const closeBtn = message.querySelector("[data-flash-close]");
+        const dismissAfter = parseInt(message.dataset.dismissAfter || "5000", 10);
+
+        const hideMessage = () => {
+          message.classList.add("opacity-0", "translate-y-2");
+          setTimeout(() => {
+            message.remove();
+          }, 300);
+        };
+
+        if (closeBtn) {
+          closeBtn.addEventListener("click", hideMessage);
+        }
+
+        setTimeout(hideMessage, dismissAfter + index * 250);
+      });
+    });
+  </script>
+  <script src="{% static 'js/jalali.js' %}"></script>
+  <script src="{% static 'vendor/jalalidatepicker/jalalidatepicker.min.js' %}"></script>
+  <script type="module" src="{% static 'js/app.js' %}"></script>
+
+  {% include "partials/smart_back_script.html" %}
+
+  {% block js %}{% endblock %}
+</body>
+</html>

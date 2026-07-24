@@ -1,0 +1,121 @@
+{% load static %}
+{% load humanize %}
+{% load jalali_filters %}
+
+<article class="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-loomera-borderSoft bg-white shadow-lm-soft transition duration-200 hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-lm-card">
+  <a href="{% url 'salons:detail_salon' item.salon.id %}" class="relative block h-40 overflow-hidden bg-loomera-primarySoft" aria-label="مشاهده {{ item.salon.salon_name }}">
+    {% if item.salon.card_image_url %}
+      <img src="{{ item.salon.card_image_url }}" alt="{{ item.salon.salon_name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+    {% elif item.salon.banner_image %}
+      <img src="{{ item.salon.banner_image.url }}" alt="{{ item.salon.salon_name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+    {% else %}
+      <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-loomera-primarySoft to-loomera-surfaceSoft text-4xl text-loomera-primary/45">
+        <i class="fa-regular fa-image" aria-hidden="true"></i>
+      </div>
+    {% endif %}
+
+    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent px-4 pb-4 pt-12">
+      <h3 class="truncate text-base font-black text-white">
+        {{ item.salon.salon_name }}
+      </h3>
+
+      <p class="mt-1 truncate text-xs font-bold text-white/80">
+        {% if item.salon.card_location %}
+          {{ item.salon.card_location }}
+        {% elif item.salon.neighborhood %}
+          {{ item.salon.neighborhood.name }}
+        {% elif item.salon.address %}
+          {{ item.salon.address }}
+        {% else %}
+          موقعیت ثبت نشده
+        {% endif %}
+      </p>
+    </div>
+
+    <span class="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-black text-loomera-primary shadow-sm backdrop-blur">
+      رزرو قبلی
+    </span>
+  </a>
+
+  <div class="flex flex-1 flex-col p-4">
+    <div class="min-w-0">
+      <p class="text-xs font-black uppercase tracking-[0.2em] text-loomera-primary">
+        خدمت قبلی
+      </p>
+
+      <h4 class="mt-2 line-clamp-2 text-base font-black leading-7 text-loomera-textPrimary">
+        {% if item.service %}
+          {{ item.service.service_name }}
+        {% else %}
+          خدمت ثبت نشده
+        {% endif %}
+      </h4>
+    </div>
+
+    <div class="mt-4 grid gap-2 text-xs font-bold text-loomera-textMuted">
+      <div class="flex items-center gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-2">
+        <i class="fa-regular fa-calendar text-loomera-primary" aria-hidden="true"></i>
+        <span>
+          {% if item.date %}
+            {{ item.date|jalali }}
+          {% else %}
+            تاریخ ثبت نشده
+          {% endif %}
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-2">
+        <i class="fa-regular fa-clock text-loomera-primary" aria-hidden="true"></i>
+        <span>
+          {% if item.time %}
+            {{ item.time }}
+          {% else %}
+            ساعت ثبت نشده
+          {% endif %}
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-2">
+        <i class="fa-regular fa-user text-loomera-primary" aria-hidden="true"></i>
+        <span class="truncate">
+          {% if item.stylist_name %}
+            {{ item.stylist_name }}
+          {% elif item.stylist and item.stylist.user %}
+            {{ item.stylist.user.get_fullName }}
+          {% else %}
+            متخصص ثبت نشده
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="mt-4 flex items-center justify-between gap-3">
+      <div class="min-w-0">
+        <p class="text-[11px] font-bold text-loomera-textMuted">مبلغ قبلی</p>
+        <p class="mt-1 truncate text-sm font-black text-loomera-textPrimary">
+          {% if item.price %}
+            {{ item.price|intcomma }} تومان
+          {% elif item.service and item.service.price %}
+            {{ item.service.price|intcomma }} تومان
+          {% else %}
+            قیمت ثبت نشده
+          {% endif %}
+        </p>
+      </div>
+
+      {% if item.order %}
+        <a href="{% url 'orders:rebook' item.order.id %}"
+           class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+          <span>رزرو مجدد</span>
+          <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+        </a>
+      {% else %}
+        <a href="{% url 'salons:detail_salon' item.salon.id %}"
+           class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+          <span>مشاهده</span>
+          <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</article>

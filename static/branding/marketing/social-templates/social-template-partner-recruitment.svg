@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <title>social-template-partner-recruitment</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1080" fill="#FCFBFE"/>
+<rect x="84" y="84" width="912" height="912" rx="44" fill="#FFFFFF" stroke="#DDD8E8"/>
+<g id="badge"><rect x="128" y="126" width="336" height="40" rx="18" fill="#F4F1F8" stroke="#DDD8E8"/><text x="446" y="152" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#57526E" text-anchor="end">Partner / Provider Recruitment</text></g>
+<g id="logo-slot"><rect x="824" y="132" width="138" height="34" rx="10" fill="none" stroke="#DDD8E8" stroke-dasharray="6 6"/><text x="893.0" y="155" font-family="Inter, sans-serif" font-size="15" fill="#7A738F" text-anchor="middle">LOGO</text></g>
+<text x="948" y="296" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="60" font-weight="650" fill="#2E2A3C" text-anchor="end">همکاری با Loomera</text>
+<text x="948" y="370" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" fill="#57526E" text-anchor="end">برای کسب‌وکارهایی که کیفیت تجربه را بخشی از برند خود می‌دانند.</text>
+<rect x="128" y="454" width="824" height="264" rx="34" fill="#F8F5FE"/>
+<text x="904" y="540" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="27" font-weight="600" fill="#2E2A3C" text-anchor="end">• معرفی حرفه‌ای‌تر خدمات و تیم</text>
+<text x="904" y="598" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="27" font-weight="600" fill="#2E2A3C" text-anchor="end">• مدیریت روشن‌تر زمان‌های در دسترس</text>
+<text x="904" y="656" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="27" font-weight="600" fill="#2E2A3C" text-anchor="end">• تجربه‌ای منظم‌تر برای مشتریان</text>
+<rect x="128" y="758" width="536" height="118" rx="32" fill="#F4F1F8"/>
+<text x="624" y="826" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="25" fill="#57526E" text-anchor="end">commercial confidence باید آرام و grounded بماند.</text>
+<g id="cta"><rect x="740" y="790" width="228" height="54" rx="27" fill="#735CBE"/><text x="854.0" y="825" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="21" font-weight="600" fill="#FFFFFF" text-anchor="middle">همکاری با Loomera</text></g>
+
+</svg>

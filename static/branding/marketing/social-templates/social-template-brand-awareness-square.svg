@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <title>social-template-brand-awareness-square</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1080" fill="url(#gradV)"/>
+<circle cx="860" cy="180" r="180" fill="#F8F5FE"/>
+<circle cx="930" cy="120" r="78" fill="#9B80E0" opacity="0.20"/>
+<circle cx="180" cy="900" r="130" fill="#A7C8A1" opacity="0.18"/>
+<g id="logo-slot"><rect x="858" y="84" width="138" height="34" rx="10" fill="none" stroke="#DDD8E8" stroke-dasharray="6 6"/><text x="927.0" y="107" font-family="Inter, sans-serif" font-size="15" fill="#7A738F" text-anchor="middle">LOGO</text></g>
+<g id="badge"><rect x="84" y="86" width="316" height="40" rx="18" fill="#FFFFFF" stroke="#DDD8E8"/><text x="382" y="112" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#57526E" text-anchor="end">معرفی برند / Brand Awareness</text></g>
+<text x="996" y="274" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="66" font-weight="650" fill="#2E2A3C" text-anchor="end">انتخاب روشن‌تر</text>
+<text x="996" y="352" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="66" font-weight="650" fill="#2E2A3C" text-anchor="end">برای رزروی آرام‌تر</text>
+<text x="996" y="450" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="30" font-weight="450" fill="#57526E" text-anchor="end">beauty • treatments • massage • wellness</text>
+<rect x="84" y="560" width="912" height="280" rx="40" fill="#FFFFFF" stroke="#DDD8E8"/>
+<text x="948" y="648" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" font-weight="600" fill="#2E2A3C" text-anchor="end">این قاب برای message-led post طراحی شده است.</text>
+<text x="948" y="706" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="26" font-weight="400" fill="#57526E" text-anchor="end">می‌توانید headline، subline و cueهای برند را بدون شلوغی جایگزین کنید.</text>
+<text x="948" y="764" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="26" font-weight="400" fill="#57526E" text-anchor="end">logo باید کوچک و controlled بماند؛ brand از system خوانده شود، نه از logo stamping.</text>
+<g id="cta"><rect x="84" y="914" width="188" height="54" rx="27" fill="#735CBE"/><text x="178.0" y="949" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="21" font-weight="600" fill="#FFFFFF" text-anchor="middle">آشنایی بیشتر</text></g>
+
+</svg>

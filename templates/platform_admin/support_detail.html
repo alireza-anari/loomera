@@ -1,0 +1,36 @@
+{% extends "platform_admin/base.html" %}
+{% load jalali_extras %}
+{% block platform_content %}
+<div class="mb-5"><p class="text-sm font-semibold text-loomera-primary">پشتیبانی</p><h2 class="text-2xl font-black">تیکت #{{ ticket.id }}</h2></div>
+<div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+  <section class="space-y-4">
+    <div class="rounded-3xl border border-loomera-borderSoft bg-white p-5 shadow-sm">
+      <h3 class="font-black">{{ ticket.subject|default:ticket.get_issue_type_display }}</h3>
+      <p class="mt-2 text-sm text-loomera-textMuted">{{ ticket.full_name|default:ticket.email }} • {{ ticket.get_category_display }} • {{ ticket.get_status_display }}</p>
+      <p class="mt-4 text-sm leading-7">{{ ticket.description }}</p>
+    </div>
+    <div class="space-y-3">
+      {% for message in ticket.messages.all %}
+        <article class="rounded-3xl border border-loomera-borderSoft bg-white p-4 shadow-sm">
+          <div class="mb-2 flex items-center justify-between"><p class="text-xs font-black text-loomera-primary">{{ message.get_sender_role_display }} / {{ message.get_message_type_display }}</p><p class="text-xs text-loomera-textMuted">{{ message.created_at|jalali_datetime }}</p></div>
+          <p class="whitespace-pre-line text-sm leading-7">{{ message.body }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+  <aside class="space-y-4">
+    <form method="post" action="{% url 'platform_admin:support_status_action' ticket.pk %}" class="space-y-3 rounded-3xl border border-loomera-borderSoft bg-white p-5 shadow-sm">
+      {% csrf_token %}
+      <h3 class="font-black">پاسخ و وضعیت</h3>
+      {{ form.status }}{{ form.priority }}{{ form.assigned_team }}{{ form.admin_reply }}{{ form.internal_note }}
+      <button class="w-full rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-bold text-white">ثبت</button>
+    </form>
+    {% if ticket.dispute_cases.all %}
+      <div class="rounded-3xl border border-amber-100 bg-amber-50 p-5 text-sm text-amber-800">
+        <p class="font-black">پرونده‌های اختلاف</p>
+        {% for dispute in ticket.dispute_cases.all %}<a href="{% url 'platform_admin:dispute_detail' dispute.pk %}" class="mt-2 block font-bold">#{{ dispute.id }} — {{ dispute.get_dispute_type_display }}</a>{% endfor %}
+      </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,185 @@
+{
+  "brand": "Loomera",
+  "version": "1.0",
+  "direction": "refined product-marketing hybrid",
+  "light_first": true,
+  "rtl_first": true,
+  "source_assets": [
+    "files.zip",
+    "loomera.zip"
+  ],
+  "tokens": {
+    "primary": "#735CBE",
+    "secondary": "#9B80E0",
+    "accent": "#A7C8A1",
+    "bg": "#FCFBFE",
+    "bgSubtle": "#F7F6FA",
+    "surface": "#FFFFFF",
+    "surfaceSoft": "#F4F1F8",
+    "border": "#DDD8E8",
+    "textPrimary": "#2E2A3C",
+    "textSecondary": "#57526E",
+    "textMuted": "#7A738F",
+    "calmGlow": "#F2ECFE",
+    "cardHighlight": "#F8F5FE"
+  },
+  "assets": [
+    {
+      "name": "social-template-brand-awareness-square",
+      "file": "assets/templates/svg/social-template-brand-awareness-square.svg",
+      "ratio": "1:1",
+      "family": "brand-awareness",
+      "modes": [
+        "light",
+        "artwork-led",
+        "text-led"
+      ]
+    },
+    {
+      "name": "social-template-category-highlight-square",
+      "file": "assets/templates/svg/social-template-category-highlight-square.svg",
+      "ratio": "1:1",
+      "family": "category-highlight",
+      "modes": [
+        "light",
+        "artwork-led",
+        "photo-led"
+      ]
+    },
+    {
+      "name": "social-template-provider-spotlight-square",
+      "file": "assets/templates/svg/social-template-provider-spotlight-square.svg",
+      "ratio": "1:1",
+      "family": "provider-spotlight",
+      "modes": [
+        "light",
+        "photo-led"
+      ]
+    },
+    {
+      "name": "social-template-educational-square",
+      "file": "assets/templates/svg/social-template-educational-square.svg",
+      "ratio": "1:1",
+      "family": "educational",
+      "modes": [
+        "light",
+        "text-led",
+        "carousel-safe"
+      ]
+    },
+    {
+      "name": "social-template-offer-square",
+      "file": "assets/templates/svg/social-template-offer-square.svg",
+      "ratio": "1:1",
+      "family": "offer",
+      "modes": [
+        "light",
+        "promo-safe"
+      ]
+    },
+    {
+      "name": "social-template-product-feature-square",
+      "file": "assets/templates/svg/social-template-product-feature-square.svg",
+      "ratio": "1:1",
+      "family": "product-feature",
+      "modes": [
+        "light",
+        "ui-led"
+      ]
+    },
+    {
+      "name": "social-template-trust-review-square",
+      "file": "assets/templates/svg/social-template-trust-review-square.svg",
+      "ratio": "1:1",
+      "family": "trust-review",
+      "modes": [
+        "light",
+        "text-led"
+      ]
+    },
+    {
+      "name": "social-template-launch-announcement-square",
+      "file": "assets/templates/svg/social-template-launch-announcement-square.svg",
+      "ratio": "1:1",
+      "family": "launch-announcement",
+      "modes": [
+        "dark",
+        "text-led"
+      ]
+    },
+    {
+      "name": "social-template-story-brand",
+      "file": "assets/templates/svg/social-template-story-brand.svg",
+      "ratio": "9:16",
+      "family": "story-brand",
+      "modes": [
+        "light",
+        "story-safe"
+      ]
+    },
+    {
+      "name": "social-template-story-offer",
+      "file": "assets/templates/svg/social-template-story-offer.svg",
+      "ratio": "9:16",
+      "family": "story-offer",
+      "modes": [
+        "light",
+        "promo-safe",
+        "story-safe"
+      ]
+    },
+    {
+      "name": "social-template-story-provider",
+      "file": "assets/templates/svg/social-template-story-provider.svg",
+      "ratio": "9:16",
+      "family": "story-provider",
+      "modes": [
+        "light",
+        "photo-led",
+        "story-safe"
+      ]
+    },
+    {
+      "name": "social-template-carousel-cover",
+      "file": "assets/templates/svg/social-template-carousel-cover.svg",
+      "ratio": "4:5",
+      "family": "carousel-cover",
+      "modes": [
+        "light",
+        "artwork-led",
+        "carousel-safe"
+      ]
+    },
+    {
+      "name": "social-template-carousel-inner",
+      "file": "assets/templates/svg/social-template-carousel-inner.svg",
+      "ratio": "4:5",
+      "family": "carousel-inner",
+      "modes": [
+        "light",
+        "text-led",
+        "carousel-safe"
+      ]
+    },
+    {
+      "name": "social-template-partner-recruitment",
+      "file": "assets/templates/svg/social-template-partner-recruitment.svg",
+      "ratio": "1:1",
+      "family": "partner-recruitment",
+      "modes": [
+        "light",
+        "text-led",
+        "photo-led"
+      ]
+    },
+    {
+      "name": "social-template-feed-portrait-master",
+      "file": "assets/templates/svg/social-template-feed-portrait-master.svg",
+      "ratio": "4:5",
+      "family": "feed-master",
+      "modes": [
+        "light"
+      ]
+    }
+  ]
+}

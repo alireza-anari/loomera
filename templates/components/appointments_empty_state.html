@@ -1,0 +1,12 @@
+<div class="lm-empty-state-card lm-card lm-card--spacious text-center" role="status">
+  {% include "partials/brand/empty_state_illustration.html" with state="no-bookings" alt_text="هیچ نوبتی ثبت نشده است" class_name="lm-empty-illustration" %}
+
+  <h3 class="mt-5 text-base font-black text-slate-950">هنوز نوبتی برای شما ثبت نشده است</h3>
+  <p class="mx-auto mt-2 max-w-xs text-sm leading-7 text-slate-500">
+    بعد از انتخاب مجموعه، خدمت و زمان مناسب، نوبت‌های آینده‌تان اینجا نمایش داده می‌شوند.
+  </p>
+
+  <a href="{% url 'search:search_page' %}" class="lm-btn lm-btn-primary mt-5 justify-center">
+    جستجوی مجموعه‌ها
+  </a>
+</div>

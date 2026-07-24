@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title desc">
+<title>Loomera amenity icon — Near Transit</title>
+<desc>location pin + transit line / compact / light mode</desc>
+
+<g>
+<path d="M32 20C26 20 22 24.5 22 30C22 38 32 46 32 46C32 46 42 38 42 30C42 24.5 38 20 32 20Z" stroke="#6B55B3" stroke-width="4.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="32" cy="30" r="4" stroke="#6B55B3" stroke-width="3.25" fill="none"/>
+<path d="M16 49L48 49" stroke="#6B55B3" stroke-width="3.25" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M22 46L22 52" stroke="#6B55B3" stroke-width="3.25" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M42 46L42 52" stroke="#6B55B3" stroke-width="3.25" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title desc">
+<title>Loomera amenity icon — Waiting Area</title>
+<desc>bench seat + soft backrest / compact / light mode</desc>
+
+<g>
+<path d="M20 32V28C20 25 22.5 23 25.5 23H38.5C41.5 23 44 25 44 28V32" stroke="#6B55B3" stroke-width="3.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="18" y="32" width="28" height="8" rx="4" stroke="#6B55B3" stroke-width="4.25" fill="none"/>
+<path d="M22 40L22 48" stroke="#6B55B3" stroke-width="4.25" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M42 40L42 48" stroke="#6B55B3" stroke-width="4.25" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>

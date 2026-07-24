@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}کشف مجموعه‌های زیبایی{% endblock %}
+{% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
+{% block body_attrs %}data-page="show_salons"{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-loomera-bg pb-24 lg:pb-14" data-show-salons-page>
+  <!-- Mobile Header -->
+  <header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 backdrop-blur lg:hidden">
+    <div class="flex items-center justify-between gap-3">
+      <a href="{% url 'salons:home' %}"
+         class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft"
+         aria-label="بازگشت">
+        <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+      </a>
+
+      <div class="min-w-0 text-center">
+        <p class="truncate text-sm font-black text-loomera-textPrimary">کشف مجموعه‌ها</p>
+        <p class="text-xs font-bold text-loomera-textMuted">رزرو سریع خدمات زیبایی</p>
+      </div>
+
+      <a href="{% url 'accounts:customer_panel' %}"
+         class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-primary shadow-lm-soft"
+         aria-label="حساب کاربری">
+        <i class="fa-regular fa-user text-sm" aria-hidden="true"></i>
+      </a>
+    </div>
+  </header>
+
+  <div class="mx-auto w-full max-w-7xl space-y-8 px-4 pt-5 sm:px-6 lg:space-y-10 lg:pt-8 xl:px-0">
+
+    <!-- Desktop Page Header -->
+    <section class="hidden items-center justify-between gap-6 rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-6 shadow-lm-card lg:flex">
+      <div>
+
+        <h1 class="mt-2 text-2xl font-black text-loomera-textPrimary">کشف مجموعه‌های زیبایی</h1>
+        <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">
+          مجموعه‌های دارای تخفیف، برترین‌ها، جدیدترین‌ها و مجموعه‌های محبوب را مرور کن و سریع‌تر نوبت بگیر.
+        </p>
+      </div>
+
+      <a href="{% url 'search:search_page' %}"
+         class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+        <i class="fa-solid fa-magnifying-glass text-xs" aria-hidden="true"></i>
+        <span>جستجوی مجموعه</span>
+      </a>
+    </section>
+
+    <!-- Book Again -->
+    {% if book_again_orders %}
+      <section data-scroll-section data-carousel-scope class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-7" aria-labelledby="home-book-again-title">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.28em] text-loomera-primary">رزرو دوباره</p>
+            <h2 id="home-book-again-title" class="mt-2 text-xl font-black text-loomera-textPrimary lg:text-2xl">
+              نوبت‌های قبلی‌ات
+            </h2>
+            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
+              خدمت‌هایی که قبلاً رزرو کرده‌ای را سریع‌تر دوباره انتخاب کن.
+            </p>
+          </div>
+
+          <div class="hidden items-center gap-2 sm:flex">
+            <a href="{% url 'orders:appointments' %}"
+               class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-primary shadow-sm transition hover:border-loomera-primary/30">
+              نوبت‌های من
+            </a>
+
+            <button type="button" data-rail-prev class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary" aria-label="قبلی">
+              <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+            </button>
+
+            <button type="button" data-rail-next class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary" aria-label="بعدی">
+              <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div data-scroll-rail data-carousel-track class="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0" role="list">
+          {% for order in book_again_orders|slice:":8" %}
+            <div data-salon-rail-item class="w-[18rem] shrink-0 snap-start sm:w-[20rem]" role="listitem">
+              {% include "components/book_again_card.html" with item=order %}
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+        <!-- Favorite Salons -->
+    {% if favorits_salons %}
+      <section data-scroll-section data-carousel-scope class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-7" aria-labelledby="favorite-salons-title">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+
+            <h2 id="favorite-salons-title" class="mt-2 text-xl font-black text-loomera-textPrimary lg:text-2xl">
+              علاقه‌مندی‌های شما
+            </h2>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <a href="{% url 'csf:favorite_salons' %}"
+               class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary">
+              همه علاقه‌مندی‌ها
+            </a>
+
+            <button type="button" data-rail-prev class="hidden h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary sm:inline-flex" aria-label="قبلی">
+              <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+            </button>
+
+            <button type="button" data-rail-next class="hidden h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary sm:inline-flex" aria-label="بعدی">
+              <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div data-scroll-rail data-carousel-track class="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0" role="list">
+          {% for salon in favorits_salons %}
+            <div data-salon-rail-item class="w-[18rem] shrink-0 snap-start sm:w-[20rem]" role="listitem">
+              {% include "components/salon_card.html" with salon=salon badge_label="علاقه‌مندی" show_favorite_button=True %}
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+
+    <!-- Best Discount Salons -->
+    {% if best_discount_salons %}
+      <section data-scroll-section data-carousel-scope class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-7" aria-labelledby="best-discount-salons-title">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+
+            <h2 id="best-discount-salons-title" class="mt-2 text-xl font-black text-loomera-textPrimary lg:text-2xl">
+              بیشترین تخفیف‌ها
+            </h2>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <a href="{% url 'search:search_page' %}?sort=discount"
+               class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary">
+              مشاهده همه
+            </a>
+
+            <button type="button" data-rail-prev class="hidden h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary sm:inline-flex" aria-label="قبلی">
+              <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+            </button>
+
+            <button type="button" data-rail-next class="hidden h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary sm:inline-flex" aria-label="بعدی">
+              <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div data-scroll-rail data-carousel-track class="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0" role="list">
+          {% for salon in best_discount_salons %}
+            <div data-salon-rail-item class="w-[18rem] shrink-0 snap-start sm:w-[20rem]" role="listitem">
+              {% include "components/salon_card.html" with salon=salon badge_label="تخفیف‌دار" %}
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <!-- Top Salons -->
+    {% if top_salons %}
+      <section data-scroll-section data-carousel-scope class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-7" aria-labelledby="top-salons-title">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+
+            <h2 id="top-salons-title" class="mt-2 text-xl font-black text-loomera-textPrimary lg:text-2xl">
+              مجموعه‌های برتر
+            </h2>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <a href="{% url 'search:search_page' %}?sort=rating"
+               class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary">
+              مشاهده همه
+            </a>
+
+            <button type="button" data-rail-prev class="hidden h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary sm:inline-flex" aria-label="قبلی">
+              <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+            </button>
+
+            <button type="button" data-rail-next class="hidden h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary sm:inline-flex" aria-label="بعدی">
+              <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div data-scroll-rail data-carousel-track class="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0" role="list">
+          {% for salon in top_salons %}
+            <div data-salon-rail-item class="w-[18rem] shrink-0 snap-start sm:w-[20rem]" role="listitem">
+              {% include "components/salon_card.html" with salon=salon badge_label="برتر" %}
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <!-- Recent Salons -->
+    {% if recent_salons %}
+      <section data-scroll-section data-carousel-scope class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-7" aria-labelledby="recent-salons-title">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+
+            <h2 id="recent-salons-title" class="mt-2 text-xl font-black text-loomera-textPrimary lg:text-2xl">
+              جدیدترین مجموعه‌ها
+            </h2>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <a href="{% url 'search:search_page' %}?sort=newest"
+               class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary">
+              مشاهده همه
+            </a>
+
+            <button type="button" data-rail-prev class="hidden h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary sm:inline-flex" aria-label="قبلی">
+              <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+            </button>
+
+            <button type="button" data-rail-next class="hidden h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary sm:inline-flex" aria-label="بعدی">
+              <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div data-scroll-rail data-carousel-track class="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0" role="list">
+          {% for salon in recent_salons %}
+            <div data-salon-rail-item class="w-[18rem] shrink-0 snap-start sm:w-[20rem]" role="listitem">
+              {% include "components/salon_card.html" with salon=salon badge_label="جدید" %}
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <!-- Popular Salons -->
+    {% if popular_salons %}
+      <section data-scroll-section data-carousel-scope class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-7" aria-labelledby="popular-salons-title">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+
+            <h2 id="popular-salons-title" class="mt-2 text-xl font-black text-loomera-textPrimary lg:text-2xl">
+              محبوب‌ترین مجموعه‌ها
+            </h2>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <a href="{% url 'search:search_page' %}?sort=popular"
+               class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary">
+              مشاهده همه
+            </a>
+
+            <button type="button" data-rail-prev class="hidden h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary sm:inline-flex" aria-label="قبلی">
+              <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+            </button>
+
+            <button type="button" data-rail-next class="hidden h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary sm:inline-flex" aria-label="بعدی">
+              <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div data-scroll-rail data-carousel-track class="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0" role="list">
+          {% for salon in popular_salons %}
+            <div data-salon-rail-item class="w-[18rem] shrink-0 snap-start sm:w-[20rem]" role="listitem">
+              {% include "components/salon_card.html" with salon=salon badge_label="محبوب" %}
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+
+    <!-- Empty State -->
+    {% if not book_again_orders and not best_discount_salons and not top_salons and not recent_salons and not popular_salons and not favorits_salons and not last_visited_salons %}
+      <section class="rounded-[2rem] border border-dashed border-loomera-borderSoft bg-white p-8 text-center shadow-lm-card">
+        <span class="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-loomera-primarySoft text-2xl text-loomera-primary">
+          <i class="fa-solid fa-store" aria-hidden="true"></i>
+        </span>
+        <h2 class="mt-5 text-xl font-black text-loomera-textPrimary">هنوز مجموعهی برای نمایش وجود ندارد</h2>
+        <p class="mx-auto mt-3 max-w-md text-sm leading-7 text-loomera-textMuted">
+          بعد از فعال شدن مجموعه‌ها، لیست تخفیف‌دارها، برترین‌ها و جدیدترین‌ها در همین صفحه نمایش داده می‌شود.
+        </p>
+        <a href="{% url 'search:search_page' %}"
+           class="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+          <i class="fa-solid fa-magnifying-glass text-xs" aria-hidden="true"></i>
+          جستجو
+        </a>
+      </section>
+    {% endif %}
+
+    <!-- Service Categories - after salon sliders -->
+    {% if service_groups %}
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-7" aria-labelledby="home-services-title">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.28em] text-loomera-primary">دسته‌بندی خدمات</p>
+            <h2 id="home-services-title" class="mt-2 text-xl font-black text-loomera-textPrimary lg:text-2xl">
+              خدمت موردنظرت را انتخاب کن
+            </h2>
+            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
+              برای شروع سریع‌تر، از دسته‌بندی خدمات وارد صفحه جستجو شو.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-5 -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0 lg:mx-0 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] lg:gap-4 lg:overflow-visible lg:px-0" role="list" aria-label="دسته‌بندی خدمات">
+          {% for group in service_groups %}
+            {% if group.id %}
+              <a
+                href="{% url 'services:group_services' group.id %}"
+                class="group min-w-[132px] snap-start rounded-[1.6rem] border border-loomera-borderSoft bg-white p-4 text-center shadow-lm-soft transition hover:-translate-y-1 hover:border-loomera-primary/30 hover:shadow-lm-card lg:min-w-0"
+                role="listitem"
+              >
+            {% elif group.pk %}
+              <a
+                href="{% url 'services:group_services' group.pk %}"
+                class="group min-w-[132px] snap-start rounded-[1.6rem] border border-loomera-borderSoft bg-white p-4 text-center shadow-lm-soft transition hover:-translate-y-1 hover:border-loomera-primary/30 hover:shadow-lm-card lg:min-w-0"
+                role="listitem"
+              >
+            {% else %}
+              <a
+                href="{% url 'services:all_services' %}"
+                class="group min-w-[132px] snap-start rounded-[1.6rem] border border-loomera-borderSoft bg-white p-4 text-center shadow-lm-soft transition hover:-translate-y-1 hover:border-loomera-primary/30 hover:shadow-lm-card lg:min-w-0"
+                role="listitem"
+              >
+            {% endif %}
+
+                <span class="mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-loomera-primarySoft text-lg text-loomera-primary transition group-hover:bg-loomera-primary group-hover:text-white">
+                  {% if group.card_image_url %}
+                    <img src="{{ group.card_image_url }}" alt="" class="h-full w-full object-cover">
+                  {% elif group.group_image %}
+                    <img src="{% url 'services:group_service_image' group.id %}" alt="" class="h-full w-full object-cover">
+                  {% elif group.image %}
+                    <img src="{{ group.image.url }}" alt="" class="h-full w-full object-cover">
+                  {% elif group.icon %}
+                    <i class="{{ group.icon }}" aria-hidden="true"></i>
+                  {% else %}
+                    <i class="fa-solid fa-spa" aria-hidden="true"></i>
+                  {% endif %}
+                </span>
+
+                <span class="mt-3 block line-clamp-1 text-sm font-black text-loomera-textPrimary">
+                  {% firstof group.group_title group.label group.title "خدمات" %}
+                </span>
+              </a>
+          {% endfor %}
+        </div>
+
+        {% comment %} <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+          {% for group in service_groups %}
+            <a href="{% url 'services:group_services' group.id %}?group={{ group.id }}"
+               class="group rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4 text-center transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-white hover:shadow-lm-soft">
+
+              <span class="mx-auto flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white text-loomera-primary shadow-sm transition group-hover:scale-105">
+                {% if group.card_image_url %}
+                  <img src="{{ group.card_image_url }}" alt="{{ group.group_title }}" class="h-full w-full object-cover">
+                {% else %}
+                  <i class="fa-solid fa-sparkles text-xl" aria-hidden="true"></i>
+                {% endif %}
+              </span>
+
+              <span class="mt-3 block truncate text-sm font-black text-loomera-textPrimary">
+                {{ group.group_title }}
+              </span>
+            </a>
+          {% endfor %}
+        </div> {% endcomment %}
+      </section>
+    {% endif %}
+
+    <!-- Business CTA -->
+    <section class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-loomera-textPrimary text-white shadow-lm-elevated">
+      <div class="grid gap-6 p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:p-8">
+        <div>
+
+          <h2 class="mt-2 text-2xl font-black">صاحب مجموعه هستی؟</h2>
+          <p class="mt-3 max-w-2xl text-sm leading-7 text-white/70">
+            مجموعه خودت را در لومرا ثبت کن و رزروهای آنلاین، مدیریت نوبت‌ها و پرداخت‌ها را یک‌جا داشته باش.
+          </p>
+        </div>
+
+        <a href="{% url 'accounts:register' %}"
+           class="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-black text-loomera-textPrimary shadow-lm-card transition hover:bg-loomera-primarySoft">
+          <span>ثبت مجموعه</span>
+          <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+        </a>
+      </div>
+    </section>
+  </div>
+</main>
+{% endblock %}
+
+{% block js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("[data-scroll-section]").forEach(function (section) {
+      const rail = section.querySelector("[data-scroll-rail]");
+      const prev = section.querySelector("[data-rail-prev]");
+      const next = section.querySelector("[data-rail-next]");
+
+      if (!rail) return;
+
+      const getScrollAmount = function () {
+        const firstItem = rail.querySelector("[data-salon-rail-item], .snap-start");
+        if (firstItem) {
+          return firstItem.getBoundingClientRect().width + 16;
+        }
+        return Math.round(rail.clientWidth * 0.8);
+      };
+
+      if (prev) {
+        prev.addEventListener("click", function () {
+          rail.scrollBy({
+            left: getScrollAmount(),
+            behavior: "smooth"
+          });
+        });
+      }
+
+      if (next) {
+        next.addEventListener("click", function () {
+          rail.scrollBy({
+            left: -getScrollAmount(),
+            behavior: "smooth"
+          });
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" fill="none" role="img" aria-labelledby="title desc">
+<title>Loomera — No Availability</title>
+<desc>Loomera empty state artwork for No Availability, light mode, abstract calm utility style.</desc>
+<defs>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#735CBE" flood-opacity="0.08"/>
+  </filter>
+  <linearGradient id="halo" x1="70" y1="35" x2="250" y2="185" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#EEE8FA"/>
+    <stop offset="1" stop-color="#F2ECFE"/>
+  </linearGradient>
+  <linearGradient id="panel" x1="40" y1="44" x2="280" y2="196" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#FFFFFF"/>
+    <stop offset="1" stop-color="#F8F5FE"/>
+  </linearGradient>
+</defs>
+<rect width="320" height="240" rx="28" fill="#FCFBFE"/>
+<rect x="24" y="20" width="272" height="192" rx="24" fill="url(#panel)" stroke="#ECE8F2"/>
+<ellipse cx="160" cy="190" rx="62" ry="10" fill="rgba(115,92,190,0.10)"/>
+<circle cx="160" cy="108" r="72" fill="url(#halo)"/>
+<path d="M55 90C61 83 68 80 76 81C80 69 90 63 100 63C111 63 121 69 126 79C132 77 138 78 144 84C149 89 151 96 149 102H54C52 97 52 93 55 90Z" fill="#F4F1F8"/>
+<circle cx="255" cy="66" r="4" fill="#9B80E0" opacity="0.9"/>
+<circle cx="266" cy="78" r="2.5" fill="#A7C8A1" opacity="0.9"/>
+
+
+<rect x="98" y="146" width="124" height="10" rx="5" fill="#ECE8F2"/>
+<path d="M94 154H226" stroke="#D5D0E0" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
+
+<circle cx="160" cy="110" r="40" fill="#FFFFFF" stroke="#9B80E0" stroke-width="5"/>
+<circle cx="160" cy="110" r="4" fill="#735CBE"/>
+<path d="M160 110V88" stroke="#735CBE" stroke-width="5" stroke-linecap="round"/>
+<path d="M160 110L178 122" stroke="#735CBE" stroke-width="5" stroke-linecap="round"/>
+<circle cx="160" cy="110" r="56" stroke="#ECE8F2" stroke-width="2" stroke-dasharray="2 8"/>
+</svg>

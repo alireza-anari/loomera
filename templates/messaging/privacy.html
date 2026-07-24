@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}حریم خصوصی ربات‌ها و پیام‌رسان‌ها | Loomera{% endblock %}
+{% block body_class %}lm-messaging-privacy-page{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-4xl px-4 py-6 sm:py-10">
+    <article class="rounded-[2rem] border border-[color:var(--lm-border)] bg-[color:var(--lm-surface)] p-5 shadow-sm sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--lm-muted)]">Messaging privacy</p>
+        <h1 class="mt-2 text-2xl font-bold text-[color:var(--lm-text)] sm:text-3xl">حریم خصوصی ربات‌ها و پیام‌رسان‌ها</h1>
+        <p class="mt-3 text-sm leading-7 text-[color:var(--lm-muted)]">نسخه متن: {{ privacy_version }}</p>
+
+        <div class="mt-6 space-y-5 text-sm leading-8 text-[color:var(--lm-text)]">
+            <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+                <h2 class="text-base font-bold">چه داده‌هایی ذخیره می‌شود؟</h2>
+                <p class="mt-2 text-[color:var(--lm-muted)]">
+                    برای اتصال حساب Loomera به پیام‌رسان، شناسه پیام‌رسان، chat_id، نام نمایشی، نام کاربری، شماره موبایل در صورت ارسال توسط provider، وضعیت اتصال، رویدادهای webhook و لاگ ارسال/دریافت پیام ذخیره می‌شود.
+                </p>
+            </section>
+
+            <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+                <h2 class="text-base font-bold">توکن‌ها و دکمه‌های عملیاتی</h2>
+                <p class="mt-2 text-[color:var(--lm-muted)]">
+                    توکن اتصال و توکن دکمه‌های عملیاتی زمان‌دار و یک‌بارمصرف هستند. مقدار خام توکن اتصال در دیتابیس نگهداری نمی‌شود و هنگام کلیک روی هر دکمه، کاربر، پیام‌رسان، وضعیت آبجکت و دسترسی همان لحظه دوباره بررسی می‌شود.
+                </p>
+            </section>
+
+            <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+                <h2 class="text-base font-bold">پیام‌های عملیاتی و تبلیغاتی</h2>
+                <p class="mt-2 text-[color:var(--lm-muted)]">
+                    پیام‌های عملیاتی شامل نوبت، پرداخت، همکاری، مرخصی، پشتیبانی و پیام‌های سیستمی است. پیام‌های تبلیغاتی شامل پیشنهادها و کمپین‌هاست و جداگانه قابل خاموش‌کردن است. پیام‌های حیاتی امنیتی یا حقوقی ممکن است برای حفظ امنیت حساب و انجام تعهدات سرویس ارسال شوند.
+                </p>
+            </section>
+
+            <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+                <h2 class="text-base font-bold">قطع اتصال و حذف اثر ارسال</h2>
+                <p class="mt-2 text-[color:var(--lm-muted)]">
+                    هر زمان می‌توانی اتصال ربات را از صفحه وضعیت اتصال قطع کنی. بعد از قطع اتصال، پیام جدیدی از آن اتصال ارسال نمی‌شود؛ اما لاگ‌های لازم برای امنیت، رفع خطا، حسابرسی و جلوگیری از اجرای دوباره اکشن‌ها طبق سیاست نگهداری داده Loomera باقی می‌ماند.
+                </p>
+            </section>
+
+            <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+                <h2 class="text-base font-bold">محدودیت providerها</h2>
+                <p class="mt-2 text-[color:var(--lm-muted)]">
+                    هر پیام‌رسان ممکن است قوانین، API و محدودیت‌های خودش را داشته باشد. Loomera فقط قابلیت‌هایی را فعال می‌کند که provider به‌صورت امن و قابل اتکا پشتیبانی کند؛ انتشار خودکار استوری یا قابلیت‌های مشابه بدون API رسمی فعال نمی‌شود.
+                </p>
+            </section>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-2">
+            <a href="{% url 'messaging:preferences' %}" class="inline-flex rounded-2xl bg-[color:var(--lm-primary)] px-5 py-3 text-sm font-bold text-white shadow-sm hover:opacity-90">تنظیمات اعلان پیام‌رسان‌ها</a>
+            <a href="{% url 'messaging:status' %}" class="inline-flex rounded-2xl border border-[color:var(--lm-border)] px-5 py-3 text-sm font-bold text-[color:var(--lm-text)] hover:bg-[color:var(--lm-surface-soft)]">وضعیت اتصال</a>
+        </div>
+    </article>
+</section>
+{% endblock %}

@@ -1,0 +1,23 @@
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <h2 class="text-lg font-black tracking-tight text-slate-950">{{ title }}</h2>
+    {% if subtitle %}
+      <p class="mt-1 text-sm text-slate-500">{{ subtitle }}</p>
+    {% endif %}
+  </div>
+
+  {% if action_label and action_url %}
+    {% if action_url == '#' %}
+      <span class="inline-flex cursor-not-allowed items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-400">
+        <span>{{ action_label }}</span>
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+      </span>
+    {% else %}
+      <a href="{{ action_url }}"
+         class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-loomera-primary/20 hover:bg-loomera-surfaceSoft hover:text-slate-900">
+        <span>{{ action_label }}</span>
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+      </a>
+    {% endif %}
+  {% endif %}
+</div>

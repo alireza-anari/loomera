@@ -1,0 +1,90 @@
+/**
+ * Essential Styles - Only what Tailwind cannot do
+ * 
+ * این فایل فقط شامل استایل‌هایی است که Tailwind نمی‌تواند پوشش دهد:
+ * - Custom animations با keyframes
+ * - Pseudo-selectors پیچیده
+ * - Browser-specific utilities
+ */
+
+/* ============================================================================
+   NO-SCROLLBAR UTILITY
+   ============================================================================ */
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* ============================================================================
+   MODAL ANIMATIONS
+   ============================================================================ */
+
+/* Modal backdrop fade */
+#calendarModal {
+    transition: opacity 0.3s ease-out;
+}
+
+#calendarModal:not(.show) {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#calendarModal.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Bottom sheet slide up */
+#bottomSheet {
+    transition: transform 0.3s ease-out;
+}
+
+#calendarModal:not(.show) #bottomSheet {
+    transform: translateY(100%);
+}
+
+#calendarModal.show #bottomSheet {
+    transform: translateY(0);
+}
+
+/* ============================================================================
+   CALENDAR GRID (7 columns)
+   ============================================================================ */
+
+.modal-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.modal-day-names {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+/* ============================================================================
+   SPINNER ANIMATION
+   ============================================================================ */
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.fa-spinner.fa-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* ============================================================================
+   END OF ESSENTIAL STYLES
+   ============================================================================ */
+
+/* 
+ * همه چیز دیگر با Tailwind classes پیاده‌سازی شده است.
+ * لطفاً قبل از اضافه کردن CSS جدید، ابتدا Tailwind را بررسی کنید.
+ */

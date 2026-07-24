@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static jalali_filters %}
+
+{% block title %}اعلان‌ها | Loomera{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-loomera-bg px-4 py-8 text-loomera-textPrimary sm:px-6 lg:px-8" dir="rtl">
+  <section class="mx-auto max-w-4xl space-y-5">
+    <div class="rounded-3xl border border-loomera-borderSoft bg-white p-5 shadow-sm">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm font-medium text-loomera-textMuted">مرکز اعلان‌ها</p>
+          <h1 class="mt-1 text-2xl font-bold text-loomera-textPrimary">اعلان‌های شما</h1>
+          <p class="mt-1 text-sm text-loomera-textMuted">{{ unread_count }} اعلان خوانده‌نشده دارید.</p>
+        </div>
+        <form method="post" action="{% url 'notifications:read_all' %}">
+          {% csrf_token %}
+          <button class="inline-flex items-center justify-center rounded-full bg-loomera-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-loomera-primaryDark" type="submit">
+            خواندن همه
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <a class="rounded-full border px-4 py-2 text-sm {% if active_filter == 'all' %}border-loomera-primary bg-loomera-primary/10 text-loomera-primary{% else %}border-loomera-borderSoft bg-white text-loomera-textMuted{% endif %}" href="?filter=all{% if active_role %}&role={{ active_role }}{% endif %}">همه</a>
+      <a class="rounded-full border px-4 py-2 text-sm {% if active_filter == 'unread' %}border-loomera-primary bg-loomera-primary/10 text-loomera-primary{% else %}border-loomera-borderSoft bg-white text-loomera-textMuted{% endif %}" href="?filter=unread{% if active_role %}&role={{ active_role }}{% endif %}">خوانده‌نشده</a>
+      <a class="rounded-full border px-4 py-2 text-sm {% if active_filter == 'read' %}border-loomera-primary bg-loomera-primary/10 text-loomera-primary{% else %}border-loomera-borderSoft bg-white text-loomera-textMuted{% endif %}" href="?filter=read{% if active_role %}&role={{ active_role }}{% endif %}">خوانده‌شده</a>
+    </div>
+
+    <div class="space-y-3">
+      {% for recipient in notifications %}
+        <article class="rounded-3xl border {% if recipient.is_read %}border-loomera-borderSoft bg-white{% else %}border-loomera-primary/30 bg-loomera-primary/5{% endif %} p-4 shadow-sm">
+          <div class="flex items-start gap-3">
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-bgSoft text-loomera-primary">
+              <i class="{{ recipient.notification.icon|default:'fa-regular fa-bell' }}"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h2 class="text-base font-bold text-loomera-textPrimary">{{ recipient.notification.title }}</h2>
+                <span class="text-xs text-loomera-textMuted">{{ recipient.notification.created_at|jalali }}، ساعت {{ recipient.notification.created_at|time:"H:i" }}</span>
+              </div>
+              {% if recipient.notification.body %}
+                <p class="mt-2 text-sm leading-7 text-loomera-textMuted">{{ recipient.notification.body }}</p>
+              {% endif %}
+              <div class="mt-3 flex flex-wrap items-center gap-2">
+                <span class="rounded-full bg-white px-3 py-1 text-xs text-loomera-textMuted ring-1 ring-loomera-borderSoft">{{ recipient.notification.get_category_display }}</span>
+                {% if recipient.notification.action_url %}
+                  <a class="rounded-full bg-loomera-primary px-3 py-1 text-xs font-semibold text-white" href="{{ recipient.notification.action_url }}">مشاهده</a>
+                {% endif %}
+                {% if not recipient.is_read %}
+                  <form method="post" action="{% url 'notifications:read' recipient.id %}">
+                    {% csrf_token %}
+                    <button class="rounded-full border border-loomera-borderSoft bg-white px-3 py-1 text-xs text-loomera-textMuted" type="submit">خواندم</button>
+                  </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </article>
+      {% empty %}
+        <div class="rounded-3xl border border-dashed border-loomera-borderSoft bg-white p-8 text-center text-loomera-textMuted">
+          فعلاً اعلانی برای نمایش وجود ندارد.
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+      <div class="flex items-center justify-center gap-2 pt-2 text-sm">
+        {% if page_obj.has_previous %}
+          <a class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2" href="?page={{ page_obj.previous_page_number }}&filter={{ active_filter }}{% if active_role %}&role={{ active_role }}{% endif %}">قبلی</a>
+        {% endif %}
+        <span class="text-loomera-textMuted">صفحه {{ page_obj.number }} از {{ paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+          <a class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2" href="?page={{ page_obj.next_page_number }}&filter={{ active_filter }}{% if active_role %}&role={{ active_role }}{% endif %}">بعدی</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}

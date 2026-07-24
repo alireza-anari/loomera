@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}جستجوی مجموعه و خدمات زیبایی | Loomera{% endblock %}
+{% block meta_description %}جستجوی مجموعه‌ها، خدمات و متخصصان زیبایی در Loomera با فیلتر قیمت، امتیاز، تخفیف و زمان آزاد.{% endblock %}
+
+{% block vendor_css %}
+  <link rel="stylesheet" href="{% static 'vendor/mapp/dist/css/mapp.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/mapp/dist/css/fa/style.css' %}">
+{% endblock %}
+
+{% block head %}
+  <meta name="robots" content="noindex,follow">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{% url 'search:search_page' %}">
+  <style>
+    body[data-page="search"] { overflow: hidden !important; height: 100dvh; }
+    body[data-page="search"] #main-content {
+      width: 100%;
+      max-width: none;
+      padding: 0;
+      overflow: hidden !important;
+    }
+    @media (min-width: 1024px) {
+      body[data-page="search"] #main-content {
+        position: fixed;
+        inset-inline: 0;
+        top: var(--loomera-search-top-offset, 5rem);
+        bottom: 0;
+        height: auto;
+        overscroll-behavior: none;
+      }
+      body[data-page="search"] .lm-shell-main,
+      body[data-page="search"] .lm-shell-main--with-mobile-nav {
+        overflow: hidden !important;
+      }
+    }
+    #search-map {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      display: block;
+      position: relative;
+      z-index: 0;
+      background: #eef0f3;
+      pointer-events: auto;
+      touch-action: none;
+      overscroll-behavior: none;
+    }
+    #search-map .leaflet-container,
+    #search-map.leaflet-container {
+      width: 100% !important;
+      height: 100% !important;
+      background: #eef0f3;
+      touch-action: none;
+    }
+    #search-map img,
+    .leaflet-container img { max-width: none !important; }
+
+    .lm-search-popup .leaflet-popup-content-wrapper {
+      border-radius: 24px;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid rgba(225, 221, 235, 0.95);
+      box-shadow: 0 24px 64px rgba(46, 42, 60, 0.16);
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(12px);
+    }
+    .lm-search-popup .leaflet-popup-content {
+      margin: 0;
+      min-width: 240px;
+      max-width: 280px;
+      font-family: inherit;
+    }
+    .lm-search-popup .leaflet-popup-tip {
+      background: #fff;
+      border: 1px solid rgba(225, 221, 235, 0.95);
+      box-shadow: 0 12px 32px rgba(46, 42, 60, 0.12);
+    }
+    .leaflet-marker-icon,
+    .leaflet-marker-shadow,
+    .leaflet-interactive { pointer-events: auto !important; }
+    .leaflet-popup { z-index: 900 !important; }
+
+    .leaflet-pane,
+    .leaflet-map-pane,
+    .leaflet-marker-pane,
+    .leaflet-popup-pane { pointer-events: auto !important; }
+    .leaflet-popup-pane { z-index: 750 !important; }
+    .lm-search-popup .leaflet-popup-close-button {
+      top: 10px !important;
+      left: 10px !important;
+      right: auto !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 30px !important;
+      height: 30px !important;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.94) !important;
+      color: #6b5ca5 !important;
+      line-height: 1 !important;
+      font-family: Arial, sans-serif !important;
+      font-size: 22px !important;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      box-shadow: 0 8px 20px rgba(46, 42, 60, 0.10);
+    }
+
+    .lm-search-user-marker {
+      position: relative;
+      width: 22px !important;
+      height: 22px !important;
+      margin: -11px 0 0 -11px !important;
+      border: 3px solid #fff;
+      border-radius: 999px;
+      background: #2563eb;
+      box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.18), 0 8px 22px rgba(37, 99, 235, 0.35);
+    }
+
+    .lm-search-user-marker::after {
+      content: "";
+      position: absolute;
+      inset: -9px;
+      border: 1px solid rgba(37, 99, 235, 0.22);
+      border-radius: inherit;
+    }
+
+    #salonList {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+      padding-bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    @media (min-width: 1024px) {
+      #salonList {
+        padding-bottom: 2rem;
+      }
+    }
+    body[data-page="search"] .jdp-popover,
+    body[data-page="search"] .jdp-container,
+    body[data-page="search"] .jalali-datepicker,
+    body[data-page="search"] [data-jdp-container] {
+      z-index: 1600 !important;
+    }
+    body[data-page="search"] .jdp-popover {
+      position: absolute !important;
+      isolation: isolate;
+    }
+  </style>
+{% endblock %}
+
+{% block body_attrs %}
+  data-page="search"
+  data-salon-locations-url="{% url 'search:salon_list' %}"
+  data-location-suggest-url="{% url 'search:location_suggestions' %}"
+  data-service-suggest-url="{% url 'services:service_suggestions' %}"
+  data-map-enabled="{{ map_provider_enabled|yesno:'true,false' }}"
+  data-map-tile-url-template="{% url 'search:map_tile_proxy' 0 0 0 %}"
+  data-search-endpoint="{% url 'search:search_results_api' %}"
+  data-search-page-url="{% url 'search:search_page' %}"
+  data-initial-search-state='{{ search_state_json|escapejs }}'
+{% endblock %}
+
+{% block content %}
+  <section class="relative h-[calc(100dvh-5rem)] w-full overflow-hidden lg:h-full bg-loomera-bg text-loomera-textPrimary" aria-label="جستجوی مجموعه‌ها و خدمات زیبایی">
+    {% include "partials/search/search_page_shell.html" %}
+  </section>
+{% endblock %}
+
+{% block vendor_js_before_app %}
+  <script src="{% static 'vendor/mapp/dist/js/jquery-3.2.1.min.js' %}"></script>
+  <script src="{% static 'vendor/mapp/dist/js/mapp.env.js' %}"></script>
+  <script src="{% static 'vendor/mapp/dist/js/mapp.env.bridge.js' %}"></script>
+  <script src="{% static 'vendor/mapp/dist/js/mapp.min.js' %}"></script>
+{% endblock %}

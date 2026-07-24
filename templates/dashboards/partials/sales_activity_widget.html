@@ -1,0 +1,48 @@
+{% if dashboard_home.sales_activity.is_empty %}
+  <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-5 text-center" role="status">
+    <span class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-lm-soft">
+      <i class="fa-solid fa-chart-line text-base" aria-hidden="true"></i>
+    </span>
+    <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">هنوز فروش نهایی‌شده‌ای ثبت نشده</h3>
+    <p class="mt-2 text-xs leading-6 text-loomera-textMuted">وقتی سفارش‌های نهایی‌شده داشته باشی، خلاصه فروش ۷ روز اخیر اینجا نمایش داده می‌شود.</p>
+  </div>
+{% else %}
+  <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_220px]">
+    <div class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+      <div class="flex min-h-[220px] items-end gap-2 sm:gap-3" aria-label="نمودار فروش هفت روز اخیر">
+        {% for day in dashboard_home.sales_activity.days %}
+          <div class="flex flex-1 flex-col items-center gap-3">
+            <div class="group relative flex h-48 w-full items-end justify-center rounded-t-2xl bg-white">
+              <div class="w-full rounded-t-2xl bg-gradient-to-t from-loomera-primary to-loomera-primary/70 transition group-hover:opacity-90"
+                   style="height: {{ day.bar_width }}%; min-height: {% if day.bar_width %}14px{% else %}0px{% endif %};"></div>
+              <div class="pointer-events-none absolute bottom-8 right-1/2 z-10 translate-x-1/2 whitespace-nowrap rounded-2xl bg-loomera-textPrimary px-3 py-2 text-[11px] font-bold text-white opacity-0 shadow-lm-card transition group-hover:opacity-100">
+                <div>{{ day.sales_label }}</div>
+                <div class="mt-1 text-white/60">{{ day.appointments_label }} رزرو</div>
+              </div>
+            </div>
+            <div class="text-center">
+              <p class="text-[11px] font-black text-loomera-textSecondary">{{ day.label }}</p>
+              <p class="mt-1 text-[10px] font-bold text-loomera-textMuted">{{ day.appointments_label }} رزرو</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="space-y-3">
+      {% for item in dashboard_home.sales_activity.summary %}
+        <div class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+          <p class="text-xs font-bold text-loomera-textMuted">{{ item.label }}</p>
+          <p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ item.value }}</p>
+        </div>
+      {% endfor %}
+
+      <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+        <p class="text-sm font-black text-loomera-textPrimary">برداشت سریع</p>
+        <p class="mt-2 text-xs leading-6 text-loomera-textMuted">
+          نمودار کمک می‌کند روزهای شلوغ‌تر، افت فروش و تفاوت ارزش رزروها سریع‌تر دیده شود.
+        </p>
+      </div>
+    </div>
+  </div>
+{% endif %}

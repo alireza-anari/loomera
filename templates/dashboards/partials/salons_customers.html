@@ -1,0 +1,120 @@
+{% if customer_cards %}
+  <div class="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-3" role="list" aria-label="لیست مشتریان مجموعه" data-crm-customer-list>
+    {% for customer in customer_cards %}
+      <article class="group min-w-0 rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card"
+               role="listitem"
+               data-crm-customer-card
+               data-crm-customer-search="{{ customer.full_name }} {{ customer.mobile }} {{ customer.email }} {{ customer.segment_label }}"
+               data-crm-customer-segment="{{ customer.segment_label }}"
+               data-crm-customer-appointments="{{ customer.appointments_count }}"
+               data-crm-customer-spent="{{ customer.total_spent_value }}">
+        <div class="flex min-w-0 items-start justify-between gap-3">
+          <div class="flex min-w-0 items-center gap-3">
+            {% if customer.has_profile_image %}
+              <img src="{{ customer.profile_image.url }}"
+                   alt="{{ customer.full_name }}"
+                   class="h-14 w-14 shrink-0 rounded-2xl object-cover ring-1 ring-loomera-borderSoft">
+            {% else %}
+              <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-base font-black text-loomera-primaryText" aria-hidden="true">
+                {{ customer.initial }}
+              </span>
+            {% endif %}
+
+            <div class="min-w-0">
+              <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ customer.full_name }}</h3>
+              {% if customer.mobile %}
+                <p class="mt-1 text-xs font-semibold text-loomera-textSecondary">{{ customer.mobile }}</p>
+              {% else %}
+                <p class="mt-1 text-xs text-loomera-textMuted">بدون شماره ثبت‌شده</p>
+              {% endif %}
+              {% if customer.email %}
+                <p class="mt-1 truncate text-[11px] text-loomera-textMuted">{{ customer.email }}</p>
+              {% endif %}
+            </div>
+          </div>
+
+          <span class="inline-flex max-w-[42%] shrink-0 items-center justify-center truncate rounded-full px-3 py-1 text-[11px] font-black {% if customer.segment_label == 'مشتری ارزشمند' %}bg-loomera-primarySoft text-loomera-primaryText{% elif customer.segment_label == 'مشتری فعال' %}bg-loomera-successSoft text-loomera-success{% elif customer.segment_label == 'بدون رزرو' %}bg-white text-loomera-textSecondary ring-1 ring-loomera-borderSoft{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
+            {{ customer.segment_label }}
+          </span>
+        </div>
+
+        <dl class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-2xl bg-white px-3 py-3">
+            <dt class="text-[11px] font-bold text-loomera-textMuted">رزروها</dt>
+            <dd class="mt-1 text-sm font-black text-loomera-textPrimary">{{ customer.appointments_count_label }}</dd>
+          </div>
+          <div class="rounded-2xl bg-white px-3 py-3">
+            <dt class="text-[11px] font-bold text-loomera-textMuted">ارزش مالی</dt>
+            <dd class="mt-1 text-sm font-black text-loomera-textPrimary">{{ customer.total_spent_label }}</dd>
+          </div>
+          <div class="rounded-2xl bg-white px-3 py-3">
+            <dt class="text-[11px] font-bold text-loomera-textMuted">آخرین مراجعه</dt>
+            <dd class="mt-1 truncate text-sm font-black text-loomera-textPrimary" title="{{ customer.last_visit_label }}">{{ customer.last_visit_short_label }}</dd>
+          </div>
+          <div class="rounded-2xl bg-white px-3 py-3">
+            <dt class="text-[11px] font-bold text-loomera-textMuted">یادداشت‌ها</dt>
+            <dd class="mt-1 text-sm font-black text-loomera-textPrimary">{{ customer.notes_count_label }}</dd>
+          </div>
+        </dl>
+
+        <div class="mt-4 min-w-0 rounded-2xl border border-loomera-borderSoft bg-white/90 px-3 py-3 text-xs leading-6 text-loomera-textMuted">
+          {% if customer.last_visit_raw %}
+            آخرین تعامل ثبت‌شده:
+            <span class="font-black text-loomera-textSecondary">{{ customer.last_visit_label }}</span>
+          {% else %}
+            هنوز رزروی برای این مشتری در این مجموعه ثبت نشده است.
+          {% endif %}
+        </div>
+
+        {% if customer.segment_label == 'نیازمند پیگیری' or customer.segment_label == 'بدون رزرو' %}
+          <div class="mt-4 rounded-2xl border border-loomera-warning/20 bg-loomera-warningSoft px-3 py-3 text-xs leading-6 text-loomera-warning">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="font-black">پیشنهاد عملیاتی</p>
+                <p class="mt-1">برای این مشتری تماس، یادآوری یا پیشنهاد رزرو بعدی را بررسی کن.</p>
+              </div>
+              <i class="fa-solid fa-bell shrink-0 pt-1" aria-hidden="true"></i>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <a href="{{ customer.detail_url }}"
+             class="inline-flex items-center gap-2 rounded-full bg-loomera-primary px-3 py-2 text-xs font-black text-white shadow-sm transition hover:opacity-95"
+             aria-label="مشاهده پروفایل مشتری {{ customer.full_name }}">
+            <span>پروفایل</span>
+            <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+          </a>
+
+          {% if customer.call_url %}
+            <a href="{{ customer.call_url }}"
+               class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText"
+               aria-label="تماس با {{ customer.full_name }}">
+              <i class="fa-solid fa-phone text-[10px]" aria-hidden="true"></i>
+              <span>تماس</span>
+            </a>
+          {% endif %}
+
+          <a href="{{ customer.appointments_url }}"
+             class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText"
+             aria-label="مشاهده رزروهای {{ customer.full_name }}">
+            <i class="fa-regular fa-calendar-days text-[10px]" aria-hidden="true"></i>
+            <span>رزروها</span>
+          </a>
+        </div>
+      </article>
+    {% endfor %}
+
+    <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3" data-crm-client-empty-filter>
+      مشتری‌ای با این جستجو یا فیلتر پیدا نشد.
+    </div>
+  </div>
+{% else %}
+  <div class="rounded-[28px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-8 text-center">
+    <span class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-white text-loomera-primaryText shadow-sm">
+      <i class="fa-solid fa-users text-lg" aria-hidden="true"></i>
+    </span>
+    <h3 class="mt-4 text-base font-black text-loomera-textPrimary">هنوز مشتری‌ای برای این مجموعه ثبت نشده است</h3>
+    <p class="mx-auto mt-2 max-w-xl text-sm leading-7 text-loomera-textMuted">وقتی مشتری از این مجموعه رزرو داشته باشد یا توسط مجموعه اضافه شود، این محیط کاری پر می‌شود.</p>
+  </div>
+{% endif %}

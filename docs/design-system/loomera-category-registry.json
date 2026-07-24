@@ -1,0 +1,212 @@
+[
+  {
+    "category_slug": "hair",
+    "category_label_fa": "مو",
+    "category_label_en": "Hair",
+    "category_icon": "assets/png/icons/light/category-icon-hair.png",
+    "category_icon_dark": "assets/png/icons/dark/category-icon-hair.png",
+    "category_icon_active": "assets/png/icons/active-light/category-icon-hair.png",
+    "category_icon_active_dark": "assets/png/icons/active-dark/category-icon-hair.png",
+    "category_icon_compact": "assets/png/icons/compact/category-icon-hair-compact.png",
+    "category_icon_only": "assets/png/icons/icon-only/category-icon-hair-icon-only.png",
+    "category_artwork": "assets/png/artwork/light/category-artwork-hair.png",
+    "category_artwork_dark": "assets/png/artwork/dark/category-artwork-hair.png",
+    "category_artwork_active": "assets/png/artwork/active-light/category-artwork-hair.png",
+    "category_artwork_active_dark": "assets/png/artwork/active-dark/category-artwork-hair.png",
+    "dimensions": {
+      "icon": "1024x1024",
+      "compact": "256x256",
+      "artwork": "1200x880"
+    },
+    "status": "approved-sample-based"
+  },
+  {
+    "category_slug": "skin",
+    "category_label_fa": "پوست و فیشیال",
+    "category_label_en": "Skin / Facial",
+    "category_icon": "assets/png/icons/light/category-icon-skin.png",
+    "category_icon_dark": "assets/png/icons/dark/category-icon-skin.png",
+    "category_icon_active": "assets/png/icons/active-light/category-icon-skin.png",
+    "category_icon_active_dark": "assets/png/icons/active-dark/category-icon-skin.png",
+    "category_icon_compact": "assets/png/icons/compact/category-icon-skin-compact.png",
+    "category_icon_only": "assets/png/icons/icon-only/category-icon-skin-icon-only.png",
+    "category_artwork": "assets/png/artwork/light/category-artwork-skin.png",
+    "category_artwork_dark": "assets/png/artwork/dark/category-artwork-skin.png",
+    "category_artwork_active": "assets/png/artwork/active-light/category-artwork-skin.png",
+    "category_artwork_active_dark": "assets/png/artwork/active-dark/category-artwork-skin.png",
+    "dimensions": {
+      "icon": "1024x1024",
+      "compact": "256x256",
+      "artwork": "1200x880"
+    },
+    "status": "approved-sample-based"
+  },
+  {
+    "category_slug": "brow-lash",
+    "category_label_fa": "ابرو و مژه",
+    "category_label_en": "Brow / Lash",
+    "category_icon": "assets/png/icons/light/category-icon-brow-lash.png",
+    "category_icon_dark": "assets/png/icons/dark/category-icon-brow-lash.png",
+    "category_icon_active": "assets/png/icons/active-light/category-icon-brow-lash.png",
+    "category_icon_active_dark": "assets/png/icons/active-dark/category-icon-brow-lash.png",
+    "category_icon_compact": "assets/png/icons/compact/category-icon-brow-lash-compact.png",
+    "category_icon_only": "assets/png/icons/icon-only/category-icon-brow-lash-icon-only.png",
+    "category_artwork": "assets/png/artwork/light/category-artwork-brow-lash.png",
+    "category_artwork_dark": "assets/png/artwork/dark/category-artwork-brow-lash.png",
+    "category_artwork_active": "assets/png/artwork/active-light/category-artwork-brow-lash.png",
+    "category_artwork_active_dark": "assets/png/artwork/active-dark/category-artwork-brow-lash.png",
+    "dimensions": {
+      "icon": "1024x1024",
+      "compact": "256x256",
+      "artwork": "1200x880"
+    },
+    "status": "approved-sample-based"
+  },
+  {
+    "category_slug": "nails",
+    "category_label_fa": "ناخن",
+    "category_label_en": "Nails",
+    "category_icon": "assets/png/icons/light/category-icon-nails.png",
+    "category_icon_dark": "assets/png/icons/dark/category-icon-nails.png",
+    "category_icon_active": "assets/png/icons/active-light/category-icon-nails.png",
+    "category_icon_active_dark": "assets/png/icons/active-dark/category-icon-nails.png",
+    "category_icon_compact": "assets/png/icons/compact/category-icon-nails-compact.png",
+    "category_icon_only": "assets/png/icons/icon-only/category-icon-nails-icon-only.png",
+    "category_artwork": "assets/png/artwork/light/category-artwork-nails.png",
+    "category_artwork_dark": "assets/png/artwork/dark/category-artwork-nails.png",
+    "category_artwork_active": "assets/png/artwork/active-light/category-artwork-nails.png",
+    "category_artwork_active_dark": "assets/png/artwork/active-dark/category-artwork-nails.png",
+    "dimensions": {
+      "icon": "1024x1024",
+      "compact": "256x256",
+      "artwork": "1200x880"
+    },
+    "status": "approved-sample-based"
+  },
+  {
+    "category_slug": "massage",
+    "category_label_fa": "ماساژ",
+    "category_label_en": "Massage",
+    "category_icon": "assets/png/icons/light/category-icon-massage.png",
+    "category_icon_dark": "assets/png/icons/dark/category-icon-massage.png",
+    "category_icon_active": "assets/png/icons/active-light/category-icon-massage.png",
+    "category_icon_active_dark": "assets/png/icons/active-dark/category-icon-massage.png",
+    "category_icon_compact": "assets/png/icons/compact/category-icon-massage-compact.png",
+    "category_icon_only": "assets/png/icons/icon-only/category-icon-massage-icon-only.png",
+    "category_artwork": "assets/png/artwork/light/category-artwork-massage.png",
+    "category_artwork_dark": "assets/png/artwork/dark/category-artwork-massage.png",
+    "category_artwork_active": "assets/png/artwork/active-light/category-artwork-massage.png",
+    "category_artwork_active_dark": "assets/png/artwork/active-dark/category-artwork-massage.png",
+    "dimensions": {
+      "icon": "1024x1024",
+      "compact": "256x256",
+      "artwork": "1200x880"
+    },
+    "status": "approved-sample-based"
+  },
+  {
+    "category_slug": "wellness",
+    "category_label_fa": "ولنس",
+    "category_label_en": "Wellness",
+    "category_icon": "assets/png/icons/light/category-icon-wellness.png",
+    "category_icon_dark": "assets/png/icons/dark/category-icon-wellness.png",
+    "category_icon_active": "assets/png/icons/active-light/category-icon-wellness.png",
+    "category_icon_active_dark": "assets/png/icons/active-dark/category-icon-wellness.png",
+    "category_icon_compact": "assets/png/icons/compact/category-icon-wellness-compact.png",
+    "category_icon_only": "assets/png/icons/icon-only/category-icon-wellness-icon-only.png",
+    "category_artwork": "assets/png/artwork/light/category-artwork-wellness.png",
+    "category_artwork_dark": "assets/png/artwork/dark/category-artwork-wellness.png",
+    "category_artwork_active": "assets/png/artwork/active-light/category-artwork-wellness.png",
+    "category_artwork_active_dark": "assets/png/artwork/active-dark/category-artwork-wellness.png",
+    "dimensions": {
+      "icon": "1024x1024",
+      "compact": "256x256",
+      "artwork": "1200x880"
+    },
+    "status": "approved-sample-based"
+  },
+  {
+    "category_slug": "aesthetic-treatments",
+    "category_label_fa": "درمان‌های زیبایی",
+    "category_label_en": "Aesthetic Treatments",
+    "category_icon": "assets/png/icons/light/category-icon-aesthetic-treatments.png",
+    "category_icon_dark": "assets/png/icons/dark/category-icon-aesthetic-treatments.png",
+    "category_icon_active": "assets/png/icons/active-light/category-icon-aesthetic-treatments.png",
+    "category_icon_active_dark": "assets/png/icons/active-dark/category-icon-aesthetic-treatments.png",
+    "category_icon_compact": "assets/png/icons/compact/category-icon-aesthetic-treatments-compact.png",
+    "category_icon_only": "assets/png/icons/icon-only/category-icon-aesthetic-treatments-icon-only.png",
+    "category_artwork": "assets/png/artwork/light/category-artwork-aesthetic-treatments.png",
+    "category_artwork_dark": "assets/png/artwork/dark/category-artwork-aesthetic-treatments.png",
+    "category_artwork_active": "assets/png/artwork/active-light/category-artwork-aesthetic-treatments.png",
+    "category_artwork_active_dark": "assets/png/artwork/active-dark/category-artwork-aesthetic-treatments.png",
+    "dimensions": {
+      "icon": "1024x1024",
+      "compact": "256x256",
+      "artwork": "1200x880"
+    },
+    "status": "approved-sample-based"
+  },
+  {
+    "category_slug": "spa-relaxation",
+    "category_label_fa": "اسپا و ریلکسیشن",
+    "category_label_en": "Spa / Relaxation",
+    "category_icon": "assets/png/icons/light/category-icon-spa-relaxation.png",
+    "category_icon_dark": "assets/png/icons/dark/category-icon-spa-relaxation.png",
+    "category_icon_active": "assets/png/icons/active-light/category-icon-spa-relaxation.png",
+    "category_icon_active_dark": "assets/png/icons/active-dark/category-icon-spa-relaxation.png",
+    "category_icon_compact": "assets/png/icons/compact/category-icon-spa-relaxation-compact.png",
+    "category_icon_only": "assets/png/icons/icon-only/category-icon-spa-relaxation-icon-only.png",
+    "category_artwork": "assets/png/artwork/light/category-artwork-spa-relaxation.png",
+    "category_artwork_dark": "assets/png/artwork/dark/category-artwork-spa-relaxation.png",
+    "category_artwork_active": "assets/png/artwork/active-light/category-artwork-spa-relaxation.png",
+    "category_artwork_active_dark": "assets/png/artwork/active-dark/category-artwork-spa-relaxation.png",
+    "dimensions": {
+      "icon": "1024x1024",
+      "compact": "256x256",
+      "artwork": "1200x880"
+    },
+    "status": "approved-sample-based"
+  },
+  {
+    "category_slug": "body-care",
+    "category_label_fa": "مراقبت بدن",
+    "category_label_en": "Body Care",
+    "category_icon": "assets/png/icons/light/category-icon-body-care.png",
+    "category_icon_dark": "assets/png/icons/dark/category-icon-body-care.png",
+    "category_icon_active": "assets/png/icons/active-light/category-icon-body-care.png",
+    "category_icon_active_dark": "assets/png/icons/active-dark/category-icon-body-care.png",
+    "category_icon_compact": "assets/png/icons/compact/category-icon-body-care-compact.png",
+    "category_icon_only": "assets/png/icons/icon-only/category-icon-body-care-icon-only.png",
+    "category_artwork": "assets/png/artwork/light/category-artwork-body-care.png",
+    "category_artwork_dark": "assets/png/artwork/dark/category-artwork-body-care.png",
+    "category_artwork_active": "assets/png/artwork/active-light/category-artwork-body-care.png",
+    "category_artwork_active_dark": "assets/png/artwork/active-dark/category-artwork-body-care.png",
+    "dimensions": {
+      "icon": "1024x1024",
+      "compact": "256x256",
+      "artwork": "1200x880"
+    },
+    "status": "approved-sample-based"
+  },
+  {
+    "category_slug": "all-services",
+    "category_label_fa": "همه خدمات",
+    "category_label_en": "All Services",
+    "category_icon": "assets/png/icons/light/category-icon-all-services.png",
+    "category_icon_dark": "assets/png/icons/dark/category-icon-all-services.png",
+    "category_icon_active": "assets/png/icons/active-light/category-icon-all-services.png",
+    "category_icon_active_dark": "assets/png/icons/active-dark/category-icon-all-services.png",
+    "category_icon_compact": "assets/png/icons/compact/category-icon-all-services-compact.png",
+    "category_icon_only": "assets/png/icons/icon-only/category-icon-all-services-icon-only.png",
+    "category_artwork": "assets/png/artwork/light/category-artwork-all-services.png",
+    "category_artwork_dark": "assets/png/artwork/dark/category-artwork-all-services.png",
+    "category_artwork_active": "assets/png/artwork/active-light/category-artwork-all-services.png",
+    "category_artwork_active_dark": "assets/png/artwork/active-dark/category-artwork-all-services.png",
+    "dimensions": {
+      "icon": "1024x1024",
+      "compact": "256x256",
+      "artwork": "1200x880"
+    },
+    "status": "approved-sample-based"
+  }
+]

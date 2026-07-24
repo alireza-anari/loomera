@@ -1,0 +1,110 @@
+{% if reports_dashboard.chart.is_empty %}
+  {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-chart-column" title="در این بازه داده‌ای برای نمودار وجود ندارد" description="فیلترهای گزارش را تغییر بده تا روند درآمد و رزروها نمایش داده شود." %}
+{% else %}
+  <style>
+    .lm-report-chart-scroll {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(115, 92, 190, 0.35) transparent;
+    }
+
+    .lm-report-chart-scroll::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .lm-report-chart-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .lm-report-chart-scroll::-webkit-scrollbar-thumb {
+      background: rgba(115, 92, 190, 0.35);
+      border-radius: 999px;
+    }
+
+    .lm-report-chart-bar {
+      position: relative;
+    }
+
+    .lm-report-chart-tip {
+      visibility: hidden;
+      opacity: 0;
+      transform: translate(-50%, 8px);
+      transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+    }
+
+    .lm-report-chart-bar:hover .lm-report-chart-tip {
+      visibility: visible;
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 640px) {
+      .lm-report-chart-tip {
+        display: none;
+      }
+    }
+  </style>
+
+  <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_240px]">
+    <div class="min-w-0 rounded-[24px] bg-loomera-surfaceSoft p-4">
+      {% if reports_dashboard.chart.is_dense %}
+        <div class="mb-3 flex items-center justify-between gap-3 rounded-2xl bg-white/70 px-4 py-3 text-xs font-bold text-slate-500">
+          <span>نمودار شامل {{ reports_dashboard.chart.period_count_label }} بازه است؛ برای دیدن همه ستون‌ها افقی اسکرول کن.</span>
+          <i class="fa-solid fa-arrows-left-right text-loomera-primary" aria-hidden="true"></i>
+        </div>
+      {% endif %}
+
+      <div class="lm-report-chart-scroll overflow-x-auto overflow-y-visible pb-3">
+        <div
+          class="flex min-h-[290px] items-end gap-3 px-1"
+          style="min-width: {{ reports_dashboard.chart.min_width }}px;"
+        >
+          {% for item in reports_dashboard.chart.bars %}
+            <div
+              class="lm-report-chart-bar flex shrink-0 flex-col items-center gap-3"
+              style="width: {{ reports_dashboard.chart.bar_width }}px;"
+            >
+              <div class="relative flex h-56 w-full items-end justify-center">
+                <div
+                  class="w-full rounded-t-[18px] bg-gradient-to-t from-loomera-primary to-loomera-primary/75 transition hover:opacity-90"
+                  style="height: {{ item.height }}%; min-height: 10px;"
+                  aria-label="{{ item.label }} - {{ item.revenue_label }} - {{ item.appointments_label }} رزرو"
+                ></div>
+
+                <div class="lm-report-chart-tip pointer-events-none absolute left-1/2 top-2 z-30 w-max max-w-[220px] rounded-xl bg-slate-950 px-3 py-2 text-center text-[11px] font-semibold text-white shadow-xl">
+                  <div>{{ item.label }}</div>
+                  <div class="mt-1 text-slate-200">{{ item.revenue_label }}</div>
+                  <div class="mt-1 text-slate-400">{{ item.appointments_label }} رزرو • {{ item.completed_label }} انجام‌شده</div>
+                </div>
+              </div>
+
+              <div class="h-[54px] w-full text-center">
+                {% if item.show_label %}
+                  <p class="text-[11px] font-bold leading-5 text-slate-700">{{ item.label }}</p>
+                {% else %}
+                  <span class="mx-auto block h-1.5 w-1.5 rounded-full bg-slate-300"></span>
+                {% endif %}
+                <p class="mt-1 text-[10px] text-slate-400">{{ item.appointments_label }} رزرو</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-3">
+      {% for item in reports_dashboard.chart.summary %}
+        <div class="rounded-[24px] bg-slate-50 p-4">
+          <p class="text-xs font-bold text-slate-500">{{ item.label }}</p>
+          <p class="mt-2 text-lg font-black text-slate-950">{{ item.value }}</p>
+        </div>
+      {% endfor %}
+
+      <div class="rounded-[24px] border border-dashed border-slate-200 p-4">
+        <p class="text-sm font-semibold text-slate-700">گروه‌بندی فعال: {{ reports_dashboard.filter_summary.group_by_label }}</p>
+        <p class="mt-2 text-sm leading-7 text-slate-500">
+          این نمودار کمک می‌کند روزها، هفته‌ها یا ماه‌های پرفروش، افت عملکرد و الگوی تکرار رزروها را سریع‌تر تشخیص بدهی.
+        </p>
+      </div>
+    </div>
+  </div>
+{% endif %}

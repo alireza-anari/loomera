@@ -1,0 +1,94 @@
+<div
+  id="filtersSheet"
+  class="pointer-events-auto absolute inset-x-0 bottom-0 z-30 flex max-h-[78dvh] translate-y-[calc(100%-4.5rem)] flex-col rounded-t-[32px] border border-loomera-borderSoft bg-white shadow-lm-elevated transition-transform duration-300 lg:static lg:z-auto lg:min-h-0 lg:max-h-none lg:flex-1 lg:translate-y-0 lg:rounded-none lg:border-0 lg:bg-transparent lg:shadow-none"
+  role="region"
+  aria-label="نتایج و فیلترهای جستجو"
+>
+  <button
+    id="filtersHandle"
+    type="button"
+    class="sheet-handle mx-auto mt-2 h-1.5 w-12 cursor-pointer rounded-full bg-loomera-border lg:hidden"
+    aria-label="باز و بسته کردن لیست نتایج"
+  ></button>
+
+  <div class="border-b border-loomera-borderSoft px-3 py-3 lg:border-y lg:bg-white/85 lg:px-4" aria-label="مرتب‌سازی و فیلترهای سریع">
+    <div class="flex items-center gap-2 overflow-x-auto text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <button
+        id="filterSheetOpenBtn"
+        type="button"
+        class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:bg-loomera-primarySoft hover:text-loomera-primary"
+        aria-label="باز کردن فیلترهای کامل"
+        aria-haspopup="dialog"
+        aria-controls="filterScreen"
+      >
+        <i class="fa-solid fa-sliders text-sm" aria-hidden="true"></i>
+      </button>
+
+      <button
+        id="mapLocateButtonSheet"
+        type="button"
+        class="map-locate-btn inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:bg-loomera-primarySoft hover:text-loomera-primary"
+        aria-label="استفاده از موقعیت فعلی"
+      >
+        <i class="fa-solid fa-location-crosshairs text-sm" aria-hidden="true"></i>
+      </button>
+
+      <button
+        type="button"
+        class="sort-chip flex shrink-0 items-center gap-1 rounded-full border border-loomera-primary bg-loomera-primary px-3 py-2 text-xs font-black text-white"
+        data-sort="recommended"
+        aria-label="مرتب‌سازی پیشنهادی"
+      >
+        <span>پیشنهادی</span>
+      </button>
+
+      <button
+        type="button"
+        class="sort-chip flex shrink-0 items-center gap-1 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-bold text-loomera-textSecondary"
+        data-sort="nearest"
+        aria-label="مرتب‌سازی نزدیک‌ترین"
+      >
+        <span>نزدیک‌ترین</span>
+      </button>
+
+      <button
+        type="button"
+        class="sort-chip flex shrink-0 items-center gap-1 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-bold text-loomera-textSecondary"
+        data-sort="price"
+        aria-label="مرتب‌سازی ارزان‌تر"
+      >
+        <span>ارزان‌تر</span>
+      </button>
+
+      <span id="resultsCount" class="shrink-0 rounded-full bg-loomera-bgSubtle px-3 py-2 text-[11px] font-black text-loomera-textMuted" aria-live="polite">
+        {{ salons|length }} مجموعه
+      </span>
+
+      <button id="clearFilters" type="button" class="shrink-0 rounded-full px-3 py-2 text-[11px] font-black text-rose-600 transition hover:bg-rose-50">
+        حذف فیلترها
+      </button>
+    </div>
+  </div>
+
+  <div id="searchStatus" class="hidden border-b border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-xs font-bold text-loomera-textMuted" aria-live="polite"></div>
+
+  <div id="activeFiltersBar" class="hidden border-b border-loomera-borderSoft bg-white/90 px-3 py-3 lg:px-4" aria-label="فیلترهای فعال">
+    <div class="mb-2 flex items-center justify-between gap-3">
+      <span class="text-[11px] font-black text-loomera-textMuted">فیلترهای فعال</span>
+      <button type="button" data-clear-active-filters class="rounded-full bg-rose-50 px-3 py-1.5 text-[11px] font-black text-rose-600">حذف همه</button>
+    </div>
+    <div id="activeFiltersChips" class="flex flex-wrap gap-2"></div>
+  </div>
+
+  <div id="searchLoading" class="hidden px-3 py-4 lg:px-4" aria-live="polite" aria-label="در حال بارگذاری نتایج">
+    <div class="space-y-3 animate-pulse">
+      <div class="h-28 rounded-[28px] bg-loomera-bgSubtle"></div>
+      <div class="h-28 rounded-[28px] bg-loomera-bgSubtle"></div>
+      <div class="h-28 rounded-[28px] bg-loomera-bgSubtle"></div>
+    </div>
+  </div>
+
+  <div id="salonList" class="min-h-0 flex-1 space-y-3 overflow-y-auto p-3 pb-8 lg:px-4" role="list" aria-label="لیست مجموعه‌های پیدا شده">
+    {% include "search/search_results.html" with salons=salons selected_services=selected_services selected_group=selected_group summary=search_summary %}
+  </div>
+</div>

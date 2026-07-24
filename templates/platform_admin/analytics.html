@@ -1,0 +1,167 @@
+{% extends "platform_admin/base.html" %}
+{% load jalali_extras %}
+{% block platform_content %}
+<section class="space-y-5" dir="rtl">
+  <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="bg-gradient-to-l from-loomera-primary/10 via-white to-white p-5 lg:p-6">
+      <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <div class="min-w-0">
+          <p class="text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">Analytics</p>
+          <h1 class="mt-2 text-2xl font-black text-loomera-textPrimary">گزارش‌ها و شاخص‌های مدیریتی</h1>
+          <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">snapshotهای روزانه پلتفرم، مجموعه‌ها، متخصصان، محتوا و جستجو را از این بخش پایش کن.</p>
+        </div>
+
+        <form method="post" action="{% url 'platform_admin:analytics_export' %}" class="grid gap-2 rounded-[1.5rem] border border-loomera-borderSoft bg-white/85 p-3 shadow-sm sm:grid-cols-2 xl:min-w-[680px] xl:grid-cols-[minmax(0,1fr)_140px_140px_auto] xl:items-end">
+          {% csrf_token %}
+          <label class="text-xs font-bold text-loomera-textMuted">
+            نوع گزارش
+            <select name="report_type" class="mt-1 w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-sm outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
+              {% for value,label in report_types %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+            </select>
+          </label>
+          <label class="text-xs font-bold text-loomera-textMuted">
+            از تاریخ
+            <input name="start_date" data-jdp data-jalali-date autocomplete="off" inputmode="numeric" placeholder="۱۴۰۵/۰۱/۰۱" class="mt-1 w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-sm outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" />
+          </label>
+          <label class="text-xs font-bold text-loomera-textMuted">
+            تا تاریخ
+            <input name="end_date" data-jdp data-jalali-date autocomplete="off" inputmode="numeric" placeholder="۱۴۰۵/۰۱/۳۱" class="mt-1 w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-sm outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" />
+          </label>
+          <button class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-loomera-primary/90">
+            <i class="fa-solid fa-file-export" aria-hidden="true"></i>
+            خروجی
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <article class="rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4 shadow-sm">
+      <p class="text-xs font-bold text-loomera-textMuted">کل نوبت‌ها</p>
+      <p class="mt-2 text-2xl font-black text-loomera-textPrimary">{{ latest_platform.appointments_count|default:0|fa_digits }}</p>
+      <p class="mt-1 text-xs text-loomera-textMuted">آخرین snapshot موجود</p>
+    </article>
+    <article class="rounded-[1.75rem] border border-emerald-100 bg-emerald-50/60 p-4 shadow-sm">
+      <p class="text-xs font-bold text-emerald-800">تکمیل‌شده</p>
+      <p class="mt-2 text-2xl font-black text-emerald-900">{{ latest_platform.completed_count|default:0|fa_digits }}</p>
+      <p class="mt-1 text-xs text-emerald-700">خدمات انجام‌شده</p>
+    </article>
+    <article class="rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4 shadow-sm">
+      <p class="text-xs font-bold text-loomera-textMuted">فروش خام</p>
+      <p class="mt-2 text-2xl font-black text-loomera-textPrimary">{{ latest_platform.gross_revenue|default:0|fa_digits }}</p>
+      <p class="mt-1 text-xs text-loomera-textMuted">مجموع مبالغ ثبت‌شده</p>
+    </article>
+    <article class="rounded-[1.75rem] border border-amber-100 bg-amber-50/70 p-4 shadow-sm">
+      <p class="text-xs font-bold text-amber-800">جستجوی بدون نتیجه</p>
+      <p class="mt-2 text-2xl font-black text-amber-900">{{ latest_platform.no_result_searches_count|default:0|fa_digits }}</p>
+      <p class="mt-1 text-xs text-amber-700">برای بهبود کاتالوگ خدمات</p>
+    </article>
+  </div>
+
+  <div class="grid gap-5 xl:grid-cols-2">
+    <article class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+      <div class="border-b border-loomera-borderSoft p-5">
+        <p class="text-xs font-black text-loomera-primaryText">Platform Trend</p>
+        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">روند پلتفرم</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-[720px] w-full text-sm">
+          <thead class="bg-loomera-bgSubtle text-loomera-textMuted">
+            <tr>
+              <th class="p-4 text-right">تاریخ</th>
+              <th class="p-4 text-right">نوبت</th>
+              <th class="p-4 text-right">تکمیل</th>
+              <th class="p-4 text-right">فروش</th>
+              <th class="p-4 text-right">جستجو</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-loomera-borderSoft">
+            {% for m in platform_metrics %}
+              <tr class="transition hover:bg-loomera-bgSubtle/60">
+                <td class="p-4 whitespace-nowrap font-bold text-loomera-textPrimary">{{ m.date|jalali_date:"short" }}</td>
+                <td class="p-4">{{ m.appointments_count|fa_digits }}</td>
+                <td class="p-4">{{ m.completed_count|fa_digits }}</td>
+                <td class="p-4">{{ m.gross_revenue|fa_digits }}</td>
+                <td class="p-4">{{ m.searches_count|fa_digits }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="p-8 text-center text-loomera-textMuted">هنوز snapshot ساخته نشده است.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+      <div class="border-b border-loomera-borderSoft p-5">
+        <p class="text-xs font-black text-loomera-primaryText">Top Salons</p>
+        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">مجموعه‌های برتر</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-[640px] w-full text-sm">
+          <thead class="bg-loomera-bgSubtle text-loomera-textMuted"><tr><th class="p-4 text-right">مجموعه</th><th class="p-4 text-right">تاریخ</th><th class="p-4 text-right">نوبت</th><th class="p-4 text-right">سود</th></tr></thead>
+          <tbody class="divide-y divide-loomera-borderSoft">
+            {% for m in top_salons %}
+              <tr class="transition hover:bg-loomera-bgSubtle/60"><td class="p-4 font-bold text-loomera-textPrimary">{{ m.salon.salon_name }}</td><td class="p-4 whitespace-nowrap">{{ m.date|jalali_date:"short" }}</td><td class="p-4">{{ m.appointments_count|fa_digits }}</td><td class="p-4">{{ m.salon_net_profit|fa_digits }}</td></tr>
+            {% empty %}
+              <tr><td colspan="4" class="p-8 text-center text-loomera-textMuted">داده‌ای وجود ندارد.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </div>
+
+  <div class="grid gap-5 xl:grid-cols-3">
+    <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+      <p class="text-xs font-black text-loomera-primaryText">Staff</p>
+      <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">متخصصان برتر</h2>
+      <div class="mt-4 space-y-2">
+        {% for m in top_staff %}
+          <div class="flex items-center justify-between gap-3 rounded-2xl bg-loomera-bgSubtle px-3 py-2 text-sm"><span class="truncate">{{ m.stylist }} / {{ m.salon }}</span><span class="shrink-0 font-black">{{ m.net_profit|fa_digits }}</span></div>
+        {% empty %}<p class="rounded-2xl bg-loomera-bgSubtle p-4 text-sm text-loomera-textMuted">داده‌ای نیست.</p>{% endfor %}
+      </div>
+    </article>
+
+    <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+      <p class="text-xs font-black text-loomera-primaryText">Content</p>
+      <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">محتوا</h2>
+      <div class="mt-4 space-y-2">
+        {% for m in top_content %}
+          <div class="flex items-center justify-between gap-3 rounded-2xl bg-loomera-bgSubtle px-3 py-2 text-sm"><span class="truncate">{{ m.content_kind }} #{{ m.object_id|fa_digits }}</span><span class="shrink-0 font-black">{{ m.views|fa_digits }} بازدید</span></div>
+        {% empty %}<p class="rounded-2xl bg-loomera-bgSubtle p-4 text-sm text-loomera-textMuted">داده‌ای نیست.</p>{% endfor %}
+      </div>
+    </article>
+
+    <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+      <p class="text-xs font-black text-loomera-primaryText">Search</p>
+      <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">جستجوها</h2>
+      <div class="mt-4 space-y-2">
+        {% for m in top_searches %}
+          <div class="flex items-center justify-between gap-3 rounded-2xl bg-loomera-bgSubtle px-3 py-2 text-sm"><span class="truncate">{{ m.normalized_query|default:"بدون عبارت" }}</span><span class="shrink-0 font-black">{{ m.searches_count|fa_digits }}</span></div>
+        {% empty %}<p class="rounded-2xl bg-loomera-bgSubtle p-4 text-sm text-loomera-textMuted">داده‌ای نیست.</p>{% endfor %}
+      </div>
+    </article>
+  </div>
+
+  <article class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="border-b border-loomera-borderSoft p-5">
+      <p class="text-xs font-black text-loomera-primaryText">Exports</p>
+      <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">خروجی‌های اخیر</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-[760px] w-full text-sm">
+        <thead class="bg-loomera-bgSubtle text-loomera-textMuted"><tr><th class="p-4 text-right">نوع</th><th class="p-4 text-right">وضعیت</th><th class="p-4 text-right">ردیف</th><th class="p-4 text-right">فایل</th><th class="p-4 text-right">زمان</th></tr></thead>
+        <tbody class="divide-y divide-loomera-borderSoft">
+          {% for job in export_jobs %}
+            <tr class="transition hover:bg-loomera-bgSubtle/60"><td class="p-4 font-bold">{{ job.get_report_type_display }}</td><td class="p-4">{{ job.get_status_display }}</td><td class="p-4">{{ job.rows_count|fa_digits }}</td><td class="p-4">{% if job.file %}<a class="font-black text-loomera-primary" href="{{ job.file.url }}">دانلود</a>{% else %}—{% endif %}</td><td class="p-4 whitespace-nowrap">{{ job.created_at|jalali_datetime }}</td></tr>
+          {% empty %}
+            <tr><td colspan="5" class="p-8 text-center text-loomera-textMuted">خروجی ثبت نشده است.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+</section>
+{% endblock %}

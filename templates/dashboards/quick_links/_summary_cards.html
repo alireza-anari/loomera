@@ -1,0 +1,104 @@
+{% load jalali_extras %}
+
+<section
+  class="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4"
+  aria-label="نمای کلی عملکرد لینک‌های رزرو"
+  data-quick-link-summary
+>
+  <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+    <div class="flex items-center justify-between gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+        <i class="fa-solid fa-link text-xs" aria-hidden="true"></i>
+      </span>
+      <span class="text-[11px] font-black text-loomera-textMuted">فعال</span>
+    </div>
+    <p class="mt-4 text-2xl font-black text-loomera-textPrimary">{{ quick_link_page.summary.active_links|fa_digits }}</p>
+    <p class="mt-1 text-xs font-bold text-loomera-textMuted">لینک فعال از {{ quick_link_page.summary.total_links|fa_digits }} لینک</p>
+  </article>
+
+  <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+    <div class="flex items-center justify-between gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+        <i class="fa-regular fa-eye text-xs" aria-hidden="true"></i>
+      </span>
+      <span class="text-[11px] font-black text-loomera-textMuted">بازشدن کل</span>
+    </div>
+    <p class="mt-4 text-2xl font-black text-loomera-textPrimary">{{ quick_link_page.summary.total_opens|fa_digits }}</p>
+    <p class="mt-1 text-xs font-bold text-loomera-textMuted">تمام دفعات بازشدن لینک‌ها</p>
+  </article>
+
+  <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+    <div class="flex items-center justify-between gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+        <i class="fa-solid fa-user-group text-xs" aria-hidden="true"></i>
+      </span>
+      <span class="text-[11px] font-black text-loomera-textMuted">یکتا</span>
+    </div>
+    <p class="mt-4 text-2xl font-black text-loomera-textPrimary">{{ quick_link_page.summary.unique_visitors|fa_digits }}</p>
+    <p class="mt-1 text-xs font-bold text-loomera-textMuted">بازدیدکننده یکتای Session-based</p>
+  </article>
+
+  <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+    <div class="flex items-center justify-between gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+        <i class="fa-solid fa-arrow-right-to-bracket text-xs" aria-hidden="true"></i>
+      </span>
+      <span class="text-[11px] font-black text-loomera-textMuted">شروع رزرو</span>
+    </div>
+    <p class="mt-4 text-2xl font-black text-loomera-textPrimary">{{ quick_link_page.summary.started_count|fa_digits }}</p>
+    <p class="mt-1 text-xs font-bold text-loomera-textMuted">اولین اقدام واقعی کاربران</p>
+  </article>
+
+  <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+    <div class="flex items-center justify-between gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+        <i class="fa-solid fa-circle-check text-xs" aria-hidden="true"></i>
+      </span>
+      <span class="text-[11px] font-black text-loomera-textMuted">رزرو موفق</span>
+    </div>
+    <p class="mt-4 text-2xl font-black text-loomera-textPrimary">{{ quick_link_page.summary.converted_count|fa_digits }}</p>
+    <p class="mt-1 text-xs font-bold text-loomera-textMuted">رزرو منتسب به لینک‌ها</p>
+  </article>
+
+  <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+    <div class="flex items-center justify-between gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-fuchsia-100 text-fuchsia-700">
+        <i class="fa-solid fa-chart-line text-xs" aria-hidden="true"></i>
+      </span>
+      <span class="text-[11px] font-black text-loomera-textMuted">نرخ تبدیل</span>
+    </div>
+    <p class="mt-4 text-2xl font-black text-loomera-textPrimary">{{ quick_link_page.summary.conversion_rate|floatformat:2|fa_digits }}٪</p>
+    <p class="mt-1 text-xs font-bold text-loomera-textMuted">رزرو موفق ÷ بازدیدکننده یکتا</p>
+  </article>
+
+  <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+    <div class="flex items-center justify-between gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
+        <i class="fa-solid fa-person-walking-arrow-right text-xs" aria-hidden="true"></i>
+      </span>
+      <span class="text-[11px] font-black text-loomera-textMuted">مراجعه</span>
+    </div>
+    <p class="mt-4 text-2xl font-black text-loomera-textPrimary">{{ quick_link_page.summary.completed_count|fa_digits }}</p>
+    <p class="mt-1 text-xs font-bold text-loomera-textMuted">خدمت تکمیل‌شده</p>
+  </article>
+
+  <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+    <div class="flex items-center justify-between gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-bgSubtle text-loomera-primaryText">
+        <i class="fa-solid fa-trophy text-xs" aria-hidden="true"></i>
+      </span>
+      <span class="text-[11px] font-black text-loomera-textMuted">بهترین لینک</span>
+    </div>
+
+    {% if quick_link_page.summary.best_link %}
+      <p class="mt-4 truncate text-sm font-black text-loomera-textPrimary">{{ quick_link_page.summary.best_link.title }}</p>
+      <p class="mt-1 text-xs font-bold text-loomera-textMuted">
+        {{ quick_link_page.summary.best_link.converted_count|fa_digits }} رزرو •
+        {{ quick_link_page.summary.best_link.conversion_rate|floatformat:2|fa_digits }}٪ تبدیل
+      </p>
+    {% else %}
+      <p class="mt-4 text-sm font-black text-loomera-textPrimary">هنوز مشخص نشده</p>
+      <p class="mt-1 text-xs font-bold text-loomera-textMuted">بعد از ثبت اولین تعامل نمایش داده می‌شود.</p>
+    {% endif %}
+  </article>
+</section>

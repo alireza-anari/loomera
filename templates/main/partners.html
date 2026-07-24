@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}همکاری با لومرا | جذب مجموعه زیبایی و مرکز خدمات{% endblock %}
+
+{% block meta_description %}
+با لومرا مجموعه، کلینیک زیبایی یا مرکز خدمات خود را آنلاین کنید؛ مدیریت رزرو، تیم، خدمات، پرداخت، گزارش‌ها و ارتباط با مشتریان در یک فضای منظم.
+{% endblock %}
+
+{% block og_title %}همکاری با لومرا{% endblock %}
+{% block og_description %}رزرو آنلاین، مدیریت مجموعه، خدمات، تیم، پرداخت و ارتباط با مشتریان در یک پلتفرم منظم برای کسب‌وکارهای زیبایی و wellness.{% endblock %}
+
+{% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
+{% block body_attrs %}data-page="partners"{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-loomera-bg pb-24">
+  <section class="relative overflow-hidden border-b border-loomera-borderSoft bg-loomera-surface">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,.18),transparent_34rem),radial-gradient(circle_at_bottom_left,rgba(167,200,161,.2),transparent_30rem)]"></div>
+
+    <div class="relative mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center lg:py-14 xl:px-0">
+      <div class="min-w-0">
+        <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">
+          <i class="fa-solid fa-store" aria-hidden="true"></i>
+          همکاری با لومرا
+        </span>
+
+        <h1 class="mt-5 max-w-3xl text-3xl font-black leading-[1.55] text-loomera-textPrimary sm:text-4xl lg:text-5xl">
+          مجموعه خود را آماده رزرو آنلاین، مدیریت دقیق و رشد منظم کنید
+        </h1>
+
+        <p class="mt-4 max-w-2xl text-sm font-medium leading-8 text-loomera-textSecondary sm:text-base">
+          لومرا برای مجموعه‌های زیبایی، کلینیک‌های زیبایی، مراکز ناخن، آرایشگاه‌ها، ماساژ و wellness طراحی شده تا خدمات، تیم، نوبت‌ها، پرداخت و ارتباط با مشتریان را در یک فضای منظم مدیریت کنید.
+        </p>
+
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+          {% if user.is_authenticated %}
+            <a href="{% url 'dashboards:salon_profile_creator' %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-6 py-3 text-sm font-black text-white shadow-lm-soft transition hover:-translate-y-0.5 hover:bg-loomera-primaryHover">
+              <span>شروع تکمیل مجموعه</span>
+              <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+            </a>
+          {% else %}
+            <a href="{% url 'accounts:register' %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-6 py-3 text-sm font-black text-white shadow-lm-soft transition hover:-translate-y-0.5 hover:bg-loomera-primaryHover">
+              <span>ثبت‌نام و شروع همکاری</span>
+              <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+            </a>
+          {% endif %}
+
+          <a href="{% url 'support' %}?topic=درخواست همکاری مجموعه با لومرا" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-6 py-3 text-sm font-black text-loomera-textSecondary shadow-lm-soft transition hover:border-loomera-primary/30 hover:text-loomera-primary">
+            <i class="fa-regular fa-life-ring text-sm" aria-hidden="true"></i>
+            <span>درخواست تماس</span>
+          </a>
+        </div>
+
+        <div class="mt-6 grid gap-3 sm:grid-cols-3">
+          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/85 p-4 shadow-lm-soft">
+            <strong class="block text-lg font-black text-loomera-primary">رزرو</strong>
+            <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">مدیریت نوبت آنلاین و حضوری</span>
+          </div>
+          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/85 p-4 shadow-lm-soft">
+            <strong class="block text-lg font-black text-loomera-primary">تیم</strong>
+            <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">متخصص، شیفت و خدمات</span>
+          </div>
+          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/85 p-4 shadow-lm-soft">
+            <strong class="block text-lg font-black text-loomera-primary">مالی</strong>
+            <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">کیف پول، تسویه و گزارش</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="rounded-[2.25rem] border border-loomera-borderSoft bg-white/90 p-5 shadow-lm-elevated backdrop-blur">
+        <div class="rounded-[1.75rem] bg-loomera-bgSubtle p-4">
+          <p class="text-xs font-black text-loomera-primary">برای چه کسب‌وکارهایی مناسب است؟</p>
+
+          <div class="mt-4 space-y-3">
+            <div class="flex items-start gap-3 rounded-2xl bg-white p-3 shadow-lm-soft">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+              </span>
+              <div>
+                <p class="text-sm font-black text-loomera-textPrimary">مجموعه زیبایی و آرایشگاه</p>
+                <p class="mt-1 text-xs leading-6 text-loomera-textMuted">خدمات مو، میکاپ، ناخن، ابرو و مراقبت زیبایی</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 rounded-2xl bg-white p-3 shadow-lm-soft">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-spa" aria-hidden="true"></i>
+              </span>
+              <div>
+                <p class="text-sm font-black text-loomera-textPrimary">wellness و ماساژ</p>
+                <p class="mt-1 text-xs leading-6 text-loomera-textMuted">مدیریت زمان، متخصص و رزرو مشتریان</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 rounded-2xl bg-white p-3 shadow-lm-soft">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-hand-sparkles" aria-hidden="true"></i>
+              </span>
+              <div>
+                <p class="text-sm font-black text-loomera-textPrimary">ناخن، پوست و خدمات تخصصی</p>
+                <p class="mt-1 text-xs leading-6 text-loomera-textMuted">نمایش خدمات، نمونه‌کار و رزرو دقیق‌تر</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:py-12 xl:px-0">
+    <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-xs font-black text-loomera-primary">مزیت‌های همکاری</p>
+        <h2 class="mt-2 text-2xl font-black text-loomera-textPrimary">لومرا چه چیزی را ساده‌تر می‌کند؟</h2>
+      </div>
+      <p class="max-w-xl text-sm leading-7 text-loomera-textMuted">
+        هدف این نیست که فقط یک صفحه رزرو داشته باشید؛ هدف این است که عملیات روزانه مجموعه قابل مدیریت، قابل پیگیری و قابل رشد شود.
+      </p>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+          <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+        </span>
+        <h3 class="mt-4 text-base font-black text-loomera-textPrimary">رزرو آنلاین و حضوری</h3>
+        <p class="mt-2 text-sm leading-7 text-loomera-textMuted">مشتری آنلاین رزرو می‌کند و مدیر مجموعه می‌تواند نوبت دستی، تغییر زمان، لغو و وضعیت هر نوبت را مدیریت کند.</p>
+      </article>
+
+      <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+          <i class="fa-solid fa-users-gear" aria-hidden="true"></i>
+        </span>
+        <h3 class="mt-4 text-base font-black text-loomera-textPrimary">مدیریت تیم و شیفت‌ها</h3>
+        <p class="mt-2 text-sm leading-7 text-loomera-textMuted">برای هر متخصص می‌توانید خدمات، برنامه کاری، عدم حضور و ظرفیت رزرو را مدیریت کنید.</p>
+      </article>
+
+      <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+          <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+        </span>
+        <h3 class="mt-4 text-base font-black text-loomera-textPrimary">پرداخت، کیف پول و تسویه</h3>
+        <p class="mt-2 text-sm leading-7 text-loomera-textMuted">پرداخت آنلاین، پرداخت در مجموعه، کیف پول، تسویه و سهم متخصص‌ها در مسیر مالی قابل پیگیری است.</p>
+      </article>
+
+      <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+          <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+        </span>
+        <h3 class="mt-4 text-base font-black text-loomera-textPrimary">گزارش و دید مدیریتی</h3>
+        <p class="mt-2 text-sm leading-7 text-loomera-textMuted">درآمد، نوبت‌ها، خدمات پرفروش، عملکرد تیم و وضعیت عملیاتی مجموعه را بهتر دنبال می‌کنید.</p>
+      </article>
+
+      <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+          <i class="fa-regular fa-bell" aria-hidden="true"></i>
+        </span>
+        <h3 class="mt-4 text-base font-black text-loomera-textPrimary">اعلان‌ها و پیگیری‌ها</h3>
+        <p class="mt-2 text-sm leading-7 text-loomera-textMuted">مشتری، مدیر مجموعه و متخصص می‌توانند وضعیت‌های مهم نوبت و عملیات را از طریق اعلان‌ها دنبال کنند.</p>
+      </article>
+
+      <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+          <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+        </span>
+        <h3 class="mt-4 text-base font-black text-loomera-textPrimary">آماده‌سازی قدم‌به‌قدم مجموعه</h3>
+        <p class="mt-2 text-sm leading-7 text-loomera-textMuted">از ثبت پروفایل تا خدمات، تیم، شیفت‌ها و وضعیت رزرو، مسیر آماده‌سازی مجموعه مرحله‌به‌مرحله انجام می‌شود.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:pb-12 xl:px-0">
+    <div class="rounded-[2.5rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-elevated sm:p-7 lg:p-8">
+      <div class="grid gap-8 lg:grid-cols-[360px_minmax(0,1fr)] lg:items-start">
+        <div>
+          <p class="text-xs font-black text-loomera-primary">مراحل شروع</p>
+          <h2 class="mt-2 text-2xl font-black leading-10 text-loomera-textPrimary">چطور همکاری را شروع کنیم؟</h2>
+          <p class="mt-3 text-sm leading-7 text-loomera-textMuted">
+            برای شروع بتا، فقط اطلاعات پایه مجموعه، خدمات اصلی، تیم و برنامه کاری کافی است. بعد از آن می‌توانید امکانات پیشرفته‌تر را مرحله‌به‌مرحله فعال کنید.
+          </p>
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-2">
+          <div class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+            <span class="text-xs font-black text-loomera-primary">۱</span>
+            <h3 class="mt-2 text-sm font-black text-loomera-textPrimary">ثبت‌نام یا درخواست تماس</h3>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">ابتدا حساب بسازید یا فرم درخواست همکاری را ارسال کنید تا مسیر مناسب شما مشخص شود.</p>
+          </div>
+
+          <div class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+            <span class="text-xs font-black text-loomera-primary">۲</span>
+            <h3 class="mt-2 text-sm font-black text-loomera-textPrimary">تکمیل پروفایل مجموعه</h3>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">نام، آدرس، توضیحات، تصویر، موقعیت مکانی و اطلاعات تماس مجموعه را ثبت کنید.</p>
+          </div>
+
+          <div class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+            <span class="text-xs font-black text-loomera-primary">۳</span>
+            <h3 class="mt-2 text-sm font-black text-loomera-textPrimary">افزودن خدمات و تیم</h3>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">خدمات، قیمت، مدت‌زمان، متخصص‌ها و ارتباط هر متخصص با خدمات را مشخص کنید.</p>
+          </div>
+
+          <div class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+            <span class="text-xs font-black text-loomera-primary">۴</span>
+            <h3 class="mt-2 text-sm font-black text-loomera-textPrimary">فعال‌سازی رزرو آنلاین</h3>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">بعد از آماده‌شدن مجموعه، رزرو آنلاین را بررسی و لینک عمومی مجموعه را برای مشتریان ارسال کنید.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:pb-16 xl:px-0">
+    <div class="overflow-hidden rounded-[2.5rem] bg-loomera-primary text-white shadow-lm-elevated">
+      <div class="relative p-6 sm:p-8 lg:p-10">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,.2),transparent_28rem)]"></div>
+
+        <div class="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div>
+            <p class="text-xs font-black text-white/70">شروع همکاری</p>
+            <h2 class="mt-2 text-2xl font-black leading-10 sm:text-3xl">
+              آماده‌اید مجموعه خود را وارد لومرا کنید؟
+            </h2>
+            <p class="mt-3 max-w-2xl text-sm leading-8 text-white/78">
+              اگر مجموعه شما هنوز آماده نیست، مشکلی نیست. می‌توانید از درخواست تماس شروع کنید تا اطلاعات لازم و مسیر راه‌اندازی را مرحله‌به‌مرحله دریافت کنید.
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-3 sm:flex-row lg:flex-col">
+            {% if user.is_authenticated %}
+              <a href="{% url 'dashboards:salon_profile_creator' %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-black text-loomera-primary shadow-lm-soft transition hover:-translate-y-0.5">
+                <span>شروع تکمیل مجموعه</span>
+                <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+              </a>
+            {% else %}
+              <a href="{% url 'accounts:register' %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-black text-loomera-primary shadow-lm-soft transition hover:-translate-y-0.5">
+                <span>ثبت‌نام مجموعه</span>
+                <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+              </a>
+              <a href="{% url 'accounts:stylist_signup' %}" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-6 py-3 text-sm font-black text-loomera-textSecondary shadow-lm-soft transition hover:border-loomera-primary/30 hover:text-loomera-primary">
+                <i class="fa-solid fa-user-check text-sm" aria-hidden="true"></i>
+                <span>ثبت‌نام متخصص</span>
+              </a>
+            {% endif %}
+
+            <a href="{% url 'support' %}?topic=درخواست همکاری مجموعه با لومرا" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm font-black text-white transition hover:bg-white/15">
+              <i class="fa-regular fa-message text-sm" aria-hidden="true"></i>
+              <span>درخواست تماس</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,645 @@
+{% extends "dashboard_template.html" %}
+{% load static salons_filters %}
+
+{% block title %}ساعت کاری مجموعه{% endblock %}
+
+{% block body_attrs %}
+data-page="dashboard-layout"
+data-dashboard-page="salon-working-hours-step"
+{% endblock %}
+
+{% block content %}
+  {% url 'dashboards:salon_profile_creator_step2' as step2_url %}
+  {% url 'dashboards:salon_profile_creator_step4' as step4_url %}
+  {% url 'dashboards:salon_profile' as salon_profile_url %}
+  {% url 'dashboards:salon_manager_dashboard' as dashboard_url %}
+
+  <section class="min-w-0 max-w-full space-y-5 overflow-visible" data-dashboard-workspace-root data-working-hours-step-page>
+    <section class="relative min-w-0 overflow-hidden rounded-[32px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6 lg:p-7" aria-labelledby="working-hours-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.18),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
+
+      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] xl:items-stretch">
+        <div class="min-w-0 rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
+          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+                <i class="fa-regular fa-clock text-[10px]" aria-hidden="true"></i>
+                <span class="truncate">ساخت پروفایل مجموعه · مرحله ۳ از ۸</span>
+              </span>
+
+              <h1 id="working-hours-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+                تنظیم ساعت‌های کاری مجموعه
+              </h1>
+              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+                روزهای فعال مجموعه و بازه زمانی هر روز را مشخص کن تا مشتری هنگام رزرو آنلاین فقط ظرفیت‌های واقعی و قابل پذیرش را ببیند.
+              </p>
+            </div>
+
+            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
+              <i class="fa-solid fa-business-time text-lg" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
+            <div class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
+              <p class="text-[11px] font-black text-loomera-textMuted">مرحله فعلی</p>
+              <strong class="mt-2 block text-lg font-black text-loomera-textPrimary">ساعت کاری</strong>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">روزهای باز و بسته مجموعه</p>
+            </div>
+            <div class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
+              <p class="text-[11px] font-black text-loomera-textMuted">مرحله بعد</p>
+              <strong class="mt-2 block text-lg font-black text-loomera-textPrimary">گالری و کاور</strong>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">افزودن تصویر اصلی و گالری مجموعه</p>
+            </div>
+            <div class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
+              <p class="text-[11px] font-black text-loomera-textMuted">وضعیت</p>
+              <strong class="mt-2 block text-lg font-black text-loomera-textPrimary" data-working-hours-status-label>در حال تکمیل</strong>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted" data-working-hours-status-help>حداقل یک روز فعال با ساعت معتبر لازم است.</p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="min-w-0 rounded-[28px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس مرحله سوم">
+          <div class="flex min-w-0 items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-[11px] font-black text-white/55">فوکوس این مرحله</p>
+              <h2 class="mt-1 truncate text-lg font-black">ظرفیت رزروپذیر واقعی</h2>
+            </div>
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
+              <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="mt-5 space-y-3">
+            <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <h3 class="text-sm font-black text-white">شروع و پایان معتبر</h3>
+                <span class="shrink-0 rounded-full bg-white/10 px-3 py-1 text-[10px] font-black text-white">ضروری</span>
+              </div>
+              <p class="mt-2 text-xs leading-6 text-white/72">برای روزهای فعال، ساعت پایان باید بعد از ساعت شروع باشد.</p>
+            </article>
+            <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <h3 class="text-sm font-black text-white">هماهنگی با شیفت تیم</h3>
+                <span class="shrink-0 rounded-full bg-loomera-primarySoft px-3 py-1 text-[10px] font-black text-loomera-primaryText">بعداً</span>
+              </div>
+              <p class="mt-2 text-xs leading-6 text-white/72">بعد از ثبت ساعت مجموعه، شیفت اعضای تیم را با همین بازه‌ها هماهنگ کن.</p>
+            </article>
+            <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <h3 class="text-sm font-black text-white">روزهای تعطیل واضح</h3>
+                <span class="shrink-0 rounded-full bg-white/10 px-3 py-1 text-[10px] font-black text-white">اعتماد</span>
+              </div>
+              <p class="mt-2 text-xs leading-6 text-white/72">روزهای تعطیل را غیرفعال بگذار تا مشتری با انتخاب‌های نامعتبر روبه‌رو نشود.</p>
+            </article>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
+      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های ساعت کاری مجموعه">
+        <div class="flex min-w-max items-center gap-2">
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#working-hours-section-readiness" aria-selected="true">
+            <i class="fa-solid fa-list-check text-[10px]" aria-hidden="true"></i>
+            <span>آمادگی</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>٪</span>
+          </button>
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#working-hours-section-days">
+            <i class="fa-regular fa-calendar-days text-[10px]" aria-hidden="true"></i>
+            <span>برنامه هفته</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۷</span>
+          </button>
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#working-hours-section-review">
+            <i class="fa-solid fa-clipboard-check text-[10px]" aria-hidden="true"></i>
+            <span>بازبینی</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge data-working-hours-review-badge>۰</span>
+          </button>
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#working-hours-section-next">
+            <i class="fa-solid fa-arrow-left-long text-[10px]" aria-hidden="true"></i>
+            <span>مسیر بعد</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۴</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <form method="post" id="workingHoursForm" class="space-y-5" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="rounded-[24px] border border-loomera-danger/20 bg-loomera-dangerSoft px-4 py-3 text-sm font-bold leading-7 text-loomera-danger">
+          {% for error in form.non_field_errors %}
+            <div>{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <details id="working-hours-section-readiness" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">چک‌لیست عملیاتی</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">آمادگی برنامه کاری</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          <div class="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] xl:items-stretch">
+            <section class="rounded-[26px] border border-loomera-primary/15 bg-loomera-primarySoft/60 p-4 sm:p-5">
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black text-loomera-primaryText">وضعیت تکمیل</p>
+                  <h3 class="mt-1 text-lg font-black text-loomera-textPrimary" data-working-hours-readiness-title>در حال بررسی برنامه</h3>
+                  <p class="mt-2 text-sm leading-7 text-loomera-textSecondary" data-working-hours-readiness-help>حداقل یک روز فعال با بازه معتبر تنظیم کن.</p>
+                </div>
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                  <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
+                </span>
+              </div>
+
+              <div class="mt-5">
+                <div class="flex items-center justify-between gap-3 text-xs font-black text-loomera-primaryText">
+                  <span>درصد آمادگی</span>
+                  <span data-working-hours-progress-label>۰٪</span>
+                </div>
+                <div class="mt-2 h-3 overflow-hidden rounded-full bg-white/80">
+                  <div class="h-full w-0 rounded-full bg-loomera-primary transition-all duration-300" data-working-hours-progress-bar></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+                <p class="text-[11px] font-black text-loomera-textMuted">روزهای فعال</p>
+                <strong class="mt-2 block text-xl font-black text-loomera-textPrimary" data-active-days-count>۰</strong>
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">روزهایی که مشتری می‌تواند رزرو بگیرد.</p>
+              </article>
+              <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+                <p class="text-[11px] font-black text-loomera-textMuted">روزهای کامل</p>
+                <strong class="mt-2 block text-xl font-black text-loomera-textPrimary" data-complete-days-count>۰</strong>
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">شروع و پایان معتبر دارند.</p>
+              </article>
+              <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+                <p class="text-[11px] font-black text-loomera-textMuted">روزهای تعطیل</p>
+                <strong class="mt-2 block text-xl font-black text-loomera-textPrimary" data-closed-days-count>۰</strong>
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">در صفحه عمومی بسته نمایش داده می‌شوند.</p>
+              </article>
+              <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+                <p class="text-[11px] font-black text-loomera-textMuted">نیازمند اصلاح</p>
+                <strong class="mt-2 block text-xl font-black text-loomera-textPrimary" data-invalid-days-count>۰</strong>
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">بازه ناقص یا نامعتبر.</p>
+              </article>
+            </section>
+          </div>
+
+          <div class="mt-5 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">میانبرهای تنظیم سریع</h3>
+                <p class="mt-1 text-xs leading-6 text-loomera-textMuted">این میانبرها فقط فرم فعلی را پر می‌کنند؛ ذخیره نهایی با دکمه ثبت انجام می‌شود.</p>
+              </div>
+              <div class="flex gap-2 overflow-x-auto pb-1">
+                <button type="button" data-working-hours-preset="standard" class="shrink-0 rounded-full border border-loomera-primary/15 bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft">شنبه تا پنج‌شنبه ۱۰ تا ۲۰</button>
+                <button type="button" data-working-hours-preset="full-week" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primaryText">همه هفته ۹ تا ۲۱</button>
+                <button type="button" data-working-hours-preset="clear" class="shrink-0 rounded-full border border-loomera-danger/20 bg-white px-3 py-2 text-xs font-black text-loomera-danger transition hover:bg-loomera-dangerSoft">پاک‌سازی برنامه</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details id="working-hours-section-days" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">برنامه هفتگی</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">روزها و ساعت‌های فعالیت</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          <div class="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div class="min-w-0">
+              <h3 class="text-base font-black text-loomera-textPrimary">ساعت هر روز را دقیق وارد کن</h3>
+              <p class="mt-2 text-sm leading-7 text-loomera-textMuted">اگر روزی تعطیل است، همان روز را غیرفعال کن. فیلدهای زمان روزهای تعطیل قفل می‌شوند.</p>
+            </div>
+            <span class="inline-flex shrink-0 items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText">
+              <i class="fa-regular fa-clock text-[10px]" aria-hidden="true"></i>
+              انتخاب ساعت با پنجره سریع
+            </span>
+          </div>
+
+          <div class="grid gap-4">
+            <article data-working-day-row data-day="1" data-day-name="شنبه" class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 transition sm:p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-3">
+                  <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-base font-black text-loomera-primaryText shadow-sm">ش</span>
+                  <div class="min-w-0">
+                    <h3 class="truncate text-base font-black text-loomera-textPrimary">شنبه</h3>
+                    <p class="mt-1 text-xs leading-5 text-loomera-textMuted" data-day-status-help>تنظیم ساعت کاری روز شنبه</p>
+                  </div>
+                </div>
+
+                <div data-day-header-actions class="flex shrink-0 items-center gap-3">
+                  <label class="inline-flex shrink-0 items-center gap-3 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary shadow-sm">
+                    {{ form.day_1_active|add_class:"h-5 w-5 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary" }}
+                    <span data-day-status>روز فعال</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mt-4 grid gap-4 md:grid-cols-2" data-day-fields>
+                <div>
+                  <label for="id_day_1_open_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت شروع</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_1_open_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_1_open_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_1_open_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div>
+                  <label for="id_day_1_close_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت پایان</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_1_close_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_1_close_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_1_close_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+              </div>
+
+              <div class="mt-4 hidden rounded-2xl border border-loomera-danger/20 bg-loomera-dangerSoft px-3 py-2 text-xs font-bold leading-6 text-loomera-danger" data-day-validation></div>
+            </article>
+            <article data-working-day-row data-day="2" data-day-name="یکشنبه" class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 transition sm:p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-3">
+                  <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-base font-black text-loomera-primaryText shadow-sm">ی</span>
+                  <div class="min-w-0">
+                    <h3 class="truncate text-base font-black text-loomera-textPrimary">یکشنبه</h3>
+                    <p class="mt-1 text-xs leading-5 text-loomera-textMuted" data-day-status-help>تنظیم ساعت کاری روز یکشنبه</p>
+                  </div>
+                </div>
+
+                <div data-day-header-actions class="flex shrink-0 items-center gap-3">
+                  <label class="inline-flex shrink-0 items-center gap-3 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary shadow-sm">
+                    {{ form.day_2_active|add_class:"h-5 w-5 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary" }}
+                    <span data-day-status>روز فعال</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mt-4 grid gap-4 md:grid-cols-2" data-day-fields>
+                <div>
+                  <label for="id_day_2_open_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت شروع</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_2_open_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_2_open_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_2_open_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div>
+                  <label for="id_day_2_close_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت پایان</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_2_close_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_2_close_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_2_close_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+              </div>
+
+              <div class="mt-4 hidden rounded-2xl border border-loomera-danger/20 bg-loomera-dangerSoft px-3 py-2 text-xs font-bold leading-6 text-loomera-danger" data-day-validation></div>
+            </article>
+            <article data-working-day-row data-day="3" data-day-name="دوشنبه" class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 transition sm:p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-3">
+                  <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-base font-black text-loomera-primaryText shadow-sm">د</span>
+                  <div class="min-w-0">
+                    <h3 class="truncate text-base font-black text-loomera-textPrimary">دوشنبه</h3>
+                    <p class="mt-1 text-xs leading-5 text-loomera-textMuted" data-day-status-help>تنظیم ساعت کاری روز دوشنبه</p>
+                  </div>
+                </div>
+
+                <div data-day-header-actions class="flex shrink-0 items-center gap-3">
+                  <label class="inline-flex shrink-0 items-center gap-3 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary shadow-sm">
+                    {{ form.day_3_active|add_class:"h-5 w-5 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary" }}
+                    <span data-day-status>روز فعال</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mt-4 grid gap-4 md:grid-cols-2" data-day-fields>
+                <div>
+                  <label for="id_day_3_open_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت شروع</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_3_open_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_3_open_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_3_open_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div>
+                  <label for="id_day_3_close_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت پایان</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_3_close_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_3_close_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_3_close_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+              </div>
+
+              <div class="mt-4 hidden rounded-2xl border border-loomera-danger/20 bg-loomera-dangerSoft px-3 py-2 text-xs font-bold leading-6 text-loomera-danger" data-day-validation></div>
+            </article>
+            <article data-working-day-row data-day="4" data-day-name="سه‌شنبه" class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 transition sm:p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-3">
+                  <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-base font-black text-loomera-primaryText shadow-sm">س</span>
+                  <div class="min-w-0">
+                    <h3 class="truncate text-base font-black text-loomera-textPrimary">سه‌شنبه</h3>
+                    <p class="mt-1 text-xs leading-5 text-loomera-textMuted" data-day-status-help>تنظیم ساعت کاری روز سه‌شنبه</p>
+                  </div>
+                </div>
+
+                <div data-day-header-actions class="flex shrink-0 items-center gap-3">
+                  <label class="inline-flex shrink-0 items-center gap-3 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary shadow-sm">
+                    {{ form.day_4_active|add_class:"h-5 w-5 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary" }}
+                    <span data-day-status>روز فعال</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mt-4 grid gap-4 md:grid-cols-2" data-day-fields>
+                <div>
+                  <label for="id_day_4_open_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت شروع</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_4_open_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_4_open_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_4_open_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div>
+                  <label for="id_day_4_close_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت پایان</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_4_close_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_4_close_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_4_close_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+              </div>
+
+              <div class="mt-4 hidden rounded-2xl border border-loomera-danger/20 bg-loomera-dangerSoft px-3 py-2 text-xs font-bold leading-6 text-loomera-danger" data-day-validation></div>
+            </article>
+            <article data-working-day-row data-day="5" data-day-name="چهارشنبه" class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 transition sm:p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-3">
+                  <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-base font-black text-loomera-primaryText shadow-sm">چ</span>
+                  <div class="min-w-0">
+                    <h3 class="truncate text-base font-black text-loomera-textPrimary">چهارشنبه</h3>
+                    <p class="mt-1 text-xs leading-5 text-loomera-textMuted" data-day-status-help>تنظیم ساعت کاری روز چهارشنبه</p>
+                  </div>
+                </div>
+
+                <div data-day-header-actions class="flex shrink-0 items-center gap-3">
+                  <label class="inline-flex shrink-0 items-center gap-3 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary shadow-sm">
+                    {{ form.day_5_active|add_class:"h-5 w-5 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary" }}
+                    <span data-day-status>روز فعال</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mt-4 grid gap-4 md:grid-cols-2" data-day-fields>
+                <div>
+                  <label for="id_day_5_open_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت شروع</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_5_open_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_5_open_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_5_open_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div>
+                  <label for="id_day_5_close_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت پایان</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_5_close_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_5_close_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_5_close_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+              </div>
+
+              <div class="mt-4 hidden rounded-2xl border border-loomera-danger/20 bg-loomera-dangerSoft px-3 py-2 text-xs font-bold leading-6 text-loomera-danger" data-day-validation></div>
+            </article>
+            <article data-working-day-row data-day="6" data-day-name="پنج‌شنبه" class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 transition sm:p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-3">
+                  <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-base font-black text-loomera-primaryText shadow-sm">پ</span>
+                  <div class="min-w-0">
+                    <h3 class="truncate text-base font-black text-loomera-textPrimary">پنج‌شنبه</h3>
+                    <p class="mt-1 text-xs leading-5 text-loomera-textMuted" data-day-status-help>تنظیم ساعت کاری روز پنج‌شنبه</p>
+                  </div>
+                </div>
+
+                <div data-day-header-actions class="flex shrink-0 items-center gap-3">
+                  <label class="inline-flex shrink-0 items-center gap-3 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary shadow-sm">
+                    {{ form.day_6_active|add_class:"h-5 w-5 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary" }}
+                    <span data-day-status>روز فعال</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mt-4 grid gap-4 md:grid-cols-2" data-day-fields>
+                <div>
+                  <label for="id_day_6_open_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت شروع</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_6_open_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_6_open_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_6_open_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div>
+                  <label for="id_day_6_close_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت پایان</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_6_close_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_6_close_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_6_close_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+              </div>
+
+              <div class="mt-4 hidden rounded-2xl border border-loomera-danger/20 bg-loomera-dangerSoft px-3 py-2 text-xs font-bold leading-6 text-loomera-danger" data-day-validation></div>
+            </article>
+            <article data-working-day-row data-day="7" data-day-name="جمعه" class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 transition sm:p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-3">
+                  <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-base font-black text-loomera-primaryText shadow-sm">ج</span>
+                  <div class="min-w-0">
+                    <h3 class="truncate text-base font-black text-loomera-textPrimary">جمعه</h3>
+                    <p class="mt-1 text-xs leading-5 text-loomera-textMuted" data-day-status-help>تنظیم ساعت کاری روز جمعه</p>
+                  </div>
+                </div>
+
+                <div data-day-header-actions class="flex shrink-0 items-center gap-3">
+                  <label class="inline-flex shrink-0 items-center gap-3 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary shadow-sm">
+                    {{ form.day_7_active|add_class:"h-5 w-5 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary" }}
+                    <span data-day-status>روز فعال</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mt-4 grid gap-4 md:grid-cols-2" data-day-fields>
+                <div>
+                  <label for="id_day_7_open_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت شروع</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_7_open_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_7_open_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_7_open_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div>
+                  <label for="id_day_7_close_time" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت پایان</label>
+                  <div class="flex items-center gap-2">
+                    {{ form.day_7_close_time|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+                    <button type="button" data-time-trigger data-target-input="id_day_7_close_time" class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% for error in form.day_7_close_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+                </div>
+              </div>
+
+              <div class="mt-4 hidden rounded-2xl border border-loomera-danger/20 bg-loomera-dangerSoft px-3 py-2 text-xs font-bold leading-6 text-loomera-danger" data-day-validation></div>
+            </article>
+          </div>
+        </div>
+      </details>
+
+      <details id="working-hours-section-review" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">بازبینی قبل از ذخیره</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">خلاصه برنامه کاری</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+
+        <div class="grid gap-5 p-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.55fr)] sm:p-5 lg:p-6">
+          <div class="min-w-0 rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">برنامه قابل نمایش برای مشتری</h3>
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">این خلاصه از فیلدهای فرم خوانده می‌شود و قبل از ذخیره کمک می‌کند خطاها را ببینی.</p>
+              </div>
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                <i class="fa-solid fa-eye" aria-hidden="true"></i>
+              </span>
+            </div>
+            <div class="mt-4 grid gap-2" data-working-hours-summary-list></div>
+          </div>
+
+          <aside class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+            <p class="text-[11px] font-black text-loomera-primaryText">چک نهایی</p>
+            <div class="mt-4 space-y-3 text-xs leading-6 text-loomera-textMuted">
+              <div class="flex items-start gap-2"><i class="fa-solid fa-circle-check mt-1 text-loomera-primaryText" aria-hidden="true"></i><span>حداقل یک روز فعال باید ساعت معتبر داشته باشد.</span></div>
+              <div class="flex items-start gap-2"><i class="fa-solid fa-circle-check mt-1 text-loomera-primaryText" aria-hidden="true"></i><span>ساعت پایان هر روز باید بعد از ساعت شروع باشد.</span></div>
+              <div class="flex items-start gap-2"><i class="fa-solid fa-circle-check mt-1 text-loomera-primaryText" aria-hidden="true"></i><span>روزهای تعطیل بهتر است کاملاً غیرفعال باشند.</span></div>
+            </div>
+          </aside>
+        </div>
+      </details>
+
+      <details id="working-hours-section-next" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">ثبت و ادامه</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مسیر بعدی ساخت پروفایل</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.45fr)]">
+            <section class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 sm:p-5">
+              <h3 class="text-base font-black text-loomera-textPrimary">بعد از ذخیره ساعت‌های کاری</h3>
+              <p class="mt-2 text-sm leading-7 text-loomera-textMuted">به مرحله گالری و کاور می‌روی تا تصویر اصلی و تصاویر نمایشی مجموعه را تکمیل کنی. اگر فعلاً تصویر آماده نداری، می‌توانی آن مرحله را رد کنی و بعداً از پروفایل مجموعه ویرایش کنی.</p>
+              <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                <a href="{{ step2_url }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText"><i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>بازگشت به لوکیشن</a>
+                <a href="{{ salon_profile_url }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText"><i class="fa-regular fa-eye text-xs" aria-hidden="true"></i>مشاهده پروفایل</a>
+                <a href="{{ dashboard_url }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText"><i class="fa-solid fa-house text-xs" aria-hidden="true"></i>خانه داشبورد</a>
+              </div>
+            </section>
+
+            <aside class="rounded-[26px] border border-loomera-primary/15 bg-white p-4 shadow-lm-soft">
+              <p class="text-[11px] font-black text-loomera-primaryText">ذخیره نهایی</p>
+              <p class="mt-2 text-sm leading-7 text-loomera-textMuted">پس از اطمینان از برنامه هفته، تغییرات را ذخیره کن.</p>
+              <div class="mt-4 flex flex-col gap-3">
+                <button type="submit" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"><i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>ذخیره ساعت‌های کاری</button>
+                <a href="{{ step2_url }}" class="inline-flex min-h-11 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40">بازگشت</a>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </details>
+    </form>
+
+    <div id="timePickerModal" class="fixed inset-0 z-[90] hidden items-end justify-center bg-loomera-textPrimary/45 p-4 backdrop-blur-sm md:items-center" role="dialog" aria-modal="true" aria-labelledby="timePickerTitle">
+      <div class="w-full max-w-xl overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white shadow-lm-elevated">
+        <div class="flex items-center justify-between gap-4 border-b border-loomera-borderSoft px-5 py-4">
+          <div class="min-w-0">
+            <p class="text-xs font-black text-loomera-textMuted">انتخاب ساعت</p>
+            <h4 id="timePickerTitle" class="mt-1 truncate text-base font-black text-loomera-textPrimary">انتخاب زمان</h4>
+          </div>
+          <button type="button" id="closeTimePickerBtn" class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primaryText">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="px-5 py-4">
+          <div class="mb-4 flex flex-wrap gap-2" id="timePickerQuickOptions"></div>
+          <div id="timePickerGrid" class="grid max-h-[55vh] grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4 md:grid-cols-5"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script type="module" src="{% static 'js/pages/salon_working_hours_step.js' %}"></script>
+{% endblock %}

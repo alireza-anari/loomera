@@ -1,0 +1,104 @@
+{% extends "platform_admin/base.html" %}
+{% load jalali_extras %}
+{% block title %}زیرساخت Loomera{% endblock %}
+{% block platform_content %}
+<section class="space-y-5" dir="rtl">
+  <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="bg-gradient-to-l from-loomera-primary/10 via-white to-white p-5 lg:p-6">
+      <p class="text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">Infrastructure</p>
+      <h1 class="mt-2 text-2xl font-black text-loomera-textPrimary">زیرساخت، jobها و پردازش فایل</h1>
+      <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">پایش سبک Redis، Celery/Cron، Sentry، jobهای عملیاتی و صف پردازش فایل. این صفحه جایگزین مانیتورینگ بیرونی نیست.</p>
+    </div>
+  </div>
+
+  <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <article class="rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4 shadow-sm">
+      <p class="text-xs font-bold text-loomera-textMuted">Cache backend</p>
+      <p class="mt-2 break-all text-sm font-black text-loomera-textPrimary" dir="ltr">{{ cache_backend|default:"نامشخص" }}</p>
+    </article>
+    <article class="rounded-[1.75rem] border {% if celery_enabled %}border-emerald-100 bg-emerald-50/70{% else %}border-amber-100 bg-amber-50/70{% endif %} p-4 shadow-sm">
+      <p class="text-xs font-bold {% if celery_enabled %}text-emerald-800{% else %}text-amber-800{% endif %}">Celery</p>
+      <p class="mt-2 text-lg font-black {% if celery_enabled %}text-emerald-900{% else %}text-amber-900{% endif %}">{% if celery_enabled %}فعال{% else %}غیرفعال / Cron{% endif %}</p>
+    </article>
+    <article class="rounded-[1.75rem] border {% if sentry_enabled %}border-emerald-100 bg-emerald-50/70{% else %}border-amber-100 bg-amber-50/70{% endif %} p-4 shadow-sm">
+      <p class="text-xs font-bold {% if sentry_enabled %}text-emerald-800{% else %}text-amber-800{% endif %}">Sentry</p>
+      <p class="mt-2 text-lg font-black {% if sentry_enabled %}text-emerald-900{% else %}text-amber-900{% endif %}">{% if sentry_enabled %}فعال{% else %}تنظیم نشده{% endif %}</p>
+    </article>
+    <article class="rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4 shadow-sm">
+      <p class="text-xs font-bold text-loomera-textMuted">Media pending</p>
+      <p class="mt-2 text-2xl font-black text-loomera-textPrimary">{{ pending_media_jobs|fa_digits }}</p>
+    </article>
+  </div>
+
+  <div class="grid gap-5 xl:grid-cols-2">
+    <article class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+      <div class="border-b border-loomera-borderSoft p-5">
+        <p class="text-xs font-black text-loomera-primaryText">Operational Jobs</p>
+        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">آخرین jobها</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-[720px] w-full text-sm">
+          <thead class="bg-loomera-bgSubtle text-loomera-textMuted"><tr><th class="p-4 text-right">نام</th><th class="p-4 text-right">وضعیت</th><th class="p-4 text-right">شروع</th><th class="p-4 text-right">مدت</th><th class="p-4 text-right">خلاصه</th></tr></thead>
+          <tbody class="divide-y divide-loomera-borderSoft">
+            {% for job in recent_jobs %}
+              <tr class="transition hover:bg-loomera-bgSubtle/60">
+                <td class="p-4 font-black text-loomera-textPrimary">{{ job.job_name }}</td>
+                <td class="p-4"><span class="rounded-full px-3 py-1 text-xs font-black {% if job.status == 'success' %}bg-emerald-50 text-emerald-700{% elif job.status == 'failed' %}bg-rose-50 text-rose-700{% elif job.status == 'started' %}bg-amber-50 text-amber-700{% else %}bg-slate-100 text-slate-600{% endif %}">{{ job.get_status_display }}</span></td>
+                <td class="p-4 whitespace-nowrap">{{ job.started_at|jalali_datetime }}</td>
+                <td class="p-4">{{ job.duration_ms|default:0|fa_digits }}ms</td>
+                <td class="p-4 text-loomera-textMuted">{{ job.summary|default:"—" }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="p-8 text-center text-loomera-textMuted">هنوز job ثبت نشده است.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+      <div class="border-b border-loomera-borderSoft p-5">
+        <p class="text-xs font-black text-loomera-primaryText">Failed Jobs</p>
+        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">خطاهای اخیر</h2>
+      </div>
+      <div class="p-5">
+        <div class="space-y-3">
+          {% for job in failed_jobs %}
+            <article class="rounded-[1.5rem] border border-rose-100 bg-rose-50/60 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-black text-rose-800">{{ job.job_name }}</p>
+                  <p class="mt-1 text-xs font-bold text-rose-700">{{ job.started_at|jalali_datetime }}</p>
+                </div>
+                <span class="rounded-full bg-white px-3 py-1 text-xs font-black text-rose-700">{{ job.duration_ms|default:0|fa_digits }}ms</span>
+              </div>
+              {% if job.error_message %}<p class="mt-3 line-clamp-3 text-xs leading-6 text-rose-900" dir="ltr">{{ job.error_message }}</p>{% endif %}
+            </article>
+          {% empty %}
+            <div class="rounded-[1.5rem] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-6 text-center text-sm text-loomera-textMuted">خطای اخیر ثبت نشده است.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <article class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="border-b border-loomera-borderSoft p-5">
+      <p class="text-xs font-black text-loomera-primaryText">Media Processing</p>
+      <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">پردازش فایل</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-[820px] w-full text-sm">
+        <thead class="bg-loomera-bgSubtle text-loomera-textMuted"><tr><th class="p-4 text-right">شناسه</th><th class="p-4 text-right">نوع</th><th class="p-4 text-right">وضعیت</th><th class="p-4 text-right">حجم</th><th class="p-4 text-right">تلاش</th><th class="p-4 text-right">زمان</th></tr></thead>
+        <tbody class="divide-y divide-loomera-borderSoft">
+          {% for job in media_jobs %}
+            <tr class="transition hover:bg-loomera-bgSubtle/60"><td class="p-4 font-black">#{{ job.id|fa_digits }}</td><td class="p-4">{{ job.get_file_kind_display }}</td><td class="p-4"><span class="rounded-full px-3 py-1 text-xs font-black {% if job.status == 'completed' %}bg-emerald-50 text-emerald-700{% elif job.status == 'failed' %}bg-rose-50 text-rose-700{% elif job.status == 'processing' %}bg-amber-50 text-amber-700{% else %}bg-slate-100 text-slate-600{% endif %}">{{ job.get_status_display }}</span></td><td class="p-4">{{ job.size_bytes|default:0|fa_digits }}</td><td class="p-4">{{ job.attempts|default:0|fa_digits }}</td><td class="p-4 whitespace-nowrap">{{ job.created_at|jalali_datetime }}</td></tr>
+          {% empty %}
+            <tr><td colspan="6" class="p-8 text-center text-loomera-textMuted">job پردازش فایل وجود ندارد.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+</section>
+{% endblock %}

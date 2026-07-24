@@ -1,0 +1,101 @@
+{% load humanize %}
+
+{% if salons %}
+  {% for salon in salons %}
+    <article
+      class="salon-card-wrapper rounded-[28px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-lm-card"
+      role="listitem"
+      data-salon-id="{{ salon.id }}"
+      data-salon-name="{{ salon.salon_name }}"
+      data-lat="{% if salon.location %}{{ salon.location.y }}{% endif %}"
+      data-lng="{% if salon.location %}{{ salon.location.x }}{% endif %}"
+      data-neighborhood="{{ salon.neighborhood.name|default:'' }}"
+      data-address="{{ salon.address|default:'' }}"
+      data-detail-url="{% url 'salons:detail_salon' salon.id %}"
+      data-rating="{{ salon.avg_score|default:0|floatformat:1 }}"
+      data-reviews="{{ salon.total_reviews|default:0 }}"
+      data-price="{{ salon.search_primary_price|default:'' }}"
+      data-image-url="{% if salon.banner_image %}{{ salon.banner_image.url }}{% endif %}"
+    >
+      <div class="grid grid-cols-[112px_minmax(0,1fr)] gap-3 sm:grid-cols-[128px_minmax(0,1fr)]">
+        <a href="{% url 'salons:detail_salon' salon.id %}" class="relative block h-full min-h-[122px] overflow-hidden rounded-[24px] bg-loomera-bgSubtle" aria-label="مشاهده {{ salon.salon_name }}">
+          {% if salon.banner_image %}
+            <img src="{{ salon.banner_image.url }}" alt="{{ salon.salon_name }}" class="h-full w-full object-cover" />
+          {% else %}
+            <div class="flex h-full w-full items-center justify-center text-loomera-textMuted">
+              <i class="fa-regular fa-image text-2xl" aria-hidden="true"></i>
+            </div>
+          {% endif %}
+          {% if salon.has_active_service_discount %}
+            <span class="absolute right-2 top-2 rounded-full bg-rose-500 px-2.5 py-1 text-[10px] font-black text-white shadow-sm">{{ salon.active_service_discount_label }}</span>
+          {% endif %}
+        </a>
+
+        <div class="min-w-0 py-1">
+          <div class="flex items-start justify-between gap-2">
+            <a href="{% url 'salons:detail_salon' salon.id %}" class="line-clamp-2 text-sm font-black leading-6 text-loomera-textPrimary sm:text-base">
+              {{ salon.salon_name }}
+            </a>
+            {% if salon.search_distance_km %}
+              <span class="shrink-0 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-2 py-1 text-[10px] font-bold text-loomera-textMuted">
+                {{ salon.search_distance_km|floatformat:1 }} کیلومتر
+              </span>
+            {% endif %}
+          </div>
+
+          <p class="mt-1 line-clamp-2 text-xs leading-6 text-loomera-textMuted">
+            {{ salon.search_location_label|default:salon.address }}
+          </p>
+
+          <div class="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-loomera-textMuted">
+            <span class="inline-flex items-center gap-1" aria-label="امتیاز {{ salon.avg_score|default:0|floatformat:1 }} از ۵">
+              <i class="fa-solid fa-star text-xs text-yellow-400" aria-hidden="true"></i>
+              <span class="font-black text-loomera-textPrimary">{{ salon.avg_score|default:0|floatformat:1 }}</span>
+              <span>({{ salon.total_reviews|default:0 }} نظر)</span>
+            </span>
+            {% if salon.search_primary_price %}
+              <span class="rounded-full bg-loomera-primarySoft px-2 py-1 font-bold text-loomera-primary">
+                از {{ salon.search_primary_price|intcomma }} تومان
+              </span>
+            {% endif %}
+          </div>
+
+          {% if salon.search_matched_services %}
+            <div class="mt-3 flex flex-wrap gap-2" aria-label="خدمات مرتبط">
+              {% for service_name in salon.search_matched_services|slice:":3" %}
+                <span class="rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-2.5 py-1 text-[10px] font-bold text-loomera-textSecondary">
+                  {{ service_name }}
+                </span>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="mt-3 flex items-center justify-between gap-3">
+            {% if salon.search_available_label %}
+              <p class="text-[11px] font-black text-emerald-600">{{ salon.search_available_label }}</p>
+            {% else %}
+              <p class="line-clamp-1 text-[11px] leading-5 text-loomera-textMuted">جزئیات را بررسی کنید و زمان مناسب را انتخاب کنید</p>
+            {% endif %}
+
+            <a href="{% url 'salons:detail_salon' salon.id %}" class="inline-flex shrink-0 items-center gap-2 rounded-full bg-loomera-primary px-3 py-2 text-[11px] font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+              <span>مشاهده</span>
+              <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
+  {% endfor %}
+{% else %}
+  <section class="rounded-[28px] border border-dashed border-loomera-border bg-white p-5 text-center shadow-lm-soft" role="status" aria-live="polite">
+    {% include "partials/brand/empty_state_illustration.html" with state="no-results" alt_text="نتیجه‌ای پیدا نشد" class_name="mx-auto h-24 w-24" %}
+    <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">نتیجه‌ای پیدا نشد</h3>
+    <p class="mx-auto mt-2 max-w-xs text-xs leading-6 text-loomera-textMuted">
+      نام خدمت، شهر یا زمان را تغییر بده و دوباره جستجو کن.
+    </p>
+    <button type="button" data-clear-search class="mt-4 inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
+      <span>پاک کردن فیلترها</span>
+      <i class="fa-solid fa-rotate-left text-[10px]" aria-hidden="true"></i>
+    </button>
+  </section>
+{% endif %}

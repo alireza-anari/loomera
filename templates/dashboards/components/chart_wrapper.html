@@ -1,0 +1,17 @@
+<section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+  <div class="flex items-center justify-between gap-3">
+    <div>
+      <h2 class="text-lg font-black tracking-tight text-slate-950">{{ title }}</h2>
+      {% if subtitle %}
+        <p class="mt-1 text-sm text-slate-500">{{ subtitle }}</p>
+      {% endif %}
+    </div>
+    {% if meta_label %}
+      <span class="inline-flex items-center rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-bold text-loomera-primaryText">{{ meta_label }}</span>
+    {% endif %}
+  </div>
+
+  <div class="mt-5">
+    {% include body_template %}
+  </div>
+</section>

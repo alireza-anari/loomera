@@ -1,0 +1,31 @@
+{# 
+  کامپوننت کارت متخصص
+  ورودی‌ها:
+    - stylist : آبجکت متخصص
+    - compact : اگر True باشد نسخه کوچکتر (مثلاً داخل اسلایدر) نمایش می‌دهد
+#}
+
+<div class="flex flex-col items-center text-center min-w-[90px]">
+  <div class="relative">
+    <img src="{{ media_url }}{{ stylist.profile_image }}"
+         alt="{{ stylist.get_fullName }}"
+         class="w-16 h-16 rounded-full object-cover border border-gray-200 shadow-sm" />
+
+    <div class="absolute -bottom-2 left-1/2 -translate-x-1/2
+                bg-white rounded-full px-2 py-0.5 shadow text-[10px] flex items-center gap-1">
+      <span class="font-semibold text-gray-800">
+        {{ stylist.avg_score|floatformat:1|default_if_none:'—' }}
+      </span>
+      <i class="fa-solid fa-star text-yellow-400 text-[11px]"></i>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="text-[12px] font-semibold text-gray-900 truncate max-w-[100px]">
+      {{ stylist.get_fullName }}
+    </div>
+    <div class="text-[11px] text-gray-500 mt-0.5">
+      {{ stylist.expert }}
+    </div>
+  </div>
+</div>

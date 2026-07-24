@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}درخواست ثبت شد | Loomera{% endblock %}
+{% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
+{% block body_attrs %}data-page="support_success"{% endblock %}
+
+{% block content %}
+<main class="flex min-h-screen items-center justify-center bg-loomera-bg px-4 py-10">
+  <section class="w-full max-w-xl overflow-hidden rounded-[2.25rem] border border-loomera-borderSoft bg-white shadow-lm-elevated">
+    <div class="relative overflow-hidden bg-loomera-primary px-6 py-8 text-center text-white">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,.22),transparent_18rem)]"></div>
+      <div class="relative">
+        <span class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white text-3xl text-loomera-primary shadow-lm-card">
+          <i class="fa-solid fa-check" aria-hidden="true"></i>
+        </span>
+        <h1 class="mt-5 text-2xl font-black">درخواست شما ثبت شد</h1>
+        <p class="mx-auto mt-3 max-w-sm text-sm leading-7 text-white/80">
+          نتیجه بررسی از صفحه پشتیبانی قابل پیگیری است. در صورت نیاز، پاسخ تیم لومرا در همان بخش نمایش داده می‌شود.
+        </p>
+      </div>
+    </div>
+
+    <div class="space-y-3 p-5 sm:p-6">
+      <a href="{% url 'main:contact' %}" class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+        <span>ثبت یا پیگیری درخواست</span>
+        <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+      </a>
+
+      <a href="{% if user.is_authenticated %}{% url 'accounts:customer_panel' %}{% else %}{% url 'accounts:login' %}{% endif %}" class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary shadow-lm-soft transition hover:text-loomera-primary">
+        <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+        <span>بازگشت</span>
+      </a>
+    </div>
+  </section>
+</main>
+{% endblock %}

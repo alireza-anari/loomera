@@ -1,0 +1,10 @@
+{
+  "safe_tokens": ["first_name", "provider_name", "specialist_name", "service_name", "appointment_date", "appointment_time", "city", "location", "order_id", "ticket_id", "appointment_url", "support_url"],
+  "optional_tokens": ["preferred_category", "previous_booking_reference", "favorites_count", "recommendation_reason", "refund_amount", "estimated_refund_time", "booking_resume_url", "payment_retry_url"],
+  "fallback_rule": "Never render empty tokens. Use neutral Persian fallback or remove the clause.",
+  "formatting": {
+    "dates": "Persian/Jalali display where product uses Jalali; keep machine values separate.",
+    "amounts": "Persian digits + تومان; do not include sensitive card details.",
+    "urls": "single CTA URL per short-form message"
+  }
+}

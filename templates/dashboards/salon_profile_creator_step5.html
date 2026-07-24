@@ -1,0 +1,6 @@
+{% extends "dashboard_template.html" %}
+{% block title %}مرحله ۵ ساخت پروفایل{% endblock %}
+{% block content %}
+  {% include "dashboards/components/page_hero.html" with eyebrow="ساخت پروفایل مجموعه" eyebrow_icon="fa-solid fa-pen-ruler" title="مرحله ۵: آماده‌سازی نمای عمومی" description="این مرحله برای جزئیات تکمیلی پروفایل و محتوای نمایش عمومی مجموعه در نظر گرفته شده و اکنون با layout جدید هم‌راستا شده است." action_label="ادامه مسیر" action_url="/dashboards/salon_profile_creator_step6/" %}
+  {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-image" title="زیرساخت مرحله پنجم منتقل شد" description="این گام می‌تواند در ادامه به ویرایش محتوای معرفی، بنرها یا CTAهای عمومی مجموعه متصل شود." action_label="بازگشت به خانه داشبورد" action_url="/dashboards/home/" %}
+{% endblock %}

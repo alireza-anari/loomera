@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <title>social-template-educational-square</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1080" fill="#FCFBFE"/>
+<rect x="84" y="84" width="912" height="912" rx="44" fill="#FFFFFF" stroke="#DDD8E8"/>
+<g id="badge"><rect x="128" y="126" width="216" height="40" rx="18" fill="#F4F1F8" stroke="#DDD8E8"/><text x="326" y="152" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#57526E" text-anchor="end">Educational / Tips</text></g>
+<g id="logo-slot"><rect x="824" y="132" width="138" height="34" rx="10" fill="none" stroke="#DDD8E8" stroke-dasharray="6 6"/><text x="893.0" y="155" font-family="Inter, sans-serif" font-size="15" fill="#7A738F" text-anchor="middle">LOGO</text></g>
+<text x="948" y="274" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="58" font-weight="650" fill="#2E2A3C" text-anchor="end">پیش از رزرو چه چیزهایی را بررسی کنیم؟</text>
+<g>
+  <rect x="128" y="356" width="824" height="146" rx="30" fill="#F8F5FE"/>
+  <circle cx="182" cy="429" r="28" fill="#735CBE" opacity="0.18"/><text x="182" y="438" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#735CBE" text-anchor="middle">1</text>
+  <text x="904" y="416" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" font-weight="600" fill="#2E2A3C" text-anchor="end">جزئیات خدمت و مدت زمان را ببینید</text>
+  <text x="904" y="462" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" fill="#57526E" text-anchor="end">این بلوک برای insight کوتاه، روشن و قابل‌اسکن طراحی شده است.</text>
+</g>
+<g>
+  <rect x="128" y="534" width="824" height="146" rx="30" fill="#F4F1F8"/>
+  <circle cx="182" cy="607" r="28" fill="#A7C8A1" opacity="0.22"/><text x="182" y="616" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#5F9A73" text-anchor="middle">2</text>
+  <text x="904" y="594" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" font-weight="600" fill="#2E2A3C" text-anchor="end">پروفایل متخصص و تجربه را مرور کنید</text>
+  <text x="904" y="640" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" fill="#57526E" text-anchor="end">tone باید utility-first و trust-building باشد.</text>
+</g>
+<g>
+  <rect x="128" y="712" width="824" height="146" rx="30" fill="#F8F5FE"/>
+  <circle cx="182" cy="785" r="28" fill="#9B80E0" opacity="0.24"/><text x="182" y="794" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#735CBE" text-anchor="middle">3</text>
+  <text x="904" y="772" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" font-weight="600" fill="#2E2A3C" text-anchor="end">شرایط رزرو و زمان‌های در دسترس را مقایسه کنید</text>
+  <text x="904" y="818" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" fill="#57526E" text-anchor="end">این قالب برای single-tip یا carousel inner هم قابل استفاده است.</text>
+</g>
+
+</svg>

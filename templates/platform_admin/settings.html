@@ -1,0 +1,66 @@
+{% extends "platform_admin/base.html" %}
+{% load jalali_extras %}
+{% block platform_content %}
+<section class="space-y-5" dir="rtl">
+  <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="bg-gradient-to-l from-loomera-primary/10 via-white to-white p-5 lg:p-6">
+      <p class="text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">Platform Settings</p>
+      <h1 class="mt-2 text-2xl font-black text-loomera-textPrimary">تنظیمات پلتفرم و Feature Flagها</h1>
+      <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">مقادیر حساس و runtime flagها با audit کنترل می‌شوند. برای تنظیمات حیاتی، env/config همچنان منبع اصلی است.</p>
+    </div>
+  </div>
+
+  <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+    {% for key,val in env_flags.items %}
+      <article class="rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4 shadow-sm transition hover:border-loomera-primary/30 hover:shadow-md">
+        <div class="flex items-start justify-between gap-3">
+          <p class="min-w-0 flex-1 break-all text-left text-xs font-black leading-6 text-loomera-textPrimary" dir="ltr">{{ key }}</p>
+          <span class="shrink-0 rounded-full px-3 py-1 text-xs font-black {% if val %}bg-emerald-50 text-emerald-700{% else %}bg-amber-50 text-amber-700{% endif %}">{{ val|yesno:"فعال,غیرفعال" }}</span>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="flex flex-col gap-3 border-b border-loomera-borderSoft p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-xs font-black text-loomera-primaryText">Database Settings</p>
+        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">تنظیمات ثبت‌شده</h2>
+        <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فقط کلیدهای قابل ویرایش در runtime را از این بخش تغییر بده.</p>
+      </div>
+      <span class="inline-flex w-fit rounded-full bg-loomera-bgSubtle px-3 py-2 text-xs font-black text-loomera-textMuted">{{ settings_list|length|fa_digits }} مورد در این صفحه</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-[920px] w-full text-sm">
+        <thead class="bg-loomera-bgSubtle text-loomera-textMuted">
+          <tr>
+            <th class="p-4 text-right">کلید</th>
+            <th class="p-4 text-right">نوع</th>
+            <th class="p-4 text-right">حساس</th>
+            <th class="p-4 text-right">قابل تغییر</th>
+            <th class="p-4 text-right">آخرین بروزرسانی</th>
+            <th class="p-4 text-right">عملیات</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-loomera-borderSoft">
+          {% for s in settings_list %}
+            <tr class="transition hover:bg-loomera-bgSubtle/60">
+              <td class="max-w-[360px] break-all p-4 text-left font-black text-loomera-textPrimary" dir="ltr">{{ s.key }}</td>
+              <td class="p-4 text-loomera-textMuted">{{ s.get_value_type_display|default:s.value_type }}</td>
+              <td class="p-4"><span class="rounded-full px-3 py-1 text-xs font-black {% if s.is_sensitive %}bg-rose-50 text-rose-700{% else %}bg-emerald-50 text-emerald-700{% endif %}">{{ s.is_sensitive|yesno:"بله,خیر" }}</span></td>
+              <td class="p-4"><span class="rounded-full px-3 py-1 text-xs font-black {% if s.is_runtime_editable %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-slate-100 text-slate-600{% endif %}">{{ s.is_runtime_editable|yesno:"بله,خیر" }}</span></td>
+              <td class="p-4 whitespace-nowrap text-loomera-textMuted">{{ s.updated_at|jalali_datetime }}</td>
+              <td class="p-4"><a class="inline-flex items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textMuted transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary" href="{% url 'platform_admin:setting_edit' s.pk %}"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>ویرایش</a></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="p-8 text-center text-loomera-textMuted">تنظیمی ثبت نشده است.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% include "platform_admin/_pagination.html" %}
+</section>
+{% endblock %}

@@ -1,0 +1,47 @@
+<section class="lm-onboarding-hero rounded-[32px] border border-slate-200/80 bg-white/95 p-6 shadow-sm backdrop-blur sm:p-7" {% if eyebrow == "ساخت پروفایل مجموعه" %}data-onboarding-surface="partner-profile"{% endif %}>
+  <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+    <div class="space-y-3">
+      {% if eyebrow %}
+        <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1 text-[11px] font-bold text-loomera-primaryText">
+          {% if eyebrow_icon %}<i class="{{ eyebrow_icon }} text-[10px]"></i>{% endif %}
+          <span>{{ eyebrow }}</span>
+        </span>
+      {% endif %}
+      <div>
+        <h2 class="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">{{ title }}</h2>
+        {% if description %}
+          <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">{{ description }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if action_label and action_url %}
+      <a href="{{ action_url }}" class="lm-btn lm-btn-primary inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(109,94,247,0.18)] transition hover:opacity-95">
+        <span>{{ action_label }}</span>
+        <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+      </a>
+    {% endif %}
+  </div>
+
+  {% if eyebrow == "ساخت پروفایل مجموعه" %}
+    <div class="lm-onboarding-stepper" role="list" aria-label="مراحل راه‌اندازی مجموعه">
+      <span role="listitem">اطلاعات پایه</span>
+      <span role="listitem">موقعیت و ساعت کاری</span>
+      <span role="listitem">خدمات و تیم</span>
+      <span role="listitem">گالری و امکانات</span>
+      <span role="listitem">رزرو آنلاین</span>
+      <span role="listitem">تأیید نهایی</span>
+    </div>
+  {% endif %}
+
+  {% if badges %}
+    <div class="mt-5 flex flex-wrap gap-2">
+      {% for badge in badges %}
+        <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
+          {% if badge.icon %}<i class="{{ badge.icon }} text-[11px] text-loomera-primaryText"></i>{% endif %}
+          <span>{{ badge.label }}</span>
+        </span>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>

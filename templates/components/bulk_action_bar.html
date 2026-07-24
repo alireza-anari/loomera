@@ -1,0 +1,25 @@
+<div class="hidden items-center justify-between gap-4 rounded-[24px] border border-loomera-primary/15 bg-loomera-primarySoft/70 px-4 py-4" data-bulk-bar>
+  <div class="flex items-center gap-3 text-sm font-semibold text-loomera-primaryText">
+    <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm">
+      <i class="fa-solid fa-check-double"></i>
+    </span>
+    <div>
+      <p>عملیات دسته‌ای روی نوبت‌ها</p>
+      <p class="mt-1 text-xs font-medium text-slate-500"><span data-selected-count>0</span> نوبت انتخاب شده است.</p>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-3">
+    <select name="bulk_action"
+            class="min-w-[220px] rounded-2xl border border-loomera-primary/15 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+      {% for action in appointment_management.bulk_actions %}
+        <option value="{{ action.key }}">{{ action.label }}</option>
+      {% endfor %}
+    </select>
+      <button type="submit"
+              class="inline-flex items-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95">
+        <span>اعمال روی موارد انتخاب‌شده</span>
+        <i class="fa-solid fa-bolt text-xs"></i>
+      </button>
+  </div>
+</div>

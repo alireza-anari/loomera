@@ -1,0 +1,36 @@
+{% if messages %}
+  <div class="fixed top-4 left-1/2 z-[100] w-full max-w-md -translate-x-1/2 px-4 space-y-3" aria-live="polite" aria-atomic="true">
+    {% for message in messages %}
+      <div
+        data-flash-message
+        data-dismiss-after="5000"
+        role="alert"
+        class="rounded-2xl border px-4 py-3 shadow-lg transition duration-300 ease-out {% if 'error' in message.tags %}border-rose-200 bg-rose-50 text-rose-800{% elif 'success' in message.tags %}border-emerald-200 bg-emerald-50 text-emerald-800{% elif 'warning' in message.tags %}border-amber-200 bg-amber-50 text-amber-800{% elif 'info' in message.tags %}border-sky-200 bg-sky-50 text-sky-800{% else %}border-slate-200 bg-white text-slate-700{% endif %}"
+      >
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-start gap-2 text-sm font-bold leading-6">
+            {% if 'error' in message.tags %}
+              <i class="fa-solid fa-circle-exclamation mt-1 shrink-0" aria-hidden="true"></i>
+            {% elif 'success' in message.tags %}
+              <i class="fa-solid fa-circle-check mt-1 shrink-0" aria-hidden="true"></i>
+            {% elif 'warning' in message.tags %}
+              <i class="fa-solid fa-triangle-exclamation mt-1 shrink-0" aria-hidden="true"></i>
+            {% elif 'info' in message.tags %}
+              <i class="fa-solid fa-circle-info mt-1 shrink-0" aria-hidden="true"></i>
+            {% endif %}
+            <span>{{ message }}</span>
+          </div>
+
+          <button
+            type="button"
+            data-flash-close
+            class="shrink-0 rounded-full p-1 opacity-70 transition hover:bg-white/70 hover:opacity-100"
+            aria-label="بستن پیام"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

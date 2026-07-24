@@ -1,0 +1,20 @@
+<div id="search-map" aria-label="نقشه نتایج جستجو"></div>
+
+<div
+  id="mapFallback"
+  class="pointer-events-none absolute inset-x-4 top-24 z-20 hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 px-4 py-3 text-right shadow-lm-card backdrop-blur lg:left-5 lg:right-auto lg:top-5 lg:w-[360px]"
+  role="status"
+  aria-live="polite"
+>
+  <div class="flex items-start gap-3">
+    <div class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+      <i class="fa-solid fa-map-location-dot text-sm" aria-hidden="true"></i>
+    </div>
+    <div class="min-w-0 flex-1">
+      <p class="text-sm font-black text-loomera-textPrimary">نمای نقشه فعلاً در دسترس نیست</p>
+      <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
+        اگر SDK یا کلید نقشه آماده نباشد، لیست مجموعه‌ها همچنان فعال می‌ماند.
+      </p>
+    </div>
+  </div>
+</div>

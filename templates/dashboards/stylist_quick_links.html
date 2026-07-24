@@ -1,0 +1,287 @@
+{% extends "dashboard_template.html" %}
+{% load jalali_extras %}
+
+{% block title %}لینک‌های رزرو من{% endblock %}
+{% block body_attrs %}data-page="stylist-quick-links"{% endblock %}
+
+{% block content %}
+  {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
+
+  <section class="min-w-0 max-w-full space-y-5 overflow-visible" data-dashboard-page="stylist-quick-links">
+    <section class="relative overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-7">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.18),transparent_45%),linear-gradient(180deg,rgba(248,245,255,0.96),rgba(255,255,255,0))]" aria-hidden="true"></div>
+
+      <div class="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <span class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+            <i class="fa-solid fa-link text-[10px]" aria-hidden="true"></i>
+            مجموعه فعال: {{ quick_link_workspace.salon_name }}
+          </span>
+          <h1 class="mt-4 text-2xl font-black text-loomera-textPrimary sm:text-3xl">لینک‌های رزرو من</h1>
+          <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary">
+            لینک‌های مخصوص خودت را بساز، QR بگیر و عملکرد هر محل استفاده یا کمپین را فقط در محدوده حساب خودت بررسی کن.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <a href="#create-stylist-quick-link" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white">
+            <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+            ساخت لینک
+          </a>
+          <a href="{{ stylist_appointments_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary">
+            نوبت‌های من
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <form method="get" class="grid gap-3 rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
+      <div>
+        <label for="stylist-link-period" class="mb-2 block text-xs font-black text-loomera-textPrimary">بازه زمانی</label>
+        <select id="stylist-link-period" name="period" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary">
+          {% for value, label in quick_link_workspace.period_options %}
+            <option value="{{ value }}" {% if quick_link_workspace.period.key == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="stylist-link-sort" class="mb-2 block text-xs font-black text-loomera-textPrimary">مرتب‌سازی</label>
+        <select id="stylist-link-sort" name="sort" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary">
+          {% for value, label in quick_link_workspace.sort_options %}
+            <option value="{{ value }}" {% if quick_link_workspace.sort == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="inline-flex min-h-11 items-center justify-center self-end rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white">اعمال</button>
+    </form>
+
+    <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="آمار لینک‌های رزرو متخصص">
+      <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+        <p class="text-xs font-black text-loomera-textMuted">لینک‌های فعال</p>
+        <p class="mt-3 text-2xl font-black text-loomera-textPrimary">{{ quick_link_workspace.summary.active_links|fa_digits }}</p>
+        <p class="mt-1 text-xs text-loomera-textMuted">از {{ quick_link_workspace.summary.total_links|fa_digits }} لینک</p>
+      </article>
+      <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+        <p class="text-xs font-black text-loomera-textMuted">بازدیدکننده یکتا</p>
+        <p class="mt-3 text-2xl font-black text-loomera-textPrimary">{{ quick_link_workspace.summary.unique_visitors|fa_digits }}</p>
+        <p class="mt-1 text-xs text-loomera-textMuted">{{ quick_link_workspace.summary.total_opens|fa_digits }} بازشدن کل</p>
+      </article>
+      <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+        <p class="text-xs font-black text-loomera-textMuted">رزرو موفق</p>
+        <p class="mt-3 text-2xl font-black text-loomera-textPrimary">{{ quick_link_workspace.summary.converted_count|fa_digits }}</p>
+        <p class="mt-1 text-xs text-loomera-textMuted">{{ quick_link_workspace.summary.started_count|fa_digits }} شروع رزرو</p>
+      </article>
+      <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+        <p class="text-xs font-black text-loomera-textMuted">نرخ تبدیل</p>
+        <p class="mt-3 text-2xl font-black text-loomera-textPrimary">{{ quick_link_workspace.summary.conversion_rate|floatformat:2|fa_digits }}٪</p>
+        {% if quick_link_workspace.summary.best_link %}
+          <p class="mt-1 truncate text-xs text-loomera-textMuted">بهترین: {{ quick_link_workspace.summary.best_link.title }}</p>
+        {% else %}
+          <p class="mt-1 text-xs text-loomera-textMuted">هنوز داده کافی نیست</p>
+        {% endif %}
+      </article>
+    </section>
+
+    <section id="create-stylist-quick-link" class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-primary/15 bg-white shadow-lm-card">
+      <header class="border-b border-loomera-borderSoft bg-loomera-primarySoft/35 px-5 py-5">
+        <p class="text-[11px] font-black text-loomera-primaryText">سازنده لینک متخصص</p>
+        <h2 class="mt-1 text-xl font-black text-loomera-textPrimary">ساخت لینک رزرو جدید</h2>
+        <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">سالن و متخصص ثابت هستند؛ خدمت، زمان، محل استفاده و کمپین را مشخص کن.</p>
+      </header>
+
+      <div class="space-y-5 p-4 sm:p-6">
+        {% if quick_link_workspace.errors %}
+          <div class="rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-7 text-rose-700">
+            {% for error in quick_link_workspace.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        {% endif %}
+
+        {% if quick_link_workspace.generated_link %}
+          <div class="rounded-[22px] border border-emerald-200 bg-emerald-50 p-4">
+            <p class="text-xs font-black text-emerald-700">لینک با موفقیت ساخته شد</p>
+            <div class="mt-3 break-all rounded-2xl bg-white px-4 py-3 text-left text-xs leading-6" dir="ltr" data-created-stylist-link>{{ quick_link_workspace.generated_link }}</div>
+            <button type="button" class="mt-3 rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white" data-copy-quick-link data-copy-target="[data-created-stylist-link]">کپی لینک</button>
+          </div>
+        {% endif %}
+
+        <form method="post" class="grid gap-4 lg:grid-cols-2" data-stylist-link-form>
+          {% csrf_token %}
+          <input type="hidden" name="period" value="{{ quick_link_workspace.period.key }}">
+          <input type="hidden" name="sort" value="{{ quick_link_workspace.sort }}">
+
+          <div>
+            <label class="mb-2 block text-sm font-black text-loomera-textPrimary">نوع لینک</label>
+            <select name="quick_link_mode" data-stylist-link-mode class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold">
+              {% for mode in quick_link_workspace.mode_options %}
+                <option value="{{ mode.value }}" {% if quick_link_workspace.current_mode == mode.value %}selected{% endif %}>{{ mode.label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-black text-loomera-textPrimary">محل استفاده</label>
+            <select name="placement" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold" required>
+              {% for value, label in quick_link_workspace.placement_options %}
+                <option value="{{ value }}" {% if quick_link_workspace.selected_placement == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div data-stylist-link-service-wrap>
+            <label class="mb-2 block text-sm font-black text-loomera-textPrimary">خدمت</label>
+            <select name="service_id" data-stylist-link-service class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold">
+              <option value="">انتخاب خدمت</option>
+              {% for service in quick_link_workspace.services %}
+                <option value="{{ service.id }}" {% if quick_link_workspace.selected_service == service.id|stringformat:'s' %}selected{% endif %}>{{ service.service_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div data-stylist-link-date-wrap>
+            <label class="mb-2 block text-sm font-black text-loomera-textPrimary">تاریخ</label>
+            <input type="text" name="appointment_date" value="{{ quick_link_workspace.selected_date }}" data-jdp data-jdp-only-date="true" autocomplete="off" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold">
+          </div>
+
+          <div data-stylist-link-time-wrap>
+            <label class="mb-2 block text-sm font-black text-loomera-textPrimary">ساعت</label>
+            <select name="appointment_time" data-stylist-link-time class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold">
+              <option value="">انتخاب ساعت</option>
+              {% for time_value in quick_link_workspace.time_options %}
+                <option value="{{ time_value }}" {% if quick_link_workspace.selected_time == time_value %}selected{% endif %}>{{ time_value|fa_digits }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-black text-loomera-textPrimary">عنوان لینک</label>
+            <input type="text" name="quick_link_title" value="{{ quick_link_workspace.selected_title }}" {% if quick_link_workspace.title_max_length %}maxlength="{{ quick_link_workspace.title_max_length }}"{% endif %} placeholder="مثلاً لینک بیوی من" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold">
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-black text-loomera-textPrimary">نام کمپین</label>
+            <input type="text" name="campaign_name" value="{{ quick_link_workspace.campaign_name }}" {% if quick_link_workspace.campaign_name_max_length %}maxlength="{{ quick_link_workspace.campaign_name_max_length }}"{% endif %} placeholder="مثلاً استوری مرداد" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold">
+          </div>
+
+          <div class="lg:col-span-2">
+            <label class="mb-2 block text-sm font-black text-loomera-textPrimary">یادداشت داخلی</label>
+            <textarea name="internal_note" rows="3" {% if quick_link_workspace.internal_note_max_length %}maxlength="{{ quick_link_workspace.internal_note_max_length }}"{% endif %} placeholder="این یادداشت فقط در داشبورد دیده می‌شود." class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold leading-7">{{ quick_link_workspace.internal_note }}</textarea>
+          </div>
+
+          <label class="lg:col-span-2 flex items-start gap-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4">
+            <input type="checkbox" name="is_permanent" class="mt-1 h-5 w-5 rounded" {% if quick_link_workspace.is_permanent %}checked{% endif %}>
+            <span><span class="block text-sm font-black text-loomera-textPrimary">لینک دائمی</span><span class="mt-1 block text-xs leading-6 text-loomera-textMuted">برای بیو، لیبل، استند یا پیام ثابت فعال شود.</span></span>
+          </label>
+
+          <button type="submit" class="lg:col-span-2 inline-flex min-h-11 items-center justify-center rounded-full bg-loomera-primary px-6 py-3 text-sm font-black text-white">ساخت لینک رزرو</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-6">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-[11px] font-black text-loomera-primaryText">{{ quick_link_workspace.period.label }}</p>
+          <h2 class="mt-1 text-xl font-black text-loomera-textPrimary">عملکرد لینک‌های من</h2>
+          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فقط لینک‌های ساخته‌شده توسط خودت در سالن فعال نمایش داده می‌شوند.</p>
+        </div>
+        <span class="rounded-full bg-loomera-bgSubtle px-4 py-2 text-xs font-black text-loomera-textSecondary">{{ quick_link_workspace.summary.total_links|fa_digits }} لینک</span>
+      </div>
+
+      {% if quick_link_workspace.links %}
+        <div class="mt-5 grid gap-4 xl:grid-cols-2">
+          {% for link in quick_link_workspace.links %}
+            <article class="min-w-0 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/45 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ link.title }}</h3>
+                    <span class="rounded-full px-3 py-1 text-[10px] font-black {% if link.status_tone == 'success' %}bg-emerald-100 text-emerald-700{% elif link.status_tone == 'danger' %}bg-rose-100 text-rose-700{% elif link.status_tone == 'warning' %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-600{% endif %}">{{ link.status_label }}</span>
+                  </div>
+                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ link.placement_label }} • {{ link.campaign_name }} • {{ link.mode_label }}</p>
+                </div>
+                <span class="shrink-0 rounded-full bg-white px-3 py-1.5 text-[10px] font-black text-loomera-primaryText">{% if link.is_permanent %}دائمی{% else %}موقت{% endif %}</span>
+              </div>
+
+              <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <div class="rounded-2xl bg-white p-3 text-center"><p class="text-lg font-black">{{ link.total_opens|fa_digits }}</p><p class="text-[10px] text-loomera-textMuted">بازشدن</p></div>
+                <div class="rounded-2xl bg-white p-3 text-center"><p class="text-lg font-black">{{ link.unique_visitors|fa_digits }}</p><p class="text-[10px] text-loomera-textMuted">یکتا</p></div>
+                <div class="rounded-2xl bg-white p-3 text-center"><p class="text-lg font-black">{{ link.converted_count|fa_digits }}</p><p class="text-[10px] text-loomera-textMuted">رزرو</p></div>
+                <div class="rounded-2xl bg-white p-3 text-center"><p class="text-lg font-black">{{ link.conversion_rate|floatformat:2|fa_digits }}٪</p><p class="text-[10px] text-loomera-textMuted">تبدیل</p></div>
+              </div>
+
+              <div class="mt-3 rounded-2xl bg-white px-3 py-3 text-left text-[11px] leading-6 break-all" dir="ltr" data-stylist-quick-link-url-{{ link.id }}>{{ link.url }}</div>
+
+              {% if link.internal_note %}<p class="mt-3 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-xs leading-6 text-loomera-textSecondary"><span class="font-black">یادداشت:</span> {{ link.internal_note }}</p>{% endif %}
+
+              <div class="mt-3 flex flex-wrap gap-2 border-t border-loomera-borderSoft pt-3">
+                <button type="button" class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black" data-copy-quick-link data-copy-target="[data-stylist-quick-link-url-{{ link.id }}]">کپی</button>
+                <a href="{{ link.url }}" target="_blank" rel="noopener" class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText">بازکردن</a>
+                <a href="{{ link.qr_preview_url }}" target="_blank" rel="noopener" class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText">پیش‌نمایش QR</a>
+                <a href="{{ link.qr_download_url }}" class="rounded-full bg-loomera-primary px-3 py-2 text-xs font-black text-white">دانلود QR</a>
+              </div>
+
+              {% include "dashboards/quick_links/_management_controls.html" with link=link placement_options=quick_link_workspace.placement_options %}
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="mt-5 rounded-[24px] border border-dashed border-loomera-primary/25 bg-loomera-primarySoft/25 p-8 text-center">
+          <h3 class="text-base font-black text-loomera-textPrimary">هنوز لینکی نساخته‌ای</h3>
+          <p class="mt-2 text-sm text-loomera-textMuted">از فرم بالا اولین لینک رزرو مخصوص خودت را بساز.</p>
+        </div>
+      {% endif %}
+    </section>
+  </section>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (typeof jalaliDatepicker !== "undefined") {
+        jalaliDatepicker.startWatch({ selector: "[data-jdp]", autoHide: true });
+      }
+
+      const form = document.querySelector("[data-stylist-link-form]");
+      const mode = form?.querySelector("[data-stylist-link-mode]");
+      const serviceWrap = form?.querySelector("[data-stylist-link-service-wrap]");
+      const dateWrap = form?.querySelector("[data-stylist-link-date-wrap]");
+      const timeWrap = form?.querySelector("[data-stylist-link-time-wrap]");
+      const service = form?.querySelector("[data-stylist-link-service]");
+      const time = form?.querySelector("[data-stylist-link-time]");
+      const date = form?.querySelector("input[name='appointment_date']");
+
+      const updateMode = function () {
+        const value = mode?.value || "stylist";
+        const needsService = value !== "stylist";
+        const needsTime = value === "service_stylist_time";
+        serviceWrap?.classList.toggle("hidden", !needsService);
+        dateWrap?.classList.toggle("hidden", !needsTime);
+        timeWrap?.classList.toggle("hidden", !needsTime);
+        if (service) service.required = needsService;
+        if (date) date.required = needsTime;
+        if (time) time.required = needsTime;
+      };
+
+      mode?.addEventListener("change", updateMode);
+      updateMode();
+
+      document.addEventListener("click", async function (event) {
+        const button = event.target.closest("[data-copy-quick-link]");
+        if (!button) return;
+        const selector = button.getAttribute("data-copy-target");
+        const target = selector ? document.querySelector(selector) : null;
+        const value = target ? target.textContent.trim() : "";
+        if (!value) return;
+        try {
+          await navigator.clipboard.writeText(value);
+          const oldText = button.textContent;
+          button.textContent = "کپی شد";
+          window.setTimeout(function () { button.textContent = oldText; }, 1400);
+        } catch (_error) {
+          window.prompt("لینک را کپی کن:", value);
+        }
+      });
+    });
+  </script>
+{% endblock %}

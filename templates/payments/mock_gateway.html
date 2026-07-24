@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}پرداخت آزمایشی{% endblock %}
+
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-32 text-loomera-textPrimary lg:pb-16">
+  <!-- MOBILE HEADER -->
+  <header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 backdrop-blur lg:hidden">
+    <div class="mx-auto flex max-w-md items-center justify-between gap-3">
+      <a href="{% if payment.purpose == 'wallet' %}{% url 'payments:detail' %}{% else %}{% url 'orders:appointments' %}{% endif %}"
+         class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft"
+         aria-label="بازگشت">
+        <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+      </a>
+      <div class="min-w-0 text-center">
+        <p class="text-xs font-black text-loomera-primary">درگاه آزمایشی</p>
+        <h1 class="truncate text-sm font-black text-loomera-textPrimary">شبیه‌ساز پرداخت</h1>
+      </div>
+      <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-loomera-primarySoft text-loomera-primary">
+        <i class="fa-solid fa-flask text-sm" aria-hidden="true"></i>
+      </span>
+    </div>
+  </header>
+
+  <section class="mx-auto grid w-full max-w-6xl gap-5 px-4 pt-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-7 lg:px-6 lg:pt-10 xl:px-0">
+    <div class="min-w-0 space-y-5">
+      <!-- HERO -->
+      <section class="relative overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-7">
+        <div class="pointer-events-none absolute -left-20 -top-20 h-52 w-52 rounded-full bg-loomera-primary/10 blur-3xl" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -bottom-24 right-10 h-60 w-60 rounded-full bg-loomera-accent/15 blur-3xl" aria-hidden="true"></div>
+
+        <div class="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div class="min-w-0">
+            <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary">
+              <i class="fa-solid fa-flask text-[11px]" aria-hidden="true"></i>
+              <span>حالت تست پرداخت</span>
+            </span>
+            <h2 class="mt-4 text-2xl font-black leading-10 text-loomera-textPrimary lg:text-4xl lg:leading-[3.25rem]">
+              شبیه‌ساز پرداخت
+            </h2>
+            <p class="mt-3 max-w-2xl text-sm leading-8 text-loomera-textMuted lg:text-base">
+              این صفحه برای تست کامل سناریوهای پرداخت قبل از فعال شدن مرچنت واقعی استفاده می‌شود. نتیجه‌ای که انتخاب می‌کنی، مسیر callback و صفحه نتیجه پرداخت را شبیه‌سازی می‌کند.
+            </p>
+          </div>
+
+          <div class="rounded-3xl border border-loomera-borderSoft bg-white/80 p-4 shadow-lm-soft backdrop-blur lg:min-w-[230px]">
+            <p class="text-xs font-black text-loomera-textMuted">مبلغ قابل پرداخت</p>
+            <p class="mt-2 text-2xl font-black text-loomera-primary">{{ payment.amount|floatformat:0 }} تومان</p>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">شناسه پرداخت: {{ payment.id }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAYMENT INFO -->
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-6" aria-labelledby="paymentInfoTitle">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">payment info</p>
+            <h2 id="paymentInfoTitle" class="mt-2 text-lg font-black text-loomera-textPrimary">جزئیات پرداخت</h2>
+          </div>
+          <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+            <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+          </span>
+        </div>
+
+        <div class="mt-5 grid gap-3">
+          {% if payment.purpose == 'wallet' %}
+            <div class="flex items-center justify-between gap-4 rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3">
+              <span class="text-sm font-bold text-loomera-textMuted">نوع عملیات</span>
+              <strong class="text-sm font-black text-loomera-textPrimary">شارژ کیف پول</strong>
+            </div>
+            <div class="flex items-center justify-between gap-4 rounded-3xl border border-loomera-borderSoft bg-white px-4 py-3">
+              <span class="text-sm font-bold text-loomera-textMuted">کاربر</span>
+              <strong class="text-left text-sm font-black text-loomera-textPrimary" dir="ltr">{{ payment.customer.user.mobile_number }}</strong>
+            </div>
+            <div class="flex items-center justify-between gap-4 rounded-3xl border border-loomera-primary/15 bg-loomera-primarySoft/70 px-4 py-3">
+              <span class="text-sm font-bold text-loomera-textMuted">مبلغ شارژ</span>
+              <strong class="text-base font-black text-loomera-primary">{{ payment.amount|floatformat:0 }} تومان</strong>
+            </div>
+          {% else %}
+            <div class="flex items-center justify-between gap-4 rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3">
+              <span class="text-sm font-bold text-loomera-textMuted">شماره سفارش</span>
+              <strong class="text-left text-sm font-black text-loomera-textPrimary" dir="ltr">{{ order.order_number }}</strong>
+            </div>
+            <div class="flex items-center justify-between gap-4 rounded-3xl border border-loomera-borderSoft bg-white px-4 py-3">
+              <span class="text-sm font-bold text-loomera-textMuted">مجموعه</span>
+              <strong class="text-sm font-black text-loomera-textPrimary">{{ order.salon.salon_name }}</strong>
+            </div>
+            <div class="flex items-center justify-between gap-4 rounded-3xl border border-loomera-primary/15 bg-loomera-primarySoft/70 px-4 py-3">
+              <span class="text-sm font-bold text-loomera-textMuted">مبلغ قابل پرداخت</span>
+              <strong class="text-base font-black text-loomera-primary">{{ payment.amount|floatformat:0 }} تومان</strong>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ACTIONS -->
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-6" aria-labelledby="gatewayActionTitle">
+        <div class="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">gateway result</p>
+            <h2 id="gatewayActionTitle" class="mt-2 text-lg font-black text-loomera-textPrimary">نتیجه پرداخت را انتخاب کن</h2>
+            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">برای تست مسیرهای مختلف، یکی از حالت‌های زیر را انتخاب کن.</p>
+          </div>
+        </div>
+
+        <form method="post" action="{% url 'payments:mock_gateway_complete' payment.id payment.callback_token %}" class="grid gap-3 sm:grid-cols-3">
+          {% csrf_token %}
+          <button name="action" value="success" type="submit" class="group rounded-[1.5rem] border border-emerald-500/20 bg-emerald-600 px-4 py-4 text-sm font-black text-white shadow-lm-soft transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/20">
+            <span class="mb-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/18 text-white">
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+            </span>
+            <span class="block">پرداخت موفق</span>
+          </button>
+
+          <button name="action" value="fail" type="submit" class="group rounded-[1.5rem] border border-rose-500/20 bg-rose-600 px-4 py-4 text-sm font-black text-white shadow-lm-soft transition hover:-translate-y-0.5 hover:bg-rose-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/20">
+            <span class="mb-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/18 text-white">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </span>
+            <span class="block">پرداخت ناموفق</span>
+          </button>
+
+          <button name="action" value="cancel" type="submit" class="group rounded-[1.5rem] border border-loomera-borderSoft bg-white px-4 py-4 text-sm font-black text-loomera-textPrimary shadow-lm-soft transition hover:-translate-y-0.5 hover:bg-loomera-bgSubtle focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30">
+            <span class="mb-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-loomera-bgSubtle text-loomera-textMuted">
+              <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
+            </span>
+            <span class="block">انصراف کاربر</span>
+          </button>
+        </form>
+      </section>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="hidden lg:block">
+      <div class="sticky top-28 space-y-4">
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-elevated">
+          <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">test guide</p>
+          <h2 class="mt-2 text-lg font-black text-loomera-textPrimary">راهنمای تست</h2>
+          <ul class="mt-4 space-y-3 text-sm leading-7 text-loomera-textMuted">
+            <li class="flex gap-3">
+              <span class="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[10px] text-emerald-600"><i class="fa-solid fa-check"></i></span>
+              پرداخت موفق باید رزرو/شارژ را نهایی کند.
+            </li>
+            <li class="flex gap-3">
+              <span class="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-50 text-[10px] text-rose-600"><i class="fa-solid fa-xmark"></i></span>
+              پرداخت ناموفق باید وضعیت خطا را در نتیجه پرداخت نشان دهد.
+            </li>
+            <li class="flex gap-3">
+              <span class="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-loomera-bgSubtle text-[10px] text-loomera-textMuted"><i class="fa-solid fa-arrow-rotate-left"></i></span>
+              انصراف کاربر باید بدون ثبت پرداخت موفق برگردد.
+            </li>
+          </ul>
+        </section>
+
+        <a href="{% if payment.purpose == 'wallet' %}{% url 'payments:detail' %}{% else %}{% url 'orders:appointments' %}{% endif %}"
+           class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-lm-soft transition hover:bg-loomera-bgSubtle">
+          <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+          <span>بازگشت بدون انتخاب نتیجه</span>
+        </a>
+      </div>
+    </aside>
+  </section>
+</main>
+{% endblock %}

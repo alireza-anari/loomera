@@ -1,0 +1,701 @@
+/* ==========================================================================
+   Loomera Typography System
+   Based on supplied typography reference:
+   UI/Product: Yekan Bakh
+   Brand/Editorial/Latin Accent: Source Serif 4
+   Fallback: Vazirmatn + Inter
+========================================================================== */
+
+/* ------------------------------
+   Font faces
+------------------------------ */
+
+/* Yekan Bakh — normal digits */
+@font-face {
+  font-family: "Yekan Bakh";
+  src: url("../fonts/yekan-bakh/YekanBakh-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Yekan Bakh";
+  src: url("../fonts/yekan-bakh/YekanBakh-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Yekan Bakh";
+  src: url("../fonts/yekan-bakh/YekanBakh-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Yekan Bakh";
+  src: url("../fonts/yekan-bakh/YekanBakh-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Optional Persian-number variant */
+@font-face {
+  font-family: "Yekan Bakh FaNum";
+  src: url("../fonts/yekan-bakh/YekanBakhFaNum-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Yekan Bakh FaNum";
+  src: url("../fonts/yekan-bakh/YekanBakhFaNum-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Yekan Bakh FaNum";
+  src: url("../fonts/yekan-bakh/YekanBakhFaNum-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Source Serif 4 — brand/editorial/accent font */
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4/SourceSerif4-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4/SourceSerif4-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4/SourceSerif4-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ------------------------------
+   Typography tokens
+------------------------------ */
+
+:root {
+  --lm-font-ui: "Yekan Bakh", "Vazirmatn", "IRANSansX", "Inter", "Segoe UI", Arial, sans-serif;
+  --lm-font-ui-fa-num: "Yekan Bakh FaNum", "Yekan Bakh", "Vazirmatn", "IRANSansX", "Inter", "Segoe UI", Arial, sans-serif;
+  --lm-font-brand: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --lm-font-editorial: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --lm-font-latin: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --lm-font-numeric: "Yekan Bakh FaNum", "Yekan Bakh", "Vazirmatn", "Inter", "Roboto Mono", monospace;
+
+  --lm-weight-regular: 400;
+  --lm-weight-medium: 500;
+  --lm-weight-semibold: 600;
+  --lm-weight-bold: 700;
+
+  /* Desktop scale */
+  --lm-display-xl-size: 64px;
+  --lm-display-xl-line: 72px;
+
+  --lm-display-l-size: 40px;
+  --lm-display-l-line: 52px;
+
+  --lm-h1-size: 40px;
+  --lm-h1-line: 52px;
+
+  --lm-h2-size: 32px;
+  --lm-h2-line: 44px;
+
+  --lm-h3-size: 28px;
+  --lm-h3-line: 40px;
+
+  --lm-h4-size: 24px;
+  --lm-h4-line: 34px;
+
+  --lm-h5-size: 18px;
+  --lm-h5-line: 30px;
+
+  --lm-body-lg-size: 17px;
+  --lm-body-lg-line: 30px;
+
+  --lm-body-size: 16px;
+  --lm-body-line: 28px;
+
+  --lm-body-sm-size: 14px;
+  --lm-body-sm-line: 24px;
+
+  --lm-label-size: 13px;
+  --lm-label-line: 20px;
+
+  --lm-caption-size: 12px;
+  --lm-caption-line: 18px;
+
+  --lm-button-size: 15px;
+  --lm-button-line: 22px;
+
+  --lm-input-size: 15px;
+  --lm-input-line: 24px;
+
+  --lm-nav-size: 14px;
+  --lm-nav-line: 24px;
+
+  --lm-card-title-size: 18px;
+  --lm-card-title-line: 30px;
+
+  --lm-card-body-size: 14px;
+  --lm-card-body-line: 24px;
+
+  --lm-metric-size: 32px;
+  --lm-metric-line: 42px;
+
+  --lm-letter-spacing-fa: 0;
+  --lm-word-spacing-fa: 0.02em;
+}
+
+/* Mobile scale from reference */
+@media (max-width: 767.98px) {
+  :root {
+    --lm-display-xl-size: 40px;
+    --lm-display-xl-line: 52px;
+
+    --lm-display-l-size: 32px;
+    --lm-display-l-line: 44px;
+
+    --lm-h1-size: 32px;
+    --lm-h1-line: 44px;
+
+    --lm-h2-size: 28px;
+    --lm-h2-line: 40px;
+
+    --lm-h3-size: 24px;
+    --lm-h3-line: 34px;
+
+    --lm-h4-size: 20px;
+    --lm-h4-line: 30px;
+
+    --lm-h5-size: 18px;
+    --lm-h5-line: 28px;
+
+    --lm-body-lg-size: 17px;
+    --lm-body-lg-line: 30px;
+
+    --lm-body-size: 16px;
+    --lm-body-line: 28px;
+
+    --lm-body-sm-size: 14px;
+    --lm-body-sm-line: 24px;
+
+    --lm-label-size: 13px;
+    --lm-label-line: 20px;
+
+    --lm-caption-size: 12px;
+    --lm-caption-line: 18px;
+
+    --lm-button-size: 15px;
+    --lm-button-line: 22px;
+
+    --lm-card-title-size: 17px;
+    --lm-card-title-line: 28px;
+
+    --lm-metric-size: 28px;
+    --lm-metric-line: 38px;
+  }
+}
+
+/* ------------------------------
+   Global typography reset
+------------------------------ */
+
+html {
+  font-family: var(--lm-font-ui);
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--lm-font-ui) !important;
+  font-size: var(--lm-body-size);
+  line-height: var(--lm-body-line);
+  font-weight: 400;
+  letter-spacing: var(--lm-letter-spacing-fa);
+  word-spacing: var(--lm-word-spacing-fa);
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea,
+option,
+label,
+table,
+th,
+td {
+  font-family: var(--lm-font-ui) !important;
+}
+
+/* Avoid ugly fake bold in Persian UI */
+b,
+strong {
+  font-weight: 600;
+}
+
+/* ------------------------------
+   Headings
+------------------------------ */
+
+h1,
+.h1,
+.lm-h1,
+.lm-page-title {
+  font-family: var(--lm-font-ui) !important;
+  font-size: var(--lm-h1-size);
+  line-height: var(--lm-h1-line);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+h2,
+.h2,
+.lm-h2,
+.lm-section-title {
+  font-family: var(--lm-font-ui) !important;
+  font-size: var(--lm-h2-size);
+  line-height: var(--lm-h2-line);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+h3,
+.h3,
+.lm-h3 {
+  font-family: var(--lm-font-ui) !important;
+  font-size: var(--lm-h3-size);
+  line-height: var(--lm-h3-line);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+h4,
+.h4,
+.lm-h4 {
+  font-family: var(--lm-font-ui) !important;
+  font-size: var(--lm-h4-size);
+  line-height: var(--lm-h4-line);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+h5,
+.h5,
+.lm-h5 {
+  font-family: var(--lm-font-ui) !important;
+  font-size: var(--lm-h5-size);
+  line-height: var(--lm-h5-line);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Display styles */
+.lm-display-xl {
+  font-family: var(--lm-font-ui) !important;
+  font-size: var(--lm-display-xl-size);
+  line-height: var(--lm-display-xl-line);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.lm-display-l {
+  font-family: var(--lm-font-ui) !important;
+  font-size: var(--lm-display-l-size);
+  line-height: var(--lm-display-l-line);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Brand / editorial serif */
+.lm-brand-type,
+.lm-serif,
+.lm-editorial,
+.lm-latin-display,
+.font-serif {
+  font-family: var(--lm-font-brand) !important;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+:lang(en),
+[lang="en"],
+.lm-latin,
+.lm-english {
+  font-family: var(--lm-font-latin);
+}
+
+/* Keep product UI Persian in Yekan, not serif */
+button,
+input,
+select,
+textarea,
+.lm-btn,
+.lm-chip,
+.lm-badge,
+.lm-card,
+.lm-app-card,
+.lm-venue-card,
+.lm-dashboard-panel {
+  font-family: var(--lm-font-ui) !important;
+}
+
+/* ------------------------------
+   Body text
+------------------------------ */
+
+p,
+li,
+.lm-body {
+  font-size: var(--lm-body-size);
+  line-height: var(--lm-body-line);
+  font-weight: 400;
+}
+
+.lm-body-lg {
+  font-size: var(--lm-body-lg-size);
+  line-height: var(--lm-body-lg-line);
+  font-weight: 400;
+}
+
+small,
+.lm-body-sm {
+  font-size: var(--lm-body-sm-size);
+  line-height: var(--lm-body-sm-line);
+  font-weight: 400;
+}
+
+.lm-caption,
+figcaption {
+  font-size: var(--lm-caption-size);
+  line-height: var(--lm-caption-line);
+  font-weight: 400;
+}
+
+.lm-label,
+label {
+  font-size: var(--lm-label-size);
+  line-height: var(--lm-label-line);
+  font-weight: 500;
+}
+
+.lm-helper,
+.lm-helper-text,
+.helptext {
+  font-size: var(--lm-caption-size);
+  line-height: var(--lm-caption-line);
+  font-weight: 400;
+}
+
+/* ------------------------------
+   Buttons / inputs / navigation
+------------------------------ */
+
+button,
+.lm-btn,
+.btn,
+[type="button"],
+[type="submit"],
+[type="reset"] {
+  font-size: var(--lm-button-size) !important;
+  line-height: var(--lm-button-line) !important;
+  font-weight: 600 !important;
+}
+
+input,
+select,
+textarea,
+.lm-input,
+.lm-select,
+.lm-textarea,
+.lm-field {
+  font-size: var(--lm-input-size) !important;
+  line-height: var(--lm-input-line) !important;
+  font-weight: 400 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  font-weight: 400;
+}
+
+.lm-shell-desktop-nav__item,
+.lm-shell-mobile-nav-item,
+nav a,
+.menu a {
+  font-size: var(--lm-nav-size);
+  line-height: var(--lm-nav-line);
+  font-weight: 600;
+}
+
+/* ------------------------------
+   Cards / dashboard / tables
+------------------------------ */
+
+.lm-card-title,
+.lm-home-salon-card__title,
+.lm-public-salon-card h3,
+.lm-venue-card h3,
+.lm-booking-card h3 {
+  font-size: var(--lm-card-title-size) !important;
+  line-height: var(--lm-card-title-line) !important;
+  font-weight: 600 !important;
+}
+
+.lm-card-body,
+.lm-home-salon-card__location,
+.lm-home-salon-card__subtitle,
+.lm-public-salon-card p,
+.lm-venue-card p {
+  font-size: var(--lm-card-body-size);
+  line-height: var(--lm-card-body-line);
+  font-weight: 400;
+}
+
+table,
+th,
+td {
+  font-size: var(--lm-body-sm-size);
+  line-height: var(--lm-body-sm-line);
+}
+
+th {
+  font-weight: 600;
+}
+
+.lm-metric,
+.lm-dashboard-metric-value,
+.lm-stat-number,
+[data-metric],
+[data-stat] {
+  font-family: var(--lm-font-numeric) !important;
+  font-size: var(--lm-metric-size);
+  line-height: var(--lm-metric-line);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------
+   Numbers and mixed content
+------------------------------ */
+
+.lm-numeric,
+.lm-tabular,
+.lm-price,
+.lm-time,
+.lm-percent,
+.lm-phone,
+.lm-code,
+.lm-id {
+  font-family: var(--lm-font-numeric) !important;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.lm-ltr,
+[dir="ltr"],
+input[type="email"],
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+code,
+pre {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.lm-rtl,
+[dir="rtl"] {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+/* ------------------------------
+   Tailwind utility correction
+   Many templates use font-black/text-2xl/etc.
+   This maps them to the supplied type system.
+------------------------------ */
+
+.font-thin,
+.font-extralight,
+.font-light {
+  font-weight: 400 !important;
+}
+
+.font-normal {
+  font-weight: 400 !important;
+}
+
+.font-medium {
+  font-weight: 500 !important;
+}
+
+.font-semibold,
+.font-bold,
+.font-extrabold,
+.font-black {
+  font-weight: 600 !important;
+}
+
+.text-\[10px\] {
+  font-size: 11px !important;
+  line-height: 18px !important;
+}
+
+.text-\[11px\],
+.text-xs {
+  font-size: 12px !important;
+  line-height: 18px !important;
+}
+
+.text-\[13px\] {
+  font-size: 13px !important;
+  line-height: 20px !important;
+}
+
+.text-sm,
+.text-\[14px\] {
+  font-size: 14px !important;
+  line-height: 24px !important;
+}
+
+.text-base,
+.text-\[16px\] {
+  font-size: 16px !important;
+  line-height: 28px !important;
+}
+
+.text-lg,
+.text-\[18px\] {
+  font-size: 18px !important;
+  line-height: 30px !important;
+}
+
+.text-xl {
+  font-size: 20px !important;
+  line-height: 30px !important;
+}
+
+.text-2xl {
+  font-size: 24px !important;
+  line-height: 34px !important;
+}
+
+.text-3xl {
+  font-size: 28px !important;
+  line-height: 40px !important;
+}
+
+.text-4xl {
+  font-size: 32px !important;
+  line-height: 44px !important;
+}
+
+.text-5xl {
+  font-size: 40px !important;
+  line-height: 52px !important;
+}
+
+/* ------------------------------
+   Homepage typography polish
+------------------------------ */
+
+.lm-home-hero__heading {
+  font-family: var(--lm-font-ui) !important;
+  font-size: clamp(32px, 3.2vw, 40px) !important;
+  line-height: 52px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0;
+}
+
+.lm-home-hero__lead {
+  font-size: 16px !important;
+  line-height: 28px !important;
+  font-weight: 400 !important;
+}
+
+.lm-home-services__title,
+.lm-home-section__title {
+  font-size: 32px !important;
+  line-height: 44px !important;
+  font-weight: 600 !important;
+}
+
+.lm-home-services__eyebrow,
+.lm-home-section__eyebrow {
+  font-size: 13px !important;
+  line-height: 20px !important;
+  font-weight: 600 !important;
+}
+
+.lm-home-feature__title,
+.lm-home-service-pill strong {
+  font-size: 15px !important;
+  line-height: 24px !important;
+  font-weight: 600 !important;
+}
+
+.lm-home-feature__text {
+  font-size: 13px !important;
+  line-height: 22px !important;
+}
+
+/* ------------------------------
+   Mobile refinements
+------------------------------ */
+
+@media (max-width: 767.98px) {
+  .lm-home-hero__heading {
+    font-size: 32px !important;
+    line-height: 44px !important;
+  }
+
+  .lm-home-services__title,
+  .lm-home-section__title {
+    font-size: 28px !important;
+    line-height: 40px !important;
+  }
+
+  .text-4xl,
+  .text-5xl {
+    font-size: 32px !important;
+    line-height: 44px !important;
+  }
+
+  .text-3xl {
+    font-size: 24px !important;
+    line-height: 34px !important;
+  }
+
+  .text-2xl {
+    font-size: 20px !important;
+    line-height: 30px !important;
+  }
+}

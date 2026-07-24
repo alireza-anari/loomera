@@ -1,0 +1,25 @@
+{% load static %}
+{% with key=asset_key|default:"all-services" alt_value=alt_text|default:"دسته‌بندی خدمات" %}
+  {% if key == "hair" %}
+    {% static "branding/categories/icons/light/category-icon-hair.png" as icon_src %}
+  {% elif key == "nails" %}
+    {% static "branding/categories/icons/light/category-icon-nails.png" as icon_src %}
+  {% elif key == "skin" %}
+    {% static "branding/categories/icons/light/category-icon-skin.png" as icon_src %}
+  {% elif key == "massage" %}
+    {% static "branding/categories/icons/light/category-icon-massage.png" as icon_src %}
+  {% elif key == "wellness" %}
+    {% static "branding/categories/icons/light/category-icon-wellness.png" as icon_src %}
+  {% elif key == "aesthetic-treatments" %}
+    {% static "branding/categories/icons/light/category-icon-aesthetic-treatments.png" as icon_src %}
+  {% elif key == "body-care" %}
+    {% static "branding/categories/icons/light/category-icon-body-care.png" as icon_src %}
+  {% elif key == "brow-lash" %}
+    {% static "branding/categories/icons/light/category-icon-brow-lash.png" as icon_src %}
+  {% elif key == "spa-relaxation" %}
+    {% static "branding/categories/icons/light/category-icon-spa-relaxation.png" as icon_src %}
+  {% else %}
+    {% static "branding/categories/icons/light/category-icon-all-services.png" as icon_src %}
+  {% endif %}
+  <img src="{{ icon_src }}" alt="{{ alt_value }}" class="{{ class_name|default:'lm-category-icon' }}" loading="lazy" decoding="async">
+{% endwith %}

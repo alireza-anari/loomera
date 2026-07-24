@@ -1,0 +1,302 @@
+{
+  "template_count": 197,
+  "py_count": 95,
+  "css_balances": {
+    "static/css/loomera-brand.css": {
+      "balance": 0,
+      "min": 0,
+      "len": 4798
+    },
+    "static/css/loomera-typography.css": {
+      "balance": 0,
+      "min": 0,
+      "len": 10812
+    }
+  },
+  "tag_issues_count": 0,
+  "tag_issues_sample": [],
+  "term_hit_counts": {
+    "Fresha": 0,
+    "Salonify": 0,
+    "generic_english_words": 5,
+    "half_english_terms": 63
+  },
+  "term_hit_files": {
+    "Fresha": [],
+    "Salonify": [],
+    "generic_english_words": [
+      [
+        "templates/accounts/delete_account.html",
+        1,
+        [
+          "Delete"
+        ]
+      ],
+      [
+        "templates/components/booking_bar.html",
+        1,
+        [
+          "Booking"
+        ]
+      ],
+      [
+        "templates/payments/wallet_charge.html",
+        2,
+        [
+          "Back",
+          "Submit"
+        ]
+      ],
+      [
+        "templates/main/support/success.html",
+        1,
+        [
+          "Back"
+        ]
+      ]
+    ],
+    "half_english_terms": [
+      [
+        "templates/dashboards/add_stylist.html",
+        5,
+        [
+          "preview"
+        ]
+      ],
+      [
+        "templates/dashboards/appointment_calendar.html",
+        14,
+        [
+          "workspace"
+        ]
+      ],
+      [
+        "templates/dashboards/edit_service.html",
+        5,
+        [
+          "preview"
+        ]
+      ],
+      [
+        "templates/dashboards/edit_stylist.html",
+        6,
+        [
+          "catalog",
+          "preview"
+        ]
+      ],
+      [
+        "templates/dashboards/payout_settings.html",
+        1,
+        [
+          "readiness"
+        ]
+      ],
+      [
+        "templates/dashboards/products.html",
+        2,
+        [
+          "backend",
+          "workspace"
+        ]
+      ],
+      [
+        "templates/dashboards/reports.html",
+        3,
+        [
+          "workspace"
+        ]
+      ],
+      [
+        "templates/dashboards/scheduled_shifts.html",
+        2,
+        [
+          "planner"
+        ]
+      ],
+      [
+        "templates/dashboards/stocktakes.html",
+        1,
+        [
+          "workspace"
+        ]
+      ],
+      [
+        "templates/dashboards/stylist_add_customer.html",
+        1,
+        [
+          "workspace"
+        ]
+      ],
+      [
+        "templates/dashboards/stylist_quick_links.html",
+        2,
+        [
+          "deterministic",
+          "preview"
+        ]
+      ],
+      [
+        "templates/payments/wallet_charge.html",
+        1,
+        [
+          "mock"
+        ]
+      ],
+      [
+        "templates/partials/brand/head_assets.html",
+        1,
+        [
+          "preview"
+        ]
+      ],
+      [
+        "templates/dashboards/partials/overview_intro.html",
+        18,
+        [
+          "workspace"
+        ]
+      ],
+      [
+        "static/css/loomera-typography.css",
+        1,
+        [
+          "setup"
+        ]
+      ]
+    ]
+  },
+  "feature_checks": {
+    "phase21_css_marker": true,
+    "rtl_bidi_classes": true,
+    "phase20_marker": false,
+    "lm_auth_shell": false,
+    "reports_mobile": false
+  },
+  "counts": {
+    "customer": 20,
+    "partner": 90,
+    "auth": 5,
+    "shared_components": 56
+  },
+  "reference_inventory": {
+    "fresha_android_reference_renamed.zip": {
+      "count": 359,
+      "sample": [
+        "rename_manifest.csv",
+        "README.txt",
+        "fresha-customer-android/customer-home-discovery/01-for-you-home-book-again.jpg",
+        "fresha-customer-android/customer-home-discovery/02-trending-venues-explore.jpg",
+        "fresha-customer-android/customer-home-discovery/03-top-categories-grid.jpg",
+        "fresha-customer-android/customer-home-discovery/08-for-you-upcoming-appointments.jpg",
+        "fresha-customer-android/customer-home-discovery/46-category-explore-carousel.jpg",
+        "fresha-customer-android/customer-home-discovery/47-all-categories-grid.jpg",
+        "fresha-customer-android/customer-search-discovery/04-search-suggestions-service-categories.jpg",
+        "fresha-customer-android/customer-search-discovery/05-map-results-all-treatments.jpg",
+        "fresha-customer-android/customer-search-discovery/29-search-results-list-view.jpg",
+        "fresha-customer-android/customer-search-discovery/30-search-results-map-view.jpg",
+        "fresha-customer-android/customer-search-discovery/35-no-results-empty-state.jpg",
+        "fresha-customer-android/customer-search-discovery/36-no-results-with-bottom-nav.jpg",
+        "fresha-customer-android/customer-search-discovery/41-search-modal-recent-explore.jpg",
+        "fresha-customer-android/customer-search-discovery/42-search-query-keyboard.jpg",
+        "fresha-customer-android/customer-activity-bookings/06-activity-appointments-overview.jpg",
+        "fresha-customer-android/customer-account-wallet/07-gift-cards-empty-state.jpg",
+        "fresha-customer-android/customer-account-wallet/48-account-overview-wallet-card.jpg",
+        "fresha-customer-android/customer-account-wallet/49-wallet-empty-cards.jpg"
+      ],
+      "images": 357,
+      "html": 0,
+      "pdf": 0
+    },
+    "fresha_desktop_reference_renamed.zip": {
+      "count": 60,
+      "sample": [
+        "rename_manifest.csv",
+        "README.txt",
+        "customer-booking/01-membership-plans.png",
+        "customer-booking/02-booking-flow-step-01.png",
+        "customer-booking/03-booking-flow-step-02.png",
+        "customer-booking/04-booking-flow-step-03.png",
+        "customer-booking/05-booking-flow-step-04.png",
+        "customer-booking/06-booking-flow-step-05.png",
+        "customer-booking/07-booking-flow-step-06.png",
+        "customer-booking/08-booking-flow-step-07.png",
+        "customer-booking/09-booking-flow-step-08.png",
+        "partner-activity/01-appointments-activity-detail.png",
+        "customer-account/01-profile-overview.png",
+        "customer-account/02-wallet-overview.png",
+        "customer-account/03-wallet-loyalty-provider-step-01.png",
+        "customer-account/04-wallet-loyalty-provider-step-02.png",
+        "customer-account/05-wallet-loyalty-provider-step-03.png",
+        "customer-account/06-wallet-loyalty-provider-step-04.png",
+        "partner-settings/01-settings-overview-step-01.png",
+        "partner-settings/02-settings-overview-step-02.png"
+      ],
+      "images": 58,
+      "html": 0,
+      "pdf": 0
+    },
+    "files.zip": {
+      "count": 752,
+      "sample": [
+        "loomera-loader-manifest.json",
+        "loomera-loader-splash-system.md",
+        "loomera-microcopy-system.md",
+        "loomera-mini-brand-guideline.md",
+        "loomera-notification-email-visual-header-system.md",
+        "loomera-placeholder-set(1).md",
+        "loomera-placeholder-set.md",
+        "loomera-product-shell-logo-system.md",
+        "loomera-salon-cover-guide-fa.md",
+        "loomera-salon-gallery-guide-fa.md",
+        "loomera-specialist-photo-guide-fa.md",
+        "loomera-tailwind-theme.ts",
+        "loomera_brand_qa_issue_log.csv",
+        "loomera_brand_qa_pass_summary.md",
+        "Logo/",
+        "Logo/ChatGPT Image Apr 23, 2026, 08_42_57 AM (1).png",
+        "Logo/ChatGPT Image Apr 23, 2026, 08_42_57 AM (2).png",
+        "Logo/ChatGPT Image Apr 23, 2026, 08_42_57 AM (3).png",
+        "Logo/ChatGPT Image Apr 23, 2026, 08_42_57 AM (4).png",
+        "Logo/ChatGPT Image Apr 23, 2026, 08_42_57 AM (5).png"
+      ],
+      "images": 146,
+      "html": 14,
+      "pdf": 5
+    },
+    "loomera (2).zip": {
+      "count": 1422,
+      "sample": [
+        "loomera/",
+        "loomera/asgi.py",
+        "loomera/logging_utils.py",
+        "loomera/settings/",
+        "loomera/settings/base.py",
+        "loomera/settings/development.py",
+        "loomera/settings/production.py",
+        "loomera/settings/test.py",
+        "loomera/settings/__init__.py",
+        "loomera/settings/__pycache__/",
+        "loomera/settings/__pycache__/base.cpython-313.pyc",
+        "loomera/settings/__pycache__/development.cpython-313.pyc",
+        "loomera/settings/__pycache__/__init__.cpython-313.pyc",
+        "loomera/urls.py",
+        "loomera/wsgi.py",
+        "loomera/__init__.py",
+        "loomera/__pycache__/",
+        "loomera/__pycache__/logging_utils.cpython-313.pyc",
+        "loomera/__pycache__/urls.cpython-313.pyc",
+        "loomera/__pycache__/wsgi.cpython-313.pyc"
+      ],
+      "images": 54,
+      "html": 212,
+      "pdf": 5
+    }
+  },
+  "node_check": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "django_installed": false
+}

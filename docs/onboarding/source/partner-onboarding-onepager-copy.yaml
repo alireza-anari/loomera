@@ -1,0 +1,19 @@
+brand: Loomera
+asset: partner-onboarding-onepager
+language: fa
+orientation: A4 vertical
+direction: rtl
+primary_cta: درخواست همکاری
+secondary_cta: مشاهده مراحل شروع
+contact:
+  domain: business.loomera.ir
+  provider_email: providers@loomera.ir
+  partnerships_email: partnerships@loomera.ir
+audiences:
+  - سالن زیبایی
+  - کلینیک زیبایی
+  - spa
+  - massage studio
+  - wellness center
+  - استودیو تخصصی
+  - ارائه‌دهنده مستقل

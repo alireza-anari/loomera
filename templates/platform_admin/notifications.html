@@ -1,0 +1,67 @@
+{% extends "platform_admin/base.html" %}
+{% load jalali_extras %}
+{% block platform_content %}
+<section class="space-y-5">
+  <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="relative p-5 sm:p-6">
+      <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-l from-loomera-primary via-loomera-primary/60 to-transparent"></div>
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="text-sm font-black text-loomera-primary">اعلان‌ها</p>
+          <h2 class="mt-1 text-2xl font-black text-loomera-textPrimary sm:text-3xl">مانیتورینگ ارسال اعلان</h2>
+          <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">وضعیت delivery، کانال، تلاش‌های ارسال و خطاهای نیازمند بررسی.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-center text-sm font-black sm:w-auto">
+          <div class="rounded-2xl bg-rose-50 px-4 py-3 text-rose-700">
+            <span class="block text-xs text-rose-500">ناموفق</span>
+            {{ failed_count }}
+          </div>
+          <div class="rounded-2xl bg-loomera-primarySoft px-4 py-3 text-loomera-primary">
+            <span class="block text-xs text-loomera-primary/70">نمایش</span>
+            {{ deliveries|length }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3 sm:px-5">
+      <h3 class="text-sm font-black text-loomera-textPrimary">آخرین ارسال‌ها</h3>
+      <p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای بررسی جزییات delivery و retryها از این جدول استفاده کن.</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-[900px] w-full text-sm">
+        <thead class="bg-loomera-surface text-loomera-textMuted">
+          <tr>
+            <th class="p-4 text-right">اعلان</th>
+            <th class="p-4 text-right">کاربر</th>
+            <th class="p-4">کانال</th>
+            <th class="p-4">وضعیت</th>
+            <th class="p-4">تلاش</th>
+            <th class="p-4 text-left">آخرین بروزرسانی</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-loomera-borderSoft">
+          {% for d in deliveries %}
+            <tr class="transition hover:bg-loomera-surface/60">
+              <td class="p-4">
+                <p class="font-black text-loomera-textPrimary">{{ d.recipient.notification.title }}</p>
+                {% if d.recipient.notification.body %}<p class="mt-1 line-clamp-1 text-xs text-loomera-textMuted">{{ d.recipient.notification.body }}</p>{% endif %}
+              </td>
+              <td class="p-4 text-loomera-textMuted">{{ d.recipient.user }}</td>
+              <td class="p-4 text-center"><span class="rounded-full bg-white px-3 py-1 text-xs font-black text-loomera-textMuted ring-1 ring-loomera-borderSoft">{{ d.get_channel_display }}</span></td>
+              <td class="p-4 text-center"><span class="rounded-full px-3 py-1 text-xs font-black {% if d.status == 'failed' %}bg-rose-50 text-rose-700{% elif d.status == 'sent' or d.status == 'delivered' %}bg-emerald-50 text-emerald-700{% else %}bg-loomera-primarySoft text-loomera-primary{% endif %}">{{ d.get_status_display }}</span></td>
+              <td class="p-4 text-center font-black text-loomera-textPrimary">{{ d.attempt_count }}</td>
+              <td class="p-4 text-left text-xs text-loomera-textMuted">{{ d.updated_at|jalali_datetime }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="p-8 text-center text-loomera-textMuted">ارسالی وجود ندارد.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% include "platform_admin/_pagination.html" %}
+</section>
+{% endblock %}

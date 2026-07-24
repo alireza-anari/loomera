@@ -1,0 +1,54 @@
+<article data-salon-card class="group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-loomera-borderSoft bg-white shadow-lm-soft transition duration-200 hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-lm-card">
+  <a href="{% url 'salons:detail_salon' salon.id %}" class="block" aria-label="مشاهده {{ salon.salon_name }}">
+    <div class="relative h-40 overflow-hidden bg-loomera-primarySoft sm:h-44">
+      {% if salon.card_image_url %}
+        <img src="{{ salon.card_image_url }}" alt="{{ salon.salon_name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+      {% else %}
+        <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-loomera-primarySoft to-loomera-surfaceSoft text-4xl text-loomera-primary/45">
+          <i class="fa-regular fa-image" aria-hidden="true"></i>
+        </div>
+      {% endif %}
+
+      {% if salon.card_discount_label %}
+        <span class="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-black text-loomera-primary shadow-sm backdrop-blur">
+          {{ salon.card_discount_label }}
+        </span>
+      {% endif %}
+    </div>
+  </a>
+
+  <div class="flex flex-1 flex-col p-4">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <h3 class="truncate text-base font-black text-loomera-textPrimary">
+          {{ salon.salon_name }}
+        </h3>
+        <p class="mt-1 truncate text-xs font-bold text-loomera-textMuted">
+          {{ salon.card_location|default:"موقعیت ثبت نشده" }}
+        </p>
+      </div>
+
+      <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-loomera-primarySoft px-2.5 py-1 text-xs font-black text-loomera-primary">
+        {{ salon.card_rating|floatformat:1 }}
+        <i class="fa-solid fa-star text-[10px]" aria-hidden="true"></i>
+      </span>
+    </div>
+
+    <div class="mt-3 flex flex-wrap items-center gap-2 text-xs font-bold text-loomera-textMuted">
+      <span class="rounded-full bg-loomera-bgSubtle px-2.5 py-1">
+        {{ salon.card_reviews_count }} نظر
+      </span>
+      {% if salon.min_price %}
+        <span class="rounded-full bg-loomera-bgSubtle px-2.5 py-1">
+          از {{ salon.min_price|floatformat:0 }} تومان
+        </span>
+      {% endif %}
+    </div>
+
+    <div class="mt-4 flex gap-2 pt-1">
+      <a href="{% url 'salons:detail_salon' salon.id %}" class="inline-flex flex-1 items-center justify-center rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-loomera-primaryHover">
+        مشاهده و رزرو
+      </a>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}آدرس‌های من{% endblock %}
+{% block body_attrs %}data-page="customer-addresses"{% endblock %}
+
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-32 text-loomera-textPrimary lg:pb-16">
+  <!-- Mobile header -->
+  <header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 shadow-lm-soft backdrop-blur-xl lg:hidden" aria-label="آدرس‌های من">
+    <div class="mx-auto flex max-w-6xl items-center gap-3">
+      <a href="{% url 'accounts:customerProfile' %}"
+         class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition active:scale-95"
+         aria-label="بازگشت به پروفایل">
+        <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+      </a>
+
+      <div class="min-w-0 flex-1">
+        <p class="text-[11px] font-black text-loomera-primary">حساب مشتری</p>
+        <h1 class="truncate text-base font-black text-loomera-textPrimary">آدرس‌های من</h1>
+      </div>
+
+      <a href="{% url 'accounts:customer_address_add' %}"
+         class="inline-flex shrink-0 items-center justify-center rounded-full bg-loomera-primary px-3.5 py-2 text-xs font-black text-white shadow-lm-soft transition active:scale-95"
+         aria-label="افزودن آدرس جدید">
+        جدید
+      </a>
+    </div>
+  </header>
+
+  <div class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 pt-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-6 lg:pt-8 xl:px-0">
+    <section class="min-w-0 space-y-5" aria-labelledby="addressesPageTitle">
+      <!-- Hero -->
+      <header class="relative overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:p-7">
+        <div class="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-loomera-primary/12 blur-3xl" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -bottom-28 left-8 h-60 w-60 rounded-full bg-loomera-accent/18 blur-3xl" aria-hidden="true"></div>
+
+        <div class="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div class="min-w-0">
+            <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-loomera-primary/15 bg-loomera-primarySoft/60 px-3 py-1 text-xs font-black text-loomera-primary">
+              <i class="fa-solid fa-map-location-dot text-[11px]" aria-hidden="true"></i>
+              <span>دفترچه آدرس Loomera</span>
+            </div>
+            <h1 id="addressesPageTitle" class="text-2xl font-black leading-9 text-loomera-textPrimary lg:text-4xl lg:leading-[3.25rem]">آدرس‌های من</h1>
+            <p class="mt-2 max-w-2xl text-sm font-medium leading-7 text-loomera-textMuted">
+              آدرس‌های پرتکرارت را اینجا نگه دار تا در مراحل رزرو، هماهنگی مجموعه و مراجعه‌های بعدی سریع‌تر به آن‌ها دسترسی داشته باشی.
+            </p>
+          </div>
+
+          <div class="flex shrink-0 flex-col gap-2 sm:flex-row md:flex-col lg:flex-row">
+            <a href="{% url 'accounts:customer_address_add' %}"
+               class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
+              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+              <span>افزودن آدرس</span>
+            </a>
+            <a href="{% url 'accounts:customerProfile' %}"
+               class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+              <i class="fa-regular fa-user text-xs" aria-hidden="true"></i>
+              <span>پروفایل من</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="relative mt-5 grid gap-3 sm:grid-cols-3">
+          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/75 p-4 shadow-sm backdrop-blur">
+            <p class="text-xs font-black text-loomera-textMuted">تعداد آدرس‌ها</p>
+            <strong class="mt-2 block text-2xl font-black text-loomera-textPrimary">{{ addresses|length }}</strong>
+          </div>
+          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/75 p-4 shadow-sm backdrop-blur">
+            <p class="text-xs font-black text-loomera-textMuted">آدرس پیش‌فرض</p>
+            <strong class="mt-2 block truncate text-sm font-black leading-7 text-loomera-textPrimary">
+              {% if addresses %}
+                {% for address in addresses %}{% if address.is_default %}{{ address.title }}{% endif %}{% endfor %}
+              {% else %}
+                ثبت نشده
+              {% endif %}
+            </strong>
+          </div>
+          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/75 p-4 shadow-sm backdrop-blur">
+            <p class="text-xs font-black text-loomera-textMuted">وضعیت</p>
+            <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">
+              {% if addresses %}آماده استفاده{% else %}نیاز به ثبت آدرس{% endif %}
+            </strong>
+          </div>
+        </div>
+      </header>
+
+      <!-- List -->
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5" aria-labelledby="addressesListTitle">
+        <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">مدیریت آدرس</p>
+            <h2 id="addressesListTitle" class="mt-2 text-xl font-black text-loomera-textPrimary">آدرس‌های ذخیره‌شده</h2>
+          </div>
+          {% if addresses %}
+            <span class="inline-flex w-fit items-center gap-2 rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-3 py-1.5 text-xs font-black text-loomera-primary">
+              <i class="fa-solid fa-location-dot text-[10px]" aria-hidden="true"></i>
+              <span>{{ addresses|length }} آدرس</span>
+            </span>
+          {% endif %}
+        </div>
+
+        {% if addresses %}
+          <div class="grid gap-4" role="list" aria-label="فهرست آدرس‌های ذخیره‌شده">
+            {% for address in addresses %}
+              <article class="group relative overflow-hidden rounded-[1.85rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft transition duration-200 hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-card" role="listitem">
+                {% if address.is_default %}
+                  <div class="absolute inset-x-0 top-0 h-1 bg-loomera-primary" aria-hidden="true"></div>
+                {% endif %}
+
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div class="flex min-w-0 gap-3">
+                    <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary shadow-sm">
+                      <i class="fa-solid {% if address.is_default %}fa-star{% else %}fa-map-pin{% endif %}" aria-hidden="true"></i>
+                    </span>
+                    <div class="min-w-0">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="truncate text-base font-black text-loomera-textPrimary">{{ address.title }}</h3>
+                        {% if address.is_default %}
+                          <span class="inline-flex items-center gap-1 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-2.5 py-1 text-[11px] font-black text-loomera-primary">
+                            <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i>
+                            پیش‌فرض
+                          </span>
+                        {% endif %}
+                      </div>
+                      <p class="mt-2 text-sm font-medium leading-7 text-loomera-textSecondary">{{ address.full_address }}</p>
+                    </div>
+                  </div>
+
+                  <a href="{% url 'accounts:customer_address_edit' address.id %}"
+                     class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-primary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+                    <i class="fa-solid fa-pen text-[11px]" aria-hidden="true"></i>
+                    <span>ویرایش</span>
+                  </a>
+                </div>
+
+                <div class="mt-4 grid gap-3 rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4 sm:grid-cols-2">
+                  {% if address.postal_code %}
+                    <div>
+                      <p class="text-[11px] font-black text-loomera-textMuted">کد پستی</p>
+                      <p class="mt-1 text-sm font-black text-loomera-textPrimary [direction:ltr]">{{ address.postal_code }}</p>
+                    </div>
+                  {% endif %}
+                  {% if address.phone_number %}
+                    <div>
+                      <p class="text-[11px] font-black text-loomera-textMuted">شماره تماس</p>
+                      <p class="mt-1 text-sm font-black text-loomera-textPrimary [direction:ltr]">{{ address.phone_number }}</p>
+                    </div>
+                  {% endif %}
+                  {% if not address.postal_code and not address.phone_number %}
+                    <p class="text-sm font-medium leading-7 text-loomera-textMuted sm:col-span-2">اطلاعات تکمیلی برای این آدرس ثبت نشده است.</p>
+                  {% endif %}
+                </div>
+
+                <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                  <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                    {% if not address.is_default %}
+                      <form method="post" action="{% url 'accounts:customer_address_set_default' address.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2.5 text-xs font-black text-loomera-primary transition hover:border-loomera-primary/40 sm:w-auto">
+                          <i class="fa-solid fa-star text-[11px]" aria-hidden="true"></i>
+                          <span>پیش‌فرض شود</span>
+                        </button>
+                      </form>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'accounts:customer_address_delete' address.id %}" onsubmit="return confirm('این آدرس حذف شود؟');">
+                      {% csrf_token %}
+                      <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-red-100 bg-red-50 px-4 py-2.5 text-xs font-black text-red-600 transition hover:bg-red-100 sm:w-auto">
+                        <i class="fa-solid fa-trash-can text-[11px]" aria-hidden="true"></i>
+                        <span>حذف</span>
+                      </button>
+                    </form>
+                  </div>
+
+                  {% if address.is_default %}
+                    <p class="text-xs font-bold text-loomera-textMuted">این آدرس برای دسترسی سریع‌تر به‌عنوان پیش‌فرض ذخیره شده است.</p>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="rounded-[1.85rem] border border-dashed border-loomera-border bg-loomera-bgSubtle px-5 py-10 text-center">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-white text-2xl text-loomera-primary shadow-lm-soft">
+              <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+            </div>
+            <h3 class="mt-4 text-base font-black text-loomera-textPrimary">هنوز آدرسی ذخیره نشده</h3>
+            <p class="mx-auto mt-2 max-w-sm text-sm font-medium leading-7 text-loomera-textMuted">
+              یک آدرس جدید اضافه کن تا در مراحل بعدی سریع‌تر از آن استفاده شود.
+            </p>
+            <a href="{% url 'accounts:customer_address_add' %}"
+               class="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+              <span>افزودن اولین آدرس</span>
+            </a>
+          </div>
+        {% endif %}
+      </section>
+    </section>
+
+    <!-- Sidebar -->
+    <aside class="hidden lg:block">
+      <div class="sticky top-24 space-y-4">
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+          <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+            <i class="fa-solid fa-compass" aria-hidden="true"></i>
+          </div>
+          <h2 class="mt-4 text-lg font-black text-loomera-textPrimary">راهنمای آدرس‌ها</h2>
+          <p class="mt-2 text-sm font-medium leading-7 text-loomera-textMuted">
+            آدرس پیش‌فرض برای هماهنگی سریع‌تر، نمایش جزئیات حساب و تجربه بهتر در رزروهای بعدی استفاده می‌شود.
+          </p>
+          <a href="{% url 'accounts:customer_address_add' %}"
+             class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+            <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+            <span>افزودن آدرس</span>
+          </a>
+        </section>
+
+        <nav class="rounded-[2rem] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft" aria-label="لینک‌های حساب کاربری">
+          <a href="{% url 'accounts:customerProfile' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <i class="fa-regular fa-user text-sm" aria-hidden="true"></i>
+            <span>پروفایل من</span>
+          </a>
+          <a href="{% url 'orders:appointments' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <i class="fa-regular fa-calendar-check text-sm" aria-hidden="true"></i>
+            <span>نوبت‌های من</span>
+          </a>
+        </nav>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile CTA -->
+  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.10)] backdrop-blur lg:hidden">
+    <div class="mx-auto flex w-full max-w-md gap-2">
+      <a href="{% url 'accounts:customer_address_add' %}"
+         class="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition active:scale-[0.98]">
+        <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+        <span>آدرس جدید</span>
+      </a>
+      <a href="{% url 'accounts:customerProfile' %}"
+         class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition active:scale-[0.98]"
+         aria-label="بازگشت به پروفایل">
+        <i class="fa-regular fa-user" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,325 @@
+{% if not dashboard_home.has_salon %}
+  <section class="mx-auto max-w-4xl rounded-[32px] border border-dashed border-loomera-borderSoft bg-white p-6 text-center shadow-lm-soft sm:p-8"
+           data-dashboard-home="empty-state">
+    <span class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-loomera-primarySoft text-loomera-primaryText">
+      <i class="fa-regular fa-building text-xl" aria-hidden="true"></i>
+    </span>
+    <h1 class="mt-5 text-xl font-black text-loomera-textPrimary sm:text-2xl">هنوز محیط کاری فعالی برای این حساب پیدا نشد</h1>
+    <p class="mx-auto mt-3 max-w-2xl text-sm leading-7 text-loomera-textMuted">
+      بعد از تکمیل اتصال به مجموعه، کارت‌های آماری، نوبت‌ها و مسیرهای مدیریتی با داده‌های واقعی همین‌جا نمایش داده می‌شوند.
+    </p>
+    {% if dashboard_home.workspace.primary_cta_label and dashboard_home.salon_profile_url %}
+      <a href="{{ dashboard_home.salon_profile_url }}"
+         class="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-bold text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card">
+        <span>{{ dashboard_home.workspace.primary_cta_label }}</span>
+        <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+      </a>
+    {% endif %}
+  </section>
+{% else %}
+  <div class="min-w-0 max-w-full space-y-5 overflow-hidden sm:space-y-6"
+       data-dashboard-home="manager-home">
+    <section class="relative min-w-0 max-w-full overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[32px] sm:p-6 lg:p-7"
+             aria-labelledby="dashboard-home-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-loomera-primarySoft/80 via-white to-white"
+           aria-hidden="true"></div>
+      <div class="relative grid min-w-0 max-w-full gap-4 overflow-hidden xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)] xl:items-stretch">
+        <div class="min-w-0 max-w-full overflow-hidden rounded-[24px] border border-white/70 bg-white/95 p-4 shadow-lm-soft backdrop-blur sm:rounded-[28px] sm:p-5 lg:p-6">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0 max-w-full">
+              <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+                <i class="fa-solid fa-house-chimney-window text-[10px]"
+                   aria-hidden="true"></i>
+                <span>خانه داشبورد</span>
+              </span>
+              <h1 id="dashboard-home-title"
+                  class="mt-4 max-w-full text-xl font-black leading-tight tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+                {{ dashboard_home.workspace.page_title }}
+              </h1>
+              <p class="mt-3 max-w-3xl break-words text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+                {{ dashboard_home.workspace.hero_description|default:"برنامه امروز، فروش هفته، وضعیت تیم و مسیرهای اصلی مدیریت مجموعه را یک‌جا ببین." }}
+              </p>
+            </div>
+            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
+              <i class="fa-solid fa-store text-lg" aria-hidden="true"></i>
+            </span>
+          </div>
+          {% if dashboard_home.workspace.badges %}
+            <div class="mt-5 flex max-w-full gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
+                 role="list"
+                 aria-label="خلاصه وضعیت مجموعه">
+              {% for badge in dashboard_home.workspace.badges|slice:":5" %}
+                <span role="listitem"
+                      class="inline-flex max-w-[78vw] shrink-0 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-bold text-loomera-textSecondary shadow-lm-soft sm:max-w-none">
+                  {% if badge.icon %}
+                    <i class="{{ badge.icon }} text-[10px] text-loomera-primaryText"
+                       aria-hidden="true"></i>
+                  {% endif %}
+                  <span class="truncate">{{ badge.label }}</span>
+                </span>
+              {% endfor %}
+            </div>
+          {% endif %}
+          <div class="mt-6 grid min-w-0 max-w-full grid-cols-1 gap-3 sm:grid-cols-3">
+            {% if dashboard_home.primary_calendar_url and dashboard_home.primary_calendar_url != '#' %}
+              <a href="{{ dashboard_home.primary_calendar_url }}"
+                 class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card">
+                <i class="fa-regular fa-calendar-days text-xs" aria-hidden="true"></i>
+                <span class="truncate">{{ dashboard_home.workspace.primary_cta_label|default:"تقویم نوبت‌ها" }}</span>
+              </a>
+            {% endif %}
+            {% if dashboard_home.workspace.secondary_cta_label and dashboard_home.workspace.secondary_cta_url != '#' %}
+              <a href="{{ dashboard_home.workspace.secondary_cta_url }}"
+                 class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
+                <i class="fa-solid fa-chart-line text-xs text-loomera-primaryText"
+                   aria-hidden="true"></i>
+                <span class="truncate">{{ dashboard_home.workspace.secondary_cta_label }}</span>
+              </a>
+            {% endif %}
+            {% if dashboard_home.workspace.tertiary_cta_label and dashboard_home.workspace.tertiary_cta_url != '#' %}
+              <a href="{{ dashboard_home.workspace.tertiary_cta_url|default:dashboard_home.salon_profile_url }}"
+                 class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
+                <i class="fa-regular fa-id-card text-xs text-loomera-primaryText"
+                   aria-hidden="true"></i>
+                <span class="truncate">{{ dashboard_home.workspace.tertiary_cta_label }}</span>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        <aside class="min-w-0 max-w-full overflow-hidden rounded-[24px] border border-loomera-primary/20 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:rounded-[28px] sm:p-5 lg:p-6"
+               aria-label="فوکوس امروز">
+          <div class="flex min-w-0 items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-[11px] font-black text-white/50">وضعیت مهم</p>
+              <h2 class="mt-1 truncate text-lg font-black">{{ dashboard_home.workspace.focus_title|default:"فوکوس امروز" }}</h2>
+            </div>
+            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white">
+              <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="mt-5 space-y-3">
+            {% for item in dashboard_home.workspace.focus_items|slice:":3" %}
+              <article class="min-w-0 overflow-hidden rounded-[22px] border border-white/10 bg-white/10 p-4">
+                <div class="flex min-w-0 items-start justify-between gap-3">
+                  <h3 class="min-w-0 flex-1 break-words text-sm font-black leading-6 text-white">{{ item.title }}</h3>
+                  <span class="max-w-[45%] shrink-0 truncate rounded-full px-3 py-1 text-[10px] font-black {% if item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-white/10 text-white{% endif %}">{{ item.value }}</span>
+                </div>
+                <p class="mt-2 break-words text-xs leading-6 text-white/70">{{ item.description }}</p>
+              </article>
+            {% empty %}
+              <article class="min-w-0 overflow-hidden rounded-[22px] border border-white/10 bg-white/10 p-4">
+                <h3 class="text-sm font-black text-white">همه چیز آماده است</h3>
+                <p class="mt-2 break-words text-xs leading-6 text-white/70">وضعیت ویژه‌ای برای پیگیری فوری وجود ندارد.</p>
+              </article>
+            {% endfor %}
+          </div>
+        </aside>
+      </div>
+    </section>
+    {% if dashboard_home.setup_priority %}
+      <section class="overflow-hidden rounded-[28px] border border-loomera-primary/20 bg-gradient-to-l from-loomera-primarySoft/80 via-white to-white shadow-lm-card"
+               data-dashboard-setup-priority
+               aria-labelledby="dashboard-setup-priority-title">
+        <div class="flex flex-col gap-5 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6">
+          <div class="flex min-w-0 items-start gap-3 sm:gap-4">
+            <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-lm-soft">
+              <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <p class="text-[11px] font-black text-loomera-primaryText">مهم‌ترین اقدام بعدی</p>
+                <span class="rounded-full bg-white px-3 py-1 text-[10px] font-black text-loomera-primaryText shadow-sm">
+                  آمادگی {{ dashboard_home.setup_priority.percent_label }}
+                </span>
+              </div>
+              <h2 id="dashboard-setup-priority-title"
+                  class="mt-2 break-words text-base font-black leading-7 text-loomera-textPrimary sm:text-lg">
+                {{ dashboard_home.setup_priority.title }}
+              </h2>
+              <p class="mt-2 max-w-3xl text-xs leading-6 text-loomera-textMuted sm:text-sm sm:leading-7">
+                {{ dashboard_home.setup_priority.description }}
+              </p>
+              <p class="mt-2 text-[11px] font-bold text-loomera-textSecondary">
+                {% if dashboard_home.setup_priority.remaining_after %}
+                  بعد از این اقدام، هنوز
+                  {{ dashboard_home.setup_priority.remaining_after_label }}
+                  مورد دیگر برای بررسی باقی می‌ماند.
+                {% else %}
+                  این آخرین اقدام ثبت‌شده در چک‌لیست آمادگی است.
+                {% endif %}
+              </p>
+            </div>
+          </div>
+          <div class="flex shrink-0 flex-col gap-2 sm:flex-row lg:max-w-md lg:flex-wrap lg:justify-end">
+            <a href="{{ dashboard_home.setup_priority.action_url }}"
+               class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:-translate-y-0.5 hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"
+               data-dashboard-setup-primary-action>
+              <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+              {{ dashboard_home.setup_priority.action_label }}
+            </a>
+            <a href="#salon-readiness-title"
+               class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
+              مشاهده چک‌لیست کامل
+            </a>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+    {% include "dashboards/partials/salon_readiness_checklist.html" with readiness=dashboard_home.readiness only %}
+    <section aria-labelledby="dashboard-home-stats-title">
+      <div class="mb-3 flex items-end justify-between gap-3">
+        <div>
+          <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
+          <h2 id="dashboard-home-stats-title"
+              class="text-base font-black text-loomera-textPrimary sm:text-lg">شاخص‌های اصلی مجموعه</h2>
+        </div>
+      </div>
+      <div class="grid min-w-0 max-w-full gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {% for stat in dashboard_home.stats %}
+          <article class="rounded-[26px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-soft backdrop-blur transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-card"
+                   aria-label="{{ stat.title }}: {{ stat.value }}">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="truncate text-xs font-bold text-loomera-textMuted">{{ stat.title }}</p>
+                <strong class="mt-3 block text-2xl font-black tracking-tight text-loomera-textPrimary">{{ stat.value }}</strong>
+              </div>
+              <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl {% if stat.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% elif stat.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif stat.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% else %}bg-loomera-bgSubtle text-loomera-textSecondary{% endif %}">
+                <i class="{{ stat.icon }} text-base" aria-hidden="true"></i>
+              </span>
+            </div>
+            <p class="mt-3 text-xs leading-6 text-loomera-textMuted">{{ stat.meta }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+    <section aria-labelledby="dashboard-home-actions-title">
+      <div class="mb-3 flex items-end justify-between gap-3">
+        <div>
+          <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p>
+          <h2 id="dashboard-home-actions-title"
+              class="text-base font-black text-loomera-textPrimary sm:text-lg">کارهای اصلی مدیریت مجموعه</h2>
+        </div>
+      </div>
+      <div class="grid min-w-0 max-w-full gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {% for action in dashboard_home.actions %}
+          {% if action.is_available and action.url != '#' %}
+            <a href="{{ action.url }}"
+               class="group rounded-[26px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-soft backdrop-blur transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-lm-card"
+               aria-label="مشاهده {{ action.title }}">
+            {% else %}
+              <div class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 opacity-70 shadow-lm-soft"
+                   aria-disabled="true">
+              {% endif %}
+              <div class="flex items-start justify-between gap-3">
+                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+                  <i class="{{ action.icon }} text-base" aria-hidden="true"></i>
+                </span>
+                <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">{{ action.badge }}</span>
+              </div>
+              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">{{ action.title }}</h3>
+              <p class="mt-2 max-h-12 overflow-hidden text-xs leading-6 text-loomera-textMuted">{{ action.description }}</p>
+              <div class="mt-4 flex items-center justify-between text-xs font-black {% if action.is_available and action.url != '#' %}text-loomera-primaryText{% else %}text-loomera-textMuted{% endif %}">
+                <span>
+                  {% if action.is_available and action.url != '#' %}
+                    ورود به بخش
+                  {% else %}
+                    به‌زودی
+                  {% endif %}
+                </span>
+                <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+              </div>
+              {% if action.is_available and action.url != '#' %}
+              </a>
+            {% else %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </section>
+    <div class="grid min-w-0 max-w-full gap-4 2xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-card backdrop-blur sm:p-5 lg:p-6"
+               aria-labelledby="dashboard-sales-activity-title">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p class="text-[11px] font-black text-loomera-primaryText">فروش و عملکرد</p>
+            <h2 id="dashboard-sales-activity-title"
+                class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">{{ dashboard_home.sections.sales_activity_title }}</h2>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ dashboard_home.sections.sales_activity_subtitle }}</p>
+          </div>
+          {% if dashboard_home.sections.sales_activity_action_label and dashboard_home.sections.sales_activity_action_url != '#' %}
+            <a href="{{ dashboard_home.sections.sales_activity_action_url }}"
+               class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white/90 px-4 py-2 text-xs font-black text-loomera-primary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
+              <span>{{ dashboard_home.sections.sales_activity_action_label }}</span>
+              <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+            </a>
+          {% endif %}
+        </div>
+        <div class="mt-5">{% include "dashboards/partials/sales_activity_widget.html" %}</div>
+      </section>
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-card backdrop-blur sm:p-5 lg:p-6"
+               aria-labelledby="dashboard-upcoming-title">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p class="text-[11px] font-black text-loomera-primaryText">نگاه بعدی</p>
+            <h2 id="dashboard-upcoming-title"
+                class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">{{ dashboard_home.sections.upcoming_title }}</h2>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ dashboard_home.sections.upcoming_subtitle }}</p>
+          </div>
+          {% if dashboard_home.sections.upcoming_action_label and dashboard_home.sections.upcoming_action_url != '#' %}
+            <a href="{{ dashboard_home.sections.upcoming_action_url }}"
+               class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white/90 px-4 py-2 text-xs font-black text-loomera-primary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
+              <span>{{ dashboard_home.sections.upcoming_action_label }}</span>
+              <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+            </a>
+          {% endif %}
+        </div>
+        <div class="mt-5">{% include "dashboards/partials/upcoming_widget.html" %}</div>
+      </section>
+    </div>
+    <div class="grid min-w-0 max-w-full gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.95fr)_minmax(0,0.95fr)]">
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-card backdrop-blur sm:p-5 lg:p-6"
+               aria-labelledby="dashboard-today-title">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p class="text-[11px] font-black text-loomera-primaryText">برنامه امروز</p>
+            <h2 id="dashboard-today-title"
+                class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">{{ dashboard_home.sections.today_title }}</h2>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ dashboard_home.sections.today_subtitle }}</p>
+          </div>
+          {% if dashboard_home.sections.today_action_label and dashboard_home.sections.today_action_url != '#' %}
+            <a href="{{ dashboard_home.sections.today_action_url }}"
+               class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white/90 px-4 py-2 text-xs font-black text-loomera-primary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
+              <span>{{ dashboard_home.sections.today_action_label }}</span>
+              <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+            </a>
+          {% endif %}
+        </div>
+        <div class="mt-5">{% include "dashboards/partials/today_widget.html" %}</div>
+      </section>
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-card backdrop-blur sm:p-5 lg:p-6"
+               aria-labelledby="dashboard-popular-title">
+        <div>
+          <p class="text-[11px] font-black text-loomera-primaryText">خدمات</p>
+          <h2 id="dashboard-popular-title"
+              class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">{{ dashboard_home.sections.popular_title }}</h2>
+          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ dashboard_home.sections.popular_subtitle }}</p>
+        </div>
+        <div class="mt-5">
+          {% include "dashboards/partials/ranking_widget.html" with widget=dashboard_home.popular_services empty_icon="fa-solid fa-scissors" empty_title="هنوز خدمتی برای نمایش نیست" empty_description="بعد از فعال‌شدن خدمات یا ثبت رزروها، این بخش تکمیل می‌شود." %}
+        </div>
+      </section>
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-card backdrop-blur sm:p-5 lg:p-6"
+               aria-labelledby="dashboard-team-title">
+        <div>
+          <p class="text-[11px] font-black text-loomera-primaryText">تیم</p>
+          <h2 id="dashboard-team-title"
+              class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">{{ dashboard_home.sections.top_title }}</h2>
+          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ dashboard_home.sections.top_subtitle }}</p>
+        </div>
+        <div class="mt-5">
+          {% include "dashboards/partials/ranking_widget.html" with widget=dashboard_home.top_stylists empty_icon="fa-solid fa-user-group" empty_title="هنوز داده‌ای برای نمایش وجود ندارد" empty_description="بعد از ثبت داده‌های مرتبط، این بخش تکمیل می‌شود." %}
+        </div>
+      </section>
+    </div>
+  </div>
+{% endif %}

@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}انتخاب متخصص{% endblock %}
+
+{% block content %}
+{% firstof salon.salon_name salon.name "مجموعه" as salon_title %}
+
+<section class="min-h-dvh bg-loomera-bg pb-36 text-loomera-textPrimary lg:pb-16" data-booking-step="staff-selection">
+  <!-- Mobile header -->
+  <header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/90 backdrop-blur-xl lg:hidden" aria-label="مرحله انتخاب متخصص">
+    <div class="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3">
+      <button
+        type="button"
+        onclick="history.back()"
+        class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft transition hover:bg-loomera-primarySoft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/35"
+        aria-label="بازگشت به انتخاب خدمات"
+      >
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </button>
+      <div class="min-w-0 flex-1">
+        <p class="text-xs font-black text-loomera-primary">مرحله ۲ از ۴</p>
+        <h1 class="truncate text-lg font-black text-loomera-textPrimary">انتخاب متخصص</h1>
+        <p class="mt-0.5 truncate text-xs font-medium text-loomera-textMuted">برای هر خدمت، متخصص دلخواهت را انتخاب کن.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="mx-auto grid w-full max-w-7xl grid-cols-1 gap-5 px-4 pt-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6 lg:px-6 lg:pt-8 xl:px-0">
+    <main class="min-w-0 space-y-5" aria-labelledby="staff-selection-title">
+      <!-- Desktop hero -->
+      <section class="hidden rounded-[2rem] border border-loomera-borderSoft bg-white p-6 shadow-lm-card lg:flex lg:items-start lg:justify-between lg:gap-6" aria-label="مسیر رزرو">
+        <div class="min-w-0">
+          <p class="text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">رزرو نوبت</p>
+          <h1 id="staff-selection-title" class="mt-2 text-3xl font-black text-loomera-textPrimary">انتخاب متخصص</h1>
+          <p class="mt-3 max-w-2xl text-sm font-medium leading-7 text-loomera-textMuted">
+            فقط متخصص‌هایی نمایش داده می‌شوند که برای خدمات انتخاب‌شده در روزهای آینده زمان واقعی دارند.
+          </p>
+        </div>
+        <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            <button
+                type="button"
+                data-smart-back
+                data-fallback-url="{% url 'salons:detail_salon' salon.pk %}#services"
+                class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary shadow-lm-soft transition hover:border-loomera-primary/40 hover:bg-loomera-primarySoft hover:text-loomera-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/35"
+                aria-label="بازگشت به صفحه قبل"
+            >
+                <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+                بازگشت
+            </button>
+
+            <a
+                href="{% url 'salons:detail_salon' salon.pk %}#services"
+                class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary shadow-lm-soft transition hover:border-loomera-primary/40 hover:bg-loomera-primarySoft hover:text-loomera-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/35"
+                aria-label="ویرایش خدمات انتخاب‌شده"
+            >
+                <i class="fa-solid fa-pen-to-square text-xs" aria-hidden="true"></i>
+                ویرایش خدمات
+            </a>
+            </div>
+      </section>
+
+      <!-- Progress -->
+      <nav class="rounded-[1.75rem] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft" aria-label="مراحل رزرو">
+        <ol class="grid grid-cols-4 gap-2 text-center text-[11px] font-black text-loomera-textMuted sm:text-xs" role="list">
+          <li class="rounded-2xl bg-loomera-successSoft px-2 py-3 text-loomera-textPrimary">
+            <span class="mx-auto mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-loomera-success text-white shadow-sm">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i>
+            </span>
+            انتخاب خدمت
+          </li>
+          <li class="rounded-2xl bg-loomera-primarySoft px-2 py-3 text-loomera-primary" aria-current="step">
+            <span class="mx-auto mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-loomera-primary text-white shadow-sm">۲</span>
+            انتخاب متخصص
+          </li>
+          <li class="rounded-2xl bg-loomera-bgSubtle px-2 py-3">
+            <span class="mx-auto mb-2 flex h-7 w-7 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textMuted">۳</span>
+            انتخاب زمان
+          </li>
+          <li class="rounded-2xl bg-loomera-bgSubtle px-2 py-3">
+            <span class="mx-auto mb-2 flex h-7 w-7 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textMuted">۴</span>
+            تأیید
+          </li>
+        </ol>
+      </nav>
+
+      <!-- Selected services summary -->
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5" aria-labelledby="selected-services-title">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <h2 id="selected-services-title" class="text-lg font-black text-loomera-textPrimary">خدمات انتخاب‌شده</h2>
+            <p class="mt-1 text-sm font-medium leading-6 text-loomera-textMuted">{{ service_cards|length }} خدمت برای این رزرو انتخاب شده است.</p>
+          </div>
+          <span class="inline-flex shrink-0 rounded-full bg-loomera-infoSoft px-3 py-1 text-xs font-black text-loomera-info">{{ service_cards|length }} خدمت</span>
+        </div>
+
+        <div class="mt-4 grid gap-2" role="list" aria-label="فهرست خدمات انتخاب‌شده">
+          {% for card in service_cards %}
+            <article class="flex items-center justify-between gap-3 rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle p-3" role="listitem">
+              <div class="min-w-0">
+                <p class="truncate text-sm font-black text-loomera-textPrimary">{{ card.service.service_name }}</p>
+                <div class="mt-1 flex flex-wrap items-center gap-2 text-xs font-bold text-loomera-textMuted">
+                  {% if card.service.duration_minutes %}
+                    <span class="inline-flex items-center gap-1"><i class="fa-regular fa-clock" aria-hidden="true"></i>{{ card.service.duration_minutes }} دقیقه</span>
+                  {% endif %}
+                  {% if card.service.min_price %}
+                    <span class="inline-flex items-center gap-1"><i class="fa-solid fa-coins" aria-hidden="true"></i>از {{ card.service.min_price|floatformat:0 }} تومان</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% if card.has_available_stylists %}
+                <span class="inline-flex shrink-0 rounded-full bg-loomera-successSoft px-3 py-1 text-[11px] font-black text-loomera-textPrimary">{{ card.stylists|length }} متخصص آزاد</span>
+              {% else %}
+                <span class="inline-flex shrink-0 rounded-full bg-loomera-warningSoft px-3 py-1 text-[11px] font-black text-loomera-warning">بدون زمان آزاد</span>
+              {% endif %}
+            </article>
+          {% empty %}
+            <div class="rounded-3xl border border-dashed border-loomera-border bg-white p-5 text-center">
+              <p class="font-black text-loomera-textPrimary">خدمتی انتخاب نشده است</p>
+              <a href="{% url 'salons:detail_salon' salon.pk %}#services" class="mt-3 inline-flex items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">بازگشت به خدمات</a>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- Staff choices -->
+      <section class="space-y-4" aria-label="انتخاب متخصص برای هر خدمت">
+        {% for card in service_cards %}
+          <article
+            class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5"
+            data-staff-service-card
+            data-service-id="{{ card.service.pk }}"
+            data-service-name="{{ card.service.service_name }}"
+            data-service-duration="{{ card.service.duration_minutes }}"
+            aria-labelledby="staff-service-title-{{ card.service.pk }}"
+          >
+            <header class="flex flex-col gap-3 border-b border-loomera-borderSoft pb-4 sm:flex-row sm:items-start sm:justify-between">
+              <div class="min-w-0">
+                <p class="text-xs font-black text-loomera-primary">خدمت {{ forloop.counter }}</p>
+                <h2 id="staff-service-title-{{ card.service.pk }}" class="mt-1 text-xl font-black text-loomera-textPrimary">{{ card.service.service_name }}</h2>
+                <div class="mt-3 flex flex-wrap items-center gap-2 text-xs font-black text-loomera-textMuted">
+                  {% if card.service.duration_minutes %}
+                    <span class="inline-flex items-center gap-1 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-3 py-1.5"><i class="fa-regular fa-clock" aria-hidden="true"></i>{{ card.service.duration_minutes }} دقیقه</span>
+                  {% endif %}
+                  {% if card.service.min_price %}
+                    <span class="inline-flex items-center gap-1 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-3 py-1.5"><i class="fa-solid fa-coins" aria-hidden="true"></i>از {{ card.service.min_price|floatformat:0 }} تومان</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% if card.has_available_stylists %}
+                <span class="inline-flex w-fit rounded-full bg-loomera-successSoft px-3 py-1 text-xs font-black text-loomera-textPrimary">{{ card.stylists|length }} گزینه</span>
+              {% else %}
+                <span class="inline-flex w-fit rounded-full bg-loomera-warningSoft px-3 py-1 text-xs font-black text-loomera-warning">بدون متخصص آزاد</span>
+              {% endif %}
+            </header>
+
+            <div class="mt-4 grid gap-3" role="list" aria-label="متخصص‌های قابل انتخاب برای {{ card.service.service_name }}">
+              <button
+                type="button"
+                data-service-id="{{ card.service.pk }}"
+                data-service-name="{{ card.service.service_name }}"
+                data-service-duration="{{ card.service.duration_minutes }}"
+                data-stylist-id="any"
+                data-stylist-name="فرقی ندارد"
+                data-stylist-price="{{ card.any_option.price|default:0 }}"
+                class="stylist-option group flex w-full items-center gap-3 rounded-3xl border border-gray-200 bg-white p-3 text-right shadow-sm transition hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/40 disabled:cursor-not-allowed disabled:opacity-55"
+                role="listitem"
+                aria-pressed="false"
+                aria-selected="false"
+                aria-label="انتخاب گزینه فرقی ندارد برای {{ card.service.service_name }}"
+                {% if not card.any_option.enabled %}disabled aria-disabled="true"{% endif %}
+              >
+                <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-xl text-loomera-primary" aria-hidden="true">
+                  <i class="fa-solid fa-users"></i>
+                </span>
+                <span class="min-w-0 flex-1">
+                  <span class="block text-sm font-black text-loomera-textPrimary">فرقی ندارد</span>
+                  <span class="mt-1 block text-xs font-medium leading-6 text-loomera-textMuted">اولین متخصص آزاد برای این خدمت انتخاب می‌شود.</span>
+                  <span class="mt-1 inline-flex rounded-full bg-loomera-bgSubtle px-2.5 py-1 text-[11px] font-black text-loomera-textSecondary">{{ card.any_option.availability_label }}</span>
+                </span>
+                <span class="hidden shrink-0 text-left text-xs font-black text-loomera-textSecondary sm:block">
+                  {% if card.any_option.price %}{{ card.any_option.price|floatformat:0 }} تومان{% else %}قیمت بعداً مشخص می‌شود{% endif %}
+                </span>
+                <span class="selection-indicator hidden h-8 w-8 shrink-0 scale-90 items-center justify-center flex rounded-full bg-loomera-primary text-white transition" aria-hidden="true">
+                  <i class="fa-solid fa-check text-xs"></i>
+                </span>
+              </button>
+
+              {% for item in card.stylists %}
+                <button
+                  type="button"
+                  data-service-id="{{ card.service.pk }}"
+                  data-service-name="{{ card.service.service_name }}"
+                  data-service-duration="{{ card.service.duration_minutes }}"
+                  data-stylist-id="{{ item.stylist.pk }}"
+                  data-stylist-name="{{ item.stylist.user.get_fullName|default:item.stylist.user.name }}"
+                  data-stylist-profile-image="{% if item.stylist.profile_image %}{{ item.stylist.profile_image.url }}{% endif %}"
+                  data-stylist-price="{{ item.price }}"
+                  class="stylist-option group flex w-full items-center gap-3 rounded-3xl border border-gray-200 bg-white p-3 text-right shadow-sm transition hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/40"
+                  role="listitem"
+                  aria-pressed="false"
+                  aria-selected="false"
+                  aria-label="انتخاب {{ item.stylist.user.get_fullName|default:item.stylist.user.name }} برای {{ card.service.service_name }}"
+                >
+                  <span class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-loomera-bgSubtle text-base font-black text-loomera-primary ring-1 ring-loomera-borderSoft" aria-hidden="true">
+                    {% if item.stylist.profile_image %}
+                      <img src="{{ item.stylist.profile_image.url }}" alt="" class="h-full w-full object-cover">
+                    {% else %}
+                      {{ item.stylist.user.name|first|upper }}
+                    {% endif %}
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate text-sm font-black text-loomera-textPrimary">{{ item.stylist.user.get_fullName|default:item.stylist.user.name }}</span>
+                    {% if item.stylist.expert %}<span class="mt-1 block truncate text-xs font-medium text-loomera-textMuted">{{ item.stylist.expert }}</span>{% endif %}
+                    <span class="mt-1 inline-flex rounded-full bg-loomera-bgSubtle px-2.5 py-1 text-[11px] font-black text-loomera-textSecondary">{{ item.availability_label }}</span>
+                  </span>
+                  <span class="hidden shrink-0 text-left text-xs font-black text-loomera-textSecondary sm:block">{{ item.price|floatformat:0 }} تومان</span>
+                  <span class="selection-indicator hidden h-8 w-8 shrink-0 scale-90 items-center justify-center flex rounded-full bg-loomera-primary text-white transition" aria-hidden="true">
+                    <i class="fa-solid fa-check text-xs"></i>
+                  </span>
+                </button>
+              {% empty %}
+                <div class="rounded-3xl border border-dashed border-loomera-border bg-loomera-bgSubtle p-5 text-center" role="status">
+                  <i class="fa-solid fa-user-slash text-2xl text-loomera-textMuted" aria-hidden="true"></i>
+                  <p class="mt-3 font-black text-loomera-textPrimary">متخصصی برای این خدمت پیدا نشد</p>
+                  <p class="mt-1 text-sm leading-6 text-loomera-textMuted">فعلاً متخصص دارای زمان آزاد برای این خدمت ثبت نشده است.</p>
+                </div>
+              {% endfor %}
+            </div>
+          </article>
+        {% empty %}
+          <section class="rounded-[2rem] border border-dashed border-loomera-border bg-white p-8 text-center shadow-lm-card" role="status">
+            <i class="fa-solid fa-box-open text-3xl text-loomera-textMuted" aria-hidden="true"></i>
+            <p class="mt-3 font-black text-loomera-textPrimary">هیچ خدمتی انتخاب نشده است</p>
+            <p class="mt-1 text-sm leading-6 text-loomera-textMuted">برای انتخاب متخصص، ابتدا از صفحه مجموعه یک خدمت انتخاب کن.</p>
+            <a href="{% url 'salons:detail_salon' salon.pk %}#services" class="mt-4 inline-flex items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">بازگشت به خدمات</a>
+          </section>
+        {% endfor %}
+      </section>
+    </main>
+
+    <!-- Desktop summary -->
+    <aside
+        class="hidden lg:sticky lg:top-24 lg:block lg:self-start"
+        aria-label="خلاصه رزرو"
+        >
+        <div class="w-full rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-elevated">
+        <p class="text-xs font-black text-loomera-primary">خلاصه رزرو</p>
+        <h2 class="mt-2 text-lg font-black text-loomera-textPrimary">{{ salon_title }}</h2>
+        {% if salon.address %}<p class="mt-2 line-clamp-2 text-sm leading-6 text-loomera-textMuted">{{ salon.address }}</p>{% endif %}
+
+        <div class="mt-5 space-y-2" role="list" aria-label="خدمات انتخاب‌شده">
+          {% for card in service_cards %}
+            <div class="rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle p-3" role="listitem">
+              <span class="block truncate text-sm font-black text-loomera-textPrimary">{{ card.service.service_name }}</span>
+              <span class="mt-1 block text-xs font-bold text-loomera-textMuted" data-summary-service-status="{{ card.service.pk }}">متخصص انتخاب نشده</span>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="mt-5 rounded-3xl border border-loomera-borderSoft bg-white p-4 text-sm">
+          <div class="flex items-center justify-between gap-3 py-2">
+            <span class="font-bold text-loomera-textMuted">متخصص‌های انتخاب‌شده</span>
+            <strong id="selectedStaffCount" class="font-black text-loomera-textPrimary">۰</strong>
+          </div>
+          <div class="flex items-center justify-between gap-3 border-t border-loomera-borderSoft py-2">
+            <span class="font-bold text-loomera-textMuted">باقی‌مانده</span>
+            <strong id="staffRemainingCount" class="font-black text-loomera-textPrimary">{{ service_cards|length }}</strong>
+          </div>
+          <div class="flex items-center justify-between gap-3 border-t border-loomera-borderSoft py-2">
+            <span class="font-bold text-loomera-textMuted">جمع قیمت</span>
+            <strong id="staffDesktopTotal" class="font-black text-loomera-textPrimary">—</strong>
+          </div>
+        </div>
+
+        <button
+          id="desktopContinueBtn"
+          type="button"
+          class="mt-5 inline-flex w-full items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/35"
+          disabled
+        >
+          ادامه انتخاب زمان
+        </button>
+        <p class="mt-3 text-center text-xs leading-6 text-loomera-textMuted">در مرحله بعد، زمان مناسب برای هر خدمت را انتخاب می‌کنی.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- Mobile sticky CTA -->
+<div class="fixed inset-x-0 bottom-0 z-50 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur-md lg:hidden" aria-live="polite">
+  <div class="mx-auto flex w-full max-w-md flex-col gap-3">
+    <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3">
+      <p class="text-xs font-bold text-loomera-textMuted">انتخاب متخصص</p>
+      <p id="staffMobileSummary" class="mt-1 truncate text-sm font-black text-loomera-textPrimary">برای هر خدمت، یک متخصص انتخاب کن</p>
+    </div>
+    <button
+      id="continueBtn"
+      type="button"
+      class="inline-flex w-full items-center justify-center rounded-full bg-loomera-primary px-5 py-4 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/35"
+      disabled
+    >
+      ادامه انتخاب زمان
+    </button>
+  </div>
+</div>
+
+<form id="stylistSelectionForm" method="POST" action="" class="hidden">
+  {% csrf_token %}
+  <input type="hidden" name="salon_id" value="{{ salon_id }}" data-salon-id="{{ salon_id }}">
+  <input type="hidden" name="stylist_selections" id="stylistSelectionsInput">
+</form>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'js/select_stylist.js' %}"></script>
+
+{% endblock %}

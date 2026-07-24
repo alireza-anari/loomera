@@ -1,0 +1,38 @@
+{# templates/components/modal_base.html #}
+{# 
+  ورودی‌ها:
+    - modal_id  : رشته یکتا برای این مودال (مثلاً "reviewsModal")
+    - title     : عنوان مودال (اختیاری)
+#}
+
+<div id="{{ modal_id }}"
+     class="lm-backdrop lm-modal-overlay modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="{{ modal_id }}-title">
+
+  <div class="absolute bottom-0 left-0 w-full
+              lm-bottom-sheet-surface bg-white rounded-t-2xl shadow-xl
+              max-h-[90vh] overflow-hidden flex flex-col">
+
+    <!-- هدر مودال -->
+    <div class="lm-modal-header flex items-center justify-between p-4 border-b border-gray-200">
+      <h2 id="{{ modal_id }}-title" class="text-lg font-bold text-gray-900">
+        {{ title }}
+      </h2>
+      <button type="button"
+              class="lm-icon-button text-gray-500 text-xl"
+              data-modal-close="{{ modal_id }}"
+              aria-label="بستن {{ title|default:'مودال' }}">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- محتوای مودال -->
+    <div class="lm-modal-body p-4 overflow-y-auto">
+      {# 
+        اینجا محتوا را در خود صفحه‌ای که include می‌کند،
+        با استفاده از include با بافر یا متغیر context پر می‌کنیم.
+      #}
+      {% block modal_{{ modal_id }}_content %}{% endblock %}
+    </div>
+
+  </div>
+</div>

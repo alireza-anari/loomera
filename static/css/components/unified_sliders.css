@@ -1,0 +1,105 @@
+.slider-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.slider-dot,
+.carousel-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  transition: all 150ms ease;
+}
+
+.slider-dot {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.slider-dot.bg-white {
+  transform: scale(1.15);
+}
+
+.native-carousel {
+  position: relative;
+}
+
+.native-carousel-track {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: 0.25rem 0 0.5rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+.native-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.native-carousel-item {
+  flex: 0 0 auto;
+  width: min(240px, 78vw);
+  min-width: min(240px, 78vw);
+  scroll-snap-align: start;
+}
+
+.native-carousel-item--compact {
+  width: min(180px, 54vw);
+  min-width: min(180px, 54vw);
+}
+
+.native-carousel-item--wide {
+  width: min(280px, 86vw);
+  min-width: min(280px, 86vw);
+}
+
+.native-carousel-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.native-carousel-btn {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(229 231 235);
+  background: white;
+  color: rgb(55 65 81);
+  transition: all 150ms ease;
+}
+
+.native-carousel-btn:hover:not(:disabled) {
+  border-color: rgb(168 85 247);
+  color: rgb(126 34 206);
+}
+
+.native-carousel-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+@media (min-width: 768px) {
+  .native-carousel-item {
+    width: 240px;
+    min-width: 240px;
+  }
+
+  .native-carousel-item--wide {
+    width: 264px;
+    min-width: 264px;
+  }
+
+  .native-carousel-item--compact {
+    width: 188px;
+    min-width: 188px;
+  }
+}

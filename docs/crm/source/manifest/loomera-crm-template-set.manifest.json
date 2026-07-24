@@ -1,0 +1,26 @@
+{
+  "name": "loomera-crm-template-set",
+  "version": "1.0",
+  "language": "fa-IR",
+  "direction": "rtl",
+  "brand": "Loomera",
+  "channels": ["email", "sms", "push", "inapp", "notification-center", "short-form", "rich-email", "minimal-transactional"],
+  "families": [
+    {"folder": "crm-template-welcome", "key": "welcome", "name": "Welcome / Onboarding"},
+    {"folder": "crm-template-abandoned-booking", "key": "abandoned_booking", "name": "Abandoned Booking"},
+    {"folder": "crm-template-booking-reminder", "key": "booking_reminder", "name": "Booking Reminder"},
+    {"folder": "crm-template-previsit", "key": "previsit", "name": "Pre-Visit Reassurance"},
+    {"folder": "crm-template-postvisit", "key": "postvisit", "name": "Post-Visit Follow-up"},
+    {"folder": "crm-template-review-request", "key": "review_request", "name": "Review Request"},
+    {"folder": "crm-template-rebook", "key": "rebook", "name": "Rebook Reminder"},
+    {"folder": "crm-template-winback", "key": "winback", "name": "Win-back"},
+    {"folder": "crm-template-favorites", "key": "favorites", "name": "Favorites"},
+    {"folder": "crm-template-payment-recovery", "key": "payment_recovery", "name": "Payment Recovery"},
+    {"folder": "crm-template-refund-followup", "key": "refund_followup", "name": "Refund Follow-up"},
+    {"folder": "crm-template-support-followup", "key": "support_followup", "name": "Support Follow-up"},
+    {"folder": "crm-template-feature-education", "key": "feature_education", "name": "Feature Education"},
+    {"folder": "crm-template-seasonal-campaign", "key": "seasonal_campaign", "name": "Seasonal Campaign"},
+    {"folder": "crm-template-partner-onboarding", "key": "partner_onboarding", "name": "Partner / Provider Lifecycle"}
+  ],
+  "source_review": "manifest/source-review.json"
+}

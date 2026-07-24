@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}شرایط استفاده{% endblock %}
+{% block body_attrs %}data-page="terms-of-use"{% endblock %}
+
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-28 text-loomera-textPrimary lg:pb-16">
+  <header class="sticky top-0 z-30 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 shadow-sm backdrop-blur lg:hidden">
+    <div class="flex items-center gap-3">
+      <a href="{% url 'salons:home' %}"
+         class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition active:scale-95"
+         aria-label="بازگشت به صفحه اصلی">
+        <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+      </a>
+
+      <div class="min-w-0 flex-1">
+        <h1 class="truncate text-base font-black text-loomera-textPrimary">شرایط استفاده</h1>
+        <p class="mt-1 truncate text-xs font-semibold text-loomera-textMuted">نسخه ۱.۱ بتا • آخرین بروزرسانی ۱۴۰۵/۰۳/۰۶</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 pt-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-6 lg:pt-8 xl:px-0">
+    <div class="min-w-0 space-y-5">
+      <section class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-card">
+        <div class="relative isolate p-5 lg:p-7">
+          <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_34%),linear-gradient(135deg,rgba(238,232,250,0.92),rgba(255,255,255,0.98))]"></div>
+
+          <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div class="min-w-0">
+              <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-loomera-primary/15 bg-white/75 px-3 py-1 text-xs font-black text-loomera-primary shadow-sm backdrop-blur">
+                <i class="fa-regular fa-file-lines text-[11px]" aria-hidden="true"></i>
+                <span>قوانین استفاده از Loomera</span>
+              </div>
+
+              <h2 class="text-2xl font-black leading-9 text-loomera-textPrimary lg:text-4xl lg:leading-[3.2rem]">شرایط استفاده</h2>
+              <p class="mt-2 max-w-2xl text-sm font-semibold leading-7 text-loomera-textMuted">
+                این سند قواعد استفاده از Loomera برای مشتریان، متخصصان، مدیران سالن و کاربران بتا را توضیح می‌دهد. استفاده از سرویس یعنی پذیرش این شرایط و سیاست حفظ حریم خصوصی.
+              </p>
+            </div>
+
+            <a href="{% url 'salons:home' %}"
+               class="hidden w-full shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 sm:w-auto lg:inline-flex">
+              <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+              <span>صفحه اصلی</span>
+            </a>
+          </div>
+
+          <div class="mt-5 grid gap-3 sm:grid-cols-3">
+            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
+              <p class="text-xs font-black text-loomera-textMuted">نسخه سند</p>
+              <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">۱.۱ بتا</strong>
+            </div>
+            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
+              <p class="text-xs font-black text-loomera-textMuted">پرداخت بتا</p>
+              <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">حضوری در سالن</strong>
+            </div>
+            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
+              <p class="text-xs font-black text-loomera-textMuted">نوع سرویس</p>
+              <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">پلتفرم رزرو و مدیریت</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5" aria-labelledby="terms-summary-title">
+        <div class="rounded-[1.75rem] border border-loomera-primary/15 bg-loomera-primarySoft/70 p-4 lg:p-5">
+          <div class="flex gap-3">
+            <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm">
+              <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0">
+              <h2 id="terms-summary-title" class="text-base font-black text-loomera-textPrimary">خلاصه شرایط</h2>
+              <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                Loomera ابزار جستجو، رزرو، مدیریت نوبت و همکاری بین مشتری، سالن و متخصص است. در بتای اولیه، پرداخت آنلاین عمومی فعال نیست و پرداخت خدمات در خود سالن انجام می‌شود. مسئولیت ارائه واقعی خدمت، قیمت نهایی اعلام‌شده در سالن و کیفیت خدمت با سالن/ارائه‌دهنده مربوط است.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5" aria-labelledby="terms-content-title">
+        <div class="mb-5">
+          <p class="text-xs font-black uppercase tracking-[0.25em] text-loomera-primary">جزئیات شرایط</p>
+          <h2 id="terms-content-title" class="mt-2 text-xl font-black text-loomera-textPrimary">قواعد استفاده از Loomera</h2>
+        </div>
+
+        <div class="space-y-3">
+          <article id="acceptance" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-check-double text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">پذیرش شرایط</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  با ثبت‌نام، ورود، رزرو، ایجاد سالن، فعالیت به‌عنوان متخصص، ارسال محتوا یا استفاده از هر بخش Loomera، این شرایط استفاده و سیاست حفظ حریم خصوصی را می‌پذیرید. اگر با این شرایط موافق نیستید، نباید از سرویس استفاده کنید.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="service-scope" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-layer-group text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">ماهیت سرویس</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  Loomera پلتفرمی برای معرفی سالن‌ها و خدمات، رزرو نوبت، مدیریت برنامه، مدیریت مشتریان، همکاری متخصص و سالن، لینک سریع رزرو، محتوای مرتبط و گزارش‌های مدیریتی است. Loomera خودِ ارائه‌دهنده خدمات زیبایی، درمانی یا حضوری سالن نیست؛ خدمت توسط سالن یا متخصص مربوط ارائه می‌شود.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="beta" class="rounded-[1.5rem] border border-amber-200 bg-amber-50 p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-amber-700">
+                <i class="fa-solid fa-flask text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-amber-900">وضعیت بتا</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-amber-800">
+                  Loomera در مرحله بتا ممکن است فقط برای سالن‌ها و کاربران محدود فعال باشد. برخی قابلیت‌ها مانند درگاه پرداخت آنلاین، کیف پول عمومی، تسویه خودکار، احراز مدارک سالن یا اتصال پیام‌رسان‌ها ممکن است غیرفعال، آزمایشی یا محدود باشند. ممکن است برای بهبود سرویس، ساختار صفحات، جریان رزرو، گزارش‌ها یا دسترسی‌ها تغییر کند.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="accounts" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-user-lock text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">حساب کاربری و مسئولیت اطلاعات</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  هر کاربر باید اطلاعات درست، به‌روز و متعلق به خود یا کسب‌وکار مجاز خود ثبت کند. مسئولیت نگهداری رمز عبور، کد تأیید و دسترسی دستگاه با کاربر است. استفاده از شماره موبایل، نام، تصویر، مدارک یا اطلاعات دیگران بدون اجازه ممنوع است. Loomera می‌تواند حساب‌های مشکوک، جعلی، ناقض حقوق دیگران یا دارای رفتار مخرب را محدود کند.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="roles" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-users-gear text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">نقش‌ها و دسترسی‌ها</h3>
+                <div class="mt-2 space-y-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  <p>مشتری می‌تواند سالن‌ها را مشاهده، خدمت انتخاب، نوبت ثبت، سوابق خود را پیگیری و در صورت فعال بودن، نظر ثبت کند.</p>
+                  <p>مدیر سالن مسئول صحت اطلاعات سالن، خدمات، قیمت‌ها، اعضای تیم، زمان‌بندی، وضعیت پرداخت حضوری، پاسخ‌گویی به مشتری و رعایت قوانین صنفی مربوط است.</p>
+                  <p>متخصص مسئول صحت اطلاعات حرفه‌ای، رزومه، نمونه‌کار، برنامه کاری، درخواست مرخصی و همکاری با سالن‌هایی است که خودش پذیرفته یا درخواست داده است.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article id="multi-salon" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-building-user text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">همکاری چندسالنی متخصص</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  متخصص می‌تواند در چند سالن همکاری داشته باشد. اطلاعات شخصی و حرفه‌ای متخصص متعلق به خود اوست. مدیر هر سالن فقط می‌تواند اطلاعات مربوط به همکاری همان سالن را مدیریت کند؛ مثل خدمات قابل ارائه در همان سالن، برنامه همان سالن، مرخصی همان سالن و وضعیت همکاری همان سالن. عضویت یا پایان همکاری در یک سالن نباید روی سالن‌های دیگر اثر بگذارد.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="booking" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-regular fa-calendar-check text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">رزرو نوبت</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  رزرو زمانی قطعی تلقی می‌شود که مراحل لازم در Loomera کامل و وضعیت نوبت در سیستم ثبت شده باشد. سالن و متخصص باید برنامه کاری، ظرفیت، قیمت و وضعیت حضور خود را به‌روز نگه دارند. مشتری باید در زمان تعیین‌شده مراجعه کند و در صورت نیاز به تغییر یا لغو، از مسیرهای مجاز اقدام کند.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="payment" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-money-bill-wave text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">پرداخت، قیمت و تسویه</h3>
+                <div class="mt-2 space-y-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  <p>در بتای اولیه، پرداخت خدمات به‌صورت حضوری در سالن انجام می‌شود و Loomera درگاه پرداخت آنلاین عمومی را به‌عنوان روش اصلی فعال نکرده است.</p>
+                  <p>قیمت‌های نمایش‌داده‌شده باید توسط سالن ثبت و به‌روز شوند، اما قیمت نهایی ممکن است به شرایط خدمت، مواد مصرفی، تغییر درخواست مشتری یا سیاست سالن وابسته باشد. سالن موظف است پیش از انجام خدمت، هر هزینه اضافه یا تغییر مهم را به مشتری اطلاع دهد.</p>
+                  <p>گزارش‌های مالی، سهم متخصص، تخفیف‌ها یا کیف پول‌های داخلی اگر در پنل‌ها نمایش داده شوند، ابزار مدیریتی/آزمایشی هستند و تا زمان فعال‌سازی رسمی پرداخت آنلاین، جایگزین رسید یا توافق حضوری بین مشتری و سالن نیستند.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article id="cancellation" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-regular fa-calendar-xmark text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">لغو، تغییر زمان و عدم مراجعه</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  قوانین لغو، تغییر زمان، تأخیر و عدم مراجعه ممکن است بر اساس سیاست هر سالن و نوع خدمت متفاوت باشد. در بتای پرداخت حضوری، هرگونه تسویه، جریمه، تخفیف یا توافق مالی مرتبط با لغو یا تغییر نوبت در سالن و میان طرفین انجام می‌شود، مگر اینکه قابلیت پرداخت آنلاین رسمی فعال و شرایط آن جداگانه اعلام شده باشد.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="quick-links" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-link text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">لینک سریع و دعوت همکاری</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  لینک سریع رزرو برای ساده‌سازی انتخاب سالن، خدمت، متخصص یا زمان ساخته می‌شود و نباید برای فریب کاربر، دورزدن محدودیت‌ها، رزرو غیرواقعی یا انتشار خارج از هدف مجاز استفاده شود. دعوت همکاری متخصص فقط برای همکاری واقعی با سالن مجاز است. قبول دعوت یا درخواست همکاری، فقط عضویت همان سالن را فعال می‌کند و روی همکاری‌های دیگر متخصص اثر ندارد.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="schedule-requests" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-regular fa-clock text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">درخواست برنامه کاری و مرخصی متخصص</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  متخصص می‌تواند برای سالن فعال خود درخواست برنامه کاری یا مرخصی ثبت کند. این درخواست‌ها بعد از تایید مدیر همان سالن اعمال می‌شوند. تایید یا رد درخواست در یک سالن، نباید برنامه یا مرخصی متخصص در سالن‌های دیگر را تغییر دهد. اگر برنامه پیشنهادی با برنامه فعال متخصص در سالن دیگر تداخل داشته باشد، سیستم می‌تواند ثبت یا تایید آن را متوقف کند.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="content" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-photo-film text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">محتوا، عکس، نظر و نمونه‌کار</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  کاربر، سالن یا متخصص نباید محتوای خلاف قانون، گمراه‌کننده، توهین‌آمیز، ناقض حقوق مالکیت فکری، ناقض حریم خصوصی، شامل تصویر یا اطلاعات دیگران بدون اجازه، یا محتوای تبلیغاتی فریبنده منتشر کند. Loomera می‌تواند محتوای مشکوک یا گزارش‌شده را بررسی، محدود، حذف یا برای بررسی بیشتر نگهداری کند.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="reviews" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-regular fa-star text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">نظرات و امتیازدهی</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  نظر باید بر اساس تجربه واقعی کاربر باشد و نباید شامل توهین، تهدید، اطلاعات شخصی، تبلیغات نامرتبط، ادعای خلاف واقع یا محتوای مخرب باشد. Loomera می‌تواند نظرات مشکوک یا گزارش‌شده را بررسی و در صورت نیاز حذف یا محدود کند.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="prohibited" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-ban text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">استفاده‌های ممنوع</h3>
+                <div class="mt-2 space-y-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  <p>ثبت اطلاعات جعلی، جعل هویت، سوءاستفاده از شماره موبایل دیگران، رزرو غیرواقعی، تلاش برای دسترسی به داشبورد یا داده‌های نقش دیگر، دورزدن محدودیت‌های سالن، اختلال در سرویس، استخراج انبوه داده، ارسال محتوای مخرب یا استفاده تبلیغاتی/اسپم ممنوع است.</p>
+                  <p>هرگونه استفاده از Loomera برای فعالیت غیرقانونی، نقض حقوق اشخاص، نقض حریم خصوصی، انتشار محتوای غیرمجاز یا سوءاستفاده مالی می‌تواند باعث محدودسازی حساب، حذف محتوا، لغو دسترسی یا پیگیری قانونی شود.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article id="availability" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-server text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">دسترسی‌پذیری و تغییرات سرویس</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  Loomera تلاش می‌کند سرویس پایدار و امن باشد، اما ممکن است به دلیل نگهداری، خطای فنی، محدودیت زیرساخت، تغییرات بتا، اختلال اینترنت، مشکلات سرویس‌دهندگان پیامک/هاست/پرداخت یا عوامل خارج از کنترل، بخشی از سرویس موقتاً در دسترس نباشد. در بتا، تغییرات و توقف‌های کوتاه‌مدت ممکن است بیشتر رخ دهد.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="liability" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-triangle-exclamation text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">مسئولیت‌ها و محدودیت‌ها</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  Loomera مسئول صحت اطلاعاتی است که خودش در سیستم پردازش می‌کند، اما مسئول کیفیت نهایی خدمت حضوری، رفتار کارکنان سالن، قیمت نهایی اعلام‌شده توسط سالن، نتیجه خدمات زیبایی یا توافق‌های خارج از پلتفرم نیست. سالن و متخصص مسئول رعایت قوانین صنفی، بهداشتی، حرفه‌ای، اخلاقی و قراردادی مربوط به خدمت خود هستند.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="suspension" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-user-slash text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">محدودسازی، تعلیق یا حذف حساب</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  در صورت نقض شرایط، رفتار مشکوک، گزارش معتبر، سوءاستفاده، خطر امنیتی، اطلاعات جعلی یا درخواست قانونی، Loomera می‌تواند دسترسی حساب، سالن، متخصص، محتوا، لینک سریع یا برخی قابلیت‌ها را محدود، تعلیق یا حذف کند. حذف حساب ممکن است باعث حذف کامل همه سوابق نشود؛ سوابق لازم برای رزرو، گزارش، امنیت، پشتیبانی یا الزامات قانونی ممکن است نگهداری یا ناشناس‌سازی شوند.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="ip" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-copyright text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">مالکیت فکری</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  نام، طراحی، کد، ساختار، رابط کاربری، محتوای تولیدشده توسط Loomera و دارایی‌های اختصاصی آن متعلق به Loomera یا صاحبان مجاز آن است. کاربران فقط مجازند در حد استفاده عادی از سرویس از آن استفاده کنند. مالکیت محتوایی که کاربر، سالن یا متخصص بارگذاری می‌کند برای صاحب همان محتوا باقی می‌ماند، اما برای نمایش، پردازش، پشتیبانی و ارائه سرویس، مجوز استفاده لازم به Loomera داده می‌شود.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="support" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-regular fa-life-ring text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">پشتیبانی و اختلافات</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  برای خطای فنی، مشکل حساب، گزارش محتوای نامناسب، مشکل رزرو یا اختلاف قابل بررسی در پلتفرم، از مسیر پشتیبانی Loomera اقدام کنید. اختلاف مربوط به کیفیت خدمت حضوری، مبلغ حضوری، تأخیر، رفتار سالن یا نتیجه خدمت ابتدا باید با سالن مربوط پیگیری شود و Loomera در حد داده‌های ثبت‌شده در پلتفرم امکان بررسی و راهنمایی دارد.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article id="updates" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-file-signature text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">تغییر شرایط</h3>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+                  Loomera می‌تواند این شرایط را با توسعه محصول، تغییر قابلیت‌ها، الزامات قانونی یا نیازهای امنیتی به‌روزرسانی کند. نسخه جدید در همین صفحه منتشر می‌شود و در تغییرات مهم ممکن است ادامه استفاده از سرویس منوط به پذیرش نسخه جدید باشد.
+                </p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <aside class="hidden lg:block">
+      <div class="sticky top-24 space-y-4">
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card">
+          <p class="text-xs font-black text-loomera-textMuted">راهنمای سریع</p>
+          <nav class="mt-3 grid gap-2 text-sm font-bold">
+            <a href="#acceptance" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              <span>پذیرش شرایط</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
+            </a>
+            <a href="#beta" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              <span>وضعیت بتا</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
+            </a>
+            <a href="#payment" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              <span>پرداخت و قیمت</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
+            </a>
+            <a href="#multi-salon" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              <span>چندسالنی متخصص</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
+            </a>
+            <a href="#support" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              <span>پشتیبانی</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
+            </a>
+          </nav>
+        </section>
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+          <p class="text-xs font-black text-loomera-textMuted">صفحه مرتبط</p>
+          <a href="{% url 'accounts:privacy_policy' %}"
+             class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-5 py-3 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/50">
+            <i class="fa-solid fa-shield-heart text-xs" aria-hidden="true"></i>
+            <span>حریم خصوصی</span>
+          </a>
+        </section>
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+          <p class="text-xs font-black text-loomera-textMuted">نیاز به راهنمایی؟</p>
+          <a href="{% url 'main:contact' %}?issue=terms"
+             class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
+            <i class="fa-regular fa-life-ring text-xs" aria-hidden="true"></i>
+            <span>تماس با پشتیبانی</span>
+          </a>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <div class="fixed inset-x-0 bottom-0 z-30 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur lg:hidden">
+    <div class="mx-auto grid max-w-md grid-cols-2 gap-2">
+      <a href="{% url 'salons:home' %}"
+         class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary shadow-sm transition active:scale-[0.98]">
+        <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+        <span>خانه</span>
+      </a>
+      <a href="{% url 'main:contact' %}?issue=terms"
+         class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft transition active:scale-[0.98]">
+        <i class="fa-regular fa-life-ring text-xs" aria-hidden="true"></i>
+        <span>پشتیبانی</span>
+      </a>
+    </div>
+  </div>
+</main>
+{% endblock %}

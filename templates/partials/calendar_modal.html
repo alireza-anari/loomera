@@ -1,0 +1,52 @@
+<!-- Calendar Modal Partial -->
+<!-- This is a reusable calendar modal component -->
+
+<div id="calendarModal" class="hidden fixed inset-0 z-[100]">
+    <!-- Backdrop -->
+    <div id="modalBackdrop" class="absolute inset-0 bg-black/50"></div>
+    
+    <!-- Bottom Sheet -->
+    <div id="bottomSheet" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl" style="max-height: 65vh; overflow-y: auto;">
+        
+        <!-- Drag Handle -->
+        <div class="flex justify-center pt-3 pb-2 sticky top-0 bg-white z-10">
+            <div class="w-12 h-1 bg-gray-300 rounded-full"></div>
+        </div>
+        
+        <!-- Header -->
+        <div class="px-6 py-3 flex items-center justify-between border-b sticky top-7 bg-white z-10">
+            <h2 class="text-lg font-bold text-gray-900">انتخاب تاریخ</h2>
+            <button id="closeModal" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+                <i class="fa-solid fa-xmark text-lg text-gray-600"></i>
+            </button>
+        </div>
+        
+        <!-- Month Navigation -->
+        <div class="px-6 py-3 flex items-center justify-between bg-white border-b sticky top-[68px] z-10">
+            <button id="prevMonth" class="w-9 h-9 rounded-full hover:bg-gray-100 transition flex items-center justify-center">
+                <i class="fa-solid fa-chevron-right text-gray-700 text-sm"></i>
+            </button>
+            <h3 id="modalMonth" class="text-base font-semibold text-gray-900"></h3>
+            <button id="nextMonth" class="w-9 h-9 rounded-full hover:bg-gray-100 transition flex items-center justify-center">
+                <i class="fa-solid fa-chevron-left text-gray-700 text-sm"></i>
+            </button>
+        </div>
+        
+        <!-- Calendar Grid -->
+        <div class="px-6 pb-6 pt-3">
+            <!-- Day Names -->
+            <div class="modal-day-names mb-2">
+                <div class="text-xs font-medium text-gray-500 text-center py-2">شنبه</div>
+                <div class="text-xs font-medium text-gray-500 text-center py-2">یکشنبه</div>
+                <div class="text-xs font-medium text-gray-500 text-center py-2">دوشنبه</div>
+                <div class="text-xs font-medium text-gray-500 text-center py-2">سه‌شنبه</div>
+                <div class="text-xs font-medium text-gray-500 text-center py-2">چهارشنبه</div>
+                <div class="text-xs font-medium text-gray-500 text-center py-2">پنج‌شنبه</div>
+                <div class="text-xs font-medium text-gray-500 text-center py-2">جمعه</div>
+            </div>
+            <!-- Days Grid (populated by JavaScript) -->
+            <div id="modalGrid" class="modal-calendar-grid"></div>
+        </div>
+        
+    </div>
+</div>

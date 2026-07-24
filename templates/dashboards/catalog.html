@@ -1,0 +1,443 @@
+{% extends "dashboard_template.html" %}
+{% block title %}کاتالوگ{% endblock %}
+
+{% block content %}
+  {% url 'dashboards:service_menu' as service_menu_url %}
+  {% url 'dashboards:add_service' as add_service_url %}
+  {% url 'dashboards:team_member' as team_member_url %}
+  {% url 'dashboards:scheduled_shifts' as scheduled_shifts_url %}
+  {% url 'dashboards:online_booking' as online_booking_url %}
+  {% url 'dashboards:products' as products_url %}
+
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-workspace-root data-dashboard-page="catalog">
+    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="catalog-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_44%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
+
+      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
+        <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
+          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+                <i class="fa-solid fa-book-open text-[10px]" aria-hidden="true"></i>
+                <span class="truncate">محتوا و کاتالوگ</span>
+              </span>
+
+              <h1 id="catalog-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+                کاتالوگ خدمات و محصولات
+              </h1>
+              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+                ساختار خدمات، پوشش تیم، محصولات و آمادگی رزرو آنلاین را مثل یک workspace عملیاتی ببین تا کاتالوگ مجموعه قابل جستجو، قابل رزرو و قابل توسعه بماند.
+              </p>
+            </div>
+
+            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
+              <i class="fa-solid fa-layer-group text-lg" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="mt-6 flex flex-wrap gap-2">
+            {% for badge in catalog_workspace.hero_badges %}
+              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-3 py-2 text-xs font-bold text-loomera-textSecondary">
+                <i class="{{ badge.icon }} shrink-0 text-[11px] text-loomera-primaryText" aria-hidden="true"></i>
+                <span class="truncate">{{ badge.label }}</span>
+              </span>
+            {% endfor %}
+          </div>
+
+          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
+            <a href="{{ service_menu_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-scissors text-xs" aria-hidden="true"></i>
+              <span class="truncate">مدیریت خدمات</span>
+            </a>
+            <a href="{{ online_booking_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-globe text-xs text-loomera-primaryText" aria-hidden="true"></i>
+              <span class="truncate">رزرو آنلاین</span>
+            </a>
+            <a href="{{ products_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-box-open text-xs text-loomera-primaryText" aria-hidden="true"></i>
+              <span class="truncate">محصولات</span>
+            </a>
+          </div>
+        </div>
+
+        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="تمرکز کاتالوگ">
+          <div class="flex min-w-0 items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-[11px] font-black text-white/55">فوکوس فعلی</p>
+              <h2 class="mt-1 truncate text-lg font-black">سلامت کاتالوگ</h2>
+            </div>
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
+              <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="mt-5 space-y-3">
+            {% for item in catalog_workspace.sections %}
+              <article class="min-w-0 rounded-[22px] border border-white/10 bg-white/10 p-4">
+                <div class="flex min-w-0 items-start justify-between gap-3">
+                  <h3 class="min-w-0 flex-1 text-sm font-black leading-6 text-white">{{ item.title }}</h3>
+                  <span class="max-w-[46%] shrink-0 truncate rounded-full px-3 py-1 text-[10px] font-black {% if item.status_tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.status_tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">
+                    {{ item.status_label }}
+                  </span>
+                </div>
+                <p class="mt-2 text-xs leading-6 text-white/72">{{ item.badge }}</p>
+              </article>
+            {% empty %}
+              <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
+                <h3 class="text-sm font-black text-white">کاتالوگ هنوز داده ندارد</h3>
+                <p class="mt-2 text-xs leading-6 text-white/72">از منوی خدمات شروع کن و بعد پوشش تیم و رزرو آنلاین را تکمیل کن.</p>
+              </article>
+            {% endfor %}
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
+      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های کاتالوگ">
+        <div class="flex min-w-max items-center gap-2">
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#catalog-section-overview" aria-selected="true">
+            <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
+            <span>نمای کلی</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>{{ catalog_workspace.stats|length }}</span>
+          </button>
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab data-target="#catalog-section-structure">
+            <i class="fa-solid fa-compass text-[10px]" aria-hidden="true"></i>
+            <span>مسیرهای کاتالوگ</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ catalog_workspace.sections|length }}</span>
+          </button>
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab data-target="#catalog-section-signals">
+            <i class="fa-solid fa-signal text-[10px]" aria-hidden="true"></i>
+            <span>سیگنال‌ها</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ catalog_workspace.top_groups|length }}</span>
+          </button>
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab data-target="#catalog-section-demand">
+            <i class="fa-solid fa-fire text-[10px]" aria-hidden="true"></i>
+            <span>تقاضای اخیر</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ catalog_workspace.top_services|length }}</span>
+          </button>
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab data-target="#catalog-section-paths">
+            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
+            <span>مسیرها</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۴</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <details id="catalog-section-overview" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">سلامت عملیاتی کاتالوگ</h2>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="p-4 sm:p-5 lg:p-6">
+        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {% for item in catalog_workspace.stats %}
+            <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="truncate text-xs font-bold text-loomera-textMuted">{{ item.title }}</p>
+                  <strong class="mt-3 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ item.value }}</strong>
+                </div>
+                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl {% if item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-white text-loomera-textSecondary shadow-sm{% endif %}">
+                  <i class="{{ item.icon }}" aria-hidden="true"></i>
+                </span>
+              </div>
+              <p class="mt-3 text-xs leading-6 text-loomera-textMuted">{{ item.meta }}</p>
+            </article>
+          {% empty %}
+            <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted sm:col-span-2 xl:col-span-4">
+              هنوز داده‌ای برای نمای کلی کاتالوگ آماده نشده است.
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.45fr)]">
+          <article class="rounded-[24px] border border-loomera-primary/15 bg-loomera-primarySoft/55 p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-xs font-black text-loomera-primaryText">چک‌لیست تصمیم‌گیری</p>
+                <h3 class="mt-1 text-base font-black text-loomera-textPrimary">کاتالوگ وقتی آماده است که خدمت، تیم و رزرو آنلاین هم‌زمان کامل باشند.</h3>
+                <p class="mt-2 text-xs leading-6 text-loomera-textSecondary">اگر خدمت فعال داری ولی پوشش تیم یا روز کاری ناقص است، مشتری در صفحه عمومی به بن‌بست می‌رسد. اول مسیرهای نیازمند تکمیل را از بخش «مسیرهای کاتالوگ» اصلاح کن.</p>
+              </div>
+              <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                <i class="fa-solid fa-route" aria-hidden="true"></i>
+              </span>
+            </div>
+          </article>
+
+          <a href="{{ add_service_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
+            <div class="flex items-center justify-between gap-3">
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primary text-white shadow-sm">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              </span>
+              <i class="fa-solid fa-arrow-left text-xs text-loomera-textMuted transition group-hover:-translate-x-1 group-hover:text-loomera-primaryText" aria-hidden="true"></i>
+            </div>
+            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">افزودن خدمت جدید</h3>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای تکمیل هسته کاتالوگ، خدمت جدید را با گروه، قیمت و پوشش تیم ثبت کن.</p>
+          </a>
+        </div>
+      </div>
+    </details>
+
+    <details id="catalog-section-structure" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای عملیاتی</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">سطح‌های اصلی کاتالوگ</h2>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="p-4 sm:p-5 lg:p-6">
+        <div class="mb-4 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3">
+          <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <label class="relative block min-w-0 flex-1">
+              <span class="sr-only">جستجوی مسیرهای کاتالوگ</span>
+              <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
+              <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="جستجو در مسیر، وضعیت یا توضیح" data-catalog-search>
+            </label>
+            <div class="flex gap-2 overflow-x-auto pb-1" aria-label="فیلتر سریع مسیرهای کاتالوگ">
+              <button type="button" class="shrink-0 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-catalog-filter="all">همه</button>
+              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-catalog-filter="success">آماده</button>
+              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-catalog-filter="warning">نیازمند تکمیل</button>
+              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-catalog-filter="primary">در حال آماده‌سازی</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2" data-catalog-grid>
+          {% for item in catalog_workspace.sections %}
+            <article class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card" data-catalog-card data-catalog-tone="{{ item.status_tone }}" data-catalog-search-value="{{ item.title }} {{ item.description }} {{ item.badge }} {{ item.status_label }}">
+              <div class="flex items-start justify-between gap-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                  <i class="{{ item.icon }}" aria-hidden="true"></i>
+                </span>
+                <div class="flex min-w-0 flex-wrap items-center justify-end gap-2">
+                  <span class="max-w-full truncate rounded-full bg-white px-3 py-1 text-[11px] font-bold text-loomera-textSecondary">{{ item.badge }}</span>
+                  <span class="rounded-full px-3 py-1 text-[11px] font-bold {% if item.status_tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.status_tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">{{ item.status_label }}</span>
+                </div>
+              </div>
+              <h3 class="mt-4 text-base font-black text-loomera-textPrimary">{{ item.title }}</h3>
+              <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">{{ item.description }}</p>
+              <a href="{{ item.url }}" class="mt-5 inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
+                <span>ورود به این بخش</span>
+                <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+              </a>
+            </article>
+          {% empty %}
+            <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2">
+              هنوز مسیر عملیاتی برای کاتالوگ آماده نشده است.
+            </div>
+          {% endfor %}
+          <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2" data-catalog-empty>
+            موردی با این جستجو یا فیلتر پیدا نشد.
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details id="catalog-section-signals" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">ساختار فعلی</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">گروه‌ها و laneهای کاتالوگ</h2>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:p-6">
+        <section class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
+          <h3 class="text-sm font-black text-loomera-textPrimary">دو نگاه برای مرور فهرست خدمات</h3>
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">این laneها نشان می‌دهند کاتالوگ فقط منوی خدمات نیست؛ به تیم، رزرو آنلاین، محصول و موجودی هم وصل می‌شود.</p>
+          <div class="mt-4 grid gap-3">
+            {% for lane in catalog_workspace.lanes %}
+              <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-sm">
+                <h4 class="text-sm font-black text-loomera-textPrimary">{{ lane.title }}</h4>
+                <ul class="mt-3 space-y-2 text-sm text-loomera-textSecondary">
+                  {% for item in lane.items %}
+                    <li class="rounded-2xl bg-loomera-bgSubtle px-3 py-3 text-xs leading-6">{{ item }}</li>
+                  {% endfor %}
+                </ul>
+              </article>
+            {% empty %}
+              <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-white px-4 py-5 text-sm leading-7 text-loomera-textMuted">هنوز lane عملیاتی برای کاتالوگ تعریف نشده است.</div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-black text-loomera-textPrimary">گروه‌های فعال‌تر</h3>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">گروه‌هایی که تعداد خدمت یا خدمت فعال بیشتری دارند، ستون اصلی کاتالوگ هستند.</p>
+            </div>
+            <a href="{{ service_menu_url }}" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/40">منوی خدمات</a>
+          </div>
+
+          {% if catalog_workspace.top_groups %}
+            <div class="mt-4 space-y-3">
+              {% for item in catalog_workspace.top_groups %}
+                <article class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-4">
+                  <p class="text-sm font-black text-loomera-textPrimary">{{ item.label }}</p>
+                  <p class="mt-1 text-xs text-loomera-textMuted">{{ item.meta }}</p>
+                </article>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="mt-4 rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-5 text-sm leading-7 text-loomera-textMuted">
+              هنوز گروه خدمتی برای این مجموعه ثبت نشده است؛ برای ساخت کاتالوگ قابل جستجو، اول گروه‌های اصلی خدمات را تکمیل کن.
+            </div>
+          {% endif %}
+        </section>
+      </div>
+    </details>
+
+    <details id="catalog-section-demand" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">تقاضای اخیر</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">خدمات پرتقاضا</h2>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="p-4 sm:p-5 lg:p-6">
+        <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <p class="text-xs leading-6 text-loomera-textMuted">این بخش کمک می‌کند خدمات پرتکرار را در صفحه عمومی، دسته‌بندی‌ها و پیشنهادهای رزرو بهتر برجسته کنی.</p>
+          <a href="{{ service_menu_url }}" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/40">
+            <i class="fa-solid fa-scissors text-[10px]" aria-hidden="true"></i>
+            <span>مرتب‌سازی منوی خدمات</span>
+          </a>
+        </div>
+
+        {% if catalog_workspace.top_services %}
+          <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {% for item in catalog_workspace.top_services %}
+              <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ item.label }}</h3>
+                    <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ item.bookings_label }} رزرو • {{ item.revenue_label }}</p>
+                  </div>
+                  <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                    <i class="fa-solid fa-fire" aria-hidden="true"></i>
+                  </span>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted">
+            هنوز داده کافی برای تشخیص خدمات پرتقاضا ثبت نشده است. بعد از چند رزرو واقعی، این بخش برای تصمیم‌گیری بهتر فعال‌تر می‌شود.
+          </div>
+        {% endif %}
+      </div>
+    </details>
+
+    <details id="catalog-section-paths" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">اقدام‌های بعدی کاتالوگ</h2>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="grid gap-3 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-4 lg:p-6">
+        <a href="{{ add_service_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
+          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">ثبت خدمت</h3>
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">خدمت جدید را با گروه، توضیح، قیمت و پوشش تیم وارد کن.</p>
+        </a>
+        <a href="{{ team_member_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-user-group" aria-hidden="true"></i></span>
+          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">پوشش تیم</h3>
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای هر خدمت مطمئن شو عضو فعال و ظرفیت کاری مشخص وجود دارد.</p>
+        </a>
+        <a href="{{ scheduled_shifts_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-regular fa-calendar-days" aria-hidden="true"></i></span>
+          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">ظرفیت رزرو</h3>
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">شیفت‌ها و مرخصی‌ها را هماهنگ کن تا خدمات واقعاً قابل رزرو باشند.</p>
+        </a>
+        <a href="{{ online_booking_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-globe" aria-hidden="true"></i></span>
+          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">صفحه عمومی</h3>
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">بعد از تکمیل کاتالوگ، آمادگی نمایش و رزرو آنلاین را بررسی کن.</p>
+        </a>
+      </div>
+    </details>
+  </section>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const root = document.querySelector('[data-dashboard-page="catalog"]');
+      if (!root) return;
+
+      const search = root.querySelector("[data-catalog-search]");
+      const cards = Array.from(root.querySelectorAll("[data-catalog-card]"));
+      const filters = Array.from(root.querySelectorAll("[data-catalog-filter]"));
+      const emptyState = root.querySelector("[data-catalog-empty]");
+      let activeFilter = "all";
+
+      const setFilterButtonState = () => {
+        filters.forEach((button) => {
+          const active = button.dataset.catalogFilter === activeFilter;
+          button.classList.toggle("border-loomera-primary/20", active);
+          button.classList.toggle("bg-loomera-primarySoft", active);
+          button.classList.toggle("text-loomera-primaryText", active);
+          button.classList.toggle("border-loomera-borderSoft", !active);
+          button.classList.toggle("bg-white", !active);
+          button.classList.toggle("text-loomera-textSecondary", !active);
+          button.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+      };
+
+      const applyFilters = () => {
+        const query = (search?.value || "").trim().toLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const tone = card.dataset.catalogTone || "";
+          const haystack = (card.dataset.catalogSearchValue || card.textContent || "").toLowerCase();
+          const matchesFilter = activeFilter === "all" || tone === activeFilter;
+          const matchesSearch = !query || haystack.includes(query);
+          const visible = matchesFilter && matchesSearch;
+          card.classList.toggle("hidden", !visible);
+          if (visible) visibleCount += 1;
+        });
+
+        emptyState?.classList.toggle("hidden", visibleCount !== 0);
+        setFilterButtonState();
+        window.LoomeraDashboardWorkspace?.refresh(root);
+      };
+
+      filters.forEach((button) => {
+        button.addEventListener("click", () => {
+          activeFilter = button.dataset.catalogFilter || "all";
+          applyFilters();
+        });
+      });
+
+      search?.addEventListener("input", applyFilters);
+      applyFilters();
+    });
+  </script>
+{% endblock %}

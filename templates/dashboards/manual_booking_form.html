@@ -1,0 +1,356 @@
+{% extends "dashboard_template.html" %}
+{% load static %}
+{% block title %}افزودن رزرو{% endblock %}
+{% block body_attrs %}data-page="manual-booking"{% endblock %}
+{% block head %}
+  {{ block.super }}
+  <style>
+    @media (min-width: 1024px) {
+      body[data-page="manual-booking"],
+      body[data-page="manual-booking"] .lm-partner-shell-root,
+      body[data-page="manual-booking"] .lm-dashboard-content-shell,
+      body[data-page="manual-booking"] .lm-dashboard-main,
+      body[data-page="manual-booking"] .lm-dashboard-content-container,
+      body[data-page="manual-booking"] .lm-dashboard-section,
+      body[data-page="manual-booking"] [data-manual-booking-page],
+      body[data-page="manual-booking"] [data-manual-booking-layout] {
+        overflow: visible !important;
+      }
+
+      body[data-page="manual-booking"] [data-manual-booking-page] {
+        overflow-x: visible !important;
+      }
+
+      body[data-page="manual-booking"] [data-manual-booking-layout] {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 360px !important;
+        align-items: start !important;
+      }
+
+      body[data-page="manual-booking"] [data-booking-preview-column] {
+        position: sticky !important;
+        top: var(--lm-dashboard-workspace-offset, 156px) !important;
+        align-self: start !important;
+        z-index: 20 !important;
+      }
+
+      body[data-page="manual-booking"] [data-booking-preview-card] {
+        position: static !important;
+      }
+    }
+        [data-slot-dropdown] [data-slot-icon-open] {
+      display: none;
+    }
+
+    [data-slot-dropdown] [data-slot-icon-closed] {
+      display: inline-flex;
+    }
+
+    [data-slot-dropdown][open] [data-slot-icon-open] {
+      display: inline-flex;
+    }
+
+    [data-slot-dropdown][open] [data-slot-icon-closed] {
+      display: none;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  <section class="min-w-0 max-w-full space-y-5 overflow-visible" data-manual-booking-page data-dashboard-workspace-root>
+    <section class="relative overflow-hidden rounded-[32px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6 lg:p-7" aria-labelledby="manual-booking-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-loomera-primarySoft/80 via-white to-white" aria-hidden="true"></div>
+      <div class="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div class="min-w-0">
+          <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+            <i class="fa-regular fa-calendar-plus text-[10px]" aria-hidden="true"></i>
+            <span>رزرو دستی داشبورد</span>
+          </span>
+          <h1 id="manual-booking-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl">
+            ثبت رزرو جدید برای {{ manual_booking_salon.salon_name }}
+          </h1>
+          <p class="mt-2 max-w-3xl break-words text-sm leading-7 text-loomera-textSecondary">
+            رزروهای ثبت‌شده از این مسیر، داخل مجموعه مدیریت می‌شوند، پرداخت آن‌ها فقط در مجموعه انجام می‌شود و کارمزد پلتفرم برایشان اعمال نمی‌شود.
+          </p>
+        </div>
+
+        <div class="grid min-w-0 gap-2 sm:grid-cols-3 lg:w-[34rem]">
+          <div class="rounded-[24px] border border-loomera-borderSoft bg-white/90 p-3 shadow-lm-soft">
+            <span class="block text-[11px] font-bold text-loomera-textMuted">روش پرداخت</span>
+            <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">پرداخت در مجموعه</strong>
+          </div>
+          <div class="rounded-[24px] border border-loomera-borderSoft bg-white/90 p-3 shadow-lm-soft">
+            <span class="block text-[11px] font-bold text-loomera-textMuted">کارمزد</span>
+            <strong class="mt-1 block text-sm font-black text-loomera-success">بدون کارمزد</strong>
+          </div>
+          <div class="rounded-[24px] border border-loomera-borderSoft bg-white/90 p-3 shadow-lm-soft">
+            <span class="block text-[11px] font-bold text-loomera-textMuted">منبع رزرو</span>
+            <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">داشبورد مجموعه</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell data-dashboard-workspace-tabs-gap="0">
+      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش مراحل ثبت رزرو دستی">
+        <div class="flex min-w-max items-center gap-2">
+          <a href="#manual-booking-section-identity" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab aria-selected="true">
+            <i class="fa-solid fa-users text-[10px]" aria-hidden="true"></i>
+            <span>مشتری و خدمت</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>۱</span>
+          </a>
+          <a href="#manual-booking-section-time" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab>
+            <i class="fa-regular fa-calendar-days text-[10px]" aria-hidden="true"></i>
+            <span>تاریخ و ساعت</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۲</span>
+          </a>
+          <a href="#manual-booking-section-submit" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab>
+            <i class="fa-solid fa-pen-to-square text-[10px]" aria-hidden="true"></i>
+            <span>یادداشت و ثبت</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۳</span>
+          </a>
+          <a href="#manual-booking-section-preview" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab>
+            <i class="fa-regular fa-clipboard text-[10px]" aria-hidden="true"></i>
+            <span>پیش‌نمایش</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۴</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+
+    <section class="grid min-w-0 max-w-full gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start" data-manual-booking-layout>
+      <form method="post" class="min-w-0 max-w-full space-y-4 rounded-[30px] border border-loomera-borderSoft bg-white/95 p-3 shadow-lm-card sm:p-5 lg:p-6" id="manualBookingForm">
+        {% csrf_token %}
+
+        {% if manual_booking_form.non_field_errors %}
+          <div class="rounded-[24px] border border-loomera-danger/20 bg-loomera-dangerSoft px-4 py-3 text-sm leading-7 text-loomera-danger">
+            {{ manual_booking_form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <details id="manual-booking-section-identity" class="group scroll-mt-32 overflow-visible rounded-[26px] border border-loomera-borderSoft bg-white shadow-lm-soft lg:scroll-mt-40" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 sm:px-5">
+            <div class="min-w-0">
+              <h2 class="text-base font-black text-loomera-textPrimary">۱. انتخاب مشتری، خدمت و متخصص</h2>
+              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">با جستجوی سریع، ترکیب معتبر رزرو را انتخاب کن.</p>
+            </div>
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText transition group-open:rotate-180">
+              <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+            </span>
+          </summary>
+
+          <div class="border-t border-loomera-borderSoft px-4 pb-5 pt-4 sm:px-5">
+            <div class="grid gap-4 md:grid-cols-2">
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-black text-loomera-textPrimary">مشتری</label>
+                <div class="grid grid-cols-[minmax(0,1fr)_48px] gap-2">
+                  <div class="relative" data-autocomplete-root="customer">
+                    <input type="text" id="customerAutocomplete" autocomplete="off" placeholder="نام، نام خانوادگی یا موبایل مشتری" class="w-full rounded-[22px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+                    <input type="hidden" name="customer" id="id_customer" value="{{ manual_booking_form.data.customer|default:'' }}">
+                    <div id="customerSuggestions" class="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-40 hidden max-h-72 overflow-y-auto rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-elevated"></div>
+                  </div>
+                  <a href="{{ add_customer_url }}?next={{ request.path|urlencode }}" class="inline-flex h-12 w-12 items-center justify-center rounded-[22px] border border-loomera-borderSoft bg-white text-loomera-primaryText shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft" aria-label="افزودن مشتری">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                  </a>
+                </div>
+                {% if manual_booking_form.customer.errors %}<p class="mt-2 text-xs text-loomera-danger">{{ manual_booking_form.customer.errors.0 }}</p>{% endif %}
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-black text-loomera-textPrimary">خدمت</label>
+                <div class="relative" data-autocomplete-root="service">
+                  <input type="text" id="serviceAutocomplete" autocomplete="off" placeholder="نام خدمت را تایپ کنید" class="w-full rounded-[22px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+                  <input type="hidden" name="service" id="id_service" value="{{ manual_booking_form.data.service|default:'' }}">
+                  <div id="serviceSuggestions" class="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-40 hidden max-h-72 overflow-y-auto rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-elevated"></div>
+                </div>
+                {% if manual_booking_form.service.errors %}<p class="mt-2 text-xs text-loomera-danger">{{ manual_booking_form.service.errors.0 }}</p>{% endif %}
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-black text-loomera-textPrimary">متخصص</label>
+                <div class="relative" data-autocomplete-root="stylist">
+                  <input type="text" id="stylistAutocomplete" autocomplete="off" placeholder="متخصص مرتبط را انتخاب کنید" class="w-full rounded-[22px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+                  <input type="hidden" name="stylist" id="id_stylist" value="{{ manual_booking_form.data.stylist|default:'' }}">
+                  <div id="stylistSuggestions" class="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-40 hidden max-h-72 overflow-y-auto rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-elevated"></div>
+                </div>
+                {% if manual_booking_form.stylist.errors %}<p class="mt-2 text-xs text-loomera-danger">{{ manual_booking_form.stylist.errors.0 }}</p>{% endif %}
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details id="manual-booking-section-time" class="group scroll-mt-32 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white shadow-lm-soft lg:scroll-mt-40" data-dashboard-workspace-panel open>
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 sm:px-5">
+            <div class="min-w-0">
+              <h2 class="text-base font-black text-loomera-textPrimary">۲. انتخاب تاریخ و ساعت</h2>
+              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">بعد از انتخاب خدمت و متخصص، روزهای آزاد و ساعت‌های قابل رزرو نمایش داده می‌شوند.</p>
+            </div>
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText transition group-open:rotate-180">
+              <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+            </span>
+          </summary>
+
+          <div class="border-t border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 pb-5 pt-4 sm:px-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="text-sm font-black text-loomera-textPrimary">تقویم دسترسی متخصص</h3>
+                <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فقط بازه‌هایی نمایش داده می‌شوند که با مدت خدمت، رزروهای قبلی و مرخصی متخصص تداخل ندارند.</p>
+              </div>
+              <span class="inline-flex items-center gap-2 rounded-full border border-loomera-warning/15 bg-loomera-warningSoft px-3 py-2 text-xs font-black text-loomera-warning">
+                <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+                پرداخت فقط در مجموعه
+              </span>
+            </div>
+
+            <div class="mt-4 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
+              <div class="min-w-0 rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+                <label class="mb-2 block text-sm font-black text-loomera-textPrimary">تاریخ</label>
+                <div class="relative">
+                  <input type="text" id="manualBookingDatePicker" data-jdp data-jdp-only-date="true" autocomplete="off" placeholder="تاریخ را انتخاب کنید" class="w-full rounded-[22px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+                  <input type="hidden" name="appointment_date" id="id_appointment_date" value="{{ manual_booking_form.data.appointment_date|default:'' }}">
+                </div>
+                {% if manual_booking_form.appointment_date.errors %}<p class="mt-2 text-xs text-loomera-danger">{{ manual_booking_form.appointment_date.errors.0 }}</p>{% endif %}
+
+                <div class="mt-4 space-y-2 text-xs leading-6">
+                  <div class="flex items-center gap-2 text-loomera-success"><span class="inline-block h-3 w-3 rounded-full bg-loomera-success"></span>روز دارای زمان آزاد</div>
+                  <div class="flex items-center gap-2 text-loomera-textMuted"><span class="inline-block h-3 w-3 rounded-full bg-loomera-border"></span>روز بدون زمان یا غیرفعال</div>
+                  <div class="flex items-center gap-2 text-loomera-primaryText"><span class="inline-block h-3 w-3 rounded-full bg-loomera-primary"></span>روز انتخاب‌شده</div>
+                </div>
+              </div>
+
+              <details open data-slot-dropdown class="min-w-0 overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4">
+                  <div class="min-w-0">
+                    <h3 id="manualBookingMonthTitle" class="truncate text-base font-black text-loomera-textPrimary">
+                      تقویم دسترسی متخصص
+                    </h3>
+                    <span id="manualBookingCalendarHint" class="mt-1 block truncate text-xs leading-6 text-loomera-textMuted">
+                      ابتدا خدمت و متخصص را انتخاب کنید
+                    </span>
+                  </div>
+
+                  <span class="relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText transition">
+                    <i class="fa-solid fa-chevron-down text-xs" data-slot-icon-closed aria-hidden="true"></i>
+                    <i class="fa-solid fa-chevron-up text-xs" data-slot-icon-open aria-hidden="true"></i>
+                  </span>
+                </summary>
+
+                <div class="border-t border-loomera-borderSoft bg-loomera-bgSubtle/45 px-4 pb-4 pt-4">
+                  <div id="manualBookingCalendar" class="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-5"></div>
+                </div>
+              </details>
+            </div>
+
+            <details open data-slot-dropdown class="mt-4 overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4">
+                <div class="min-w-0">
+                  <label class="block text-sm font-black text-loomera-textPrimary">ساعت شروع</label>
+                  <span id="manualBookingSelectedDateLabel" class="mt-1 block truncate text-xs leading-6 text-loomera-textMuted"></span>
+                </div>
+
+                <span class="relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText transition">
+                  <i class="fa-solid fa-chevron-down text-xs" data-slot-icon-closed aria-hidden="true"></i>
+                  <i class="fa-solid fa-chevron-up text-xs" data-slot-icon-open aria-hidden="true"></i>
+                </span>
+              </summary>
+
+              <div class="border-t border-loomera-borderSoft bg-loomera-bgSubtle/45 px-4 pb-4 pt-4">
+                <input type="hidden" name="start_time" id="id_start_time" value="{{ manual_booking_form.data.start_time|default:'' }}">
+                <div id="manualBookingTimeSlots" class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4"></div>
+                {% if manual_booking_form.start_time.errors %}<p class="mt-2 text-xs text-loomera-danger">{{ manual_booking_form.start_time.errors.0 }}</p>{% endif %}
+              </div>
+            </details>
+          </div>
+        </details>
+
+        <details id="manual-booking-section-submit" class="group scroll-mt-32 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white shadow-lm-soft lg:scroll-mt-40" data-dashboard-workspace-panel open>
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 sm:px-5">
+            <div class="min-w-0">
+              <h2 class="text-base font-black text-loomera-textPrimary">۳. یادداشت و ثبت نهایی</h2>
+              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">توضیح داخلی برای پذیرش یا تیم مجموعه اختیاری است.</p>
+            </div>
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText transition group-open:rotate-180">
+              <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+            </span>
+          </summary>
+
+          <div class="border-t border-loomera-borderSoft px-4 pb-5 pt-4 sm:px-5">
+            <label class="mb-2 block text-sm font-black text-loomera-textPrimary" for="id_notes">یادداشت داخلی</label>
+            {{ manual_booking_form.notes }}
+            {% if manual_booking_form.notes.errors %}<p class="mt-2 text-xs text-loomera-danger">{{ manual_booking_form.notes.errors.0 }}</p>{% endif %}
+
+            <div class="mt-5 rounded-[22px] border border-loomera-primary/10 bg-loomera-primarySoft px-4 py-3 text-xs leading-6 text-loomera-primaryText">
+              ثبت نهایی از کارت «پیش‌نمایش رزرو» انجام می‌شود تا قبل از ثبت، خلاصه انتخاب‌ها را یک‌جا بررسی کنی.
+            </div>
+          </div>
+        </details>
+      </form>
+
+      <aside id="manual-booking-section-preview" class="min-w-0 scroll-mt-32 space-y-4 lg:scroll-mt-40" data-booking-preview-column data-dashboard-workspace-panel>
+        <section class="rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card backdrop-blur sm:p-5" aria-labelledby="manual-booking-summary-title" data-booking-preview-card>
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-[11px] font-black text-loomera-primaryText">پیش‌نمایش رزرو</p>
+              <h2 id="manual-booking-summary-title" class="mt-1 text-base font-black text-loomera-textPrimary">خلاصه انتخاب‌ها</h2>
+            </div>
+            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="fa-regular fa-clipboard" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <dl class="mt-5 space-y-3 text-sm">
+            <div class="rounded-[22px] bg-loomera-bgSubtle p-3">
+              <dt class="text-xs font-bold text-loomera-textMuted">مشتری</dt>
+              <dd id="manualBookingSummaryCustomer" class="mt-1 truncate font-black text-loomera-textPrimary">انتخاب نشده</dd>
+            </div>
+            <div class="rounded-[22px] bg-loomera-bgSubtle p-3">
+              <dt class="text-xs font-bold text-loomera-textMuted">خدمت</dt>
+              <dd id="manualBookingSummaryService" class="mt-1 truncate font-black text-loomera-textPrimary">انتخاب نشده</dd>
+            </div>
+            <div class="rounded-[22px] bg-loomera-bgSubtle p-3">
+              <dt class="text-xs font-bold text-loomera-textMuted">متخصص</dt>
+              <dd id="manualBookingSummaryStylist" class="mt-1 truncate font-black text-loomera-textPrimary">انتخاب نشده</dd>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="rounded-[22px] bg-loomera-bgSubtle p-3">
+                <dt class="text-xs font-bold text-loomera-textMuted">تاریخ</dt>
+                <dd id="manualBookingSummaryDate" class="mt-1 truncate font-black text-loomera-textPrimary">—</dd>
+              </div>
+              <div class="rounded-[22px] bg-loomera-bgSubtle p-3">
+                <dt class="text-xs font-bold text-loomera-textMuted">ساعت</dt>
+                <dd id="manualBookingSummaryTime" class="mt-1 truncate font-black text-loomera-textPrimary">—</dd>
+              </div>
+            </div>
+            <div class="rounded-[22px] border border-loomera-primary/10 bg-loomera-primarySoft p-3">
+              <dt class="text-xs font-bold text-loomera-primaryText">وضعیت ثبت</dt>
+              <dd id="manualBookingSummaryStatus" class="mt-1 font-black text-loomera-primaryText">برای ثبت، همه مراحل را کامل کن.</dd>
+            </div>
+          </dl>
+          <div class="mt-5 flex flex-col gap-3">
+            <button type="submit"
+                    form="manualBookingForm"
+                    class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-calendar-check text-xs" aria-hidden="true"></i>
+              <span>ثبت رزرو دستی</span>
+            </button>
+
+            <a href="{{ back_url }}"
+              class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primary">
+              بازگشت به تقویم
+            </a>
+          </div>
+        </section>
+
+
+      </aside>
+    </section>
+
+    <div id="manualBookingData" class="hidden" data-salon-id="{{ manual_booking_salon.id }}"></div>
+    {{ manual_booking_customers_json|json_script:"manualBookingCustomersData" }}
+    {{ manual_booking_services_json|json_script:"manualBookingServicesData" }}
+    {{ manual_booking_stylists_json|json_script:"manualBookingStylistsData" }}
+  </section>
+{% endblock %}
+
+{% block js %}
+  <script src="{% static 'js/jalali_date.js' %}"></script>
+{% endblock %}

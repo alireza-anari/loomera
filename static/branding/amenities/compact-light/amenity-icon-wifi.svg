@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title desc">
+<title>Loomera amenity icon — Wi‑Fi</title>
+<desc>signal arcs + stable dot / compact / light mode</desc>
+
+<g>
+<path d="M18 29C26 21 38 21 46 29" stroke="#6B55B3" stroke-width="4.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M24 35C29 30 35 30 40 35" stroke="#6B55B3" stroke-width="3.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M29 40C31 38 33 38 35 40" stroke="#6B55B3" stroke-width="3.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="32" cy="45" r="2.5" fill="#6B55B3"/>
+</g>
+</svg>

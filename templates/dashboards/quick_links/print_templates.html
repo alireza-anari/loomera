@@ -1,0 +1,130 @@
+{% extends "dashboard_template.html" %}
+{% load jalali_extras %}
+
+{% block title %}قالب‌های چاپی QR{% endblock %}
+{% block body_attrs %}data-page="quick-link-print-templates"{% endblock %}
+
+{% block content %}
+  <section class="min-w-0 max-w-full space-y-5" data-dashboard-page="quick-link-print-templates">
+    <section class="relative overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-7">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-52 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.20),transparent_45%),linear-gradient(180deg,rgba(248,245,255,0.98),rgba(255,255,255,0))]" aria-hidden="true"></div>
+
+      <div class="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div class="min-w-0">
+          <a href="{{ quick_link_print_gallery.back_url }}" class="inline-flex items-center gap-2 text-xs font-black text-loomera-primaryText">
+            <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
+            بازگشت به جزئیات لینک
+          </a>
+
+          <span class="mt-4 inline-flex rounded-full bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+            {{ quick_link_print_gallery.mode_label }} · {{ quick_link_print_gallery.placement_label }}
+          </span>
+
+          <h1 class="mt-3 text-2xl font-black text-loomera-textPrimary sm:text-3xl">قالب‌های آماده چاپ QR</h1>
+          <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary">
+            قالب مناسب محل استفاده را انتخاب کن. پیش‌نمایش برای بررسی سریع است و فایل دانلودی با کیفیت چاپ و رزولوشن ۳۰۰ DPI تولید می‌شود.
+          </p>
+        </div>
+
+        <div class="shrink-0 rounded-[24px] border border-loomera-borderSoft bg-white/90 px-5 py-4 shadow-lm-soft">
+          <p class="text-[11px] font-black text-loomera-textMuted">لینک انتخاب‌شده</p>
+          <p class="mt-1 max-w-xs truncate text-sm font-black text-loomera-textPrimary">{{ quick_link_print_gallery.title }}</p>
+          <p class="mt-1 text-xs text-loomera-textMuted">{{ quick_link_print_gallery.salon_name }}</p>
+        </div>
+      </div>
+
+      <div class="relative mt-5 break-all rounded-2xl border border-loomera-borderSoft bg-white/85 px-4 py-3 text-left text-xs leading-6 text-loomera-textSecondary" dir="ltr">
+        {{ quick_link_print_gallery.public_url }}
+      </div>
+    </section>
+
+    {% if quick_link_print_gallery.warnings %}
+      <section class="rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-800">
+        <p class="font-black">قبل از چاپ دائمی بررسی کن</p>
+        {% for warning in quick_link_print_gallery.warnings %}
+          <p class="mt-1">{{ warning }}</p>
+        {% endfor %}
+        <p class="mt-2 text-xs">دکمه‌های دانلود این صفحه تأیید چاپ را همراه خود دارند.</p>
+      </section>
+    {% endif %}
+
+    <section class="grid gap-5 lg:grid-cols-2">
+      {% for item in quick_link_print_gallery.templates %}
+        <article class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-card">
+          {% if item.is_two_sided %}
+            <div class="grid gap-4 bg-[linear-gradient(135deg,rgba(248,245,255,0.95),rgba(255,255,255,1))] p-4 sm:grid-cols-2 sm:p-6">
+              <figure class="min-w-0">
+                <figcaption class="mb-2 text-center text-xs font-black text-loomera-textSecondary">روی کارت</figcaption>
+                <img
+                  src="{{ item.preview_url }}"
+                  alt="پیش‌نمایش روی کارت ویزیت {{ quick_link_print_gallery.salon_name }}"
+                  loading="lazy"
+                  class="mx-auto max-h-[420px] max-w-full rounded-2xl object-contain shadow-[0_18px_50px_rgba(46,42,60,0.12)]"
+                >
+              </figure>
+              <figure class="min-w-0">
+                <figcaption class="mb-2 text-center text-xs font-black text-loomera-textSecondary">پشت کارت</figcaption>
+                <img
+                  src="{{ item.back_preview_url }}"
+                  alt="پیش‌نمایش پشت کارت ویزیت {{ quick_link_print_gallery.salon_name }}"
+                  loading="lazy"
+                  class="mx-auto max-h-[420px] max-w-full rounded-2xl object-contain shadow-[0_18px_50px_rgba(46,42,60,0.12)]"
+                >
+              </figure>
+            </div>
+          {% else %}
+            <div class="flex min-h-[360px] items-center justify-center bg-[linear-gradient(135deg,rgba(248,245,255,0.95),rgba(255,255,255,1))] p-4 sm:p-6">
+              <img
+                src="{{ item.preview_url }}"
+                alt="پیش‌نمایش {{ item.label }} برای {{ quick_link_print_gallery.salon_name }}"
+                loading="lazy"
+                class="max-h-[520px] max-w-full rounded-2xl object-contain shadow-[0_18px_50px_rgba(46,42,60,0.12)]"
+              >
+            </div>
+          {% endif %}
+
+          <div class="border-t border-loomera-borderSoft p-5 sm:p-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h2 class="text-lg font-black text-loomera-textPrimary">{{ item.label }}</h2>
+                  {% if item.transparent %}
+                    <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700">پس‌زمینه شفاف</span>
+                  {% endif %}
+                </div>
+                <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">{{ item.description }}</p>
+                <p class="mt-2 text-xs font-bold text-loomera-textMuted">ابعاد چاپ: {{ item.width_mm|fa_digits }} × {{ item.height_mm|fa_digits }} میلی‌متر</p>
+              </div>
+
+              <div class="flex shrink-0 flex-wrap gap-2">
+                {% if item.is_two_sided %}
+                  <a href="{{ item.download_url }}" class="inline-flex min-h-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2.5 text-xs font-black text-loomera-primaryText">
+                    دانلود روی کارت
+                  </a>
+                  <a href="{{ item.back_download_url }}" class="inline-flex min-h-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2.5 text-xs font-black text-loomera-primaryText">
+                    دانلود پشت کارت
+                  </a>
+                  <a href="{{ item.zip_download_url }}" class="inline-flex min-h-10 items-center justify-center rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white">
+                    دانلود ZIP دو رو
+                  </a>
+                {% else %}
+                  <a href="{{ item.preview_url }}" target="_blank" rel="noopener" class="inline-flex min-h-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2.5 text-xs font-black text-loomera-primaryText">
+                    نمایش کامل
+                  </a>
+                  <a href="{{ item.download_url }}" class="inline-flex min-h-10 items-center justify-center rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white">
+                    دانلود PNG چاپی
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </section>
+
+    <section class="rounded-[24px] border border-loomera-borderSoft bg-white p-5 text-sm leading-7 text-loomera-textSecondary shadow-lm-soft">
+      <p class="font-black text-loomera-textPrimary">راهنمای چاپ</p>
+      <p class="mt-1">فایل را با مقیاس ۱۰۰٪ و بدون Fit یا Stretch چاپ کن. برای لیبل آینه از استیکر شفاف و برای کارت‌ها از کاغذ حداقل ۲۵۰ گرم یا پایه پلکسی استفاده شود.</p>
+    </section>
+  </section>
+{% endblock %}

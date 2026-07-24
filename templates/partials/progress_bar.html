@@ -1,0 +1,21 @@
+<!-- Progress Bar Partial -->
+<!-- This is a reusable progress indicator component -->
+
+<div class="bg-white px-4 py-3 border-b">
+    <div class="flex items-center justify-between mb-2">
+        <span class="text-sm font-bold text-gray-700">
+            مرحله <span id="currentStep">1</span> از <span id="totalSteps">1</span>
+        </span>
+        <span class="text-sm text-gray-500">
+            <span id="progressPercent">0</span>%
+        </span>
+    </div>
+    
+    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div id="progressBar" class="h-full bg-loomera-primary transition-all duration-300" style="width: 0%"></div>
+    </div>
+    
+    <div class="mt-2 text-center">
+        <span id="serviceName" class="text-sm text-gray-600 font-medium"></span>
+    </div>
+</div>

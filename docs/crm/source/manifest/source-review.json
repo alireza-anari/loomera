@@ -1,0 +1,53 @@
+{
+  "generated_at": "2026-04-24T00:00:00Z",
+  "brand": "Loomera",
+  "source_files": {
+    "files.zip": {
+      "role": "brand/design/content source of truth",
+      "size": "~41 MB",
+      "entries": 652,
+      "notable_docs": [
+        "loomera-mini-brand-guideline.md",
+        "loomera-core-copy-pack.md",
+        "loomera-microcopy-system.md",
+        "loomera-cta-state-message-library-fa.md",
+        "loomera-domain-email-system.md",
+        "loomera-notification-email-visual-header-system.md",
+        "loomera-checkout-branding-kit.md",
+        "loomera-product-shell-logo-system.md",
+        "partner-onboarding-onepager docs",
+        "loomera_design_tokens.json"
+      ]
+    },
+    "loomera.zip": {
+      "role": "product/source implementation truth",
+      "size": "~4.3 MB",
+      "entries": 1091,
+      "notable_implementation": [
+        "Django templates for booking/search/account/dashboard/checkout/support",
+        "apps/orders/lifecycle.py notification lifecycle",
+        "dashboard notification center",
+        "payment/refund/wallet surfaces",
+        "support ticket model",
+        "notification settings"
+      ]
+    }
+  },
+  "source_of_truth_decision": "Use files.zip for brand identity/copy/email system and loomera.zip for actual product triggers, surfaces, and implementation constraints.",
+  "product_triggers_observed": [
+    "booking_created",
+    "booking_paid",
+    "stylist_confirmed",
+    "reminder_scheduled",
+    "reminder_due",
+    "customer_arrived",
+    "service_started",
+    "service_completed",
+    "pay_in_salon_pending",
+    "payment_completed",
+    "review_requested",
+    "review_completed"
+  ],
+  "channels_observed": ["dashboard", "email", "sms"],
+  "channels_recommended": ["email", "sms", "push", "in-app", "notification-center", "provider dashboard notifications"]
+}

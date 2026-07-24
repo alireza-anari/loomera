@@ -1,0 +1,43 @@
+{% if appointment_management.chart.is_empty %}
+  {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-chart-column" title="داده‌ای برای نمودار وجود ندارد" description="در بازه انتخاب‌شده رزروی ثبت نشده است، بنابراین روند روزانه نمایش داده نمی‌شود." %}
+{% else %}
+  <div class="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_220px]">
+    <div class="min-w-0 rounded-[24px] bg-loomera-surfaceSoft p-4">
+      <div class="overflow-x-auto pb-2">
+        <div class="flex min-h-[240px] min-w-[620px] items-end gap-3 sm:gap-4">
+          {% for item in appointment_management.chart.bars %}
+            <div class="flex flex-1 flex-col items-center gap-3">
+              <div class="group relative flex h-52 w-full items-end justify-center">
+                <div class="w-full rounded-t-[18px] bg-gradient-to-t from-loomera-primary to-loomera-primary/75 transition group-hover:opacity-90"
+                     style="height: {{ item.height }}%; min-height: 14px;"></div>
+                <div class="pointer-events-none absolute bottom-[calc({{ item.height }}%+8px)] right-1/2 translate-x-1/2 whitespace-nowrap rounded-xl bg-slate-950 px-3 py-2 text-[11px] font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">
+                  <div>{{ item.count_label }} رزرو</div>
+                  <div class="mt-1 text-slate-300">{{ item.sales_label }}</div>
+                </div>
+              </div>
+              <div class="text-center">
+                <p class="text-xs font-bold text-slate-700">{{ item.label }}</p>
+                <p class="mt-1 text-[11px] text-slate-400">{{ item.count_label }} رزرو</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-1">
+      {% for item in appointment_management.chart.summary %}
+        <div class="rounded-[24px] bg-slate-50 p-4">
+          <p class="text-xs font-bold text-slate-500">{{ item.label }}</p>
+          <p class="mt-2 text-lg font-black text-slate-950">{{ item.value }}</p>
+        </div>
+      {% endfor %}
+      <div class="rounded-[24px] border border-dashed border-slate-200 p-4 sm:col-span-2 2xl:col-span-1">
+        <p class="text-sm font-semibold text-slate-700">روند بازه فعال: {{ appointment_management.active_range_label }}</p>
+        <p class="mt-2 text-sm leading-7 text-slate-500">
+          این نمودار کمک می‌کند روزهای شلوغ‌تر، افت رزروها و الگوی ارزش نوبت‌ها را سریع‌تر تشخیص بدهی.
+        </p>
+      </div>
+    </div>
+  </div>
+{% endif %}

@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# Django / local runtime
+*.sqlite3
+*.db
+staticfiles/
+media/
+private_media/
+*.log
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Node / frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store/
+
+# Archives / database dumps
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+*.dump
+*.backup
+*.sql
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+

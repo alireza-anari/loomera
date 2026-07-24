@@ -1,0 +1,65 @@
+{% extends "platform_admin/base.html" %}
+{% load jalali_extras %}
+{% block platform_content %}
+<section class="space-y-5" dir="rtl">
+  <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="bg-gradient-to-l from-loomera-primary/10 via-white to-white p-5 lg:p-6">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div class="min-w-0">
+          <p class="text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">Audit Log</p>
+          <h1 class="mt-2 text-2xl font-black text-loomera-textPrimary">لاگ عملیات حساس</h1>
+          <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">ردیابی عملیات مدیریتی، تغییر تنظیمات، تعلیق‌ها و اقدامات پشتیبانی برای release و compliance.</p>
+        </div>
+        <form method="get" class="grid gap-2 rounded-[1.5rem] border border-loomera-borderSoft bg-white/85 p-3 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto] lg:min-w-[460px]">
+          <input name="action" value="{{ request.GET.action }}" placeholder="جستجو در نوع عملیات، مثل user.suspended" class="rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" dir="ltr">
+          <button class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-2.5 text-sm font-black text-white shadow-sm">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            فیلتر
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="min-w-[980px] w-full text-sm">
+        <thead class="bg-loomera-bgSubtle text-loomera-textMuted">
+          <tr>
+            <th class="p-4 text-right">عملیات</th>
+            <th class="p-4 text-right">اقدام‌کننده</th>
+            <th class="p-4 text-right">هدف</th>
+            <th class="p-4 text-right">دلیل</th>
+            <th class="p-4 text-right">IP</th>
+            <th class="p-4 text-right">زمان</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-loomera-borderSoft">
+          {% for log in logs %}
+            <tr class="transition hover:bg-loomera-bgSubtle/60">
+              <td class="p-4">
+                <span class="inline-flex rounded-full bg-loomera-primarySoft px-3 py-1.5 text-xs font-black text-loomera-primaryText" dir="ltr">{{ log.action }}</span>
+              </td>
+              <td class="p-4 text-loomera-textSecondary">{{ log.actor|default:"سیستم" }}</td>
+              <td class="p-4 text-loomera-textMuted">
+                {% if log.target_content_type %}
+                  {{ log.target_content_type }}{% if log.target_object_id %} #{{ log.target_object_id|fa_digits }}{% endif %}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td class="max-w-[260px] p-4 text-loomera-textMuted"><span class="line-clamp-2">{{ log.reason|default:"—" }}</span></td>
+              <td class="p-4 text-left text-loomera-textMuted" dir="ltr">{{ log.ip_address|default:"—" }}</td>
+              <td class="p-4 whitespace-nowrap text-loomera-textMuted">{{ log.created_at|jalali_datetime }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="p-8 text-center text-loomera-textMuted">لاگی یافت نشد.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% include "platform_admin/_pagination.html" %}
+</section>
+{% endblock %}

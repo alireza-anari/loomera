@@ -1,0 +1,228 @@
+{
+  "brandPalette": {
+    "primaryBrand": {
+      "name": "Soft Violet",
+      "hex": "#886FD6",
+      "role": "هویت اصلی برند / لوگو / marketing accents",
+      "why": "هم‌راستا با لوگوی فعلی؛ refined و آرام، بدون اشباع تند."
+    },
+    "secondaryBrand": {
+      "name": "Lilac Mist",
+      "hex": "#B49AE6",
+      "role": "لایه دوم برند / پس‌زمینه‌های لطیف / glow",
+      "why": "حس premium-but-soft را تقویت می‌کند و برای لایه‌بندی بصری عالی است."
+    },
+    "accent": {
+      "name": "Sage Bloom",
+      "hex": "#A7C8A1",
+      "role": "accent طبیعی / اعتماد / wellness cues",
+      "why": "تعادل ارگانیک به بنفش‌ها می‌دهد و برند را انسانی‌تر می‌کند."
+    },
+    "neutral": {
+      "name": "Slate Plum",
+      "hex": "#57526E",
+      "role": "متن، neutral depth, structure",
+      "why": "به‌جای خاکستری سرد، یک neutral گرم و refined می‌دهد."
+    },
+    "surface": {
+      "name": "Pearl White",
+      "hex": "#F7F6FA",
+      "role": "background / cards / brand board",
+      "why": "تمیز، روشن و نزدیک به هویت فعلی برند است."
+    },
+    "highlight": {
+      "name": "Iris Glow",
+      "hex": "#DCCFF8",
+      "role": "selection / focus / soft highlights",
+      "why": "برای emphasis بدون حس neon یا تهاجمی."
+    }
+  },
+  "lightMode": {
+    "core": {
+      "loomera.primary": "#735CBE",
+      "loomera.primaryHover": "#6B55B3",
+      "loomera.primaryActive": "#5F4B9F",
+      "loomera.primarySoft": "#EEE8FA",
+      "loomera.secondary": "#9B80E0",
+      "loomera.secondarySoft": "#F3EEFB",
+      "loomera.accent": "#A7C8A1",
+      "loomera.accentSoft": "#F1F7EF"
+    },
+    "neutral": {
+      "loomera.bg": "#FCFBFE",
+      "loomera.bgSubtle": "#F7F6FA",
+      "loomera.surface": "#FFFFFF",
+      "loomera.surfaceRaised": "#FFFFFF",
+      "loomera.surfaceSoft": "#F4F1F8",
+      "loomera.border": "#DDD8E8",
+      "loomera.borderSoft": "#ECE8F2",
+      "loomera.line": "#D5D0E0",
+      "loomera.divider": "#E8E4EF"
+    },
+    "text": {
+      "loomera.textPrimary": "#2E2A3C",
+      "loomera.textSecondary": "#57526E",
+      "loomera.textMuted": "#7A738F",
+      "loomera.textOnPrimary": "#FFFFFF",
+      "loomera.textOnDark": "#F7F6FA",
+      "loomera.textInverse": "#FFFFFF"
+    },
+    "state": {
+      "loomera.success": "#5F9A73",
+      "loomera.successSoft": "#EEF7F0",
+      "loomera.warning": "#B88235",
+      "loomera.warningSoft": "#FDF3E4",
+      "loomera.error": "#C85C6B",
+      "loomera.errorSoft": "#FCECEF",
+      "loomera.info": "#5E80C8",
+      "loomera.infoSoft": "#EDF3FC"
+    },
+    "interactive": {
+      "loomera.link": "#6B55B3",
+      "loomera.linkHover": "#5F4B9F",
+      "loomera.focusRing": "#C1A8F0",
+      "loomera.selection": "#EDE6FB",
+      "loomera.disabledBg": "#F1EFF6",
+      "loomera.disabledText": "#A79FB9",
+      "loomera.disabledBorder": "#E3DFEC"
+    },
+    "special": {
+      "loomera.badgeNew": "#EDF3FC",
+      "loomera.badgeDiscount": "#FDF3E4",
+      "loomera.badgePremium": "#F3EEFB",
+      "loomera.cardHighlight": "#F8F5FE",
+      "loomera.bookingHighlight": "#F1F7EF",
+      "loomera.calmGlow": "#F2ECFE",
+      "loomera.dashboardAccent": "#DCCFF8",
+      "loomera.salonCardAccent": "#E8F2E5"
+    }
+  },
+  "darkMode": {
+    "core": {
+      "loomera.primary": "#A688E6",
+      "loomera.primaryHover": "#B49AE6",
+      "loomera.primaryActive": "#8F72D6",
+      "loomera.primarySoft": "#2A2340",
+      "loomera.secondary": "#C1A8F0",
+      "loomera.secondarySoft": "#332B49",
+      "loomera.accent": "#98BA93",
+      "loomera.accentSoft": "#233126"
+    },
+    "neutral": {
+      "loomera.bg": "#16131F",
+      "loomera.bgSubtle": "#1D1928",
+      "loomera.surface": "#211C2E",
+      "loomera.surfaceRaised": "#2A2438",
+      "loomera.surfaceSoft": "#251F33",
+      "loomera.border": "#3B3550",
+      "loomera.borderSoft": "#312B43",
+      "loomera.line": "#403955",
+      "loomera.divider": "#322C46"
+    },
+    "text": {
+      "loomera.textPrimary": "#F5F2FA",
+      "loomera.textSecondary": "#D4CDE3",
+      "loomera.textMuted": "#A79FB9",
+      "loomera.textOnPrimary": "#1B1826",
+      "loomera.textOnDark": "#F7F6FA",
+      "loomera.textInverse": "#1B1826"
+    },
+    "state": {
+      "loomera.success": "#7FB28D",
+      "loomera.successSoft": "#213326",
+      "loomera.warning": "#D9A45A",
+      "loomera.warningSoft": "#352815",
+      "loomera.error": "#E1828E",
+      "loomera.errorSoft": "#3A1F26",
+      "loomera.info": "#89A5E5",
+      "loomera.infoSoft": "#202B45"
+    },
+    "interactive": {
+      "loomera.link": "#B49AE6",
+      "loomera.linkHover": "#C1A8F0",
+      "loomera.focusRing": "#886FD6",
+      "loomera.selection": "#332B49",
+      "loomera.disabledBg": "#242032",
+      "loomera.disabledText": "#807895",
+      "loomera.disabledBorder": "#39324C"
+    },
+    "special": {
+      "loomera.badgeNew": "#202B45",
+      "loomera.badgeDiscount": "#352815",
+      "loomera.badgePremium": "#332B49",
+      "loomera.cardHighlight": "#261F38",
+      "loomera.bookingHighlight": "#233126",
+      "loomera.calmGlow": "#2C2440",
+      "loomera.dashboardAccent": "#3A3157",
+      "loomera.salonCardAccent": "#233126"
+    }
+  },
+  "scales": {
+    "violet": {
+      "50": "#F6F2FD",
+      "100": "#EEE8FA",
+      "200": "#DCCFF8",
+      "300": "#C1A8F0",
+      "400": "#A688E6",
+      "500": "#886FD6",
+      "600": "#735CBE",
+      "700": "#5F4B9F",
+      "800": "#4C3C7E",
+      "900": "#372A5A"
+    },
+    "sage": {
+      "50": "#F4F8F2",
+      "100": "#EAF3E8",
+      "200": "#D5E6D1",
+      "300": "#BDD8B7",
+      "400": "#A7C8A1",
+      "500": "#7FA67B",
+      "600": "#688865",
+      "700": "#516A4F"
+    },
+    "neutral": {
+      "0": "#FFFFFF",
+      "25": "#FCFBFE",
+      "50": "#F7F6FA",
+      "100": "#F1EFF6",
+      "200": "#E3DFEC",
+      "300": "#CBC5DA",
+      "400": "#A79FB9",
+      "500": "#7A738F",
+      "600": "#57526E",
+      "700": "#46415A",
+      "800": "#2E2A3C",
+      "900": "#1B1826"
+    }
+  },
+  "accessibility": {
+    "light": {
+      "textPrimary_on_bg": 13.47,
+      "textSecondary_on_bg": 7.18,
+      "textOnPrimary_on_primary": 5.25
+    },
+    "dark": {
+      "textPrimary_on_bg": 16.53,
+      "textSecondary_on_bg": 11.89,
+      "textOnPrimary_on_primary": 6.04
+    }
+  },
+  "usageNotes": {
+    "textSafeColors": [
+      "#2E2A3C",
+      "#57526E",
+      "#7A738F",
+      "#FFFFFF",
+      "#F5F2FA",
+      "#1B1826"
+    ],
+    "backgroundAccentOnly": [
+      "#B49AE6",
+      "#DCCFF8",
+      "#A7C8A1",
+      "#F3EEFB",
+      "#F1F7EF"
+    ],
+    "buttonNote": "برای primary button در light mode از #735CBE با متن سفید استفاده شود. در dark mode از #A688E6 با متن #1B1826 استفاده شود."
+  }
+}

@@ -1,0 +1,19 @@
+{% load static %}
+
+<section class="relative h-full w-full overflow-hidden bg-loomera-bg" data-search-shell aria-label="نتایج جستجوی Loomera">
+  <aside id="searchMapPane" class="absolute inset-y-0 left-0 right-0 z-0 bg-slate-100 transition-[right] duration-300 lg:right-[440px]" aria-label="نقشه مجموعه‌های پیدا شده">
+    {% include "partials/search/search_map.html" %}
+  </aside>
+
+  <div id="searchContentPane" class="pointer-events-none absolute inset-y-0 left-0 right-0 z-20 flex flex-col transition-colors duration-300 lg:left-auto lg:w-[440px] lg:border-l lg:border-loomera-borderSoft lg:bg-loomera-surface/95 lg:shadow-lm-elevated lg:backdrop-blur-xl" aria-label="لیست و فیلترهای جستجو">
+    <div class="pointer-events-auto shrink-0">
+      {% include "partials/search/search_topbar.html" %}
+    </div>
+
+    <div class="pointer-events-none min-h-0 flex-1 lg:flex lg:flex-col">
+      {% include "partials/search/search_filters_sheet.html" %}
+    </div>
+  </div>
+
+  {% include "partials/search/search_filter_fullscreen.html" %}
+</section>

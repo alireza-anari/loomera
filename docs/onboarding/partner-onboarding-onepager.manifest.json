@@ -1,0 +1,26 @@
+{
+  "name": "loomera-partner-onboarding-onepager",
+  "version": "1.0.0",
+  "language": "fa",
+  "direction": "rtl",
+  "brand": "Loomera",
+  "source_of_truth": "files.zip as primary brand source; loomera.zip as product/onboarding context",
+  "variants": [
+    "partner-onboarding-onepager-main",
+    "partner-onboarding-onepager-light",
+    "partner-onboarding-onepager-print-safe",
+    "partner-onboarding-onepager-digital-share-safe",
+    "partner-onboarding-onepager-summary-variant"
+  ],
+  "formats": ["png", "pdf", "svg", "html", "css", "md", "json", "yaml"],
+  "contact_system": {
+    "partner_onboarding_domain": "business.loomera.ir",
+    "providers_email": "providers@loomera.ir",
+    "partnerships_email": "partnerships@loomera.ir"
+  },
+  "notes": [
+    "No font files are bundled in this package.",
+    "HTML/CSS and SVG files are editable source handoff files.",
+    "PDF/PNG exports are delivery-safe visual exports."
+  ]
+}

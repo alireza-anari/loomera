@@ -1,0 +1,134 @@
+{% extends "dashboard_template.html" %}
+
+{% block title %}امور مالی{% endblock %}
+
+{% block content %}
+<section class="min-w-0 max-w-full space-y-5 overflow-visible" data-dashboard-workspace-root data-dashboard-page="finance-hub">
+  <section class="relative overflow-hidden rounded-[34px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6 lg:p-7">
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.96),rgba(255,255,255,0))]" aria-hidden="true"></div>
+
+    <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
+      <div class="min-w-0 rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
+        <div class="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div class="min-w-0">
+            <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+              <i class="fa-solid fa-wallet text-[10px]" aria-hidden="true"></i>
+              <span class="truncate">مرکز مدیریت مالی سالن</span>
+            </span>
+
+            <h1 class="mt-4 text-2xl font-black leading-9 text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+              امور مالی
+            </h1>
+
+            <p class="mt-3 max-w-4xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+              این صفحه مسیرهای اصلی مالی سالن را یک‌جا نشان می‌دهد؛ از تنظیمات پرداخت و کیف پول تا گزارش مالی، سود خالص، سهم متخصصان، هزینه مواد و تخفیف‌ها.
+            </p>
+          </div>
+
+          <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
+            <i class="fa-solid fa-sack-dollar text-lg" aria-hidden="true"></i>
+          </span>
+        </div>
+
+        <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {% for card in finance_summary_cards %}
+            <article class="min-w-0 rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-sm">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-bold text-loomera-textMuted">{{ card.label }}</p>
+                  <strong class="mt-2 block truncate text-lg font-black text-loomera-textPrimary">{{ card.value }}</strong>
+                </div>
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+                  <i class="{{ card.icon }} text-sm" aria-hidden="true"></i>
+                </span>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <aside class="min-w-0 rounded-[28px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6">
+        <div class="flex min-w-0 items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-white/55">وضعیت سریع</p>
+            <h2 class="mt-1 truncate text-lg font-black">آمادگی مالی سالن</h2>
+          </div>
+          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
+            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+          </span>
+        </div>
+
+        <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          {% for item in finance_status_cards %}
+            <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-xs font-bold text-white/65">{{ item.label }}</p>
+                <span class="rounded-full bg-white/15 px-3 py-1 text-[10px] font-black text-white">{{ item.meta }}</span>
+              </div>
+              <strong class="mt-2 block text-xl font-black text-white">{{ item.value }}</strong>
+            </article>
+          {% endfor %}
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {% if finance_alerts %}
+    <section class="grid min-w-0 gap-3 lg:grid-cols-2">
+      {% for alert in finance_alerts %}
+        <a href="{{ alert.url }}" class="group min-w-0 rounded-[26px] border border-amber-100 bg-amber-50/80 p-4 transition hover:-translate-y-0.5 hover:bg-amber-50 hover:shadow-lm-card">
+          <div class="flex items-start gap-3">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-amber-600 shadow-sm">
+              <i class="{{ alert.icon }}" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0">
+              <h3 class="text-sm font-black text-amber-900">{{ alert.title }}</h3>
+              <p class="mt-2 text-xs leading-6 text-amber-800/80">{{ alert.description }}</p>
+            </div>
+            <i class="fa-solid fa-arrow-left mt-3 shrink-0 text-xs text-amber-700 transition group-hover:-translate-x-1" aria-hidden="true"></i>
+          </div>
+        </a>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+  <section class="rounded-[34px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6 lg:p-7">
+    <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div class="min-w-0">
+        <span class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+          <i class="fa-solid fa-route text-[10px]" aria-hidden="true"></i>
+          مسیرهای مالی
+        </span>
+        <h2 class="mt-3 text-xl font-black text-loomera-textPrimary">مدیریت بخش‌های مالی</h2>
+        <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">
+          هر کارت تو را به یک بخش تخصصی می‌برد؛ این صفحه فقط مرکز راهبری امور مالی است.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-6 grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {% for section in finance_sections %}
+        <a href="{{ section.url }}" class="group min-w-0 rounded-[28px] border {% if section.primary %}border-loomera-primary/25 bg-loomera-primarySoft/45{% else %}border-loomera-borderSoft bg-white{% endif %} p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-loomera-primary/35 hover:shadow-lm-card">
+          <div class="flex items-start justify-between gap-3">
+            <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl {% if section.primary %}bg-loomera-primary text-white{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">
+              <i class="{{ section.icon }}" aria-hidden="true"></i>
+            </span>
+
+            <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">
+              {{ section.badge }}
+            </span>
+          </div>
+
+          <h3 class="mt-4 text-base font-black text-loomera-textPrimary">{{ section.title }}</h3>
+          <p class="mt-2 min-h-[3rem] text-sm leading-7 text-loomera-textSecondary">{{ section.description }}</p>
+
+          <div class="mt-4 inline-flex items-center gap-2 text-xs font-black text-loomera-primaryText">
+            <span>ورود به بخش</span>
+            <i class="fa-solid fa-arrow-left transition group-hover:-translate-x-1" aria-hidden="true"></i>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+</section>
+{% endblock %}

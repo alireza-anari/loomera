@@ -1,0 +1,24 @@
+<div class="hidden flex-col gap-4 rounded-[24px] border border-loomera-primary/15 bg-loomera-primarySoft/70 px-4 py-4 shadow-lm-soft sm:flex-row sm:items-center sm:justify-between" data-bulk-bar>
+  <div class="flex items-center gap-3 text-sm font-black text-loomera-primaryText">
+    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm">
+      <i class="fa-solid fa-check-double" aria-hidden="true"></i>
+    </span>
+    <div>
+      <p>عملیات گروهی نوبت‌ها</p>
+      <p class="mt-1 text-xs font-bold text-loomera-textMuted"><span data-selected-count>0</span> نوبت انتخاب شده است.</p>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <label class="sr-only" for="appointmentBulkActionSelect">نوع عملیات گروهی</label>
+    <select id="appointmentBulkActionSelect" name="bulk_action" class="min-w-[220px] rounded-2xl border border-loomera-primary/15 bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+      {% for action in appointment_management.bulk_actions %}
+        <option value="{{ action.key }}">{{ action.label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_16px_34px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5 hover:shadow-lm-card">
+      <span>اجرای عملیات گروهی</span>
+      <i class="fa-solid fa-bolt text-xs" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>

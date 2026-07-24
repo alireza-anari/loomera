@@ -1,0 +1,299 @@
+{% extends "dashboard_template.html" %}
+{% block title %}افزودن خدمت{% endblock %}
+{% block body_attrs %}data-page="add-service"{% endblock %}
+
+{% block content %}
+<section class="min-w-0 max-w-full space-y-5" data-dashboard-page="add-service">
+  <section class="overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6 lg:p-7">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div>
+        <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+          <i class="fa-solid fa-scissors text-[10px]"></i>
+          خدمات مجموعه
+        </span>
+        <h1 class="mt-4 text-2xl font-black text-loomera-textPrimary lg:text-4xl">افزودن خدمت از کاتالوگ</h1>
+        <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary">
+          خدمت پایه را از کاتالوگ لومرا انتخاب کن. مدت زمان، بافر، قیمت، توضیح و اعضای ارائه‌دهنده فقط برای همین مجموعه ذخیره می‌شوند.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a href="{{ service_menu_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft">
+          <i class="fa-solid fa-list text-xs"></i> منوی خدمات
+        </a>
+        <a href="{{ request_service_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary">
+          <i class="fa-solid fa-message text-xs text-loomera-primaryText"></i> درخواست خدمت جدید
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <form id="add-service-form" method="post" enctype="multipart/form-data" class="space-y-4" data-add-service-form novalidate>
+    {% csrf_token %}
+
+    {% if form.errors %}
+      <div class="rounded-[24px] border border-loomera-warning/20 bg-loomera-warningSoft px-4 py-4 text-sm leading-7 text-loomera-warning">
+        <p class="font-black">فرم نیازمند بازبینی است.</p>
+        <ul class="mt-2 list-disc pr-5">
+          {% for field, errors in form.errors.items %}
+            {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card">
+      <header class="border-b border-loomera-borderSoft bg-white/96 px-4 py-4 sm:px-5 lg:px-6">
+        <p class="text-[11px] font-black text-loomera-primaryText">انتخاب از کاتالوگ</p>
+        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">انتخاب خدمت پایه</h2>
+      </header>
+      <div class="space-y-5 p-4 lg:p-6" data-catalog-picker data-selected-service="{{ selected_catalog_service_id|default:'' }}">
+        <script type="application/json" id="catalog-service-tree-data">{{ catalog_tree_json|safe }}</script>
+        <select name="catalog_service" class="hidden" data-catalog-service-select aria-hidden="true" tabindex="-1">
+          <option value="">یک خدمت را انتخاب کن</option>
+          {% for section in catalog_sections %}
+            <optgroup label="{{ section.label }}">
+              {% for item in section.services %}
+                <option value="{{ item.id }}" data-duration="{{ item.duration }}" data-price="{{ item.base_price }}" {% if form.catalog_service.value|stringformat:'s' == item.id|stringformat:'s' %}selected{% endif %}>{{ item.title }}</option>
+              {% endfor %}
+            </optgroup>
+          {% endfor %}
+        </select>
+
+        <div class="grid gap-4 lg:grid-cols-3">
+          <label class="block rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/45 p-4">
+            <span class="mb-2 block text-xs font-black text-loomera-textSecondary">۱. گروه اصلی</span>
+            <select class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" data-root-group-select>
+              <option value="">گروه اصلی را انتخاب کن</option>
+            </select>
+          </label>
+          <label class="block rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/45 p-4">
+            <span class="mb-2 block text-xs font-black text-loomera-textSecondary">۲. زیرگروه</span>
+            <select class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:bg-slate-100 disabled:text-slate-400" data-subgroup-select disabled>
+              <option value="">ابتدا گروه اصلی را انتخاب کن</option>
+            </select>
+          </label>
+          <label class="block rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/45 p-4">
+            <span class="mb-2 block text-xs font-black text-loomera-textSecondary">۳. خدمت</span>
+            <select class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:bg-slate-100 disabled:text-slate-400" data-service-choice-select disabled>
+              <option value="">ابتدا زیرگروه را انتخاب کن</option>
+            </select>
+          </label>
+        </div>
+        {% for error in form.catalog_service.errors %}<p class="text-xs font-bold text-loomera-warning">{{ error }}</p>{% endfor %}
+
+        <aside class="rounded-[24px] border border-loomera-primary/10 bg-loomera-primarySoft/35 p-4 text-sm leading-7 text-loomera-textSecondary">
+          اگر خدمت موردنظر در فهرست نیست، درخواست ثبت خدمت جدید بده تا پلتفرم بعد از بررسی آن را به کاتالوگ اضافه کند.
+          <a href="{{ request_service_url }}" class="mt-3 inline-flex rounded-full bg-white px-4 py-2 text-xs font-black text-loomera-primaryText">ثبت درخواست خدمت</a>
+        </aside>
+      </div>
+    </section>
+
+    <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card">
+      <header class="border-b border-loomera-borderSoft bg-white/96 px-4 py-4 sm:px-5 lg:px-6">
+        <p class="text-[11px] font-black text-loomera-primaryText">تنظیمات اختصاصی مجموعه</p>
+        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">زمان، قیمت و توضیح</h2>
+      </header>
+      <div class="grid gap-4 p-4 md:grid-cols-3 lg:p-6">
+        <label class="block">
+          <span class="mb-2 block text-xs font-black text-loomera-textSecondary">مدت زمان</span>
+          {{ form.duration_minutes }}
+          {% for error in form.duration_minutes.errors %}<p class="mt-2 text-xs font-bold text-loomera-warning">{{ error }}</p>{% endfor %}
+        </label>
+        <label class="block">
+          <span class="mb-2 block text-xs font-black text-loomera-textSecondary">بافر</span>
+          {{ form.buffer_minutes }}
+          {% for error in form.buffer_minutes.errors %}<p class="mt-2 text-xs font-bold text-loomera-warning">{{ error }}</p>{% endfor %}
+        </label>
+        <label class="block">
+          <span class="mb-2 block text-xs font-black text-loomera-textSecondary">قیمت پایه مجموعه</span>
+          {{ form.base_price }}
+          {% for error in form.base_price.errors %}<p class="mt-2 text-xs font-bold text-loomera-warning">{{ error }}</p>{% endfor %}
+        </label>
+        <label class="block md:col-span-3">
+          <span class="mb-2 block text-xs font-black text-loomera-textSecondary">توضیح کامل</span>
+          {{ form.description }}
+          {% for error in form.description.errors %}<p class="mt-2 text-xs font-bold text-loomera-warning">{{ error }}</p>{% endfor %}
+        </label>
+      </div>
+    </section>
+
+    <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card">
+      <header class="flex flex-col gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-6">
+        <div>
+          <p class="text-[11px] font-black text-loomera-primaryText">تیم و قیمت‌گذاری</p>
+          <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">اعضای ارائه‌دهنده و قیمت اختصاصی</h2>
+          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">اگر قیمت اختصاصی خالی بماند، قیمت پایه مجموعه برای همان عضو استفاده می‌شود.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-select-all-stylists>انتخاب همه</button>
+          <button type="button" class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-clear-all-stylists>پاک‌سازی</button>
+          <button type="button" class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-copy-base-price>درج قیمت پایه</button>
+        </div>
+      </header>
+      <div class="grid gap-4 p-4 md:grid-cols-2 xl:grid-cols-3 lg:p-6">
+        {% for stylist in form.stylists.field.queryset %}
+          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4" data-stylist-card>
+            <label class="flex cursor-pointer items-start gap-3">
+              <input type="checkbox" name="stylists" value="{{ stylist.pk }}" class="peer sr-only" data-stylist-checkbox {% if stylist.pk|stringformat:'s' in form.stylists.value %}checked{% endif %}>
+              <span class="mt-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-loomera-borderSoft bg-white text-transparent transition peer-checked:border-loomera-primary/30 peer-checked:bg-loomera-primarySoft peer-checked:text-loomera-primaryText"><i class="fa-solid fa-check text-[10px]"></i></span>
+              <span class="min-w-0 flex-1"><span class="block truncate text-sm font-black text-loomera-textPrimary">{{ stylist.get_fullName }}</span><span class="mt-1 block truncate text-xs text-loomera-textMuted">{{ stylist.expert|default:'عضو تیم' }}</span></span>
+            </label>
+            <label class="mt-4 block">
+              <span class="mb-2 block text-[11px] font-bold text-loomera-textMuted">قیمت اختصاصی این عضو</span>
+              <input type="number" name="price_for_stylist_{{ stylist.pk }}" min="0" inputmode="numeric" dir="ltr" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-left text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="اگر خالی بماند، قیمت پایه استفاده می‌شود" data-stylist-price>
+            </label>
+          </article>
+        {% empty %}
+          <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3">هنوز عضوی برای این مجموعه ثبت نشده است. می‌توانی خدمت را بدون عضو ذخیره کنی و بعداً ارائه‌دهنده اضافه کنی.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <a href="{{ service_menu_url }}" class="inline-flex min-h-12 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-bold text-loomera-textSecondary">انصراف</a>
+      <button type="submit" class="inline-flex min-h-12 items-center justify-center rounded-2xl bg-loomera-primary px-6 py-3 text-sm font-black text-white shadow-lm-soft">ثبت خدمت برای مجموعه</button>
+    </div>
+  </form>
+</section>
+
+<script>
+(function(){
+  const root = document.querySelector('[data-dashboard-page="add-service"]');
+  if(!root) return;
+
+  const picker = root.querySelector('[data-catalog-picker]');
+  const catalog = root.querySelector('[data-catalog-service-select]');
+  const rootSelect = root.querySelector('[data-root-group-select]');
+  const subgroupSelect = root.querySelector('[data-subgroup-select]');
+  const serviceSelect = root.querySelector('[data-service-choice-select]');
+  const duration = root.querySelector('input[name="duration_minutes"]');
+  const price = root.querySelector('[data-base-price-input]');
+  let tree = [];
+
+  try {
+    const dataNode = document.getElementById('catalog-service-tree-data');
+    tree = JSON.parse((dataNode && dataNode.textContent) || '[]');
+  } catch(e) { tree = []; }
+
+  function resetSelect(select, label, disabled){
+    if(!select) return;
+    select.innerHTML = '';
+    const option = document.createElement('option');
+    option.value = '';
+    option.textContent = label;
+    select.appendChild(option);
+    select.disabled = !!disabled;
+  }
+
+  function fillRoots(){
+    resetSelect(rootSelect, 'گروه اصلی را انتخاب کن', false);
+    tree.forEach(item => {
+      const option = document.createElement('option');
+      option.value = String(item.id);
+      option.textContent = item.label;
+      rootSelect.appendChild(option);
+    });
+  }
+
+  function findRoot(id){
+    return tree.find(item => String(item.id) === String(id));
+  }
+
+  function findChild(root, id){
+    return root && (root.children || []).find(item => String(item.id) === String(id));
+  }
+
+  function fillChildren(rootId){
+    const rootItem = findRoot(rootId);
+    resetSelect(subgroupSelect, rootItem ? 'زیرگروه را انتخاب کن' : 'ابتدا گروه اصلی را انتخاب کن', !rootItem);
+    resetSelect(serviceSelect, 'ابتدا زیرگروه را انتخاب کن', true);
+    if(!rootItem) return;
+    (rootItem.children || []).forEach(item => {
+      const option = document.createElement('option');
+      option.value = String(item.id);
+      option.textContent = item.label;
+      subgroupSelect.appendChild(option);
+    });
+  }
+
+  function fillServices(rootId, childId){
+    const rootItem = findRoot(rootId);
+    const child = findChild(rootItem, childId);
+    resetSelect(serviceSelect, child ? 'خدمت را انتخاب کن' : 'ابتدا زیرگروه را انتخاب کن', !child);
+    if(!child) return;
+    (child.services || []).forEach(item => {
+      const option = document.createElement('option');
+      option.value = String(item.id);
+      option.textContent = item.title;
+      option.dataset.duration = item.duration || '';
+      option.dataset.price = item.base_price || '';
+      serviceSelect.appendChild(option);
+    });
+  }
+
+  function applyService(option){
+    if(!catalog || !option) return;
+    catalog.value = option.value || '';
+    if(duration && !duration.value && option.dataset.duration) duration.value = option.dataset.duration;
+    if(price && !price.value && option.dataset.price) price.value = option.dataset.price;
+  }
+
+  function selectExistingService(serviceId){
+    if(!serviceId) return;
+    for(const rootItem of tree){
+      for(const child of (rootItem.children || [])){
+        const service = (child.services || []).find(item => String(item.id) === String(serviceId));
+        if(service){
+          rootSelect.value = String(rootItem.id);
+          fillChildren(rootItem.id);
+          subgroupSelect.value = String(child.id);
+          fillServices(rootItem.id, child.id);
+          serviceSelect.value = String(service.id);
+          if(catalog) catalog.value = String(service.id);
+          return;
+        }
+      }
+    }
+  }
+
+  fillRoots();
+  resetSelect(subgroupSelect, 'ابتدا گروه اصلی را انتخاب کن', true);
+  resetSelect(serviceSelect, 'ابتدا زیرگروه را انتخاب کن', true);
+  selectExistingService((picker && picker.dataset.selectedService) || (catalog && catalog.value));
+
+  if(rootSelect){
+    rootSelect.addEventListener('change', function(){
+      if(catalog) catalog.value = '';
+      fillChildren(rootSelect.value);
+    });
+  }
+  if(subgroupSelect){
+    subgroupSelect.addEventListener('change', function(){
+      if(catalog) catalog.value = '';
+      fillServices(rootSelect.value, subgroupSelect.value);
+    });
+  }
+  if(serviceSelect){
+    serviceSelect.addEventListener('change', function(){
+      applyService(serviceSelect.selectedOptions[0]);
+    });
+  }
+
+  root.querySelectorAll('[data-copy-base-price]').forEach(btn => btn.addEventListener('click', () => {
+    const base = price ? price.value : '';
+    root.querySelectorAll('[data-stylist-checkbox]:checked').forEach(cb => {
+      const card = cb.closest('[data-stylist-card]');
+      const input = card && card.querySelector('[data-stylist-price]');
+      if(input) input.value = base;
+    });
+  }));
+  root.querySelectorAll('[data-clear-all-stylists]').forEach(btn => btn.addEventListener('click', () => {
+    root.querySelectorAll('[data-stylist-checkbox]').forEach(cb => cb.checked = false);
+    root.querySelectorAll('[data-stylist-price]').forEach(input => input.value = '');
+  }));
+  root.querySelectorAll('[data-select-all-stylists]').forEach(btn => btn.addEventListener('click', () => {
+    root.querySelectorAll('[data-stylist-checkbox]').forEach(cb => cb.checked = true);
+  }));
+})();
+</script>
+{% endblock %}

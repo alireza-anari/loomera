@@ -1,0 +1,51 @@
+{
+  "brand": "Loomera",
+  "system": "loader-splash",
+  "recommended_direction": "softly-branded-motion",
+  "assets": [
+    "splash-screen-main",
+    "splash-screen-dark",
+    "app-loader-primary",
+    "section-loader",
+    "inline-loader",
+    "button-loader",
+    "checkout-pending-loader",
+    "dashboard-card-skeleton",
+    "dashboard-chart-skeleton",
+    "table-skeleton",
+    "gallery-skeleton",
+    "generic-fullpage-loader"
+  ],
+  "variants": [
+    "light",
+    "dark",
+    "reduced-motion",
+    "compact",
+    "mobile-safe"
+  ],
+  "component_names": {
+    "app-splash-screen": "cold app launch splash",
+    "global-loader": "generic full-page loader",
+    "section-loader": "section scoped loader",
+    "inline-loader": "inline async action loader",
+    "button-loading-state": "button submit state",
+    "dashboard-skeleton-card": "dashboard KPI/module skeleton",
+    "checkout-pending-state": "payment pending state"
+  },
+  "thresholds_ms": {
+    "skip_loader_under": 180,
+    "micro_loading": [180, 400],
+    "short_loading": [400, 1200],
+    "skeleton_from": 1200,
+    "helper_copy_from": 2500,
+    "fallback_from": 6000
+  },
+  "logo_rules": {
+    "default": "logo-free",
+    "splash": "glyph-first",
+    "generic_fullpage": "glyph-allowed",
+    "button": "logo-free",
+    "dashboard_module": "logo-free",
+    "checkout_pending": "glyph-allowed"
+  }
+}

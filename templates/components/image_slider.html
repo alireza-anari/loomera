@@ -1,0 +1,42 @@
+<div class="relative h-[260px] w-full overflow-hidden rounded-b-[2rem] bg-loomera-bgSubtle shadow-lg lg:h-[420px]"
+     data-slider-id="{{ slider_id }}"
+     data-autoplay="true"
+     data-interval="5500">
+
+  {% if images and images|length %}
+    {% for img in images %}
+      <div class="slider-slide absolute inset-0 transition-opacity duration-700
+                  {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %}">
+        <img src="{{ img.salon_image.url }}"
+             alt="تصویر مجموعه"
+             class="h-full w-full object-cover" />
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="absolute inset-0 flex items-center justify-center bg-loomera-bgSubtle">
+      {% include "partials/brand/empty_state_illustration.html" with state="no-gallery" alt_text="گالری مجموعه هنوز تصویری ندارد" class_name="max-h-48 w-auto opacity-90" %}
+    </div>
+  {% endif %}
+
+  {% if images and images|length > 1 %}
+  <div class="slider-dots absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+    {% for img in images %}
+      <button type="button"
+              class="slider-dot h-2 w-2 rounded-full transition {% if forloop.first %}bg-white{% else %}bg-white/40{% endif %}"
+              data-slider-dot
+              aria-label="رفتن به تصویر {{ forloop.counter }}"></button>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if images and images|length > 1 %}
+  <div class="pointer-events-none absolute inset-0 flex items-center justify-between px-3">
+    <button class="slider-prev pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md transition hover:bg-black/55" aria-label="تصویر قبلی">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <button class="slider-next pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md transition hover:bg-black/55" aria-label="تصویر بعدی">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+  </div>
+  {% endif %}
+</div>

@@ -1,0 +1,135 @@
+{% with profile_url=dashboard_profile_url|default:'#' manager_profile_url=dashboard_manager_profile_url|default:dashboard_profile_url|default:'#' %}
+<nav class="lm-dashboard-topbar fixed left-0 right-0 top-0 z-50 border-b border-loomera-borderSoft bg-white/95 shadow-[0_10px_30px_rgba(46,42,60,0.08)] backdrop-blur transition-[right] duration-300 ease-out lg:right-[22rem]"
+     data-shell-header="partner-desktop-mobile"
+     data-dashboard-topbar
+     aria-label="نوار عملیاتی پنل مجموعه">
+  <div class="mx-auto flex min-h-16 w-full max-w-[1680px] items-center justify-between gap-3 px-3 py-3 sm:px-5 lg:px-8">
+    <div class="flex min-w-0 items-center gap-3">
+      <button type="button"
+              class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-surfaceSoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 lg:hidden"
+              aria-label="باز کردن منو"
+              aria-controls="dashboard-sidebar"
+              aria-expanded="false"
+              data-sidebar-open>
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+      </button>
+
+      <div class="min-w-0">
+        <div class="flex min-w-0 items-center gap-2.5">
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText ring-1 ring-loomera-primary/10">
+            <i class="{{ page_meta.icon|default:'fa-solid fa-house' }} text-sm" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0">
+            <p class="truncate text-sm font-black text-loomera-textPrimary sm:text-base">{{ page_meta.title|default:page_title }}</p>
+            {% if page_meta.description %}
+              <p class="hidden max-w-[34rem] truncate text-xs font-medium text-loomera-textMuted md:block">{{ page_meta.description }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+      <div class="relative" data-notification-root>
+        <button type="button"
+                class="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-surfaceSoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"
+                aria-label="اعلان‌ها"
+                aria-haspopup="dialog"
+                aria-expanded="false"
+                aria-controls="dashboard-notification-panel"
+                data-notification-toggle>
+          <i class="fa-regular fa-bell" aria-hidden="true"></i>
+          {% if dashboard_header.notifications_count %}
+            <span class="absolute -right-1.5 -top-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-loomera-primary px-1 text-[10px] font-black leading-none text-white shadow-lm-soft" data-dashboard-notification-badge>
+              {{ dashboard_header.notifications_count }}
+            </span>
+          {% endif %}
+        </button>
+
+        <div id="dashboard-notification-panel"
+             role="dialog"
+             aria-label="اعلان‌های محیط کاری"
+             class="hidden fixed left-1/2 top-[4.75rem] z-[90] w-[calc(100vw-1rem)] max-w-[24rem] -translate-x-1/2 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-[0_24px_70px_rgba(35,31,50,0.18)] ring-1 ring-white/70 lg:absolute lg:left-0 lg:right-auto lg:top-[calc(100%+0.75rem)] lg:w-[26rem] lg:max-w-[min(26rem,calc(100vw-3rem))] lg:translate-x-0"
+             data-notification-panel>
+          <div class="flex items-start justify-between gap-3 border-b border-loomera-borderSoft px-4 py-4">
+            <div class="min-w-0">
+              <h3 class="text-sm font-black text-loomera-textPrimary">{{ dashboard_notifications.title|default:"اعلان‌های محیط کاری" }}</h3>
+              <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">{{ dashboard_notifications.subtitle|default:"نوبت‌ها، پرداخت‌ها و یادداشت‌های عملیاتی اخیر" }}</p>
+            </div>
+            <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText" data-dashboard-notification-unread-count>
+              {{ dashboard_notifications.unread_count }} خوانده‌نشده
+            </span>
+          </div>
+
+          <div class="flex gap-2 overflow-x-auto border-b border-loomera-borderSoft px-3 py-3 [scrollbar-width:none]" role="tablist" aria-label="فیلتر اعلان‌ها">
+            {% for tab in dashboard_notifications.tabs %}
+              <button type="button"
+                      data-notification-tab="{{ tab.key }}"
+                      role="tab"
+                      aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                      aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+                      class="inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-[11px] font-black transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if forloop.first %}border-loomera-primary bg-loomera-primary text-white{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary hover:bg-loomera-bgSubtle{% endif %}">
+                <i class="{{ tab.icon }} text-[10px]" aria-hidden="true"></i>
+                <span>{{ tab.label }}</span>
+                <span class="rounded-full bg-current/10 px-1.5 py-0.5 text-[10px]">{{ tab.count }}</span>
+              </button>
+            {% endfor %}
+          </div>
+
+          <div class="max-h-[min(58vh,25rem)] space-y-2 overflow-y-auto overscroll-contain bg-white p-3" data-notification-list>
+            {% for item in dashboard_notifications.dropdown_items %}
+              <a href="{{ item.url }}" data-notification-item data-notification-category="{{ item.category|default:'appointments' }}"
+                 class="group flex items-start gap-3 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 transition hover:border-loomera-primary/20 hover:bg-loomera-surfaceSoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-bgSubtle text-loomera-textSecondary transition group-hover:bg-white">
+                  <i class="{{ item.icon }}" aria-hidden="true"></i>
+                </span>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-start justify-between gap-2">
+                    <p class="min-w-0 truncate text-sm font-bold leading-6 text-loomera-textPrimary">{{ item.title }}</p>
+                    {% if item.is_unread %}
+                      <span class="mt-1.5 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-loomera-primary" aria-label="خوانده‌نشده" data-dashboard-notification-unread-dot></span>
+                    {% endif %}
+                  </div>
+                  <p class="mt-1 max-h-12 overflow-hidden break-words text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
+                  <p class="mt-2 truncate text-[11px] font-semibold text-loomera-textMuted">{{ item.meta }}</p>
+                </div>
+              </a>
+            {% empty %}
+              <div class="rounded-2xl bg-loomera-bgSubtle px-4 py-5 text-sm leading-7 text-loomera-textMuted" data-notification-empty>
+                اعلان فعالی برای این مجموعه وجود ندارد.
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="border-t border-loomera-borderSoft p-3">
+            <a href="{{ dashboard_notifications.panel_url }}"
+               class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:bg-loomera-bgSubtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <span>{{ dashboard_notifications.panel_label|default:"رفتن به تقویم و عملیات نوبت‌ها" }}</span>
+              <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <a href="{{ manager_profile_url }}"
+         aria-label="حساب و پروفایل مدیر مجموعه"
+         class="flex items-center gap-3 rounded-2xl border border-loomera-borderSoft bg-white p-1.5 shadow-lm-soft transition hover:border-loomera-primary/20 hover:bg-loomera-surfaceSoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 sm:px-3 sm:py-2 {% if hide_dashboard_top_nav %}sm:min-w-[17rem] sm:justify-between{% endif %}">
+        <div class="hidden text-left sm:block">
+          <p class="text-xs font-medium text-loomera-textMuted">{{ dashboard_header.role_label|default:"مدیر مجموعه" }}</p>
+          <p class="max-w-[11rem] truncate text-sm font-bold text-loomera-textPrimary">{{ dashboard_header.manager_name }}</p>
+        </div>
+
+        {% if dashboard_header.manager_avatar_url %}
+          <img src="{{ dashboard_header.manager_avatar_url }}"
+               alt="{{ dashboard_header.manager_name }}"
+               class="h-10 w-10 rounded-2xl border border-loomera-borderSoft object-cover">
+        {% else %}
+          <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primary text-sm font-black text-white">
+            {{ dashboard_header.manager_initial|default:"م" }}
+          </div>
+        {% endif %}
+      </a>
+    </div>
+  </div>
+</nav>
+{% endwith %}

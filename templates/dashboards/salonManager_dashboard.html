@@ -1,0 +1,9 @@
+{% extends "dashboard_template.html" %}
+
+{% block title %}{{ page_title|default:"داشبورد مجموعه" }}{% endblock %}
+
+{% block body_attrs %}data-page="dashboard-layout"{% endblock %}
+
+{% block content %}
+  {% include "dashboards/partials/overview_intro.html" %}
+{% endblock %}

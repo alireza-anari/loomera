@@ -1,0 +1,12 @@
+<div class="lm-empty-state-card lm-empty-state-card--polished flex h-full min-h-[260px] flex-col items-center justify-center rounded-[28px] border border-dashed border-loomera-border bg-loomera-bgSubtle px-6 py-10 text-center" role="status" aria-live="polite">
+  {% include "partials/brand/empty_state_illustration.html" with state=state|default:"dashboard-empty" alt_text=title class_name="lm-empty-illustration" %}
+  <h3 class="lm-empty-title mt-5 text-lg font-black text-slate-900">{{ title }}</h3>
+  <p class="lm-empty-description mt-2 max-w-md text-sm leading-7 text-slate-500">{{ description }}</p>
+  {% if action_label and action_url %}
+    <a href="{{ action_url }}"
+       class="lm-btn lm-btn-primary mt-5 inline-flex items-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95" aria-label="{{ action_label }}: {{ title }}">
+      <span>{{ action_label }}</span>
+      <i class="fa-solid fa-arrow-left lm-arrow-rtl text-xs" aria-hidden="true"></i>
+    </a>
+  {% endif %}
+</div>

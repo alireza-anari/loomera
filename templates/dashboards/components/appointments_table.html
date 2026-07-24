@@ -1,0 +1,106 @@
+<form method="post" action="{{ appointment_management.base_url }}" class="space-y-4" data-appointments-bulk-form>
+  {% csrf_token %}
+  {% for field in appointment_management.hidden_fields %}
+    <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+  {% endfor %}
+
+  {% include "dashboards/components/bulk_action_bar.html" %}
+
+  {% if appointment_management.table.is_empty %}
+    {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-xmark" title="در این بازه نوبتی پیدا نشد" description="فیلترها را تغییر بده یا بازه زمانی دیگری انتخاب کن تا رزروهای مربوطه نمایش داده شوند." action_label="پاک‌سازی فیلترها" action_url=appointment_management.clear_filters_url %}
+  {% else %}
+    <div class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+      <div class="hidden overflow-x-auto lg:block">
+        <table class="min-w-full divide-y divide-loomera-borderSoft">
+          <thead class="bg-loomera-bgSubtle text-right">
+            <tr class="text-xs font-black tracking-wide text-loomera-textMuted">
+              <th class="px-4 py-4">
+                <input type="checkbox" class="h-4 w-4 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-select-all>
+              </th>
+              <th class="px-4 py-4">مشتری</th>
+              <th class="px-4 py-4">خدمت</th>
+              <th class="px-4 py-4">متخصص</th>
+              <th class="px-4 py-4">تاریخ</th>
+              <th class="px-4 py-4">ساعت</th>
+              <th class="px-4 py-4">مبلغ</th>
+              <th class="px-4 py-4">وضعیت</th>
+              <th class="px-4 py-4">کد سفارش</th>
+              <th class="px-4 py-4">عملیات</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-loomera-borderSoft bg-white">
+            {% for row in appointment_management.table.rows %}
+              <tr class="text-sm text-loomera-textSecondary transition hover:bg-loomera-primarySoft/25">
+                <td class="px-4 py-4 align-top">
+                  <input type="checkbox" name="selected_appointments" value="{{ row.id }}" class="appointment-checkbox h-4 w-4 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-appointment-checkbox>
+                </td>
+                <td class="px-4 py-4 align-top">
+                  <div class="font-black text-loomera-textPrimary">{{ row.customer_name }}</div>
+                  {% if row.customer_mobile %}<div class="mt-1 text-xs text-loomera-textMuted">{{ row.customer_mobile }}</div>{% endif %}
+                  {% if row.description %}<div class="mt-1 max-w-[260px] truncate text-xs text-loomera-textMuted">{{ row.description }}</div>{% endif %}
+                </td>
+                <td class="px-4 py-4 align-top">{{ row.service_name }}</td>
+                <td class="px-4 py-4 align-top">{{ row.stylist_name }}</td>
+                <td class="px-4 py-4 align-top"><span title="{{ row.date_label }}">{{ row.date_short_label }}</span></td>
+                <td class="px-4 py-4 align-top">{{ row.time_label }}</td>
+                <td class="px-4 py-4 align-top">
+                  <div class="font-black text-loomera-textPrimary">{{ row.price_label }}</div>
+                  {% if row.has_discount %}
+                    <div class="mt-1 text-xs font-bold text-emerald-700">تخفیف: {{ row.discount_label }}</div>
+                    <div class="mt-1 text-[11px] text-loomera-textMuted">خام: {{ row.base_price_label }}</div>
+                  {% endif %}
+                </td>
+                <td class="px-4 py-4 align-top"><span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-black {{ row.status.badge_class }}">{{ row.status.label }}</span></td>
+                <td class="px-4 py-4 align-top text-loomera-textMuted">{{ row.order_code }}</td>
+                <td class="px-4 py-4 align-top">
+                  <a href="{{ row.detail_url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary">
+                    <span>جزئیات</span>
+                    <i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid gap-4 p-4 lg:hidden">
+        <label class="flex items-center gap-3 rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textSecondary">
+          <input type="checkbox" class="h-4 w-4 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-select-all>
+          <span>انتخاب همه نوبت‌های این صفحه</span>
+        </label>
+        {% for row in appointment_management.table.rows %}
+          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-sm {{ row.card_class }}">
+            <div class="flex min-w-0 items-start justify-between gap-3">
+              <div class="flex min-w-0 items-start gap-3">
+                <input type="checkbox" name="selected_appointments" value="{{ row.id }}" class="appointment-checkbox mt-1 h-4 w-4 shrink-0 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-appointment-checkbox>
+                <div class="min-w-0">
+                  <h3 class="truncate text-base font-black text-loomera-textPrimary">{{ row.customer_name }}</h3>
+                  <p class="mt-1 truncate text-sm text-loomera-textMuted">{{ row.service_name }}</p>
+                  {% if row.customer_mobile %}<p class="mt-1 text-xs text-loomera-textMuted">{{ row.customer_mobile }}</p>{% endif %}
+                </div>
+              </div>
+              <span class="inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[11px] font-black {{ row.status.badge_class }}">{{ row.status.label }}</span>
+            </div>
+            <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3"><dt class="text-xs font-bold text-loomera-textMuted">متخصص</dt><dd class="mt-1 truncate font-black text-loomera-textPrimary">{{ row.stylist_name }}</dd></div>
+              <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3"><dt class="text-xs font-bold text-loomera-textMuted">زمان</dt><dd class="mt-1 truncate font-black text-loomera-textPrimary" title="{{ row.date_label }}">{{ row.date_short_label }} - {{ row.time_label }}</dd></div>
+              <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3"><dt class="text-xs font-bold text-loomera-textMuted">مبلغ</dt><dd class="mt-1 truncate font-black text-loomera-textPrimary">{{ row.price_label }}</dd>
+              {% if row.has_discount %}
+                <dd class="mt-1 truncate text-xs font-bold text-emerald-700">تخفیف: {{ row.discount_label }}</dd>
+              {% endif %}</div>
+              <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3"><dt class="text-xs font-bold text-loomera-textMuted">کد سفارش</dt><dd class="mt-1 truncate font-black text-loomera-textPrimary">{{ row.order_code }}</dd></div>
+            </dl>
+            {% if row.description %}<p class="mt-4 rounded-2xl bg-loomera-bgSubtle px-3 py-3 text-sm leading-7 text-loomera-textSecondary">{{ row.description }}</p>{% endif %}
+            <div class="mt-4">
+              <a href="{{ row.detail_url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary">
+                <span>مشاهده جزئیات</span>
+                <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+              </a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</form>

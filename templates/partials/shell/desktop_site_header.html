@@ -1,0 +1,50 @@
+{% load static %}
+<header class="lm-shell-desktop-site-header hidden lg:block">
+  <div class="lm-shell-desktop-site-header__inner lm-app-container">
+    <a href="{% url 'salons:home' %}" class="lm-shell-desktop-brand" aria-label="Loomera home">
+      {% include "partials/brand/logo.html" with logo_variant="header" logo_size="md" %}
+    </a>
+
+    <nav class="lm-shell-desktop-nav" aria-label="منوی اصلی">
+      <a href="{% url 'salons:home' %}"
+         class="lm-shell-desktop-nav__item {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}"
+         {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>
+        صفحه اصلی
+      </a>
+
+      <a href="{% url 'salons:show_salons' %}"
+         class="lm-shell-desktop-nav__item {% if request.resolver_match.url_name == 'show_salons' %}is-active{% endif %}"
+         {% if request.resolver_match.url_name == 'show_salons' %}aria-current="page"{% endif %}>
+         مراکز
+      </a>
+
+      <a href="{% url 'search:search_page' %}#search_page" class="lm-shell-desktop-nav__item"> جستجو </a>
+      <a href="{% url 'orders:appointments' %}#appointments" class="lm-shell-desktop-nav__item">نوبت ها </a>
+      <a href="{% url 'services:all_services' %}#services" class="lm-shell-desktop-nav__item">خدمات</a>
+      <a href="{% url 'articles:magazine_home' %}" class="lm-shell-desktop-nav__item"> مجله </a>
+    </nav>
+
+    <div class="lm-shell-desktop-actions">
+      {% if request.user.is_authenticated %}
+        <div class="inline-flex items-center gap-2">
+          {% include "partials/shell/customer_notification_button.html" with variant="desktop" %}
+
+          <a
+            href="{% url 'accounts:customer_panel' %}"
+            class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30"
+            aria-label="حساب من"
+            title="حساب من"
+          >
+            <i class="fa-regular fa-user text-base" aria-hidden="true"></i>
+            <span class="sr-only">حساب من</span>
+          </a>
+        </div>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="lm-btn lm-btn-primary lm-shell-auth-link">
+          <i class="fa-regular fa-user" aria-hidden="true"></i>
+          <span>ورود</span>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</header>

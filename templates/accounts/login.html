@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ورود به Loomera{% endblock %}
+{% block body_attrs %}data-page="auth" data-auth-flow="login"{% endblock %}
+{% block main_class %}!max-w-none !px-0 !pt-0{% endblock %}
+
+{% block content %}
+<section class="relative isolate min-h-[calc(100dvh-5rem)] overflow-hidden bg-loomera-bg text-loomera-textPrimary" aria-labelledby="login-title">
+  <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+    <div class="absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_82%_8%,rgba(115,92,190,0.18),transparent_34%),radial-gradient(circle_at_12%_35%,rgba(167,200,161,0.28),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.94),rgba(249,247,253,0.96))]"></div>
+    <div class="absolute -right-28 top-20 h-80 w-80 rounded-full bg-loomera-primary/10 blur-3xl"></div>
+    <div class="absolute -left-24 bottom-10 h-96 w-96 rounded-full bg-loomera-accent/20 blur-3xl"></div>
+  </div>
+
+  <div class="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:min-h-[calc(100dvh-7rem)] lg:grid-cols-[minmax(0,1fr)_500px] lg:items-center lg:px-8 lg:py-10">
+    <aside class="hidden h-full overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/70 p-7 shadow-lm-elevated backdrop-blur-xl lg:flex lg:flex-col lg:justify-between" aria-label="معرفی Loomera">
+      <div>
+        <div class="flex items-center justify-between gap-3">
+          <a href="{% url 'salons:home' %}" class="inline-flex items-center gap-2.5 rounded-full bg-white/80 py-2 pl-3.5 pr-2 shadow-lm-soft" aria-label="صفحه اصلی Loomera">
+            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-loomera-primary/10">
+              <img src="{% static 'branding/logo/loomera-glyph-mark.png' %}" alt="" class="h-5 w-5 object-contain" loading="eager" decoding="async">
+            </span>
+            <span class="text-sm font-black leading-none tracking-tight text-loomera-primary">Loomera</span>
+          </a>
+          <span class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary">
+            <span class="h-2 w-2 rounded-full bg-loomera-primary"></span>
+            ورود امن
+          </span>
+        </div>
+
+
+        <div class="mt-9 flex justify-center">
+          <div class="relative w-full max-w-[21rem] overflow-hidden rounded-[2rem] border border-white/80 bg-white/78 px-6 py-7 text-center shadow-lm-card backdrop-blur">
+            <div class="absolute inset-x-8 top-3 h-20 rounded-full bg-loomera-primary/10 blur-2xl" aria-hidden="true"></div>
+            <div class="relative mx-auto flex h-20 w-20 items-center justify-center rounded-[1.65rem] bg-gradient-to-br from-white to-loomera-primarySoft shadow-lm-soft ring-1 ring-loomera-primary/10">
+              <img src="{% static 'branding/logo/loomera-glyph-mark.png' %}" alt="Loomera" class="h-14 w-14 object-contain" loading="eager" decoding="async">
+            </div>
+            <p class="relative mt-4 text-3xl font-black tracking-tight text-loomera-primary">Loomera</p>
+
+          </div>
+        </div>
+
+        <div class="mt-10 max-w-2xl">
+
+          <h1 id="login-title" class="mt-4 text-5xl font-black leading-[1.18] text-loomera-textPrimary">به حساب خودت برگرد</h1>
+          <p class="mt-5 text-base font-medium leading-8 text-loomera-textSecondary">نوبت‌ها، علاقه‌مندی‌ها، کیف پول و داشبورد مدیریتی‌ات با یک ورود امن در دسترس است.</p>
+        </div>
+      </div>
+
+      <div class="mt-10 grid gap-4">
+        <a href="{% url 'accounts:customer_signup' %}{{ next_query }}" class="group flex items-center gap-4 rounded-[1.75rem] border border-loomera-borderSoft bg-white/85 p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-lm-card">
+          <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-hover:bg-loomera-primary group-hover:text-white"><i class="fa-regular fa-user" aria-hidden="true"></i></span>
+          <span class="min-w-0"><strong class="block text-sm font-black text-loomera-textPrimary">ورود برای مشتریان</strong><small class="mt-1 block text-xs leading-6 text-loomera-textMuted">رزرو نوبت، ذخیره مجموعه‌ها و پیگیری پرداخت‌ها</small></span>
+          <i class="fa-solid fa-chevron-left mr-auto text-xs text-loomera-textMuted transition group-hover:text-loomera-primary" aria-hidden="true"></i>
+        </a>
+        <a href="{% url 'accounts:register' %}{{ next_query }}" class="group flex items-center gap-4 rounded-[1.75rem] border border-loomera-borderSoft bg-white/85 p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-lm-card">
+          <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-accentSoft text-loomera-textPrimary transition group-hover:bg-loomera-accent group-hover:text-white"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
+          <span class="min-w-0"><strong class="block text-sm font-black text-loomera-textPrimary">ورود برای مجموعه‌ها</strong><small class="mt-1 block text-xs leading-6 text-loomera-textMuted">تقویم، خدمات، مشتریان و گزارش‌ها</small></span>
+          <i class="fa-solid fa-chevron-left mr-auto text-xs text-loomera-textMuted transition group-hover:text-loomera-primary" aria-hidden="true"></i>
+        </a>
+      </div>
+    </aside>
+
+    <section class="mx-auto w-full max-w-[500px] rounded-[2rem] border border-white/80 bg-white/92 p-5 shadow-lm-elevated backdrop-blur-xl sm:p-7 lg:p-8" aria-label="فرم ورود">
+      <div class="mb-7 flex items-center justify-between gap-3 lg:hidden">
+        <a href="{% url 'salons:home' %}" class="inline-flex items-center gap-2.5 rounded-full bg-loomera-bgSubtle py-2 pl-3.5 pr-2 shadow-lm-soft" aria-label="صفحه اصلی Loomera">
+          <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-loomera-primary/10">
+              <img src="{% static 'branding/logo/loomera-glyph-mark.png' %}" alt="" class="h-5 w-5 object-contain" loading="eager" decoding="async">
+            </span>
+            <span class="text-sm font-black leading-none tracking-tight text-loomera-primary">Loomera</span>
+        </a>
+        <span class="rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary">ورود</span>
+      </div>
+
+      <div>
+        <span class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary"><i class="fa-solid fa-lock text-[10px]" aria-hidden="true"></i> ورود امن</span>
+        <h2 class="mt-4 text-2xl font-black text-loomera-textPrimary sm:text-3xl">شماره موبایل و رمز عبور</h2>
+        <p class="mt-2 text-sm leading-7 text-loomera-textMuted">بعد از ورود، بر اساس نقش حساب به پنل مناسب هدایت می‌شوی.</p>
+      </div>
+
+      <form method="post" class="mt-7 space-y-5" novalidate>
+        {% csrf_token %}
+        {% if next_url %}
+          <input type="hidden" name="next" value="{{ next_url }}">
+        {% endif %}
+        {% if form.non_field_errors %}
+          <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold leading-7 text-red-700" role="alert">
+            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        {% endif %}
+
+        <label class="block" for="id_mobile_number">
+          <span class="mb-2 block text-sm font-black text-loomera-textPrimary">شماره موبایل</span>
+          <span class="flex items-center overflow-hidden rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle transition focus-within:border-loomera-primary focus-within:bg-white focus-within:ring-4 focus-within:ring-loomera-primary/10">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center text-loomera-primary"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></span>
+            <input class="min-w-0 flex-1 bg-transparent px-1 py-3 text-left text-base font-black text-loomera-textPrimary outline-none placeholder:text-loomera-textMuted/60" type="text" name="mobile_number" id="id_mobile_number" value="{{ form.mobile_number.value|default_if_none:'' }}" inputmode="numeric" autocomplete="tel" placeholder="09xxxxxxxxx" dir="ltr">
+          </span>
+          {% if form.mobile_number.errors %}<small class="mt-2 block text-xs font-bold text-red-600">{{ form.mobile_number.errors.0 }}</small>{% endif %}
+        </label>
+
+        <label class="block" for="id_password">
+          <span class="mb-2 block text-sm font-black text-loomera-textPrimary">رمز عبور</span>
+          <span class="flex items-center overflow-hidden rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle transition focus-within:border-loomera-primary focus-within:bg-white focus-within:ring-4 focus-within:ring-loomera-primary/10">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center text-loomera-primary"><i class="fa-solid fa-key" aria-hidden="true"></i></span>
+            <input class="min-w-0 flex-1 bg-transparent px-1 py-3 text-base font-bold text-loomera-textPrimary outline-none placeholder:text-loomera-textMuted/60" type="password" name="password" id="id_password" autocomplete="current-password" placeholder="رمز عبور">
+            <button type="button" class="toggle-password flex h-12 w-12 shrink-0 items-center justify-center text-loomera-textMuted transition hover:text-loomera-primary" data-input="id_password" aria-label="نمایش یا پنهان‌کردن رمز عبور"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
+          </span>
+          {% if form.password.errors %}<small class="mt-2 block text-xs font-bold text-red-600">{{ form.password.errors.0 }}</small>{% endif %}
+        </label>
+
+        <div class="flex items-center justify-between gap-3 rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-sm">
+          <span class="font-bold text-loomera-textMuted">رمز را فراموش کردی؟</span>
+          <a href="{% url 'accounts:remember_password' %}{{ next_query }}" class="font-black text-loomera-primary transition hover:text-loomera-primaryHover">بازیابی رمز</a>
+        </div>
+
+        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-6 py-3.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-primary/20">
+          <span>ورود به Loomera</span>
+          <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+        </button>
+      </form>
+
+      <div class="mt-6 rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+        <p class="text-sm font-black text-loomera-textPrimary">حساب نداری؟</p>
+        <p class="mt-1 text-xs leading-6 text-loomera-textMuted">مسیر مناسب خودت را انتخاب کن.</p>
+        <div class="mt-4 grid gap-2 sm:grid-cols-3">
+          <a href="{% url 'accounts:customer_signup' %}" class="inline-flex items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:text-loomera-primary">ثبت‌نام مشتری</a>
+          <a href="{% url 'accounts:stylist_signup' %}" class="inline-flex items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:text-loomera-primary">ثبت‌نام متخصص</a>
+          <a href="{% url 'accounts:register' %}" class="inline-flex items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:text-loomera-primary">ثبت سالن</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock %}
+
+{% block js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.toggle-password').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var input = document.getElementById(this.dataset.input);
+        var icon = this.querySelector('i');
+        if (!input || !icon) return;
+        input.type = input.type === 'password' ? 'text' : 'password';
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+      });
+    });
+    var mobileInput = document.getElementById('id_mobile_number');
+    if (mobileInput) {
+      mobileInput.addEventListener('input', function (e) {
+        e.target.value = e.target.value.replace(/[^\d]/g, '');
+      });
+    }
+  });
+</script>
+{% endblock %}

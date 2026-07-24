@@ -1,0 +1,71 @@
+<header class="lm-dashboard-panel rounded-[30px] border border-loomera-borderSoft bg-white p-5 shadow-lm-soft backdrop-blur sm:p-6" data-shell-header="partner-page"
+        aria-label="سربرگ صفحه پنل مدیریت">
+  <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+    <div class="min-w-0">
+      <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText">
+        <i class="{{ page_meta.icon|default:'fa-solid fa-grid-2' }} text-[10px]" aria-hidden="true"></i>
+        <span>{{ page_meta.title|default:page_title }}</span>
+      </span>
+
+      <div class="mt-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <h1 class="text-2xl font-black tracking-tight text-loomera-textPrimary sm:text-[2rem]">{{ dashboard_header.salon_name }}</h1>
+          <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-black {% if dashboard_header.is_active %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
+            {% if dashboard_header.is_active %}فعال{% else %}غیرفعال{% endif %}
+          </span>
+        </div>
+        {% if page_meta.description %}
+          <p class="mt-2 max-w-3xl text-sm leading-7 text-loomera-textMuted">{{ page_meta.description }}</p>
+        {% endif %}
+      </div>
+
+      {% if page_meta.badges %}
+        <div class="mt-4 flex flex-wrap gap-2" role="list" aria-label="برچسب‌های وضعیت صفحه">
+          {% for badge in page_meta.badges %}
+            <span role="listitem" class="lm-badge lm-badge--neutral inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-3 py-2 text-xs font-semibold text-loomera-textSecondary">
+              <i class="{{ badge.icon }} text-[11px] text-loomera-primaryText" aria-hidden="true"></i>
+              <span>{{ badge.label }}</span>
+            </span>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="grid gap-3 sm:grid-cols-2 xl:min-w-[500px]">
+      {% if dashboard_header.shell_metrics %}
+        {% for item in dashboard_header.shell_metrics %}
+          <div class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 p-4 shadow-lm-soft">
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl
+                {% if item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText
+                {% elif item.tone == 'success' %}bg-loomera-successSoft text-loomera-success
+                {% elif item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning
+                {% else %}bg-white text-loomera-textSecondary{% endif %}">
+                <i class="{{ item.icon }}" aria-hidden="true"></i>
+              </span>
+              <p class="text-[11px] font-bold text-loomera-textMuted">{{ item.label }}</p>
+            </div>
+            <p class="text-lg font-black text-loomera-textPrimary">{{ item.value }}</p>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ item.meta }}</p>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 p-4 shadow-lm-soft">
+          <div class="mb-2 flex items-center gap-2 text-loomera-textMuted">
+            <i class="fa-regular fa-clock text-sm" aria-hidden="true"></i>
+            <span class="text-xs font-semibold">امروز در مجموعه</span>
+          </div>
+          <p class="text-sm font-bold leading-6 text-loomera-textPrimary">{{ dashboard_header.working_hours }}</p>
+        </div>
+
+        <div class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 p-4 shadow-lm-soft">
+          <div class="mb-2 flex items-center gap-2 text-loomera-textMuted">
+            <i class="fa-regular fa-bell text-sm" aria-hidden="true"></i>
+            <span class="text-xs font-semibold">نیازمند بررسی</span>
+          </div>
+          <p class="text-sm font-bold leading-6 text-loomera-textPrimary">{{ dashboard_header.pending_approvals }} نوبت در انتظار تأیید</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</header>

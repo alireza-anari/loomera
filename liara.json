@@ -1,0 +1,21 @@
+{
+  "build": {
+    "location": "germany"
+  },
+  "django": {
+    "pythonVersion": "3.12",
+    "timezone": "Asia/Tehran",
+    "mirror": false,
+    "geospatial": true,
+    "modifySettings": false,
+    "collectStatic": true
+  },
+  "port": 8000,
+  "healthCheck": {
+    "command": "CMD curl --fail --silent --show-error -H 'Host: staging.loomera.ir' -H 'X-Forwarded-Proto: https' http://localhost:8000/health/?live=1 || exit 1",
+    "interval": 30,
+    "timeout": 20,
+    "retries": 5,
+    "startPeriod": 90
+  }
+}

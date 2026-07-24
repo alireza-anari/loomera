@@ -1,0 +1,13 @@
+{
+  "welcome": {"max": "2 messages / 7 days", "sequence": ["inapp immediate", "email 0-30m", "education email after 2-3d only if inactive"]},
+  "browse_nudge": {"max": "1 email / 7 days and 2 in-app / week", "sequence": ["after 2+ sessions or strong intent"]},
+  "abandoned_booking": {"max": "2 messages / booking attempt", "sequence": ["email 1-3h", "push/email 24h if still valid"]},
+  "reminders": {"max": "2 reminders / appointment", "sequence": ["24h before", "2h before"]},
+  "review_request": {"max": "2 requests / appointment", "sequence": ["12-24h after completion", "3-5d soft reminder"]},
+  "rebook": {"max": "1 / 30 days", "sequence": ["based on service cycle 14/30/45/60 days"]},
+  "winback": {"max": "1 / 45 days", "sequence": ["45d", "90d", "then reduce"]},
+  "seasonal": {"max": "1 campaign / month", "sequence": ["monthly or seasonal only"]},
+  "payment_recovery": {"max": "2 / 24 hours", "sequence": ["immediate", "30-60m if still unpaid"]},
+  "support": {"max": "status-change based", "sequence": ["receipt immediate", "status updates only", "resolution check 24-48h"]},
+  "quiet_hours": {"start": "21:00", "end": "09:00", "applies_to": ["sms", "push"], "exceptions": ["security", "payment critical", "appointment change critical"]}
+}

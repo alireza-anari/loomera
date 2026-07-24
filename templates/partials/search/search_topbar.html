@@ -1,0 +1,101 @@
+<header class="px-3 pt-3 lg:sticky lg:top-0 lg:z-40 lg:bg-loomera-surface/95 lg:px-4 lg:pb-3 lg:pt-4 lg:backdrop-blur-xl" aria-label="نوار جستجو">
+  <div class="flex items-center gap-2 lg:hidden">
+    <button
+      type="button"
+      onclick="window.history.length > 1 ? window.history.back() : window.location.assign('{% url 'salons:show_salons' %}')"
+      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white/95 text-loomera-textPrimary shadow-lm-soft backdrop-blur transition hover:bg-loomera-primarySoft hover:text-loomera-primary"
+      aria-label="بازگشت به صفحه قبل"
+    >
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+    </button>
+
+    <button
+      id="searchBarButton"
+      type="button"
+      data-search-bar-button
+      class="inline-flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white/95 px-4 text-right text-sm font-bold text-loomera-textPrimary shadow-lm-soft backdrop-blur transition hover:border-loomera-primary/30"
+      aria-label="ویرایش جستجو"
+    >
+      <i class="fa-solid fa-magnifying-glass shrink-0 text-loomera-primary" aria-hidden="true"></i>
+      <span id="searchBarText" data-search-bar-text class="min-w-0 truncate">{{ search_summary|default:"جستجوی خدمت، مجموعه یا منطقه" }}</span>
+    </button>
+
+    <button
+      id="openFilterBtn"
+      type="button"
+      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white/95 text-loomera-textPrimary shadow-lm-soft backdrop-blur transition hover:bg-loomera-primarySoft hover:text-loomera-primary"
+      aria-label="نمایش نتایج"
+      aria-controls="filtersSheet"
+      aria-expanded="false"
+    >
+      <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <div id="desktopSearchTopbarWrap" class="hidden lg:block">
+    <form
+      id="desktopSearchPanel"
+      class="relative flex items-center gap-2 rounded-[28px] border border-loomera-borderSoft bg-white/95 p-2 shadow-lm-card backdrop-blur-xl transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[28px] before:bg-gradient-to-l before:from-loomera-primarySoft/50 before:via-white/0 before:to-white/0"
+      method="get"
+      action="{% url 'search:search_page' %}"
+      role="search"
+      aria-label="جستجوی مجموعه، خدمت یا شهر"
+    >
+      <label id="desktopSearchField" class="relative z-10 min-w-0 flex-1" for="desktopSearchQuery">
+        <span class="sr-only">جستجوی خدمت یا مجموعه</span>
+        <span class="flex h-12 items-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle/95 px-4 text-sm shadow-inner transition focus-within:border-loomera-primary/45 focus-within:bg-white focus-within:ring-4 focus-within:ring-loomera-primary/10">
+          <i class="fa-solid fa-magnifying-glass shrink-0 text-loomera-primary" aria-hidden="true"></i>
+          <input
+            id="desktopSearchQuery"
+            type="search"
+            name="q"
+            value="{{ request.GET.q|default:'' }}"
+            placeholder="جستجوی خدمت، مجموعه یا منطقه"
+            class="min-w-0 flex-1 border-0 bg-transparent text-sm font-black text-loomera-textPrimary placeholder:text-loomera-textMuted focus:outline-none focus:ring-0"
+            autocomplete="off"
+          >
+          {% if request.GET.q %}
+            <span class="hidden rounded-full bg-loomera-primarySoft px-2.5 py-1 text-[10px] font-black text-loomera-primary xl:inline-flex">فعال</span>
+          {% endif %}
+        </span>
+      </label>
+
+      {% if request.GET.location %}<input type="hidden" name="location" value="{{ request.GET.location }}">{% endif %}
+      {% if request.GET.date %}<input type="hidden" name="date" value="{{ request.GET.date }}">{% endif %}
+      {% if request.GET.period %}<input type="hidden" name="period" value="{{ request.GET.period }}">{% endif %}
+      {% if request.GET.time %}<input type="hidden" name="time" value="{{ request.GET.time }}">{% endif %}
+      {% if request.GET.group %}<input type="hidden" name="group" value="{{ request.GET.group }}">{% endif %}
+      {% if request.GET.services %}<input type="hidden" name="services" value="{{ request.GET.services }}">{% endif %}
+      {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
+      {% if request.GET.min_price %}<input type="hidden" name="min_price" value="{{ request.GET.min_price }}">{% endif %}
+      {% if request.GET.max_price %}<input type="hidden" name="max_price" value="{{ request.GET.max_price }}">{% endif %}
+      {% if request.GET.price_min %}<input type="hidden" name="price_min" value="{{ request.GET.price_min }}">{% endif %}
+      {% if request.GET.price_max %}<input type="hidden" name="price_max" value="{{ request.GET.price_max }}">{% endif %}
+      {% if request.GET.min_rating %}<input type="hidden" name="min_rating" value="{{ request.GET.min_rating }}">{% endif %}
+      {% if request.GET.rating_min %}<input type="hidden" name="rating_min" value="{{ request.GET.rating_min }}">{% endif %}
+      {% if request.GET.discounted %}<input type="hidden" name="discounted" value="{{ request.GET.discounted }}">{% endif %}
+      {% if request.GET.verified %}<input type="hidden" name="verified" value="{{ request.GET.verified }}">{% endif %}
+      {% if request.GET.availability %}<input type="hidden" name="availability" value="{{ request.GET.availability }}">{% endif %}
+
+      <button
+        type="submit"
+        class="relative z-10 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-loomera-primary text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-primary/25"
+        aria-label="جستجو"
+      >
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      </button>
+
+      <button
+        id="desktopResultsToggleBtn"
+        type="button"
+        data-desktop-filter-open
+        class="relative z-10 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary"
+        aria-label="باز کردن فیلترها"
+        aria-haspopup="dialog"
+        aria-controls="filterScreen"
+      >
+        <i id="desktopResultsToggleIcon" class="fa-solid fa-sliders" aria-hidden="true"></i>
+      </button>
+    </form>
+  </div>
+</header>

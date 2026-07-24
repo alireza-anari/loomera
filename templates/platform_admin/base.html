@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}پنل ادمین Loomera{% endblock %}
+{% block body_class %}lm-platform-admin-body{% endblock %}
+{% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
+{% block content %}
+<section class="min-h-screen overflow-x-hidden bg-gradient-to-br from-loomera-bg via-white to-loomera-primary/5 px-3 py-4 sm:px-4 lg:px-8 lg:py-6" dir="rtl">
+  <div class="mx-auto flex max-w-7xl flex-col gap-4 lg:flex-row lg:gap-6">
+    <header class="lg:hidden">
+      <div class="rounded-3xl border border-loomera-borderSoft bg-white/90 p-4 shadow-sm backdrop-blur">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">Loomera Admin</p>
+            <h1 class="mt-1 text-xl font-black text-loomera-textPrimary">اتاق کنترل پلتفرم</h1>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">پشتیبانی، مالی، احراز، محتوا و کنترل ریسک.</p>
+          </div>
+          <a href="/" class="shrink-0 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-bold text-loomera-textMuted transition hover:border-loomera-primary/30 hover:text-loomera-primary">سایت</a>
+        </div>
+        <nav class="mt-4 flex gap-2 overflow-x-auto pb-1">
+          {% for item in platform_nav %}
+            <a href="{{ item.url }}" class="inline-flex items-center gap-2 whitespace-nowrap rounded-2xl px-3 py-2 text-xs font-black transition {% if section == item.key %}bg-loomera-primary text-white shadow-sm{% else %}bg-loomera-surface text-loomera-textMuted hover:bg-loomera-primarySoft hover:text-loomera-primary{% endif %}">
+              <i class="{{ item.icon }} text-[11px]" aria-hidden="true"></i>
+              {{ item.label }}
+            </a>
+          {% endfor %}
+        </nav>
+      </div>
+    </header>
+
+    <aside class="hidden lg:block lg:sticky lg:top-5 lg:h-fit lg:w-72 lg:shrink-0">
+      <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white/90 shadow-sm backdrop-blur">
+        <div class="relative bg-gradient-to-br from-loomera-primary to-loomera-primary/80 p-5 text-white">
+          <div class="absolute -left-10 -top-10 h-24 w-24 rounded-full bg-white/10"></div>
+          <div class="absolute -bottom-12 right-10 h-28 w-28 rounded-full bg-white/10"></div>
+          <div class="relative">
+            <p class="text-xs font-black uppercase tracking-[0.22em] text-white/75">Loomera Admin</p>
+            <h1 class="mt-2 text-xl font-black">اتاق کنترل پلتفرم</h1>
+            <p class="mt-2 text-xs leading-6 text-white/75">پنل عملیاتی برای پشتیبانی، مالی، احراز، محتوا و کنترل ریسک.</p>
+          </div>
+        </div>
+        <div class="p-3">
+          <nav class="space-y-1.5">
+            {% for item in platform_nav %}
+              <a href="{{ item.url }}" class="group flex items-center justify-between gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold transition {% if section == item.key %}bg-loomera-primary text-white shadow-sm shadow-loomera-primary/20{% else %}text-loomera-textMuted hover:bg-loomera-surface hover:text-loomera-textPrimary{% endif %}">
+                <span class="flex min-w-0 items-center gap-3">
+                  <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl {% if section == item.key %}bg-white/18 text-white{% else %}bg-loomera-primarySoft text-loomera-primary group-hover:bg-white{% endif %}">
+                    <i class="{{ item.icon }} text-sm" aria-hidden="true"></i>
+                  </span>
+                  <span class="truncate">{{ item.label }}</span>
+                </span>
+                <span class="text-xs opacity-70 {% if section == item.key %}text-white{% else %}text-loomera-textMuted group-hover:text-loomera-primary{% endif %}">←</span>
+              </a>
+            {% endfor %}
+          </nav>
+          <a href="/" class="mt-4 flex items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2.5 text-xs font-black text-loomera-textMuted transition hover:border-loomera-primary/30 hover:text-loomera-primary">بازگشت به سایت</a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="min-w-0 flex-1">
+      {% if messages %}
+        <div class="mb-4 space-y-2">
+          {% for message in messages %}
+            <div class="rounded-3xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-semibold text-loomera-textPrimary shadow-sm">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% block platform_content %}{% endblock %}
+    </main>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}انتخاب متخصص{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/essential.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 pb-24">
+    
+    <!-- Header -->
+    <div class="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div class="flex items-center justify-between px-4 py-3">
+            <button onclick="history.back()" 
+                    class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fa-solid fa-arrow-right text-xl text-gray-700"></i>
+            </button>
+            
+            <h1 class="text-xl font-bold flex-1 text-center pr-10">انتخاب متخصص</h1>
+            
+            <button onclick="window.history.back()" 
+                    class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fa-solid fa-xmark text-xl text-gray-700"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="px-4 py-6 space-y-6">
+        
+        {% for service in services %}
+        <!-- Service Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden transition-shadow hover:shadow-md">
+            
+            <!-- Service Header -->
+            <div class="bg-gradient-to-r from-loomera-primarySoft to-loomera-secondarySoft px-4 py-3 border-b border-loomera-primary/25">
+                <h3 class="font-bold text-gray-900">{{ service.service_name }}</h3>
+                <div class="flex items-center gap-3 text-sm text-gray-600 mt-1">
+                    <span class="flex items-center gap-1">
+                        <i class="fa-regular fa-clock"></i>
+                        {{ service.duration_minutes }} دقیقه
+                    </span>
+                    <span class="w-1 h-1 rounded-full bg-gray-400"></span>
+                    <span class="flex items-center gap-1">
+                        <i class="fa-solid fa-coins"></i>
+                        از {{ service.min_price|floatformat:0 }} تومان
+                    </span>
+                </div>
+            </div>
+
+            <!-- "هر متخصصی" Option -->
+            <div class="p-4 border-b border-gray-100">
+                <button type="button" 
+                        data-service-id="{{ service.pk }}"
+                        data-service-name="{{ service.service_name }}"
+                        data-service-duration="{{ service.duration_minutes }}"
+                        data-stylist-id="any"
+                        data-stylist-name="هر متخصصی"
+                        data-stylist-price="0"
+                        class="stylist-option w-full flex items-center justify-between p-3 rounded-xl border-2 border-gray-200 hover:border-loomera-primary hover:bg-loomera-primarySoft transition-all duration-200 group">
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-loomera-secondary to-loomera-primaryHover flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-users text-white text-lg"></i>
+                        </div>
+                        
+                        <div class="text-right">
+                            <h4 class="font-bold text-gray-900">هر متخصصی</h4>
+                            <p class="text-xs text-gray-500">برای دیدن زمان‌های در دسترس بیشتر</p>
+                        </div>
+                    </div>
+
+                    <div class="selection-indicator hidden w-6 h-6 rounded-full bg-loomera-primary flex items-center justify-center scale-0 transition-transform">
+                        <i class="fa-solid fa-check text-white text-sm"></i>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Stylists List -->
+            <div class="divide-y divide-gray-100">
+                {% for stylist in stylists %}
+                <!-- ✅ محاسبه قیمت این متخصص برای این سرویس -->
+                {% with stylist_price=stylist.stylist_prices.all|dictsort:"service.id"|first %}
+                
+                <button type="button" 
+                        data-service-id="{{ service.pk }}"
+                        data-service-name="{{ service.service_name }}"
+                        data-service-duration="{{ service.duration_minutes }}"
+                        data-stylist-id="{{ stylist.pk }}"
+                        data-stylist-name="{{ stylist.user.get_fullName|default:stylist.user.name }}"
+                        data-stylist-profile-image="{% if stylist.profile_image %}{{ stylist.profile_image.url }}{% endif %}"
+                        data-stylist-price="{% for price in stylist.stylist_prices.all %}{% if price.service.id == service.pk %}{{ price.price }}{% endif %}{% endfor %}"
+                        class="stylist-option w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group">
+                    
+                    <div class="flex items-center gap-3 flex-1">
+                        <!-- Avatar -->
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-loomera-secondary to-loomera-primaryHover flex items-center justify-center flex-shrink-0 overflow-hidden text-white font-bold group-hover:scale-105 transition-transform">
+                            {% if stylist.profile_image %}
+                                <img src="{{ stylist.profile_image.url }}" 
+                                     alt="{{ stylist.user.get_fullName }}"
+                                     class="w-full h-full object-cover">
+                            {% else %}
+                                {{ stylist.user.name|first|upper }}
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Name & Info -->
+                        <div class="text-right flex-1">
+                            <h4 class="font-semibold text-gray-900">{{ stylist.user.get_fullName|default:stylist.user.name }}</h4>
+                            
+                            <!-- ✅ نمایش قیمت -->
+                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                {% for price in stylist.stylist_prices.all %}
+                                    {% if price.service.id == service.pk %}
+                                        <span class="inline-flex items-center gap-1 text-sm font-bold text-loomera-primaryText">
+                                            <i class="fa-solid fa-coins text-xs"></i>
+                                            {{ price.price|floatformat:0 }} تومان
+                                        </span>
+                                    {% endif %}
+                                {% empty %}
+                                    <span class="text-xs text-gray-400">
+                                        قیمت تعیین نشده
+                                    </span>
+                                {% endfor %}
+                                
+                                <!-- تخصص -->
+                                {% if stylist.expert %}
+                                <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                <span class="text-xs text-gray-500">{{ stylist.expert }}</span>
+                                {% endif %}
+                                
+                                <!-- امتیاز -->
+                                {% if stylist.get_average_score %}
+                                <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                <span class="inline-flex items-center gap-1">
+                                    <i class="fa-solid fa-star text-yellow-400 text-xs"></i>
+                                    <span class="text-xs text-gray-600">{{ stylist.get_average_score|floatformat:1 }}</span>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Check Mark -->
+                    <div class="selection-indicator hidden w-6 h-6 rounded-full bg-loomera-primary flex items-center justify-center scale-0 transition-transform flex-shrink-0 mr-2">
+                        <i class="fa-solid fa-check text-white text-sm"></i>
+                    </div>
+                </button>
+                
+                {% endwith %}
+                {% empty %}
+                <div class="p-4 text-center text-gray-500">
+                    <i class="fa-solid fa-user-slash text-2xl mb-2"></i>
+                    <p class="text-sm">متخصصی برای این خدمت در دسترس نیست</p>
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="text-center py-12 text-gray-500">
+            <i class="fa-solid fa-box-open text-4xl mb-4"></i>
+            <p>هیچ خدمتی انتخاب نشده است</p>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<!-- Bottom Action Bar -->
+<div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 px-4 py-4 z-40 shadow-lg">
+    <button id="continueBtn" 
+            type="button"
+            class="w-full py-4 bg-loomera-primary text-white rounded-full font-bold text-lg hover:bg-loomera-primaryHover hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 transition-all duration-200 shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50 disabled:translate-y-0">
+        ادامه
+    </button>
+</div>
+
+<!-- Hidden form -->
+<form id="stylistSelectionForm" method="POST" action="" class="hidden">
+    {% csrf_token %}
+    <input type="hidden" name="salon_id" value="{{ salon_id }}" data-salon-id="{{ salon_id }}">
+    <input type="hidden" name="stylist_selections" id="stylistSelectionsInput">
+</form>
+
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'js/select_stylist.js' %}"></script>
+{% endblock %}

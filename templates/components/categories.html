@@ -1,0 +1,34 @@
+{% load static %}
+<section class="mt-6 px-4">
+  <div class="mb-4 flex items-center justify-between gap-4">
+    <h3 class="text-lg font-bold text-slate-950">دسته‌بندی خدمات</h3>
+    <span class="text-xs text-slate-500">نتیجه‌ها بر اساس مجموعه نمایش داده می‌شوند</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    {% for group in service_groups %}
+      <a href="{% url 'search:search_page' %}?group={{ group.id }}"
+         data-search-group="{{ group.id }}" data-group-title="{{ group.group_title }}"
+         class="group flex h-28 items-center justify-between overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-loomera-primary/20 hover:shadow-md active:scale-95">
+        <div class="flex-1 px-3">
+          <p class="line-clamp-2 text-sm font-bold leading-snug text-slate-900">
+            {{ group.group_title }}
+          </p>
+          <p class="mt-2 text-[11px] leading-5 text-slate-500">مشاهده مجموعه‌های این دسته</p>
+        </div>
+
+        <div class="flex h-full w-24 flex-shrink-0 items-center justify-center bg-loomera-primarySoft/60">
+          {% if group.loomera_asset_key %}
+            {% include "partials/brand/category_icon.html" with asset_key=group.loomera_asset_key alt_text=group.group_title class_name="h-20 w-20 object-contain" %}
+          {% elif group.group_image %}
+            <img src="{% url 'services:group_service_image' group.id %}"
+                 alt="{{ group.group_title }}"
+                 class="h-full w-full object-cover">
+          {% else %}
+            {% include "partials/brand/category_icon.html" with asset_key="all-services" alt_text=group.group_title class_name="h-20 w-20 object-contain" %}
+          {% endif %}
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>

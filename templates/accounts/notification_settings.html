@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}تنظیمات اعلان‌ها{% endblock %}
+{% block body_attrs %}data-page="notification-settings"{% endblock %}
+
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-32 text-loomera-textPrimary lg:pb-16">
+  <header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl lg:hidden">
+    <div class="mx-auto flex max-w-md items-center gap-3">
+      <a href="{% url 'accounts:customer_settings' %}"
+         class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-loomera-primarySoft text-loomera-primary shadow-lm-soft transition active:scale-95"
+         aria-label="بازگشت به تنظیمات">
+        <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+      </a>
+
+      <div class="min-w-0 flex-1">
+        <p class="text-xs font-black text-loomera-primary">تنظیمات حساب</p>
+        <h1 class="truncate text-base font-black text-loomera-textPrimary">تنظیمات اعلان‌ها</h1>
+      </div>
+    </div>
+  </header>
+
+  <div class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 pt-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-6 lg:pt-8 xl:px-0">
+    <div class="min-w-0 space-y-5">
+      <section class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-card" aria-labelledby="notificationSettingsTitle">
+        <div class="relative isolate p-5 lg:p-7">
+          <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(167,200,161,0.22),transparent_36%),linear-gradient(135deg,rgba(238,232,250,0.94),rgba(255,255,255,0.98))]"></div>
+
+          <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div class="min-w-0">
+              <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-loomera-primary/15 bg-white/75 px-3 py-1 text-xs font-black text-loomera-primary shadow-sm backdrop-blur">
+                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-loomera-primary text-white shadow-sm">
+                  <i class="fa-solid fa-bell text-[10px]" aria-hidden="true"></i>
+                </span>
+                <span>Notification Center</span>
+              </div>
+
+              <h1 id="notificationSettingsTitle" class="text-2xl font-black leading-9 text-loomera-textPrimary lg:text-4xl lg:leading-[3.2rem]">
+                تنظیمات اعلان‌ها
+              </h1>
+              <p class="mt-2 max-w-2xl text-sm font-semibold leading-7 text-loomera-textMuted">
+                پیام‌های ضروری نوبت، پرداخت و حساب همیشه جدا از پیام‌های تبلیغاتی مدیریت می‌شوند. کانال‌های پیام‌رسان مثل بله از بخش اتصال ربات کنترل می‌شوند.
+              </p>
+            </div>
+
+            <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <a href="{% url 'messaging:preferences' %}"
+                 class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                <i class="fa-solid fa-paper-plane text-xs" aria-hidden="true"></i>
+                پیام‌رسان‌ها
+              </a>
+              <a href="{% url 'accounts:customer_settings' %}"
+                 class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary">
+                <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+                بازگشت
+              </a>
+            </div>
+          </div>
+
+          <div class="mt-5 grid gap-3 sm:grid-cols-3">
+            <div class="rounded-3xl border border-white/80 bg-white/80 p-4 shadow-sm backdrop-blur">
+              <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primary text-white shadow-lm-soft">
+                <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+              </span>
+              <p class="mt-3 text-xs font-black text-loomera-textMuted">رزروها</p>
+              <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">یادآوری، تغییر زمان و لغو</strong>
+            </div>
+            <div class="rounded-3xl border border-white/80 bg-white/80 p-4 shadow-sm backdrop-blur">
+              <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-secondary text-white shadow-lm-soft">
+                <i class="fa-solid fa-credit-card" aria-hidden="true"></i>
+              </span>
+              <p class="mt-3 text-xs font-black text-loomera-textMuted">پرداخت</p>
+              <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">تسویه و ثبت دیدگاه</strong>
+            </div>
+            <div class="rounded-3xl border border-white/80 bg-white/80 p-4 shadow-sm backdrop-blur">
+              <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-accent text-white shadow-lm-soft">
+                <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+              </span>
+              <p class="mt-3 text-xs font-black text-loomera-textMuted">کنترل کامل</p>
+              <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">روشن/خاموش برای هر کانال</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="notificationStatus"
+           class="hidden rounded-[1.5rem] border px-4 py-3 text-sm font-bold shadow-lm-soft"
+           role="status"
+           aria-live="polite"></div>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-card" aria-labelledby="appointmentNotificationsTitle">
+        <div class="flex items-start gap-4 border-b border-loomera-borderSoft p-5 lg:p-6">
+          <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primary text-white shadow-lm-soft">
+            <i class="fa-solid fa-calendar-day text-lg" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0">
+            <h2 id="appointmentNotificationsTitle" class="text-xl font-black text-loomera-textPrimary">اعلان‌های نوبت و پرداخت</h2>
+            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">برای تأیید، یادآوری، تغییر زمان، لغو، پرداخت و فعال شدن ثبت دیدگاه. پیشنهاد می‌شود پیامک نوبت روشن بماند.</p>
+          </div>
+        </div>
+
+        <div class="grid gap-3 p-4 lg:grid-cols-2 lg:p-5">
+          <article class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:bg-loomera-primarySoft/20">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex min-w-0 items-start gap-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primary text-white shadow-lm-soft">
+                  <i class="fa-solid fa-comment-sms" aria-hidden="true"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-sm font-black text-loomera-textPrimary">پیامک نوبت</p>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">یادآوری و رخدادهای ضروری رزرو روی شماره موبایل حساب.</p>
+                </div>
+              </div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="appointmentSmsToggle" name="notify_appointment_sms" {% if customer.notify_appointment_sms %}checked{% endif %} data-field="notify_appointment_sms" class="notification-toggle sr-only">
+                <label for="appointmentSmsToggle" class="notification-switch block h-8 w-14 cursor-pointer rounded-full border p-1 shadow-inner transition-colors duration-200 {% if customer.notify_appointment_sms %}border-loomera-primary bg-loomera-primary{% else %}border-loomera-primary/25 bg-loomera-primarySoft/70{% endif %}" data-switch-label>
+                  <span class="notification-switch-knob block h-6 w-6 rounded-full border shadow-lm-soft transition-transform duration-200 {% if customer.notify_appointment_sms %}translate-x-6 border-white/80 bg-loomera-accent{% else %}translate-x-0 border-loomera-primary bg-loomera-primary{% endif %}"></span>
+                </label>
+              </div>
+            </div>
+          </article>
+
+          <article class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:bg-loomera-primarySoft/20">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex min-w-0 items-start gap-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm">
+                  <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-sm font-black text-loomera-textPrimary">واتس‌اپ نوبت</p>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">رزرو، پرداخت و یادآوری در واتس‌اپ، در صورت فعال بودن سرویس.</p>
+                </div>
+              </div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="appointmentWhatsappToggle" name="notify_appointment_whatsapp" {% if customer.notify_appointment_whatsapp %}checked{% endif %} data-field="notify_appointment_whatsapp" class="notification-toggle sr-only">
+                <label for="appointmentWhatsappToggle" class="notification-switch block h-8 w-14 cursor-pointer rounded-full border p-1 shadow-inner transition-colors duration-200 {% if customer.notify_appointment_whatsapp %}border-loomera-primary bg-loomera-primary{% else %}border-loomera-primary/25 bg-loomera-primarySoft/70{% endif %}" data-switch-label>
+                  <span class="notification-switch-knob block h-6 w-6 rounded-full border shadow-lm-soft transition-transform duration-200 {% if customer.notify_appointment_whatsapp %}translate-x-6 border-white/80 bg-loomera-accent{% else %}translate-x-0 border-loomera-primary bg-loomera-primary{% endif %}"></span>
+                </label>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-card" aria-labelledby="messagingChannelsTitle">
+        <div class="flex items-start gap-4 border-b border-loomera-borderSoft p-5 lg:p-6">
+          <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-accent text-white shadow-lm-soft">
+            <i class="fa-solid fa-robot text-lg" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0">
+            <h2 id="messagingChannelsTitle" class="text-xl font-black text-loomera-textPrimary">کانال‌های پیام‌رسان</h2>
+            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">اتصال ربات و کانال‌های آینده از بخش پیام‌رسان‌ها انجام می‌شود؛ اینجا فقط وضعیت و مسیر سریع دسترسی را می‌بینی.</p>
+          </div>
+        </div>
+
+        <div class="grid gap-3 p-4 lg:grid-cols-2 lg:p-5">
+          <article class="rounded-[1.75rem] border border-loomera-primary/15 bg-loomera-primarySoft/35 p-4">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex min-w-0 items-start gap-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm">
+                  <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-sm font-black text-loomera-textPrimary">بله</p>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فعال برای اتصال ربات، نوبت‌ها، اعلان‌ها و منوی نقش‌ها.</p>
+                </div>
+              </div>
+              <a href="{% url 'messaging:status' %}" class="inline-flex shrink-0 items-center justify-center rounded-full bg-white px-3 py-2 text-xs font-black text-loomera-primary shadow-sm ring-1 ring-loomera-primary/10 transition hover:bg-loomera-primary hover:text-white">
+                مدیریت
+              </a>
+            </div>
+          </article>
+
+          <article class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex min-w-0 items-start gap-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-sky-600 shadow-sm">
+                  <i class="fa-brands fa-telegram" aria-hidden="true"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-sm font-black text-loomera-textPrimary">تلگرام</p>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای فاز بعدی آماده شده و بعد از فعال‌سازی از همین بخش مدیریت می‌شود.</p>
+                </div>
+              </div>
+              <span class="inline-flex shrink-0 rounded-full bg-slate-100 px-3 py-2 text-xs font-black text-slate-600">به‌زودی</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-card" aria-labelledby="marketingNotificationsTitle">
+        <div class="flex items-start gap-4 border-b border-loomera-borderSoft p-5 lg:p-6">
+          <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-secondary text-white shadow-lm-soft">
+            <i class="fa-solid fa-bullhorn text-lg" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0">
+            <h2 id="marketingNotificationsTitle" class="text-xl font-black text-loomera-textPrimary">اعلان‌های پیشنهاد و خبر</h2>
+            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">این بخش روی رزروهای ضروری اثر ندارد و هر زمان خواستی می‌توانی آن را تغییر بدهی.</p>
+          </div>
+        </div>
+
+        <div class="grid gap-3 p-4 lg:grid-cols-3 lg:p-5">
+          <article class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:bg-loomera-primarySoft/20">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex min-w-0 items-start gap-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-info text-white shadow-lm-soft">
+                  <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-sm font-black text-loomera-textPrimary">ایمیل</p>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">خبرها و پیشنهادهای غیرضروری.</p>
+                </div>
+              </div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="marketingEmailToggle" name="notify_marketing_email" {% if customer.notify_marketing_email %}checked{% endif %} data-field="notify_marketing_email" class="notification-toggle sr-only">
+                <label for="marketingEmailToggle" class="notification-switch block h-8 w-14 cursor-pointer rounded-full border p-1 shadow-inner transition-colors duration-200 {% if customer.notify_marketing_email %}border-loomera-primary bg-loomera-primary{% else %}border-loomera-primary/25 bg-loomera-primarySoft/70{% endif %}" data-switch-label>
+                  <span class="notification-switch-knob block h-6 w-6 rounded-full border shadow-lm-soft transition-transform duration-200 {% if customer.notify_marketing_email %}translate-x-6 border-white/80 bg-loomera-accent{% else %}translate-x-0 border-loomera-primary bg-loomera-primary{% endif %}"></span>
+                </label>
+              </div>
+            </div>
+          </article>
+
+          <article class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:bg-loomera-primarySoft/20">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex min-w-0 items-start gap-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primary text-white shadow-lm-soft">
+                  <i class="fa-solid fa-comment-sms" aria-hidden="true"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-sm font-black text-loomera-textPrimary">پیامک</p>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">پیشنهادهای کوتاه و زمان‌دار.</p>
+                </div>
+              </div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="marketingSmsToggle" name="notify_marketing_sms" {% if customer.notify_marketing_sms %}checked{% endif %} data-field="notify_marketing_sms" class="notification-toggle sr-only">
+                <label for="marketingSmsToggle" class="notification-switch block h-8 w-14 cursor-pointer rounded-full border p-1 shadow-inner transition-colors duration-200 {% if customer.notify_marketing_sms %}border-loomera-primary bg-loomera-primary{% else %}border-loomera-primary/25 bg-loomera-primarySoft/70{% endif %}" data-switch-label>
+                  <span class="notification-switch-knob block h-6 w-6 rounded-full border shadow-lm-soft transition-transform duration-200 {% if customer.notify_marketing_sms %}translate-x-6 border-white/80 bg-loomera-accent{% else %}translate-x-0 border-loomera-primary bg-loomera-primary{% endif %}"></span>
+                </label>
+              </div>
+            </div>
+          </article>
+
+          <article class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:bg-loomera-primarySoft/20">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex min-w-0 items-start gap-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm">
+                  <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-sm font-black text-loomera-textPrimary">واتس‌اپ</p>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">پیشنهادها در واتس‌اپ، در صورت فعال بودن سرویس.</p>
+                </div>
+              </div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="marketingWhatsappToggle" name="notify_marketing_whatsapp" {% if customer.notify_marketing_whatsapp %}checked{% endif %} data-field="notify_marketing_whatsapp" class="notification-toggle sr-only">
+                <label for="marketingWhatsappToggle" class="notification-switch block h-8 w-14 cursor-pointer rounded-full border p-1 shadow-inner transition-colors duration-200 {% if customer.notify_marketing_whatsapp %}border-loomera-primary bg-loomera-primary{% else %}border-loomera-primary/25 bg-loomera-primarySoft/70{% endif %}" data-switch-label>
+                  <span class="notification-switch-knob block h-6 w-6 rounded-full border shadow-lm-soft transition-transform duration-200 {% if customer.notify_marketing_whatsapp %}translate-x-6 border-white/80 bg-loomera-accent{% else %}translate-x-0 border-loomera-primary bg-loomera-primary{% endif %}"></span>
+                </label>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-dashed border-loomera-borderSoft bg-white p-5 shadow-lm-soft lg:p-6">
+        <div class="flex flex-col items-center gap-3 text-center sm:flex-row sm:text-right">
+          <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primary text-white shadow-lm-soft">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          </span>
+          <p class="text-sm font-semibold leading-7 text-loomera-textMuted">
+            اعلان‌های امنیتی و عملیاتی حیاتی ممکن است برای حفظ حساب و نوبت‌ها از مسیرهای ضروری ارسال شوند. پیام‌های تبلیغاتی کاملاً اختیاری‌اند.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <aside class="hidden lg:block">
+      <div class="sticky top-24 space-y-4">
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+          <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primary text-white shadow-lm-soft">
+            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+          </div>
+          <h2 class="mt-4 text-lg font-black text-loomera-textPrimary">پیشنهاد تنظیمات</h2>
+          <p class="mt-3 text-sm font-semibold leading-7 text-loomera-textMuted">
+            اعلان‌های نوبت و پرداخت را روشن نگه دار تا تغییرات رزرو، تسویه و زمان ثبت دیدگاه را از دست ندهی.
+          </p>
+        </section>
+
+        <nav class="rounded-[2rem] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft" aria-label="میانبرهای حساب">
+          <a href="{% url 'messaging:preferences' %}"
+             class="flex items-center justify-between rounded-2xl px-3 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <span class="inline-flex items-center gap-3">
+              <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-paper-plane text-xs" aria-hidden="true"></i>
+              </span>
+              تنظیمات پیام‌رسان‌ها
+            </span>
+            <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+          </a>
+          <a href="{% url 'accounts:customer_settings' %}"
+             class="flex items-center justify-between rounded-2xl px-3 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <span class="inline-flex items-center gap-3">
+              <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-gear text-xs" aria-hidden="true"></i>
+              </span>
+              تنظیمات
+            </span>
+            <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+          </a>
+          <a href="{% url 'accounts:customer_panel' %}"
+             class="flex items-center justify-between rounded-2xl px-3 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <span class="inline-flex items-center gap-3">
+              <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-loomera-primarySoft text-loomera-primary">
+                <i class="fa-solid fa-user text-xs" aria-hidden="true"></i>
+              </span>
+              حساب من
+            </span>
+            <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+          </a>
+        </nav>
+      </div>
+    </aside>
+  </div>
+
+  <div class="hidden">
+    {% csrf_token %}
+  </div>
+</main>
+{% endblock %}

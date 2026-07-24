@@ -1,0 +1,36 @@
+<script>
+  (function () {
+    if (window.__loomeraSmartBackBound) return;
+    window.__loomeraSmartBackBound = true;
+
+    function canUseHistoryBack() {
+      if (window.history.length <= 1) return false;
+      if (!document.referrer) return false;
+
+      try {
+        return new URL(document.referrer).origin === window.location.origin;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    document.addEventListener("click", function (event) {
+      const trigger = event.target.closest("[data-smart-back]");
+      if (!trigger) return;
+
+      event.preventDefault();
+
+      const fallbackUrl =
+        trigger.getAttribute("data-fallback-url") ||
+        trigger.getAttribute("href") ||
+        "/";
+
+      if (canUseHistoryBack()) {
+        window.history.back();
+        return;
+      }
+
+      window.location.href = fallbackUrl;
+    });
+  })();
+</script>

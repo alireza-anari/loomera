@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title desc">
+<title>Loomera amenity icon — Private Room</title>
+<desc>room boundary + internal divider / compact / light mode</desc>
+
+<g>
+<rect x="16" y="18" width="32" height="30" rx="8" stroke="#6B55B3" stroke-width="4.25" fill="none"/>
+<path d="M32 18L32 48" stroke="#6B55B3" stroke-width="3.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="36" cy="33" r="1.9" fill="#6B55B3"/>
+</g>
+</svg>

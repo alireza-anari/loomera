@@ -1,0 +1,28 @@
+{
+  "name": "Loomera",
+  "short_name": "Loomera",
+  "description": "Discovery and booking for beauty, aesthetic treatments, massage, and wellness.",
+  "icons": [
+    {
+      "src": "/static/branding/favicon/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/branding/favicon/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/branding/favicon/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#735CBE",
+  "background_color": "#FCFBFE",
+  "display": "standalone"
+}

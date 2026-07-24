@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <title>social-template-story-brand</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1920" fill="url(#gradStory)"/>
+<circle cx="850" cy="340" r="220" fill="#F8F5FE"/>
+<circle cx="920" cy="280" r="108" fill="#9B80E0" opacity="0.22"/>
+<g id="logo-slot"><rect x="852" y="120" width="138" height="34" rx="10" fill="none" stroke="#DDD8E8" stroke-dasharray="6 6"/><text x="921.0" y="143" font-family="Inter, sans-serif" font-size="15" fill="#7A738F" text-anchor="middle">LOGO</text></g>
+<g id="badge"><rect x="72" y="120" width="166" height="40" rx="18" fill="#FFFFFF" stroke="#DDD8E8"/><text x="220" y="146" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#57526E" text-anchor="end">Story / Brand</text></g>
+<text x="1008" y="478" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="78" font-weight="650" fill="#2E2A3C" text-anchor="end">آرام‌تر انتخاب کنید</text>
+<text x="1008" y="572" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="78" font-weight="650" fill="#2E2A3C" text-anchor="end">روشن‌تر رزرو کنید</text>
+<text x="1008" y="682" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="34" fill="#57526E" text-anchor="end">قاب story برای brand moment، launch tease یا calm awareness</text>
+<g id="placeholder"><rect x="72" y="860" width="936" height="620" rx="42" fill="#FFFFFF" stroke="#DDD8E8" stroke-dasharray="10 10"/><text x="540.0" y="1170.0" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" font-weight="500" fill="#7A738F" text-anchor="middle">جای تصویر / artwork / motion layer</text></g>
+<g id="cta"><rect x="72" y="1606" width="198" height="54" rx="27" fill="#735CBE"/><text x="171.0" y="1641" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="21" font-weight="600" fill="#FFFFFF" text-anchor="middle">آشنایی بیشتر</text></g>
+
+</svg>

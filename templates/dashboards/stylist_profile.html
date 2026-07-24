@@ -1,0 +1,928 @@
+{% extends "dashboard_template.html" %}
+{% load jalali_extras %}
+{% load messaging_connect %}
+{% block title %}پروفایل من{% endblock %}
+{% block body_attrs %}data-page="stylist-profile"{% endblock %}
+
+{% block content %}
+  {% url 'dashboards:stylist_schedule' as stylist_schedule_url %}
+  {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
+  {% url 'dashboards:stylist_quick_links' as stylist_quick_links_url %}
+
+  <section class="min-w-0 max-w-full space-y-5 overflow-visible" data-dashboard-workspace-root data-dashboard-page="stylist-profile">
+    {% include "dashboards/components/page_hero.html" with eyebrow="پروفایل حرفه‌ای" eyebrow_icon="fa-regular fa-id-card" title="پروفایل من" description="اطلاعات پایه، تخصص، رزومه، تصویر حرفه‌ای، تماس اضطراری و همکاری‌های خودت را مدیریت کن." action_label="برنامه من" action_url=stylist_schedule_url badges=page_meta.badges %}
+
+    {% bale_connect_card %}
+
+    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
+      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش پروفایل متخصص">
+        <div class="flex min-w-max gap-2">
+          <button type="button" data-dashboard-workspace-tab data-target="#stylist-profile-section-summary" aria-selected="true" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5">
+            <i class="fa-regular fa-id-card text-[10px]" aria-hidden="true"></i>
+            <span>خلاصه</span>
+          </button>
+
+          <button type="button" data-dashboard-workspace-tab data-target="#stylist-profile-section-services" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
+            <i class="fa-solid fa-scissors text-[10px]" aria-hidden="true"></i>
+            <span>خدمات</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ stylist_profile_summary.active_services|length }}</span>
+          </button>
+
+          <button type="button" data-dashboard-workspace-tab data-target="#stylist-profile-section-portfolio" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
+            <i class="fa-regular fa-images text-[10px]" aria-hidden="true"></i>
+            <span>نمونه‌کارها</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ portfolio_count_label|default:"۰" }}</span>
+          </button>
+
+          <button type="button" data-dashboard-workspace-tab data-target="#stylist-profile-section-edit" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
+            <i class="fa-solid fa-pen-to-square text-[10px]" aria-hidden="true"></i>
+            <span>ویرایش پروفایل</span>
+          </button>
+
+          <button type="button" data-dashboard-workspace-tab data-target="#stylist-profile-section-collaboration" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
+            <i class="fa-solid fa-handshake text-[10px]" aria-hidden="true"></i>
+            <span>همکاری‌ها</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ stylist_collaboration_workspace.memberships|length }}</span>
+          </button>
+
+          <button type="button" data-dashboard-workspace-tab data-target="#stylist-profile-section-quick-actions" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
+            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
+            <span>مسیرها</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <details id="stylist-profile-section-summary"
+             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-dashboard-workspace-open-mobile="true"
+             open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">هویت حرفه‌ای</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">{{ stylist_profile_summary.headline }}</h2>
+          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
+            {{ stylist_profile_summary.expert }} • {{ stylist_profile_summary.salon_name }}
+          </p>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="grid gap-4 p-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)] sm:p-5 lg:p-6">
+        <article class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <p class="text-xs font-black text-loomera-primaryText">پروفایل حرفه‌ای</p>
+              <h3 class="mt-2 text-xl font-black text-loomera-textPrimary">{{ stylist_profile_summary.headline }}</h3>
+              <p class="mt-2 text-sm font-bold text-loomera-textSecondary">{{ stylist_profile_summary.expert }}</p>
+              <p class="mt-2 text-xs text-loomera-textMuted">{{ stylist_profile_summary.salon_name }}</p>
+            </div>
+
+            {% if dashboard_header.manager_avatar_url %}
+              <img src="{{ dashboard_header.manager_avatar_url }}" alt="{{ stylist_profile_summary.headline }}" class="h-16 w-16 shrink-0 rounded-[24px] border border-loomera-borderSoft object-cover shadow-lm-soft">
+            {% else %}
+              <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-[24px] bg-loomera-primary text-lg font-black text-white shadow-lm-soft">
+                {{ dashboard_header.manager_initial }}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="mt-5 grid gap-3 sm:grid-cols-3">
+            <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4">
+              <p class="text-xs text-loomera-textMuted">تکمیل پروفایل</p>
+              <p class="mt-2 text-sm font-black text-loomera-textPrimary">{{ stylist_profile_summary.profile_completion_label }}</p>
+            </div>
+
+            <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4">
+              <p class="text-xs text-loomera-textMuted">شیفت بعدی</p>
+              <p class="mt-2 text-sm font-black text-loomera-textPrimary">{{ stylist_profile_summary.next_shift_label }}</p>
+              <p class="mt-1 text-xs text-loomera-textMuted">{{ stylist_profile_summary.next_shift_meta }}</p>
+            </div>
+
+            <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4">
+              <p class="text-xs text-loomera-textMuted">مرخصی نزدیک</p>
+              <p class="mt-2 text-sm font-black text-loomera-textPrimary">{{ stylist_profile_summary.next_time_off_label }}</p>
+              <p class="mt-1 text-xs text-loomera-textMuted">{{ stylist_profile_summary.next_time_off_meta }}</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-xs font-black text-loomera-primaryText">وضعیت همکاری</p>
+              <h3 class="mt-1 text-base font-black text-loomera-textPrimary">مجموعه‌های من</h3>
+            </div>
+            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="fa-solid fa-building-user" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="mt-5 grid grid-cols-2 gap-3 text-center text-xs">
+            <div class="rounded-2xl bg-emerald-50 px-4 py-4">
+              <p class="font-bold text-emerald-700">فعال</p>
+              <p class="mt-2 text-lg font-black text-emerald-800">{{ stylist_collaboration_workspace.active_count_label }}</p>
+            </div>
+            <div class="rounded-2xl bg-amber-50 px-4 py-4">
+              <p class="font-bold text-amber-700">در انتظار</p>
+              <p class="mt-2 text-lg font-black text-amber-800">{{ stylist_collaboration_workspace.pending_count_label }}</p>
+            </div>
+          </div>
+
+          {% if not stylist_collaboration_workspace.can_request %}
+            <div class="mt-4 rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-7 text-amber-800">
+              <p class="font-black">پروفایل برای ارسال درخواست همکاری کامل نیست.</p>
+              <p class="mt-2">{{ stylist_collaboration_workspace.readiness.missing_items_label }}</p>
+            </div>
+          {% else %}
+            <div class="mt-4 rounded-[22px] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm leading-7 text-emerald-800">
+              <p class="font-black">پروفایل آماده ارسال درخواست همکاری است.</p>
+              <p class="mt-1">می‌توانی از بخش همکاری‌ها برای سالن جدید درخواست ارسال کنی.</p>
+            </div>
+          {% endif %}
+        </article>
+      </div>
+    </details>
+
+    <details id="stylist-profile-section-services"
+             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">خدمات مجموعه فعال</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">پوشش خدمات من</h2>
+          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
+            فقط خدمات فعال شما در مجموعه فعال فعلی نمایش داده می‌شود.
+          </p>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3 sm:p-5 lg:p-6">
+        {% for service in stylist_profile_summary.active_services %}
+          <article class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 text-sm text-loomera-textSecondary">
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-sm font-black text-loomera-textPrimary">{{ service.name }}</p>
+              <span class="text-sm font-black text-loomera-primaryText">{{ service.price_label }}</span>
+            </div>
+            <p class="mt-2 text-xs text-loomera-textMuted">{{ service.duration_label }}</p>
+          </article>
+        {% empty %}
+          <div class="md:col-span-2 xl:col-span-3">
+            {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-scissors" title="هنوز خدمتی روی پروفایل شما فعال نیست" description="بعد از اتصال خدمات توسط مدیر مجموعه، پوشش خدمات شما اینجا نمایش داده می‌شود." %}
+          </div>
+        {% endfor %}
+      </div>
+    </details>
+
+    <details id="stylist-profile-section-portfolio"
+             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">گالری حرفه‌ای</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">نمونه‌کارهای من</h2>
+          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
+            تصویرهای منتشرشده این بخش در صفحه عمومی سالن، کنار نام متخصص نمایش داده می‌شود.
+          </p>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="space-y-5 p-4 sm:p-5 lg:p-6">
+        {% if stylist_can_manage_own_portfolio %}
+          <form method="post" enctype="multipart/form-data" class="grid gap-4 rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,0.9fr)_auto] lg:items-end">
+            {% csrf_token %}
+            <input type="hidden" name="profile_action" value="add_work_sample">
+
+            <div>
+              <label for="{{ work_sample_form.service.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ work_sample_form.service.label }}</label>
+              {{ work_sample_form.service }}
+              {% if work_sample_form.service.errors %}
+                <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                  {% for error in work_sample_form.service.errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+
+            <div>
+              <label for="{{ work_sample_form.sample_image.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ work_sample_form.sample_image.label }}</label>
+              {{ work_sample_form.sample_image }}
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">JPG، PNG یا WEBP تا ۲ مگابایت و حداکثر ۱۹۲۰×۱۰۸۰.</p>
+              {% if work_sample_form.sample_image.errors %}
+                <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                  {% for error in work_sample_form.sample_image.errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="lg:self-stretch">
+              <button type="submit" class="inline-flex h-full min-h-12 w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
+                <i class="fa-solid fa-cloud-arrow-up text-xs" aria-hidden="true"></i>
+                بارگذاری نمونه‌کار
+              </button>
+            </div>
+
+            <div class="lg:col-span-3">
+              <label for="{{ work_sample_form.description.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ work_sample_form.description.label }}</label>
+              {{ work_sample_form.description }}
+              {% if work_sample_form.description.errors or work_sample_form.non_field_errors %}
+                <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                  {% for error in work_sample_form.description.errors %}<p>{{ error }}</p>{% endfor %}
+                  {% for error in work_sample_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </form>
+        {% else %}
+          <div class="rounded-[24px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-7 text-amber-800">
+            <p class="font-black">مدیریت نمونه‌کار برای شما فعال نیست.</p>
+            <p class="mt-1">مدیر مجموعه می‌تواند این دسترسی را از بخش دسترسی‌های متخصص تغییر دهد.</p>
+          </div>
+        {% endif %}
+
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {% for item in portfolio_samples %}
+            <article class="overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+              {% if item.image_url %}
+                <img src="{{ item.image_url }}" alt="نمونه‌کار {{ item.service_name }}" class="h-44 w-full object-cover">
+              {% else %}
+                <div class="flex h-44 items-center justify-center bg-loomera-bgSubtle text-loomera-textMuted">
+                  <i class="fa-regular fa-image text-2xl" aria-hidden="true"></i>
+                </div>
+              {% endif %}
+
+              <div class="space-y-3 p-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service_name }}</p>
+                    <p class="mt-1 text-xs text-loomera-textMuted">{{ item.salon_name }}</p>
+                  </div>
+                  <span class="inline-flex shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black text-emerald-700">{{ item.status_label }}</span>
+                </div>
+
+                {% if item.description %}
+                  <p class="line-clamp-2 text-xs leading-6 text-loomera-textSecondary">{{ item.description }}</p>
+                {% endif %}
+
+                <div class="flex flex-wrap gap-2 text-[10px] font-black">
+                  {% if item.is_verified %}<span class="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700">تأییدشده</span>{% endif %}
+                  {% if item.is_public %}<span class="rounded-full bg-loomera-primarySoft px-2.5 py-1 text-loomera-primaryText">عمومی</span>{% endif %}
+                </div>
+
+                {% if stylist_can_manage_own_portfolio %}
+                  <form method="post" onsubmit="return confirm('این نمونه‌کار حذف شود؟');">
+                    {% csrf_token %}
+                    <input type="hidden" name="profile_action" value="delete_work_sample">
+                    <input type="hidden" name="sample_id" value="{{ item.id }}">
+                    <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-rose-200 bg-white px-4 py-2.5 text-xs font-black text-rose-700 transition hover:bg-rose-50">
+                      <i class="fa-regular fa-trash-can text-[10px]" aria-hidden="true"></i>
+                      حذف نمونه‌کار
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
+            </article>
+          {% empty %}
+            <div class="sm:col-span-2 xl:col-span-4">
+              {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-images" title="هنوز نمونه‌کاری ثبت نشده است" description="با بارگذاری چند تصویر واقعی، صفحه عمومی سالن برای مشتری‌ها قابل‌اعتمادتر می‌شود." %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </details>
+
+    <details id="stylist-profile-section-edit"
+         class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+         data-dashboard-workspace-panel
+         open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">تکمیل اطلاعات متخصص</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ویرایش اطلاعات پروفایل</h2>
+          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
+            اطلاعات حساب، هویت حرفه‌ای، شبکه‌های اجتماعی و تماس اضطراری را یک‌جا مدیریت کن.
+          </p>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="p-4 sm:p-5 lg:p-6">
+        {% if not stylist_collaboration_workspace.can_request %}
+          <div class="mb-5 rounded-[24px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-7 text-amber-800">
+            <div class="flex items-start gap-3">
+              <span class="mt-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white text-amber-700">
+                <i class="fa-solid fa-triangle-exclamation text-xs" aria-hidden="true"></i>
+              </span>
+              <div>
+                <p class="font-black">برای ارسال درخواست همکاری، پروفایل را کامل کن.</p>
+                <p class="mt-1">{{ stylist_collaboration_workspace.readiness.missing_items_label }}</p>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="space-y-5">
+          {% csrf_token %}
+          <input type="hidden" name="profile_action" value="save_profile">
+          {{ profile_form.calendar_color }}
+
+          {% if user_form.non_field_errors or profile_form.non_field_errors or emergency_form.non_field_errors %}
+            <div class="rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-4 text-sm font-bold leading-7 text-rose-700">
+              {% for error in user_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+              {% for error in profile_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+              {% for error in emergency_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+
+          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black text-loomera-primaryText">Account Info</p>
+                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">اطلاعات حساب</h3>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
+                    این اطلاعات برای ورود، شناسایی و ارتباط با شما استفاده می‌شود.
+                  </p>
+                </div>
+                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                  <i class="fa-regular fa-user" aria-hidden="true"></i>
+                </span>
+              </div>
+            </header>
+
+            <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
+              <div>
+                <label for="{{ user_form.name.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
+                  <i class="fa-regular fa-user text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                  {{ user_form.name.label }}
+                </label>
+                {{ user_form.name }}
+                {% if user_form.name.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in user_form.name.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ user_form.family.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
+                  <i class="fa-regular fa-user text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                  {{ user_form.family.label }}
+                </label>
+                {{ user_form.family }}
+                {% if user_form.family.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in user_form.family.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ user_form.mobile_number.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
+                  <i class="fa-solid fa-mobile-screen-button text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                  {{ user_form.mobile_number.label }}
+                </label>
+                {{ user_form.mobile_number }}
+                {% if user_form.mobile_number.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in user_form.mobile_number.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ user_form.email.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
+                  <i class="fa-regular fa-envelope text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                  {{ user_form.email.label }}
+                </label>
+                {{ user_form.email }}
+                {% if user_form.email.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in user_form.email.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </section>
+
+          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black text-loomera-primaryText">Professional Identity</p>
+                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">هویت حرفه‌ای</h3>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
+                    این بخش ظاهر عمومی پروفایل و رزومه حرفه‌ای شما را می‌سازد.
+                  </p>
+                </div>
+                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                  <i class="fa-regular fa-id-card" aria-hidden="true"></i>
+                </span>
+              </div>
+            </header>
+
+            <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
+              <div>
+                <label for="{{ profile_form.display_name.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.display_name.label }}</label>
+                {{ profile_form.display_name }}
+                {% if profile_form.display_name.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.display_name.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ profile_form.expert.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.expert.label }}</label>
+                {{ profile_form.expert }}
+                {% if profile_form.expert.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.expert.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ profile_form.resume_headline.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.resume_headline.label }}</label>
+                {{ profile_form.resume_headline }}
+                {% if profile_form.resume_headline.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.resume_headline.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ profile_form.started_working_year.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.started_working_year.label }}</label>
+                {{ profile_form.started_working_year }}
+                {% if profile_form.started_working_year.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.started_working_year.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ profile_form.public_visibility.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.public_visibility.label }}</label>
+                {{ profile_form.public_visibility }}
+                {% if profile_form.public_visibility.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.public_visibility.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ profile_form.profile_image.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.profile_image.label }}</label>
+                {{ profile_form.profile_image }}
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">فرمت پیشنهادی: JPG یا PNG، تصویر واضح و مربعی.</p>
+                {% if profile_form.profile_image.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.profile_image.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="md:col-span-2">
+                <label for="{{ profile_form.resume_summary.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.resume_summary.label }}</label>
+                {{ profile_form.resume_summary }}
+                {% if profile_form.resume_summary.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.resume_summary.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="md:col-span-2">
+                <label for="{{ profile_form.description.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.description.label }}</label>
+                {{ profile_form.description }}
+                {% if profile_form.description.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.description.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="md:col-span-2">
+                <label for="{{ profile_form.address.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.address.label }}</label>
+                {{ profile_form.address }}
+                {% if profile_form.address.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.address.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </section>
+
+          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black text-loomera-primaryText">Social Links</p>
+                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">لینک‌ها و شبکه‌های اجتماعی</h3>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
+                    لینک‌های حرفه‌ای را کامل و با فرمت معتبر وارد کن.
+                  </p>
+                </div>
+                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                  <i class="fa-solid fa-link" aria-hidden="true"></i>
+                </span>
+              </div>
+            </header>
+
+            <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-3">
+              <div>
+                <label for="{{ profile_form.insta_link.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.insta_link.label }}</label>
+                {{ profile_form.insta_link }}
+                {% if profile_form.insta_link.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.insta_link.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ profile_form.telegram_link.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.telegram_link.label }}</label>
+                {{ profile_form.telegram_link }}
+                {% if profile_form.telegram_link.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.telegram_link.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ profile_form.linkedin_link.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.linkedin_link.label }}</label>
+                {{ profile_form.linkedin_link }}
+                {% if profile_form.linkedin_link.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in profile_form.linkedin_link.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </section>
+
+          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black text-loomera-primaryText">Emergency Contact</p>
+                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">تماس اضطراری</h3>
+                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
+                    این اطلاعات برای تکمیل پروفایل همکاری لازم است و فقط در موارد ضروری استفاده می‌شود.
+                  </p>
+                </div>
+                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                  <i class="fa-solid fa-phone-volume" aria-hidden="true"></i>
+                </span>
+              </div>
+            </header>
+
+            <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-4">
+              <div>
+                <label for="{{ emergency_form.emergency_contact_name.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ emergency_form.emergency_contact_name.label }}</label>
+                {{ emergency_form.emergency_contact_name }}
+                {% if emergency_form.emergency_contact_name.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in emergency_form.emergency_contact_name.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ emergency_form.emergency_contact_family.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ emergency_form.emergency_contact_family.label }}</label>
+                {{ emergency_form.emergency_contact_family }}
+                {% if emergency_form.emergency_contact_family.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in emergency_form.emergency_contact_family.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ emergency_form.relationship.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ emergency_form.relationship.label }}</label>
+                {{ emergency_form.relationship }}
+                {% if emergency_form.relationship.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in emergency_form.relationship.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <label for="{{ emergency_form.emergency_phone.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ emergency_form.emergency_phone.label }}</label>
+                {{ emergency_form.emergency_phone }}
+                {% if emergency_form.emergency_phone.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in emergency_form.emergency_phone.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </section>
+
+          <div class="sticky bottom-4 z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p class="text-xs leading-6 text-loomera-textMuted">
+                تغییرات پروفایل فقط مربوط به حساب شخصی متخصص است و توسط مدیر سالن ویرایش نمی‌شود.
+              </p>
+
+              <div class="flex flex-col gap-2 sm:flex-row">
+                <a href="#stylist-profile-section-summary" class="inline-flex items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
+                  بازگشت به خلاصه
+                </a>
+
+                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
+                  <i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>
+                  ذخیره تغییرات پروفایل
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </details>
+
+    <details id="stylist-profile-section-collaboration"
+             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">همکاری با سالن‌ها</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">درخواست‌ها و عضویت‌ها</h2>
+          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
+            اتصال شما به هر سالن مستقل است و روی سالن‌های دیگر اثر نمی‌گذارد.
+          </p>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="space-y-5 p-4 sm:p-5 lg:p-6">
+        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h3 class="text-base font-black text-loomera-textPrimary">ارسال درخواست همکاری</h3>
+              <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
+                برای اتصال به سالن، درخواست همکاری ارسال کن. تا زمانی که مدیر سالن تایید نکند، دسترسی عملیاتی فعال نمی‌شود.
+              </p>
+            </div>
+
+            {% if stylist_collaboration_workspace.can_request %}
+              <span class="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700">
+                <i class="fa-solid fa-circle-check text-[10px]" aria-hidden="true"></i>
+                آماده ارسال
+              </span>
+            {% else %}
+              <span class="inline-flex w-fit items-center gap-2 rounded-full bg-amber-50 px-4 py-2 text-xs font-black text-amber-700">
+                <i class="fa-solid fa-triangle-exclamation text-[10px]" aria-hidden="true"></i>
+                نیازمند تکمیل
+              </span>
+            {% endif %}
+          </div>
+
+          {% if not stylist_collaboration_workspace.can_request %}
+            <div class="mt-4 rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-7 text-amber-800">
+              <p class="font-black">برای ارسال درخواست همکاری، ابتدا پروفایل متخصص را کامل کن.</p>
+              <p class="mt-2">موارد ناقص: {{ stylist_collaboration_workspace.readiness.missing_items_label }}</p>
+              <button type="button" data-dashboard-workspace-tab data-target="#stylist-profile-section-edit" class="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-black text-amber-800 transition hover:bg-amber-100">
+                <i class="fa-solid fa-arrow-up text-[10px]" aria-hidden="true"></i>
+                رفتن به فرم تکمیل پروفایل
+              </button>
+            </div>
+          {% endif %}
+
+          <form method="post" class="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+            {% csrf_token %}
+            <input type="hidden" name="profile_action" value="request_salon_membership">
+
+            <label class="block">
+              <span class="mb-2 block text-sm font-black text-loomera-textPrimary">انتخاب سالن</span>
+              <select
+                name="salon_id"
+                class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                {% if not stylist_collaboration_workspace.can_request %}disabled{% endif %}
+              >
+                <option value="">یک سالن را انتخاب کن</option>
+                {% for salon in stylist_collaboration_workspace.available_salons %}
+                  <option value="{{ salon.id }}">{{ salon.salon_name }}</option>
+                {% endfor %}
+              </select>
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm font-black text-loomera-textPrimary">پیام کوتاه برای مدیر سالن</span>
+              <textarea
+                name="request_message"
+                rows="3"
+                maxlength="500"
+                class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted/60 focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                placeholder="مثلاً: آماده همکاری در زمینه {{ stylist_profile_summary.expert }} هستم."
+                {% if not stylist_collaboration_workspace.can_request %}disabled{% endif %}
+              ></textarea>
+            </label>
+
+            <div class="lg:col-span-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p class="text-xs leading-6 text-loomera-textMuted">
+                بعد از ارسال، مدیر سالن درخواست را در صفحه اعضای تیم بررسی می‌کند.
+              </p>
+
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black text-white transition {% if stylist_collaboration_workspace.can_request %}bg-loomera-primary hover:bg-loomera-primaryHover{% else %}cursor-not-allowed bg-slate-300{% endif %}"
+                {% if not stylist_collaboration_workspace.can_request %}disabled{% endif %}
+              >
+                <i class="fa-solid fa-paper-plane text-xs" aria-hidden="true"></i>
+                ارسال درخواست همکاری
+              </button>
+            </div>
+          </form>
+        </article>
+
+        <div class="grid gap-3">
+          {% for item in stylist_collaboration_workspace.memberships %}
+            <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div class="min-w-0">
+                  <h4 class="text-sm font-black text-loomera-textPrimary">{{ item.salon_name }}</h4>
+                  <p class="mt-1 text-xs text-loomera-textMuted">{{ item.role_title }} • {{ item.created_label }}</p>
+                  {% if item.message %}
+                    <p class="mt-2 text-xs leading-6 text-loomera-textSecondary">{{ item.message }}</p>
+                  {% endif %}
+                </div>
+
+                <span class="inline-flex w-fit shrink-0 rounded-full px-3 py-1 text-xs font-black {{ item.status_badge_class }}">
+                  {{ item.status_label }}
+                </span>
+              </div>
+
+              {% if item.can_accept_invite or item.can_reject_invite %}
+                <div class="mt-4 rounded-[20px] border border-emerald-100 bg-emerald-50/70 p-3">
+                  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p class="text-xs font-black text-emerald-700">دعوت همکاری از طرف مجموعه</p>
+                      <p class="mt-1 text-xs leading-6 text-emerald-700">
+                        این مجموعه از شما دعوت کرده است. بعد از پذیرش، دسترسی شما فقط به اطلاعات همین مجموعه فعال می‌شود.
+                      </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                      <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="profile_action" value="accept_manager_invite">
+                        <input type="hidden" name="membership_id" value="{{ item.id }}">
+                        <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2.5 text-xs font-black text-white transition hover:bg-emerald-700">
+                          <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i>
+                          پذیرش دعوت
+                        </button>
+                      </form>
+
+                      <form method="post" onsubmit="return confirm('این دعوت همکاری رد شود؟');">
+                        {% csrf_token %}
+                        <input type="hidden" name="profile_action" value="reject_manager_invite">
+                        <input type="hidden" name="membership_id" value="{{ item.id }}">
+                        <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full border border-rose-200 bg-white px-4 py-2.5 text-xs font-black text-rose-700 transition hover:bg-rose-50">
+                          <i class="fa-solid fa-xmark text-[10px]" aria-hidden="true"></i>
+                          رد دعوت
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+
+              {% if item.can_manage_request %}
+                <div class="mt-4 rounded-[20px] border border-amber-100 bg-amber-50/60 p-3">
+                  <form method="post" class="space-y-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="profile_action" value="update_salon_membership_request">
+                    <input type="hidden" name="membership_id" value="{{ item.id }}">
+
+                    <label class="block">
+                      <span class="mb-2 block text-xs font-black text-amber-800">ویرایش پیام درخواست</span>
+                      <textarea
+                        name="request_message"
+                        rows="3"
+                        maxlength="500"
+                        class="w-full rounded-2xl border border-amber-200 bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted/60 focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
+                        placeholder="پیام کوتاه برای مدیر سالن"
+                      >{{ item.message }}</textarea>
+                    </label>
+
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <p class="text-xs leading-6 text-amber-800">
+                        تا قبل از بررسی مدیر، می‌توانی پیام درخواست را ویرایش یا درخواست را حذف کنی.
+                      </p>
+
+                      <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-amber-600 px-4 py-2.5 text-xs font-black text-white transition hover:bg-amber-700">
+                        <i class="fa-solid fa-pen text-[10px]" aria-hidden="true"></i>
+                        ذخیره ویرایش
+                      </button>
+                    </div>
+                  </form>
+
+                  <form method="post" class="mt-2" onsubmit="return confirm('این درخواست همکاری حذف شود؟');">
+                    {% csrf_token %}
+                    <input type="hidden" name="profile_action" value="cancel_salon_membership_request">
+                    <input type="hidden" name="membership_id" value="{{ item.id }}">
+
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full border border-rose-200 bg-white px-4 py-2.5 text-xs font-black text-rose-700 transition hover:bg-rose-50">
+                      <i class="fa-solid fa-trash-can text-[10px]" aria-hidden="true"></i>
+                      حذف درخواست
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
+
+              {% if item.can_leave_membership %}
+                <div class="mt-4 rounded-[20px] border border-rose-100 bg-rose-50/70 p-3">
+                  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p class="text-xs font-black text-rose-700">جدا شدن از مجموعه</p>
+                      <p class="mt-1 text-xs leading-6 text-rose-700">{{ item.leave_warning }}</p>
+                    </div>
+
+                    <form method="post" onsubmit="return confirm('همکاری شما با این مجموعه پایان یابد؟ اگر نوبت فعال یا آینده داشته باشید ابتدا باید نوبت‌ها تعیین تکلیف شوند.');">
+                      {% csrf_token %}
+                      <input type="hidden" name="profile_action" value="leave_salon_membership">
+                      <input type="hidden" name="membership_id" value="{{ item.id }}">
+
+                      <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full border border-rose-200 bg-white px-4 py-2.5 text-xs font-black text-rose-700 transition hover:bg-rose-100">
+                        <i class="fa-solid fa-right-from-bracket text-[10px]" aria-hidden="true"></i>
+                        جدا شدن از مجموعه
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              {% endif %}
+            </article>
+          {% empty %}
+            <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted">
+              هنوز درخواست همکاری یا عضویت فعالی ثبت نشده است.
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </details>
+
+    <details id="stylist-profile-section-quick-actions"
+             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">اقدام‌های مرتبط با پروفایل</h2>
+          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
+            مسیرهای پرتکرار برای مدیریت کار روزانه متخصص.
+          </p>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="grid gap-3 p-4 sm:grid-cols-3 sm:p-5 lg:p-6">
+        <a href="{{ stylist_schedule_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+            <i class="fa-regular fa-clock" aria-hidden="true"></i>
+          </span>
+          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">برنامه من</h3>
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برنامه کاری، درخواست برنامه و مرخصی‌ها را ببین.</p>
+        </a>
+
+        <a href="{{ stylist_appointments_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+            <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+          </span>
+          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">نوبت‌های من</h3>
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">نوبت‌های امروز، آینده و گذشته را مدیریت کن.</p>
+        </a>
+
+        <a href="{{ stylist_quick_links_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+            <i class="fa-solid fa-link" aria-hidden="true"></i>
+          </span>
+          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">لینک رزرو من</h3>
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">لینک سریع رزرو برای مشتری‌ها بساز.</p>
+        </a>
+      </div>
+    </details>
+  </section>
+{% endblock %}

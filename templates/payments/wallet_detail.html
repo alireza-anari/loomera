@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% load jalali_filters jalali_extras %}
+
+{% block title %}کیف پول{% endblock %}
+{% block body_attrs %}data-page="wallet-detail"{% endblock %}
+
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-28 text-loomera-textPrimary lg:pb-12">
+  <!-- Mobile header -->
+  <header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 backdrop-blur lg:hidden">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-3">
+      <a href="{% url 'accounts:customer_panel' %}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft" aria-label="بازگشت به حساب من">
+        <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+      </a>
+      <div class="min-w-0 text-center">
+        <h1 class="truncate text-base font-black text-loomera-textPrimary">کیف پول</h1>
+        <p class="mt-0.5 text-[11px] font-bold text-loomera-textMuted">موجودی و تراکنش‌های حساب</p>
+      </div>
+      <a href="{% url 'payments:charge' %}" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-loomera-primary text-white shadow-lm-soft" aria-label="شارژ کیف پول">
+        <i class="fa-solid fa-plus text-sm" aria-hidden="true"></i>
+      </a>
+    </div>
+  </header>
+
+  <div class="mx-auto w-full max-w-7xl px-4 py-5 lg:px-6 lg:py-8 xl:px-0">
+    <!-- Desktop hero -->
+    <section class="hidden overflow-hidden rounded-[2.25rem] border border-loomera-borderSoft bg-gradient-to-l from-loomera-primary via-loomera-secondary to-loomera-accent p-6 text-white shadow-lm-elevated lg:block">
+      <div class="flex items-start justify-between gap-6">
+        <div class="min-w-0">
+          <a href="{% url 'accounts:customer_panel' %}" class="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold text-white backdrop-blur transition hover:bg-white/15">
+            <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+            بازگشت به حساب من
+          </a>
+          <p class="text-sm font-black text-white/75">کیف پول لومرا</p>
+          <h1 class="mt-2 text-3xl font-black tracking-tight xl:text-4xl">مدیریت موجودی، تراکنش‌ها و برداشت‌ها</h1>
+          <p class="mt-3 max-w-2xl text-sm leading-7 text-white/80">موجودی کیف پولت را بررسی کن، برای رزروهای بعدی شارژ کن یا درخواست برداشت ثبت کن.</p>
+        </div>
+
+        <div class="w-full max-w-sm rounded-[2rem] border border-white/20 bg-white/15 p-5 text-right shadow-lm-card backdrop-blur-xl">
+          <p class="text-sm font-bold text-white/75">موجودی فعلی</p>
+          <div class="mt-2 flex items-end gap-2">
+            <strong class="text-4xl font-black leading-none">{{ wallet.balance|default:0|intcomma }}</strong>
+            <span class="pb-1 text-sm font-bold text-white/75">تومان</span>
+          </div>
+          <div class="mt-5 grid grid-cols-2 gap-3">
+            <a href="{% url 'payments:charge' %}" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-black text-loomera-primary shadow-lm-soft transition hover:bg-white/90">
+              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+              شارژ
+            </a>
+            <a href="{% url 'payments:withdraw' %}" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-4 py-3 text-sm font-black text-white transition hover:bg-white/15">
+              <i class="fa-solid fa-arrow-up-from-bracket text-xs" aria-hidden="true"></i>
+              برداشت
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mobile balance card -->
+    <section class="overflow-hidden rounded-[2rem] border border-white/20 bg-gradient-to-l from-loomera-primary via-loomera-secondary to-loomera-accent p-5 text-white shadow-lm-elevated lg:hidden">
+      <p class="text-center text-sm font-bold text-white/80">موجودی فعلی</p>
+      <div class="mt-2 text-center">
+        <strong class="block text-4xl font-black leading-none">{{ wallet.balance|default:0|intcomma }}</strong>
+        <span class="mt-2 block text-sm font-bold text-white/80">تومان</span>
+      </div>
+      <div class="mt-5 grid grid-cols-2 gap-3">
+        <a href="{% url 'payments:charge' %}" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-black text-loomera-primary shadow-lm-soft">
+          <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+          شارژ کیف پول
+        </a>
+        <a href="{% url 'payments:withdraw' %}" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-4 py-3 text-sm font-black text-white">
+          <i class="fa-solid fa-arrow-up-from-bracket text-xs" aria-hidden="true"></i>
+          برداشت
+        </a>
+      </div>
+    </section>
+
+    <div class="mt-5 grid grid-cols-1 gap-5 lg:mt-7 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+      <div class="min-w-0 space-y-5">
+        <!-- Quick stats -->
+        <section class="grid gap-3 sm:grid-cols-3">
+          <div class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+              <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+            </span>
+            <p class="mt-3 text-xs font-bold text-loomera-textMuted">موجودی</p>
+            <p class="mt-1 text-lg font-black text-loomera-textPrimary">{{ wallet.balance|default:0|intcomma }} تومان</p>
+          </div>
+          <div class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-accentSoft text-loomera-textSecondary">
+              <i class="fa-solid fa-star" aria-hidden="true"></i>
+            </span>
+            <p class="mt-3 text-xs font-bold text-loomera-textMuted">امتیازها</p>
+            <p class="mt-1 text-lg font-black text-loomera-textPrimary">{{ points_total|default:0|intcomma }} امتیاز</p>
+          </div>
+          <div class="rounded-[1.75rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+              <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+            </span>
+            <p class="mt-3 text-xs font-bold text-loomera-textMuted">تراکنش‌ها</p>
+            <p class="mt-1 text-lg font-black text-loomera-textPrimary">{{ transactions|length|intcomma }} مورد</p>
+          </div>
+        </section>
+
+        <!-- Transactions and withdrawals -->
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-card sm:p-5 lg:p-6">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p class="text-xs font-black uppercase tracking-[0.24em] text-loomera-primary">گردش حساب</p>
+              <h2 class="mt-2 text-xl font-black text-loomera-textPrimary">تراکنش‌ها و برداشت‌ها</h2>
+              <p class="mt-2 text-sm leading-7 text-loomera-textMuted">تاریخچه کیف پول در دو تب جدا نمایش داده می‌شود تا بررسی تراکنش‌ها راحت‌تر باشد.</p>
+            </div>
+            <span class="inline-flex w-fit items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary">
+              <i class="fa-solid fa-layer-group text-[11px]" aria-hidden="true"></i>
+              نمای تب‌دار
+            </span>
+          </div>
+
+          <div class="mt-5 grid grid-cols-2 gap-2 rounded-[1.5rem] bg-loomera-bgSubtle p-1.5" role="tablist" aria-label="تب‌های کیف پول">
+            <button type="button" data-wallet-tab="transactions" class="wallet-tab-btn rounded-[1.2rem] border border-loomera-borderSoft bg-white px-3 py-3 text-sm font-black text-loomera-textPrimary shadow-lm-soft transition" role="tab" aria-selected="true">
+              تراکنش‌ها
+              <span class="mr-1 rounded-full bg-loomera-primarySoft px-2 py-0.5 text-[11px] text-loomera-primary">{{ transactions|length }}</span>
+            </button>
+            <button type="button" data-wallet-tab="withdrawals" class="wallet-tab-btn rounded-[1.2rem] border border-transparent px-3 py-3 text-sm font-black text-loomera-textMuted transition" role="tab" aria-selected="false">
+              برداشت‌ها
+              <span class="mr-1 rounded-full bg-white/80 px-2 py-0.5 text-[11px] text-loomera-textMuted">{{ withdrawal_requests|length }}</span>
+            </button>
+          </div>
+
+          <div class="mt-5 space-y-5">
+            <div data-wallet-panel="transactions" role="tabpanel">
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <h3 class="text-sm font-black text-loomera-textPrimary">آخرین ۱۰ تراکنش</h3>
+                <span class="text-xs font-bold text-loomera-textMuted">جمع امتیاز: {{ points_total|default:0|intcomma }}</span>
+              </div>
+
+              {% if transactions %}
+                <div class="space-y-3">
+                  {% for tx in transactions %}
+                    <article class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:border-loomera-primary/25 hover:shadow-lm-card">
+                      <div class="flex items-start justify-between gap-4">
+                        <div class="min-w-0">
+                          <div class="flex items-center gap-2">
+                            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl {% if tx.amount >= 0 %}bg-emerald-50 text-emerald-600{% else %}bg-rose-50 text-rose-600{% endif %}">
+                              <i class="fa-solid {% if tx.amount >= 0 %}fa-arrow-down{% else %}fa-arrow-up{% endif %} text-xs" aria-hidden="true"></i>
+                            </span>
+                            <div class="min-w-0">
+                              <p class="truncate text-sm font-black text-loomera-textPrimary">{{ tx.get_transaction_type_display }}</p>
+                              <p class="mt-1 text-xs font-bold text-loomera-textMuted">{{ tx.created_at|jalali_datetime }}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="shrink-0 text-left">
+                          <p class="text-sm font-black {% if tx.amount >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %}">
+                            {% if tx.amount >= 0 %}+{% endif %}{{ tx.amount|intcomma }} تومان
+                          </p>
+                          <p class="mt-1 text-xs font-bold text-loomera-textMuted">موجودی: {{ tx.running_balance|intcomma }}</p>
+                        </div>
+                      </div>
+
+                      {% if tx.description %}
+                        <p class="mt-3 text-sm leading-7 text-loomera-textSecondary">{{ tx.description }}</p>
+                      {% endif %}
+
+                      {% if tx.order or tx.points_earned %}
+                        <div class="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-bold text-loomera-textMuted">
+                          {% if tx.order %}<span class="rounded-full bg-loomera-bgSubtle px-3 py-1">مرتبط با {{ tx.order.order_number }}</span>{% endif %}
+                          {% if tx.points_earned %}<span class="rounded-full bg-amber-50 px-3 py-1 text-amber-700">{{ tx.points_earned|intcomma }} امتیاز</span>{% endif %}
+                        </div>
+                      {% endif %}
+                    </article>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="rounded-[1.5rem] border border-dashed border-loomera-border bg-loomera-bgSubtle p-8 text-center">
+                  <span class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-lm-soft">
+                    <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+                  </span>
+                  <p class="mt-3 text-sm font-black text-loomera-textPrimary">هنوز تراکنشی ثبت نشده است.</p>
+                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">بعد از پرداخت یا شارژ کیف پول، تراکنش‌ها اینجا نمایش داده می‌شوند.</p>
+                </div>
+              {% endif %}
+            </div>
+
+            <div data-wallet-panel="withdrawals" class="hidden" role="tabpanel">
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <h3 class="text-sm font-black text-loomera-textPrimary">آخرین درخواست‌های برداشت</h3>
+                <span class="text-xs font-bold text-loomera-textMuted">آخرین ۵ درخواست</span>
+              </div>
+
+              {% if withdrawal_requests %}
+                <div class="space-y-3">
+                  {% for item in withdrawal_requests %}
+                    <article class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:border-loomera-primary/25 hover:shadow-lm-card">
+                      <div class="flex items-start justify-between gap-4">
+                        <div class="min-w-0">
+                          <p class="text-sm font-black text-loomera-textPrimary">{{ item.amount|intcomma }} تومان</p>
+                          <p class="mt-1 text-xs font-bold text-loomera-textMuted">{{ item.created_at|jalali_short }} • {{ item.account_holder_name }}</p>
+                        </div>
+                        <span class="shrink-0 rounded-full px-3 py-1 text-xs font-black {% if item.status == 'approved' %}bg-emerald-50 text-emerald-700{% elif item.status == 'rejected' or item.status == 'cancelled' %}bg-rose-50 text-rose-700{% else %}bg-amber-50 text-amber-700{% endif %}">{{ item.get_status_display }}</span>
+                      </div>
+
+                      <p class="mt-3 rounded-2xl bg-loomera-bgSubtle px-3 py-2 text-left text-xs font-bold text-loomera-textMuted" dir="ltr">{{ item.iban }}</p>
+                      {% if item.reviewed_at %}<p class="mt-2 text-xs font-bold text-loomera-textMuted">بررسی شده در {{ item.reviewed_at|jalali_short }}</p>{% endif %}
+                      {% if item.note %}<p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ item.note }}</p>{% endif %}
+
+                      {% if item.status == 'pending' %}
+                        <div class="mt-4 flex flex-col gap-3 rounded-[1.25rem] border border-amber-100 bg-amber-50 px-3 py-3 text-xs leading-6 text-amber-800 sm:flex-row sm:items-center sm:justify-between">
+                          <span>در صورت لغو، مبلغ خودکار به کیف پول شما برمی‌گردد.</span>
+                          <form method="post" action="{% url 'payments:withdraw_cancel' item.id %}" class="shrink-0">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'payments:detail' %}">
+                            <button type="submit" class="inline-flex w-full items-center justify-center rounded-full border border-amber-200 bg-white px-4 py-2 text-xs font-black text-amber-700 transition hover:bg-amber-100 sm:w-auto">لغو درخواست</button>
+                          </form>
+                        </div>
+                      {% endif %}
+                    </article>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="rounded-[1.5rem] border border-dashed border-loomera-border bg-loomera-bgSubtle p-8 text-center">
+                  <span class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-lm-soft">
+                    <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+                  </span>
+                  <p class="mt-3 text-sm font-black text-loomera-textPrimary">هنوز درخواست برداشتی ثبت نشده است.</p>
+                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">هر زمان موجودی قابل برداشت داشتی، درخواست‌های برداشت اینجا نمایش داده می‌شوند.</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="hidden space-y-4 lg:block lg:sticky lg:top-24">
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card">
+          <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">اقدام سریع</p>
+          <h2 class="mt-2 text-lg font-black text-loomera-textPrimary">مدیریت کیف پول</h2>
+          <p class="mt-2 text-sm leading-7 text-loomera-textMuted">برای پرداخت سریع‌تر رزروها کیف پولت را شارژ کن یا درخواست برداشت ثبت کن.</p>
+          <div class="mt-5 grid gap-3">
+            <a href="{% url 'payments:charge' %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+              شارژ کیف پول
+            </a>
+            <a href="{% url 'payments:withdraw' %}" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/50">
+              <i class="fa-solid fa-arrow-up-from-bracket text-xs" aria-hidden="true"></i>
+              ثبت درخواست برداشت
+            </a>
+          </div>
+        </section>
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-soft">
+          <h3 class="text-sm font-black text-loomera-textPrimary">میانبرهای حساب</h3>
+          <div class="mt-4 grid gap-2">
+            <a href="{% url 'orders:appointments' %}" class="flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              نوبت‌های من
+              <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+            </a>
+            <a href="{% url 'accounts:customer_panel' %}" class="flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              حساب من
+              <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+            </a>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Mobile CTA -->
+  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur lg:hidden">
+    <div class="mx-auto grid max-w-md grid-cols-2 gap-3">
+      <a href="{% url 'payments:charge' %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft">
+        <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+        شارژ
+      </a>
+      <a href="{% url 'payments:withdraw' %}" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-lm-soft">
+        برداشت
+        <i class="fa-solid fa-arrow-up-from-bracket text-xs" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const tabs = Array.from(document.querySelectorAll(".wallet-tab-btn"));
+  const panels = Array.from(document.querySelectorAll("[data-wallet-panel]"));
+
+  function activateTab(name) {
+    tabs.forEach((tab) => {
+      const isActive = tab.dataset.walletTab === name;
+      tab.classList.toggle("bg-white", isActive);
+      tab.classList.toggle("border-loomera-borderSoft", isActive);
+      tab.classList.toggle("border-transparent", !isActive);
+      tab.classList.toggle("shadow-lm-soft", isActive);
+      tab.classList.toggle("text-loomera-textPrimary", isActive);
+      tab.classList.toggle("text-loomera-textMuted", !isActive);
+      tab.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+
+    panels.forEach((panel) => {
+      panel.classList.toggle("hidden", panel.dataset.walletPanel !== name);
+    });
+  }
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", function () {
+      activateTab(tab.dataset.walletTab);
+    });
+  });
+
+  activateTab("transactions");
+});
+</script>
+{% endblock %}

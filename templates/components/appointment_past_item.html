@@ -1,0 +1,54 @@
+{% load humanize %}
+{% load jalali_filters %}
+
+<article class="lm-booking-row {% if appointment.order.status == 'cancelled' %}is-cancelled{% endif %}" role="listitem">
+  <a href="{% url 'orders:appointment_detail' appointment.id %}" class="lm-booking-row-main">
+    <div class="lm-booking-row-thumb">
+      {% if appointment.salon.banner_image %}
+        <img src="{{ appointment.salon.banner_image.url }}" alt="{{ appointment.salon.salon_name }}" class="h-full w-full object-cover">
+      {% else %}
+        <div class="lm-image-placeholder h-full w-full">
+          <i class="fa-regular fa-image" aria-hidden="true"></i>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <h3 class="truncate text-sm font-black text-slate-950">{{ appointment.salon.salon_name }}</h3>
+        {% if appointment.order.status == "cancelled" %}
+          <span class="lm-badge lm-badge--danger">لغو شده</span>
+        {% elif appointment.order.is_paid %}
+          <span class="lm-badge lm-badge--success">پرداخت شده</span>
+        {% else %}
+          <span class="lm-badge lm-badge--neutral">{{ appointment.order.get_status_display|default:"ثبت‌شده" }}</span>
+        {% endif %}
+      </div>
+
+      <div class="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+        <span class="inline-flex items-center gap-1"><i class="fa-regular fa-calendar" aria-hidden="true"></i>{{ appointment.date|jalali_long }}</span>
+        <span class="h-1 w-1 rounded-full bg-slate-300"></span>
+        <span class="inline-flex items-center gap-1"><i class="fa-regular fa-clock" aria-hidden="true"></i>{{ appointment.time|persian_time }}</span>
+        <span class="h-1 w-1 rounded-full bg-slate-300"></span>
+        <span>{{ appointment.service.service_name|default:"خدمت" }}</span>
+      </div>
+
+      {% if appointment.price %}
+      <p class="mt-1 text-xs font-semibold text-slate-700">{{ appointment.price|intcomma }} تومان</p>
+      {% endif %}
+    </div>
+  </a>
+
+  <div class="lm-booking-row-actions">
+    <a href="{% url 'orders:appointment_detail' appointment.id %}"
+       class="lm-btn lm-btn-icon"
+       aria-label="مشاهده جزئیات نوبت">
+      <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+    </a>
+    <a href="{% url 'orders:rebook' appointment.order.id %}"
+       class="lm-btn lm-btn-secondary text-xs btn-book-again"
+       data-rebook-url="{% url 'orders:rebook' appointment.order.id %}">
+      رزرو دوباره
+    </a>
+  </div>
+</article>

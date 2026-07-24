@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <title>social-template-provider-spotlight-square</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1080" fill="#F7F6FA"/>
+<rect x="84" y="84" width="912" height="912" rx="44" fill="#FFFFFF" stroke="#DDD8E8"/>
+<g id="badge"><rect x="128" y="126" width="346" height="40" rx="18" fill="#F4F1F8" stroke="#DDD8E8"/><text x="456" y="152" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#57526E" text-anchor="end">Provider / Specialist Spotlight</text></g>
+<g id="logo-slot"><rect x="824" y="132" width="138" height="34" rx="10" fill="none" stroke="#DDD8E8" stroke-dasharray="6 6"/><text x="893.0" y="155" font-family="Inter, sans-serif" font-size="15" fill="#7A738F" text-anchor="middle">LOGO</text></g>
+<g id="placeholder"><rect x="592" y="216" width="312" height="420" rx="38" fill="#F8F5FE" stroke="#DDD8E8" stroke-dasharray="10 10"/><text x="748.0" y="426.0" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" font-weight="500" fill="#7A738F" text-anchor="middle">جای عکس متخصص / Provider Photo</text></g>
+<text x="516" y="320" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" font-weight="600" fill="#A7C8A1" text-anchor="end">معرفی متخصص</text>
+<text x="516" y="396" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="54" font-weight="650" fill="#2E2A3C" text-anchor="end">نام متخصص</text>
+<text x="516" y="454" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="27" fill="#57526E" text-anchor="end">تخصص، رویکرد و cue اعتماد</text>
+<rect x="128" y="536" width="388" height="56" rx="28" fill="#F4F1F8"/>
+<rect x="128" y="614" width="388" height="56" rx="28" fill="#F4F1F8"/>
+<text x="484" y="571" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="23" font-weight="600" fill="#57526E" text-anchor="end">تجربه و تخصص قابل‌بررسی</text>
+<text x="484" y="649" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="23" font-weight="600" fill="#57526E" text-anchor="end">لحن حرفه‌ای و آرام</text>
+<rect x="128" y="716" width="776" height="136" rx="32" fill="#F8F5FE"/>
+<text x="856" y="790" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="25" fill="#57526E" text-anchor="end">این قالب باید human trust بسازد؛ نه glamour. از retouch سنگین و visual cliché پرهیز کنید.</text>
+<g id="cta"><rect x="128" y="892" width="198" height="54" rx="27" fill="#735CBE"/><text x="227.0" y="927" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="21" font-weight="600" fill="#FFFFFF" text-anchor="middle">بررسی زمان‌ها</text></g>
+
+</svg>

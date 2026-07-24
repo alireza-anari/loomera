@@ -1,0 +1,88 @@
+{% extends "platform_admin/base.html" %}
+{% load jalali_extras %}
+{% block platform_content %}
+<div class="space-y-6">
+  <section class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="relative p-5 sm:p-6">
+      <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-l from-loomera-primary via-loomera-primary/60 to-transparent"></div>
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p class="text-sm font-black text-loomera-primary">نمای کلی</p>
+          <h2 class="mt-1 text-2xl font-black text-loomera-textPrimary sm:text-3xl">داشبورد عملیاتی Loomera</h2>
+          <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">وضعیت کلیدی پلتفرم، ریسک‌ها، عملیات حساس و صف‌های نیازمند پیگیری.</p>
+        </div>
+        <div class="flex flex-wrap gap-2 text-xs font-black">
+          <a href="{% url 'platform_admin:support' %}" class="rounded-2xl bg-loomera-primarySoft px-4 py-2 text-loomera-primary">صف پشتیبانی</a>
+          <a href="{% url 'platform_admin:finance' %}" class="rounded-2xl bg-loomera-surface px-4 py-2 text-loomera-textMuted">مالی</a>
+          <a href="{% url 'platform_admin:infrastructure' %}" class="rounded-2xl bg-loomera-surface px-4 py-2 text-loomera-textMuted">زیرساخت</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    {% for card in cards %}
+      <a href="{{ card.url }}" class="group relative overflow-hidden rounded-[1.75rem] border border-loomera-borderSoft bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-md">
+        <div class="absolute -left-8 -top-8 h-20 w-20 rounded-full bg-loomera-primary/5 transition group-hover:bg-loomera-primary/10"></div>
+        <p class="relative text-sm font-bold text-loomera-textMuted">{{ card.label }}</p>
+        <div class="relative mt-3 flex items-end justify-between gap-3">
+          <p class="text-3xl font-black text-loomera-textPrimary">{{ card.value }}</p>
+          <span class="rounded-full bg-loomera-surface px-2.5 py-1 text-xs font-black text-loomera-primary">مشاهده</span>
+        </div>
+      </a>
+    {% endfor %}
+  </section>
+
+  <section class="grid gap-5 xl:grid-cols-3">
+    <div class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm xl:col-span-2">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="text-xs font-black text-loomera-primary">Audit</p>
+          <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">آخرین عملیات حساس</h3>
+        </div>
+        <a href="{% url 'platform_admin:audit' %}" class="rounded-2xl border border-loomera-borderSoft px-3 py-2 text-xs font-black text-loomera-textMuted transition hover:bg-loomera-surface">همه لاگ‌ها</a>
+      </div>
+      <div class="mt-4 overflow-x-auto rounded-3xl border border-loomera-borderSoft">
+        <table class="min-w-[680px] w-full text-sm">
+          <tbody class="divide-y divide-loomera-borderSoft">
+            {% for log in recent_audit %}
+              <tr class="transition hover:bg-loomera-surface/60">
+                <td class="p-3 font-black text-loomera-textPrimary">{{ log.action }}</td>
+                <td class="p-3 text-loomera-textMuted">{{ log.actor|default:"سیستم" }}</td>
+                <td class="p-3 text-left text-xs text-loomera-textMuted">{{ log.created_at|jalali_datetime }}</td>
+              </tr>
+            {% empty %}
+              <tr><td class="p-4 text-center text-loomera-textMuted">هنوز لاگی ثبت نشده است.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="space-y-5">
+      <div class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <p class="text-xs font-black text-loomera-primary">Feature Flags</p>
+        <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">وضعیت پرچم‌ها</h3>
+        <div class="mt-4 space-y-2">
+          {% for key,val in beta_flags.items %}
+            <div class="flex items-center justify-between rounded-2xl bg-loomera-surface px-3 py-2 text-sm">
+              <span class="font-semibold text-loomera-textMuted" dir="ltr">{{ key }}</span>
+              <span class="rounded-full px-2.5 py-1 text-xs font-black {% if val %}bg-emerald-50 text-emerald-700{% else %}bg-amber-50 text-amber-700{% endif %}">{{ val|yesno:"فعال,غیرفعال" }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <p class="text-xs font-black text-loomera-primary">Finance Queue</p>
+        <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">مالی در انتظار</h3>
+        <div class="mt-4 space-y-2 text-sm text-loomera-textMuted">
+          <p class="flex justify-between rounded-2xl bg-loomera-surface px-3 py-2">درخواست پرداخت متخصص <strong class="text-loomera-textPrimary">{{ pending_finance.staff_payouts }}</strong></p>
+          <p class="flex justify-between rounded-2xl bg-loomera-surface px-3 py-2">اصلاح مالی <strong class="text-loomera-textPrimary">{{ pending_finance.adjustments }}</strong></p>
+          <p class="flex justify-between rounded-2xl bg-loomera-surface px-3 py-2">Refund <strong class="text-loomera-textPrimary">{{ pending_finance.refunds }}</strong></p>
+        </div>
+      </div>
+    </aside>
+  </section>
+</div>
+{% endblock %}

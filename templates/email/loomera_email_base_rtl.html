@@ -1,0 +1,31 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ subject|default:"پیام Loomera" }}</title>
+</head>
+<body style="margin:0;background:#FCFBFE;color:#2E2A3C;font-family:Tahoma,Arial,sans-serif;direction:rtl;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FCFBFE;padding:24px 0;">
+    <tr><td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#FFFFFF;border:1px solid #ECE8F2;border-radius:24px;overflow:hidden;">
+        <tr><td style="padding:24px 28px;background:#F7F6FA;border-bottom:1px solid #E8E4EF;">
+          <div style="font-size:12px;color:#7A738F;margin-bottom:12px;">{{ category_label|default:"Loomera" }}</div>
+          <div style="font-size:22px;line-height:1.5;font-weight:700;color:#2E2A3C;">{{ headline }}</div>
+          {% if support_line %}<div style="font-size:14px;line-height:1.8;color:#57526E;margin-top:8px;">{{ support_line }}</div>{% endif %}
+        </td></tr>
+        <tr><td style="padding:28px;line-height:1.9;font-size:15px;color:#57526E;">
+          {{ body_html|safe }}
+          {% if cta_url and cta_label %}
+          <div style="margin-top:24px;"><a href="{{ cta_url }}" style="display:inline-block;background:#735CBE;color:#FFFFFF;text-decoration:none;border-radius:999px;padding:12px 22px;font-weight:700;">{{ cta_label }}</a></div>
+          {% endif %}
+        </td></tr>
+        <tr><td style="padding:20px 28px;border-top:1px solid #ECE8F2;color:#7A738F;font-size:12px;line-height:1.8;">
+          این پیام از طرف {{ sender_name|default:"Loomera" }} ارسال شده است. برای مدیریت اعلان‌ها به حساب Loomera خود مراجعه کنید.
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

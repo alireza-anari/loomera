@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}ویرایش پروفایل{% endblock %}
+{% block body_attrs %}data-page="edit-profile"{% endblock %}
+{% block content %}
+  <main class="min-h-dvh bg-loomera-bg px-4 pb-32 pt-4 text-loomera-textPrimary lg:pb-16 lg:pt-6">
+    <div class="mx-auto w-full max-w-6xl">
+      <!-- MOBILE / PAGE HEADER -->
+      <header class="sticky top-0 z-30 -mx-4 border-b border-loomera-borderSoft bg-loomera-bg/90 px-4 py-3 backdrop-blur-xl lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-0">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex min-w-0 items-center gap-3">
+            <a href="{% url 'accounts:customerProfile' %}"
+               class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-loomera-surface text-loomera-textSecondary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary"
+               aria-label="بازگشت به پروفایل">
+              <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+            </a>
+            <div class="min-w-0 lg:hidden">
+              <p class="text-xs font-black text-loomera-primary">پروفایل مشتری</p>
+              <h1 class="truncate text-base font-black text-loomera-textPrimary">ویرایش پروفایل</h1>
+            </div>
+          </div>
+          <a href="{% url 'accounts:customerProfile' %}"
+             class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-loomera-surface text-loomera-textSecondary shadow-lm-soft transition hover:border-red-100 hover:bg-red-50 hover:text-red-600 lg:hidden"
+             aria-label="بستن">
+            <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+          </a>
+        </div>
+      </header>
+      <!-- HERO -->
+      <section class="mt-4 overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface shadow-lm-card lg:mt-0"
+               aria-labelledby="editProfileTitle">
+        <div class="relative bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive px-5 py-7 text-white sm:px-6 lg:px-8 lg:py-9">
+          <div class="absolute inset-0 opacity-25" aria-hidden="true">
+            <div class="absolute -right-24 -top-24 h-60 w-60 rounded-full bg-white/25 blur-3xl"></div>
+            <div class="absolute -bottom-28 left-12 h-72 w-72 rounded-full bg-loomera-accent/40 blur-3xl"></div>
+          </div>
+          <div class="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div class="min-w-0">
+              <p class="text-xs font-black uppercase tracking-[0.24em] text-white/70">ویرایش حساب</p>
+              <h1 id="editProfileTitle"
+                  class="mt-2 text-2xl font-black text-white sm:text-3xl lg:text-4xl">ویرایش اطلاعات پروفایل</h1>
+              <p class="mt-3 max-w-2xl text-sm font-semibold leading-7 text-white/78">
+                اطلاعات اصلی حساب را به‌روزرسانی کن. مدیریت آدرس‌ها در بخش جداگانه انجام می‌شود.
+              </p>
+            </div>
+            <a href="{% url 'accounts:customerProfile' %}"
+               class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-loomera-primary shadow-lm-soft transition hover:bg-loomera-primarySoft sm:w-auto">
+              <i class="fa-regular fa-user text-xs" aria-hidden="true"></i>
+              <span>بازگشت به پروفایل</span>
+            </a>
+          </div>
+        </div>
+        <div class="grid gap-3 p-4 sm:grid-cols-3 lg:p-5">
+          <div class="rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+            <span class="block text-xs font-bold text-loomera-textMuted">نام فعلی</span>
+            <strong class="mt-2 block truncate text-sm font-black text-loomera-textPrimary">{{ user.name|default:"ثبت نشده" }}</strong>
+          </div>
+          <div class="rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+            <span class="block text-xs font-bold text-loomera-textMuted">نام خانوادگی</span>
+            <strong class="mt-2 block truncate text-sm font-black text-loomera-textPrimary">{{ user.family|default:"ثبت نشده" }}</strong>
+          </div>
+          <div class="rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+            <span class="block text-xs font-bold text-loomera-textMuted">شماره موبایل</span>
+            <strong class="ltr mt-2 block truncate text-sm font-black text-loomera-textPrimary">{{ user.mobile_number|default:"ثبت نشده" }}</strong>
+          </div>
+        </div>
+      </section>
+      <form id="editProfileForm"
+            method="post"
+            enctype="multipart/form-data"
+            novalidate
+            class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+        {% csrf_token %}
+        <div class="min-w-0 space-y-6">
+          <!-- Profile image -->
+          <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-6"
+                   aria-labelledby="profile-photo-title">
+            <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex min-w-0 items-center gap-4">
+                <div class="relative shrink-0">
+                  {% if customer.profile_image %}
+                    <img id="profileImagePreview"
+                         src="{{ customer.profile_image.url }}"
+                         alt="{{ user.name }} {{ user.family }}"
+                         class="h-24 w-24 rounded-[1.75rem] border-4 border-white object-cover shadow-lm-card sm:h-28 sm:w-28">
+                  {% else %}
+                    <div id="profileImagePreview"
+                         class="flex h-24 w-24 items-center justify-center rounded-[1.75rem] border-4 border-white bg-gradient-to-br from-loomera-secondary to-loomera-primaryHover text-2xl font-black text-white shadow-lm-card sm:h-28 sm:w-28">
+                      {{ user.name|slice:":1" }}{{ user.family|slice:":1" }}
+                    </div>
+                  {% endif %}
+                  <label for="profileImageInput"
+                         class="absolute -bottom-1 -right-1 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-4 border-white bg-loomera-primary text-white shadow-lm-soft transition hover:bg-loomera-primaryHover"
+                         aria-label="تغییر تصویر پروفایل">
+                    <i class="fa-solid fa-camera text-xs" aria-hidden="true"></i>
+                  </label>
+                  <input type="file"
+                         id="profileImageInput"
+                         name="image"
+                         accept="image/jpeg,image/png,image/webp"
+                         class="sr-only">
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">تصویر پروفایل</p>
+                  <h2 id="profile-photo-title"
+                      class="mt-2 text-xl font-black text-loomera-textPrimary">عکس حساب</h2>
+                  <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">یک تصویر واضح انتخاب کن تا در حساب کاربری و رزروها نمایش داده شود.</p>
+                  {% if form.image.errors %}
+                    <p class="mt-2 text-xs font-bold text-red-600">{{ form.image.errors.0 }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- Personal info -->
+          <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-6"
+                   aria-labelledby="personal-info-title">
+            <div class="mb-5">
+              <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">اطلاعات فردی</p>
+              <h2 id="personal-info-title"
+                  class="mt-2 text-xl font-black text-loomera-textPrimary lg:text-2xl">مشخصات اصلی</h2>
+              <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">نام، ایمیل و تاریخ تولد را کامل و دقیق وارد کن.</p>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label for="profileName"
+                       class="mb-2 block text-sm font-black text-loomera-textPrimary">نام</label>
+                <input id="profileName"
+                       type="text"
+                       name="name"
+                       value="{{ form.name.value|default:'' }}"
+                       placeholder="نام خود را وارد کنید"
+                       autocomplete="given-name"
+                       class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary shadow-lm-soft outline-none transition placeholder:text-loomera-textMuted/60 focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-focusRing/25">
+                {% if form.name.errors %}<p class="mt-2 text-xs font-bold text-red-600">{{ form.name.errors.0 }}</p>{% endif %}
+              </div>
+              <div>
+                <label for="profileFamily"
+                       class="mb-2 block text-sm font-black text-loomera-textPrimary">نام خانوادگی</label>
+                <input id="profileFamily"
+                       type="text"
+                       name="family"
+                       value="{{ form.family.value|default:'' }}"
+                       placeholder="نام خانوادگی خود را وارد کنید"
+                       autocomplete="family-name"
+                       class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary shadow-lm-soft outline-none transition placeholder:text-loomera-textMuted/60 focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-focusRing/25">
+                {% if form.family.errors %}<p class="mt-2 text-xs font-bold text-red-600">{{ form.family.errors.0 }}</p>{% endif %}
+              </div>
+            </div>
+            <div class="mt-4 grid gap-4 sm:grid-cols-2">
+              <div>
+                <label for="profileMobile"
+                       class="mb-2 block text-sm font-black text-loomera-textPrimary">شماره موبایل</label>
+                <input id="profileMobile"
+                       type="text"
+                       name="mobile_number"
+                       value="{{ form.mobile_number.value|default:'' }}"
+                       readonly
+                       dir="ltr"
+                       class="ltr w-full cursor-not-allowed rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textMuted outline-none">
+                <p class="mt-2 text-xs font-bold leading-6 text-loomera-textMuted">شماره موبایل از این بخش قابل ویرایش نیست.</p>
+                {% if form.mobile_number.errors %}
+                  <p class="mt-2 text-xs font-bold text-red-600">{{ form.mobile_number.errors.0 }}</p>
+                {% endif %}
+              </div>
+              <div>
+                <label for="profileEmail"
+                       class="mb-2 block text-sm font-black text-loomera-textPrimary">آدرس ایمیل</label>
+                <input id="profileEmail"
+                       type="email"
+                       name="email"
+                       value="{{ form.email.value|default:'' }}"
+                       placeholder="example@gmail.com"
+                       autocomplete="email"
+                       dir="ltr"
+                       class="ltr w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary shadow-lm-soft outline-none transition placeholder:text-loomera-textMuted/60 focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-focusRing/25">
+                {% if form.email.errors %}<p class="mt-2 text-xs font-bold text-red-600">{{ form.email.errors.0 }}</p>{% endif %}
+              </div>
+            </div>
+          </section>
+          <!-- Birth date -->
+          <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card lg:p-6"
+                   aria-labelledby="birth-date-title">
+            <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div class="min-w-0">
+                <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">تاریخ تولد</p>
+                <h2 id="birth-date-title"
+                    class="mt-2 text-xl font-black text-loomera-textPrimary">اطلاعات تکمیلی</h2>
+                <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">تاریخ تولد را به شمسی وارد کن.</p>
+              </div>
+              <span class="inline-flex w-max rounded-full bg-loomera-primarySoft px-3 py-1.5 text-xs font-black text-loomera-primary">اختیاری</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label for="birthDay"
+                       class="mb-2 block text-xs font-black text-loomera-textMuted">روز</label>
+                <input id="birthDay"
+                       type="text"
+                       name="birth_day"
+                       value="{{ form.birth_day.value|default:'' }}"
+                       placeholder="روز"
+                       inputmode="numeric"
+                       maxlength="2"
+                       class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 text-center text-sm font-black text-loomera-textPrimary shadow-lm-soft outline-none transition placeholder:text-loomera-textMuted/60 focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-focusRing/25">
+              </div>
+              <div>
+                <label for="birthMonth"
+                       class="mb-2 block text-xs font-black text-loomera-textMuted">ماه</label>
+                <select id="birthMonth"
+                        name="birth_month"
+                        class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-2 py-3 text-center text-sm font-black text-loomera-textPrimary shadow-lm-soft outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-focusRing/25">
+                  <option value="">ماه</option>
+                  <option value="1" {% if form.birth_month.value == "1" %}selected{% endif %}>فروردین</option>
+                  <option value="2" {% if form.birth_month.value == "2" %}selected{% endif %}>اردیبهشت</option>
+                  <option value="3" {% if form.birth_month.value == "3" %}selected{% endif %}>خرداد</option>
+                  <option value="4" {% if form.birth_month.value == "4" %}selected{% endif %}>تیر</option>
+                  <option value="5" {% if form.birth_month.value == "5" %}selected{% endif %}>مرداد</option>
+                  <option value="6" {% if form.birth_month.value == "6" %}selected{% endif %}>شهریور</option>
+                  <option value="7" {% if form.birth_month.value == "7" %}selected{% endif %}>مهر</option>
+                  <option value="8" {% if form.birth_month.value == "8" %}selected{% endif %}>آبان</option>
+                  <option value="9" {% if form.birth_month.value == "9" %}selected{% endif %}>آذر</option>
+                  <option value="10" {% if form.birth_month.value == "10" %}selected{% endif %}>دی</option>
+                  <option value="11" {% if form.birth_month.value == "11" %}selected{% endif %}>بهمن</option>
+                  <option value="12" {% if form.birth_month.value == "12" %}selected{% endif %}>اسفند</option>
+                </select>
+              </div>
+              <div>
+                <label for="birthYear"
+                       class="mb-2 block text-xs font-black text-loomera-textMuted">سال</label>
+                <input id="birthYear"
+                       type="text"
+                       name="birth_year"
+                       value="{{ form.birth_year.value|default:'' }}"
+                       placeholder="سال"
+                       inputmode="numeric"
+                       maxlength="4"
+                       class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 text-center text-sm font-black text-loomera-textPrimary shadow-lm-soft outline-none transition placeholder:text-loomera-textMuted/60 focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-focusRing/25">
+              </div>
+            </div>
+            {% if form.birth_day.errors or form.birth_month.errors or form.birth_year.errors %}
+              <div class="mt-3 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-xs font-bold leading-6 text-red-600">
+                {% if form.birth_day.errors %}<p>{{ form.birth_day.errors.0 }}</p>{% endif %}
+                {% if form.birth_month.errors %}<p>{{ form.birth_month.errors.0 }}</p>{% endif %}
+                {% if form.birth_year.errors %}<p>{{ form.birth_year.errors.0 }}</p>{% endif %}
+              </div>
+            {% endif %}
+          </section>
+          <!-- Address note -->
+          <section class="rounded-[2rem] border border-loomera-primary/15 bg-loomera-primarySoft/50 p-5 shadow-lm-soft"
+                   aria-label="مدیریت آدرس‌ها">
+            <div class="flex items-start gap-3">
+              <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-lm-soft">
+                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <h2 class="text-base font-black text-loomera-textPrimary">آدرس‌ها جداگانه مدیریت می‌شوند</h2>
+                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textSecondary">برای افزودن، ویرایش یا انتخاب آدرس پیش‌فرض به بخش «آدرس‌های من» برو.</p>
+                <a href="{% url 'accounts:customer_addresses' %}"
+                   class="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-black text-loomera-primary shadow-lm-soft transition hover:bg-loomera-surfaceSoft">
+                  <i class="fa-solid fa-location-dot text-xs" aria-hidden="true"></i>
+                  <span>مدیریت آدرس‌ها</span>
+                </a>
+              </div>
+            </div>
+          </section>
+          {% if form.non_field_errors %}
+            <section class="rounded-[2rem] border border-red-100 bg-red-50 p-4 shadow-lm-soft"
+                     aria-label="خطاهای فرم">
+              {% for error in form.non_field_errors %}
+                <p class="text-sm font-bold leading-7 text-red-600">{{ error }}</p>
+              {% endfor %}
+            </section>
+          {% endif %}
+          <div class="hidden items-center gap-3 lg:flex">
+            <button type="submit"
+                    class="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-6 py-4 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
+              <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
+              <span>ذخیره تغییرات</span>
+            </button>
+            <a href="{% url 'accounts:customerProfile' %}"
+               class="inline-flex items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-6 py-4 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-bgSubtle">
+              انصراف
+            </a>
+          </div>
+        </div>
+        <!-- SIDEBAR -->
+        <aside class="hidden lg:block">
+          <div class="sticky top-24 space-y-4">
+            <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+              <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">راهنما</p>
+              <h2 class="mt-2 text-lg font-black text-loomera-textPrimary">قبل از ذخیره</h2>
+              <ul class="mt-4 space-y-3 text-sm font-semibold leading-7 text-loomera-textSecondary">
+                <li class="flex gap-2">
+                  <i class="fa-solid fa-circle-check mt-1 text-loomera-accent"
+                     aria-hidden="true"></i>
+                  <span>نام و نام خانوادگی باید کامل باشد.</span>
+                </li>
+                <li class="flex gap-2">
+                  <i class="fa-solid fa-circle-check mt-1 text-loomera-accent"
+                     aria-hidden="true"></i>
+                  <span>ایمیل اختیاری است، اما اگر وارد می‌کنی باید معتبر باشد.</span>
+                </li>
+                <li class="flex gap-2">
+                  <i class="fa-solid fa-circle-check mt-1 text-loomera-accent"
+                     aria-hidden="true"></i>
+                  <span>شماره موبایل برای امنیت حساب از این صفحه قابل تغییر نیست.</span>
+                </li>
+              </ul>
+            </section>
+            <nav class="rounded-[2rem] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft"
+                 aria-label="میانبرهای حساب">
+              <a href="{% url 'accounts:customer_panel' %}"
+                 class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+                <i class="fa-solid fa-house w-5 text-center" aria-hidden="true"></i>
+                <span>حساب من</span>
+              </a>
+              <a href="{% url 'accounts:customerProfile' %}"
+                 class="flex items-center gap-3 rounded-2xl bg-loomera-primarySoft px-3 py-3 text-sm font-black text-loomera-primary">
+                <i class="fa-regular fa-user w-5 text-center" aria-hidden="true"></i>
+                <span>پروفایل</span>
+              </a>
+              <a href="{% url 'accounts:customer_addresses' %}"
+                 class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+                <i class="fa-solid fa-location-dot w-5 text-center" aria-hidden="true"></i>
+                <span>آدرس‌ها</span>
+              </a>
+              <a href="{% url 'accounts:customer_settings' %}"
+                 class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+                <i class="fa-solid fa-gear w-5 text-center" aria-hidden="true"></i>
+                <span>تنظیمات</span>
+              </a>
+            </nav>
+          </div>
+        </aside>
+      </form>
+    </div>
+  </main>
+  <!-- MOBILE STICKY ACTIONS -->
+  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.10)] backdrop-blur-xl lg:hidden">
+    <div class="mx-auto flex w-full max-w-md gap-3">
+      <a href="{% url 'accounts:customerProfile' %}"
+         class="inline-flex h-13 min-h-[3.25rem] w-16 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle text-loomera-textPrimary shadow-lm-soft"
+         aria-label="انصراف">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </a>
+      <button type="submit"
+              form="editProfileForm"
+              class="inline-flex min-h-[3.25rem] flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
+        <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
+        <span>ذخیره تغییرات</span>
+      </button>
+    </div>
+  </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const imageInput = document.getElementById('profileImageInput');
+    let imagePreview = document.getElementById('profileImagePreview');
+
+    imageInput?.addEventListener('change', function () {
+      const file = this.files?.[0];
+      if (!file || !imagePreview || !(imagePreview instanceof HTMLElement)) return;
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const src = event.target?.result;
+        if (!src) return;
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = 'پیش‌نمایش تصویر پروفایل';
+        img.className = 'h-24 w-24 rounded-[1.75rem] border-4 border-white object-cover shadow-lm-card sm:h-28 sm:w-28';
+        img.id = 'profileImagePreview';
+
+        imagePreview.replaceWith(img);
+        imagePreview = img;
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+  </script>
+{% endblock %}

@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}حساب من{% endblock %}
+{% block body_attrs %}data-page="profile"{% endblock %}
+
+{% block content %}
+<section class="min-h-dvh bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.12),transparent_34%),linear-gradient(180deg,#FCFBFE_0%,#F7F6FA_100%)] px-4 pb-28 pt-4 text-loomera-textPrimary lg:pb-16 lg:pt-6" aria-labelledby="customerAccountTitle">
+  <div class="mx-auto w-full max-w-6xl space-y-6">
+    <!-- Hero -->
+    <header class="relative overflow-hidden rounded-[2.25rem] border border-white/70 bg-white/88 p-4 shadow-lm-card backdrop-blur-xl sm:p-5 lg:p-7">
+      <div class="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-loomera-primary/10 blur-3xl" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute -bottom-28 left-8 h-60 w-60 rounded-full bg-loomera-accent/20 blur-3xl" aria-hidden="true"></div>
+
+      <div class="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center">
+          <div class="relative shrink-0">
+            {% if customer.profile_image %}
+              <div class="h-24 w-24 overflow-hidden rounded-[1.75rem] border border-white bg-loomera-bgSubtle p-1 shadow-lm-soft sm:h-28 sm:w-28">
+                <img src="{{ customer.profile_image.url }}" alt="{{ customer.user.name }}" class="h-full w-full rounded-[1.45rem] object-cover">
+              </div>
+            {% else %}
+              <div class="flex h-24 w-24 items-center justify-center rounded-[1.75rem] border border-white bg-gradient-to-br from-loomera-primary to-loomera-primaryHover text-3xl font-black text-white shadow-lm-soft sm:h-28 sm:w-28">
+                <span>{{ customer.user.name|slice:":1" }}{{ customer.user.family|slice:":1" }}</span>
+              </div>
+            {% endif %}
+            <span class="absolute -bottom-2 -left-2 inline-flex h-9 w-9 items-center justify-center rounded-full border-4 border-white bg-emerald-100 text-emerald-700 shadow-sm" aria-label="حساب فعال">
+              <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="min-w-0">
+            <div class="mb-3 flex flex-wrap items-center gap-2">
+              <span class="inline-flex rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary">حساب مشتری</span>
+              <span class="inline-flex rounded-full border border-loomera-borderSoft bg-white px-3 py-1 text-xs font-bold text-loomera-textMuted">Loomera Member</span>
+            </div>
+            <h1 id="customerAccountTitle" class="truncate text-2xl font-black leading-10 text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+              {{ customer.user.name }} {{ customer.user.family }}
+            </h1>
+            <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textSecondary">
+              نوبت‌ها، علاقه‌مندی‌ها، کیف پول و تنظیمات حساب را از همین داشبورد مدیریت کن.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-2 lg:w-[22rem]">
+          <a href="{% url 'orders:appointments' %}" class="group rounded-[1.6rem] border border-loomera-borderSoft bg-white/85 p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-lm-card">
+            <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-hover:bg-loomera-primary group-hover:text-white">
+              <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+            </span>
+            <span class="mt-3 block text-xs font-bold text-loomera-textMuted">رزروها</span>
+            <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">نوبت‌های من</strong>
+          </a>
+          <a href="{% url 'csf:favorite_salons' %}" class="group rounded-[1.6rem] border border-loomera-borderSoft bg-white/85 p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-lm-card">
+            <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 transition group-hover:bg-rose-500 group-hover:text-white">
+              <i class="fa-regular fa-heart" aria-hidden="true"></i>
+            </span>
+            <span class="mt-3 block text-xs font-bold text-loomera-textMuted">ذخیره‌شده‌ها</span>
+            <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">علاقه‌مندی‌ها</strong>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+      <main class="min-w-0 space-y-6">
+        <!-- Quick actions -->
+        <section class="grid gap-3 sm:grid-cols-3" aria-label="دسترسی سریع">
+          <a href="{% url 'orders:appointments' %}" class="group relative overflow-hidden rounded-[1.85rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-lm-card">
+            <span class="absolute -left-8 -top-8 h-20 w-20 rounded-full bg-loomera-primary/10 transition group-hover:scale-125" aria-hidden="true"></span>
+            <span class="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primarySoft text-lg text-loomera-primary transition group-hover:bg-loomera-primary group-hover:text-white">
+              <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+            </span>
+            <strong class="relative mt-4 block text-sm font-black text-loomera-textPrimary">نوبت‌های من</strong>
+            <span class="relative mt-1 block text-xs leading-6 text-loomera-textMuted">رزروهای آینده و گذشته</span>
+          </a>
+
+          <a href="{% url 'csf:favorite_salons' %}" class="group relative overflow-hidden rounded-[1.85rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-rose-200 hover:shadow-lm-card">
+            <span class="absolute -left-8 -top-8 h-20 w-20 rounded-full bg-rose-100 transition group-hover:scale-125" aria-hidden="true"></span>
+            <span class="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-lg text-rose-600 transition group-hover:bg-rose-500 group-hover:text-white">
+              <i class="fa-regular fa-heart" aria-hidden="true"></i>
+            </span>
+            <strong class="relative mt-4 block text-sm font-black text-loomera-textPrimary">علاقه‌مندی‌ها</strong>
+            <span class="relative mt-1 block text-xs leading-6 text-loomera-textMuted">مجموعه‌هایی که ذخیره کرده‌ای</span>
+          </a>
+
+          <a href="{% url 'search:search_page' %}" class="group relative overflow-hidden rounded-[1.85rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lm-card">
+            <span class="absolute -left-8 -top-8 h-20 w-20 rounded-full bg-emerald-100 transition group-hover:scale-125" aria-hidden="true"></span>
+            <span class="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-lg text-emerald-700 transition group-hover:bg-emerald-500 group-hover:text-white">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            </span>
+            <strong class="relative mt-4 block text-sm font-black text-loomera-textPrimary">جستجوی مجموعه</strong>
+            <span class="relative mt-1 block text-xs leading-6 text-loomera-textMuted">رزرو سریع خدمت بعدی</span>
+          </a>
+        </section>
+
+        <!-- Booking section -->
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:p-6" aria-labelledby="account-booking-entry-title">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">نوبت‌های من</p>
+              <h2 id="account-booking-entry-title" class="mt-2 text-xl font-black text-loomera-textPrimary lg:text-2xl">مرور رزروها، پرداخت‌ها و وضعیت مراجعه</h2>
+              <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textSecondary">
+                جزئیات هر نوبت، وضعیت پرداخت، خدمات انتخاب‌شده و متخصص‌ها را در یک صفحه دنبال کن.
+              </p>
+            </div>
+            <span class="inline-flex w-max rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary">همگام با مسیر رزرو</span>
+          </div>
+
+          <div class="mt-5 grid gap-3 sm:grid-cols-2">
+            <a href="{% url 'orders:appointments' %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
+              <i class="fa-regular fa-calendar-check text-xs" aria-hidden="true"></i>
+              مشاهده نوبت‌ها
+            </a>
+            <a href="{% url 'search:search_page' %}" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-primary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+              رزرو نوبت جدید
+            </a>
+          </div>
+        </section>
+
+        <!-- Profile links -->
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:p-6" aria-labelledby="account-profile-links-title">
+          <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p class="text-xs font-black uppercase tracking-[0.22em] text-loomera-primary">اطلاعات حساب</p>
+              <h2 id="account-profile-links-title" class="mt-2 text-xl font-black text-loomera-textPrimary lg:text-2xl">پروفایل و تنظیمات</h2>
+            </div>
+            <p class="text-xs leading-6 text-loomera-textMuted">اطلاعاتت را کامل نگه دار تا رزروها سریع‌تر ثبت شوند.</p>
+          </div>
+
+          <div class="grid gap-3">
+            <a href="{% url 'accounts:customerProfile' %}" class="group flex items-center gap-3 rounded-[1.6rem] border border-loomera-borderSoft bg-white p-4 shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
+              <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-hover:bg-loomera-primary group-hover:text-white">
+                <i class="fa-regular fa-user" aria-hidden="true"></i>
+              </span>
+              <span class="min-w-0 flex-1">
+                <strong class="block text-sm font-black text-loomera-textPrimary">پروفایل من</strong>
+                <small class="mt-1 block truncate text-xs leading-5 text-loomera-textMuted">ویرایش اطلاعات فردی، تصویر و اطلاعات تماس</small>
+              </span>
+              <i class="fa-solid fa-chevron-left text-xs text-loomera-textMuted transition group-hover:text-loomera-primary" aria-hidden="true"></i>
+            </a>
+
+            <a href="{% url 'accounts:customer_addresses' %}" class="group flex items-center gap-3 rounded-[1.6rem] border border-loomera-borderSoft bg-white p-4 shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
+              <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-hover:bg-loomera-primary group-hover:text-white">
+                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              </span>
+              <span class="min-w-0 flex-1">
+                <strong class="block text-sm font-black text-loomera-textPrimary">آدرس‌ها</strong>
+                <small class="mt-1 block truncate text-xs leading-5 text-loomera-textMuted">{% if primary_address %}آدرس پیش‌فرض: {{ primary_address.title }}{% else %}آدرس پیش‌فرض ثبت نشده است{% endif %}</small>
+              </span>
+              <i class="fa-solid fa-chevron-left text-xs text-loomera-textMuted transition group-hover:text-loomera-primary" aria-hidden="true"></i>
+            </a>
+
+            <a href="{% url 'accounts:customer_settings' %}" class="group flex items-center gap-3 rounded-[1.6rem] border border-loomera-borderSoft bg-white p-4 shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
+              <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-hover:bg-loomera-primary group-hover:text-white">
+                <i class="fa-solid fa-gear" aria-hidden="true"></i>
+              </span>
+              <span class="min-w-0 flex-1">
+                <strong class="block text-sm font-black text-loomera-textPrimary">تنظیمات</strong>
+                <small class="mt-1 block truncate text-xs leading-5 text-loomera-textMuted">رمز عبور، اعلان‌ها و امنیت حساب</small>
+              </span>
+              <i class="fa-solid fa-chevron-left text-xs text-loomera-textMuted transition group-hover:text-loomera-primary" aria-hidden="true"></i>
+            </a>
+          </div>
+        </section>
+      </main>
+
+      <!-- Sidebar -->
+      <aside class="space-y-4 lg:sticky lg:top-24 lg:self-start">
+        <section class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-5 text-white shadow-lm-elevated" aria-labelledby="account-wallet-title">
+          <div class="pointer-events-none absolute -left-16 -top-16 h-40 w-40 rounded-full bg-white/15 blur-2xl" aria-hidden="true"></div>
+          <div class="pointer-events-none absolute -bottom-20 right-8 h-44 w-44 rounded-full bg-loomera-accent/25 blur-2xl" aria-hidden="true"></div>
+
+          <div class="relative flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <p class="text-xs font-bold text-white/75">موجودی کیف پول</p>
+              <h2 id="account-wallet-title" class="mt-2 text-2xl font-black text-white">
+                {% if wallet %}{{ wallet.balance|default:0|intcomma }}{% else %}0{% endif %} تومان
+              </h2>
+            </div>
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/15">
+              <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="relative mt-5 grid grid-cols-2 gap-3 text-xs text-white">
+            <div class="rounded-2xl bg-white/10 p-3 ring-1 ring-white/10">
+              <span class="block text-white/70">آدرس‌ها</span>
+              <strong class="mt-1 block text-base">{{ address_count }}</strong>
+            </div>
+            <div class="rounded-2xl bg-white/10 p-3 ring-1 ring-white/10">
+              <span class="block text-white/70">پیش‌فرض</span>
+              <strong class="mt-1 block truncate text-base">{% if primary_address %}{{ primary_address.title }}{% else %}ثبت نشده{% endif %}</strong>
+            </div>
+          </div>
+
+          <a href="{% url 'payments:detail' %}" class="relative mt-5 inline-flex w-full items-center justify-center rounded-full bg-white px-4 py-3 text-sm font-black text-loomera-primary shadow-lm-soft transition hover:bg-loomera-primarySoft">
+            مشاهده کیف پول
+          </a>
+        </section>
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-sm font-black text-loomera-textPrimary">پشتیبانی و قوانین</h2>
+            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-loomera-bgSubtle text-loomera-textMuted">
+              <i class="fa-regular fa-circle-question" aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="mt-4 grid gap-2">
+            <a href="{% url 'main:contact' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              <i class="fa-regular fa-life-ring" aria-hidden="true"></i>
+              <span>پشتیبانی</span>
+            </a>
+            <a href="{% url 'accounts:privacy_policy' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+              <span>حریم خصوصی و قوانین</span>
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold text-rose-700 transition hover:bg-rose-50">
+              <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+              <span>خروج از حساب</span>
+            </a>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,453 @@
+{% extends "base.html" %}
+{% load jalali_extras %}
+{% block title %}وضعیت رزرو{% endblock %}
+{% block content %}
+  <div class="min-h-dvh bg-loomera-bg px-3 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-3 text-loomera-textPrimary sm:px-6 sm:pt-4 lg:pb-16 lg:pt-8"
+       data-checkout-step="confirmation"
+       data-payment-result-mobile>
+    <div class="mx-auto w-full max-w-6xl space-y-5">
+      <section class="min-w-0 overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface shadow-lm-card"
+               role="status"
+               data-payment-result-hero
+               aria-live="polite">
+        <div class="relative p-5 sm:p-8 lg:p-10">
+          <div class="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-loomera-primarySoft/90 to-transparent"
+               aria-hidden="true"></div>
+          <div class="relative flex min-w-0 flex-col items-stretch gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-start gap-4">
+              {% if is_success %}
+                <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.5rem] bg-emerald-50 text-2xl text-emerald-600 shadow-lm-soft">
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                </div>
+                <div>
+                  {% if is_pay_in_salon_followup %}
+                    <p class="text-xs font-black uppercase tracking-[0.28em] text-loomera-primary">پرداخت تکمیلی</p>
+                    <h1 class="mt-3 break-words text-[1.55rem] font-black leading-10 text-loomera-textPrimary sm:text-3xl sm:leading-[1.6]">پرداخت تکمیلی رزرو ثبت شد</h1>
+                    <p class="mt-3 max-w-2xl text-sm leading-8 text-loomera-textMuted">پرداخت آنلاین این نوبت نهایی شد و وضعیت مالی سفارش با تسویه مجموعه هماهنگ شده است.</p>
+                  {% else %}
+                    <p class="text-xs font-black uppercase tracking-[0.28em] text-loomera-primary">رزرو نهایی شد</p>
+                    <h1 class="mt-3 break-words text-[1.55rem] font-black leading-10 text-loomera-textPrimary sm:text-3xl sm:leading-[1.6]">رزروت ثبت شد</h1>
+                    <p class="mt-3 max-w-2xl text-sm leading-8 text-loomera-textMuted">جزئیات نوبت در همین صفحه و در بخش «نوبت‌های من» در دسترس است.</p>
+                  {% endif %}
+                </div>
+              {% elif is_payment_pending_review %}
+                <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.5rem] bg-amber-50 text-2xl text-amber-600 shadow-lm-soft">
+                  <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-black uppercase tracking-[0.28em] text-loomera-primary">در حال بررسی</p>
+                  <h1 class="mt-3 break-words text-[1.55rem] font-black leading-10 text-loomera-textPrimary sm:text-3xl sm:leading-[1.6]">{{ payment_pending_title }}</h1>
+                  <p class="mt-3 max-w-2xl text-sm leading-8 text-loomera-textMuted">{{ payment_pending_body }}</p>
+                </div>
+              {% elif is_expired_checkout %}
+                <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.5rem] bg-orange-50 text-2xl text-orange-600 shadow-lm-soft">
+                  <i class="fa-solid fa-hourglass-end" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-black uppercase tracking-[0.28em] text-orange-600">مهلت پرداخت تمام شد</p>
+                  <h1 class="mt-3 break-words text-[1.55rem] font-black leading-10 text-loomera-textPrimary sm:text-3xl sm:leading-[1.6]">{{ expired_checkout_title }}</h1>
+                  <p class="mt-3 max-w-2xl text-sm leading-8 text-loomera-textMuted">{{ expired_checkout_body }}</p>
+                </div>
+              {% elif is_cancelled %}
+                <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.5rem] bg-amber-50 text-2xl text-amber-600 shadow-lm-soft">
+                  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-black uppercase tracking-[0.28em] text-loomera-primary">پرداخت لغو شد</p>
+                  <h1 class="mt-3 break-words text-[1.55rem] font-black leading-10 text-loomera-textPrimary sm:text-3xl sm:leading-[1.6]">پرداخت توسط شما لغو شد</h1>
+                  <p class="mt-3 max-w-2xl text-sm leading-8 text-loomera-textMuted">
+                    پرداخت آنلاین کامل نشد. اگر هنوز می‌خواهی این نوبت را ثبت کنی، می‌توانی از صفحه رزرو دوباره اقدام کنی.
+                  </p>
+                </div>
+              {% else %}
+                <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.5rem] bg-rose-50 text-2xl text-rose-600 shadow-lm-soft">
+                  <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                </div>
+                <div>
+                  {% if pay_in_salon_online_failed %}
+                    <p class="text-xs font-black uppercase tracking-[0.28em] text-loomera-primary">نیاز به پیگیری</p>
+                    <h1 class="mt-3 break-words text-[1.55rem] font-black leading-10 text-loomera-textPrimary sm:text-3xl sm:leading-[1.6]">پرداخت آنلاین تکمیلی تأیید نشد</h1>
+                    <p class="mt-3 max-w-2xl text-sm leading-8 text-loomera-textMuted">نوبت شما فعال باقی مانده و پرداخت روی حالت «پرداخت در مجموعه» حفظ شده است.</p>
+                  {% else %}
+                    <p class="text-xs font-black uppercase tracking-[0.28em] text-loomera-primary">پرداخت ناموفق</p>
+                    <h1 class="mt-3 break-words text-[1.55rem] font-black leading-10 text-loomera-textPrimary sm:text-3xl sm:leading-[1.6]">پرداخت ناموفق بود</h1>
+                    <p class="mt-3 max-w-2xl text-sm leading-8 text-loomera-textMuted">
+                      پرداخت توسط درگاه تأیید نشد. اگر مبلغی از حساب شما کسر نشده باشد، می‌توانید دوباره برای رزرو اقدام کنید.
+                    </p>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </div>
+            <span class="inline-flex w-full max-w-full shrink-0 items-center justify-center gap-2 whitespace-normal rounded-full border px-4 py-2 text-center text-xs font-black leading-5 sm:w-auto {% if is_success %}border-emerald-200 bg-emerald-50 text-emerald-700{% elif is_payment_pending_review %}border-amber-200 bg-amber-50 text-amber-700{% elif is_expired_checkout %}border-orange-200 bg-orange-50 text-orange-700{% elif is_cancelled %}border-amber-200 bg-amber-50 text-amber-700{% else %}border-rose-200 bg-rose-50 text-rose-700{% endif %}">
+              <span class="h-2 w-2 rounded-full {% if is_success %}bg-emerald-500{% elif is_payment_pending_review %}bg-amber-500{% elif is_expired_checkout %}bg-orange-500{% elif is_cancelled %}bg-amber-500{% else %}bg-rose-500{% endif %}"
+                    aria-hidden="true"></span>
+              {% if is_payment_pending_review %}
+                در حال بررسی پرداخت
+              {% elif is_expired_checkout %}
+                مهلت پرداخت تمام شد
+              {% else %}
+                {{ order_status_label }}
+              {% endif %}
+            </span>
+          </div>
+        </div>
+      </section>
+      {% if is_payment_pending_review %}
+        <section class="rounded-[2rem] border border-amber-200 bg-amber-50 p-4 shadow-lm-soft sm:p-5"
+                 role="alert"
+                 aria-live="polite">
+          <div class="flex flex-col items-start gap-4 sm:flex-row">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+              <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <h2 class="text-base font-black text-amber-950">دوباره پرداخت نکنید</h2>
+              <p class="mt-2 text-sm font-bold leading-7 text-amber-900">{{ payment_pending_primary_hint }}</p>
+              <p class="mt-2 text-xs leading-6 text-amber-800">{{ payment_pending_secondary_hint }}</p>
+              <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                {% if order %}
+                  <a href="{% url 'orders:appointment_detail' order.id %}"
+                     class="inline-flex items-center justify-center gap-2 rounded-full bg-amber-600 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300">
+                    <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+                    <span>پیگیری نوبت</span>
+                  </a>
+                {% endif %}
+                <a href="{% url 'support' %}?topic=پیگیری وضعیت پرداخت"
+                   class="inline-flex items-center justify-center gap-2 rounded-full border border-amber-200 bg-white px-4 py-2.5 text-xs font-black text-amber-800 shadow-sm transition hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300">
+                  <i class="fa-solid fa-headset" aria-hidden="true"></i>
+                  <span>ارتباط با پشتیبانی</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      {% endif %}
+      {% if is_split_day_booking %}
+        <section class="rounded-[2rem] border border-loomera-primary/20 bg-loomera-primarySoft/60 p-5 shadow-lm-soft"
+                 aria-labelledby="confirmation-split-title">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.24em] text-loomera-primary">برنامه‌ریزی چندروزه</p>
+            <h2 id="confirmation-split-title"
+                class="mt-2 text-lg font-black text-loomera-textPrimary">این رزرو روی چند روز برنامه‌ریزی شد</h2>
+            <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">برای حفظ توالی خدمات، رزرو شما روی چند روز برنامه‌ریزی شده است.</p>
+          </div>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            {% for day in grouped_days %}
+              <article class="rounded-[1.5rem] border border-white/70 bg-white/80 p-4 shadow-lm-soft">
+                <div class="flex items-center justify-between gap-3">
+                  <span class="font-black text-loomera-textPrimary">{{ day.date }}</span>
+                  <span class="rounded-full bg-loomera-surface px-3 py-1 text-xs font-black text-loomera-primary">{{ day.service_count }} خدمت</span>
+                </div>
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">بازه زمانی: {{ day.time_label }}</p>
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+      <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+        <main class="min-w-0 space-y-5">
+          <section class="min-w-0 overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-card sm:p-6"
+                   aria-labelledby="confirmation-details-title"
+                   data-payment-result-details>
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p class="text-xs font-black uppercase tracking-[0.24em] text-loomera-primary">جزئیات نوبت</p>
+                <h2 id="confirmation-details-title"
+                    class="mt-2 text-xl font-black text-loomera-textPrimary">خلاصه سفارش</h2>
+              </div>
+              <span class="inline-flex w-fit rounded-full border px-3 py-1 text-xs font-black {% if is_success %}border-emerald-200 bg-emerald-50 text-emerald-700{% elif is_payment_pending_review %}border-amber-200 bg-amber-50 text-amber-700{% elif is_expired_checkout %}border-orange-200 bg-orange-50 text-orange-700{% elif is_cancelled %}border-amber-200 bg-amber-50 text-amber-700{% else %}border-rose-200 bg-rose-50 text-rose-700{% endif %}">
+                {% if is_payment_pending_review %}
+                  در حال بررسی پرداخت
+                {% elif is_expired_checkout %}
+                  مهلت پرداخت تمام شد
+                {% else %}
+                  {{ order_status_label }}
+                {% endif %}
+              </span>
+            </div>
+            <dl class="mt-5 divide-y divide-loomera-borderSoft rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle px-4 [&>div]:flex-col [&>div]:items-start sm:[&>div]:flex-row sm:[&>div]:items-center [&_dd]:w-full [&_dd]:max-w-full [&_dd]:break-words [&_dd]:text-right sm:[&_dd]:w-auto sm:[&_dd]:max-w-[62%] sm:[&_dd]:text-left"
+                data-payment-result-details-list>
+              <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                <dt class="text-loomera-textMuted">شماره سفارش</dt>
+                <dd class="text-left font-black text-loomera-textPrimary">
+                  {{ order.order_number|default:'—' }}
+                </dd>
+              </div>
+              <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                <dt class="text-loomera-textMuted">مجموعه</dt>
+                <dd class="text-left font-black text-loomera-textPrimary">
+                  {{ order.salon.salon_name|default:'—' }}
+                </dd>
+              </div>
+              <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                <dt class="text-loomera-textMuted">روش پرداخت</dt>
+                <dd class="text-left font-bold text-loomera-textPrimary">
+                  {{ order.get_selected_payment_method_display|default:'—' }}
+                </dd>
+              </div>
+              <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                <dt class="text-loomera-textMuted">ارائه‌دهنده پرداخت</dt>
+                <dd class="text-left font-bold text-loomera-textPrimary">
+                  {{ payment.get_provider_display|default:'—' }}
+                </dd>
+              </div>
+              <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                <dt class="text-loomera-textMuted">وضعیت پرداخت</dt>
+                <dd class="text-left font-bold text-loomera-textPrimary">
+                  {{ payment_status_label }}
+                </dd>
+              </div>
+              <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                <dt class="text-loomera-textMuted">وضعیت رزرو</dt>
+                <dd class="text-left font-bold text-loomera-textPrimary">
+                  {{ order_status_label }}
+                </dd>
+              </div>
+              <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                <dt class="text-loomera-textMuted">جمع خدمات</dt>
+                <dd class="text-left font-black text-loomera-textPrimary">
+                  {{ order.subtotal_amount|floatformat:0 }} تومان
+                </dd>
+              </div>
+              {% if order.basket_discount_amount %}
+                <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                  <dt class="text-loomera-textMuted">تخفیف خدمات</dt>
+                  <dd class="text-left font-black text-emerald-700">
+                    {{ order.basket_discount_amount|floatformat:0 }} تومان
+                  </dd>
+                </div>
+              {% endif %}
+              {% if order.coupon_discount_amount %}
+                <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                  <dt class="text-loomera-textMuted">
+                    تخفیف کد
+                    {% if order.coupon_code %} • {{ order.coupon_code }}{% endif %}
+                  </dt>
+                  <dd class="text-left font-black text-emerald-700">
+                    {{ order.coupon_discount_amount|floatformat:0 }} تومان
+                  </dd>
+                </div>
+              {% endif %}
+              {% if order.discount_amount %}
+                <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                  <dt class="text-loomera-textMuted">جمع تخفیف</dt>
+                  <dd class="text-left font-black text-emerald-700">
+                    {{ order.discount_amount|floatformat:0 }} تومان
+                  </dd>
+                </div>
+              {% endif %}
+              <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                <dt class="text-loomera-textMuted">مالیات</dt>
+                <dd class="text-left font-black text-loomera-textPrimary">
+                  {{ order.tax_amount|floatformat:0 }} تومان
+                </dd>
+              </div>
+              <div class="flex items-center justify-between gap-4 py-4 text-base">
+                <dt class="font-black text-loomera-textPrimary">مبلغ پرداخت</dt>
+                <dd class="text-left text-lg font-black text-loomera-primary">
+                  {{ payment.amount|floatformat:0 }} تومان
+                </dd>
+              </div>
+              {% if payment.ref_id %}
+                <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                  <dt class="text-loomera-textMuted">شناسه نهایی پرداخت</dt>
+                  <dd class="break-all text-left font-mono text-xs font-bold text-loomera-textPrimary">
+                    {{ payment.ref_id }}
+                  </dd>
+                </div>
+              {% endif %}
+              {% if payment.gateway_track_id %}
+                <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                  <dt class="text-loomera-textMuted">رهگیری درگاه</dt>
+                  <dd class="break-all text-left font-mono text-xs font-bold text-loomera-textPrimary">
+                    {{ payment.gateway_track_id }}
+                  </dd>
+                </div>
+              {% endif %}
+              {% if settlement %}
+                <div class="flex items-center justify-between gap-4 py-3 text-sm">
+                  <dt class="text-loomera-textMuted">وضعیت تسویه مجموعه</dt>
+                  <dd class="text-left font-bold text-loomera-textPrimary">
+                    {{ settlement.get_payout_state_display }}
+                  </dd>
+                </div>
+              {% endif %}
+            </dl>
+            {% if refund_amount %}
+              <div class="mt-4 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 p-4 text-sm leading-7 text-emerald-800">
+                مبلغ {{ refund_amount|floatformat:0 }} تومان طبق شرایط لغو این رزرو به کیف پول شما برگشت داده شد.
+                {% if refund_time %}زمان ثبت بازگشت وجه: {{ refund_time|jalali_datetime }}.{% endif %}
+              </div>
+            {% elif is_payment_pending_review %}
+              <div class="mt-4 rounded-[1.5rem] border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-800">
+                وضعیت پرداخت هنوز نهایی نیست. برای جلوگیری از پرداخت تکراری، همین تراکنش را پیگیری کن.
+              </div>
+            {% elif is_expired_checkout %}
+              <div class="mt-4 rounded-[1.5rem] border border-orange-200 bg-orange-50 p-4 text-sm leading-7 text-orange-800">
+                مهلت پرداخت این رزرو تمام شده و زمان انتخاب‌شده آزاد شده است. برای رزرو دوباره، یک زمان آزاد جدید انتخاب کن.
+              </div>
+            {% elif is_cancelled %}
+              <div class="mt-4 rounded-[1.5rem] border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-800">
+                پرداخت توسط شما لغو شد. اگر مبلغی از حساب شما کسر شده باشد، وضعیت آن از طریق پشتیبانی قابل پیگیری است.
+              </div>
+            {% elif not is_success %}
+              <div class="mt-4 rounded-[1.5rem] border border-rose-200 bg-rose-50 p-4 text-sm leading-7 text-rose-800">
+                پرداخت تأیید نشد. اگر مبلغی از حساب شما کسر شده باشد، وضعیت آن از طریق پشتیبانی قابل پیگیری است.
+              </div>
+            {% endif %}
+          </section>
+          {% if order.order_details1.all %}
+            <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-card sm:p-6"
+                     aria-labelledby="confirmation-services-title">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-black uppercase tracking-[0.24em] text-loomera-primary">خدمات</p>
+                  <h2 id="confirmation-services-title"
+                      class="mt-2 text-xl font-black text-loomera-textPrimary">خدمات این نوبت</h2>
+                </div>
+              </div>
+              <div class="mt-5 grid gap-3" role="list">
+                {% for item in order.order_details1.all %}
+                  <article class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft"
+                           role="listitem">
+                    <div class="flex flex-col items-start gap-4 sm:flex-row">
+                      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm font-black text-loomera-primary"
+                           aria-hidden="true">{{ forloop.counter }}</div>
+                      <div class="min-w-0 flex-1">
+                        <h3 class="text-base font-black text-loomera-textPrimary">{{ item.service.service_name|default:'خدمت' }}</h3>
+                        <dl class="mt-3 grid gap-2 text-sm sm:grid-cols-3">
+                          <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-2">
+                            <dt class="text-xs font-bold text-loomera-textMuted">متخصص</dt>
+                            <dd class="mt-1 font-bold text-loomera-textPrimary">
+                              {% if item.stylist %}
+                                {{ item.stylist.user.get_fullName }}
+                              {% else %}
+                                —
+                              {% endif %}
+                            </dd>
+                          </div>
+                          <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-2">
+                            <dt class="text-xs font-bold text-loomera-textMuted">تاریخ</dt>
+                            <dd class="mt-1 font-bold text-loomera-textPrimary">
+                              {{ item.date|jalali_weekday|default:'—' }}
+                            </dd>
+                          </div>
+                          <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-2">
+                            <dt class="text-xs font-bold text-loomera-textMuted">ساعت</dt>
+                            <dd class="mt-1 font-bold text-loomera-textPrimary">
+                              {{ item.time|fa_time|default:'—' }}
+                              {% if item.end_time %}تا {{ item.end_time|fa_time }}{% endif %}
+                            </dd>
+                          </div>
+                        </dl>
+                      </div>
+                      {% if item.price %}
+                        <div class="hidden shrink-0 rounded-2xl bg-loomera-primarySoft px-4 py-3 text-left text-sm font-black text-loomera-primary sm:block">{{ item.price|floatformat:0 }} تومان</div>
+                      {% endif %}
+                    </div>
+                    {% if item.price %}
+                      <div class="mt-3 rounded-2xl bg-loomera-primarySoft px-4 py-3 text-left text-sm font-black text-loomera-primary sm:hidden">{{ item.price|floatformat:0 }} تومان</div>
+                    {% endif %}
+                  </article>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
+        </main>
+        <aside class="scroll-mt-24 lg:sticky lg:top-24" aria-label="اقدام‌های بعدی"
+               data-payment-result-actions>
+          <div class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface p-5 shadow-lm-elevated">
+            <p class="text-xs font-black uppercase tracking-[0.24em] text-loomera-primary">اقدام بعدی</p>
+            <h2 class="mt-2 text-xl font-black text-loomera-textPrimary">
+              {% if is_success %}
+                نوبتت آماده پیگیری است
+              {% elif is_payment_pending_review %}
+                پرداخت در حال بررسی است
+              {% elif is_expired_checkout %}
+                مهلت پرداخت تمام شده است
+              {% elif is_cancelled %}
+                پرداخت لغو شد
+              {% else %}
+                پرداخت ناموفق بود
+              {% endif %}
+            </h2>
+            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
+              {% if is_payment_pending_review %}
+                برای جلوگیری از پرداخت تکراری، همین تراکنش را پیگیری کن و تا تعیین وضعیت نهایی دوباره پرداخت نکن.
+              {% elif is_expired_checkout %}
+                این رزرو دیگر نگه‌داشته نمی‌شود. برای رزرو دوباره، یک زمان آزاد جدید انتخاب کن.
+              {% elif is_cancelled %}
+                پرداخت کامل نشد. می‌توانی برای رزرو دوباره به صفحه مجموعه برگردی.
+              {% elif not is_success %}
+                پرداخت تأیید نشد. اگر مبلغی کسر شده، از پشتیبانی پیگیری کن.
+              {% else %}
+                از اینجا می‌توانی جزئیات نوبت، کیف پول یا حساب کاربری را ببینی.
+              {% endif %}
+            </p>
+            <div class="mt-5 grid gap-3">
+              {% if is_success %}
+                {% if is_pay_in_salon_followup %}
+                  <a href="{% url 'orders:appointment_detail' order.id %}"
+                     class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                    <i class="fa-solid fa-receipt text-xs" aria-hidden="true"></i>
+                    <span>جزئیات نوبت</span>
+                  </a>
+                {% else %}
+                  <a href="{% url 'orders:appointments' %}"
+                     class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                    <i class="fa-solid fa-calendar-check text-xs" aria-hidden="true"></i>
+                    <span>مشاهده نوبت‌ها</span>
+                  </a>
+                {% endif %}
+              {% else %}
+                {% if is_payment_pending_review %}
+                  {% if order %}
+                    <a href="{% url 'orders:appointment_detail' order.id %}"
+                       class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                      <i class="fa-solid fa-receipt text-xs" aria-hidden="true"></i>
+                      <span>پیگیری نوبت</span>
+                    </a>
+                  {% endif %}
+                {% elif is_expired_checkout %}
+                  <a href="{% url 'salons:detail_salon' order.salon.id %}"
+                     class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                    <i class="fa-solid fa-calendar-plus text-xs" aria-hidden="true"></i>
+                    <span>رزرو زمان جدید</span>
+                  </a>
+                {% elif is_cancelled %}
+                  <a href="{% url 'salons:detail_salon' order.salon.id %}"
+                     class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                    <i class="fa-solid fa-rotate-left text-xs" aria-hidden="true"></i>
+                    <span>تلاش دوباره برای رزرو</span>
+                  </a>
+                {% elif pay_in_salon_online_failed %}
+                  <a href="{% url 'orders:appointment_detail' order.id %}"
+                     class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                    <i class="fa-solid fa-wallet text-xs" aria-hidden="true"></i>
+                    <span>ادامه تسویه نوبت</span>
+                  </a>
+                {% else %}
+                  <a href="{% url 'support' %}?topic=پیگیری پرداخت ناموفق"
+                     class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                    <i class="fa-solid fa-headset text-xs" aria-hidden="true"></i>
+                    <span>پیگیری با پشتیبانی</span>
+                  </a>
+                {% endif %}
+              {% endif %}
+              <a href="{% url 'payments:detail' %}"
+                 class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-lm-soft transition hover:border-loomera-primary/40 hover:bg-loomera-primarySoft">
+                <i class="fa-solid fa-wallet text-xs" aria-hidden="true"></i>
+                <span>کیف پول</span>
+              </a>
+              <a href="{% url 'accounts:customer_panel' %}"
+                 class="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black text-loomera-primary transition hover:bg-loomera-primarySoft">
+                <i class="fa-solid fa-house text-xs" aria-hidden="true"></i>
+                <span>حساب کاربری</span>
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+{% endblock %}

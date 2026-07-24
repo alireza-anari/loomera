@@ -1,0 +1,4292 @@
+:root,
+html[data-theme="light"] {
+  color-scheme: light;
+
+  --lm-soft-violet: #886FD6;
+  --lm-lilac-mist: #B49AE6;
+  --lm-sage-bloom: #A7C8A1;
+  --lm-pearl-white: #F7F6FA;
+  --lm-slate-plum: #57526E;
+  --lm-iris-glow: #DCCFF8;
+
+  --lm-primary: #735CBE;
+  --lm-primary-hover: #886FD6;
+  --lm-primary-active: #57526E;
+  --lm-primary-soft: #EEE8FA;
+  --lm-secondary: #9B80E0;
+  --lm-accent: #A7C8A1;
+
+  --lm-bg: #FCFBFE;
+  --lm-bg-subtle: #F7F6FA;
+  --lm-surface: #FFFFFF;
+  --lm-surface-soft: #FAF8FE;
+  --lm-border: #DDD8E8;
+  --lm-border-soft: #ECE8F2;
+
+  --lm-text-primary: #2E2A3C;
+  --lm-text-secondary: #57526E;
+  --lm-text-muted: #7B7690;
+  --lm-text-on-primary: #FFFFFF;
+
+  --lm-success: #A7C8A1;
+  --lm-success-soft: #E8F2E5;
+  --lm-warning: #9B80E0;
+  --lm-warning-soft: #EEE8FA;
+  --lm-danger: #57526E;
+  --lm-danger-soft: #F7F6FA;
+  --lm-info: #735CBE;
+  --lm-info-soft: #EEE8FA;
+
+  /* Tailwind token bridge: keep Tailwind utilities synced with Loomera's current palette */
+  --lm-primary-rgb: 115 92 190;
+  --lm-primary-hover-rgb: 136 111 214;
+  --lm-primary-active-rgb: 87 82 110;
+  --lm-primary-soft-rgb: 238 232 250;
+
+  --lm-secondary-rgb: 155 128 224;
+  --lm-secondary-soft-rgb: 243 238 251;
+
+  --lm-accent-rgb: 167 200 161;
+  --lm-accent-soft-rgb: 241 247 239;
+
+  --lm-bg-rgb: 252 251 254;
+  --lm-bg-subtle-rgb: 247 246 250;
+
+  --lm-surface-rgb: 255 255 255;
+  --lm-surface-raised-rgb: 255 255 255;
+  --lm-surface-soft-rgb: 250 248 254;
+
+  --lm-border-rgb: 221 216 232;
+  --lm-border-soft-rgb: 236 232 242;
+
+  --lm-text-primary-rgb: 46 42 60;
+  --lm-text-secondary-rgb: 87 82 110;
+  --lm-text-muted-rgb: 123 118 144;
+  --lm-text-on-primary-rgb: 255 255 255;
+
+  --lm-success-rgb: 167 200 161;
+  --lm-success-soft-rgb: 232 242 229;
+
+  --lm-warning-rgb: 155 128 224;
+  --lm-warning-soft-rgb: 238 232 250;
+
+  --lm-danger-rgb: 87 82 110;
+  --lm-danger-soft-rgb: 247 246 250;
+
+  --lm-info-rgb: 115 92 190;
+  --lm-info-soft-rgb: 238 232 250;
+
+  --lm-focus-ring-rgb: 180 154 230
+
+  --lm-shadow-soft: 0 12px 34px rgba(46, 42, 60, 0.06);
+  --lm-shadow-card: 0 18px 46px rgba(46, 42, 60, 0.09);
+  --lm-shadow-floating: 0 30px 80px rgba(46, 42, 60, 0.14);
+  --lm-focus: 0 0 0 4px rgba(180, 154, 230, 0.28);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --lm-primary: #A688E6;
+  --lm-primary-hover: #B49AE6;
+  --lm-primary-active: #DCCFF8;
+  --lm-primary-soft: rgba(166, 136, 230, 0.18);
+  --lm-secondary: #B49AE6;
+  --lm-accent: #A7C8A1;
+
+  --lm-bg: #16131F;
+  --lm-bg-subtle: #1B1826;
+  --lm-surface: #211C2E;
+  --lm-surface-soft: #282238;
+  --lm-border: #57526E;
+  --lm-border-soft: #383149;
+
+  --lm-text-primary: #F5F2FA;
+  --lm-text-secondary: #DCCFF8;
+  --lm-text-muted: #B8AFCB;
+  --lm-text-on-primary: #16131F;
+
+  --lm-success: #A7C8A1;
+  --lm-success-soft: #1E2B24;
+  --lm-warning: #B49AE6;
+  --lm-warning-soft: #2A223A;
+  --lm-danger: #DCCFF8;
+  --lm-danger-soft: #282238;
+  --lm-info: #A688E6;
+  --lm-info-soft: #2A223A;
+
+  --lm-shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.32);
+  --lm-shadow-card: 0 18px 46px rgba(0, 0, 0, 0.42);
+  --lm-shadow-floating: 0 30px 80px rgba(0, 0, 0, 0.55);
+  --lm-focus: 0 0 0 4px rgba(166, 136, 230, 0.28);
+}
+
+html,
+body {
+  background: var(--lm-bg) !important;
+  color: var(--lm-text-primary) !important;
+}
+
+body {
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+::selection {
+  background: var(--lm-primary-soft);
+  color: var(--lm-text-primary);
+}
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  color: var(--lm-primary);
+}
+
+.lm-shell,
+.lm-app-surface,
+.lm-public-customer-shell,
+.lm-dashboard-canvas,
+.lm-desktop-canvas {
+  background: var(--lm-bg) !important;
+  color: var(--lm-text-primary) !important;
+}
+
+/* =========================
+   Global surfaces
+========================= */
+
+.lm-card,
+.lm-app-card,
+.lm-venue-card,
+.lm-booking-card,
+.lm-dashboard-panel,
+.lm-form-card,
+.lm-table-surface,
+.lm-report-surface,
+.lm-scheduler-surface,
+.lm-hero-surface,
+.lm-public-search,
+.lm-public-salon-card,
+.lm-public-category-card,
+.lm-shell-desktop-site-header,
+.lm-shell-mobile-header,
+.lm-app-bottom-nav-surface {
+  background: var(--lm-surface) !important;
+  border-color: var(--lm-border-soft) !important;
+  color: var(--lm-text-primary) !important;
+}
+
+.lm-card,
+.lm-app-card,
+.lm-venue-card,
+.lm-booking-card,
+.lm-dashboard-panel,
+.lm-form-card,
+.lm-table-surface,
+.lm-report-surface,
+.lm-scheduler-surface,
+.lm-hero-surface,
+.lm-public-salon-card,
+.lm-public-category-card {
+  box-shadow: var(--lm-shadow-soft) !important;
+}
+
+.lm-card--interactive:hover,
+.lm-app-card--interactive:hover,
+.lm-public-salon-card:hover,
+.lm-public-category-card:hover,
+.lm-venue-card:hover,
+.lm-booking-card:hover {
+  border-color: color-mix(in srgb, var(--lm-primary) 28%, var(--lm-border)) !important;
+  box-shadow: var(--lm-shadow-card) !important;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   Buttons
+========================= */
+
+.lm-btn,
+.lm-btn-primary,
+.lm-btn-secondary,
+.lm-btn-ghost,
+.lm-icon-button,
+.lm-icon-btn,
+button,
+[type="button"],
+[type="submit"] {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.lm-btn-primary,
+.btn-primary,
+button[type="submit"],
+.bg-loomera-primary {
+  background: var(--lm-primary) !important;
+  border-color: var(--lm-primary) !important;
+  color: var(--lm-text-on-primary) !important;
+  box-shadow: 0 12px 28px rgba(115, 92, 190, 0.18);
+}
+
+.lm-btn-primary:hover,
+.btn-primary:hover,
+button[type="submit"]:hover,
+.hover\:bg-loomera-primary:hover,
+.hover\:bg-slate-900:hover,
+.hover\:bg-gray-900:hover,
+.hover\:bg-purple-600:hover,
+.hover\:bg-violet-600:hover,
+.hover\:bg-indigo-600:hover {
+  background: var(--lm-primary-hover) !important;
+  border-color: var(--lm-primary-hover) !important;
+  color: var(--lm-text-on-primary) !important;
+  box-shadow: 0 14px 32px rgba(136, 111, 214, 0.22);
+}
+
+.lm-btn-primary:active,
+button[type="submit"]:active {
+  background: var(--lm-primary-active) !important;
+  border-color: var(--lm-primary-active) !important;
+  transform: translateY(1px);
+}
+
+.lm-btn-secondary,
+.border-slate-200.bg-white,
+.border-gray-200.bg-white,
+.rounded-full.border.border-slate-200,
+.rounded-full.border.border-gray-200 {
+  background: var(--lm-surface) !important;
+  border-color: var(--lm-border) !important;
+  color: var(--lm-text-secondary) !important;
+}
+
+.lm-btn-secondary:hover,
+.lm-btn-ghost:hover,
+.hover\:bg-slate-50:hover,
+.hover\:bg-gray-50:hover,
+.hover\:bg-gray-100:hover,
+.hover\:bg-loomera-primarySoft:hover {
+  background: var(--lm-primary-soft) !important;
+  border-color: color-mix(in srgb, var(--lm-primary) 30%, var(--lm-border)) !important;
+  color: var(--lm-primary-active) !important;
+}
+
+.lm-icon-button,
+.lm-icon-btn {
+  background: var(--lm-surface) !important;
+  color: var(--lm-text-secondary) !important;
+  border: 1px solid var(--lm-border) !important;
+}
+
+.lm-icon-button:hover,
+.lm-icon-btn:hover {
+  background: var(--lm-primary-soft) !important;
+  color: var(--lm-primary) !important;
+  border-color: var(--lm-primary) !important;
+}
+
+/* =========================
+   Inputs
+========================= */
+
+input,
+select,
+textarea,
+.lm-field,
+.lm-input,
+.lm-select,
+.lm-textarea {
+  background: var(--lm-surface) !important;
+  border-color: var(--lm-border) !important;
+  color: var(--lm-text-primary) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--lm-text-muted) !important;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: color-mix(in srgb, var(--lm-primary) 28%, var(--lm-border)) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.focus\:ring-2:focus,
+.focus\:ring-4:focus,
+.focus\:border-loomera-primary:focus {
+  border-color: var(--lm-primary) !important;
+  box-shadow: var(--lm-focus) !important;
+  outline: none !important;
+}
+
+/* =========================
+   Chips / badges / states
+========================= */
+
+.lm-chip,
+.lm-badge,
+.badge,
+.chip {
+  border-color: var(--lm-border-soft) !important;
+}
+
+.lm-chip--selected,
+.lm-card--selected,
+.selected,
+.is-selected,
+[aria-selected="true"],
+[aria-pressed="true"],
+[data-selected="true"] {
+  background: var(--lm-primary-soft) !important;
+  border-color: var(--lm-primary) !important;
+  color: var(--lm-primary-active) !important;
+}
+
+.lm-badge--success,
+.bg-emerald-50,
+.bg-green-50 {
+  background: var(--lm-success-soft) !important;
+  color: var(--lm-text-primary) !important;
+  border-color: color-mix(in srgb, var(--lm-success) 55%, var(--lm-border)) !important;
+}
+
+.lm-badge--warning,
+.bg-amber-50,
+.bg-yellow-100 {
+  background: var(--lm-warning-soft) !important;
+  color: var(--lm-text-primary) !important;
+  border-color: color-mix(in srgb, var(--lm-warning) 55%, var(--lm-border)) !important;
+}
+
+.lm-badge--danger,
+.bg-red-50,
+.bg-rose-50 {
+  background: var(--lm-danger-soft) !important;
+  color: var(--lm-danger) !important;
+  border-color: color-mix(in srgb, var(--lm-danger) 35%, var(--lm-border)) !important;
+}
+
+.lm-badge--info,
+.bg-blue-50,
+.bg-indigo-50,
+.bg-sky-50 {
+  background: var(--lm-info-soft) !important;
+  color: var(--lm-info) !important;
+  border-color: color-mix(in srgb, var(--lm-info) 35%, var(--lm-border)) !important;
+}
+
+/* =========================
+   Legacy Tailwind bridge
+========================= */
+
+.bg-white {
+  background-color: var(--lm-surface) !important;
+}
+
+.bg-gray-50,
+.bg-gray-100,
+.bg-slate-50,
+.bg-slate-100,
+.bg-loomera-bgSubtle,
+.bg-loomera-primarySoft,
+.bg-loomera-surfaceSoft {
+  background-color: var(--lm-bg-subtle) !important;
+}
+
+.bg-gray-200,
+.bg-slate-200,
+.bg-gray-300,
+.bg-slate-300 {
+  background-color: var(--lm-border-soft) !important;
+}
+
+.bg-gray-900,
+.bg-slate-900,
+.bg-black {
+  background-color: var(--lm-primary) !important;
+}
+
+.bg-red-500,
+.bg-red-600,
+.bg-rose-500,
+.bg-rose-600 {
+  background-color: var(--lm-danger) !important;
+  color: #fff !important;
+}
+
+.bg-green-500,
+.bg-emerald-500,
+.bg-emerald-600 {
+  background-color: var(--lm-success) !important;
+}
+
+.bg-yellow-500,
+.bg-amber-500 {
+  background-color: var(--lm-warning) !important;
+}
+
+.text-slate-950,
+.text-slate-900,
+.text-slate-800,
+.text-gray-900,
+.text-gray-800 {
+  color: var(--lm-text-primary) !important;
+}
+
+.text-slate-700,
+.text-slate-600,
+.text-gray-700,
+.text-gray-600,
+.text-blue-700,
+.text-indigo-700,
+.text-violet-700 {
+  color: var(--lm-text-secondary) !important;
+}
+
+.text-slate-500,
+.text-slate-400,
+.text-gray-500,
+.text-gray-400 {
+  color: var(--lm-text-muted) !important;
+}
+
+.text-white {
+  color: var(--lm-text-on-primary) !important;
+}
+
+.text-loomera-primary,
+.text-loomera-primaryText {
+  color: var(--lm-primary) !important;
+}
+
+.text-emerald-600,
+.text-emerald-700,
+.text-green-600,
+.text-green-700 {
+  color: color-mix(in srgb, var(--lm-success) 70%, var(--lm-text-primary)) !important;
+}
+
+.text-red-500,
+.text-red-600,
+.text-rose-500,
+.text-rose-600 {
+  color: var(--lm-danger) !important;
+}
+
+.text-amber-500,
+.text-amber-600,
+.text-amber-700,
+.text-yellow-800 {
+  color: var(--lm-warning) !important;
+}
+
+.border-gray-100,
+.border-gray-200,
+.border-gray-300,
+.border-slate-100,
+.border-slate-200,
+.border-slate-300,
+.border-loomera-border,
+.border-loomera-borderSoft,
+.border-blue-100,
+.border-blue-200,
+.border-green-100,
+.border-green-200,
+.border-emerald-100,
+.border-emerald-200,
+.border-amber-100,
+.border-amber-200,
+.border-red-100,
+.border-red-200,
+.border-rose-200 {
+  border-color: var(--lm-border) !important;
+}
+
+.border-loomera-primary,
+.border-slate-900,
+.border-gray-900,
+.border-indigo-600 {
+  border-color: var(--lm-primary) !important;
+}
+
+.hover\:text-slate-900:hover,
+.hover\:text-gray-900:hover,
+.hover\:text-indigo-600:hover,
+.hover\:text-loomera-primary:hover {
+  color: var(--lm-primary) !important;
+}
+
+.hover\:border-slate-200:hover,
+.hover\:border-gray-200:hover,
+.hover\:border-loomera-primary:hover {
+  border-color: color-mix(in srgb, var(--lm-primary) 35%, var(--lm-border)) !important;
+}
+
+/* =========================
+   Theme toggle
+========================= */
+
+.lm-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--lm-border);
+  background: color-mix(in srgb, var(--lm-surface) 90%, transparent);
+  color: var(--lm-text-secondary);
+  box-shadow: var(--lm-shadow-soft);
+}
+
+.lm-theme-toggle:hover {
+  background: var(--lm-primary-soft);
+  border-color: var(--lm-primary);
+  color: var(--lm-primary);
+}
+
+.lm-theme-toggle i:last-child {
+  display: none;
+}
+
+html[data-theme="dark"] .lm-theme-toggle i:first-child {
+  display: none;
+}
+
+html[data-theme="dark"] .lm-theme-toggle i:last-child {
+  display: inline-block;
+}
+
+/* =========================
+   Header
+========================= */
+
+.lm-shell-desktop-site-header {
+  background: color-mix(in srgb, var(--lm-surface) 90%, transparent) !important;
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--lm-border-soft) !important;
+}
+
+.lm-shell-desktop-site-header__inner {
+  min-height: 5.5rem;
+}
+
+.lm-shell-desktop-nav {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  gap: .2rem;
+}
+
+.lm-shell-desktop-nav__item {
+  position: relative;
+  min-height: 2.7rem;
+  padding-inline: .95rem;
+  background: transparent !important;
+  color: var(--lm-text-secondary) !important;
+  font-weight: 700;
+}
+
+.lm-shell-desktop-nav__item:hover,
+.lm-shell-desktop-nav__item.is-active,
+.lm-shell-desktop-nav__item[aria-current="page"] {
+  color: var(--lm-primary) !important;
+}
+
+.lm-shell-desktop-nav__item:hover::after,
+.lm-shell-desktop-nav__item.is-active::after,
+.lm-shell-desktop-nav__item[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: .95rem;
+  bottom: .15rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--lm-primary);
+}
+
+.lm-shell-mobile-header,
+.lm-app-bottom-nav-surface {
+  background: color-mix(in srgb, var(--lm-surface) 90%, transparent) !important;
+  backdrop-filter: blur(20px);
+  border-color: var(--lm-border-soft) !important;
+}
+
+/* =========================
+   Home page
+========================= */
+
+.lm-home-main-shell {
+  width: min(100% - 1rem, 86rem) !important;
+  max-width: 86rem !important;
+  margin-inline: auto;
+  padding-top: 1.2rem !important;
+}
+
+.lm-home-page,
+.lm-home-shell {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.lm-home-card {
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-border-soft);
+  border-radius: 1.75rem;
+  box-shadow: var(--lm-shadow-soft);
+}
+
+.lm-home-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(18rem, 27rem) minmax(0, 1fr);
+  overflow: hidden;
+  min-height: 26rem;
+}
+
+.lm-home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 18%, color-mix(in srgb, var(--lm-iris-glow) 54%, transparent), transparent 22rem),
+    radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--lm-sage-bloom) 16%, transparent), transparent 18rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--lm-pearl-white) 88%, white), var(--lm-bg));
+}
+
+html[data-theme="dark"] .lm-home-hero::before {
+  background:
+    radial-gradient(circle at 15% 18%, rgba(166, 136, 230, 0.18), transparent 22rem),
+    radial-gradient(circle at 92% 12%, rgba(167, 200, 161, 0.11), transparent 18rem),
+    linear-gradient(180deg, #211C2E, #16131F);
+}
+
+.lm-home-hero__visual,
+.lm-home-hero__content {
+  position: relative;
+  z-index: 1;
+}
+
+.lm-home-hero__visual {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  padding: 2rem 1rem 0 1.5rem;
+}
+
+.lm-home-hero__portrait-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 26rem;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+}
+
+.lm-home-hero__halo {
+  position: absolute;
+  inset: 1rem;
+  border-radius: 999px;
+  background: linear-gradient(160deg, var(--lm-iris-glow), var(--lm-primary-soft));
+  opacity: .95;
+}
+
+html[data-theme="dark"] .lm-home-hero__halo {
+  background: linear-gradient(160deg, rgba(166, 136, 230, .28), rgba(220, 207, 248, .14));
+}
+
+.lm-home-hero__portrait {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 23rem;
+  object-fit: contain;
+  object-position: bottom center;
+}
+
+.lm-home-hero__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2.8rem 2.6rem 2rem 1.8rem;
+}
+
+.lm-home-hero__heading {
+  margin: 0;
+  font-size: clamp(2rem, 2.4vw, 3rem);
+  line-height: 1.45;
+  font-weight: 900;
+  color: var(--lm-text-primary);
+}
+
+.lm-home-hero__heading .accent {
+  color: var(--lm-primary);
+}
+
+.lm-home-hero__lead {
+  margin-top: 1rem;
+  max-width: 42rem;
+  color: var(--lm-text-secondary);
+  font-size: 1rem;
+  line-height: 2;
+}
+
+.lm-home-search {
+  display: grid;
+  grid-template-columns: 1.1fr .95fr 1fr minmax(9rem, .62fr);
+  gap: .75rem;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding: .85rem;
+  background: color-mix(in srgb, var(--lm-surface) 92%, transparent);
+  border: 1px solid var(--lm-border-soft);
+  border-radius: 1.4rem;
+  box-shadow: var(--lm-shadow-card);
+}
+
+.lm-home-search__field {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  min-height: 3.45rem;
+  padding: 0 1rem;
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  background: var(--lm-surface);
+}
+
+.lm-home-search__field:hover,
+.lm-home-search__field:focus-within {
+  border-color: color-mix(in srgb, var(--lm-primary) 28%, var(--lm-border));
+  background: color-mix(in srgb, var(--lm-primary-soft) 28%, var(--lm-surface));
+}
+
+.lm-home-search__field i {
+  color: var(--lm-text-muted);
+}
+
+.lm-home-search__field input,
+.lm-home-search__field select {
+  width: 100%;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.lm-home-search__submit {
+  min-height: 3.45rem;
+  border-radius: 1rem;
+  border: 0;
+  background: var(--lm-primary);
+  color: var(--lm-text-on-primary);
+  font-weight: 800;
+}
+
+.lm-home-search__submit:hover {
+  background: var(--lm-primary-hover);
+}
+
+.lm-home-hero__features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.lm-home-feature {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  gap: .85rem;
+  align-items: center;
+}
+
+.lm-home-feature__icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--lm-primary-soft);
+  color: var(--lm-primary);
+}
+
+.lm-home-feature__title {
+  font-weight: 800;
+  color: var(--lm-text-primary);
+}
+
+.lm-home-feature__text {
+  display: block;
+  margin-top: .2rem;
+  font-size: .82rem;
+  color: var(--lm-text-muted);
+  line-height: 1.7;
+}
+
+.lm-home-services {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18.5rem;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.lm-home-services__rail,
+.lm-home-services__intro,
+.lm-home-section {
+  padding: 1.35rem 1.45rem;
+}
+
+.lm-home-services__intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lm-home-services__eyebrow {
+  font-size: .85rem;
+  font-weight: 800;
+  color: var(--lm-primary);
+}
+
+.lm-home-services__title,
+.lm-home-section__title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: var(--lm-text-primary);
+}
+
+.lm-home-services__text,
+.lm-home-section__text {
+  margin: 0;
+  color: var(--lm-text-secondary);
+  line-height: 1.95;
+}
+
+.lm-home-services__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: .8rem;
+}
+
+.lm-home-service-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  min-height: 7rem;
+  padding: 1rem .6rem;
+  border: 1px solid transparent;
+  border-radius: 1.2rem;
+  background: transparent;
+  color: var(--lm-text-secondary);
+  text-align: center;
+}
+
+.lm-home-service-pill:hover {
+  background: var(--lm-bg-subtle);
+  border-color: var(--lm-border-soft);
+  color: var(--lm-primary);
+}
+
+.lm-home-service-pill__icon {
+  width: 3.2rem;
+  height: 3.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1.05rem;
+  background: color-mix(in srgb, var(--lm-primary-soft) 75%, white);
+  color: var(--lm-primary);
+}
+
+html[data-theme="dark"] .lm-home-service-pill__icon {
+  background: rgba(166, 136, 230, .16);
+}
+
+.lm-home-section__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.lm-home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding-inline: 1rem;
+  border-radius: 999px;
+  background: var(--lm-primary-soft);
+  color: var(--lm-primary);
+  font-weight: 800;
+}
+
+.lm-home-link:hover {
+  background: var(--lm-iris-glow);
+  color: var(--lm-primary-active);
+}
+
+.lm-home-salon-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.lm-home-salon-card {
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid var(--lm-border-soft);
+  background: var(--lm-surface);
+  box-shadow: var(--lm-shadow-soft);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.lm-home-salon-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--lm-shadow-card);
+  border-color: color-mix(in srgb, var(--lm-primary) 25%, var(--lm-border));
+}
+
+.lm-home-salon-card__media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: linear-gradient(145deg, var(--lm-primary-soft), var(--lm-success-soft));
+}
+
+.lm-home-salon-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lm-home-salon-card__fav {
+  position: absolute;
+  top: .8rem;
+  inset-inline-end: .8rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.7);
+  background: rgba(255,255,255,.84);
+  color: var(--lm-text-secondary);
+  backdrop-filter: blur(10px);
+}
+
+.lm-home-salon-card__discount {
+  position: absolute;
+  top: .8rem;
+  inset-inline-start: .8rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.8rem;
+  padding-inline: .65rem;
+  border-radius: .85rem;
+  background: color-mix(in srgb, var(--lm-accent) 82%, white);
+  color: #24462c;
+  font-size: .74rem;
+  font-weight: 800;
+}
+
+html[data-theme="dark"] .lm-home-salon-card__discount {
+  background: color-mix(in srgb, var(--lm-accent) 45%, #1E2B24);
+  color: #EAF7E8;
+}
+
+.lm-home-salon-card__body {
+  display: grid;
+  gap: .45rem;
+  padding: 1rem;
+}
+
+.lm-home-salon-card__title-row,
+.lm-home-salon-card__meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+
+.lm-home-salon-card__title {
+  font-size: 1.02rem;
+  font-weight: 900;
+  color: var(--lm-text-primary);
+}
+
+.lm-home-salon-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: .28rem;
+  font-size: .88rem;
+  font-weight: 800;
+  color: var(--lm-text-secondary);
+}
+
+.lm-home-salon-card__rating i {
+  color: #F2B54A;
+}
+
+.lm-home-salon-card__location,
+.lm-home-salon-card__meta-row,
+.lm-home-salon-card__subtitle {
+  color: var(--lm-text-muted);
+  font-size: .85rem;
+}
+
+.lm-home-salon-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  margin-top: .2rem;
+}
+
+.lm-home-salon-card__tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.8rem;
+  padding-inline: .7rem;
+  border-radius: 999px;
+  background: var(--lm-primary-soft);
+  color: var(--lm-primary);
+  font-size: .76rem;
+  font-weight: 800;
+}
+
+.lm-home-app {
+  display: grid;
+  grid-template-columns: 20rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  padding: 1.2rem 1.25rem;
+  background: linear-gradient(180deg, var(--lm-primary-soft), var(--lm-bg));
+}
+
+html[data-theme="dark"] .lm-home-app {
+  background: linear-gradient(180deg, #211C2E, #16131F);
+}
+
+.lm-home-app__promo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lm-home-phone-stack {
+  position: relative;
+  width: 8rem;
+  height: 7rem;
+  flex-shrink: 0;
+}
+
+.lm-home-phone {
+  position: absolute;
+  width: 4.4rem;
+  height: 6.4rem;
+  border-radius: 1.2rem;
+  border: 1px solid color-mix(in srgb, var(--lm-primary) 24%, var(--lm-border));
+  background: linear-gradient(180deg, var(--lm-surface), var(--lm-bg-subtle));
+  box-shadow: var(--lm-shadow-soft);
+}
+
+.lm-home-phone--front {
+  inset-inline-end: .2rem;
+  top: .25rem;
+  z-index: 2;
+}
+
+.lm-home-phone--back {
+  inset-inline-start: .4rem;
+  top: .8rem;
+  transform: rotate(-8deg);
+}
+
+.lm-home-qr {
+  width: 5.8rem;
+  height: 5.8rem;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: .14rem;
+  padding: .45rem;
+  border-radius: 1rem;
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-border-soft);
+}
+
+.lm-home-qr span {
+  display: block;
+  border-radius: .1rem;
+  background: var(--lm-text-primary);
+  opacity: 0;
+}
+
+.lm-home-qr span.is-on {
+  opacity: 1;
+}
+
+.lm-home-app__copy {
+  display: grid;
+  gap: .55rem;
+}
+
+.lm-home-app__copy h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.lm-home-app__copy p {
+  margin: 0;
+  color: var(--lm-text-secondary);
+  line-height: 1.95;
+}
+
+.lm-home-app__download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 2.65rem;
+  padding-inline: 1rem;
+  border-radius: .95rem;
+  border: 1px solid color-mix(in srgb, var(--lm-primary) 28%, var(--lm-border));
+  background: var(--lm-surface);
+  color: var(--lm-primary);
+  font-weight: 800;
+}
+
+.lm-home-app__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: center;
+}
+
+.lm-home-app__stat {
+  display: grid;
+  gap: .35rem;
+  justify-items: center;
+  text-align: center;
+}
+
+.lm-home-app__stat-icon {
+  width: 2.65rem;
+  height: 2.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lm-surface) 62%, transparent);
+  color: var(--lm-primary);
+}
+
+.lm-home-app__stat-value {
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.lm-home-app__stat-label {
+  font-size: .85rem;
+  color: var(--lm-text-secondary);
+}
+
+@media (max-width: 1023.98px) {
+  .lm-home-main-shell {
+    width: min(100% - .75rem, 100%) !important;
+    max-width: 100% !important;
+    padding-inline: .2rem !important;
+  }
+
+  .lm-home-hero,
+  .lm-home-services,
+  .lm-home-app {
+    grid-template-columns: 1fr;
+  }
+
+  .lm-home-hero__visual {
+    order: -1;
+    padding: 1rem 1rem 0;
+  }
+
+  .lm-home-hero__content {
+    padding: 0 1rem 1.25rem;
+  }
+
+  .lm-home-search {
+    grid-template-columns: 1fr;
+  }
+
+  .lm-home-hero__features,
+  .lm-home-salon-grid,
+  .lm-home-app__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lm-home-services__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .lm-home-section__header {
+    align-items: start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .lm-home-card,
+  .lm-home-hero,
+  .lm-home-salon-card {
+    border-radius: 1.35rem;
+  }
+
+  .lm-home-hero {
+    min-height: auto;
+  }
+
+  .lm-home-hero__heading {
+    font-size: 1.8rem;
+  }
+
+  .lm-home-services__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .lm-home-hero__features,
+  .lm-home-salon-grid,
+  .lm-home-app__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .lm-home-app__promo {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .lm-home-services__rail,
+  .lm-home-services__intro,
+  .lm-home-section,
+  .lm-home-app {
+    padding: 1rem;
+  }
+}
+/* ======================================================================
+   PATCH 02 — Fix search pages, dark mode contrast, homepage visual polish
+   Put this block at the VERY END of static/css/loomera-palette-override.css
+====================================================================== */
+
+/* ---------- safer global dark surfaces ---------- */
+
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bg-white\/95,
+html[data-theme="dark"] .bg-white\/90,
+html[data-theme="dark"] .bg-white\/85,
+html[data-theme="dark"] .bg-white\/80,
+html[data-theme="dark"] [class*="bg-white/"] {
+  background-color: var(--lm-surface) !important;
+}
+
+html[data-theme="dark"] .supports-\[backdrop-filter\]\:bg-white\/80,
+html[data-theme="dark"] .supports-\[backdrop-filter\]\:bg-white\/90,
+html[data-theme="dark"] [class*="supports-[backdrop-filter]:bg-white"] {
+  background-color: color-mix(in srgb, var(--lm-surface) 88%, transparent) !important;
+}
+
+html[data-theme="dark"] .bg-slate-950,
+html[data-theme="dark"] .bg-slate-900,
+html[data-theme="dark"] .bg-gray-900,
+html[data-theme="dark"] .bg-black {
+  background-color: var(--lm-bg) !important;
+}
+
+/* در لایت مود، bg-gray-900 را دیگر بنفش نکن؛ فقط دکمه‌های semantic بنفش باشند */
+html[data-theme="light"] .bg-gray-900,
+html[data-theme="light"] .bg-slate-900,
+html[data-theme="light"] .bg-black {
+  background-color: var(--lm-text-primary) !important;
+}
+
+/* ---------- dark mode typography ---------- */
+
+html[data-theme="dark"] .text-slate-950,
+html[data-theme="dark"] .text-slate-900,
+html[data-theme="dark"] .text-slate-800,
+html[data-theme="dark"] .text-gray-900,
+html[data-theme="dark"] .text-gray-800,
+html[data-theme="dark"] .text-black {
+  color: var(--lm-text-primary) !important;
+}
+
+html[data-theme="dark"] .text-slate-700,
+html[data-theme="dark"] .text-slate-600,
+html[data-theme="dark"] .text-gray-700,
+html[data-theme="dark"] .text-gray-600 {
+  color: var(--lm-text-secondary) !important;
+}
+
+html[data-theme="dark"] .text-slate-500,
+html[data-theme="dark"] .text-slate-400,
+html[data-theme="dark"] .text-gray-500,
+html[data-theme="dark"] .text-gray-400 {
+  color: var(--lm-text-muted) !important;
+}
+
+/* ---------- inputs: fix unreadable search fields ---------- */
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] .lm-input,
+html[data-theme="dark"] .lm-select,
+html[data-theme="dark"] .lm-field,
+html[data-theme="dark"] .lm-search-input,
+html[data-theme="dark"] [role="search"] input {
+  background-color: var(--lm-surface-soft) !important;
+  color: var(--lm-text-primary) !important;
+  border-color: var(--lm-border) !important;
+  caret-color: var(--lm-primary) !important;
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: color-mix(in srgb, var(--lm-text-muted) 82%, transparent) !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] input,
+html[data-theme="light"] select,
+html[data-theme="light"] textarea {
+  background-color: #FFFFFF !important;
+  color: #2E2A3C !important;
+}
+
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder {
+  color: #7B7690 !important;
+  opacity: 1 !important;
+}
+
+/* متن select شده داخل inputها */
+input::selection,
+textarea::selection {
+  background: var(--lm-primary-soft) !important;
+  color: var(--lm-text-primary) !important;
+}
+
+/* ---------- search/listing page dark fixes ---------- */
+
+html[data-theme="dark"] .lm-public-customer-shell,
+html[data-theme="dark"] .lm-search-page,
+html[data-theme="dark"] .lm-search-results,
+html[data-theme="dark"] .lm-results-shell,
+html[data-theme="dark"] .lm-results-sidebar,
+html[data-theme="dark"] .lm-search-panel,
+html[data-theme="dark"] .lm-filter-panel,
+html[data-theme="dark"] .lm-results-list,
+html[data-theme="dark"] .lm-map-layout {
+  background-color: var(--lm-bg) !important;
+  color: var(--lm-text-primary) !important;
+}
+
+html[data-theme="dark"] .lm-public-search,
+html[data-theme="dark"] .lm-search-card,
+html[data-theme="dark"] .lm-search-box,
+html[data-theme="dark"] .lm-filter-card,
+html[data-theme="dark"] .lm-search-result-card,
+html[data-theme="dark"] .lm-result-card,
+html[data-theme="dark"] .lm-venue-card,
+html[data-theme="dark"] .lm-category-card,
+html[data-theme="dark"] .lm-app-card {
+  background-color: var(--lm-surface) !important;
+  border-color: var(--lm-border-soft) !important;
+  color: var(--lm-text-primary) !important;
+}
+
+/* اگر صفحه سرچ از کلاس‌های خام Tailwind ساخته شده باشد */
+html[data-theme="dark"] aside,
+html[data-theme="dark"] section,
+html[data-theme="dark"] article {
+  border-color: var(--lm-border-soft);
+}
+
+/* کنترل‌های فیلتر / sort */
+html[data-theme="dark"] .lm-chip,
+html[data-theme="dark"] .lm-badge,
+html[data-theme="dark"] .chip,
+html[data-theme="dark"] .badge,
+html[data-theme="dark"] .rounded-full.border,
+html[data-theme="dark"] .rounded-2xl.border,
+html[data-theme="dark"] .rounded-3xl.border {
+  background-color: var(--lm-surface-soft) !important;
+  border-color: var(--lm-border) !important;
+  color: var(--lm-text-secondary) !important;
+}
+
+html[data-theme="dark"] .lm-chip:hover,
+html[data-theme="dark"] .lm-badge:hover,
+html[data-theme="dark"] .rounded-full.border:hover {
+  background-color: var(--lm-primary-soft) !important;
+  border-color: var(--lm-primary) !important;
+  color: var(--lm-primary-active) !important;
+}
+
+/* selected chips */
+html[data-theme="dark"] .selected,
+html[data-theme="dark"] .is-selected,
+html[data-theme="dark"] [aria-selected="true"],
+html[data-theme="dark"] [aria-pressed="true"],
+html[data-theme="dark"] [data-selected="true"] {
+  background-color: var(--lm-primary) !important;
+  border-color: var(--lm-primary) !important;
+  color: var(--lm-text-on-primary) !important;
+}
+
+/* دکمه‌های اصلی در سرچ */
+html[data-theme="dark"] .lm-btn-primary,
+html[data-theme="dark"] button[type="submit"],
+html[data-theme="dark"] .btn-primary {
+  background-color: var(--lm-primary) !important;
+  border-color: var(--lm-primary) !important;
+  color: var(--lm-text-on-primary) !important;
+}
+
+html[data-theme="dark"] .lm-btn-primary:hover,
+html[data-theme="dark"] button[type="submit"]:hover,
+html[data-theme="dark"] .btn-primary:hover {
+  background-color: var(--lm-primary-hover) !important;
+  border-color: var(--lm-primary-hover) !important;
+}
+
+/* کارت نتیجه جستجو */
+html[data-theme="dark"] .lm-search-result-card,
+html[data-theme="dark"] .lm-result-card,
+html[data-theme="dark"] .lm-venue-card {
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .32) !important;
+}
+
+html[data-theme="dark"] .lm-search-result-card:hover,
+html[data-theme="dark"] .lm-result-card:hover,
+html[data-theme="dark"] .lm-venue-card:hover {
+  border-color: color-mix(in srgb, var(--lm-primary) 35%, var(--lm-border)) !important;
+  box-shadow: 0 24px 58px rgba(0, 0, 0, .42) !important;
+}
+
+/* Leaflet map نباید دارک شود */
+.leaflet-container,
+.leaflet-container * {
+  color-scheme: light !important;
+}
+
+/* ---------- header: make dark and light cleaner ---------- */
+
+html[data-theme="light"] .lm-shell-desktop-site-header,
+html[data-theme="light"] .lm-shell-mobile-header {
+  background-color: rgba(255, 255, 255, .86) !important;
+  border-color: #ECE8F2 !important;
+}
+
+html[data-theme="dark"] .lm-shell-desktop-site-header,
+html[data-theme="dark"] .lm-shell-mobile-header {
+  background-color: rgba(33, 28, 46, .90) !important;
+  border-color: #383149 !important;
+}
+
+.lm-shell-desktop-nav__item {
+  white-space: nowrap;
+}
+
+.lm-shell-desktop-actions {
+  gap: .55rem;
+}
+
+.lm-theme-toggle[aria-pressed="true"] {
+  background-color: var(--lm-primary-soft) !important;
+  border-color: var(--lm-primary) !important;
+  color: var(--lm-primary) !important;
+}
+
+/* ---------- homepage: closer to reference ---------- */
+
+html[data-theme="light"] .lm-home-main-shell {
+  background: transparent !important;
+}
+
+.lm-home-hero {
+  grid-template-columns: minmax(20rem, 29rem) minmax(0, 1fr) !important;
+  min-height: 27rem !important;
+}
+
+.lm-home-hero__content {
+  text-align: center;
+  align-items: center;
+}
+
+.lm-home-hero__lead {
+  text-align: center;
+}
+
+.lm-home-search {
+  width: min(100%, 58rem);
+}
+
+.lm-home-hero__features {
+  width: min(100%, 48rem);
+}
+
+.lm-home-hero__visual {
+  min-height: 25rem;
+}
+
+/* اگر عکس هرو وجود نداشت، سمت چپ همچنان خالی و خراب دیده نشود */
+.lm-home-hero__portrait-wrap::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: 12rem;
+  height: 12rem;
+  inset-inline-start: 0;
+  bottom: 2.2rem;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 32% 32%, var(--lm-primary) 0 .35rem, transparent .38rem),
+    radial-gradient(circle at 62% 42%, var(--lm-secondary) 0 .26rem, transparent .29rem),
+    radial-gradient(circle at 46% 68%, var(--lm-iris-glow) 0 .45rem, transparent .48rem);
+  opacity: .48;
+}
+
+.lm-home-hero__portrait {
+  z-index: 2;
+}
+
+/* وقتی تصویر نیست، حداقل یک فرم بصری شبیه پوستر داشته باشیم */
+.lm-home-hero__portrait-wrap:has(img[style*="display: none"]) {
+  min-height: 22rem;
+}
+
+.lm-home-hero__portrait-wrap:has(img[style*="display: none"]) .lm-home-hero__halo {
+  inset: 2rem;
+  opacity: .75;
+}
+
+/* سرویس‌ها دقیق‌تر مثل مرجع */
+.lm-home-services {
+  grid-template-columns: minmax(0, 1fr) 20rem !important;
+}
+
+.lm-home-service-pill__icon {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lm-primary) 8%, transparent);
+}
+
+.lm-home-service-pill:hover .lm-home-service-pill__icon {
+  background: var(--lm-primary-soft) !important;
+  color: var(--lm-primary) !important;
+}
+
+/* کارت‌های سالن */
+.lm-home-salon-card__fav:hover {
+  background: var(--lm-primary-soft) !important;
+  color: var(--lm-primary) !important;
+  border-color: var(--lm-primary) !important;
+}
+
+.lm-home-salon-card__discount {
+  background: color-mix(in srgb, var(--lm-accent) 76%, #FFFFFF) !important;
+  color: #2E2A3C !important;
+}
+
+/* ---------- homepage dark mode ---------- */
+
+html[data-theme="dark"] .lm-home-card,
+html[data-theme="dark"] .lm-home-salon-card {
+  background-color: var(--lm-surface) !important;
+  border-color: var(--lm-border-soft) !important;
+}
+
+html[data-theme="dark"] .lm-home-hero::before {
+  background:
+    radial-gradient(circle at 15% 18%, rgba(166, 136, 230, .22), transparent 22rem),
+    radial-gradient(circle at 92% 12%, rgba(167, 200, 161, .10), transparent 18rem),
+    linear-gradient(180deg, #211C2E 0%, #16131F 100%) !important;
+}
+
+html[data-theme="dark"] .lm-home-search {
+  background-color: color-mix(in srgb, var(--lm-surface) 88%, transparent) !important;
+  border-color: var(--lm-border-soft) !important;
+}
+
+html[data-theme="dark"] .lm-home-search__field {
+  background-color: var(--lm-surface-soft) !important;
+  border-color: var(--lm-border-soft) !important;
+}
+
+html[data-theme="dark"] .lm-home-search__field:hover,
+html[data-theme="dark"] .lm-home-search__field:focus-within {
+  background-color: var(--lm-primary-soft) !important;
+  border-color: var(--lm-primary) !important;
+}
+
+html[data-theme="dark"] .lm-home-app {
+  background: linear-gradient(180deg, #211C2E 0%, #16131F 100%) !important;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 1023.98px) {
+  .lm-home-hero {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lm-home-hero__visual {
+    display: none;
+  }
+
+  .lm-home-hero__content {
+    padding: 2rem 1rem 1.4rem !important;
+  }
+
+  .lm-home-services {
+    grid-template-columns: 1fr !important;
+  }
+}
+/* ======================================================================
+   PATCH 03 — RTL layout correction for homepage
+   هدف: چیدمان صفحه اصلی مثل مرجع باشد، ولی متن‌ها فارسی و راست‌چین بمانند
+====================================================================== */
+
+/* صفحه اصلی خودش RTL بماند */
+.lm-home-page,
+.lm-home-shell {
+  direction: rtl;
+}
+
+/* Hero: عکس سمت چپ، متن سمت راست */
+.lm-home-hero {
+  direction: ltr !important;
+  grid-template-columns: minmax(20rem, 29rem) minmax(0, 1fr) !important;
+}
+
+.lm-home-hero__visual {
+  grid-column: 1 !important;
+  direction: rtl;
+}
+
+.lm-home-hero__content {
+  grid-column: 2 !important;
+  direction: rtl;
+  text-align: center;
+  align-items: center;
+}
+
+/* سرچ داخل hero:
+   در ظاهر از راست شروع شود: input اصلی، خدمات، لوکیشن، دکمه سمت چپ */
+.lm-home-search {
+  direction: rtl !important;
+  grid-template-columns: minmax(18rem, 1.25fr) minmax(12rem, .9fr) minmax(12rem, .9fr) minmax(8rem, .55fr) !important;
+}
+
+.lm-home-search__field,
+.lm-home-search__submit {
+  direction: rtl;
+}
+
+.lm-home-search__field input,
+.lm-home-search__field select {
+  direction: rtl;
+  text-align: right;
+}
+
+/* دسته‌بندی خدمات:
+   متن توضیحی سمت راست، آیکن‌ها سمت چپ */
+.lm-home-services {
+  direction: ltr !important;
+  grid-template-columns: minmax(0, 1fr) 20rem !important;
+}
+
+.lm-home-services__rail {
+  grid-column: 1 !important;
+  direction: rtl;
+}
+
+.lm-home-services__intro {
+  grid-column: 2 !important;
+  direction: rtl;
+  text-align: right;
+}
+
+/* ترتیب آیکن‌های خدمات از راست به چپ */
+.lm-home-services__grid {
+  direction: rtl;
+}
+
+/* بخش سالن‌های ویژه:
+   عنوان سمت راست، مشاهده همه سمت چپ */
+.lm-home-section {
+  direction: rtl;
+}
+
+.lm-home-section__header {
+  direction: rtl;
+}
+
+.lm-home-salon-grid {
+  direction: rtl;
+}
+
+.lm-home-salon-card {
+  direction: rtl;
+}
+
+.lm-home-salon-card__media,
+.lm-home-salon-card__media img {
+  direction: ltr;
+}
+
+.lm-home-salon-card__title-row,
+.lm-home-salon-card__meta-row {
+  direction: rtl;
+}
+
+/* بنر اپلیکیشن:
+   توضیحات اپ سمت راست، آمارها سمت چپ */
+.lm-home-app {
+  direction: rtl !important;
+  grid-template-columns: 20rem minmax(0, 1fr) !important;
+}
+
+.lm-home-app__promo {
+  grid-column: 1 !important;
+  direction: rtl;
+}
+
+.lm-home-app__stats {
+  grid-column: 2 !important;
+  direction: rtl;
+}
+
+/* هدر دسکتاپ:
+   لوگو راست، منو وسط، اکشن‌ها چپ */
+.lm-shell-desktop-site-header__inner {
+  direction: ltr !important;
+}
+
+.lm-shell-desktop-brand {
+  direction: rtl;
+  order: 3;
+}
+
+.lm-shell-desktop-nav {
+  direction: rtl;
+  order: 2;
+}
+
+.lm-shell-desktop-actions {
+  direction: rtl;
+  order: 1;
+}
+
+/* داخل آیتم‌ها متن فارسی درست بماند */
+.lm-shell-desktop-nav__item,
+.lm-shell-desktop-actions,
+.lm-shell-desktop-brand {
+  text-align: right;
+}
+
+/* موبایل */
+@media (max-width: 1023.98px) {
+  .lm-home-hero,
+  .lm-home-services,
+  .lm-home-app {
+    direction: rtl !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .lm-home-hero__visual,
+  .lm-home-hero__content,
+  .lm-home-services__rail,
+  .lm-home-services__intro,
+  .lm-home-app__promo,
+  .lm-home-app__stats {
+    grid-column: auto !important;
+  }
+
+  .lm-home-hero__content {
+    text-align: center;
+  }
+
+  .lm-home-services__intro {
+    text-align: right;
+  }
+
+  .lm-home-search {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* PATCH LOGO ASSET SYSTEM */
+.lm-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.lm-brand-logo--sm { height: 2.25rem; width: auto; }
+.lm-brand-logo--md { height: 3rem; width: auto; }
+.lm-brand-logo--lg { height: 4rem; width: auto; }
+
+.lm-brand-logo__image {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.lm-brand-logo__image--dark { display: none; }
+html[data-theme="dark"] .lm-brand-logo__image--light { display: none; }
+html[data-theme="dark"] .lm-brand-logo__image--dark { display: block; }
+
+.lm-shell-desktop-brand .lm-brand-logo,
+.lm-shell-brand-link .lm-brand-logo {
+  min-height: 2.75rem;
+}
+
+.lm-shell-desktop-brand .lm-brand-logo__image {
+  max-height: 3.15rem;
+}
+
+.lm-brand-glyph,
+.lm-splash__glyph {
+  border-radius: 1.35rem;
+  object-fit: contain;
+}
+
+.lm-brand-logo--header {
+  height: 4.4rem;
+  width: auto;
+}
+
+.lm-brand-logo--shell {
+  height: 3.4rem;
+  width: auto;
+}
+
+@media (max-width: 767.98px) {
+  .lm-brand-logo--header { height: 3.4rem; }
+  .lm-brand-logo--md { height: 2.5rem; }
+}
+/* ======================================================================
+   PATCH 04 — Correct Loomera logo usage in header
+   Header must use brand lockup, not square app icon.
+====================================================================== */
+
+.lm-brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  direction: ltr;
+  text-decoration: none;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.lm-brand-lockup__wordmark {
+  display: inline-block;
+  font-family: var(--lm-font-brand, "Source Serif 4", Georgia, serif) !important;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  color: var(--lm-primary, #735CBE);
+  line-height: 1;
+}
+
+.lm-brand-lockup__glyph {
+  display: block;
+  width: auto;
+  height: 1em;
+  object-fit: contain;
+  object-position: center;
+  flex: 0 0 auto;
+}
+
+.lm-brand-lockup__app-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 22%;
+}
+
+.lm-brand-lockup--xs .lm-brand-lockup__wordmark {
+  font-size: 1.05rem;
+}
+
+.lm-brand-lockup--xs .lm-brand-lockup__glyph {
+  height: 1.25rem;
+}
+
+.lm-brand-lockup--sm .lm-brand-lockup__wordmark {
+  font-size: 1.35rem;
+}
+
+.lm-brand-lockup--sm .lm-brand-lockup__glyph {
+  height: 1.65rem;
+}
+
+.lm-brand-lockup--md .lm-brand-lockup__wordmark {
+  font-size: 1.65rem;
+}
+
+.lm-brand-lockup--md .lm-brand-lockup__glyph {
+  height: 2rem;
+}
+
+.lm-brand-lockup--lg .lm-brand-lockup__wordmark {
+  font-size: 2rem;
+}
+
+.lm-brand-lockup--lg .lm-brand-lockup__glyph {
+  height: 2.45rem;
+}
+
+.lm-brand-lockup--glyph {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.lm-brand-lockup--glyph .lm-brand-lockup__glyph {
+  height: 100%;
+  max-width: 100%;
+}
+
+.lm-brand-lockup--app-icon {
+  width: 3rem;
+  height: 3rem;
+}
+
+html[data-theme="dark"] .lm-brand-lockup__wordmark {
+  color: var(--lm-text-primary, #F5F2FA);
+}
+
+/* Header sizing */
+.lm-shell-desktop-brand {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  min-width: 9rem;
+  overflow: visible;
+}
+
+.lm-shell-desktop-brand img {
+  max-width: none !important;
+}
+
+.lm-shell-mobile-header .lm-brand-lockup--full .lm-brand-lockup__wordmark {
+  font-size: 1.25rem;
+}
+
+.lm-shell-mobile-header .lm-brand-lockup--full .lm-brand-lockup__glyph {
+  height: 1.55rem;
+}
+
+/* اگر قبلاً لوگوی مربعی داخل هدر آمده باشد، این جلوی بزرگ/بد دیده شدنش را می‌گیرد */
+.lm-shell-desktop-brand .lm-brand-lockup__app-icon,
+.lm-shell-mobile-header .lm-brand-lockup__app-icon {
+  display: none !important;
+}
+/* =========================================================
+   PATCH — Final Loomera header logo sizing
+========================================================= */
+
+.lm-brand-lockup {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.65rem !important;
+  direction: ltr !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+.lm-brand-lockup--full {
+  flex-direction: row !important;
+}
+
+.lm-brand-lockup__wordmark {
+  display: inline-block !important;
+  font-family: var(--lm-font-brand, "Source Serif 4", Georgia, serif) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1 !important;
+  color: var(--lm-primary, #735CBE) !important;
+}
+
+.lm-brand-lockup__glyph {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+}
+
+.lm-brand-lockup__glyph-img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+/* Desktop logo */
+.lm-shell-desktop-brand .lm-brand-lockup__wordmark {
+  font-size: 1.75rem !important;
+}
+
+.lm-shell-desktop-brand .lm-brand-lockup__glyph {
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  min-height: 52px !important;
+}
+
+/* Mobile logo */
+.lm-shell-mobile-header .lm-brand-lockup__wordmark,
+.lm-shell-mobile-brand .lm-brand-lockup__wordmark {
+  font-size: 1.3rem !important;
+}
+
+.lm-shell-mobile-header .lm-brand-lockup__glyph,
+.lm-shell-mobile-brand .lm-brand-lockup__glyph {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+}
+
+/* Glyph-only variant */
+.lm-brand-lockup--glyph .lm-brand-lockup__glyph {
+  width: 52px !important;
+  height: 52px !important;
+}
+
+/* App icon variant */
+.lm-brand-lockup__app-icon {
+  display: block !important;
+  width: 48px !important;
+  height: 48px !important;
+  object-fit: contain !important;
+  border-radius: 22% !important;
+}
+
+/* Dark mode */
+html[data-theme="dark"] .lm-brand-lockup__wordmark {
+  color: #F5F2FA !important;
+}
+
+/* حذف متن قدیمی مشکی اگر هنوز در هدر مانده باشد */
+.lm-shell-brand-wordmark,
+.brand-wordmark,
+.site-logo-text {
+  display: none !important;
+}
+/* ======================================================================
+   PATCH 05 — Pre-launch home page alignment and header cleanup
+   Scope: public home, shell header, transparent logo rendering
+====================================================================== */
+
+/* Header: three explicit zones — right logo, centered nav, left auth action */
+.lm-shell-desktop-site-header__inner {
+  display: grid !important;
+  grid-template-columns: minmax(12rem, 1fr) auto minmax(12rem, 1fr) !important;
+  grid-template-areas: "actions nav brand" !important;
+  align-items: center !important;
+  gap: clamp(1rem, 2vw, 2rem) !important;
+  min-height: 4.75rem !important;
+  direction: ltr !important;
+}
+
+.lm-shell-desktop-brand {
+  grid-area: brand !important;
+  justify-self: end !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  min-width: 0 !important;
+  width: auto !important;
+  line-height: 0 !important;
+  direction: rtl !important;
+}
+
+.lm-shell-desktop-nav {
+  grid-area: nav !important;
+  justify-self: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .2rem !important;
+  direction: rtl !important;
+  border-radius: 999px !important;
+  padding: .28rem !important;
+  background: color-mix(in srgb, var(--lm-surface) 82%, transparent) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lm-border-soft) 80%, transparent) !important;
+}
+
+.lm-shell-desktop-actions {
+  grid-area: actions !important;
+  justify-self: start !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  direction: rtl !important;
+  min-width: 0 !important;
+}
+
+.lm-shell-auth-link {
+  min-height: 2.75rem !important;
+  padding-inline: 1.15rem !important;
+  border-radius: 999px !important;
+  gap: .55rem !important;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--lm-primary) 18%, transparent) !important;
+  white-space: nowrap !important;
+}
+
+.lm-shell-desktop-nav__item {
+  position: relative !important;
+  min-height: 2.5rem !important;
+  padding-inline: .95rem !important;
+  border-radius: 999px !important;
+  font-size: .88rem !important;
+  box-shadow: none !important;
+}
+
+.lm-shell-desktop-nav__item::after {
+  display: none !important;
+}
+
+.lm-shell-desktop-nav__item:hover,
+.lm-shell-desktop-nav__item.is-active,
+.lm-shell-desktop-nav__item[aria-current="page"] {
+  background: var(--lm-primary-soft) !important;
+  color: var(--lm-primary) !important;
+}
+
+/* Logo: header uses transparent lockup asset instead of the RGB glyph mark */
+.lm-brand-lockup--image {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+.lm-brand-lockup__image {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.lm-brand-lockup__image--dark { display: none !important; }
+html[data-theme="dark"] .lm-brand-lockup__image--light { display: none !important; }
+html[data-theme="dark"] .lm-brand-lockup__image--dark { display: block !important; }
+
+.lm-shell-desktop-brand .lm-brand-lockup--image {
+  width: 9.4rem !important;
+  height: 3.15rem !important;
+}
+
+.lm-shell-mobile-header .lm-brand-lockup--image,
+.lm-shell-brand-link .lm-brand-lockup--image {
+  width: 7.4rem !important;
+  height: 2.65rem !important;
+}
+
+/* Mobile header remains stable after removing the theme toggle */
+.lm-shell-mobile-header__inner {
+  min-height: 4rem !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: .75rem !important;
+}
+
+.lm-shell-mobile-header__actions {
+  justify-content: flex-end !important;
+}
+
+/* Home canvas */
+.lm-public-home-body.lm-public-customer-shell,
+.lm-public-home-body .lm-public-customer-shell {
+  background:
+    radial-gradient(circle at 88% 10%, color-mix(in srgb, var(--lm-primary-soft) 44%, transparent), transparent 28rem),
+    linear-gradient(180deg, #FFFCFA 0%, var(--lm-desktop-canvas) 100%) !important;
+}
+
+.lm-home-main-shell {
+  width: min(100% - 2rem, 88rem) !important;
+  max-width: 88rem !important;
+  padding-top: 1.35rem !important;
+  padding-bottom: 3.5rem !important;
+}
+
+.lm-home-page,
+.lm-home-shell {
+  gap: clamp(1rem, 2vw, 1.65rem) !important;
+}
+
+.lm-home-card {
+  border-radius: 2rem !important;
+  border: 1px solid color-mix(in srgb, var(--lm-border-soft) 88%, transparent) !important;
+  background: color-mix(in srgb, var(--lm-surface) 94%, transparent) !important;
+  box-shadow: 0 20px 60px rgba(91, 72, 133, .08) !important;
+}
+
+/* Hero uses a full-section background image. Replace the URL in templates/pages/home.html. */
+.lm-home-hero {
+  isolation: isolate !important;
+  display: flex !important;
+  align-items: center !important;
+  min-height: clamp(29rem, 45vw, 38rem) !important;
+  padding: clamp(2rem, 5vw, 4.75rem) !important;
+  overflow: hidden !important;
+  background-image: var(--lm-home-hero-bg) !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+}
+
+.lm-home-hero::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: -2 !important;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.74) 46%, rgba(255,255,255,.94) 100%),
+    radial-gradient(circle at 80% 28%, rgba(255,255,255,.74), transparent 30rem) !important;
+}
+
+.lm-home-hero::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: -1 !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.26)) !important;
+  pointer-events: none !important;
+}
+
+.lm-home-hero__visual {
+  display: none !important;
+}
+
+.lm-home-hero__content {
+  width: min(100%, 58rem) !important;
+  margin-right: 0 !important;
+  margin-left: auto !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+.lm-home-hero__eyebrow,
+.lm-home-services__eyebrow,
+.lm-home-section__eyebrow {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: fit-content !important;
+  min-height: 2rem !important;
+  margin: 0 0 .75rem !important;
+  padding-inline: .85rem !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--lm-primary-soft) 80%, white) !important;
+  color: var(--lm-primary) !important;
+  font-size: .78rem !important;
+  font-weight: 900 !important;
+}
+
+.lm-home-hero__heading {
+  max-width: 43rem !important;
+  font-size: clamp(2.3rem, 4.2vw, 4.85rem) !important;
+  line-height: 1.24 !important;
+  letter-spacing: -.03em !important;
+  text-align: right !important;
+  text-wrap: balance !important;
+}
+
+.lm-home-hero__lead {
+  max-width: 40rem !important;
+  margin-top: 1rem !important;
+  color: color-mix(in srgb, var(--lm-text-secondary) 92%, #382B3F) !important;
+  font-size: clamp(.98rem, 1.2vw, 1.15rem) !important;
+  line-height: 2 !important;
+  text-align: right !important;
+}
+
+.lm-home-search {
+  width: min(100%, 61rem) !important;
+  grid-template-columns: minmax(17rem, 1.25fr) minmax(11rem, .82fr) minmax(11rem, .82fr) minmax(8rem, .55fr) !important;
+  gap: .65rem !important;
+  margin-top: 1.85rem !important;
+  padding: .72rem !important;
+  border-radius: 1.65rem !important;
+  background: rgba(255,255,255,.9) !important;
+  border: 1px solid rgba(255,255,255,.82) !important;
+  box-shadow: 0 24px 70px rgba(52, 40, 72, .15) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+.lm-home-search__field {
+  min-height: 3.55rem !important;
+  padding-inline: 1rem !important;
+  border-radius: 1.18rem !important;
+  background: #fff !important;
+  border: 1px solid color-mix(in srgb, var(--lm-border-soft) 76%, transparent) !important;
+}
+
+.lm-home-search__field i {
+  color: var(--lm-primary) !important;
+}
+
+.lm-home-search__field input,
+.lm-home-search__field select {
+  min-height: auto !important;
+  font-weight: 700 !important;
+  color: var(--lm-text-primary) !important;
+}
+
+.lm-home-search__submit {
+  min-height: 3.55rem !important;
+  border-radius: 1.18rem !important;
+  font-size: .98rem !important;
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--lm-primary) 24%, transparent) !important;
+}
+
+.lm-home-hero__features {
+  width: min(100%, 48rem) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: .85rem !important;
+  margin-top: 1.35rem !important;
+}
+
+.lm-home-feature {
+  min-height: 4.5rem !important;
+  padding: .85rem !important;
+  border-radius: 1.25rem !important;
+  background: rgba(255,255,255,.72) !important;
+  border: 1px solid rgba(255,255,255,.78) !important;
+  box-shadow: 0 12px 32px rgba(52, 40, 72, .08) !important;
+  backdrop-filter: blur(14px) !important;
+}
+
+/* Service categories */
+.lm-home-services {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 1.35rem !important;
+  padding: clamp(1.25rem, 2.4vw, 2rem) !important;
+  direction: rtl !important;
+}
+
+.lm-home-services__intro,
+.lm-home-services__rail,
+.lm-home-section {
+  padding: 0 !important;
+}
+
+.lm-home-services__intro {
+  max-width: 47rem !important;
+  text-align: right !important;
+  align-items: flex-start !important;
+}
+
+.lm-home-services__title,
+.lm-home-section__title {
+  font-size: clamp(1.45rem, 2vw, 2rem) !important;
+  line-height: 1.45 !important;
+  letter-spacing: -.015em !important;
+}
+
+.lm-home-services__text,
+.lm-home-section__text {
+  max-width: 45rem !important;
+  margin-top: .4rem !important;
+  line-height: 1.95 !important;
+}
+
+.lm-home-services__grid {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  gap: .85rem !important;
+  direction: rtl !important;
+}
+
+.lm-home-service-pill {
+  min-height: 8.25rem !important;
+  padding: 1rem .75rem !important;
+  gap: .75rem !important;
+  border-radius: 1.45rem !important;
+  border: 1px solid var(--lm-border-soft) !important;
+  background: #fff !important;
+  color: var(--lm-text-primary) !important;
+  box-shadow: 0 12px 30px rgba(91, 72, 133, .06) !important;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease !important;
+}
+
+.lm-home-service-pill:hover {
+  transform: translateY(-3px) !important;
+  background: color-mix(in srgb, var(--lm-primary-soft) 28%, white) !important;
+  border-color: color-mix(in srgb, var(--lm-primary) 30%, var(--lm-border-soft)) !important;
+  box-shadow: 0 18px 42px rgba(91, 72, 133, .1) !important;
+}
+
+.lm-home-service-pill__icon {
+  width: 4.25rem !important;
+  height: 4.25rem !important;
+  border-radius: 1.35rem !important;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lm-primary-soft) 78%, white), #fff) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lm-primary) 10%, transparent) !important;
+}
+
+.lm-home-service-pill__icon i {
+  font-size: 1.45rem !important;
+}
+
+.lm-home-service-pill__image {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+.lm-home-service-pill strong {
+  font-size: .9rem !important;
+  font-weight: 900 !important;
+  line-height: 1.55 !important;
+}
+
+/* Lower sections */
+.lm-home-section {
+  padding: clamp(1.25rem, 2.4vw, 2rem) !important;
+}
+
+.lm-home-section__header {
+  align-items: flex-end !important;
+  margin-bottom: 1.35rem !important;
+}
+
+.lm-home-link {
+  min-height: 2.75rem !important;
+  padding-inline: 1.15rem !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  border: 1px solid var(--lm-border-soft) !important;
+  box-shadow: 0 10px 28px rgba(91, 72, 133, .06) !important;
+}
+
+.lm-home-salon-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 1rem !important;
+}
+
+.lm-home-salon-card {
+  border-radius: 1.55rem !important;
+  background: #fff !important;
+  box-shadow: 0 16px 42px rgba(91, 72, 133, .08) !important;
+}
+
+.lm-home-salon-card__media {
+  aspect-ratio: 1.28 / 1 !important;
+  border-radius: 1.2rem !important;
+  margin: .65rem .65rem 0 !important;
+}
+
+.lm-home-salon-card__body {
+  padding: 1rem 1.05rem 1.15rem !important;
+  gap: .5rem !important;
+}
+
+.lm-home-salon-card__title {
+  margin: 0 !important;
+  font-size: 1rem !important;
+  line-height: 1.55 !important;
+}
+
+.lm-home-salon-card__location {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: .35rem !important;
+}
+
+.lm-home-app {
+  grid-template-columns: minmax(19rem, .85fr) minmax(0, 1.15fr) !important;
+  gap: 1.25rem !important;
+  padding: clamp(1.25rem, 2.4vw, 2rem) !important;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255,255,255,.76), transparent 18rem),
+    linear-gradient(135deg, color-mix(in srgb, var(--lm-primary-soft) 78%, white), #fff 78%) !important;
+}
+
+.lm-home-app__promo,
+.lm-home-app__stats {
+  grid-column: auto !important;
+}
+
+.lm-home-app__promo {
+  padding: .5rem !important;
+}
+
+.lm-home-app__stats {
+  gap: .85rem !important;
+}
+
+.lm-home-app__stat {
+  min-height: 8rem !important;
+  align-content: center !important;
+  border-radius: 1.35rem !important;
+  background: rgba(255,255,255,.7) !important;
+  border: 1px solid rgba(255,255,255,.85) !important;
+  box-shadow: 0 12px 30px rgba(91, 72, 133, .06) !important;
+}
+
+/* Responsive safety */
+@media (max-width: 1180px) {
+  .lm-shell-desktop-site-header__inner {
+    grid-template-columns: minmax(9rem, .8fr) auto minmax(9rem, .8fr) !important;
+    gap: .85rem !important;
+  }
+
+  .lm-shell-desktop-nav__item {
+    padding-inline: .7rem !important;
+    font-size: .82rem !important;
+  }
+
+  .lm-home-services__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .lm-home-salon-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .lm-home-main-shell {
+    width: min(100% - .85rem, 100%) !important;
+    padding-top: .85rem !important;
+  }
+
+  .lm-home-hero {
+    min-height: auto !important;
+    padding: 2rem 1rem 1.35rem !important;
+    background-position: center top !important;
+  }
+
+  .lm-home-hero::before {
+    background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78)) !important;
+  }
+
+  .lm-home-hero__content {
+    width: 100% !important;
+    margin: 0 !important;
+    align-items: stretch !important;
+  }
+
+  .lm-home-hero__heading,
+  .lm-home-hero__lead {
+    max-width: none !important;
+  }
+
+  .lm-home-search {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+
+  .lm-home-hero__features {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+
+  .lm-home-services__grid,
+  .lm-home-salon-grid,
+  .lm-home-app__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .lm-home-app {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .lm-home-card,
+  .lm-home-hero,
+  .lm-home-salon-card {
+    border-radius: 1.45rem !important;
+  }
+
+  .lm-home-hero__heading {
+    font-size: 2rem !important;
+  }
+
+  .lm-home-services__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: .6rem !important;
+  }
+
+  .lm-home-service-pill {
+    min-height: 7.4rem !important;
+    padding: .85rem .45rem !important;
+  }
+
+  .lm-home-service-pill__icon {
+    width: 3.45rem !important;
+    height: 3.45rem !important;
+  }
+
+  .lm-home-salon-grid,
+  .lm-home-app__stats {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lm-home-section__header {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .lm-home-app__promo {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
+
+/* ======================================================================
+   PATCH 06 — Header logo asset fix
+   The previous RGB logo files had a visible square canvas. Header now uses
+   a dedicated transparent horizontal lockup asset.
+====================================================================== */
+
+.lm-shell-desktop-brand,
+.lm-shell-brand-link {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.lm-brand-lockup--header,
+.lm-brand-lockup--full,
+.lm-brand-lockup--image {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.lm-brand-lockup--header .lm-brand-lockup__image,
+.lm-brand-lockup--full .lm-brand-lockup__image {
+  display: block !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+.lm-shell-desktop-brand .lm-brand-lockup--header {
+  width: clamp(9.25rem, 10vw, 11rem) !important;
+  height: 3.15rem !important;
+  justify-content: flex-end !important;
+}
+
+.lm-shell-desktop-brand .lm-brand-lockup--header .lm-brand-lockup__image {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.lm-shell-mobile-header .lm-brand-lockup--header,
+.lm-shell-brand-link .lm-brand-lockup--header {
+  width: 7.75rem !important;
+  height: 2.55rem !important;
+}
+
+.lm-shell-mobile-header .lm-brand-lockup--header .lm-brand-lockup__image,
+.lm-shell-brand-link .lm-brand-lockup--header .lm-brand-lockup__image {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.lm-brand-lockup--glyph .lm-brand-lockup__glyph,
+.lm-brand-lockup--glyph .lm-brand-lockup__glyph-img {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+@media (min-width: 1024px) {
+  .lm-shell-desktop-site-header__inner {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 5.5rem !important;
+    direction: rtl !important;
+  }
+
+  .lm-shell-desktop-actions {
+    position: absolute !important;
+    left: 0 !important;
+    right: auto !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    direction: rtl !important;
+    z-index: 3 !important;
+  }
+
+  .lm-shell-desktop-brand {
+    position: absolute !important;
+    right: 0 !important;
+    left: auto !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    z-index: 3 !important;
+  }
+
+  .lm-shell-desktop-nav {
+    position: static !important;
+    margin-inline: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    direction: rtl !important;
+    z-index: 2 !important;
+  }
+  .lm-shell-desktop-site-header__inner.lm-app-container {
+  max-width: none !important;
+  width: 90% !important;
+  padding-inline: 3.25rem !important;
+}
+}
+/* Hero transparent cards */
+.lm-home-hero .lm-home-search {
+  background: rgba(255, 255, 255, 0.38) !important;
+  border: 1px solid rgba(255, 255, 255, 0.52) !important;
+  box-shadow: 0 18px 48px rgba(46, 42, 60, 0.10) !important;
+  backdrop-filter: blur(10px) saturate(115%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(115%) !important;
+}
+
+.lm-home-hero .lm-home-search input,
+.lm-home-hero .lm-home-search select,
+.lm-home-hero .lm-home-search .lm-home-search__field,
+.lm-home-hero .lm-home-search .lm-home-search__select,
+.lm-home-hero .lm-home-search .lm-home-search__location {
+  background: rgba(255, 255, 255, 0.096) !important;
+  border-color: rgba(255, 255, 255, 0.50) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.lm-home-hero .lm-home-feature,
+.lm-home-hero .lm-home-hero__feature,
+.lm-home-hero .lm-home-hero-feature {
+  background: rgba(255, 255, 255, 0.142) !important;
+  border: 1px solid rgba(255, 255, 255, 0.074) !important;
+  box-shadow: 0 16px 42px rgba(46, 42, 60, 0.08) !important;
+  backdrop-filter: blur(10px) saturate(115%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(115%) !important;
+}
+
+/* دکمه جستجو همچنان واضح بماند */
+.lm-home-hero .lm-home-search button[type="submit"],
+.lm-home-hero .lm-home-search .lm-home-search__submit {
+  background: var(--lm-primary) !important;
+  color: #fff !important;
+  border-color: var(--lm-primary) !important;
+  box-shadow: 0 14px 30px rgba(115, 92, 190, 0.078) !important;
+}
+/* ======================================================================
+   PATCH 08 — Dynamic desktop service categories on public home
+   Source: apps.services.models.GroupServices via PublicHomeView
+====================================================================== */
+.lm-home-services--dynamic {
+  overflow: hidden;
+  position: relative;
+}
+
+.lm-home-services--dynamic::before {
+  content: "";
+  position: absolute;
+  inset: -32% auto auto -8%;
+  width: 18rem;
+  height: 18rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--lm-primary) 18%, transparent), transparent 68%);
+  pointer-events: none;
+}
+
+.lm-home-services--dynamic .lm-home-services__rail,
+.lm-home-services--dynamic .lm-home-services__intro {
+  position: relative;
+  z-index: 1;
+}
+
+.lm-home-services--dynamic .lm-home-services__intro {
+  gap: .75rem;
+}
+
+.lm-home-services__all-link {
+  width: max-content;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 2.65rem;
+  margin-top: .4rem;
+  padding: .15rem 1rem;
+  border-radius: 999px;
+  background: var(--lm-text-primary);
+  color: var(--lm-surface);
+  font-weight: 900;
+  font-size: .9rem;
+  transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+.lm-home-services__all-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 1rem 2rem rgba(27, 25, 35, .12);
+  background: var(--lm-primary);
+  color: #fff;
+}
+
+.lm-home-services__empty {
+  grid-column: 1 / -1;
+  min-height: 10rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  border: 1px dashed var(--lm-border-soft);
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, var(--lm-bg-subtle) 72%, transparent);
+  color: var(--lm-text-secondary);
+  text-align: center;
+  padding: 1.4rem;
+}
+
+.lm-home-services__empty i {
+  width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--lm-primary-soft);
+  color: var(--lm-primary);
+}
+
+.lm-home-services__empty strong {
+  color: var(--lm-text-primary);
+  font-weight: 900;
+}
+
+.lm-home-services--dynamic .lm-home-service-pill {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: .95rem;
+  min-height: 12rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--lm-border-soft) 78%, transparent);
+  border-radius: 1.65rem;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--lm-surface) 92%, white), color-mix(in srgb, var(--lm-bg-subtle) 72%, white));
+  color: var(--lm-text-primary);
+  box-shadow: 0 .9rem 2.2rem rgba(32, 29, 42, .055);
+  text-align: right;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
+}
+
+.lm-home-services--dynamic .lm-home-service-pill::after {
+  content: "";
+  position: absolute;
+  inset: auto -18% -42% auto;
+  width: 8.5rem;
+  height: 8.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lm-primary-soft) 72%, transparent);
+  z-index: -1;
+  transition: transform .22s ease, opacity .22s ease;
+  opacity: .72;
+}
+
+.lm-home-services--dynamic .lm-home-service-pill:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--lm-primary) 32%, var(--lm-border-soft));
+  box-shadow: 0 1.15rem 2.6rem rgba(32, 29, 42, .11);
+  color: var(--lm-text-primary);
+}
+
+.lm-home-services--dynamic .lm-home-service-pill:hover::after {
+  transform: scale(1.12) translate(-.25rem, -.25rem);
+  opacity: 1;
+}
+
+.lm-home-service-pill__media {
+  width: 4.85rem;
+  height: 4.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  overflow: hidden;
+  border-radius: 1.45rem;
+  background:
+    radial-gradient(circle at 32% 25%, rgba(255, 255, 255, .74), transparent 42%),
+    var(--lm-primary-soft);
+  color: var(--lm-primary);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lm-primary) 10%, transparent);
+}
+
+.lm-home-service-pill__media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.lm-home-service-pill__media i {
+  font-size: 1.45rem;
+}
+
+.lm-home-service-pill__body {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  min-width: 0;
+}
+
+.lm-home-service-pill__body strong {
+  color: var(--lm-text-primary);
+  font-size: 1.02rem;
+  font-weight: 950;
+  line-height: 1.55;
+}
+
+.lm-home-service-pill__description {
+  min-height: 2.95rem;
+  color: var(--lm-text-secondary);
+  font-size: .82rem;
+  line-height: 1.75;
+}
+
+.lm-home-service-pill__meta {
+  width: max-content;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.8rem;
+  margin-top: .2rem;
+  padding: 0 .7rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lm-surface) 76%, transparent);
+  color: var(--lm-text-muted);
+  font-size: .75rem;
+  font-weight: 850;
+}
+
+.lm-home-service-pill__arrow {
+  position: absolute;
+  left: .95rem;
+  bottom: .95rem;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--lm-surface);
+  color: var(--lm-text-primary);
+  box-shadow: 0 .6rem 1.4rem rgba(32, 29, 42, .08);
+  transition: transform .2s ease, background-color .2s ease, color .2s ease;
+}
+
+.lm-home-services--dynamic .lm-home-service-pill:hover .lm-home-service-pill__arrow {
+  transform: translateX(-3px);
+  background: var(--lm-primary);
+  color: #fff;
+}
+
+html[data-theme="dark"] .lm-home-services--dynamic .lm-home-service-pill {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lm-surface) 92%, #2b2540), color-mix(in srgb, var(--lm-surface-soft) 78%, #17131f));
+  box-shadow: 0 .9rem 2.2rem rgba(0, 0, 0, .2);
+}
+
+html[data-theme="dark"] .lm-home-services__all-link,
+html[data-theme="dark"] .lm-home-service-pill__arrow {
+  background: color-mix(in srgb, var(--lm-surface) 72%, #fff 6%);
+  color: var(--lm-text-primary);
+}
+
+@media (min-width: 1024px) {
+  .lm-home-services--dynamic {
+    grid-template-columns: minmax(0, 1fr) minmax(17rem, 21rem) !important;
+    gap: 1.25rem !important;
+  }
+
+  .lm-home-services--dynamic .lm-home-services__rail {
+    padding: 1.25rem !important;
+  }
+
+  .lm-home-services--dynamic .lm-home-services__intro {
+    padding: 1.6rem 1.7rem !important;
+  }
+
+  .lm-home-services--dynamic .lm-home-services__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+  }
+}
+
+@media (max-width: 1199.98px) and (min-width: 1024px) {
+  .lm-home-services--dynamic .lm-home-services__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .lm-home-services--dynamic .lm-home-services__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .lm-home-services--dynamic .lm-home-service-pill {
+    min-height: 11rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .lm-home-services--dynamic .lm-home-services__grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lm-home-services--dynamic .lm-home-service-pill {
+    min-height: auto;
+    display: grid;
+    grid-template-columns: 4.4rem 1fr;
+    align-items: center;
+    padding-left: 3.4rem;
+  }
+
+  .lm-home-service-pill__media {
+    width: 4.4rem;
+    height: 4.4rem;
+  }
+
+  .lm-home-service-pill__description {
+    min-height: 0;
+  }
+}
+/* ======================================================================
+   PATCH 11 — Final homepage app section
+====================================================================== */
+
+.lm-home-app--final {
+  direction: ltr;
+  display: grid !important;
+  grid-template-columns: 240px minmax(320px, 430px) minmax(420px, 1fr);
+  align-items: center;
+  gap: 2rem;
+  padding: 1.15rem 1.5rem !important;
+  border-radius: 1.8rem;
+  border: 1px solid #ebe3f4;
+  background: linear-gradient(180deg, #f8f3fc 0%, #f5eef9 100%);
+  overflow: hidden;
+}
+
+.lm-home-app-final__visual,
+.lm-home-app-final__content,
+.lm-home-app-final__stats {
+  direction: rtl;
+}
+
+/* =========================
+   Left visual
+========================= */
+
+.lm-home-app-final__visual {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  min-height: 150px;
+}
+
+.lm-home-app-final__qr {
+  width: 84px;
+  height: 84px;
+  padding: 8px;
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid #e7def2;
+  box-shadow: 0 10px 24px rgba(58, 44, 86, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.lm-home-app-final__qr-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.lm-home-app-final__phones {
+  width: 120px;
+  flex: 0 0 auto;
+}
+
+.lm-home-app-final__phone-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  border-radius: 15px;
+}
+
+/* =========================
+   Center content
+========================= */
+
+.lm-home-app-final__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 0;
+  text-align: right;
+}
+
+.lm-home-app-final__brand {
+  color: #6b56a1;
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.8;
+}
+
+.lm-home-app-final__title {
+  margin: 0;
+  color: #241c35;
+  font-size: 1.2rem;
+  font-weight: 900;
+  line-height: 1.9;
+  text-align: right;
+}
+
+.lm-home-app-final__text {
+  margin: 0;
+  color: #6d6580;
+  font-size: 0.87rem;
+  line-height: 2;
+  text-align: right;
+}
+
+.lm-home-app-final__download-btn {
+  min-height: 2.45rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.35rem;
+  padding: 0 1rem;
+  border-radius: 0.85rem;
+  background: #efe6fb;
+  color: #7b5ec7;
+  border: 1px solid #dccff0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  transition: all 0.2s ease;
+}
+
+.lm-home-app-final__download-btn:hover {
+  background: #8c68d5;
+  color: #fff;
+  border-color: #8c68d5;
+}
+
+/* =========================
+   Right stats
+========================= */
+
+.lm-home-app-final__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  gap: 1.4rem;
+  min-width: 0;
+  padding-right: 0.5rem;
+}
+
+.lm-home-app-final__stat {
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  text-align: center;
+  padding: 0 0.65rem;
+  position: relative;
+}
+
+.lm-home-app-final__stat:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: -0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 56px;
+  background: #e4dcef;
+}
+
+.lm-home-app-final__stat-icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #efe6fb;
+  color: #8a67d2;
+  font-size: 0.92rem;
+}
+
+.lm-home-app-final__stat-value {
+  color: #251d36;
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.lm-home-app-final__stat-label {
+  color: #6d6480;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.8;
+  max-width: 120px;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 1250px) {
+  .lm-home-app--final {
+    grid-template-columns: 220px minmax(280px, 360px) minmax(360px, 1fr);
+    gap: 1.4rem;
+  }
+
+  .lm-home-app-final__stats {
+    gap: 1rem;
+  }
+
+  .lm-home-app-final__stat-value {
+    font-size: 1.55rem;
+  }
+
+  .lm-home-app-final__stat-label {
+    font-size: 0.74rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .lm-home-app--final {
+    grid-template-columns: 1fr;
+    direction: rtl;
+    gap: 1rem;
+    padding: 1rem !important;
+  }
+
+  .lm-home-app-final__visual,
+  .lm-home-app-final__content,
+  .lm-home-app-final__stats {
+    direction: rtl;
+  }
+
+  .lm-home-app-final__visual {
+    justify-content: center;
+  }
+
+  .lm-home-app-final__content {
+    align-items: center;
+    text-align: center;
+  }
+
+  .lm-home-app-final__title,
+  .lm-home-app-final__text {
+    text-align: center;
+  }
+
+  .lm-home-app-final__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+    padding-right: 0;
+  }
+
+  .lm-home-app-final__stat {
+    border: 1px solid #e7def2;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.55);
+    min-height: 102px;
+  }
+
+  .lm-home-app-final__stat:not(:last-child)::after {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .lm-home-app-final__visual {
+    flex-direction: column;
+  }
+
+  .lm-home-app-final__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .lm-home-app-final__download-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+/* فقط جابه‌جایی آیتم‌های بخش اپلیکیشن */
+.lm-home-app--final,
+.lm-home-app--reference,
+.lm-home-app--inline {
+  display: grid !important;
+  direction: ltr !important;
+}
+
+/* عکس موبایل و QR سمت چپ */
+.lm-home-app-final__visual,
+.lm-home-app-ref__visual,
+.lm-home-app-inline__visual {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  justify-content: flex-start !important;
+  direction: ltr !important;
+}
+
+/* متن سمت راست */
+.lm-home-app-final__content,
+.lm-home-app-ref__content,
+.lm-home-app-inline__content {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  direction: rtl !important;
+  text-align: right !important;
+  align-items: flex-start !important;
+}
+
+/* آمار وسط */
+.lm-home-app-final__stats,
+.lm-home-app-ref__stats,
+.lm-home-app-inline__stats {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  direction: rtl !important;
+}
+
+/* فاصله بیشتر بین آمارها */
+.lm-home-app-final__stats,
+.lm-home-app-ref__stats,
+.lm-home-app-inline__stats {
+  gap: 1.8rem !important;
+}
+
+.lm-home-app-final__stat,
+.lm-home-app-ref__stat,
+.lm-home-app-inline__stat {
+  padding-inline: 1rem !important;
+}
+
+/* دکمه و متن راست‌چین بماند */
+.lm-home-app-final__title,
+.lm-home-app-final__text,
+.lm-home-app-ref__title,
+.lm-home-app-ref__text,
+.lm-home-app-inline__title,
+.lm-home-app-inline__text {
+  text-align: right !important;
+}
+/* ===== fix final layout of app section ===== */
+.lm-home-app--final {
+  display: grid !important;
+  grid-template-columns: 260px minmax(0, 1fr) !important;
+  grid-template-areas:
+    "visual content"
+    "stats  stats" !important;
+  align-items: center !important;
+  gap: 1.25rem 2rem !important;
+  direction: ltr !important;
+}
+
+.lm-home-app-final__visual {
+  grid-area: visual !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 1rem !important;
+  direction: ltr !important;
+}
+
+/* تصویر موبایل سمت چپ */
+.lm-home-app-final__phones {
+  order: 1 !important;
+  width: 120px !important;
+  flex: 0 0 auto !important;
+}
+
+/* کد سمت راست تصویر موبایل */
+.lm-home-app-final__qr {
+  order: 2 !important;
+  width: 84px !important;
+  height: 84px !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.lm-home-app-final__content {
+  grid-area: content !important;
+  direction: rtl !important;
+  text-align: right !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+}
+
+.lm-home-app-final__title,
+.lm-home-app-final__text {
+  text-align: right !important;
+}
+
+.lm-home-app-final__stats {
+  grid-area: stats !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 2rem !important;
+  margin-top: 0.5rem !important;
+  padding-top: 1.1rem !important;
+  border-top: 1px solid #e7def2 !important;
+  direction: rtl !important;
+}
+
+.lm-home-app-final__stat {
+  min-height: 96px !important;
+  padding: 0.25rem 0.9rem !important;
+  text-align: center !important;
+  position: relative !important;
+}
+
+.lm-home-app-final__stat:not(:last-child)::after {
+  content: "" !important;
+  position: absolute !important;
+  left: -1rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 1px !important;
+  height: 52px !important;
+  background: #e4dcef !important;
+}
+
+@media (max-width: 1024px) {
+  .lm-home-app--final {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "visual"
+      "content"
+      "stats" !important;
+    gap: 1rem !important;
+  }
+
+  .lm-home-app-final__visual {
+    justify-content: center !important;
+  }
+
+  .lm-home-app-final__content {
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .lm-home-app-final__title,
+  .lm-home-app-final__text {
+    text-align: center !important;
+  }
+
+  .lm-home-app-final__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+  }
+
+  .lm-home-app-final__stat:not(:last-child)::after {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .lm-home-app-final__visual {
+    gap: 0.75rem !important;
+  }
+
+  .lm-home-app-final__phones {
+    width: 105px !important;
+  }
+
+  .lm-home-app-final__qr {
+    width: 72px !important;
+    height: 72px !important;
+  }
+
+  .lm-home-app-final__stats {
+    grid-template-columns: 1fr !important;
+  }
+}
+/* ======================================================================
+   Mobile hero background image
+====================================================================== */
+
+@media (max-width: 767.98px) {
+  .lm-home-hero {
+    min-height: 720px !important;
+    overflow: hidden !important;
+  }
+
+  .lm-home-hero::before {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.96) 0%,
+        rgba(255, 255, 255, 0.84) 38%,
+        rgba(255, 255, 255, 0.42) 66%,
+        rgba(255, 255, 255, 0.12) 100%
+      ),
+      url("../images/home/home-hero-mobile-bg.png") center bottom / cover no-repeat !important;
+  }
+
+  .lm-home-hero__visual {
+    display: none !important;
+  }
+
+  .lm-home-hero__content {
+    justify-content: flex-start !important;
+    padding: 2.4rem 1rem 16rem !important;
+    text-align: center !important;
+    align-items: center !important;
+  }
+
+  .lm-home-hero__heading,
+  .lm-home-hero__lead {
+    text-align: center !important;
+  }
+}
+/* ======================================================================
+   Search autocomplete suggestions
+====================================================================== */
+
+.lm-search-autocomplete-wrap,
+.lm-search-desktop-field {
+  position: relative;
+}
+
+.lm-search-suggestions {
+  position: absolute;
+  z-index: 90;
+  top: calc(100% + .45rem);
+  right: 0;
+  left: 0;
+  max-height: 18rem;
+  overflow-y: auto;
+  padding: .35rem;
+  margin: 0;
+  list-style: none;
+  border: 1px solid #eadff5;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 1rem 2.4rem rgba(35, 28, 55, .12);
+}
+
+.lm-search-suggestion-item {
+  cursor: pointer;
+  display: grid;
+  gap: .25rem;
+  padding: .72rem .8rem;
+  border-radius: .8rem;
+  transition: background-color .18s ease;
+}
+
+.lm-search-suggestion-item:hover {
+  background: #f7f1fc;
+}
+
+.lm-search-suggestion-item__main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .8rem;
+}
+
+.lm-search-suggestion-item strong {
+  color: #251d36;
+  font-size: .82rem;
+  font-weight: 850;
+}
+
+.lm-search-suggestion-item span {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #efe6fb;
+  color: #7b5ec7;
+  padding: .12rem .55rem;
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.lm-search-suggestion-item small {
+  color: #7d748d;
+  font-size: .72rem;
+  line-height: 1.7;
+}
+
+.lm-home-search {
+  overflow: visible !important;
+}
+
+.lm-home-hero,
+.lm-home-card {
+  overflow: visible;
+}
+/* ======================================================================
+   FIX — Search suggestions should appear above hero cards
+====================================================================== */
+
+.lm-home-hero,
+.lm-home-hero__content,
+.lm-home-search,
+.lm-home-search__field,
+.lm-search-autocomplete-wrap {
+  overflow: visible !important;
+}
+
+.lm-home-hero {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.lm-home-hero__content {
+  position: relative !important;
+  z-index: 30 !important;
+}
+
+.lm-home-search {
+  position: relative !important;
+  z-index: 80 !important;
+  isolation: isolate;
+}
+
+.lm-home-search__field,
+.lm-search-autocomplete-wrap {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.lm-home-search__field:focus-within,
+.lm-search-autocomplete-wrap:focus-within {
+  z-index: 9999 !important;
+}
+
+.lm-search-suggestions {
+  z-index: 10000 !important;
+}
+
+.lm-home-hero__features,
+.lm-home-feature,
+.lm-home-hero-card,
+.lm-home-hero__trust {
+  position: relative !important;
+  z-index: 2 !important;
+}
+.lm-home-hero__features {
+  z-index: 0 !important;
+}
+
+/* ======================================================================
+   FIX — Selected service button should be red with minus icon
+====================================================================== */
+
+.lm-service-card__toggle.is-selected {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.lm-service-card__toggle.is-selected:hover,
+.lm-service-card__toggle.is-selected:focus-visible {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.lm-service-card.is-selected {
+  border-color: rgba(239, 68, 68, 0.38) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(254, 242, 242, 0.88),
+    rgba(255, 255, 255, 0.96)
+  ) !important;
+}
+
+.lm-service-card.is-selected .lm-service-card__selected-note {
+  color: #16a34a !important;
+}
+/* ======================================================================
+   FINAL DETAIL SALON FIX — booking sidebar + compact services + tabs
+====================================================================== */
+
+/* ---------- Make detail layout a real 2-column desktop grid ---------- */
+@media (min-width: 1024px) {
+  .lm-venue-layout {
+    direction: ltr !important;
+    display: grid !important;
+    grid-template-columns: minmax(18.5rem, 21.5rem) minmax(0, 1fr) !important;
+    grid-template-areas: "booking main" !important;
+    align-items: start !important;
+    gap: 1.35rem !important;
+    max-width: var(--lm-container-xl) !important;
+    width: min(100% - 2rem, var(--lm-container-xl)) !important;
+    margin-inline: auto !important;
+    padding-inline: 0 !important;
+    overflow: visible !important;
+  }
+
+  .lm-venue-main {
+    direction: rtl !important;
+    grid-area: main !important;
+    grid-column: 2 / 3 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  .lm-venue-booking-sidebar {
+    direction: rtl !important;
+    grid-area: booking !important;
+    grid-column: 1 / 2 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    display: block !important;
+    position: relative !important;
+    z-index: 25 !important;
+    overflow: visible !important;
+
+    /* کارت رزرو کنار بخش خدمات شروع شود، نه روی کارت معرفی سالن */
+    margin-top: 15.25rem !important;
+  }
+
+  .lm-venue-booking-card {
+    position: sticky !important;
+    top: 6.25rem !important;
+    z-index: 26 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100dvh - 7.5rem) !important;
+    overflow-y: auto !important;
+    padding: 1rem !important;
+    border-radius: 1.55rem !important;
+    box-shadow: 0 1.4rem 3rem rgba(35, 28, 55, 0.13) !important;
+  }
+
+  .lm-service-summary-card {
+    padding: 0.85rem !important;
+    border-radius: 1.2rem !important;
+  }
+}
+
+/* ---------- Compact services section ---------- */
+@media (min-width: 1024px) {
+  .lm-service-selection-section {
+    padding: 1.1rem !important;
+  }
+
+  .lm-service-selection-header {
+    margin-bottom: 0.55rem !important;
+  }
+
+  .lm-service-selection-header .lm-section-title {
+    font-size: 1.65rem !important;
+    line-height: 1.45 !important;
+  }
+
+  .lm-service-selection-header p {
+    margin-top: 0.25rem !important;
+    font-size: 0.8rem !important;
+    line-height: 1.75 !important;
+  }
+
+  .lm-service-selection-guide {
+    gap: 0.45rem !important;
+    margin-bottom: 0.65rem !important;
+  }
+
+  .lm-service-step {
+    min-height: 2.5rem !important;
+    padding: 0.5rem 0.65rem !important;
+    border-radius: 1rem !important;
+  }
+
+  .lm-service-step span {
+    width: 1.35rem !important;
+    height: 1.35rem !important;
+    font-size: 0.65rem !important;
+  }
+
+  .lm-service-step p {
+    font-size: 0.7rem !important;
+  }
+
+  .lm-service-category-rail {
+    margin-bottom: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+  }
+
+  .lm-venue-service-list,
+  .lm-service-selection-list {
+    gap: 0.6rem !important;
+  }
+
+  .lm-service-card__content {
+    padding: 0.75rem 0.85rem !important;
+  }
+
+  .lm-service-card__title {
+    font-size: 0.9rem !important;
+    line-height: 1.55 !important;
+  }
+
+  .lm-service-card__description {
+    font-size: 0.74rem !important;
+    line-height: 1.65 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 1 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  .lm-service-card__meta {
+    margin-top: 0.45rem !important;
+  }
+
+  .lm-service-card__toggle {
+    min-width: 4.75rem !important;
+    min-height: 2.1rem !important;
+    font-size: 0.74rem !important;
+  }
+}
+
+/* ---------- Sticky / fixed tabs ---------- */
+.lm-venue-section-nav {
+  position: sticky !important;
+  top: 5.25rem !important;
+  z-index: 90 !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  box-shadow: 0 0.75rem 1.8rem rgba(35, 28, 55, 0.08) !important;
+}
+
+.lm-venue-section-nav.is-fixed {
+  position: fixed !important;
+  top: var(--lm-detail-tabs-top, 64px) !important;
+  left: var(--lm-detail-tabs-left, auto) !important;
+  right: auto !important;
+  width: var(--lm-detail-tabs-width, auto) !important;
+  z-index: 120 !important;
+}
+
+.lm-venue-section-nav__item {
+  position: relative !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.lm-venue-section-nav__item.is-active,
+.lm-venue-section-nav__item[aria-current="true"] {
+  color: var(--lm-primary) !important;
+  background: color-mix(in srgb, var(--lm-primary-soft) 72%, transparent) !important;
+  border-bottom-color: var(--lm-primary) !important;
+}
+
+.lm-venue-section {
+  scroll-margin-top: 9.25rem !important;
+}
+
+/* ---------- Tablet / mobile normal layout ---------- */
+@media (max-width: 1023.98px) {
+  .lm-venue-layout {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: min(100% - 1rem, var(--lm-container-xl)) !important;
+  }
+
+  .lm-venue-main {
+    grid-column: auto !important;
+  }
+
+  .lm-venue-booking-sidebar {
+    display: none !important;
+  }
+
+  .lm-venue-section-nav {
+    top: 3.75rem !important;
+  }
+
+  .lm-venue-section-nav.is-fixed {
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+    width: auto !important;
+  }
+}
+/* selected service button */
+.lm-service-card__toggle.is-selected,
+.add-service-btn.is-selected {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.lm-service-card__toggle.is-selected:hover,
+.lm-service-card__toggle.is-selected:focus-visible,
+.add-service-btn.is-selected:hover,
+.add-service-btn.is-selected:focus-visible {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.lm-service-card.is-selected {
+  border-color: rgba(239, 68, 68, 0.42) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(254, 242, 242, 0.9),
+    rgba(255, 255, 255, 0.96)
+  ) !important;
+}
+/* =========================================================
+   DETAIL SALON — FINAL TUNING
+   service cards shorter + booking card lower + centered sticky tabs
+========================================================= */
+
+/* ---------- Desktop layout ---------- */
+@media (min-width: 1024px) {
+  .lm-venue-layout {
+    direction: ltr !important;
+    display: grid !important;
+    grid-template-columns: 320px minmax(0, 1fr) !important;
+    gap: 1.25rem !important;
+    align-items: start !important;
+    overflow: visible !important;
+  }
+
+  .lm-venue-main {
+    direction: rtl !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* کارت خلاصه رزرو کمی پایین تر بیاید تا جلوی خدمات قرار بگیرد */
+  .lm-venue-booking-sidebar {
+    direction: rtl !important;
+    align-self: start !important;
+    position: relative !important;
+    z-index: 20 !important;
+    margin-top: 18.5rem !important;
+  }
+
+  .lm-venue-booking-card {
+    position: sticky !important;
+    top: 7.4rem !important;
+    z-index: 21 !important;
+    border-radius: 1.45rem !important;
+    padding: 0.95rem !important;
+    box-shadow: 0 1.2rem 2.8rem rgba(34, 26, 60, 0.12) !important;
+    max-height: calc(100vh - 8.5rem) !important;
+    overflow-y: auto !important;
+  }
+
+  /* ---------- بخش خدمات کوتاه تر و جمع و جور تر ---------- */
+  .lm-service-selection-section {
+    padding: 1rem !important;
+  }
+
+  .lm-service-selection-header {
+    margin-bottom: 0.4rem !important;
+  }
+
+  .lm-service-selection-header .lm-section-title {
+    font-size: 1.55rem !important;
+    line-height: 1.35 !important;
+    margin-bottom: 0.15rem !important;
+  }
+
+  .lm-service-selection-header p {
+    font-size: 0.8rem !important;
+    line-height: 1.7 !important;
+    margin: 0 !important;
+  }
+
+  .lm-service-selection-guide {
+    gap: 0.45rem !important;
+    margin-bottom: 0.55rem !important;
+  }
+
+  .lm-service-step {
+    min-height: 2.45rem !important;
+    padding: 0.45rem 0.7rem !important;
+    border-radius: 0.95rem !important;
+  }
+
+  .lm-service-step p {
+    font-size: 0.72rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .lm-service-step span {
+    width: 1.3rem !important;
+    height: 1.3rem !important;
+    font-size: 0.66rem !important;
+  }
+
+  .lm-service-category-rail {
+    margin-bottom: 0.55rem !important;
+    padding-bottom: 0.45rem !important;
+  }
+
+  .lm-venue-service-list,
+  .lm-service-selection-list {
+    gap: 0.55rem !important;
+  }
+
+  .lm-service-card,
+  .lm-service-item {
+    min-height: auto !important;
+  }
+
+  .lm-service-card__content {
+    padding: 0.7rem 0.85rem !important;
+  }
+
+  .lm-service-card__title {
+    font-size: 0.92rem !important;
+    line-height: 1.45 !important;
+    margin-bottom: 0.15rem !important;
+  }
+
+  .lm-service-card__description {
+    font-size: 0.73rem !important;
+    line-height: 1.55 !important;
+    margin: 0 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 1 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  .lm-service-card__meta {
+    margin-top: 0.35rem !important;
+    gap: 0.35rem !important;
+  }
+
+  .lm-service-card__toggle,
+  .add-service-btn {
+    min-width: 4.9rem !important;
+    min-height: 2rem !important;
+    padding: 0.45rem 0.8rem !important;
+    font-size: 0.76rem !important;
+    border-radius: 999px !important;
+  }
+
+  /* اگر کارت ها هنوز بلند بودند این هم کمک میکند */
+  .lm-service-card__body,
+  .lm-service-card__header {
+    margin-bottom: 0.2rem !important;
+  }
+}
+
+/* ---------- Tabs base ---------- */
+.lm-venue-section-nav {
+  position: relative !important;
+  z-index: 35 !important;
+  transition: all 0.22s ease !important;
+}
+
+.lm-venue-section-nav__item {
+  position: relative !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.lm-venue-section-nav__item.is-active,
+.lm-venue-section-nav__item[aria-current="true"] {
+  color: var(--lm-primary) !important;
+  background: color-mix(in srgb, var(--lm-primary-soft) 68%, white) !important;
+  border-bottom-color: var(--lm-primary) !important;
+}
+
+/* ---------- Tabs when fixed ---------- */
+.lm-venue-section-nav.is-fixed {
+  position: fixed !important;
+  top: calc(var(--lm-detail-topbar-height, 64px) + 12px) !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(900px, calc(100vw - 8rem)) !important;
+  z-index: 120 !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 1rem 2.2rem rgba(35, 28, 55, 0.12) !important;
+  border-radius: 1.35rem !important;
+}
+
+/* placeholder for sticky tabs */
+[data-detail-tabs-placeholder] {
+  display: none;
+  height: 0;
+}
+
+/* فاصله اسکرول برای سکشن ها */
+.lm-venue-section {
+  scroll-margin-top: 10.5rem !important;
+}
+
+/* ---------- selected button state ---------- */
+.lm-service-card__toggle.is-selected,
+.add-service-btn.is-selected {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.lm-service-card__toggle.is-selected:hover,
+.add-service-btn.is-selected:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+/* ---------- Tablet / Mobile ---------- */
+@media (max-width: 1023.98px) {
+  .lm-venue-booking-sidebar {
+    display: none !important;
+  }
+
+  .lm-venue-section-nav.is-fixed {
+    width: calc(100vw - 6rem) !important;
+    top: calc(var(--lm-detail-topbar-height, 64px) + 8px) !important;
+  }
+}
+@media (min-width: 1024px) {
+  .lm-service-card__description {
+    -webkit-line-clamp: 1 !important;
+  }
+
+  .lm-service-card__content {
+    padding-top: 0.6rem !important;
+    padding-bottom: 0.6rem !important;
+  }
+}
+
+/* ======================================================================
+   PATCH 12 — Staging service group thumbnails + root-category polish
+   Keeps uploaded service group images visible in home cards after S3 deploy.
+====================================================================== */
+.lm-home-service-pill {
+  overflow: hidden !important;
+}
+
+.lm-home-service-pill__media {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 4.85rem !important;
+  width: 4.85rem !important;
+  height: 4.85rem !important;
+  min-width: 4.85rem !important;
+  border-radius: 1.45rem !important;
+  overflow: hidden !important;
+  background: var(--lm-primary-soft, rgba(245, 235, 255, .9)) !important;
+}
+
+.lm-home-service-pill__media img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+@media (max-width: 640px) {
+  .lm-home-service-pill__media {
+    flex-basis: 4.4rem !important;
+    width: 4.4rem !important;
+    height: 4.4rem !important;
+    min-width: 4.4rem !important;
+  }
+}

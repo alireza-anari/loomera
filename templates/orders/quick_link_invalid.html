@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}لینک رزرو سریع در دسترس نیست{% endblock %}
+
+{% block content %}
+<main class="min-h-[70vh] bg-loomera-bg px-4 py-10 text-loomera-textPrimary sm:py-14">
+  <section class="mx-auto max-w-xl rounded-[32px] border border-loomera-borderSoft bg-white p-6 text-center shadow-lm-card sm:p-8">
+    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-loomera-warningSoft text-loomera-warning">
+      <i class="fa-solid fa-link-slash text-2xl" aria-hidden="true"></i>
+    </div>
+
+    <h1 class="mt-5 text-xl font-black text-loomera-textPrimary">
+      لینک رزرو سریع در دسترس نیست
+    </h1>
+
+    <p class="mt-3 text-sm font-semibold leading-7 text-loomera-textSecondary">
+      {{ message|default:"این لینک ممکن است منقضی، غیرفعال یا ناقص باشد." }}
+    </p>
+
+    <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+      <a href="{% url 'search:search_page' %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        جستجوی مجموعه‌ها
+      </a>
+
+      <a href="{% url 'salons:show_salons' %}" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
+        مشاهده مجموعه‌ها
+      </a>
+    </div>
+  </section>
+</main>
+{% endblock %}

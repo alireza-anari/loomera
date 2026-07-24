@@ -1,0 +1,268 @@
+{% if user.is_authenticated %}
+  {% with current_path=request.path|default:"" %}
+    {% if dashboard_role or "/dashboards/" in current_path or "/accounts/customer" in current_path or "/accounts/addresses" in current_path or "/accounts/notification" in current_path or "/accounts/change_password" in current_path or "/accounts/delete-account" in current_path or "/orders/appointments" in current_path or "/orders/appointment" in current_path or "/orders/reservation" in current_path or "/payments/" in current_path %}
+      {% url "support" as support_url %}
+      {% url "accounts:customer_panel" as customer_panel_url %}
+      {% url "accounts:customerProfile" as customer_profile_url %}
+      {% url "accounts:customer_addresses" as customer_addresses_url %}
+      {% url "orders:appointments" as customer_appointments_url %}
+      {% url "payments:detail" as customer_wallet_url %}
+
+      {% url "dashboards:salon_manager_dashboard" as manager_home_url %}
+      {% url "dashboards:service_menu" as services_url %}
+      {% url "dashboards:team_managment" as team_url %}
+      {% url "dashboards:online_booking" as online_booking_url %}
+      {% url "dashboards:salon_profile" as salon_profile_url %}
+      {% url "dashboards:workspace_settings" as workspace_settings_url %}
+
+      {% url "dashboards:stylist_dashboard" as stylist_home_url %}
+      {% url "dashboards:stylist_appointments" as stylist_appointments_url %}
+      {% url "dashboards:stylist_schedule" as stylist_schedule_url %}
+      {% url "dashboards:stylist_finance" as stylist_finance_url %}
+      {% url "dashboards:stylist_profile" as stylist_profile_url %}
+
+      <div
+        class="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] left-3 z-[80] sm:left-5 lg:bottom-6"
+        data-dashboard-help
+        data-help-storage-key="loomera.help.fab.seen"
+      >
+        <button
+          type="button"
+          class="group inline-flex h-14 w-14 items-center justify-center rounded-[22px] border border-loomera-primary/20 bg-white text-loomera-primaryText shadow-[0_18px_42px_rgba(57,46,92,0.22)] transition hover:-translate-y-0.5 hover:border-loomera-primary/40 hover:bg-loomera-primarySoft focus:outline-none focus:ring-4 focus:ring-loomera-primary/15"
+          aria-label="راهنمای این صفحه"
+          aria-controls="loomera-help-panel"
+          aria-expanded="false"
+          data-dashboard-help-toggle
+        >
+          <i class="fa-regular fa-circle-question text-xl transition group-hover:scale-110" aria-hidden="true"></i>
+        </button>
+
+        <section
+          id="loomera-help-panel"
+          class="absolute bottom-16 left-0 hidden w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/98 text-right shadow-[0_24px_80px_rgba(35,30,50,0.25)] backdrop-blur"
+          aria-label="راهنمای صفحه"
+          data-dashboard-help-panel
+        >
+          <div class="border-b border-loomera-borderSoft bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.12),transparent_48%),linear-gradient(180deg,#fff,#faf8ff)] p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText">
+                  <i class="fa-solid fa-sparkles text-[10px]" aria-hidden="true"></i>
+                  <span>راهنمای سریع</span>
+                </p>
+
+                <h2 class="mt-3 text-base font-black leading-7 text-loomera-textPrimary">
+                  {% if dashboard_role == "stylist" or "/dashboards/stylist" in current_path %}
+                    راهنمای داشبورد متخصص
+                  {% elif dashboard_role == "customer" or "/accounts/customer" in current_path or "/accounts/addresses" in current_path or "/accounts/notification" in current_path or "/orders/" in current_path or "/payments/" in current_path %}
+                    راهنمای حساب مشتری
+                  {% else %}
+                    راهنمای داشبورد مجموعه
+                  {% endif %}
+                </h2>
+
+                <p class="mt-1 text-xs font-semibold leading-6 text-loomera-textMuted">
+                  {% if page_meta.description %}
+                    {{ page_meta.description }}
+                  {% elif dashboard_role == "stylist" or "/dashboards/stylist" in current_path %}
+                    این بخش برای مدیریت نوبت‌ها، برنامه کاری و امور مالی متخصص است.
+                  {% elif dashboard_role == "customer" or "/accounts/customer" in current_path or "/orders/" in current_path or "/payments/" in current_path %}
+                    این بخش برای پیگیری رزروها، پروفایل، کیف پول و اعلان‌های شماست.
+                  {% else %}
+                    این بخش برای مدیریت خدمات، تیم، نوبت‌ها و آماده‌سازی مجموعه است.
+                  {% endif %}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textMuted transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
+                aria-label="بستن راهنما"
+                data-dashboard-help-close
+              >
+                <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="max-h-[62vh] overflow-y-auto p-4">
+            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3">
+              <p class="text-xs font-black text-loomera-textPrimary">از کجا شروع کنم؟</p>
+
+              <ul class="mt-3 space-y-2 text-xs leading-6 text-loomera-textSecondary">
+                {% if dashboard_role == "stylist" or "/dashboards/stylist" in current_path %}
+                  {% if "/appointments" in current_path %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اول نوبت‌های امروز و وضعیت هر نوبت را بررسی کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای جزئیات، وارد صفحه نوبت شو و خدمت، مشتری و وضعیت پرداخت را ببین.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر نوبت دستی لازم بود، از مسیر افزودن نوبت استفاده کن.</span></li>
+                  {% elif "/schedule" in current_path or "/time-off" in current_path %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برنامه کاری و مرخصی‌ها را دقیق ثبت کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بازه‌های کاری ناقص باعث کم‌شدن زمان‌های قابل رزرو می‌شود.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بعد از تغییر برنامه، مسیر رزرو را یک‌بار چک کن.</span></li>
+                  {% elif "/finance" in current_path or "/withdraw" in current_path %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>درآمد، تسویه‌ها و مانده قابل برداشت را مرور کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر مبلغی نامشخص است، جزئیات نوبت مربوط را بررسی کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>درخواست برداشت را فقط بعد از اطمینان از مانده ثبت کن.</span></li>
+                  {% else %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>نوبت‌های امروز را اول بررسی کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برنامه کاری و عدم حضورها را به‌روز نگه دار.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>پروفایل و نمونه‌کارها را کامل کن تا رزرو بهتر انجام شود.</span></li>
+                  {% endif %}
+
+                {% elif dashboard_role == "customer" or "/accounts/customer" in current_path or "/accounts/addresses" in current_path or "/accounts/notification" in current_path or "/orders/" in current_path or "/payments/" in current_path %}
+                  {% if "/orders/appointments" in current_path or "/orders/appointment" in current_path %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>نوبت‌های آینده و گذشته را از این بخش ببین.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای لغو، تغییر زمان یا پرداخت، وارد جزئیات همان نوبت شو.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بعد از انجام نوبت، نظر و امتیاز خودت را ثبت کن.</span></li>
+                  {% elif "/payments/" in current_path %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>مانده کیف پول و تراکنش‌ها را بررسی کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای شارژ کیف پول، مبلغ را با دقت انتخاب کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر پرداخت ناموفق بود، نتیجه پرداخت یا پشتیبانی را بررسی کن.</span></li>
+                  {% elif "/addresses" in current_path %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>آدرس‌های خودت را کامل و دقیق ثبت کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>یک آدرس پیش‌فرض انتخاب کن تا مراحل بعدی سریع‌تر شود.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>قبل از رزرو، شماره تماس و اطلاعات پروفایل را هم چک کن.</span></li>
+                  {% else %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>نوبت‌های خودت را از بخش رزروهای من پیگیری کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>پروفایل، شماره تماس و آدرس‌ها را کامل نگه دار.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای پرداخت‌ها و برگشت وجه، کیف پول را بررسی کن.</span></li>
+                  {% endif %}
+
+                {% else %}
+                  {% if dashboard_active_key == "overview" %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اول چک‌لیست آمادگی مجموعه را کامل کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بعد نوبت‌های امروز و موارد در انتظار را بررسی کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر مجموعه تازه ساخته شده، خدمات، تیم و شیفت‌ها اولویت دارند.</span></li>
+                  {% elif dashboard_active_key == "services" or "/service" in current_path %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای هر خدمت، قیمت و مدت‌زمان واقعی ثبت کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>خدمات غیرفعال برای مشتری قابل رزرو نیستند.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بعد از ساخت خدمت، آن را به متخصص مناسب وصل کن.</span></li>
+                  {% elif dashboard_active_key == "team" or "/team" in current_path or "/stylist" in current_path %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>ابتدا متخصص فعال اضافه کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای هر متخصص، خدمات قابل ارائه را مشخص کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بعد شیفت‌ها و عدم حضورها را ثبت کن.</span></li>
+                  {% elif dashboard_active_key == "appointments" or "/calendar" in current_path or "/booking" in current_path %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>نوبت‌ها را بر اساس تاریخ، وضعیت و متخصص بررسی کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای نوبت دستی، از دکمه ثبت رزرو استفاده کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>قبل از تغییر وضعیت، جزئیات پرداخت و خدمت را چک کن.</span></li>
+                  {% elif dashboard_active_key == "finance" or "/finance" in current_path or "/payout" in current_path %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>تنظیمات تسویه و سهم متخصص‌ها را دقیق بررسی کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>قبل از بستن مالی نوبت، مواد مصرفی و هزینه‌ها را ثبت کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>درخواست برداشت را با موجودی کیف پول تطبیق بده.</span></li>
+                  {% else %}
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اطلاعات صفحه را بررسی و موارد ناقص را تکمیل کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر تغییر مهمی می‌دهی، مسیر مرتبط با رزرو یا گزارش را هم تست کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای سؤال یا خطا، از پشتیبانی استفاده کن.</span></li>
+                  {% endif %}
+                {% endif %}
+              </ul>
+            </div>
+
+            <div class="mt-3 grid gap-2">
+              {% if dashboard_role == "stylist" or "/dashboards/stylist" in current_path %}
+                <a href="{{ stylist_appointments_url|default:stylist_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+                  <span>نوبت‌های من</span>
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+                <a href="{{ stylist_schedule_url|default:stylist_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+                  <span>برنامه کاری من</span>
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+                <a href="{{ stylist_finance_url|default:stylist_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+                  <span>مالی من</span>
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+              {% elif dashboard_role == "customer" or "/accounts/customer" in current_path or "/accounts/addresses" in current_path or "/accounts/notification" in current_path or "/orders/" in current_path or "/payments/" in current_path %}
+                <a href="{{ customer_appointments_url|default:customer_panel_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+                  <span>رزروهای من</span>
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+                <a href="{{ customer_profile_url|default:customer_panel_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+                  <span>پروفایل من</span>
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+                <a href="{{ customer_wallet_url|default:customer_panel_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+                  <span>کیف پول</span>
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+              {% else %}
+                <a href="{{ services_url|default:manager_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+                  <span>مدیریت خدمات</span>
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+                <a href="{{ team_url|default:manager_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+                  <span>مدیریت تیم و شیفت‌ها</span>
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+                <a href="{{ online_booking_url|default:manager_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+                  <span>رزرو آنلاین</span>
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+              {% endif %}
+            </div>
+
+            <a href="{{ support_url|default:'/support/' }}" class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-xs font-black text-white shadow-lm-soft transition hover:-translate-y-0.5 hover:bg-loomera-primaryHover">
+              <i class="fa-regular fa-life-ring text-sm" aria-hidden="true"></i>
+              <span>نیاز به کمک دارم</span>
+            </a>
+
+            <p class="mt-3 text-center text-[11px] font-semibold leading-5 text-loomera-textMuted">
+              این راهنما فقط توضیحی است و هیچ تغییری در اطلاعات شما ایجاد نمی‌کند.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <script>
+        (function () {
+          const widgets = document.querySelectorAll("[data-dashboard-help]");
+          widgets.forEach(function (root) {
+            if (!root || root.dataset.bound === "true") return;
+            root.dataset.bound = "true";
+
+            const toggle = root.querySelector("[data-dashboard-help-toggle]");
+            const panel = root.querySelector("[data-dashboard-help-panel]");
+            const closeBtn = root.querySelector("[data-dashboard-help-close]");
+            const storageKey = root.dataset.helpStorageKey || "loomera.help.fab.seen";
+
+            if (!toggle || !panel) return;
+
+            const setOpen = function (isOpen) {
+              panel.classList.toggle("hidden", !isOpen);
+              toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            };
+
+            toggle.addEventListener("click", function () {
+              const isOpen = toggle.getAttribute("aria-expanded") === "true";
+              setOpen(!isOpen);
+              try {
+                window.localStorage.setItem(storageKey, "1");
+              } catch (error) {}
+            });
+
+            if (closeBtn) {
+              closeBtn.addEventListener("click", function () {
+                setOpen(false);
+                try {
+                  window.localStorage.setItem(storageKey, "1");
+                } catch (error) {}
+              });
+            }
+
+            document.addEventListener("keydown", function (event) {
+              if (event.key === "Escape") {
+                setOpen(false);
+              }
+            });
+
+            document.addEventListener("click", function (event) {
+              if (!root.contains(event.target)) {
+                setOpen(false);
+              }
+            });
+          });
+        })();
+      </script>
+    {% endif %}
+  {% endwith %}
+{% endif %}

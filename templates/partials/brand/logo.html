@@ -1,0 +1,51 @@
+{% load static %}
+
+{% firstof logo_variant variant "full" as resolved_variant %}
+{% firstof logo_size size "md" as resolved_size %}
+
+{% if resolved_variant == "glyph" %}
+  <span class="lm-brand-lockup lm-brand-lockup--glyph lm-brand-lockup--{{ resolved_size }}">
+    <span class="lm-brand-lockup__glyph">
+      <img
+        src="{% static 'branding/logo/loomera-glyph-mark.png' %}"
+        alt="{{ alt_text|default:'Loomera' }}"
+        class="lm-brand-lockup__glyph-img"
+        loading="eager"
+        decoding="async"
+      >
+    </span>
+  </span>
+
+{% elif resolved_variant == "app-icon" %}
+  <span class="lm-brand-lockup lm-brand-lockup--app-icon lm-brand-lockup--{{ resolved_size }}">
+    <img
+      src="{% static 'branding/logo/loomera-app-icon.png' %}"
+      alt="{{ alt_text|default:'Loomera' }}"
+      class="lm-brand-lockup__app-icon"
+      loading="eager"
+      decoding="async"
+    >
+  </span>
+
+{% elif resolved_variant == "header" or resolved_variant == "compact" %}
+  <span class="lm-brand-lockup lm-brand-lockup--image lm-brand-lockup--header lm-brand-lockup--{{ resolved_size }}">
+    <img
+      src="{% static 'branding/logo/loomera-logo-header.png' %}"
+      alt="{{ alt_text|default:'Loomera' }}"
+      class="lm-brand-lockup__image"
+      loading="eager"
+      decoding="async"
+    >
+  </span>
+
+{% else %}
+  <span class="lm-brand-lockup lm-brand-lockup--image lm-brand-lockup--full lm-brand-lockup--{{ resolved_size }}">
+    <img
+      src="{% static 'branding/logo/loomera-logo-primary.png' %}"
+      alt="{{ alt_text|default:'Loomera' }}"
+      class="lm-brand-lockup__image"
+      loading="eager"
+      decoding="async"
+    >
+  </span>
+{% endif %}

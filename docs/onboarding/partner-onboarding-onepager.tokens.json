@@ -1,0 +1,45 @@
+{
+  "brand": "Loomera",
+  "tokens": {
+    "primary": "#735CBE",
+    "primaryHover": "#6B55B3",
+    "primarySoft": "#EEE8FA",
+    "secondary": "#9B80E0",
+    "secondarySoft": "#F3EEFB",
+    "accent": "#A7C8A1",
+    "accentSoft": "#F1F7EF",
+    "bg": "#FCFBFE",
+    "bgSubtle": "#F7F6FA",
+    "surface": "#FFFFFF",
+    "surfaceSoft": "#F4F1F8",
+    "border": "#DDD8E8",
+    "borderSoft": "#ECE8F2",
+    "divider": "#E8E4EF",
+    "textPrimary": "#2E2A3C",
+    "textSecondary": "#57526E",
+    "textMuted": "#7A738F",
+    "dashboardAccent": "#DCCFF8",
+    "cardHighlight": "#F8F5FE",
+    "bookingHighlight": "#F1F7EF"
+  },
+  "typography": {
+    "primaryFa": "Yekan Bakh",
+    "fallbackFa": "Vazirmatn, Tahoma, Arial, sans-serif",
+    "rtl": true,
+    "persianLineHeight": "1.65-1.95"
+  },
+  "layout": {
+    "format": "A4 vertical",
+    "width": "210mm",
+    "height": "297mm",
+    "margins": "14-16mm",
+    "sections": [
+      "hero",
+      "benefits",
+      "onboarding",
+      "checklist",
+      "trust",
+      "cta"
+    ]
+  }
+}

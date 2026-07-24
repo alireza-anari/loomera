@@ -1,0 +1,256 @@
+/*
+  Loomera Typography System
+  Load this file AFTER static/css/output.css in templates/base.html
+
+  Recommended font setup:
+  - Premium UI: Yekan Bakh (licensed separately by you)
+  - Free fallback: Vazirmatn + Inter
+
+  Example font-face (add your own licensed files and paths):
+  @font-face {
+    font-family: "Yekan Bakh";
+    src: url("../fonts/yekan-bakh/YekanBakh-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+*/
+
+:root {
+  --lm-font-ui: "Yekan Bakh", "Vazirmatn", "Inter", "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --lm-font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --lm-font-brand: "Source Serif 4", Georgia, "Times New Roman", serif;
+
+  --lm-text-primary: #2E2A3C;
+  --lm-text-secondary: #57526E;
+  --lm-text-muted: #7A738F;
+  --lm-text-on-primary: #FFFFFF;
+  --lm-primary: #735CBE;
+  --lm-primary-hover: #6B55B3;
+  --lm-primary-active: #5F4B9F;
+  --lm-primary-soft: #EEE8FA;
+  --lm-accent: #A7C8A1;
+  --lm-accent-soft: #F1F7EF;
+  --lm-surface: #FFFFFF;
+  --lm-surface-soft: #F4F1F8;
+  --lm-border: #DDD8E8;
+  --lm-focus-ring: #C1A8F0;
+
+  --lm-weight-regular: 400;
+  --lm-weight-medium: 500;
+  --lm-weight-semibold: 600;
+  --lm-weight-bold: 700;
+
+  --lm-type-display-xl-size: 4rem;
+  --lm-type-display-xl-leading: 4.5rem;
+  --lm-type-display-xl-tracking: -0.03em;
+
+  --lm-type-display-l-size: 3.25rem;
+  --lm-type-display-l-leading: 3.75rem;
+  --lm-type-display-l-tracking: -0.02em;
+
+  --lm-type-h1-size: 2.5rem;
+  --lm-type-h1-leading: 3.25rem;
+  --lm-type-h1-tracking: -0.02em;
+
+  --lm-type-h2-size: 2rem;
+  --lm-type-h2-leading: 2.75rem;
+  --lm-type-h2-tracking: -0.015em;
+
+  --lm-type-h3-size: 1.75rem;
+  --lm-type-h3-leading: 2.5rem;
+  --lm-type-h3-tracking: -0.01em;
+
+  --lm-type-h4-size: 1.5rem;
+  --lm-type-h4-leading: 2.125rem;
+  --lm-type-h4-tracking: 0;
+
+  --lm-type-h5-size: 1.25rem;
+  --lm-type-h5-leading: 1.875rem;
+  --lm-type-h5-tracking: 0;
+
+  --lm-type-body-lg-size: 1.125rem;
+  --lm-type-body-lg-leading: 2rem;
+  --lm-type-body-size: 1rem;
+  --lm-type-body-leading: 1.75rem;
+  --lm-type-body-sm-size: 0.875rem;
+  --lm-type-body-sm-leading: 1.5rem;
+
+  --lm-type-label-size: 0.8125rem;
+  --lm-type-label-leading: 1.25rem;
+  --lm-type-caption-size: 0.75rem;
+  --lm-type-caption-leading: 1.125rem;
+  --lm-type-caption-tracking: 0.01em;
+
+  --lm-type-overline-size: 0.6875rem;
+  --lm-type-overline-leading: 1rem;
+  --lm-type-overline-tracking: 0.08em;
+
+  --lm-type-button-size: 0.9375rem;
+  --lm-type-button-leading: 1.375rem;
+  --lm-type-input-size: 0.9375rem;
+  --lm-type-input-leading: 1.5rem;
+
+  --lm-type-table-header-size: 0.8125rem;
+  --lm-type-table-header-leading: 1.25rem;
+  --lm-type-table-header-tracking: 0.02em;
+  --lm-type-table-cell-size: 0.875rem;
+  --lm-type-table-cell-leading: 1.375rem;
+
+  --lm-type-metric-size: 2rem;
+  --lm-type-metric-leading: 2.5rem;
+
+  --lm-radius-md: 0.875rem;
+  --lm-radius-lg: 1rem;
+  --lm-radius-xl: 1.25rem;
+}
+
+html {
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--lm-font-ui);
+  color: var(--lm-text-primary);
+  background-color: #FCFBFE;
+}
+
+.lm-ltr { direction: ltr; unicode-bidi: isolate; }
+.lm-rtl { direction: rtl; unicode-bidi: isolate; }
+.lm-tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; }
+.lm-nums-latin { font-variant-numeric: lining-nums tabular-nums; }
+.lm-balance { text-wrap: balance; }
+
+:lang(fa),
+[lang="fa"],
+.rtl,
+[dir="rtl"] {
+  letter-spacing: 0;
+}
+
+.lm-display-xl,
+.lm-display-l,
+.lm-h1,
+.lm-h2,
+.lm-h3,
+.lm-h4,
+.lm-h5,
+.lm-body-lg,
+.lm-body,
+.lm-body-sm,
+.lm-label,
+.lm-caption,
+.lm-overline,
+.lm-button-text,
+.lm-input-text,
+.lm-table-header,
+.lm-table-cell,
+.lm-metric {
+  font-family: var(--lm-font-ui);
+  color: inherit;
+}
+
+.lm-display-xl { font-family: var(--lm-font-display); font-size: var(--lm-type-display-xl-size); line-height: var(--lm-type-display-xl-leading); font-weight: var(--lm-weight-semibold); letter-spacing: var(--lm-type-display-xl-tracking); }
+.lm-display-l { font-family: var(--lm-font-display); font-size: var(--lm-type-display-l-size); line-height: var(--lm-type-display-l-leading); font-weight: var(--lm-weight-semibold); letter-spacing: var(--lm-type-display-l-tracking); }
+.lm-h1 { font-size: var(--lm-type-h1-size); line-height: var(--lm-type-h1-leading); font-weight: var(--lm-weight-semibold); letter-spacing: var(--lm-type-h1-tracking); }
+.lm-h2 { font-size: var(--lm-type-h2-size); line-height: var(--lm-type-h2-leading); font-weight: var(--lm-weight-semibold); letter-spacing: var(--lm-type-h2-tracking); }
+.lm-h3 { font-size: var(--lm-type-h3-size); line-height: var(--lm-type-h3-leading); font-weight: var(--lm-weight-semibold); letter-spacing: var(--lm-type-h3-tracking); }
+.lm-h4 { font-size: var(--lm-type-h4-size); line-height: var(--lm-type-h4-leading); font-weight: var(--lm-weight-semibold); }
+.lm-h5 { font-size: var(--lm-type-h5-size); line-height: var(--lm-type-h5-leading); font-weight: var(--lm-weight-semibold); }
+.lm-body-lg { font-size: var(--lm-type-body-lg-size); line-height: var(--lm-type-body-lg-leading); font-weight: var(--lm-weight-regular); }
+.lm-body { font-size: var(--lm-type-body-size); line-height: var(--lm-type-body-leading); font-weight: var(--lm-weight-regular); }
+.lm-body-sm { font-size: var(--lm-type-body-sm-size); line-height: var(--lm-type-body-sm-leading); font-weight: var(--lm-weight-regular); }
+.lm-label { font-size: var(--lm-type-label-size); line-height: var(--lm-type-label-leading); font-weight: var(--lm-weight-medium); }
+.lm-caption { font-size: var(--lm-type-caption-size); line-height: var(--lm-type-caption-leading); font-weight: var(--lm-weight-regular); letter-spacing: var(--lm-type-caption-tracking); }
+.lm-overline { font-size: var(--lm-type-overline-size); line-height: var(--lm-type-overline-leading); font-weight: var(--lm-weight-semibold); letter-spacing: var(--lm-type-overline-tracking); text-transform: uppercase; }
+[lang="fa"].lm-overline,
+[dir="rtl"] .lm-overline { text-transform: none; letter-spacing: 0; }
+.lm-button-text { font-size: var(--lm-type-button-size); line-height: var(--lm-type-button-leading); font-weight: var(--lm-weight-semibold); }
+.lm-input-text { font-size: var(--lm-type-input-size); line-height: var(--lm-type-input-leading); font-weight: var(--lm-weight-regular); }
+.lm-table-header { font-size: var(--lm-type-table-header-size); line-height: var(--lm-type-table-header-leading); font-weight: var(--lm-weight-semibold); letter-spacing: var(--lm-type-table-header-tracking); }
+.lm-table-cell { font-size: var(--lm-type-table-cell-size); line-height: var(--lm-type-table-cell-leading); font-weight: var(--lm-weight-regular); }
+.lm-metric { font-size: var(--lm-type-metric-size); line-height: var(--lm-type-metric-leading); font-weight: var(--lm-weight-semibold); }
+
+.lm-card-title { font-size: 1rem; line-height: 1.5rem; font-weight: var(--lm-weight-semibold); }
+.lm-field-label { font-size: var(--lm-type-label-size); line-height: var(--lm-type-label-leading); font-weight: var(--lm-weight-medium); color: var(--lm-text-secondary); }
+.lm-helper-text { font-size: var(--lm-type-caption-size); line-height: var(--lm-type-caption-leading); font-weight: var(--lm-weight-regular); color: var(--lm-text-muted); }
+.lm-validation-text { font-size: var(--lm-type-caption-size); line-height: var(--lm-type-caption-leading); font-weight: var(--lm-weight-medium); }
+.lm-validation-text.is-error { color: #C85C6B; }
+.lm-validation-text.is-success { color: #5F9A73; }
+.lm-chip-text { font-size: var(--lm-type-label-size); line-height: var(--lm-type-label-leading); font-weight: var(--lm-weight-medium); white-space: nowrap; }
+
+.lm-input {
+  font-family: var(--lm-font-ui);
+  font-size: var(--lm-type-input-size);
+  line-height: var(--lm-type-input-leading);
+  color: var(--lm-text-primary);
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-md);
+}
+.lm-input::placeholder { color: var(--lm-text-muted); }
+.lm-input:focus-visible { outline: 2px solid var(--lm-focus-ring); outline-offset: 2px; border-color: var(--lm-primary); }
+
+.lm-btn-primary {
+  font-family: var(--lm-font-ui);
+  font-size: var(--lm-type-button-size);
+  line-height: var(--lm-type-button-leading);
+  font-weight: var(--lm-weight-semibold);
+  color: var(--lm-text-on-primary);
+  background: var(--lm-primary);
+  border-radius: var(--lm-radius-lg);
+  min-height: 2.75rem;
+}
+.lm-btn-primary:hover { background: var(--lm-primary-hover); }
+.lm-btn-primary:active { background: var(--lm-primary-active); }
+
+.lm-btn-secondary {
+  font-family: var(--lm-font-ui);
+  font-size: var(--lm-type-button-size);
+  line-height: var(--lm-type-button-leading);
+  font-weight: var(--lm-weight-semibold);
+  color: var(--lm-primary);
+  background: transparent;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-lg);
+  min-height: 2.75rem;
+}
+
+.lm-surface-card { background: var(--lm-surface); border: 1px solid var(--lm-border); border-radius: var(--lm-radius-xl); }
+.lm-surface-soft { background: var(--lm-surface-soft); }
+.lm-dashboard-metric-label { font-size: var(--lm-type-label-size); line-height: var(--lm-type-label-leading); font-weight: var(--lm-weight-medium); color: var(--lm-text-secondary); }
+.lm-dashboard-metric-value { font-size: 2.5rem; line-height: 3rem; font-weight: var(--lm-weight-semibold); color: var(--lm-text-primary); }
+.lm-dashboard-metric-delta { font-size: var(--lm-type-caption-size); line-height: var(--lm-type-caption-leading); font-weight: var(--lm-weight-medium); }
+.lm-empty-title { font-size: var(--lm-type-h4-size); line-height: var(--lm-type-h4-leading); font-weight: var(--lm-weight-semibold); }
+.lm-empty-description { font-size: var(--lm-type-body-size); line-height: var(--lm-type-body-leading); font-weight: var(--lm-weight-regular); color: var(--lm-text-secondary); }
+
+@media (max-width: 768px) {
+  :root {
+    --lm-type-display-xl-size: 2.5rem;
+    --lm-type-display-xl-leading: 3rem;
+    --lm-type-display-l-size: 2rem;
+    --lm-type-display-l-leading: 2.5rem;
+    --lm-type-h1-size: 2rem;
+    --lm-type-h1-leading: 2.5rem;
+    --lm-type-h2-size: 1.75rem;
+    --lm-type-h2-leading: 2.25rem;
+    --lm-type-h3-size: 1.5rem;
+    --lm-type-h3-leading: 2rem;
+    --lm-type-h4-size: 1.25rem;
+    --lm-type-h4-leading: 1.75rem;
+    --lm-type-h5-size: 1.125rem;
+    --lm-type-h5-leading: 1.625rem;
+    --lm-type-body-lg-size: 1.0625rem;
+    --lm-type-body-lg-leading: 1.875rem;
+  }
+  .lm-dashboard-metric-value { font-size: 2rem; line-height: 2.5rem; }
+}
+
+[lang="fa"] .lm-display-xl,
+[lang="fa"] .lm-display-l,
+[dir="rtl"] .lm-display-xl,
+[dir="rtl"] .lm-display-l {
+  font-family: var(--lm-font-ui);
+  letter-spacing: 0;
+}

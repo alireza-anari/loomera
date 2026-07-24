@@ -1,0 +1,128 @@
+<section class="lm-card lm-card--spacious rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <div class="flex flex-wrap items-center gap-2">
+        <h2 class="text-lg font-black text-slate-950">فیلتر رزروها</h2>
+        {% if appointment_management.has_filters %}
+          <span class="lm-badge lm-badge--count inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-bold text-loomera-primaryText">
+            <i class="fa-solid fa-filter text-[10px]"></i>
+            <span>{{ appointment_management.active_filter_count }} فیلتر فعال</span>
+          </span>
+        {% endif %}
+      </div>
+      <p class="mt-2 text-sm leading-7 text-slate-500">
+        جست‌وجو، بازه زمانی، متخصص، خدمت و وضعیت را با هم ترکیب کنید تا نمای دقیق‌تری از وضعیت رزروها داشته باشید.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="lm-chip inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
+        <i class="fa-regular fa-calendar text-loomera-primaryText"></i>
+        <span>بازه فعال: {{ appointment_management.active_range_label }}</span>
+      </span>
+
+      <a href="{{ appointment_management.clear_filters_url }}"
+         class="lm-btn lm-btn-secondary inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-loomera-primary/20 hover:bg-loomera-surfaceSoft">
+        <span>پاک‌سازی</span>
+        <i class="fa-solid fa-rotate-left text-xs"></i>
+      </a>
+    </div>
+  </div>
+
+  <form method="get" action="{{ appointment_management.base_url }}" class="mt-5 grid gap-4 xl:grid-cols-6">
+    <label class="xl:col-span-2">
+      <span class="mb-2 block text-xs font-bold text-slate-500">جستجو</span>
+      <div class="relative">
+        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400">
+          <i class="fa-solid fa-magnifying-glass text-xs"></i>
+        </span>
+        <input type="text"
+               name="q"
+               value="{{ appointment_management.filters.q }}"
+               placeholder="نام مشتری، متخصص، خدمت یا یادداشت"
+               class="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pr-11 pl-4 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-2 focus:ring-loomera-primary/10">
+      </div>
+    </label>
+
+    <label>
+      <span class="mb-2 block text-xs font-bold text-slate-500">از تاریخ</span>
+      <input type="text"
+             name="start"
+             value="{{ appointment_management.filters.start }}"
+             data-jalali-date
+             data-jdp
+             placeholder="مثلاً ۱۴۰۴/۱۲/۲۰"
+             class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-2 focus:ring-loomera-primary/10">
+    </label>
+
+    <label>
+      <span class="mb-2 block text-xs font-bold text-slate-500">تا تاریخ</span>
+      <input type="text"
+             name="end"
+             value="{{ appointment_management.filters.end }}"
+             data-jalali-date
+             data-jdp
+             placeholder="مثلاً ۱۴۰۴/۱۲/۲۶"
+             class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-2 focus:ring-loomera-primary/10">
+    </label>
+
+    <label>
+      <span class="mb-2 block text-xs font-bold text-slate-500">متخصص</span>
+      <select name="stylist"
+              class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-2 focus:ring-loomera-primary/10">
+        <option value="">همه اعضای تیم</option>
+        {% for option in appointment_management.filter_options.stylists %}
+          <option value="{{ option.id }}" {% if appointment_management.filters.stylist == option.id|stringformat:'s' %}selected{% endif %}>{{ option.label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      <span class="mb-2 block text-xs font-bold text-slate-500">خدمت</span>
+      <select name="service"
+              class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-2 focus:ring-loomera-primary/10">
+        <option value="">همه خدمات</option>
+        {% for option in appointment_management.filter_options.services %}
+          <option value="{{ option.id }}" {% if appointment_management.filters.service == option.id|stringformat:'s' %}selected{% endif %}>{{ option.label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      <span class="mb-2 block text-xs font-bold text-slate-500">وضعیت</span>
+      <select name="status"
+              class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-2 focus:ring-loomera-primary/10">
+        <option value="">همه وضعیت‌ها</option>
+        {% for option in appointment_management.filter_options.statuses %}
+          <option value="{{ option.id }}" {% if appointment_management.filters.status == option.id %}selected{% endif %}>{{ option.label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    {% if appointment_management.filters.tab and appointment_management.filters.tab != 'all' %}
+      <input type="hidden" name="tab" value="{{ appointment_management.filters.tab }}">
+    {% endif %}
+
+    <div class="xl:col-span-6 flex flex-wrap items-center justify-between gap-3 pt-2">
+      <div class="flex flex-wrap gap-2">
+        <span class="lm-chip inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-600">
+          <i class="fa-regular fa-calendar-days text-loomera-primaryText"></i>
+          {{ appointment_management.active_range_label }}
+        </span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <a href="{{ appointment_management.export_url }}"
+           class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+          <span>به‌روزرسانی نما</span>
+          <i class="fa-solid fa-arrow-rotate-right text-xs"></i>
+        </a>
+        <button type="submit"
+                class="inline-flex items-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95">
+          <span>اعمال فیلترها</span>
+          <i class="fa-solid fa-arrow-left text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </form>
+</section>

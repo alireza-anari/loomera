@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <title>social-template-story-offer</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1920" fill="#FCFBFE"/>
+<rect x="72" y="120" width="936" height="1680" rx="48" fill="#FFFFFF" stroke="#DDD8E8"/>
+<g id="badge"><rect x="120" y="170" width="166" height="40" rx="18" fill="#FDF3E4" stroke="#DDD8E8"/><text x="268" y="196" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#B88235" text-anchor="end">Story / Offer</text></g>
+<g id="logo-slot"><rect x="824" y="170" width="138" height="34" rx="10" fill="none" stroke="#DDD8E8" stroke-dasharray="6 6"/><text x="893.0" y="193" font-family="Inter, sans-serif" font-size="15" fill="#7A738F" text-anchor="middle">LOGO</text></g>
+<text x="960" y="420" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="86" font-weight="650" fill="#2E2A3C" text-anchor="end">پیشنهاد محدود</text>
+<text x="960" y="520" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="36" fill="#57526E" text-anchor="end">scope، زمان و شرایط را روشن نگه دارید.</text>
+<rect x="120" y="640" width="840" height="280" rx="42" fill="#F4F1F8"/>
+<text x="912" y="738" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="30" font-weight="600" fill="#2E2A3C" text-anchor="end">• نوع پیشنهاد</text>
+<text x="912" y="802" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="30" font-weight="600" fill="#2E2A3C" text-anchor="end">• بازه‌ی زمانی</text>
+<text x="912" y="866" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="30" font-weight="600" fill="#2E2A3C" text-anchor="end">• CTA مستقیم اما آرام</text>
+<g id="cta"><rect x="120" y="1506" width="208" height="54" rx="27" fill="#735CBE"/><text x="224.0" y="1541" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="21" font-weight="600" fill="#FFFFFF" text-anchor="middle">مشاهده جزئیات</text></g>
+
+</svg>

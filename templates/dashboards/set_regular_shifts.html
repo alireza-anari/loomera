@@ -1,0 +1,359 @@
+{% extends "dashboard_template.html" %}
+{% block title %}تنظیم شیفت‌های منظم{% endblock %}
+{% block body_attrs %}data-page="set-regular-shifts"{% endblock %}
+
+{% block content %}
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-workspace-root data-regular-shifts-page>
+    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="regular-shifts-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
+
+      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
+        <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
+          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+                <i class="fa-solid fa-repeat text-[10px]" aria-hidden="true"></i>
+                <span class="truncate">شیفت‌های منظم</span>
+              </span>
+
+              <h1 id="regular-shifts-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+                تنظیم شیفت منظم برای {{ stylist.get_fullName }}
+              </h1>
+              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+                الگوی هفتگی عضو تیم را با کمترین اسکرول بساز؛ در موبایل هر روز به‌صورت منوی جمع‌شونده نمایش داده می‌شود تا سریع‌تر بین روزها جابه‌جا شوی.
+              </p>
+            </div>
+
+            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
+              <i class="fa-solid fa-calendar-check text-lg" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
+            <a href="{{ stylist_profile_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-user text-xs" aria-hidden="true"></i>
+              <span class="truncate">پروفایل عضو</span>
+            </a>
+
+            <a href="{{ edit_stylist_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-pen text-xs text-loomera-primaryText" aria-hidden="true"></i>
+              <span class="truncate">ویرایش عضو</span>
+            </a>
+
+            <a href="{{ back_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-arrow-right text-xs text-loomera-primaryText" aria-hidden="true"></i>
+              <span class="truncate">بازگشت به شیفت‌ها</span>
+            </a>
+          </div>
+        </div>
+
+        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس شیفت منظم">
+          <div class="flex min-w-0 items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-[11px] font-black text-white/55">فوکوس این صفحه</p>
+              <h2 class="mt-1 truncate text-lg font-black">آمادگی برنامه‌ریزی</h2>
+            </div>
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
+              <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="mt-5 space-y-3">
+            {% for item in regular_shift_workspace.focus_items %}
+              <article class="min-w-0 rounded-[22px] border border-white/10 bg-white/10 p-4">
+                <div class="flex min-w-0 items-start justify-between gap-3">
+                  <h3 class="min-w-0 flex-1 text-sm font-black leading-6 text-white">{{ item.title }}</h3>
+                  <span class="max-w-[46%] shrink-0 truncate rounded-full px-3 py-1 text-[10px] font-black {% if item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-white/10 text-white{% endif %}">
+                    {{ item.value }}
+                  </span>
+                </div>
+                <p class="mt-2 text-xs leading-6 text-white/72">{{ item.description }}</p>
+              </article>
+            {% empty %}
+              <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
+                <h3 class="text-sm font-black text-white">آماده ثبت شیفت</h3>
+                <p class="mt-2 text-xs leading-6 text-white/72">مورد ویژه‌ای برای پیگیری فوری وجود ندارد.</p>
+              </article>
+            {% endfor %}
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
+      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های تنظیم شیفت منظم">
+        <div class="flex min-w-max items-center gap-2">
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#regular-section-readiness" aria-selected="true">
+            <i class="fa-solid fa-gauge-high text-[10px]" aria-hidden="true"></i>
+            <span>آمادگی</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge data-regular-readiness-badge>۰٪</span>
+          </button>
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab data-target="#regular-section-range">
+            <i class="fa-regular fa-calendar-days text-[10px]" aria-hidden="true"></i>
+            <span>بازه اجرا</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۲</span>
+          </button>
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab data-target="#regular-section-days">
+            <i class="fa-solid fa-table-cells-large text-[10px]" aria-hidden="true"></i>
+            <span>الگوی هفته</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge data-regular-selected-ranges-badge>۰</span>
+          </button>
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab data-target="#regular-section-review">
+            <i class="fa-solid fa-clipboard-check text-[10px]" aria-hidden="true"></i>
+            <span>ثبت</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <form method="post" data-regular-shifts-form class="space-y-4 lg:space-y-5">
+      {% csrf_token %}
+
+      <details id="regular-section-readiness" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">آمادگی شیفت منظم</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          <div class="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            <article class="rounded-[22px] border border-loomera-primary/15 bg-loomera-primarySoft/55 p-3 sm:rounded-[26px] sm:p-5">
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black text-loomera-primaryText">وضعیت فرم</p>
+                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg" data-regular-readiness-status>در حال آماده‌سازی</h3>
+                  <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted sm:mt-2 sm:text-xs sm:leading-6" data-regular-readiness-note>بازه تاریخ و حداقل یک بازه شیفت را مشخص کن.</p>
+                </div>
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm sm:h-12 sm:w-12">
+                  <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+                </span>
+              </div>
+
+              <div class="mt-3 h-2 overflow-hidden rounded-full bg-white/80 sm:mt-5 sm:h-3">
+                <div class="h-full w-0 rounded-full bg-loomera-primary transition-all duration-300" data-regular-readiness-bar></div>
+              </div>
+              <div class="mt-2 flex items-center justify-between gap-3 text-[11px] font-black text-loomera-primaryText">
+                <span>درصد آمادگی</span>
+                <span data-regular-readiness-percent>۰٪</span>
+              </div>
+            </article>
+
+            <div class="grid grid-cols-3 gap-2 sm:gap-3">
+              <article class="rounded-[18px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3 sm:rounded-[24px] sm:p-4">
+                <div class="flex items-center justify-between gap-2 sm:gap-3">
+                  <span class="text-[11px] font-bold text-loomera-textMuted sm:text-xs">روزهای باز</span>
+                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-loomera-successSoft text-loomera-success sm:h-9 sm:w-9"><i class="fa-solid fa-door-open" aria-hidden="true"></i></span>
+                </div>
+                <strong class="mt-2 block text-base font-black text-loomera-textPrimary sm:mt-3 sm:text-lg">{{ regular_shift_workspace.open_days_count_label }}</strong>
+                <p class="mt-2 hidden text-xs leading-6 text-loomera-textMuted sm:block">روزهایی که امکان تعریف شیفت دارند.</p>
+              </article>
+
+              <article class="rounded-[18px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3 sm:rounded-[24px] sm:p-4">
+                <div class="flex items-center justify-between gap-2 sm:gap-3">
+                  <span class="text-[11px] font-bold text-loomera-textMuted sm:text-xs">روزهای بسته</span>
+                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-white text-loomera-textSecondary shadow-sm sm:h-9 sm:w-9"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
+                </div>
+                <strong class="mt-2 block text-base font-black text-loomera-textPrimary sm:mt-3 sm:text-lg">{{ regular_shift_workspace.closed_days_count_label }}</strong>
+                <p class="mt-2 hidden text-xs leading-6 text-loomera-textMuted sm:block">از ساعت کاری مجموعه خوانده می‌شود.</p>
+              </article>
+
+              <article class="rounded-[18px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3 sm:rounded-[24px] sm:p-4">
+                <div class="flex items-center justify-between gap-2 sm:gap-3">
+                  <span class="text-[11px] font-bold text-loomera-textMuted sm:text-xs">خدمات عضو</span>
+                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText sm:h-9 sm:w-9"><i class="fa-solid fa-scissors" aria-hidden="true"></i></span>
+                </div>
+                <strong class="mt-2 block text-base font-black text-loomera-textPrimary sm:mt-3 sm:text-lg">{{ regular_shift_workspace.services_count_label }}</strong>
+                <p class="mt-2 hidden text-xs leading-6 text-loomera-textMuted sm:block">برای رزروپذیری بهتر باید کامل باشد.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details id="regular-section-range" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">بازه اجرا</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">تاریخ شروع و پایان اعمال شیفت‌ها</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.65fr)]">
+            <div class="grid gap-4 md:grid-cols-2">
+              <label class="block">
+                <span class="mb-2 block text-xs font-black text-loomera-textMuted">تاریخ شروع شمسی</span>
+                <input type="text" name="start_date" value="{{ default_start_date }}" data-jalali-date data-jdp data-regular-start-date placeholder="۱۴۰۵/۰۱/۰۱" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-xs font-black text-loomera-textMuted">تاریخ پایان شمسی</span>
+                <input type="text" name="end_date" value="{{ default_end_date }}" data-jalali-date data-jdp data-regular-end-date placeholder="۱۴۰۵/۰۱/۳۰" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
+              </label>
+            </div>
+
+            <aside class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
+              <div class="flex items-start gap-3">
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-warningSoft text-loomera-warning">
+                  <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                </span>
+                <div class="min-w-0">
+                  <h3 class="text-sm font-black text-loomera-textPrimary">اثر ثبت گروهی</h3>
+                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برنامه قبلی همین عضو در بازه انتخاب‌شده حذف و با الگوی جدید جایگزین می‌شود.</p>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </details>
+
+      <details id="regular-section-days" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">الگوی هفته</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">بازه‌های کاری هر روز</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+
+        <div class="p-3 sm:p-5 lg:p-6">
+          <div class="mb-4 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3 sm:p-4">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <p class="text-xs leading-6 text-loomera-textMuted">در موبایل هر روز مثل منوی کشویی است؛ فقط روزی که روی آن کار می‌کنی باز بماند تا صفحه شلوغ نشود.</p>
+
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText"><i class="fa-solid fa-calendar-day text-[10px]"></i><span data-regular-selected-days-count>۰ روز برنامه‌دار</span></span>
+              <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary"><i class="fa-regular fa-clock text-[10px]"></i><span data-regular-selected-ranges-count>۰ بازه</span></span>
+            </div>
+          </div>
+
+          <div class="grid min-w-0 gap-3 lg:gap-4 xl:grid-cols-2" data-regular-days-list>
+            {% for day in day_cards %}
+              <details class="group/day min-w-0 overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft transition hover:border-loomera-primary/25 hover:shadow-lm-card" data-regular-day data-regular-day-card data-day-index="{{ day.index }}" data-day-label="{{ day.label }}" data-day-open="{% if day.is_open %}1{% else %}0{% endif %}" data-open-time="{{ day.open_time }}" data-close-time="{{ day.close_time }}" {% if forloop.first %}open{% endif %}>
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-3 bg-white px-4 py-3 transition hover:bg-loomera-primarySoft/20">
+                  <div class="flex min-w-0 items-center gap-3">
+                    <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl {% if day.is_open %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-loomera-bgSubtle text-loomera-textMuted{% endif %}">
+                      <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                    </span>
+                    <div class="min-w-0">
+                      <div class="flex min-w-0 flex-wrap items-center gap-2">
+                        <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ day.label }}</h3>
+                        <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-black {% if day.is_open %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-bgSubtle text-loomera-textMuted{% endif %}">{% if day.is_open %}باز{% else %}تعطیل{% endif %}</span>
+                      </div>
+                      <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ day.hours_label }}</p>
+                    </div>
+                  </div>
+
+                  <div class="flex shrink-0 items-center gap-2">
+                    <span class="inline-flex min-w-10 items-center justify-center rounded-full bg-loomera-bgSubtle px-3 py-1 text-[11px] font-black text-loomera-textSecondary"><span data-day-count>۰</span></span>
+                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open/day:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
+                  </div>
+                </summary>
+
+                <div class="border-t border-loomera-borderSoft bg-loomera-bgSubtle/35 p-4">
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" data-add-row {% if not day.is_open %}disabled{% endif %} class="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 text-xs font-black transition sm:flex-none {% if day.is_open %}bg-loomera-primary text-white shadow-sm hover:opacity-95{% else %}cursor-not-allowed bg-loomera-bgSubtle text-loomera-textMuted{% endif %}">
+                      <i class="fa-solid fa-plus text-[10px]" aria-hidden="true"></i>
+                      <span>افزودن بازه</span>
+                    </button>
+
+                    <button type="button" data-fill-full {% if not day.is_open %}disabled{% endif %} class="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText sm:flex-none {% if not day.is_open %}cursor-not-allowed opacity-50{% endif %}">
+                      <i class="fa-regular fa-clock text-[10px]" aria-hidden="true"></i>
+                      <span>کل ساعت مجموعه</span>
+                    </button>
+                  </div>
+
+                  <input type="hidden" name="day-{{ day.index }}-shifts" value="" data-day-hidden>
+                  <div class="mt-4 space-y-3" data-day-rows></div>
+
+                  <div data-day-empty class="mt-4 rounded-2xl border border-dashed border-loomera-borderSoft bg-white px-4 py-4 text-sm leading-7 text-loomera-textMuted">
+                    {% if day.is_open %}هنوز بازه‌ای برای {{ day.label }} تعریف نشده است.{% else %}چون این روز برای مجموعه تعطیل است، بازه‌ای برای آن ثبت نمی‌شود.{% endif %}
+                  </div>
+                </div>
+              </details>
+            {% endfor %}
+          </div>
+        </div>
+      </details>
+
+      <details id="regular-section-review" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">بازبینی نهایی</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">خلاصه و ثبت شیفت‌های منظم</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
+        </summary>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          <div class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 sm:p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-[11px] font-black text-loomera-primaryText">خلاصه عملیات</p>
+                <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">برنامه‌ای که ثبت می‌شود</h3>
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">این خلاصه از ورودی‌های همین صفحه به‌صورت زنده ساخته می‌شود.</p>
+              </div>
+              <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></span>
+            </div>
+
+            <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div class="rounded-2xl bg-white px-4 py-4"><p class="text-[11px] font-bold text-loomera-textMuted">عضو تیم</p><p class="mt-1 truncate text-sm font-black text-loomera-textPrimary">{{ stylist.get_fullName }}</p></div>
+              <div class="rounded-2xl bg-white px-4 py-4"><p class="text-[11px] font-bold text-loomera-textMuted">بازه اجرا</p><p class="mt-1 text-sm font-black text-loomera-textPrimary"><span data-regular-review-start>{{ default_start_date }}</span> تا <span data-regular-review-end>{{ default_end_date }}</span></p></div>
+              <div class="rounded-2xl bg-white px-4 py-4"><p class="text-[11px] font-bold text-loomera-textMuted">روزهای دارای برنامه</p><p class="mt-1 text-sm font-black text-loomera-textPrimary" data-regular-review-days>۰ روز</p></div>
+              <div class="rounded-2xl bg-white px-4 py-4"><p class="text-[11px] font-bold text-loomera-textMuted">تعداد بازه‌ها</p><p class="mt-1 text-sm font-black text-loomera-textPrimary" data-regular-review-ranges>۰ بازه</p></div>
+            </div>
+
+            <div class="mt-4 rounded-2xl border border-loomera-warning/20 bg-loomera-warningSoft px-4 py-4 text-xs leading-6 text-loomera-warning"><div class="flex items-start gap-3"><i class="fa-solid fa-triangle-exclamation shrink-0 pt-1" aria-hidden="true"></i><p>با ثبت این فرم، برنامه قبلی این عضو در بازه انتخابی جایگزین می‌شود.</p></div></div>
+          </div>
+
+          <div class="mt-5 flex flex-col-reverse gap-3 border-t border-loomera-borderSoft pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <a href="{{ back_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText"><i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i><span>بازگشت</span></a>
+            <button type="submit" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"><i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i><span>ثبت شیفت‌های منظم</span></button>
+          </div>
+
+          <aside class="mt-5 rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
+            <h3 class="text-sm font-black text-loomera-textPrimary">مسیرهای مرتبط</h3>
+            <div class="mt-4 grid gap-2 md:grid-cols-3">
+              <a href="{{ back_url }}" class="flex items-center justify-between gap-3 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText"><span class="flex items-center gap-2"><i class="fa-regular fa-calendar-days text-xs" aria-hidden="true"></i> برنامه شیفت‌ها</span><i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i></a>
+              <a href="{{ team_member_url }}" class="flex items-center justify-between gap-3 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText"><span class="flex items-center gap-2"><i class="fa-solid fa-user-group text-xs" aria-hidden="true"></i> اعضای تیم</span><i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i></a>
+              <a href="{{ edit_stylist_url }}" class="flex items-center justify-between gap-3 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText"><span class="flex items-center gap-2"><i class="fa-solid fa-pen text-xs" aria-hidden="true"></i> ویرایش عضو</span><i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i></a>
+            </div>
+          </aside>
+        </div>
+      </details>
+
+      <template id="regularShiftRowTemplate">
+        <div class="rounded-2xl border border-loomera-borderSoft bg-white p-3 shadow-sm" data-shift-row>
+          <div class="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+            <label>
+              <span class="mb-2 flex items-center justify-between gap-2 text-[11px] font-black text-loomera-textMuted">
+                <span>شروع</span>
+
+              </span>
+              <select data-start-time data-timepicker-select class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"></select>
+            </label>
+            <label>
+              <span class="mb-2 flex items-center justify-between gap-2 text-[11px] font-black text-loomera-textMuted">
+                <span>پایان</span>
+
+              </span>
+              <select data-end-time data-timepicker-select class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"></select>
+            </label>
+            <div class="flex items-end"><button type="button" data-remove-row class="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-loomera-error/20 bg-white px-4 text-loomera-error transition hover:bg-loomera-errorSoft sm:w-12"><i class="fa-solid fa-trash text-sm" aria-hidden="true"></i><span class="mr-2 text-xs font-black sm:hidden">حذف بازه</span></button></div>
+          </div>
+        </div>
+      </template>
+    </form>
+  </section>
+{% endblock %}

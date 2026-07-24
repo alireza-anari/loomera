@@ -1,0 +1,72 @@
+{% load humanize %}
+{% if services %}
+  <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+       role="list"
+       aria-label="لیست خدمات">
+    {% for service in services %}
+      <article class="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-soft transition hover:-translate-y-1 hover:border-loomera-primary/25 hover:shadow-lm-card"
+               role="listitem">
+        <div class="relative aspect-[4/3] overflow-hidden bg-loomera-primarySoft">
+          {% if service.service_image %}
+            <img src="{{ service.service_image.url }}"
+                 alt="{{ service.service_name }}"
+                 class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+          {% else %}
+            <div class="flex h-full w-full items-center justify-center text-4xl text-loomera-primary">
+              <i class="fa-solid fa-spa" aria-hidden="true"></i>
+            </div>
+          {% endif %}
+          <span class="absolute right-3 top-3 rounded-full bg-white/92 px-3 py-1 text-xs font-black text-loomera-primary shadow-lm-soft backdrop-blur">{{ service.duration_minutes }} دقیقه</span>
+        </div>
+        <div class="flex flex-1 flex-col p-4">
+          <div class="min-w-0">
+            <h3 class="line-clamp-2 text-base font-black leading-7 text-loomera-textPrimary">{{ service.service_name }}</h3>
+            {% if service.summery_description %}
+              <p class="mt-2 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ service.summery_description }}</p>
+            {% elif service.description %}
+              <p class="mt-2 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ service.description|truncatechars:120 }}</p>
+            {% else %}
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای دیدن مجموعه‌های ارائه‌دهنده، وارد جستجو شو.</p>
+            {% endif %}
+          </div>
+          <div class="mt-3 flex flex-wrap gap-2">
+            {% for group in service.public_service_groups|slice:":2" %}
+              <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[11px] font-black text-loomera-textSecondary">{{ group.group_title }}</span>
+            {% endfor %}
+          </div>
+          <div class="mt-auto pt-4">
+            <div class="mb-3 flex items-center justify-between gap-3 rounded-2xl bg-loomera-bgSubtle px-4 py-3">
+              <span class="text-xs font-bold text-loomera-textMuted">امتیاز</span>
+              <strong class="inline-flex items-center gap-1 text-sm font-black text-loomera-textPrimary">
+                {{ service.public_avg_score|default:0|floatformat:1 }}
+                <i class="fa-solid fa-star text-yellow-400" aria-hidden="true"></i>
+              </strong>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="{% url 'search:search_page' %}?q={{ service.service_name|urlencode }}&q_type=service&q_id={{ service.id }}"
+                 class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-3 text-xs font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                رزرو
+                <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+              </a>
+              <button type="button"
+                      data-price-list-url="{% url 'services:service_priceList' service.id %}"
+                      class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-xs font-black text-loomera-textSecondary transition hover:text-loomera-primary">
+                قیمت‌ها
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="rounded-[2rem] border border-dashed border-loomera-borderSoft bg-white p-8 text-center shadow-lm-card">
+    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-loomera-primarySoft text-2xl text-loomera-primary">
+      <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+    </div>
+    <h3 class="mt-4 text-lg font-black text-loomera-textPrimary">خدمتی برای این دسته پیدا نشد</h3>
+    <p class="mt-2 text-sm leading-7 text-loomera-textMuted">می‌توانی دسته دیگری را انتخاب کنی یا در بین مجموعه‌ها جستجو کنی.</p>
+    <a href="{% url 'search:search_page' %}"
+       class="mt-5 inline-flex rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft">جستجوی مجموعه‌ها</a>
+  </div>
+{% endif %}

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <title>social-template-launch-announcement-square</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1080" fill="#2E2A3C"/>
+<circle cx="920" cy="180" r="160" fill="#735CBE" opacity="0.28"/>
+<circle cx="780" cy="320" r="108" fill="#9B80E0" opacity="0.20"/>
+<g id="badge"><rect x="84" y="86" width="336" height="40" rx="18" fill="#211C2E" stroke="#DDD8E8"/><text x="402" y="112" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#F5F2FA" text-anchor="end">Launch / Update / Announcement</text></g>
+<g id="logo-slot"><rect x="858" y="84" width="138" height="34" rx="10" fill="none" stroke="#DDD8E8" stroke-dasharray="6 6"/><text x="927.0" y="107" font-family="Inter, sans-serif" font-size="15" fill="#7A738F" text-anchor="middle">LOGO</text></g>
+<text x="996" y="322" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="68" font-weight="650" fill="#F5F2FA" text-anchor="end">به‌روزرسانی جدید</text>
+<text x="996" y="402" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="68" font-weight="650" fill="#F5F2FA" text-anchor="end">برای تجربه‌ی روشن‌تر</text>
+<rect x="84" y="510" width="912" height="278" rx="40" fill="#211C2E" stroke="#3B3550"/>
+<text x="948" y="602" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="29" font-weight="600" fill="#F5F2FA" text-anchor="end">در announcementها تاریخ، scope و cue محصول باید روشن باشد.</text>
+<text x="948" y="658" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="26" fill="#D4CDE3" text-anchor="end">از launch hype و wordingهای مبهم پرهیز کنید.</text>
+<rect x="84" y="846" width="178" height="56" rx="28" fill="#332B49"/><text x="173" y="881" font-family="Inter, sans-serif" font-size="24" font-weight="700" fill="#F5F2FA" text-anchor="middle">APR 2026</text>
+<g id="cta"><rect x="790" y="846" width="170" height="54" rx="27" fill="#735CBE"/><text x="875.0" y="881" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="21" font-weight="600" fill="#FFFFFF" text-anchor="middle">مشاهده</text></g>
+
+</svg>

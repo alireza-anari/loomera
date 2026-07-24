@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title desc">
+<title>Loomera amenity icon — Card Payment</title>
+<desc>card face + chip / compact / light mode</desc>
+
+<g>
+<rect x="15" y="22" width="34" height="22" rx="6" stroke="#6B55B3" stroke-width="4.25" fill="none"/>
+<path d="M15 30L49 30" stroke="#6B55B3" stroke-width="3.25" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="22" y="34" width="8" height="5" rx="1.5" stroke="#6B55B3" stroke-width="3.25" fill="none"/>
+</g>
+</svg>

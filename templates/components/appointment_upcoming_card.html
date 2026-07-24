@@ -1,0 +1,61 @@
+{% load humanize %}
+{% load jalali_filters %}
+
+<article class="lm-booking-card lm-customer-booking-card lm-card lm-card--interactive" role="listitem">
+  <a href="{% url 'orders:appointment_detail' appointment.id %}" class="lm-customer-booking-media">
+    {% if appointment.salon.banner_image %}
+      <img src="{{ appointment.salon.banner_image.url }}" alt="{{ appointment.salon.salon_name }}" class="h-full w-full object-cover">
+    {% else %}
+      <div class="lm-image-placeholder h-full w-full">
+        <i class="fa-regular fa-image" aria-hidden="true"></i>
+      </div>
+    {% endif %}
+    <span class="lm-booking-status-pill lm-booking-status-pill--upcoming">نوبت آینده</span>
+  </a>
+
+  <div class="p-4">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <h3 class="truncate text-base font-black text-slate-950">{{ appointment.salon.salon_name }}</h3>
+        <p class="mt-1 text-xs leading-6 text-slate-500">{{ appointment.service.service_name|default:"خدمت ثبت نشده" }}</p>
+      </div>
+      <span class="lm-badge {% if appointment.order.is_paid %}lm-badge--success{% elif appointment.order.selected_payment_method == 'pay_in_salon' %}lm-badge--warning{% else %}lm-badge--neutral{% endif %}">
+        {% if appointment.order.is_paid %}پرداخت شده{% elif appointment.order.selected_payment_method == 'pay_in_salon' %}پرداخت در مجموعه{% else %}در انتظار{% endif %}
+      </span>
+    </div>
+
+    <div class="mt-4 grid gap-2 text-xs text-slate-600">
+      <div class="lm-booking-meta-row">
+        <i class="fa-regular fa-calendar text-loomera-primaryText" aria-hidden="true"></i>
+        <span>{{ appointment.date|jalali_with_weekday }}</span>
+      </div>
+      <div class="lm-booking-meta-row">
+        <i class="fa-regular fa-clock text-loomera-primaryText" aria-hidden="true"></i>
+        <span>ساعت {{ appointment.time|persian_time }}{% if appointment.service.duration_minutes %} • {{ appointment.service.duration_minutes }} دقیقه{% endif %}</span>
+      </div>
+      {% if appointment.stylist %}
+      <div class="lm-booking-meta-row">
+        <i class="fa-solid fa-user text-loomera-primaryText" aria-hidden="true"></i>
+        <span>{{ appointment.stylist.user.get_fullName|default:appointment.stylist.user.name }}</span>
+      </div>
+      {% endif %}
+      {% if appointment.price %}
+      <div class="lm-booking-meta-row">
+        <i class="fa-solid fa-wallet text-loomera-primaryText" aria-hidden="true"></i>
+        <span>{{ appointment.price|intcomma }} تومان</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <a href="{% url 'orders:appointment_detail' appointment.id %}" class="lm-btn lm-btn-primary flex-1 justify-center text-xs">جزئیات نوبت</a>
+      {% if appointment.salon.location %}
+        <a href="https://www.google.com/maps/dir/?api=1&destination={{ appointment.salon.location.y }},{{ appointment.salon.location.x }}"
+           class="lm-btn lm-btn-secondary flex-1 justify-center text-xs"
+           aria-label="مسیریابی به {{ appointment.salon.salon_name }}">
+          مسیر مجموعه
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</article>

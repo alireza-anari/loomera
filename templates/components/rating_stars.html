@@ -1,0 +1,35 @@
+{% load salons_filters %}
+
+{% with max_stars=max|default:5 %}
+<div class="flex items-center gap-1 {{ wrapper_class|default:'' }}">
+  {% if value %}
+    {% for i in max_stars|make_range %}
+      <i class="
+        {% if value >= i %}
+          fa-solid fa-star text-yellow-400
+        {% elif value >= i|subtract:0.5 %}
+          fa-solid fa-star-half-stroke fa-flip-horizontal text-yellow-400
+        {% else %}
+          fa-regular fa-star text-gray-300
+        {% endif %}
+        {{ size_class|default:'text-sm' }}
+      "></i>
+    {% endfor %}
+
+    {% if show_number %}
+      <span class="text-xs text-gray-700 mr-1">
+        ({{ value|floatformat:1 }})
+      </span>
+    {% endif %}
+
+    {% if count %}
+      <span class="text-xs text-gray-500 mr-1">
+        {{ count }} نظر
+      </span>
+    {% endif %}
+
+  {% else %}
+    <span class="text-xs text-gray-400">امتیازی ثبت نشده</span>
+  {% endif %}
+</div>
+{% endwith %}

@@ -1,0 +1,325 @@
+const loomeraPalette = {
+  purple600: "#735CBE",
+  purple700: "#6B55B3",
+  purple800: "#5F4B9F",
+  purple100: "#EEE8FA",
+  purple050: "#F7F3FE",
+  lilac500: "#9B80E0",
+  lilac100: "#F3EEFB",
+  sage500: "#A7C8A1",
+  sage100: "#F1F7EF",
+  canvas: "#FCFBFE",
+  canvasMuted: "#F7F6FA",
+  panel: "#FFFFFF",
+  panelSoft: "#F4F1F8",
+  ink900: "#2E2A3C",
+  ink700: "#57526E",
+  ink500: "#7A738F",
+  line300: "#DDD8E8",
+  line200: "#ECE8F2",
+  line400: "#D5D0E0",
+  green600: "#5F9A73",
+  green100: "#EEF7F0",
+  amber600: "#B88235",
+  amber100: "#FDF3E4",
+  rose600: "#C85C6B",
+  rose100: "#FCECEF",
+  blue600: "#5E80C8",
+  blue100: "#EDF3FC",
+  sidebar900: "#0B1324",
+  sidebar800: "#131D33",
+  sidebar700: "#18233A",
+};
+
+const loomeraSemantic = {
+  brand: {
+    primary: loomeraPalette.purple600,
+    hover: loomeraPalette.purple700,
+    active: loomeraPalette.purple800,
+    subtle: loomeraPalette.purple100,
+    canvas: loomeraPalette.purple050,
+    contrast: "#FFFFFF",
+    accent: loomeraPalette.sage500,
+    accentSubtle: loomeraPalette.sage100,
+    secondary: loomeraPalette.lilac500,
+    secondarySubtle: loomeraPalette.lilac100,
+  },
+  surface: {
+    app: loomeraPalette.canvas,
+    card: loomeraPalette.panel,
+    elevated: "#FFFFFF",
+    sheet: "#FFFFFF",
+    desktop: "#FAF9FD",
+    dashboard: "#F7F6FA",
+    dashboardPanel: "#FFFFFF",
+    soft: loomeraPalette.panelSoft,
+    muted: loomeraPalette.canvasMuted,
+  },
+  text: {
+    primary: loomeraPalette.ink900,
+    secondary: loomeraPalette.ink700,
+    muted: loomeraPalette.ink500,
+    inverse: "#FFFFFF",
+    onPrimary: "#FFFFFF",
+  },
+  border: {
+    subtle: loomeraPalette.line200,
+    default: loomeraPalette.line300,
+    strong: loomeraPalette.line400,
+    divider: "#E8E4EF",
+    selected: loomeraPalette.purple600,
+    danger: loomeraPalette.rose600,
+    disabled: "#E3DFEC",
+  },
+  status: {
+    success: loomeraPalette.green600,
+    successSubtle: loomeraPalette.green100,
+    warning: loomeraPalette.amber600,
+    warningSubtle: loomeraPalette.amber100,
+    danger: loomeraPalette.rose600,
+    dangerSubtle: loomeraPalette.rose100,
+    info: loomeraPalette.blue600,
+    infoSubtle: loomeraPalette.blue100,
+    neutral: loomeraPalette.ink500,
+    neutralSubtle: loomeraPalette.canvasMuted,
+  },
+  state: {
+    selected: "#EDE6FB",
+    selectedBorder: loomeraPalette.purple600,
+    unavailable: "#F1EFF6",
+    unavailableText: "#A79FB9",
+    pending: loomeraPalette.amber100,
+    pendingText: loomeraPalette.amber600,
+    confirmed: loomeraPalette.green100,
+    confirmedText: loomeraPalette.green600,
+    cancelled: loomeraPalette.rose100,
+    cancelledText: loomeraPalette.rose600,
+  },
+  payment: {
+    paid: loomeraPalette.green600,
+    paidSubtle: loomeraPalette.green100,
+    unpaid: loomeraPalette.amber600,
+    unpaidSubtle: loomeraPalette.amber100,
+    failed: loomeraPalette.rose600,
+    failedSubtle: loomeraPalette.rose100,
+    processing: loomeraPalette.blue600,
+    processingSubtle: loomeraPalette.blue100,
+  },
+  focus: {
+    ring: "#C1A8F0",
+    invalid: loomeraPalette.rose600,
+  },
+  sidebar: {
+    DEFAULT: loomeraPalette.sidebar900,
+    hover: loomeraPalette.sidebar800,
+    border: loomeraPalette.sidebar700,
+  },
+};
+
+const loomeraColors = {
+  // Backward-compatible flat aliases used across existing templates.
+  // These are now connected to CSS variables so Tailwind keeps the current Loomera branding.
+  primary: "rgb(var(--lm-primary-rgb) / <alpha-value>)",
+  primaryHover: "rgb(var(--lm-primary-hover-rgb) / <alpha-value>)",
+  primaryActive: "rgb(var(--lm-primary-active-rgb) / <alpha-value>)",
+  primarySoft: "rgb(var(--lm-primary-soft-rgb) / <alpha-value>)",
+
+  primaryText: "rgb(var(--lm-text-primary-rgb) / <alpha-value>)",
+
+  secondary: "rgb(var(--lm-secondary-rgb) / <alpha-value>)",
+  secondarySoft: "rgb(var(--lm-secondary-soft-rgb) / <alpha-value>)",
+
+  accent: "rgb(var(--lm-accent-rgb) / <alpha-value>)",
+  accentSoft: "rgb(var(--lm-accent-soft-rgb) / <alpha-value>)",
+
+  bg: "rgb(var(--lm-bg-rgb) / <alpha-value>)",
+  bgSubtle: "rgb(var(--lm-bg-subtle-rgb) / <alpha-value>)",
+
+  surface: "rgb(var(--lm-surface-rgb) / <alpha-value>)",
+  surfaceRaised: "rgb(var(--lm-surface-raised-rgb) / <alpha-value>)",
+  surfaceSoft: "rgb(var(--lm-surface-soft-rgb) / <alpha-value>)",
+
+  border: "rgb(var(--lm-border-rgb) / <alpha-value>)",
+  borderSoft: "rgb(var(--lm-border-soft-rgb) / <alpha-value>)",
+
+  line: loomeraSemantic.border.strong,
+  divider: loomeraSemantic.border.divider,
+
+  textPrimary: "rgb(var(--lm-text-primary-rgb) / <alpha-value>)",
+  textSecondary: "rgb(var(--lm-text-secondary-rgb) / <alpha-value>)",
+  textMuted: "rgb(var(--lm-text-muted-rgb) / <alpha-value>)",
+  textOnPrimary: "rgb(var(--lm-text-on-primary-rgb) / <alpha-value>)",
+
+  textOnDark: "#F7F6FA",
+  textInverse: loomeraSemantic.text.inverse,
+
+  success: "rgb(var(--lm-success-rgb) / <alpha-value>)",
+  successSoft: "rgb(var(--lm-success-soft-rgb) / <alpha-value>)",
+
+  warning: "rgb(var(--lm-warning-rgb) / <alpha-value>)",
+  warningSoft: "rgb(var(--lm-warning-soft-rgb) / <alpha-value>)",
+
+  error: "rgb(var(--lm-danger-rgb) / <alpha-value>)",
+  errorSoft: "rgb(var(--lm-danger-soft-rgb) / <alpha-value>)",
+  danger: "rgb(var(--lm-danger-rgb) / <alpha-value>)",
+  dangerSoft: "rgb(var(--lm-danger-soft-rgb) / <alpha-value>)",
+
+  info: "rgb(var(--lm-info-rgb) / <alpha-value>)",
+  infoSoft: "rgb(var(--lm-info-soft-rgb) / <alpha-value>)",
+
+  link: "rgb(var(--lm-primary-hover-rgb) / <alpha-value>)",
+  linkHover: "rgb(var(--lm-primary-active-rgb) / <alpha-value>)",
+
+  focusRing: "rgb(var(--lm-focus-ring-rgb) / <alpha-value>)",
+
+  selection: loomeraSemantic.state.selected,
+  disabledBg: loomeraSemantic.state.unavailable,
+  disabledText: loomeraSemantic.state.unavailableText,
+  disabledBorder: loomeraSemantic.border.disabled,
+
+  badgeNew: loomeraSemantic.status.infoSubtle,
+  badgeDiscount: loomeraSemantic.status.warningSubtle,
+  badgePremium: loomeraSemantic.brand.secondarySubtle,
+
+  cardHighlight: loomeraSemantic.brand.canvas,
+  bookingHighlight: loomeraSemantic.brand.accentSubtle,
+  calmGlow: "#F2ECFE",
+  dashboardAccent: "#DCCFF8",
+  salonCardAccent: "#E8F2E5",
+
+  sidebar: loomeraSemantic.sidebar.DEFAULT,
+  sidebarHover: loomeraSemantic.sidebar.hover,
+  sidebarBorder: loomeraSemantic.sidebar.border,
+
+  ...loomeraSemantic,
+};
+
+module.exports = {
+  content: [
+    "./templates/**/*.html",
+    "./static/js/**/*.js",
+    "./apps/**/*.py",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        loomera: loomeraColors,
+        lm: loomeraSemantic,
+        // Deprecated compatibility alias. Existing Python-generated classes still use
+        // fresha-* names; keep this mapped to Loomera tokens until a safe migration phase.
+        fresha: {
+          primary: "rgb(var(--lm-primary-rgb) / <alpha-value>)",
+          primaryHover: "rgb(var(--lm-primary-hover-rgb) / <alpha-value>)",
+          primaryActive: "rgb(var(--lm-primary-active-rgb) / <alpha-value>)",
+          primarySoft: "rgb(var(--lm-primary-soft-rgb) / <alpha-value>)",
+          surfaceSoft: "rgb(var(--lm-surface-soft-rgb) / <alpha-value>)",
+          primaryText: "rgb(var(--lm-text-primary-rgb) / <alpha-value>)",
+          sidebar: loomeraSemantic.sidebar.DEFAULT,
+          sidebarHover: loomeraSemantic.sidebar.hover,
+          sidebarBorder: loomeraSemantic.sidebar.border,
+        },
+      },
+      fontFamily: {
+        loomera: [
+          "Yekan Bakh",
+          "Vazirmatn",
+          "IRANSansX",
+          "Inter",
+          "Segoe UI",
+          "Arial",
+          "sans-serif",
+        ],
+        sans: [
+          "Yekan Bakh",
+          "Vazirmatn",
+          "IRANSansX",
+          "Inter",
+          "Segoe UI",
+          "Arial",
+          "sans-serif",
+        ],
+        display: [
+          "Yekan Bakh",
+          "Vazirmatn",
+          "IRANSansX",
+          "Inter",
+          "Segoe UI",
+          "sans-serif",
+        ],
+        serif: [
+          "Source Serif 4",
+          "Georgia",
+          "Times New Roman",
+          "serif",
+        ],
+        brand: [
+          "Source Serif 4",
+          "Georgia",
+          "Times New Roman",
+          "serif",
+        ],
+        numeric: [
+          "Yekan Bakh FaNum",
+          "Yekan Bakh",
+          "Vazirmatn",
+          "Inter",
+          "Roboto Mono",
+          "monospace",
+        ],
+      },
+      spacing: {
+        "lm-page-mobile": "1rem",
+        "lm-page-desktop": "2rem",
+        "lm-section": "4rem",
+        "lm-card-compact": "1rem",
+        "lm-card": "1.25rem",
+        "lm-card-spacious": "1.5rem",
+        "lm-stack": "0.75rem",
+        "lm-list": "0.875rem",
+        "lm-form": "1rem",
+        "lm-dashboard-gap": "1.25rem",
+        "lm-sticky-cta": "5.5rem",
+        "lm-bottom-nav": "4.75rem",
+        "lm-sheet": "1.25rem",
+      },
+      borderRadius: {
+        "lm-xs": "0.5rem",
+        "lm-sm": "0.75rem",
+        "lm-md": "0.875rem",
+        "lm-lg": "1rem",
+        "lm-xl": "1.25rem",
+        "lm-2xl": "1.5rem",
+        "lm-3xl": "1.75rem",
+        "lm-sheet": "1.75rem",
+      },
+      boxShadow: {
+        "lm-soft": "0 10px 30px rgba(46, 42, 60, 0.06)",
+        "lm-card": "0 16px 40px rgba(46, 42, 60, 0.08)",
+        "lm-elevated": "0 24px 60px rgba(46, 42, 60, 0.12)",
+        "lm-floating": "0 28px 80px rgba(46, 42, 60, 0.16)",
+        "lm-focus": "0 0 0 4px rgba(193, 168, 240, 0.32)",
+      },
+      zIndex: {
+        sheet: "60",
+        drawer: "70",
+        toast: "80",
+        modal: "90",
+      },
+      keyframes: {
+        slideUp: {
+          from: { transform: "translateY(100%)", opacity: "0" },
+          to: { transform: "translateY(0)", opacity: "1" },
+        },
+        fadeIn: {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+      },
+      animation: {
+        slideUp: "slideUp 0.28s cubic-bezier(0.2, 0, 0, 1)",
+        fadeIn: "fadeIn 0.2s ease-out",
+      },
+    },
+  },
+  plugins: [],
+};

@@ -1,0 +1,86 @@
+{% extends "platform_admin/base.html" %}
+{% load jalali_extras humanize %}
+{% block platform_content %}
+<section class="space-y-6">
+  <header class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="border-b border-loomera-borderSoft bg-gradient-to-l from-loomera-primarySoft/70 via-white to-white p-5 lg:p-6">
+      <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div class="min-w-0">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[11px] font-black text-loomera-primary shadow-sm ring-1 ring-loomera-borderSoft">
+            <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+            نوبت‌ها
+          </span>
+          <h2 class="mt-3 text-2xl font-black text-loomera-textPrimary lg:text-3xl">صف نوبت‌ها و اختلاف‌ها</h2>
+          <p class="mt-2 max-w-2xl text-sm font-semibold leading-7 text-loomera-textMuted">پایش چرخه نوبت، عدم حضور، اختلاف، overrun و وضعیت تکمیل خدمت.</p>
+        </div>
+
+        <form class="grid gap-2 rounded-[1.5rem] border border-loomera-borderSoft bg-white/90 p-2 shadow-sm sm:grid-cols-[minmax(0,1fr)_230px_auto] lg:min-w-[660px]" method="get">
+          <input name="q" value="{{ request.GET.q }}" placeholder="مجموعه، مشتری، متخصص" class="min-h-11 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm outline-none transition focus:border-loomera-primary/50 focus:ring-2 focus:ring-loomera-primary/10">
+          <select name="status" class="min-h-11 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm outline-none transition focus:border-loomera-primary/50 focus:ring-2 focus:ring-loomera-primary/10">
+            <option value="">همه</option>
+            <option value="disputed" {% if request.GET.status == "disputed" %}selected{% endif %}>اختلاف/no-show/overrun</option>
+            <option value="completed" {% if request.GET.status == "completed" %}selected{% endif %}>تکمیل‌شده</option>
+            <option value="no_show_pending_review" {% if request.GET.status == "no_show_pending_review" %}selected{% endif %}>عدم حضور در انتظار بررسی</option>
+          </select>
+          <button class="min-h-11 rounded-2xl bg-loomera-primary px-5 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-loomera-primary/90">فیلتر</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="flex flex-col gap-2 border-b border-loomera-borderSoft px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <h3 class="text-base font-black text-loomera-textPrimary">لیست نوبت‌ها</h3>
+      <span class="text-xs font-bold text-loomera-textMuted">{{ appointments|length }} مورد در این صفحه</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-[1020px] w-full text-sm">
+        <thead class="bg-loomera-surface text-loomera-textMuted">
+          <tr>
+            <th class="p-4 text-right">زمان</th>
+            <th class="p-4 text-right">مجموعه</th>
+            <th class="p-4 text-right">مشتری</th>
+            <th class="p-4 text-right">خدمت</th>
+            <th class="p-4 text-right">متخصص</th>
+            <th class="p-4">وضعیت</th>
+            <th class="p-4">مبلغ</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-loomera-borderSoft">
+          {% for item in appointments %}
+            <tr class="transition hover:bg-loomera-surface/60">
+              <td class="p-4 font-bold text-loomera-textPrimary">
+                <span class="block whitespace-nowrap">{{ item.date|jalali_date:"weekday" }}</span>
+                <span class="mt-1 block text-xs font-black text-loomera-textMuted">ساعت {{ item.time|fa_time }}</span>
+              </td>
+              <td class="p-4 text-right">
+                <p class="font-black text-loomera-textPrimary">{{ item.salon }}</p>
+                <p class="mt-1 text-xs text-loomera-textMuted">سفارش #{{ item.order_id }}</p>
+              </td>
+              <td class="p-4 text-right text-loomera-textMuted">
+                {% if item.order.customer %}
+                  <span class="block font-bold text-loomera-textPrimary">{{ item.order.customer.user.get_fullName|default:item.order.customer.user.mobile_number }}</span>
+                  <span dir="ltr" class="text-xs">{{ item.order.customer.user.mobile_number }}</span>
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td class="p-4 text-right text-loomera-textMuted">{{ item.service }}</td>
+              <td class="p-4 text-right text-loomera-textMuted">{{ item.stylist.user.get_fullName|default:item.stylist }}</td>
+              <td class="p-4 text-center">
+                <span class="inline-flex rounded-full px-3 py-1.5 text-xs font-black {% if item.lifecycle_status == 'completed' %}bg-emerald-50 text-emerald-700{% elif item.lifecycle_status == 'disputed' or item.lifecycle_status == 'no_show_pending_review' or item.lifecycle_status == 'no_show_confirmed' %}bg-rose-50 text-rose-700{% else %}bg-loomera-primarySoft text-loomera-primary{% endif %}">
+                  {{ item.get_lifecycle_status_display }}
+                </span>
+              </td>
+              <td class="p-4 text-center font-black text-loomera-textPrimary">{{ item.price|default:0|intcomma }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="7" class="p-10 text-center text-loomera-textMuted">نوبتی مطابق فیلترها یافت نشد.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% include "platform_admin/_pagination.html" %}
+</section>
+{% endblock %}

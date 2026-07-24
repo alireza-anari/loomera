@@ -1,0 +1,51 @@
+{% load static %}
+<header class="lm-shell-mobile-header lg:hidden sticky top-0 z-40 border-b border-slate-200/70 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+  <div class="lm-app-container lm-shell-mobile-header__inner">
+    <div class="lm-shell-mobile-header__leading">
+      {% if header_back_url %}
+        <a href="{{ header_back_url }}" class="lm-icon-button" aria-label="بازگشت">
+          <i class="fa-solid fa-chevron-right"></i>
+        </a>
+      {% else %}
+        <a href="{% url 'salons:home' %}" class="lm-shell-brand-link" aria-label="Loomera home">
+          {% include "partials/brand/logo.html" with logo_variant="compact" logo_size="sm" %}
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="lm-shell-mobile-header__context">
+      {% if header_title %}
+        <h1 class="lm-shell-mobile-header__title">{{ header_title }}</h1>
+      {% else %}
+        <span class="lm-shell-mobile-header__title"></span>
+      {% endif %}
+
+      {% if header_subtitle %}
+        <span class="lm-shell-mobile-header__subtitle">{{ header_subtitle }}</span>
+      {% elif header_location %}
+        <span class="lm-shell-mobile-header__location">
+          <i class="fa-solid fa-location-dot"></i>
+          <span>{{ header_location }}</span>
+        </span>
+      {% endif %}
+    </div>
+
+    <div class="lm-shell-mobile-header__actions">
+      {% if header_action_label and header_action_url %}
+        <a href="{{ header_action_url }}" class="lm-icon-button" aria-label="{{ header_action_label }}">
+          {% if header_action_icon %}
+            <i class="{{ header_action_icon }}"></i>
+          {% else %}
+            <span class="text-xs font-bold">{{ header_action_label }}</span>
+          {% endif %}
+        </a>
+      {% elif request.user.is_authenticated %}
+        {% include "partials/shell/customer_notification_button.html" with variant="mobile" %}
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="lm-icon-button" aria-label="ورود">
+          <i class="fa-regular fa-user"></i>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</header>

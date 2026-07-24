@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <title>social-template-offer-square</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1080" fill="#FCFBFE"/>
+<rect x="84" y="84" width="912" height="912" rx="44" fill="#FFFFFF" stroke="#DDD8E8"/>
+<g id="badge"><rect x="128" y="126" width="316" height="40" rx="18" fill="#FDF3E4" stroke="#DDD8E8"/><text x="426" y="152" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#B88235" text-anchor="end">Offer / Campaign / Promotion</text></g>
+<g id="logo-slot"><rect x="824" y="132" width="138" height="34" rx="10" fill="none" stroke="#DDD8E8" stroke-dasharray="6 6"/><text x="893.0" y="155" font-family="Inter, sans-serif" font-size="15" fill="#7A738F" text-anchor="middle">LOGO</text></g>
+<rect x="128" y="236" width="824" height="280" rx="36" fill="#F4F1F8"/>
+<text x="904" y="338" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="62" font-weight="650" fill="#2E2A3C" text-anchor="end">پیشنهاد محدود و روشن</text>
+<text x="904" y="410" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" fill="#57526E" text-anchor="end">headline offer باید واضح باشد، نه هیجانی.</text>
+<rect x="128" y="564" width="392" height="92" rx="28" fill="#F8F5FE"/>
+<rect x="560" y="564" width="392" height="92" rx="28" fill="#F4F1F8"/>
+<text x="488" y="621" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" font-weight="600" fill="#2E2A3C" text-anchor="end">بازه‌ی زمانی</text>
+<text x="920" y="621" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" font-weight="600" fill="#2E2A3C" text-anchor="end">شرایط و scope</text>
+<rect x="128" y="700" width="824" height="112" rx="30" fill="#FFFFFF" stroke="#DDD8E8"/>
+<text x="904" y="766" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" fill="#57526E" text-anchor="end">urgency باید از date/condition cue بیاید، نه از visual noise.</text>
+<g id="cta"><rect x="128" y="866" width="206" height="54" rx="27" fill="#735CBE"/><text x="231.0" y="901" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="21" font-weight="600" fill="#FFFFFF" text-anchor="middle">مشاهده جزئیات</text></g>
+
+</svg>

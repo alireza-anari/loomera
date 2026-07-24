@@ -1,0 +1,84 @@
+{% extends "dashboard_template.html" %}
+{% block title %}افزودن مشتری{% endblock %}
+
+{% block content %}
+  <section class="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div>
+        <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1 text-[11px] font-bold text-loomera-primaryText">
+          <i class="fa-solid fa-user-plus text-[10px]"></i>
+          <span>افزودن مشتری جدید</span>
+        </span>
+        <h1 class="mt-4 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">ثبت مشتری در دفتر مجموعه</h1>
+        <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">
+          این فرم برای اضافه‌کردن سریع مشتری از داخل داشبورد است. پس از ثبت، پروفایل مشتری ساخته می‌شود و از همینجا می‌توانی جزئیات او را ببینی.
+        </p>
+      </div>
+
+      <div class="rounded-[24px] border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600">
+        <p class="font-black text-slate-900">مجموعه مقصد</p>
+        <p class="mt-1">{{ target_salon.salon_name }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+    <form method="post" class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      {% csrf_token %}
+      {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+
+      {% if form.non_field_errors %}
+        <div class="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div>
+          <label class="mb-2 block text-sm font-bold text-slate-700" for="id_name">نام</label>
+          {{ form.name }}
+          {% if form.name.errors %}<p class="mt-2 text-xs text-rose-600">{{ form.name.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-bold text-slate-700" for="id_family">نام خانوادگی</label>
+          {{ form.family }}
+          {% if form.family.errors %}<p class="mt-2 text-xs text-rose-600">{{ form.family.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-bold text-slate-700" for="id_mobile_number">شماره موبایل</label>
+          {{ form.mobile_number }}
+          {% if form.mobile_number.errors %}<p class="mt-2 text-xs text-rose-600">{{ form.mobile_number.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-bold text-slate-700" for="id_email">ایمیل (اختیاری)</label>
+          {{ form.email }}
+          {% if form.email.errors %}<p class="mt-2 text-xs text-rose-600">{{ form.email.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="md:col-span-2">
+          <label class="mb-2 block text-sm font-bold text-slate-700" for="id_address">آدرس (اختیاری)</label>
+          {{ form.address }}
+          {% if form.address.errors %}<p class="mt-2 text-xs text-rose-600">{{ form.address.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95">
+          <i class="fa-solid fa-check text-xs"></i>
+          ثبت مشتری
+        </button>
+        <a href="{{ back_url }}" class="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+          بازگشت به مشتریان
+        </a>
+      </div>
+    </form>
+
+    <aside class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 class="text-base font-black text-slate-950">نکته‌های این جریان</h2>
+      <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-600">
+        <li>• این فرم دیگر JSON خام نشان نمی‌دهد و به‌صورت مستقیم داخل محیط کاری قابل استفاده است.</li>
+        <li>• تصویر مشتری در این مرحله اجباری نیست تا افزودن مشتری سریع و بدون بن‌بست انجام شود.</li>
+        <li>• بعد از ثبت، مستقیم وارد پروفایل مشتری می‌شوی.</li>
+      </ul>
+    </aside>
+  </section>
+{% endblock %}

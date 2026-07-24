@@ -1,0 +1,124 @@
+<section class="lm-report-surface lm-component-card rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+  {% include "dashboards/components/section_header.html" with title=reports_dashboard.table.title subtitle=reports_dashboard.table.subtitle %}
+
+  {% if reports_dashboard.table.is_empty %}
+    {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-chart-column" title="جدول این بخش خالی است" description="در بازه و فیلترهای فعال، داده‌ای برای این tab پیدا نشد." %}
+  {% elif reports_dashboard.table.kind == 'sales' %}
+    <div class="mt-5 overflow-hidden rounded-[28px] border border-slate-200">
+      <div class="lm-table-responsive hidden overflow-x-auto lg:block">
+        <table class="lm-table min-w-full divide-y divide-slate-200">
+          <thead class="bg-slate-50 text-right">
+            <tr class="text-xs font-bold uppercase tracking-wide text-slate-500">
+              <th class="px-4 py-4">مشتری</th>
+              <th class="px-4 py-4">شرح</th>
+              <th class="px-4 py-4">تاریخ جلالی</th>
+              <th class="px-4 py-4">کد سفارش</th>
+              <th class="px-4 py-4">وضعیت</th>
+              <th class="px-4 py-4">مبلغ</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 bg-white">
+            {% for row in reports_dashboard.table.rows %}
+              <tr class="text-sm text-slate-700 transition hover:bg-slate-50/80">
+                <td class="px-4 py-4 align-top font-semibold text-slate-900">{{ row.title }}</td>
+                <td class="px-4 py-4 align-top">{{ row.subtitle }}</td>
+                <td class="px-4 py-4 align-top">{{ row.date_label }}</td>
+                <td class="px-4 py-4 align-top text-slate-500">{{ row.code }}</td>
+                <td class="px-4 py-4 align-top">
+                  <span class="lm-badge inline-flex items-center rounded-full px-3 py-1 text-xs font-bold {{ row.status.badge_class }}">{{ row.status.label }}</span>
+                </td>
+                <td class="px-4 py-4 align-top font-semibold text-slate-900">{{ row.value_label }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid gap-4 p-4 lg:hidden">
+        {% for row in reports_dashboard.table.rows %}
+          <article class="lm-card lm-card--default rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h3 class="text-base font-black text-slate-950">{{ row.title }}</h3>
+                <p class="mt-1 text-sm text-slate-500">{{ row.subtitle }}</p>
+              </div>
+              <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold {{ row.status.badge_class }}">{{ row.status.label }}</span>
+            </div>
+            <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div class="rounded-2xl bg-slate-50 px-3 py-3">
+                <dt class="text-xs font-bold text-slate-500">تاریخ</dt>
+                <dd class="mt-1 font-semibold text-slate-900">{{ row.date_label }}</dd>
+              </div>
+              <div class="rounded-2xl bg-slate-50 px-3 py-3">
+                <dt class="text-xs font-bold text-slate-500">مبلغ</dt>
+                <dd class="mt-1 font-semibold text-slate-900">{{ row.value_label }}</dd>
+              </div>
+              <div class="rounded-2xl bg-slate-50 px-3 py-3 col-span-2">
+                <dt class="text-xs font-bold text-slate-500">کد سفارش</dt>
+                <dd class="mt-1 font-semibold text-slate-900">{{ row.code }}</dd>
+              </div>
+            </dl>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <div class="mt-5 overflow-hidden rounded-[28px] border border-slate-200">
+      <div class="lm-table-responsive hidden overflow-x-auto lg:block">
+        <table class="lm-table min-w-full divide-y divide-slate-200">
+          <thead class="bg-slate-50 text-right">
+            <tr class="text-xs font-bold uppercase tracking-wide text-slate-500">
+              <th class="px-4 py-4">عنوان</th>
+              <th class="px-4 py-4">جزئیات</th>
+              <th class="px-4 py-4">رزروها</th>
+              <th class="px-4 py-4">مشتری یکتا</th>
+              <th class="px-4 py-4">نرخ تکمیل</th>
+              <th class="px-4 py-4">درآمد</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 bg-white">
+            {% for row in reports_dashboard.table.rows %}
+              <tr class="text-sm text-slate-700 transition hover:bg-slate-50/80">
+                <td class="px-4 py-4 align-top font-semibold text-slate-900">{{ row.title }}</td>
+                <td class="px-4 py-4 align-top text-slate-500">{{ row.subtitle }}</td>
+                <td class="px-4 py-4 align-top">{{ row.appointments_label }}</td>
+                <td class="px-4 py-4 align-top">{{ row.customers_label }}</td>
+                <td class="px-4 py-4 align-top">{{ row.completion_label }}</td>
+                <td class="px-4 py-4 align-top font-semibold text-slate-900">{{ row.revenue_label }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid gap-4 p-4 lg:hidden">
+        {% for row in reports_dashboard.table.rows %}
+          <article class="lm-card lm-card--default rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm">
+            <div>
+              <h3 class="text-base font-black text-slate-950">{{ row.title }}</h3>
+              <p class="mt-1 text-sm text-slate-500">{{ row.subtitle }}</p>
+            </div>
+            <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div class="rounded-2xl bg-slate-50 px-3 py-3">
+                <dt class="text-xs font-bold text-slate-500">رزروها</dt>
+                <dd class="mt-1 font-semibold text-slate-900">{{ row.appointments_label }}</dd>
+              </div>
+              <div class="rounded-2xl bg-slate-50 px-3 py-3">
+                <dt class="text-xs font-bold text-slate-500">مشتری یکتا</dt>
+                <dd class="mt-1 font-semibold text-slate-900">{{ row.customers_label }}</dd>
+              </div>
+              <div class="rounded-2xl bg-slate-50 px-3 py-3">
+                <dt class="text-xs font-bold text-slate-500">نرخ تکمیل</dt>
+                <dd class="mt-1 font-semibold text-slate-900">{{ row.completion_label }}</dd>
+              </div>
+              <div class="rounded-2xl bg-slate-50 px-3 py-3">
+                <dt class="text-xs font-bold text-slate-500">درآمد</dt>
+                <dd class="mt-1 font-semibold text-slate-900">{{ row.revenue_label }}</dd>
+              </div>
+            </dl>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</section>

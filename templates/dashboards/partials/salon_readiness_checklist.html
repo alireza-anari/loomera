@@ -1,0 +1,77 @@
+{% if readiness and readiness.enabled %}
+  <section class="rounded-[28px] border {% if readiness.is_ready %}border-emerald-200 bg-emerald-50/60{% else %}border-loomera-primary/20 bg-white/95{% endif %} p-4 shadow-lm-card backdrop-blur sm:p-5 lg:p-6" aria-labelledby="salon-readiness-title" data-salon-readiness>
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div class="min-w-0">
+        <p class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+          <i class="fa-solid fa-list-check text-[10px]" aria-hidden="true"></i>
+          <span>آمادگی برای لانچ</span>
+        </p>
+
+        <h2 id="salon-readiness-title" class="mt-3 text-base font-black text-loomera-textPrimary sm:text-lg">
+          چک‌لیست آمادگی مجموعه
+        </h2>
+
+        <p class="mt-2 max-w-3xl text-xs leading-6 text-loomera-textMuted sm:text-sm">
+          {{ readiness.summary }}
+        </p>
+      </div>
+
+      <div class="shrink-0 rounded-[24px] border border-loomera-borderSoft bg-white p-4 text-center shadow-lm-soft">
+        <strong class="block text-3xl font-black text-loomera-primaryText">{{ readiness.percent_label }}</strong>
+        <span class="mt-1 block text-[11px] font-bold text-loomera-textMuted">
+          {{ readiness.completed_count_label }} از {{ readiness.total_count_label }} مورد کامل
+        </span>
+      </div>
+    </div>
+
+    <div class="mt-5 h-3 overflow-hidden rounded-full bg-loomera-bgSubtle" aria-hidden="true">
+      <div class="h-full rounded-full bg-loomera-primary transition-all" style="width: {{ readiness.percent }}%;"></div>
+    </div>
+
+    {% if readiness.missing_items %}
+      <div class="mt-5 rounded-[24px] border border-amber-200 bg-amber-50/80 p-4">
+        <div class="flex items-start gap-3">
+          <span class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+            <i class="fa-solid fa-triangle-exclamation text-sm" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0">
+            <h3 class="text-sm font-black text-amber-800">
+              {{ readiness.missing_count_label }} مورد برای آماده‌شدن مجموعه باقی مانده است
+            </h3>
+            <p class="mt-1 text-xs leading-6 text-amber-700">
+              پیشنهاد می‌شود قبل از فعال‌سازی جدی رزرو آنلاین، موارد زیر تکمیل شوند.
+            </p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      {% for item in readiness.items %}
+        <article class="rounded-[24px] border {% if item.is_done %}border-emerald-100 bg-emerald-50/70{% else %}border-loomera-borderSoft bg-white{% endif %} p-4 shadow-lm-soft">
+          <div class="flex items-start gap-3">
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl {% if item.is_done %}bg-emerald-100 text-emerald-700{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">
+              {% if item.is_done %}
+                <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
+              {% else %}
+                <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+              {% endif %}
+            </span>
+
+            <div class="min-w-0 flex-1">
+              <h3 class="text-sm font-black leading-6 text-loomera-textPrimary">{{ item.title }}</h3>
+              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
+
+              {% if not item.is_done and item.action_url and item.action_url != "#" %}
+                <a href="{{ item.action_url }}" class="mt-3 inline-flex items-center gap-2 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-[11px] font-black text-loomera-primaryText transition hover:-translate-y-0.5 hover:border-loomera-primary/40">
+                  <span>{{ item.action_label }}</span>
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}

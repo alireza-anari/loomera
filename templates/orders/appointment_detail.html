@@ -1,0 +1,694 @@
+{% extends "base.html" %}
+{% load static %}
+{% load jalali_filters %}
+{% load humanize %}
+{% load jalali_extras %}
+
+{% block title %}جزئیات نوبت{% endblock %}
+{% block main_class %}!max-w-none !px-0 !py-0 bg-loomera-bg{% endblock %}
+
+{% block content %}
+<div class="min-h-dvh bg-loomera-bg pb-40 text-loomera-textPrimary lg:pb-16" data-appointment-detail-page>
+  <!-- MOBILE TOPBAR -->
+  <header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 shadow-lm-soft backdrop-blur-xl lg:hidden" aria-label="جزئیات نوبت">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3">
+      <a href="{% url 'orders:appointments' %}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition hover:bg-loomera-primarySoft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30" aria-label="بازگشت به نوبت‌های من">
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </a>
+      <div class="min-w-0 text-center">
+        <p class="text-[11px] font-black text-loomera-primary">جزئیات نوبت</p>
+        <h1 class="truncate text-base font-black text-loomera-textPrimary">{{ appointment.salon.salon_name }}</h1>
+      </div>
+      <button type="button" onclick="addToCalendar()" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-primary shadow-sm transition hover:bg-loomera-primarySoft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30" aria-label="افزودن به تقویم">
+        <i class="fa-regular fa-calendar-plus" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="relative isolate overflow-hidden bg-slate-950" aria-label="اطلاعات اصلی نوبت">
+    {% if appointment.salon.banner_image %}
+      <img src="{{ appointment.salon.banner_image.url }}" alt="{{ appointment.salon.salon_name }}" class="h-[260px] w-full object-cover opacity-80 lg:h-[340px]">
+    {% else %}
+      <div class="flex h-[260px] w-full items-center justify-center bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-accent lg:h-[340px]" aria-hidden="true">
+        <i class="fa-solid fa-scissors text-7xl text-white/25"></i>
+      </div>
+    {% endif %}
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,.18),transparent_26%),linear-gradient(to_top,rgba(15,23,42,.92),rgba(15,23,42,.35),rgba(15,23,42,.08))]"></div>
+
+    <div class="absolute inset-x-0 bottom-0">
+      <div class="mx-auto w-full max-w-7xl px-4 pb-5 lg:px-6 xl:px-0">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div class="min-w-0 text-white">
+            <a href="{% url 'orders:appointments' %}" class="mb-5 hidden h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/90 text-slate-900 shadow-lm-soft transition hover:bg-white lg:inline-flex" aria-label="بازگشت به نوبت‌های من">
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+            <p class="text-xs font-black text-white/70">جزئیات نوبت</p>
+            <h1 class="mt-2 text-2xl font-black leading-10 lg:text-4xl">{{ appointment.salon.salon_name }}</h1>
+            <p class="mt-2 flex flex-wrap items-center gap-2 text-sm font-bold leading-7 text-white/85">
+              <span class="inline-flex items-center gap-2"><i class="fa-regular fa-calendar" aria-hidden="true"></i>{{ visit_date_label }}</span>
+              <span aria-hidden="true">•</span>
+              <span class="inline-flex items-center gap-2"><i class="fa-regular fa-clock" aria-hidden="true"></i>{{ visit_time_label }}</span>
+            </p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 rounded-[1.75rem] border border-white/15 bg-white/12 p-2 text-center text-white shadow-lm-card backdrop-blur-xl lg:min-w-[360px]">
+            <div class="rounded-2xl bg-white/12 px-3 py-3">
+              <span class="block text-[11px] font-bold text-white/70">خدمات</span>
+              <strong class="mt-1 block text-lg font-black">{{ service_count }}</strong>
+            </div>
+            <div class="rounded-2xl bg-white/12 px-3 py-3">
+              <span class="block text-[11px] font-bold text-white/70">مدت</span>
+              <strong class="mt-1 block text-lg font-black">{{ total_duration }}</strong>
+            </div>
+            <div class="rounded-2xl bg-white/12 px-3 py-3">
+              <span class="block text-[11px] font-bold text-white/70">مبلغ</span>
+              <strong class="mt-1 block text-sm font-black lg:text-base">{{ total_price|floatformat:0|intcomma }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="mx-auto w-full max-w-7xl px-4 pb-8 pt-5 lg:px-6 lg:pb-16 xl:px-0">
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+      <div class="min-w-0 space-y-5">
+        <!-- STATUS STRIP -->
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card" aria-label="وضعیت نوبت">
+          <div class="flex flex-wrap items-center gap-2">
+            {% with stage=customer_progress.current_stage %}
+              {% if stage == "awaiting_stylist_confirmation" %}
+                <span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-4 py-2 text-xs font-black text-amber-700 ring-1 ring-amber-100">
+                  <span class="h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_0_4px_rgba(245,158,11,.14)]"></span>
+                  در انتظار تایید متخصص
+                </span>
+              {% elif stage == "stylist_confirmed" %}
+                <span class="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-xs font-black text-indigo-700 ring-1 ring-indigo-100">
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                  تایید شده توسط متخصص
+                </span>
+              {% elif stage == "arrived" %}
+                <span class="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-4 py-2 text-xs font-black text-cyan-700 ring-1 ring-cyan-100">
+                  <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                  مشتری به مجموعه رسید
+                </span>
+              {% elif stage == "in_service" %}
+                <span class="inline-flex items-center gap-2 rounded-full bg-violet-50 px-4 py-2 text-xs font-black text-violet-700 ring-1 ring-violet-100">
+                  <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+                  در حال انجام خدمت
+                </span>
+              {% elif stage == "completed" or stage == "paid" or stage == "review_pending" or stage == "reviewed" %}
+                <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700 ring-1 ring-emerald-100">
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                  {{ customer_progress.current_stage_label }}
+                </span>
+              {% elif stage == "pay_in_salon_pending" %}
+                <span class="inline-flex items-center gap-2 rounded-full bg-orange-50 px-4 py-2 text-xs font-black text-orange-700 ring-1 ring-orange-100">
+                  <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+                  تسویه در مجموعه مانده است
+                </span>
+              {% elif stage == "cancelled" %}
+                <span class="inline-flex items-center gap-2 rounded-full bg-rose-50 px-4 py-2 text-xs font-black text-rose-700 ring-1 ring-rose-100">
+                  <i class="fa-solid fa-ban" aria-hidden="true"></i>
+                  لغو شده
+                </span>
+              {% else %}
+                <span class="inline-flex items-center rounded-full bg-loomera-bgSubtle px-4 py-2 text-xs font-black text-loomera-textSecondary ring-1 ring-loomera-borderSoft">
+                  {{ customer_progress.current_stage_label|default:"رزرو ثبت شد" }}
+                </span>
+              {% endif %}
+            {% endwith %}
+
+            <span class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black ring-1 {% if appointment.order.is_paid %}bg-emerald-50 text-emerald-700 ring-emerald-100{% elif appointment.order.selected_payment_method == 'pay_in_salon' %}bg-amber-50 text-amber-700 ring-amber-100{% else %}bg-loomera-bgSubtle text-loomera-textSecondary ring-loomera-borderSoft{% endif %}">
+              <i class="fa-solid fa-wallet" aria-hidden="true"></i>{{ payment_status_label }}
+            </span>
+
+            {% if can_cancel %}
+              <span class="inline-flex items-center gap-2 rounded-full bg-loomera-infoSoft px-4 py-2 text-xs font-black text-loomera-info ring-1 ring-loomera-info/10">
+                <i class="fa-solid fa-sliders" aria-hidden="true"></i>قابل مدیریت
+              </span>
+            {% endif %}
+
+          </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6" aria-labelledby="booking-detail-summary-title">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p class="text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">خلاصه نوبت</p>
+              <h2 id="booking-detail-summary-title" class="mt-1 text-xl font-black text-loomera-textPrimary lg:text-2xl">خدمات، متخصص‌ها و زمان</h2>
+            </div>
+            <span class="inline-flex rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">{{ service_count }} خدمت</span>
+          </div>
+
+          <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4 shadow-sm">
+              <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span>
+              <span class="mt-3 block text-xs font-bold text-loomera-textMuted">تاریخ مراجعه</span>
+              <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">{{ visit_date_label }}</strong>
+            </div>
+            <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4 shadow-sm">
+              <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm"><i class="fa-regular fa-clock" aria-hidden="true"></i></span>
+              <span class="mt-3 block text-xs font-bold text-loomera-textMuted">بازه زمانی</span>
+              <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">{{ visit_time_label }}</strong>
+            </div>
+            <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4 shadow-sm">
+              <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+              <span class="mt-3 block text-xs font-bold text-loomera-textMuted">مدت کل</span>
+              <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">{{ total_duration }} دقیقه</strong>
+            </div>
+            <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4 shadow-sm">
+              <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm"><i class="fa-solid fa-coins" aria-hidden="true"></i></span>
+              <span class="mt-3 block text-xs font-bold text-loomera-textMuted">مبلغ نهایی</span>
+              <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">{{ total_price|floatformat:0|intcomma }} تومان</strong>
+            </div>
+          </div>
+        </section>
+
+        {% if customer_progress %}
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6" aria-labelledby="booking-progress-title">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p class="text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">پیگیری نوبت</p>
+              <h2 id="booking-progress-title" class="mt-1 text-xl font-black text-loomera-textPrimary lg:text-2xl">
+                {{ customer_progress.current_step_label|default:customer_progress.current_stage_label }}
+              </h2>
+            </div>
+
+            <span class="rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">
+              {{ customer_progress.current_stage_label }}
+            </span>
+          </div>
+
+          <div class="mt-5 overflow-x-auto pb-2">
+            <div class="flex min-w-max items-center gap-2">
+              {% for step in customer_progress.steps %}
+                <div class="flex items-center gap-2">
+                  <div class="flex flex-col items-center gap-2">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-black ring-1
+                      {% if step.is_current %}
+                        bg-loomera-primary text-white ring-loomera-primary
+                      {% elif step.is_done %}
+                        bg-emerald-50 text-emerald-700 ring-emerald-100
+                      {% else %}
+                        bg-loomera-bgSubtle text-loomera-textMuted ring-loomera-borderSoft
+                      {% endif %}">
+                      {% if step.is_done and not step.is_current %}
+                        <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i>
+                      {% else %}
+                        {{ forloop.counter }}
+                      {% endif %}
+                    </span>
+
+                    <span class="max-w-[104px] truncate text-center text-[11px] font-bold
+                      {% if step.is_current %}
+                        text-loomera-primary
+                      {% elif step.is_done %}
+                        text-emerald-700
+                      {% else %}
+                        text-loomera-textMuted
+                      {% endif %}">
+                      {{ step.label }}
+                    </span>
+                  </div>
+
+                  {% if not forloop.last %}
+                    <span class="mb-6 h-0.5 w-10 rounded-full {% if step.is_done %}bg-emerald-200{% else %}bg-loomera-borderSoft{% endif %}" aria-hidden="true"></span>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="mt-5 rounded-[1.5rem] border border-loomera-primary/15 bg-loomera-primarySoft/40 p-4">
+            <div class="flex items-start gap-3">
+              <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm">
+                <i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i>
+              </span>
+
+              <div class="min-w-0">
+                <p class="text-sm font-black text-loomera-textPrimary">
+                  {{ customer_progress.current_step.label }}
+                </p>
+
+                {% if customer_progress.current_step.meta %}
+                  <p class="mt-1 text-xs font-bold text-loomera-textMuted">
+                    {{ customer_progress.current_step.meta }}
+                  </p>
+                {% endif %}
+
+                {% if customer_progress.current_step.description %}
+                  <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">
+                    {{ customer_progress.current_step.description }}
+                  </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+
+          {% if customer_progress.needs_pay_in_salon %}
+            <div class="mt-4 rounded-[1.5rem] border border-blue-200 bg-blue-50 p-4">
+              <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div class="min-w-0">
+                  <h3 class="text-sm font-black text-blue-950">تسویه در مجموعه</h3>
+                  {% if customer_progress.pay_in_salon_cash_waiting_for_stylist %}
+                    <p class="mt-1 text-sm leading-7 text-blue-800">تأیید پرداخت نقدی شما ثبت شده است و منتظر تأیید مجموعه هستیم.</p>
+                  {% elif customer_progress.pay_in_salon_cash_waiting_for_customer %}
+                    <p class="mt-1 text-sm leading-7 text-blue-800">مجموعه دریافت وجه را ثبت کرده است. برای نهایی‌شدن پرداخت، تأیید کنید.</p>
+                  {% else %}
+                    <p class="mt-1 text-sm leading-7 text-blue-800">بعد از پایان خدمت، پرداخت در مجموعه تکمیل می‌شود.</p>
+                  {% endif %}
+                </div>
+
+                <form method="post" action="{{ pay_in_salon_action_url }}" class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+                  {% csrf_token %}
+                  {% if not customer_progress.pay_in_salon_cash_customer_confirmed %}
+                    <button type="submit" name="payment_action" value="cash" class="inline-flex items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                      تأیید پرداخت نقدی
+                    </button>
+                  {% else %}
+                    <span class="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-emerald-700">
+                      تأیید شما ثبت شده
+                    </span>
+                  {% endif %}
+                </form>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if customer_progress.can_review %}
+            <div class="mt-4 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 p-4">
+              <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h3 class="text-sm font-black text-emerald-950">ثبت دیدگاه</h3>
+                  <p class="mt-1 text-sm leading-7 text-emerald-800">می‌توانید تجربه خود از این نوبت را ثبت کنید.</p>
+                </div>
+
+                <button type="button" onclick="window.openReviewModal && window.openReviewModal()" class="inline-flex items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                  ثبت دیدگاه
+                </button>
+              </div>
+            </div>
+          {% endif %}
+        </section>
+        {% endif %}
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6" aria-labelledby="booking-services-title">
+          <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">جزئیات خدمات</p>
+              <h2 id="booking-services-title" class="mt-1 text-xl font-black text-loomera-textPrimary lg:text-2xl">خدمات این نوبت</h2>
+            </div>
+            <span class="rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">{{ service_count }} خدمت</span>
+          </div>
+          <div class="space-y-3" role="list">
+            {% for item in order_items %}
+            <article class="rounded-[1.65rem] border border-loomera-borderSoft bg-white p-4 shadow-sm transition hover:border-loomera-primary/25 hover:shadow-lm-soft" role="listitem">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-loomera-primarySoft text-xs font-black text-loomera-primary">{{ forloop.counter }}</span>
+                    <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service.service_name }}</h3>
+                  </div>
+                  <div class="mt-3 grid gap-2 text-xs text-loomera-textSecondary sm:grid-cols-2">
+                    <p class="flex items-center gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-2"><i class="fa-regular fa-calendar text-loomera-primary" aria-hidden="true"></i><span>{{ item.date|jalali_with_weekday }}</span></p>
+                    <p class="flex items-center gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-2"><i class="fa-regular fa-clock text-loomera-primary" aria-hidden="true"></i><span>{{ item.time|persian_time }} تا {{ item.end_time|persian_time }}{% if item.service.duration_minutes %} • {{ item.service.duration_minutes }} دقیقه{% endif %}</span></p>
+                    {% if item.stylist %}
+                    <p class="flex items-center gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-2 sm:col-span-2"><i class="fa-solid fa-user text-loomera-primary" aria-hidden="true"></i><span>{{ item.stylist.user.get_fullName|default:item.stylist.user.name }}</span></p>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="shrink-0 text-right sm:text-left">
+                  <span class="inline-flex rounded-full bg-loomera-bgSubtle px-3 py-2 text-sm font-black text-loomera-textPrimary ring-1 ring-loomera-borderSoft">{{ item.price|floatformat:0|intcomma }} تومان</span>
+                </div>
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6" aria-labelledby="booking-finance-title">
+          <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">پرداخت</p>
+              <h2 id="booking-finance-title" class="mt-1 text-xl font-black text-loomera-textPrimary lg:text-2xl">خلاصه مالی</h2>
+            </div>
+            <span class="rounded-full bg-loomera-bgSubtle px-4 py-2 text-xs font-black text-loomera-textSecondary">{{ appointment.order.get_selected_payment_method_display }}</span>
+          </div>
+          <div class="space-y-3">
+            {% for row in finance_summary %}
+              <div class="flex items-center justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-sm">
+                <span class="font-bold text-loomera-textMuted">{{ row.label }}</span>
+                {% if row.text %}
+                  <strong class="text-left text-loomera-textPrimary">{{ row.text }}</strong>
+                {% else %}
+                  <strong class="text-left {% if row.tone == 'discount' %}text-emerald-700{% elif row.tone == 'refund' %}text-blue-700{% elif row.tone == 'total' %}text-loomera-primary{% else %}text-loomera-textPrimary{% endif %}">{{ row.value|floatformat:0|intcomma }} تومان</strong>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+
+        {% if payment_record or financial_transactions %}
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6" aria-labelledby="booking-transactions-title">
+          <h2 id="booking-transactions-title" class="text-xl font-black text-loomera-textPrimary lg:text-2xl">تراکنش‌های این نوبت</h2>
+          <div class="mt-4 space-y-3">
+            {% if payment_record %}
+              <div class="flex items-center justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-sm">
+                <span class="font-bold text-loomera-textMuted">پرداخت اصلی<br><small>{{ payment_record.get_provider_display }} • {{ payment_record.get_state_display }}</small></span>
+                <strong class="text-loomera-textPrimary">{{ payment_record.amount|floatformat:0|intcomma }} تومان</strong>
+              </div>
+            {% endif %}
+            {% for tx in financial_transactions %}
+              <div class="flex items-center justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-sm">
+                <span class="font-bold text-loomera-textMuted">{{ tx.get_transaction_type_display }}<br><small>{{ tx.created_at|jalali_datetime }}</small></span>
+                <strong class="{% if tx.amount >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">{% if tx.amount >= 0 %}+{% endif %}{{ tx.amount|floatformat:0|intcomma }} تومان</strong>
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+        {% endif %}
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6" aria-labelledby="booking-policy-title">
+          <h2 id="booking-policy-title" class="text-xl font-black text-loomera-textPrimary lg:text-2xl">{{ cancellation_policy.title }}</h2>
+          <p class="mt-3 text-sm leading-7 text-loomera-textSecondary">{{ cancellation_policy.description }}</p>
+          {% if cancellation_policy.hint %}<p class="mt-3 rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-xs leading-6 text-loomera-textMuted">{{ cancellation_policy.hint }}</p>{% endif %}
+        </section>
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6" aria-labelledby="booking-salon-info-title">
+          <h2 id="booking-salon-info-title" class="text-xl font-black text-loomera-textPrimary lg:text-2xl">اطلاعات مجموعه</h2>
+          <div class="mt-4 space-y-3 text-sm text-loomera-textSecondary">
+            <div>
+              <strong class="text-loomera-textPrimary">{{ appointment.salon.salon_name }}</strong>
+              {% if appointment.salon.address %}<p class="mt-1 leading-7">{{ appointment.salon.address }}</p>{% endif %}
+            </div>
+            {% if appointment.salon.phone_number %}
+              <a href="tel:{{ appointment.salon.phone_number }}" class="inline-flex items-center gap-2 font-black text-loomera-primary">
+                <i class="fa-solid fa-phone text-loomera-textMuted" aria-hidden="true"></i>
+                {{ appointment.salon.phone_number }}
+              </a>
+            {% endif %}
+          </div>
+        </section>
+      </div>
+
+      <!-- DESKTOP / TABLET SIDEBAR -->
+      <aside class="space-y-4 lg:sticky lg:top-24 lg:self-start" aria-label="خلاصه و اقدام‌های نوبت">
+        <section class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-elevated">
+          <div class="bg-gradient-to-br from-loomera-primary to-loomera-primaryHover p-5 text-white">
+            <p class="text-xs font-black text-white/75">خلاصه نوبت</p>
+            <h2 class="mt-2 text-2xl font-black">{{ total_price|floatformat:0|intcomma }} تومان</h2>
+            <p class="mt-2 text-xs leading-6 text-white/80">{{ visit_date_label }} • {{ visit_time_label }}</p>
+          </div>
+          <div class="space-y-3 p-5 text-sm text-loomera-textSecondary">
+            <div class="flex items-center justify-between gap-3 rounded-2xl bg-loomera-bgSubtle px-3 py-2"><span>وضعیت رزرو</span><strong class="text-loomera-textPrimary">{{ appointment.order.get_status_display|default:"ثبت‌شده" }}</strong></div>
+            <div class="flex items-center justify-between gap-3 rounded-2xl bg-loomera-bgSubtle px-3 py-2"><span>وضعیت پرداخت</span><strong class="text-loomera-textPrimary">{{ payment_status_label }}</strong></div>
+            <div class="flex items-center justify-between gap-3 rounded-2xl bg-loomera-bgSubtle px-3 py-2"><span>تعداد خدمات</span><strong class="text-loomera-textPrimary">{{ service_count }}</strong></div>
+            <div class="flex items-center justify-between gap-3 rounded-2xl bg-loomera-bgSubtle px-3 py-2"><span>مدت کل</span><strong class="text-loomera-textPrimary">{{ total_duration }} دقیقه</strong></div>
+          </div>
+          <div class="grid gap-2 border-t border-loomera-borderSoft p-5">
+            <button type="button" onclick="addToCalendar()" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30"><i class="fa-regular fa-calendar-plus" aria-hidden="true"></i>افزودن به تقویم</button>
+            {% if google_maps_link or waze_link %}
+              <button type="button" onclick="openNavigation()" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30"><i class="fa-solid fa-location-arrow" aria-hidden="true"></i>مسیریابی</button>
+            {% endif %}
+            {% if show_manage_cta %}
+              <button type="button" onclick="openManageModal()" class="inline-flex items-center justify-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-black text-rose-700 transition hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-100"><i class="fa-solid fa-sliders" aria-hidden="true"></i>مدیریت نوبت</button>
+            {% endif %}
+            <a href="{% url 'orders:appointments' %}" class="inline-flex items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30">بازگشت به نوبت‌ها</a>
+          </div>
+        </section>
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+          <h2 class="text-sm font-black text-loomera-textPrimary">شماره رزرو</h2>
+          <p class="mt-2 font-mono text-sm text-loomera-textMuted">{{ appointment.order.order_number|default:'---' }}</p>
+          <a href="{% url 'salons:detail_salon' appointment.salon.id %}" class="mt-4 inline-flex w-full items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-store" aria-hidden="true"></i>مشاهده صفحه مجموعه</span>
+            <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+          </a>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<!-- MOBILE CTA -->
+<div class="fixed inset-x-0 bottom-0 z-50 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur-md lg:hidden">
+  <div class="mx-auto grid max-w-md grid-cols-2 gap-2">
+    <button type="button" onclick="addToCalendar()" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary">تقویم</button>
+    {% if show_manage_cta %}
+      <button type="button" onclick="openManageModal()" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft">مدیریت نوبت</button>
+    {% else %}
+      <a href="{% url 'orders:appointments' %}" class="inline-flex items-center justify-center rounded-full bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft">نوبت‌های من</a>
+    {% endif %}
+  </div>
+</div>
+
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<!-- MANAGE MODAL -->
+<div id="manageModal" class="fixed inset-0 z-[1200] hidden overflow-y-auto" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="manageModalTitle">
+  <div class="flex min-h-dvh items-center justify-center px-4 py-6">
+    <button type="button" class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeManageModal()" aria-label="بستن مدیریت نوبت"></button>
+    <div class="relative w-full max-w-md rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-2xl lg:p-6">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h3 id="manageModalTitle" class="text-xl font-black text-loomera-textPrimary">مدیریت نوبت</h3>
+          <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">در این مرحله فقط عمل‌های معتبر و قابل انجام نمایش داده می‌شوند.</p>
+        </div>
+        <button type="button" onclick="closeManageModal()" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-loomera-bgSubtle text-loomera-textMuted transition hover:bg-rose-50 hover:text-rose-600" aria-label="بستن">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="mt-6 space-y-3">
+        <a href="{% url 'orders:reschedule' appointment.id %}" class="flex w-full items-center justify-between rounded-[1.5rem] border border-loomera-borderSoft bg-white px-4 py-3 transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45">
+          <div class="flex items-center gap-3">
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i></div>
+            <div class="text-right">
+              <div class="font-black text-loomera-textPrimary">تغییر زمان</div>
+              <div class="text-xs text-loomera-textMuted">انتخاب تاریخ و ساعت جدید</div>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-left text-loomera-textMuted" aria-hidden="true"></i>
+        </a>
+
+        <button type="button" onclick="confirmCancel()" class="flex w-full items-center justify-between rounded-[1.5rem] border border-rose-200 bg-white px-4 py-3 transition hover:border-rose-300 hover:bg-rose-50">
+          <div class="flex items-center gap-3">
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-600"><i class="fa-solid fa-ban" aria-hidden="true"></i></div>
+            <div class="text-right">
+              <div class="font-black text-loomera-textPrimary">لغو نوبت</div>
+              <div class="text-xs text-loomera-textMuted">{{ cancellation_policy.title }}</div>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-left text-loomera-textMuted" aria-hidden="true"></i>
+        </button>
+
+        <button type="button" onclick="closeManageModal()" class="w-full rounded-full bg-loomera-bgSubtle py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">بستن</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% if customer_progress.can_review %}
+<div id="reviewModal" class="fixed inset-0 z-[80] hidden items-center justify-center bg-slate-950/55 px-4 py-6 backdrop-blur-sm" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle">
+  <div class="w-full max-w-lg overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-elevated">
+    <div class="flex items-start justify-between gap-4 border-b border-loomera-borderSoft bg-loomera-primarySoft/50 px-5 py-4">
+      <div>
+        <p class="text-xs font-black uppercase tracking-[0.2em] text-loomera-primary">Review</p>
+        <h2 id="reviewModalTitle" class="mt-1 text-lg font-black text-loomera-textPrimary">ثبت امتیاز و دیدگاه</h2>
+        <p class="mt-1 text-xs leading-6 text-loomera-textMuted">خدمت و متخصص از همین نوبت انتخاب شده‌اند؛ فقط امتیاز را ثبت کن و اگر خواستی توضیح بنویس.</p>
+      </div>
+      <button type="button" onclick="window.closeReviewModal && window.closeReviewModal()" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:bg-loomera-primarySoft" aria-label="بستن">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <form method="post" action="" class="space-y-5 px-5 py-5">
+      {% csrf_token %}
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3">
+          <p class="text-[11px] font-bold text-loomera-textMuted">خدمت</p>
+          <p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ appointment.service.service_name|default:"خدمت" }}</p>
+        </div>
+        <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3">
+          <p class="text-[11px] font-bold text-loomera-textMuted">متخصص</p>
+          <p class="mt-1 text-sm font-black text-loomera-textPrimary">{% if appointment.stylist %}{{ appointment.stylist.get_fullName }}{% else %}—{% endif %}</p>
+        </div>
+      </div>
+
+      <fieldset>
+        <legend class="text-sm font-black text-loomera-textPrimary">امتیاز شما</legend>
+        <div class="mt-3 grid grid-cols-5 gap-2" dir="ltr" data-review-rating>
+          <input type="hidden" name="score" value="" required data-review-score>
+          {% for star in "12345" %}
+            <button type="button" data-score="{{ star }}" class="flex h-12 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-lg text-loomera-textMuted transition hover:border-amber-200 hover:bg-amber-50" aria-label="امتیاز {{ star }} از ۵">
+              <i class="fa-solid fa-star" aria-hidden="true"></i>
+            </button>
+          {% endfor %}
+        </div>
+        <p class="mt-2 text-xs leading-6 text-loomera-textMuted">با انتخاب امتیاز، همه ستاره‌های همان سطح روشن می‌شوند.</p>
+      </fieldset>
+
+      <label class="block">
+        <span class="text-sm font-black text-loomera-textPrimary">دیدگاه اختیاری</span>
+        <textarea name="comment_text" rows="4" class="mt-2 w-full rounded-[1.5rem] border border-loomera-borderSoft bg-white px-4 py-3 text-sm leading-7 text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary focus:ring-4 focus:ring-loomera-focusRing/20" placeholder="اگر تجربه‌ای داشتی که به دیگران کمک می‌کند، اینجا بنویس..."></textarea>
+      </label>
+
+      <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <button type="button" onclick="window.closeReviewModal && window.closeReviewModal()" class="inline-flex items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-bgSubtle">انصراف</button>
+        <button type="submit" class="inline-flex items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">ثبت دیدگاه</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+
+{% endblock %}
+
+
+{% block js %}
+<script>
+  const SALON_LAT = "{{ salon_lat }}";
+  const SALON_LNG = "{{ salon_lng }}";
+  const SALON_ADDR = "{{ salon_address_encoded }}";
+  const ICS_URL = "{% url 'orders:appointment_ics' appointment.id %}";
+  const GOOGLE_CALENDAR_URL = "{{ google_calendar_link|safe }}";
+
+  const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const IS_ANDROID = /Android/.test(navigator.userAgent);
+
+  const manageModal = document.getElementById('manageModal');
+  window.openManageModal = () => {
+    if (!manageModal) return;
+    manageModal.classList.remove('hidden');
+    manageModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeManageModal = () => {
+    if (!manageModal) return;
+    manageModal.classList.add('hidden');
+    manageModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  const reviewModal = document.getElementById('reviewModal');
+  window.openReviewModal = () => {
+    if (!reviewModal) return;
+    reviewModal.classList.remove('hidden');
+    reviewModal.classList.add('flex');
+    reviewModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeReviewModal = () => {
+    if (!reviewModal) return;
+    reviewModal.classList.add('hidden');
+    reviewModal.classList.remove('flex');
+    reviewModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  const ratingPicker = document.querySelector('[data-review-rating]');
+  if (ratingPicker) {
+    const scoreInput = ratingPicker.querySelector('[data-review-score]');
+    const buttons = Array.from(ratingPicker.querySelectorAll('[data-score]'));
+    const setRating = (value) => {
+      const numericValue = Number(value || 0);
+      if (scoreInput) scoreInput.value = numericValue ? String(numericValue) : '';
+      buttons.forEach((button) => {
+        const buttonScore = Number(button.dataset.score || 0);
+        const active = buttonScore <= numericValue;
+        button.classList.toggle('border-amber-300', active);
+        button.classList.toggle('bg-amber-50', active);
+        button.classList.toggle('text-amber-500', active);
+        button.classList.toggle('border-loomera-borderSoft', !active);
+        button.classList.toggle('bg-white', !active);
+        button.classList.toggle('text-loomera-textMuted', !active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+    };
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => setRating(button.dataset.score));
+      button.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          setRating(button.dataset.score);
+        }
+      });
+    });
+  }
+
+  window.addToCalendar = function () {
+    if (IS_IOS) {
+      window.location.href = ICS_URL.replace(/^https?:\/\//, 'webcal://');
+      return;
+    }
+
+    const anchor = document.createElement('a');
+    anchor.href = ICS_URL;
+    anchor.setAttribute('download', '');
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+
+    setTimeout(() => {
+      if (GOOGLE_CALENDAR_URL) {
+        window.open(GOOGLE_CALENDAR_URL, '_blank');
+      }
+    }, 1200);
+  };
+
+  window.openNavigation = function () {
+    const hasCoords = SALON_LAT !== '' && SALON_LNG !== '';
+
+    if (IS_ANDROID) {
+      window.location.href = hasCoords
+        ? `geo:${SALON_LAT},${SALON_LNG}?q=${SALON_LAT},${SALON_LNG}`
+        : `geo:0,0?q=${SALON_ADDR}`;
+      return;
+    }
+
+    if (IS_IOS) {
+      window.location.href = hasCoords
+        ? `maps://?daddr=${SALON_LAT},${SALON_LNG}`
+        : `maps://?daddr=${SALON_ADDR}`;
+      return;
+    }
+
+    const destination = hasCoords ? `${SALON_LAT}, ${SALON_LNG}` : SALON_ADDR;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(destination).catch(() => null);
+    }
+    alert('برای مسیریابی با اپ دستگاه، این صفحه را روی موبایل باز کن. مقصد برایت کپی شد.');
+  };
+
+  window.confirmCancel = function () {
+    if (!confirm('آیا از لغو نوبت مطمئن هستید؟')) return;
+
+    fetch("{% url 'orders:cancel_appointment' appointment.id %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': (document.querySelector('input[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}'),
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.success) {
+          alert(data.error || 'خطا در لغو نوبت');
+          return;
+        }
+        alert(data.message || 'نوبت شما لغو شد');
+        window.location.reload();
+      })
+      .catch(() => alert('خطا در ارسال درخواست'))
+      .finally(() => window.closeManageModal());
+  };
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') { window.closeManageModal(); window.closeReviewModal && window.closeReviewModal(); }
+  });
+</script>
+{% endblock %}

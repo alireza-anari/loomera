@@ -1,0 +1,420 @@
+{% extends "dashboard_template.html" %}
+{% block title %}افزودن عضو تیم{% endblock %}
+{% block body_attrs %}data-page="add-stylist"{% endblock %}
+
+{% block content %}
+  {% url 'dashboards:team_member' as team_member_url %}
+  {% url 'dashboards:add_stylist' as add_stylist_url %}
+
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-page="add-stylist" data-dashboard-workspace-root>
+    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="add-stylist-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
+
+      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
+        <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
+          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+                <i class="fa-solid fa-user-plus text-[10px]" aria-hidden="true"></i>
+                <span class="truncate">تیم و شیفت‌ها</span>
+              </span>
+
+              <h1 id="add-stylist-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+                افزودن عضو جدید به تیم مجموعه
+              </h1>
+              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+                اطلاعات پایه، پروفایل کاری و خدمات قابل ارائه را ثبت کن تا عضو جدید سریع‌تر وارد تقویم و برنامه‌ریزی تیم شود.
+              </p>
+            </div>
+
+            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
+              <i class="fa-solid fa-user-gear text-lg" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
+            <a href="{{ add_stylist_workspace.team_member_url|default:team_member_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-users text-xs" aria-hidden="true"></i>
+              <span class="truncate">فهرست اعضا</span>
+            </a>
+
+            <a href="{{ add_stylist_workspace.scheduled_shifts_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-regular fa-calendar-days text-xs text-loomera-primaryText" aria-hidden="true"></i>
+              <span class="truncate">شیفت‌ها و مرخصی</span>
+            </a>
+
+            <a href="{{ add_stylist_workspace.service_menu_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-scissors text-xs text-loomera-primaryText" aria-hidden="true"></i>
+              <span class="truncate">منوی خدمات</span>
+            </a>
+          </div>
+        </div>
+
+        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس افزودن عضو">
+          <div class="flex min-w-0 items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-[11px] font-black text-white/55">فوکوس این صفحه</p>
+              <h2 class="mt-1 truncate text-lg font-black">ورود سریع عضو جدید</h2>
+            </div>
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
+              <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="mt-5 space-y-3">
+            {% for item in add_stylist_workspace.focus_items %}
+              <article class="min-w-0 rounded-[22px] border border-white/10 bg-white/10 p-4">
+                <div class="flex min-w-0 items-start justify-between gap-3">
+                  <h3 class="min-w-0 flex-1 text-sm font-black leading-6 text-white">{{ item.title }}</h3>
+                  <span class="max-w-[42%] shrink-0 truncate rounded-full px-3 py-1 text-[10px] font-black {% if item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-white/10 text-white{% endif %}">
+                    {{ item.value }}
+                  </span>
+                </div>
+                <p class="mt-2 text-xs leading-6 text-white/72">{{ item.description }}</p>
+              </article>
+            {% empty %}
+              <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
+                <h3 class="text-sm font-black text-white">مسیر آماده است</h3>
+                <p class="mt-2 text-xs leading-6 text-white/72">اطلاعات عضو را ثبت کن و بعد برای شیفت و خدمات ادامه بده.</p>
+              </article>
+            {% endfor %}
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
+      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های افزودن عضو تیم">
+        <div class="flex min-w-max items-center gap-2">
+          <button type="button" data-dashboard-workspace-tab data-target="#add-stylist-section-identity" aria-selected="true" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5">
+            <i class="fa-regular fa-id-badge text-[10px]" aria-hidden="true"></i>
+            <span>اطلاعات عضو</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>۱</span>
+          </button>
+
+          <button type="button" data-dashboard-workspace-tab data-target="#add-stylist-section-services" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
+            <i class="fa-solid fa-scissors text-[10px]" aria-hidden="true"></i>
+            <span>خدمات</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge data-selected-services-count>{{ add_stylist_workspace.selected_services_count_label }}</span>
+          </button>
+
+          <button type="button" data-dashboard-workspace-tab data-target="#add-stylist-section-readiness" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
+            <i class="fa-solid fa-gauge-high text-[10px]" aria-hidden="true"></i>
+            <span>آمادگی</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge data-readiness-score>۰/۳</span>
+          </button>
+
+          <button type="button" data-dashboard-workspace-tab data-target="#add-stylist-section-review" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
+            <i class="fa-solid fa-check-double text-[10px]" aria-hidden="true"></i>
+            <span>بازبینی و ثبت</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>ثبت</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <form id="team-member-main-form" method="post" enctype="multipart/form-data" action="{{ add_stylist_url }}" class="space-y-4" data-add-stylist-form>
+      {% csrf_token %}
+
+      <details id="add-stylist-section-identity" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات عضو</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">کاربری، پروفایل، شغل و تماس اضطراری</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+
+        <div class="p-3 sm:p-5 lg:p-6">
+          <div class="grid min-w-0 gap-4 xl:grid-cols-2">
+            {% include "dashboards/components/form_card.html" with form=user_form title="اطلاعات کاربری" subtitle="نام، نام خانوادگی، ایمیل و موبایل عضو" accent="fa-regular fa-user" open_form="false" %}
+            {% include "dashboards/components/form_card.html" with form=profile_form title="پروفایل فردی" subtitle="تخصص، تصویر پروفایل و تنظیمات نمایشی" accent="fa-regular fa-id-badge" open_form="false" %}
+            {% include "dashboards/components/form_card.html" with form=job_form title="اطلاعات شغلی" subtitle="شروع همکاری و مدل استخدام" accent="fa-solid fa-briefcase" open_form="false" %}
+            {% include "dashboards/components/form_card.html" with form=emergency_form title="تماس اضطراری" subtitle="اطلاعات ضروری برای مواقع خاص" accent="fa-solid fa-triangle-exclamation" open_form="false" %}
+          </div>
+        </div>
+      </details>
+
+      <details id="add-stylist-section-services" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">پوشش خدمات</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">خدمات قابل ارائه توسط عضو</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="min-w-0">
+              <h3 class="text-base font-black text-loomera-textPrimary">خدمات فعال مجموعه</h3>
+              <p class="mt-1 text-sm leading-7 text-loomera-textMuted">از بین خدمات فعال مجموعه، سرویس‌هایی را که این عضو می‌تواند ارائه کند انتخاب کن.</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText">
+                <span data-selected-services-count>{{ add_stylist_workspace.selected_services_count_label }}</span>
+                <span class="mr-1">خدمت انتخاب‌شده</span>
+              </span>
+              <span class="inline-flex items-center rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-3 py-2 text-xs font-black text-loomera-textSecondary">
+                <span data-selected-groups-count>{{ add_stylist_workspace.selected_groups_count_label }}</span>
+                <span class="mr-1">گروه</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            {% for group in service_group_cards %}
+              <section class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/40 p-4" data-service-group>
+                <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="min-w-0">
+                    <h4 class="truncate text-sm font-black text-loomera-textPrimary">{{ group.title }}</h4>
+                    <p class="mt-1 text-xs text-loomera-textMuted">{{ group.services_count_label }} خدمت در این گروه</p>
+                  </div>
+
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" data-select-group class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/15 bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/40">
+                      <i class="fa-solid fa-check-double text-[10px]" aria-hidden="true"></i>
+                      <span>انتخاب همه</span>
+                    </button>
+
+                    <button type="button" data-clear-group class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-white/70">
+                      <i class="fa-solid fa-eraser text-[10px]" aria-hidden="true"></i>
+                      <span>پاک‌سازی</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  {% for service in group.services %}
+                    <label class="block cursor-pointer" data-service-option>
+                      <input type="checkbox" name="selected_services" value="{{ service.id }}" class="peer sr-only" data-service-checkbox {% if service.id|stringformat:"s" in selected_service_ids %}checked{% endif %}>
+                      <span class="flex min-h-12 w-full items-center justify-between gap-3 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition peer-checked:border-loomera-primary/30 peer-checked:bg-loomera-primarySoft peer-checked:text-loomera-primaryText hover:border-loomera-primary/25 hover:bg-white/90" data-service-option-shell>
+                        <span class="min-w-0 truncate">{{ service.service_name }}</span>
+                        <i class="fa-solid fa-check shrink-0 text-[11px] opacity-0 transition" data-service-check-icon aria-hidden="true"></i>
+                      </span>
+                    </label>
+                  {% endfor %}
+                </div>
+              </section>
+            {% empty %}
+              <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-7 text-center text-sm leading-7 text-loomera-textMuted">
+                هنوز گروه خدماتی برای این مجموعه ثبت نشده است. بهتر است ابتدا از صفحه منوی خدمات، فهرست خدمات مجموعه را کامل کنی.
+                <div class="mt-4">
+                  <a href="{{ add_stylist_workspace.service_menu_url }}" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white transition hover:opacity-95">
+                    <span>رفتن به منوی خدمات</span>
+                    <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </details>
+
+      <details id="add-stylist-section-readiness" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">آمادگی عضو برای ثبت</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            <article class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-loomera-primarySoft/45 p-4 sm:p-5">
+              <div class="flex min-w-0 items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black text-loomera-primaryText">وضعیت تکمیل</p>
+                  <h3 class="mt-1 text-lg font-black text-loomera-textPrimary" data-add-stylist-readiness-title>نیازمند تکمیل اطلاعات</h3>
+                  <p class="mt-2 text-sm leading-7 text-loomera-textSecondary" data-add-stylist-readiness-description>
+                    نام، نام خانوادگی و شماره موبایل برای ثبت عضو کافی است. اتصال خدمت اختیاری است و بعداً هم قابل تکمیل است.
+                  </p>
+                </div>
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm" data-add-stylist-readiness-icon>
+                  <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                </span>
+              </div>
+
+              <div class="mt-5 grid gap-3 sm:grid-cols-3">
+                <div class="rounded-2xl bg-white/85 px-4 py-3">
+                  <p class="text-[11px] font-bold text-loomera-textMuted">گروه‌های خدمات</p>
+                  <strong class="mt-1 block text-lg font-black text-loomera-textPrimary">{{ add_stylist_workspace.group_count_label }}</strong>
+                </div>
+                <div class="rounded-2xl bg-white/85 px-4 py-3">
+                  <p class="text-[11px] font-bold text-loomera-textMuted">خدمات قابل اتصال</p>
+                  <strong class="mt-1 block text-lg font-black text-loomera-textPrimary">{{ add_stylist_workspace.services_count_label }}</strong>
+                </div>
+                <div class="rounded-2xl bg-white/85 px-4 py-3">
+                  <p class="text-[11px] font-bold text-loomera-textMuted">خدمات انتخاب‌شده</p>
+                  <strong class="mt-1 block text-lg font-black text-loomera-textPrimary" data-selected-services-count>{{ add_stylist_workspace.selected_services_count_label }}</strong>
+                </div>
+              </div>
+            </article>
+
+            <div class="grid min-w-0 gap-3 sm:grid-cols-3 xl:grid-cols-1">
+              <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft" data-readiness-step="identity">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-xs font-black text-loomera-textPrimary">اطلاعات اجباری</p>
+                    <p class="mt-1 text-xs leading-6 text-loomera-textMuted">نام، نام خانوادگی و موبایل</p>
+                  </div>
+                  <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-warningSoft text-loomera-warning" data-readiness-step-icon>
+                    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                  </span>
+                </div>
+              </article>
+
+              <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft" data-readiness-step="profile">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-xs font-black text-loomera-textPrimary">پروفایل کاری</p>
+                    <p class="mt-1 text-xs leading-6 text-loomera-textMuted">تخصص یا توضیح کوتاه</p>
+                  </div>
+                  <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-bgSubtle text-loomera-textMuted" data-readiness-step-icon>
+                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                  </span>
+                </div>
+              </article>
+
+              <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft" data-readiness-step="services">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-xs font-black text-loomera-textPrimary">پوشش خدمات</p>
+                    <p class="mt-1 text-xs leading-6 text-loomera-textMuted">خدمت مرتبط اختیاری</p>
+                  </div>
+                  <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-warningSoft text-loomera-warning" data-readiness-step-icon>
+                    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                  </span>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <article class="mt-4 min-w-0 rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 sm:p-5 lg:hidden" aria-label="پیش‌نمایش زنده عضو در موبایل">
+            <div class="flex min-w-0 items-start gap-4">
+              <div class="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[24px] bg-loomera-primarySoft text-2xl font-black text-loomera-primaryText shadow-sm">
+                <img src="" alt="preview" class="hidden h-full w-full object-cover" data-stylist-preview-image>
+                <span data-stylist-preview-initials>عضو</span>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] font-black text-loomera-primaryText">پیش‌نمایش زنده</p>
+                <h3 class="mt-1 truncate text-base font-black text-loomera-textPrimary" data-stylist-preview-name>عضو جدید تیم</h3>
+                <p class="mt-1 text-sm leading-6 text-loomera-textMuted" data-stylist-preview-subtitle>بعد از ثبت، عضو به‌صورت فعال وارد محیط کاری تیم می‌شود.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </details>
+
+      <details id="add-stylist-section-review" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">بازبینی نهایی</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">پیش‌نمایش و ثبت عضو تیم</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+          </span>
+        </summary>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          <div class="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+            <aside class="hidden min-w-0 rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 sm:p-5 lg:block">
+              <div class="flex min-w-0 items-start gap-4">
+                <div class="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[24px] bg-loomera-primarySoft text-2xl font-black text-loomera-primaryText shadow-sm">
+                  <img src="" alt="preview" class="hidden h-full w-full object-cover" data-stylist-preview-image>
+                  <span data-stylist-preview-initials>عضو</span>
+                </div>
+
+                <div class="min-w-0">
+                  <h3 class="truncate text-base font-black text-loomera-textPrimary" data-stylist-preview-name>عضو جدید تیم</h3>
+                  <p class="mt-1 text-sm leading-6 text-loomera-textMuted" data-stylist-preview-subtitle>بعد از ثبت، عضو به‌صورت فعال وارد محیط کاری تیم می‌شود.</p>
+                  <span class="mt-3 inline-flex items-center gap-2 rounded-full border border-loomera-primary/15 bg-white px-3 py-1.5 text-[11px] font-black text-loomera-primaryText" data-add-stylist-readiness-pill>
+                    <i class="fa-solid fa-circle-info text-[10px]" aria-hidden="true"></i>
+                    <span>در حال تکمیل</span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="mt-5 space-y-3">
+                <div class="rounded-2xl bg-white px-4 py-4">
+                  <p class="text-xs font-bold text-loomera-textMuted">جمع‌بندی سریع</p>
+                  <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">
+                    اگر خدمات عضو از همین ابتدا مشخص شود، مرحله شیفت و ظرفیت سریع‌تر تکمیل می‌شود؛ اما ثبت عضو بدون خدمت هم مجاز است.
+                  </p>
+                </div>
+
+                <div class="rounded-2xl bg-white px-4 py-4">
+                  <p class="text-xs font-bold text-loomera-textMuted">وضعیت انتخاب خدمات</p>
+                  <p class="mt-2 text-sm font-black text-loomera-textPrimary">
+                    <span data-selected-services-count>{{ add_stylist_workspace.selected_services_count_label }}</span>
+                    خدمت از
+                    {{ add_stylist_workspace.services_count_label }}
+                  </p>
+                  <p class="mt-1 text-xs text-loomera-textMuted">
+                    در
+                    <span data-selected-groups-count>{{ add_stylist_workspace.selected_groups_count_label }}</span>
+                    گروه خدمات
+                  </p>
+                </div>
+              </div>
+            </aside>
+
+            <div class="min-w-0 rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
+              <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black text-loomera-primaryText">اقدام نهایی</p>
+                  <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">ثبت عضو و ادامه setup تیم</h3>
+                  <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
+                    بعد از ثبت، عضو در فهرست تیم قرار می‌گیرد و می‌توانی پروفایل، شیفت منظم و مرخصی او را مدیریت کنی.
+                  </p>
+                </div>
+                <a href="{{ add_stylist_workspace.team_member_url|default:team_member_url }}" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
+                  <span>بازگشت به تیم</span>
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+              </div>
+
+              <div class="mt-5 grid gap-3 md:grid-cols-3">
+                <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
+                  <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-regular fa-user" aria-hidden="true"></i></span>
+                  <h4 class="mt-3 text-sm font-black text-loomera-textPrimary">۱. اطلاعات پایه</h4>
+                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای ساخت حساب داخلی عضو استفاده می‌شود.</p>
+                </div>
+                <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
+                  <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-scissors" aria-hidden="true"></i></span>
+                  <h4 class="mt-3 text-sm font-black text-loomera-textPrimary">۲. خدمات</h4>
+                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای نمایش در تقویم و رزروپذیری تیم مهم است.</p>
+                </div>
+                <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
+                  <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-regular fa-calendar-check" aria-hidden="true"></i></span>
+                  <h4 class="mt-3 text-sm font-black text-loomera-textPrimary">۳. برنامه‌ریزی</h4>
+                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">بعد از ثبت می‌توانی شیفت منظم را تکمیل کنی.</p>
+                </div>
+              </div>
+
+              <div class="mt-6 flex flex-col-reverse gap-3 border-t border-loomera-borderSoft pt-4 sm:flex-row sm:items-center sm:justify-between">
+                <a href="{{ add_stylist_workspace.team_member_url|default:team_member_url }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
+                  <span>انصراف و بازگشت</span>
+                </a>
+
+                <button type="submit" form="team-member-main-form" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                  <i class="fa-solid fa-user-plus text-xs" aria-hidden="true"></i>
+                  <span>ثبت عضو تیم</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+    </form>
+  </section>
+{% endblock %}

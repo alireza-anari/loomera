@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load jalali_extras %}
+{% block title %}درخواست پشتیبانی #{{ ticket.id }} | Loomera{% endblock %}
+{% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
+{% block content %}
+<main class="min-h-screen bg-loomera-bg pb-24">
+  <section class="mx-auto grid w-full max-w-6xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:py-10">
+    <div class="space-y-5">
+      <div class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+        <p class="text-xs font-black uppercase tracking-[.24em] text-loomera-primary">Ticket #{{ ticket.id }}</p>
+        <h1 class="mt-2 text-2xl font-black text-loomera-textPrimary">{{ ticket.subject|default:ticket.support_reason|default:ticket.get_issue_type_display }}</h1>
+        <p class="mt-2 text-sm font-bold text-loomera-textMuted">{{ ticket.get_status_display }} • {{ ticket.get_priority_display }}</p>
+      </div>
+
+      <div class="space-y-3">
+        {% for message in messages_list %}
+          <article class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 shadow-sm {% if message.sender_role == 'support_admin' or message.sender_role == 'admin' %}mr-8{% else %}ml-8{% endif %}">
+            <div class="mb-2 flex items-center justify-between gap-2">
+              <p class="text-xs font-black text-loomera-primary">{{ message.get_sender_role_display }}</p>
+              <p class="text-[11px] font-bold text-loomera-textMuted">{{ message.created_at|jalali_datetime }}</p>
+            </div>
+            <p class="whitespace-pre-line text-sm leading-7 text-loomera-textSecondary">{{ message.body }}</p>
+            {% if message.attachments.all %}
+              <div class="mt-3 flex flex-wrap gap-2">
+                {% for attachment in message.attachments.all %}
+                  <a href="{{ attachment.file.url }}" class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-xs font-bold text-loomera-primary">مشاهده پیوست</a>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+
+      {% if ticket.is_open %}
+        <form method="post" enctype="multipart/form-data" action="{% url 'main:support_ticket_reply' ticket.pk %}" class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+          {% csrf_token %}
+          <label class="mb-2 block text-sm font-black text-loomera-textPrimary">پاسخ جدید</label>
+          {{ reply_form.body }}
+          <div class="mt-4 flex items-center justify-between gap-3">
+            <label for="id_attachment" class="cursor-pointer rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-2 text-xs font-black text-loomera-textSecondary">افزودن پیوست</label>
+            {{ reply_form.attachment }}
+            <button class="rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft">ارسال پیام</button>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+
+    <aside class="space-y-4">
+      <div class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+        <h2 class="text-sm font-black text-loomera-textPrimary">خلاصه وضعیت</h2>
+        <dl class="mt-4 space-y-3 text-sm">
+          <div class="flex justify-between gap-3"><dt class="text-loomera-textMuted">دسته</dt><dd class="font-bold">{{ ticket.get_category_display }}</dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-loomera-textMuted">تیم</dt><dd class="font-bold">{{ ticket.get_assigned_team_display }}</dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-loomera-textMuted">مهلت رسیدگی</dt><dd class="font-bold">{% if ticket.sla_due_at %}{{ ticket.sla_due_at|jalali_datetime }}{% else %}-{% endif %}</dd></div>
+        </dl>
+        {% if ticket.is_open %}
+          <form method="post" action="{% url 'main:support_ticket_close' ticket.pk %}" class="mt-4">{% csrf_token %}<button class="w-full rounded-full border border-loomera-borderSoft px-4 py-2 text-xs font-black text-loomera-textSecondary">بستن تیکت</button></form>
+        {% endif %}
+      </div>
+      {% if ticket.dispute_cases.all %}
+        <div class="rounded-[2rem] border border-amber-100 bg-amber-50 p-5 text-sm text-amber-800">
+          <p class="font-black">پرونده اختلاف مرتبط</p>
+          <p class="mt-2 leading-7">برای این تیکت پرونده رسمی اختلاف ثبت شده و توسط تیم Loomera بررسی می‌شود.</p>
+        </div>
+      {% endif %}
+    </aside>
+  </section>
+</main>
+{% endblock %}

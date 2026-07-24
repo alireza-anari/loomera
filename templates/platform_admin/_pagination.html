@@ -1,0 +1,9 @@
+{% if page_obj and page_obj.paginator.num_pages > 1 %}
+<div class="mt-5 flex flex-col gap-3 rounded-3xl border border-loomera-borderSoft bg-white/90 px-4 py-3 text-sm text-loomera-textMuted shadow-sm sm:flex-row sm:items-center sm:justify-between">
+  <span class="font-bold">صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+  <div class="flex gap-2">
+    {% if page_obj.has_previous %}<a class="rounded-2xl border border-loomera-borderSoft px-4 py-2 font-bold transition hover:bg-loomera-surface" href="?page={{ page_obj.previous_page_number }}">قبلی</a>{% endif %}
+    {% if page_obj.has_next %}<a class="rounded-2xl border border-loomera-borderSoft px-4 py-2 font-bold transition hover:bg-loomera-surface" href="?page={{ page_obj.next_page_number }}">بعدی</a>{% endif %}
+  </div>
+</div>
+{% endif %}

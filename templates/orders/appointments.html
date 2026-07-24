@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}نوبت‌های من{% endblock %}
+{% block body_attrs %}data-page="orders"{% endblock %}
+{% block main_class %}!max-w-none !px-0 !py-0{% endblock %}
+
+{% block content %}
+<section class="min-h-dvh bg-loomera-bg pb-32 text-loomera-textPrimary lg:pb-16" data-bookings-page>
+  <header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 shadow-lm-soft backdrop-blur-xl lg:hidden" aria-label="نوبت‌های من">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3">
+      <a href="{% url 'accounts:customer_panel' %}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition hover:bg-loomera-primarySoft" aria-label="بازگشت به حساب من">
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </a>
+      <div class="min-w-0 text-center">
+        <p class="text-[11px] font-black text-loomera-primary">حساب مشتری</p>
+        <h1 class="truncate text-base font-black text-loomera-textPrimary">نوبت‌های من</h1>
+      </div>
+      <a href="{% url 'search:search_page' %}" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-loomera-primary text-white shadow-lm-soft" aria-label="رزرو نوبت جدید">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      </a>
+    </div>
+  </header>
+
+  <div class="mx-auto w-full max-w-7xl px-4 py-5 lg:px-6 lg:py-8 xl:px-0">
+    <header class="relative overflow-hidden rounded-[2.25rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:p-8" aria-labelledby="bookings-page-title">
+      <div class="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-loomera-primarySoft blur-3xl" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute -bottom-28 right-10 h-72 w-72 rounded-full bg-loomera-accentSoft blur-3xl" aria-hidden="true"></div>
+
+      <div class="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div class="max-w-2xl">
+          <p class="inline-flex rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">حساب مشتری</p>
+          <h1 id="bookings-page-title" class="mt-4 text-2xl font-black leading-10 text-loomera-textPrimary lg:text-4xl">نوبت‌های من</h1>
+          <p class="mt-3 text-sm font-medium leading-7 text-loomera-textMuted lg:text-base lg:leading-8">
+            رزروهای آینده، سوابق مراجعه و وضعیت پرداخت‌ها را یک‌جا ببین و سریع به جزئیات هر نوبت دسترسی داشته باش.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 sm:min-w-[20rem]">
+          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/80 p-4 shadow-sm backdrop-blur">
+            <span class="text-xs font-black text-loomera-textMuted">نوبت آینده</span>
+            <strong class="mt-2 block text-3xl font-black text-loomera-primary">{{ upcoming_appointments|length }}</strong>
+          </div>
+          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/80 p-4 shadow-sm backdrop-blur">
+            <span class="text-xs font-black text-loomera-textMuted">سوابق</span>
+            <strong class="mt-2 block text-3xl font-black text-loomera-textPrimary">{{ past_appointments|length }}</strong>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+      <main class="min-w-0 space-y-7">
+        <section aria-labelledby="upcoming-bookings-title" class="scroll-mt-28">
+          <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="text-xs font-black uppercase tracking-wide text-loomera-primary">برنامه پیش‌رو</p>
+              <h2 id="upcoming-bookings-title" class="mt-1 text-xl font-black text-loomera-textPrimary lg:text-2xl">نوبت‌های آینده</h2>
+            </div>
+            <span class="rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">{{ upcoming_appointments|length }} نوبت</span>
+          </div>
+
+          {% if upcoming_appointments %}
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3" role="list" aria-label="نوبت‌های آینده">
+              {% for appointment in upcoming_appointments %}
+                {% include "components/appointment_upcoming_card.html" with appointment=appointment %}
+              {% endfor %}
+            </div>
+          {% else %}
+            {% include "components/appointments_empty_state.html" %}
+          {% endif %}
+        </section>
+
+        <section aria-labelledby="past-bookings-title" class="scroll-mt-28">
+          <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="text-xs font-black uppercase tracking-wide text-loomera-primary">سوابق</p>
+              <h2 id="past-bookings-title" class="mt-1 text-xl font-black text-loomera-textPrimary lg:text-2xl">نوبت‌های گذشته</h2>
+            </div>
+            <span class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary">{{ past_appointments|length }} مورد</span>
+          </div>
+
+          {% if past_appointments %}
+            <div class="space-y-3" role="list" aria-label="نوبت‌های گذشته">
+              {% for appointment in past_appointments %}
+                {% include "components/appointment_past_item.html" with appointment=appointment %}
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="rounded-[2rem] border border-dashed border-loomera-borderSoft bg-white p-8 text-center text-sm text-loomera-textMuted shadow-lm-soft" role="status">
+              <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-loomera-bgSubtle text-loomera-textMuted">
+                <i class="fa-regular fa-clock text-2xl" aria-hidden="true"></i>
+              </div>
+              هنوز نوبت قبلی برای شما ثبت نشده است.
+            </div>
+          {% endif %}
+        </section>
+      </main>
+
+      <aside class="space-y-4 lg:sticky lg:top-24 lg:self-start" aria-label="اقدام‌ها و راهنمای نوبت‌ها">
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+          <h2 class="text-sm font-black text-loomera-textPrimary">اقدام‌های سریع</h2>
+          <div class="mt-4 grid gap-2">
+            <a href="{% url 'search:search_page' %}" class="group flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              <span class="inline-flex items-center gap-2"><i class="fa-solid fa-magnifying-glass text-loomera-primary" aria-hidden="true"></i>رزرو نوبت جدید</span>
+              <i class="fa-solid fa-chevron-left text-xs opacity-50 transition group-hover:opacity-100" aria-hidden="true"></i>
+            </a>
+            <a href="{% url 'csf:favorite_salons' %}" class="group flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              <span class="inline-flex items-center gap-2"><i class="fa-regular fa-heart text-loomera-primary" aria-hidden="true"></i>علاقه‌مندی‌ها</span>
+              <i class="fa-solid fa-chevron-left text-xs opacity-50 transition group-hover:opacity-100" aria-hidden="true"></i>
+            </a>
+            <a href="{% url 'accounts:customer_panel' %}" class="group flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary">
+              <span class="inline-flex items-center gap-2"><i class="fa-regular fa-user text-loomera-primary" aria-hidden="true"></i>حساب من</span>
+              <i class="fa-solid fa-chevron-left text-xs opacity-50 transition group-hover:opacity-100" aria-hidden="true"></i>
+            </a>
+          </div>
+        </section>
+
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+          <h2 class="text-sm font-black text-loomera-textPrimary">راهنمای وضعیت‌ها</h2>
+          <div class="mt-4 space-y-3 text-xs leading-6 text-loomera-textSecondary">
+            <p class="flex items-center gap-2"><span class="inline-flex rounded-full bg-emerald-50 px-3 py-1 font-black text-emerald-700 ring-1 ring-emerald-100">ثبت‌شده</span><span>رزرو فعال یا پرداخت‌شده.</span></p>
+            <p class="flex items-center gap-2"><span class="inline-flex rounded-full bg-amber-50 px-3 py-1 font-black text-amber-700 ring-1 ring-amber-100">در انتظار</span><span>نیازمند پرداخت یا پیگیری.</span></p>
+            <p class="flex items-center gap-2"><span class="inline-flex rounded-full bg-rose-50 px-3 py-1 font-black text-rose-700 ring-1 ring-rose-100">لغو شده</span><span>رزرو لغو شده است.</span></p>
+          </div>
+        </section>
+
+        <section class="overflow-hidden rounded-[2rem] border border-loomera-primary/15 bg-loomera-primary text-white shadow-lm-card">
+          <div class="p-5">
+            <p class="text-xs font-black text-white/70">پیشنهاد</p>
+            <h2 class="mt-2 text-lg font-black">زمان بعدی را زودتر رزرو کن</h2>
+            <p class="mt-2 text-sm leading-7 text-white/75">برای ساعت‌های پرتقاضا، بهتر است نوبت بعدی را از همین حالا انتخاب کنی.</p>
+            <a href="{% url 'search:search_page' %}" class="mt-4 inline-flex w-full items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-black text-loomera-primary shadow-sm transition hover:bg-loomera-primarySoft">جستجوی مجموعه‌ها</a>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

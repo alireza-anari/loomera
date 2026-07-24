@@ -1,0 +1,15 @@
+{% if popular_services %}
+  <div class="space-y-3">
+    {% for item in popular_services %}
+      <article class="flex items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
+        <div>
+          <h3 class="text-sm font-black text-slate-900">{{ item.service__service_name }}</h3>
+          <p class="mt-1 text-xs text-slate-500">{{ current_month }} • تعداد این ماه: {{ item.current_month_count }}</p>
+        </div>
+        <div class="text-left text-sm font-bold {% if item.is_growing %}text-emerald-600{% else %}text-slate-500{% endif %}">{{ item.change_percent }}%</div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="rounded-2xl bg-slate-50 px-4 py-5 text-sm text-slate-500">داده‌ای برای خدمات محبوب وجود ندارد.</div>
+{% endif %}

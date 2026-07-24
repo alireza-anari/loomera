@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}اتصال پیام‌رسان‌ها | Loomera{% endblock %}
+{% block body_class %}lm-messaging-page{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-4xl px-4 py-6 sm:py-10">
+    <div class="rounded-[2rem] border border-[color:var(--lm-border)] bg-[color:var(--lm-surface)] p-5 shadow-sm sm:p-8">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--lm-muted)]">Messaging</p>
+                <h1 class="mt-2 text-2xl font-bold text-[color:var(--lm-text)] sm:text-3xl">اتصال ربات بله</h1>
+                <p class="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--lm-muted)]">
+                    از این صفحه می‌توانید حساب Loomera خود را با ربات بله وصل کنید یا اتصال‌های قبلی را قطع کنید.
+                    اتصال حساب، منوها، اعلان‌ها و تنظیمات پیام‌رسان از همین بخش مدیریت می‌شود. ارسال واقعی همچنان به feature flag و فعال بودن provider وابسته است.
+                </p>
+            </div>
+            <a href="{% url 'messaging:preferences' %}"
+               class="inline-flex items-center justify-center rounded-2xl border border-[color:var(--lm-border)] px-4 py-2 text-sm font-semibold text-[color:var(--lm-text)] hover:bg-[color:var(--lm-surface-soft)]">
+                تنظیمات پیام‌رسان
+            </a>
+        </div>
+
+        {% if not bale_ready %}
+            <div class="mt-6 rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-900">
+                ربات بله هنوز برای این محیط فعال نیست. برای تست کنترل‌شده باید feature flagهای پیام‌رسان، provider بله و لیست providerهای مجاز فعال شوند.
+            </div>
+        {% endif %}
+
+        <div class="mt-6 grid gap-4 md:grid-cols-2">
+            <div class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+                <h2 class="text-base font-bold text-[color:var(--lm-text)]">اتصال‌های فعال</h2>
+                {% if active_connections %}
+                    <div class="mt-4 space-y-3">
+                        {% for connection in active_connections %}
+                            <div class="rounded-2xl bg-white/70 p-3 shadow-sm">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-[color:var(--lm-text)]">
+                                            {{ connection.identity.display_name|default:connection.identity.chat_id|default:"کاربر بله" }}
+                                        </p>
+                                        <p class="mt-1 text-xs text-[color:var(--lm-muted)]">chat_id: {{ connection.identity.chat_id|default:"—" }}</p>
+                                    </div>
+                                    <form method="post" action="{% url 'messaging:disconnect' connection.identity.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="rounded-xl bg-red-50 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-100">
+                                            قطع اتصال
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="mt-3 text-sm leading-7 text-[color:var(--lm-muted)]">هنوز اتصال فعالی برای بله ثبت نشده است.</p>
+                {% endif %}
+            </div>
+
+            <div class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+                <h2 class="text-base font-bold text-[color:var(--lm-text)]">ساخت توکن اتصال</h2>
+                <p class="mt-3 text-sm leading-7 text-[color:var(--lm-muted)]">
+                    توکن اتصال {{ connect_ttl_minutes }} دقیقه اعتبار دارد و فقط یک‌بار قابل استفاده است.
+                </p>
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <button type="submit"
+                            {% if not bale_ready %}disabled{% endif %}
+                            class="inline-flex w-full items-center justify-center rounded-2xl bg-[color:var(--lm-primary)] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
+                        ایجاد توکن اتصال بله
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {% if connect_token %}
+            <div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-sm leading-8 text-emerald-950">
+                <h2 class="text-base font-bold">توکن اتصال آماده است</h2>
+                {% if connect_start_url %}
+                    <p class="mt-3">برای اتصال سریع، این لینک را باز کنید:</p>
+                    <a href="{{ connect_start_url }}"
+                       class="mt-3 inline-flex rounded-2xl bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-800">
+                        باز کردن ربات بله
+                    </a>
+                {% else %}
+                    <p class="mt-3">در ربات بله این دستور را ارسال کنید:</p>
+                    <code class="mt-2 block rounded-2xl bg-white px-4 py-3 text-left text-xs leading-6 text-emerald-900" dir="ltr">/start {{ connect_start_payload }}</code>
+                    <p class="mt-3 text-xs text-emerald-800">
+                        برای ساخت لینک مستقیم بله، مقدار BALE_BOT_USERNAME یا BALE_BOT_START_URL_TEMPLATE را در env تنظیم کنید.
+                    </p>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if identities %}
+            <div class="mt-6 rounded-3xl border border-[color:var(--lm-border)] p-4">
+                <h2 class="text-base font-bold text-[color:var(--lm-text)]">آخرین وضعیت هویت‌های بله</h2>
+                <div class="mt-4 overflow-x-auto">
+                    <table class="min-w-full text-right text-sm">
+                        <thead class="text-xs text-[color:var(--lm-muted)]">
+                            <tr>
+                                <th class="px-3 py-2">نام</th>
+                                <th class="px-3 py-2">chat_id</th>
+                                <th class="px-3 py-2">وضعیت</th>
+                                <th class="px-3 py-2">آخرین مشاهده</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for identity in identities %}
+                                <tr class="border-t border-[color:var(--lm-border)]">
+                                    <td class="px-3 py-3">{{ identity.display_name|default:identity.username|default:"—" }}</td>
+                                    <td class="px-3 py-3" dir="ltr">{{ identity.chat_id|default:"—" }}</td>
+                                    <td class="px-3 py-3">{{ identity.get_status_display }}</td>
+                                    <td class="px-3 py-3">{{ identity.last_seen_at|date:"Y/m/d H:i"|default:"—" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

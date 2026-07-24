@@ -1,0 +1,450 @@
+{% extends "dashboard_template.html" %}
+{% block title %}مشتریان مجموعه{% endblock %}
+
+{% block content %}
+  {% url 'dashboards:salons_customers_page' as customers_url %}
+
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5"
+           data-dashboard-workspace-root
+           data-dashboard-page="salon-customers"
+           data-crm-page="clients">
+
+    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7"
+             aria-labelledby="salon-customers-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.96),rgba(255,255,255,0))]" aria-hidden="true"></div>
+
+      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] xl:items-stretch">
+        <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
+          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+                <i class="fa-solid fa-users text-[10px]" aria-hidden="true"></i>
+                <span class="truncate">CRM مجموعه</span>
+              </span>
+
+              <h1 id="salon-customers-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+                {{ customer_workspace.page_title|default:"مشتریان مجموعه" }}
+              </h1>
+              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+                دفتر مشتریان مجموعه برای پیگیری بازگشت، ارزش مشتری، سابقه رزرو و ورود سریع به پروفایل اختصاصی هر مشتری.
+              </p>
+            </div>
+
+            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
+              <i class="fa-solid fa-users-viewfinder text-lg" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
+            <a href="{{ customer_workspace.add_customer_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-user-plus text-xs" aria-hidden="true"></i>
+              <span class="truncate">افزودن مشتری</span>
+            </a>
+
+            <a href="{{ customer_workspace.calendar_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-regular fa-calendar-days text-xs text-loomera-primaryText" aria-hidden="true"></i>
+              <span class="truncate">تقویم نوبت‌ها</span>
+            </a>
+
+            <a href="{{ customer_workspace.dashboard_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <i class="fa-solid fa-house text-xs text-loomera-primaryText" aria-hidden="true"></i>
+              <span class="truncate">خانه داشبورد</span>
+            </a>
+          </div>
+        </div>
+
+        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6"
+               aria-label="تمرکز مشتریان">
+          <div class="flex min-w-0 items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-[11px] font-black text-white/55">فوکوس فعلی CRM</p>
+              <h2 class="mt-1 truncate text-lg font-black">پیگیری و بازگشت مشتری</h2>
+            </div>
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
+              <i class="fa-solid fa-bell-concierge" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
+              <p class="text-[11px] font-bold text-white/60">خروجی فعلی</p>
+              <strong class="mt-2 block text-lg font-black text-white">{{ customer_workspace.result_count_label }}</strong>
+              <p class="mt-2 text-xs leading-6 text-white/72">بر اساس جستجو و مرتب‌سازی فعال.</p>
+            </article>
+
+            <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
+              <p class="text-[11px] font-bold text-white/60">نیازمند پیگیری</p>
+              <strong class="mt-2 block text-lg font-black text-white">{{ customer_workspace.needs_follow_up }}</strong>
+              <p class="mt-2 text-xs leading-6 text-white/72">مشتری‌های بدون مراجعه اخیر یا بدون رزرو.</p>
+            </article>
+
+            <article class="rounded-[22px] border border-white/10 bg-white/10 p-4 sm:col-span-2 xl:col-span-1">
+              <p class="text-[11px] font-bold text-white/60">مرتب‌سازی فعال</p>
+              <strong class="mt-2 block text-sm font-black text-white">{{ customer_workspace.sort_label }}</strong>
+              <p class="mt-2 text-xs leading-6 text-white/72">مرتب‌سازی از نوار فهرست مشتریان تغییر می‌کند.</p>
+            </article>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
+      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90"
+           data-dashboard-workspace-tabs
+           aria-label="پیمایش بخش‌های مشتریان مجموعه">
+        <div class="flex min-w-max items-center gap-2">
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5"
+                  data-dashboard-workspace-tab
+                  data-target="#customers-section-overview">
+            <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
+            <span>نمای کلی</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>۵</span>
+          </button>
+
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText"
+                  data-dashboard-workspace-tab
+                  data-target="#customers-section-list">
+            <i class="fa-solid fa-address-book text-[10px]" aria-hidden="true"></i>
+            <span>فهرست مشتریان</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ customer_cards|length }}</span>
+          </button>
+
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText"
+                  data-dashboard-workspace-tab
+                  data-target="#customers-section-followup">
+            <i class="fa-solid fa-bell text-[10px]" aria-hidden="true"></i>
+            <span>نیازمند اقدام</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ customer_workspace.needs_follow_up }}</span>
+          </button>
+
+          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText"
+                  data-dashboard-workspace-tab
+                  data-target="#customers-section-actions">
+            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
+            <span>مسیرها</span>
+            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۳</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <details id="customers-section-overview" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت مشتریان مجموعه</h2>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
+      </summary>
+
+      <div class="p-3 sm:p-5 lg:p-6">
+        <div class="grid min-w-0 grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-5">
+          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-card sm:rounded-[26px] sm:p-4">
+            <div class="flex items-start justify-between gap-2"><div class="min-w-0"><p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">کل مشتریان</p><strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:mt-3 sm:text-2xl">{{ customer_workspace.total_customers }}</strong></div><span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm text-loomera-primaryText sm:h-11 sm:w-11"><i class="fa-solid fa-users" aria-hidden="true"></i></span></div>
+            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:mt-3 sm:text-xs sm:leading-6">همه مشتری‌های مرتبط با مجموعه</p>
+          </article>
+
+          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-card sm:rounded-[26px] sm:p-4">
+            <div class="flex items-start justify-between gap-2"><div class="min-w-0"><p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">دارای رزرو</p><strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:mt-3 sm:text-2xl">{{ customer_workspace.with_appointments }}</strong></div><span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-successSoft text-sm text-loomera-success sm:h-11 sm:w-11"><i class="fa-regular fa-calendar-check" aria-hidden="true"></i></span></div>
+            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:mt-3 sm:text-xs sm:leading-6">دارای سابقه مراجعه یا رزرو</p>
+          </article>
+
+          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-card sm:rounded-[26px] sm:p-4">
+            <div class="flex items-start justify-between gap-2"><div class="min-w-0"><p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">دارای خرید</p><strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:mt-3 sm:text-2xl">{{ customer_workspace.vip_customers }}</strong></div><span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm text-loomera-primaryText sm:h-11 sm:w-11"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span></div>
+            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:mt-3 sm:text-xs sm:leading-6">برای تحلیل ارزش مالی مشتری</p>
+          </article>
+
+          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-card sm:rounded-[26px] sm:p-4">
+            <div class="flex items-start justify-between gap-2"><div class="min-w-0"><p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">۳۰ روز اخیر</p><strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:mt-3 sm:text-2xl">{{ customer_workspace.recent_customers }}</strong></div><span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-bgSubtle text-sm text-loomera-primaryText sm:h-11 sm:w-11"><i class="fa-solid fa-user-clock" aria-hidden="true"></i></span></div>
+            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:mt-3 sm:text-xs sm:leading-6">مشتری‌های فعال اخیر</p>
+          </article>
+
+          <article class="col-span-2 rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-card sm:col-span-1 sm:rounded-[26px] sm:p-4">
+            <div class="flex items-start justify-between gap-2"><div class="min-w-0"><p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">پیگیری</p><strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:mt-3 sm:text-2xl">{{ customer_workspace.needs_follow_up }}</strong></div><span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-warningSoft text-sm text-loomera-warning sm:h-11 sm:w-11"><i class="fa-solid fa-bell" aria-hidden="true"></i></span></div>
+            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:mt-3 sm:text-xs sm:leading-6">نیازمند تماس یا یادآوری</p>
+          </article>
+        </div>
+      </div>
+    </details>
+
+    <details id="customers-section-list" class="group scroll-mt-28 overflow-visible rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">دفتر مشتریان</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">فهرست مشتریان</h2>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
+      </summary>
+
+      <div class="p-4 sm:p-5 lg:p-6">
+        <div class="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div class="min-w-0">
+
+          </div>
+          <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText">{{ customer_workspace.result_count_label }} · {{ customer_workspace.sort_label }}</span>
+        </div>
+
+        <div class="mb-5 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3" data-crm-toolbar>
+          <form method="get" class="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center" role="search" aria-label="جستجوی مشتریان مجموعه">
+            <label class="relative block min-w-0 flex-1">
+              <span class="sr-only">نام، شماره موبایل یا ایمیل</span>
+              <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
+              <input type="search" name="q" value="{{ customer_workspace.query }}" placeholder="جستجوی نام، موبایل یا ایمیل" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" data-crm-customer-search>
+            </label>
+
+            <input type="hidden" name="sort_by" value="{{ customer_workspace.sort_by|default:'recent' }}" data-crm-sort-hidden>
+
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:shrink-0 lg:items-start">
+              <div class="relative min-w-0" data-crm-menu-root>
+                <button type="button" class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText lg:w-auto" data-crm-sort-toggle aria-expanded="false" aria-controls="crm-sort-menu">
+                  <i class="fa-solid fa-arrow-down-wide-short text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                  <span>مرتب‌سازی</span>
+                </button>
+
+                <div id="crm-sort-menu" class="hidden mt-2 w-full rounded-[22px] border border-loomera-borderSoft bg-white p-2 shadow-lm-card lg:absolute lg:right-0 lg:top-[calc(100%+0.5rem)] lg:z-[80] lg:mt-0 lg:w-60" data-crm-sort-menu>
+                  <button type="submit" name="sort_by" value="recent" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 text-right text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText">
+                    <span>آخرین مراجعه</span>
+                    {% if customer_workspace.sort_by == 'recent' %}<i class="fa-solid fa-check text-[10px] text-loomera-primaryText" aria-hidden="true"></i>{% endif %}
+                  </button>
+                  <button type="submit" name="sort_by" value="top_spend" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 text-right text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText">
+                    <span>بیشترین هزینه</span>
+                    {% if customer_workspace.sort_by == 'top_spend' %}<i class="fa-solid fa-check text-[10px] text-loomera-primaryText" aria-hidden="true"></i>{% endif %}
+                  </button>
+                  <button type="submit" name="sort_by" value="appointments" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 text-right text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText">
+                    <span>بیشترین رزرو</span>
+                    {% if customer_workspace.sort_by == 'appointments' %}<i class="fa-solid fa-check text-[10px] text-loomera-primaryText" aria-hidden="true"></i>{% endif %}
+                  </button>
+                  <button type="submit" name="sort_by" value="name" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 text-right text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText">
+                    <span>نام</span>
+                    {% if customer_workspace.sort_by == 'name' %}<i class="fa-solid fa-check text-[10px] text-loomera-primaryText" aria-hidden="true"></i>{% endif %}
+                  </button>
+                </div>
+              </div>
+
+              <div class="relative min-w-0" data-crm-menu-root>
+                <button type="button" class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText lg:w-auto" data-crm-filter-toggle aria-expanded="false" aria-controls="crm-filter-menu">
+                  <i class="fa-solid fa-filter text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                  <span>فیلتر</span>
+                  <span class="hidden rounded-full bg-loomera-primarySoft px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-crm-active-filter-label></span>
+                </button>
+
+                <div id="crm-filter-menu" class="hidden mt-2 w-full rounded-[22px] border border-loomera-borderSoft bg-white p-2 shadow-lm-card lg:absolute lg:right-0 lg:top-[calc(100%+0.5rem)] lg:z-[80] lg:mt-0 lg:w-64" data-crm-filter-menu>
+                  <button type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 text-right text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText" data-crm-customer-filter="all" data-label="همه">همه مشتریان</button>
+                  <button type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 text-right text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText" data-crm-customer-filter="valuable" data-label="ارزشمند">مشتری ارزشمند</button>
+                  <button type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 text-right text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText" data-crm-customer-filter="active" data-label="فعال">مشتری فعال</button>
+                  <button type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 text-right text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText" data-crm-customer-filter="followup" data-label="پیگیری">نیازمند پیگیری</button>
+                  <button type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 text-right text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText" data-crm-customer-filter="has-appointments" data-label="رزرو دارد">دارای رزرو</button>
+                  <button type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 text-right text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText" data-crm-customer-filter="no-appointments" data-label="بدون رزرو">بدون رزرو</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 lg:flex lg:shrink-0 lg:items-center">
+              <button type="submit" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_14px_30px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5 hover:shadow-lm-card">
+                <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
+                <span>اعمال</span>
+              </button>
+
+              <a href="{{ customers_url }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
+                <i class="fa-solid fa-rotate-left text-xs" aria-hidden="true"></i>
+                <span>پاک‌سازی</span>
+              </a>
+            </div>
+          </form>
+        </div>
+
+        {% if customer_workspace.active_filter_chips %}
+          <div class="mb-5 flex flex-wrap items-center gap-2" role="list" aria-label="فیلترهای فعال">
+            <span class="text-xs font-black text-loomera-textMuted">فیلترهای فعال:</span>
+            {% for chip in customer_workspace.active_filter_chips %}
+              <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText" role="listitem">
+                <span class="text-loomera-textMuted">{{ chip.label }}</span>
+                <span>{{ chip.value }}</span>
+              </span>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% include "dashboards/partials/salons_customers.html" %}
+      </div>
+    </details>
+
+    <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
+      <details id="customers-section-followup" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">نیازمند اقدام</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مشتری‌های قابل پیگیری</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
+        </summary>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          <p class="mb-4 text-xs leading-6 text-loomera-textMuted">این بخش برای تصمیم سریع است؛ گزینه‌ها فقط فیلتر فهرست مشتریان را تغییر می‌دهند و صفحه عوض نمی‌شود.</p>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <button type="button" class="rounded-[24px] border border-loomera-warning/20 bg-loomera-warningSoft p-4 text-right transition hover:-translate-y-0.5 hover:shadow-lm-card" data-crm-customer-filter="followup" data-label="پیگیری" data-crm-focus-target="#customers-section-list">
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-loomera-warning"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">پیگیری مشتری‌های خاموش</h3>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ customer_workspace.needs_follow_up }} مشتری در این گروه قرار می‌گیرد.</p>
+            </button>
+
+            <button type="button" class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 text-right transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card" data-crm-customer-filter="no-appointments" data-label="بدون رزرو" data-crm-focus-target="#customers-section-list">
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm"><i class="fa-regular fa-calendar-xmark" aria-hidden="true"></i></span>
+              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">مشتری‌های بدون رزرو</h3>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای شروع ارتباط یا پیشنهاد اولین رزرو مناسب هستند.</p>
+            </button>
+          </div>
+        </div>
+      </details>
+
+      <details id="customers-section-actions" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">کارهای اصلی CRM</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
+        </summary>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          <div class="grid gap-3">
+            <a href="{{ customer_workspace.add_customer_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
+              <div class="flex items-start justify-between gap-3"><span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-user-plus" aria-hidden="true"></i></span><span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">CRM</span></div>
+              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">افزودن مشتری جدید</h3>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای مشتری‌هایی که حضوری یا تلفنی به مجموعه اضافه می‌شوند.</p>
+            </a>
+
+            <a href="{{ customer_workspace.calendar_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
+              <div class="flex items-start justify-between gap-3"><span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-regular fa-calendar-days" aria-hidden="true"></i></span><span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">تقویم</span></div>
+              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">مشاهده نوبت‌ها</h3>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای بررسی رزروهای مرتبط با مشتری‌ها و پیگیری مراجعه.</p>
+            </a>
+
+            <a href="{{ customer_workspace.dashboard_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
+              <div class="flex items-start justify-between gap-3"><span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-house" aria-hidden="true"></i></span><span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">داشبورد</span></div>
+              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">بازگشت به خانه داشبورد</h3>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای مرور سریع وضعیت کلی مجموعه و عملیات روزانه.</p>
+            </a>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const root = document.querySelector("[data-dashboard-page='salon-customers']");
+      if (!root) return;
+
+      const cards = Array.from(root.querySelectorAll("[data-crm-customer-card]"));
+      const searchInput = root.querySelector("[data-crm-customer-search]");
+      const filterButtons = Array.from(root.querySelectorAll("[data-crm-customer-filter]"));
+      const emptyState = root.querySelector("[data-crm-client-empty-filter]");
+      const sortToggle = root.querySelector("[data-crm-sort-toggle]");
+      const sortMenu = root.querySelector("[data-crm-sort-menu]");
+      const filterToggle = root.querySelector("[data-crm-filter-toggle]");
+      const filterMenu = root.querySelector("[data-crm-filter-menu]");
+      const activeFilterLabel = root.querySelector("[data-crm-active-filter-label]");
+      let activeFilter = "all";
+
+      const normalize = (value) => String(value || "").trim().toLowerCase();
+
+      const closeMenus = (exceptMenu = null) => {
+        [sortMenu, filterMenu].forEach((menu) => {
+          if (!menu || menu === exceptMenu) return;
+          menu.classList.add("hidden");
+        });
+        if (sortMenu !== exceptMenu) sortToggle?.setAttribute("aria-expanded", "false");
+        if (filterMenu !== exceptMenu) filterToggle?.setAttribute("aria-expanded", "false");
+      };
+
+      const toggleMenu = (menu, toggle) => {
+        if (!menu || !toggle) return;
+        const willOpen = menu.classList.contains("hidden");
+        closeMenus(willOpen ? menu : null);
+        menu.classList.toggle("hidden", !willOpen);
+        toggle.setAttribute("aria-expanded", willOpen ? "true" : "false");
+      };
+
+      const matchesFilter = (card) => {
+        const segment = normalize(card.dataset.crmCustomerSegment);
+        const appointments = Number(card.dataset.crmCustomerAppointments || 0);
+        const spent = Number(card.dataset.crmCustomerSpent || 0);
+
+        if (activeFilter === "valuable") return segment.includes("ارزشمند") || spent > 0;
+        if (activeFilter === "active") return segment.includes("فعال");
+        if (activeFilter === "followup") return segment.includes("پیگیری");
+        if (activeFilter === "has-appointments") return appointments > 0;
+        if (activeFilter === "no-appointments") return appointments === 0 || segment.includes("بدون رزرو");
+        return true;
+      };
+
+      const syncFilterButtons = () => {
+        let label = "";
+        filterButtons.forEach((button) => {
+          const active = button.dataset.crmCustomerFilter === activeFilter;
+          button.classList.toggle("bg-loomera-primarySoft", active);
+          button.classList.toggle("text-loomera-primaryText", active);
+          button.classList.toggle("bg-white", !active);
+          button.classList.toggle("text-loomera-textSecondary", !active);
+          button.setAttribute("aria-pressed", active ? "true" : "false");
+          if (active && activeFilter !== "all") label = button.dataset.label || button.textContent.trim();
+        });
+
+        if (activeFilterLabel) {
+          activeFilterLabel.textContent = label;
+          activeFilterLabel.classList.toggle("hidden", !label);
+        }
+      };
+
+      const applyFilters = () => {
+        const query = normalize(searchInput?.value);
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const searchValue = normalize(card.dataset.crmCustomerSearch || card.textContent);
+          const visible = matchesFilter(card) && (!query || searchValue.includes(query));
+          card.classList.toggle("hidden", !visible);
+          if (visible) visibleCount += 1;
+        });
+
+        if (emptyState) emptyState.classList.toggle("hidden", visibleCount !== 0);
+        syncFilterButtons();
+        window.LoomeraDashboardWorkspace?.refresh?.(root);
+      };
+
+      sortToggle?.addEventListener("click", () => toggleMenu(sortMenu, sortToggle));
+      filterToggle?.addEventListener("click", () => toggleMenu(filterMenu, filterToggle));
+
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest("[data-crm-menu-root]")) closeMenus();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeMenus();
+      });
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          activeFilter = button.dataset.crmCustomerFilter || "all";
+          closeMenus();
+          applyFilters();
+
+          const targetSelector = button.dataset.crmFocusTarget;
+          const target = targetSelector ? root.querySelector(targetSelector) : null;
+          if (target && typeof target.open === "boolean") target.open = true;
+          if (target) {
+            const offset = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--lm-dashboard-workspace-offset"), 10) || 156;
+            window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: "smooth" });
+          }
+        });
+      });
+
+      searchInput?.addEventListener("input", applyFilters);
+      applyFilters();
+    });
+  </script>
+{% endblock %}

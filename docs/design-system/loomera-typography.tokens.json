@@ -1,0 +1,208 @@
+{
+  "loomera.typography": {
+    "family": {
+      "ui": "\"Yekan Bakh\", \"Vazirmatn\", \"Inter\", \"Segoe UI\", \"Roboto\", \"Helvetica Neue\", Arial, sans-serif",
+      "display": "\"Source Serif 4\", Georgia, \"Times New Roman\", serif",
+      "brand": "\"Source Serif 4\", Georgia, \"Times New Roman\", serif"
+    },
+    "weight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "size": {
+      "11": "0.6875rem",
+      "12": "0.75rem",
+      "13": "0.8125rem",
+      "14": "0.875rem",
+      "15": "0.9375rem",
+      "16": "1rem",
+      "18": "1.125rem",
+      "20": "1.25rem",
+      "24": "1.5rem",
+      "28": "1.75rem",
+      "32": "2rem",
+      "40": "2.5rem",
+      "52": "3.25rem",
+      "64": "4rem"
+    },
+    "lineHeight": {
+      "16": "1rem",
+      "18": "1.125rem",
+      "20": "1.25rem",
+      "22": "1.375rem",
+      "24": "1.5rem",
+      "28": "1.75rem",
+      "30": "1.875rem",
+      "32": "2rem",
+      "34": "2.125rem",
+      "40": "2.5rem",
+      "44": "2.75rem",
+      "48": "3rem",
+      "52": "3.25rem",
+      "60": "3.75rem",
+      "72": "4.5rem"
+    },
+    "tracking": {
+      "tight-3": "-0.03em",
+      "tight-2": "-0.02em",
+      "tight-1-5": "-0.015em",
+      "tight-1": "-0.01em",
+      "normal": "0",
+      "wide-1": "0.01em",
+      "wide-2": "0.02em",
+      "wide-8": "0.08em"
+    },
+    "roles": {
+      "display.xl": {
+        "fontFamily": "{loomera.typography.family.display}",
+        "fontSize": "{loomera.typography.size.64}",
+        "fontWeight": "{loomera.typography.weight.semibold}",
+        "lineHeight": "{loomera.typography.lineHeight.72}",
+        "letterSpacing": "{loomera.typography.tracking.tight-3}"
+      },
+      "display.l": {
+        "fontFamily": "{loomera.typography.family.display}",
+        "fontSize": "{loomera.typography.size.52}",
+        "fontWeight": "{loomera.typography.weight.semibold}",
+        "lineHeight": "{loomera.typography.lineHeight.60}",
+        "letterSpacing": "{loomera.typography.tracking.tight-2}"
+      },
+      "heading.h1": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.40}",
+        "fontWeight": "{loomera.typography.weight.semibold}",
+        "lineHeight": "{loomera.typography.lineHeight.52}",
+        "letterSpacing": "{loomera.typography.tracking.tight-2}"
+      },
+      "heading.h2": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.32}",
+        "fontWeight": "{loomera.typography.weight.semibold}",
+        "lineHeight": "{loomera.typography.lineHeight.44}",
+        "letterSpacing": "{loomera.typography.tracking.tight-1-5}"
+      },
+      "heading.h3": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.28}",
+        "fontWeight": "{loomera.typography.weight.semibold}",
+        "lineHeight": "{loomera.typography.lineHeight.40}",
+        "letterSpacing": "{loomera.typography.tracking.tight-1}"
+      },
+      "heading.h4": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.24}",
+        "fontWeight": "{loomera.typography.weight.semibold}",
+        "lineHeight": "{loomera.typography.lineHeight.34}",
+        "letterSpacing": "{loomera.typography.tracking.normal}"
+      },
+      "heading.h5": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.20}",
+        "fontWeight": "{loomera.typography.weight.semibold}",
+        "lineHeight": "{loomera.typography.lineHeight.30}",
+        "letterSpacing": "{loomera.typography.tracking.normal}"
+      },
+      "body.lg": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.18}",
+        "fontWeight": "{loomera.typography.weight.regular}",
+        "lineHeight": "{loomera.typography.lineHeight.32}",
+        "letterSpacing": "{loomera.typography.tracking.normal}"
+      },
+      "body.md": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.16}",
+        "fontWeight": "{loomera.typography.weight.regular}",
+        "lineHeight": "{loomera.typography.lineHeight.28}",
+        "letterSpacing": "{loomera.typography.tracking.normal}"
+      },
+      "body.sm": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.14}",
+        "fontWeight": "{loomera.typography.weight.regular}",
+        "lineHeight": "{loomera.typography.lineHeight.24}",
+        "letterSpacing": "{loomera.typography.tracking.normal}"
+      },
+      "label.md": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.13}",
+        "fontWeight": "{loomera.typography.weight.medium}",
+        "lineHeight": "{loomera.typography.lineHeight.20}",
+        "letterSpacing": "{loomera.typography.tracking.normal}"
+      },
+      "caption.md": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.12}",
+        "fontWeight": "{loomera.typography.weight.regular}",
+        "lineHeight": "{loomera.typography.lineHeight.18}",
+        "letterSpacing": "{loomera.typography.tracking.wide-1}"
+      },
+      "overline.md": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.11}",
+        "fontWeight": "{loomera.typography.weight.semibold}",
+        "lineHeight": "{loomera.typography.lineHeight.16}",
+        "letterSpacing": "{loomera.typography.tracking.wide-8}"
+      },
+      "component.button.md": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.15}",
+        "fontWeight": "{loomera.typography.weight.semibold}",
+        "lineHeight": "{loomera.typography.lineHeight.22}",
+        "letterSpacing": "{loomera.typography.tracking.normal}"
+      },
+      "component.input.md": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.15}",
+        "fontWeight": "{loomera.typography.weight.regular}",
+        "lineHeight": "{loomera.typography.lineHeight.24}",
+        "letterSpacing": "{loomera.typography.tracking.normal}"
+      },
+      "component.table.header": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.13}",
+        "fontWeight": "{loomera.typography.weight.semibold}",
+        "lineHeight": "{loomera.typography.lineHeight.20}",
+        "letterSpacing": "{loomera.typography.tracking.wide-2}"
+      },
+      "component.table.cell": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.14}",
+        "fontWeight": "{loomera.typography.weight.regular}",
+        "lineHeight": "{loomera.typography.lineHeight.22}",
+        "letterSpacing": "{loomera.typography.tracking.normal}"
+      },
+      "component.metric.lg": {
+        "fontFamily": "{loomera.typography.family.ui}",
+        "fontSize": "{loomera.typography.size.32}",
+        "fontWeight": "{loomera.typography.weight.semibold}",
+        "lineHeight": "{loomera.typography.lineHeight.40}",
+        "letterSpacing": "{loomera.typography.tracking.normal}"
+      }
+    },
+    "responsive": {
+      "mobile": {
+        "display.xl": "40/48",
+        "display.l": "32/40",
+        "heading.h1": "32/40",
+        "heading.h2": "28/36",
+        "heading.h3": "24/32",
+        "heading.h4": "20/28",
+        "heading.h5": "18/26",
+        "body.lg": "17/30",
+        "body.md": "16/28",
+        "body.sm": "14/24"
+      }
+    },
+    "scriptRules": {
+      "persianLetterSpacing": 0,
+      "persianBodyLineHeightMin": 1.7,
+      "persianHeadingWeightRecommended": 600,
+      "persianHeadingWeightMaxDefault": 700,
+      "useTabularNumeralsForMetricsAndTables": true,
+      "isolateLTRInsideRTL": true
+    }
+  }
+}

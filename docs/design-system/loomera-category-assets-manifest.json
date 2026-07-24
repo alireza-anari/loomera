@@ -1,0 +1,31 @@
+{
+  "package_name": "loomera-category-artwork-icons-approved-package",
+  "version": "2.0",
+  "brand": "Loomera",
+  "source_basis": "latest approved icon samples",
+  "formats": [
+    "png"
+  ],
+  "variants": [
+    "light",
+    "dark",
+    "active-light",
+    "active-dark",
+    "compact",
+    "icon-only",
+    "artwork-tile"
+  ],
+  "preview": "assets/preview/loomera-category-icon-system-approved-board.png",
+  "categories": [
+    "hair",
+    "skin",
+    "brow-lash",
+    "nails",
+    "massage",
+    "wellness",
+    "aesthetic-treatments",
+    "spa-relaxation",
+    "body-care",
+    "all-services"
+  ]
+}

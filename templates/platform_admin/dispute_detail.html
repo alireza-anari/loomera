@@ -1,0 +1,138 @@
+{% extends "platform_admin/base.html" %}
+{% load jalali_extras %}
+{% block platform_content %}
+<section class="space-y-5" dir="rtl">
+  <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="bg-gradient-to-l from-rose-50 via-white to-white p-5 lg:p-6">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div class="min-w-0">
+          <a href="{% url 'platform_admin:disputes' %}" class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-black text-loomera-primary ring-1 ring-loomera-borderSoft transition hover:bg-loomera-primarySoft">
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            بازگشت به پرونده‌ها
+          </a>
+          <p class="mt-5 text-xs font-black uppercase tracking-[0.18em] text-loomera-primary">Dispute Case</p>
+          <h1 class="mt-2 text-2xl font-black text-loomera-textPrimary">پرونده #{{ dispute.id|fa_digits }}</h1>
+          <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">{{ dispute.subject|default:dispute.get_dispute_type_display }}</p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <span class="rounded-full px-3 py-2 text-xs font-black {% if dispute.status == 'opened' or dispute.status == 'under_review' or dispute.status == 'waiting_for_evidence' %}bg-amber-50 text-amber-700{% elif dispute.status == 'closed' or dispute.status == 'rejected' %}bg-slate-100 text-slate-600{% else %}bg-emerald-50 text-emerald-700{% endif %}">{{ dispute.get_status_display }}</span>
+          <span class="rounded-full px-3 py-2 text-xs font-black {% if dispute.priority == 'urgent' or dispute.priority == 'high' %}bg-rose-50 text-rose-700{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">{{ dispute.get_priority_display }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+    <section class="space-y-5">
+      <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div class="min-w-0">
+            <p class="text-xs font-black text-loomera-primaryText">شرح اختلاف</p>
+            <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">{{ dispute.get_dispute_type_display }}</h2>
+            <p class="mt-3 whitespace-pre-line text-sm leading-8 text-loomera-textSecondary">{{ dispute.description|default:"توضیحی ثبت نشده است." }}</p>
+          </div>
+          {% if dispute.support_ticket %}
+            <a href="{% url 'platform_admin:support_detail' dispute.support_ticket.pk %}" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primary hover:text-white">
+              <i class="fa-regular fa-message" aria-hidden="true"></i>
+              تیکت مرتبط
+            </a>
+          {% endif %}
+        </div>
+      </article>
+
+      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div class="rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4 shadow-sm">
+          <p class="text-xs font-bold text-loomera-textMuted">مجموعه</p>
+          <p class="mt-2 truncate text-sm font-black text-loomera-textPrimary">{% if dispute.salon %}{{ dispute.salon.salon_name }}{% else %}—{% endif %}</p>
+        </div>
+        <div class="rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4 shadow-sm">
+          <p class="text-xs font-bold text-loomera-textMuted">مشتری</p>
+          <p class="mt-2 truncate text-sm font-black text-loomera-textPrimary">{% if dispute.customer %}{{ dispute.customer }}{% else %}—{% endif %}</p>
+        </div>
+        <div class="rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4 shadow-sm">
+          <p class="text-xs font-bold text-loomera-textMuted">متخصص</p>
+          <p class="mt-2 truncate text-sm font-black text-loomera-textPrimary">{% if dispute.stylist %}{{ dispute.stylist }}{% else %}—{% endif %}</p>
+        </div>
+        <div class="rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4 shadow-sm">
+          <p class="text-xs font-bold text-loomera-textMuted">زمان ایجاد</p>
+          <p class="mt-2 text-sm font-black text-loomera-textPrimary">{{ dispute.created_at|jalali_datetime }}</p>
+        </div>
+      </div>
+
+      <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-black text-loomera-primaryText">اثر مالی</p>
+            <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">مبالغ مرتبط با پرونده</h2>
+          </div>
+          {% if dispute.financial_snapshot %}
+            <span class="rounded-full bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">سند مالی متصل</span>
+          {% endif %}
+        </div>
+        <div class="mt-4 grid gap-3 sm:grid-cols-3">
+          <div class="rounded-2xl bg-loomera-bgSubtle p-4">
+            <p class="text-xs font-bold text-loomera-textMuted">برگشت وجه</p>
+            <p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ dispute.refund_amount|default:0|fa_digits }}</p>
+          </div>
+          <div class="rounded-2xl bg-loomera-bgSubtle p-4">
+            <p class="text-xs font-bold text-loomera-textMuted">جبران خسارت</p>
+            <p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ dispute.compensation_amount|default:0|fa_digits }}</p>
+          </div>
+          <div class="rounded-2xl bg-loomera-bgSubtle p-4">
+            <p class="text-xs font-bold text-loomera-textMuted">اثر مالی</p>
+            <p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ dispute.financial_impact_amount|default:0|fa_digits }}</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <p class="text-xs font-black text-loomera-primaryText">Timeline</p>
+        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">رویدادهای پرونده</h2>
+        <div class="mt-5 space-y-3">
+          {% for event in dispute.events.all %}
+            <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p class="text-sm font-black text-loomera-primary">{{ event.get_event_type_display }}</p>
+                  {% if event.note %}<p class="mt-2 whitespace-pre-line text-sm leading-7 text-loomera-textSecondary">{{ event.note }}</p>{% endif %}
+                </div>
+                <span class="text-xs font-bold text-loomera-textMuted">{{ event.created_at|jalali_datetime }}</span>
+              </div>
+              {% if event.old_status or event.new_status %}
+                <p class="mt-3 text-xs font-bold text-loomera-textMuted">{{ event.old_status|default:"—" }} ← {{ event.new_status|default:"—" }}</p>
+              {% endif %}
+            </div>
+          {% empty %}
+            <div class="rounded-[1.5rem] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-6 text-center text-sm text-loomera-textMuted">رویدادی ثبت نشده است.</div>
+          {% endfor %}
+        </div>
+      </article>
+    </section>
+
+    <aside class="space-y-4">
+      <form method="post" action="{% url 'platform_admin:dispute_action' dispute.pk %}" class="sticky top-6 space-y-4 rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        {% csrf_token %}
+        <div>
+          <p class="text-xs font-black text-loomera-primaryText">عملیات پرونده</p>
+          <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">ثبت نتیجه بررسی</h3>
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">تغییر وضعیت در audit و timeline پرونده ثبت می‌شود.</p>
+        </div>
+
+        {% for field in form %}
+          <label class="block text-xs font-bold text-loomera-textMuted">
+            {{ field.label }}
+            <span class="mt-1 block">{{ field }}</span>
+            {% for error in field.errors %}<span class="mt-1 block text-xs text-rose-600">{{ error }}</span>{% endfor %}
+          </label>
+        {% endfor %}
+
+        <button class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-loomera-primary/90">
+          <i class="fa-solid fa-check" aria-hidden="true"></i>
+          ثبت نتیجه
+        </button>
+      </form>
+    </aside>
+  </div>
+</section>
+{% endblock %}

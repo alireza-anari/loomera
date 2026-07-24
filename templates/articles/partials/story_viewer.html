@@ -1,0 +1,90 @@
+<div
+  id="magazineStoryViewer"
+  class="fixed inset-0 z-[1400] hidden bg-slate-950 text-white"
+  data-story-viewer
+  aria-hidden="true"
+>
+  <div class="mx-auto flex h-full max-w-md flex-col">
+    <div class="flex gap-1 px-4 pt-4" data-story-progress></div>
+
+    <header class="flex items-center justify-between gap-3 px-4 py-3">
+      <div class="min-w-0">
+        <p class="truncate text-sm font-black" data-story-salon></p>
+        <p class="truncate text-xs text-white/60" data-story-title></p>
+      </div>
+
+      <div class="flex shrink-0 items-center gap-2">
+        {% if request.user.is_authenticated %}
+          <button
+            type="button"
+            class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
+            data-story-report-open
+            aria-label="گزارش استوری"
+          >
+            <i class="fa-regular fa-flag" aria-hidden="true"></i>
+          </button>
+        {% endif %}
+        <button
+          type="button"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
+          data-story-close
+          aria-label="بستن استوری"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="relative min-h-0 flex-1 overflow-hidden">
+      <button type="button" class="absolute inset-y-0 right-0 z-20 w-1/3" data-story-prev aria-label="قبلی"></button>
+      <button type="button" class="absolute inset-y-0 left-0 z-20 w-1/3" data-story-next aria-label="بعدی"></button>
+
+      <div class="flex h-full items-center justify-center bg-black">
+        <img data-story-image class="hidden max-h-full max-w-full object-contain" alt="">
+        <video data-story-video class="hidden max-h-full max-w-full object-contain" playsinline muted></video>
+      </div>
+
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-5 pt-20">
+        <p class="text-sm font-bold leading-7 text-white" data-story-caption></p>
+      </div>
+    </main>
+
+    <footer class="border-t border-white/10 p-4">
+      <form class="mb-3 hidden rounded-3xl border border-white/10 bg-white/10 p-3 backdrop-blur" data-story-report-form>
+        {% csrf_token %}
+        <p class="mb-3 text-xs font-bold leading-6 text-white/70">گزارش استوری به تیم لومرا ارسال می‌شود.</p>
+        <select name="reason" required class="w-full rounded-2xl border border-white/10 bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary outline-none">
+          <option value="inappropriate">محتوای نامناسب</option>
+          <option value="no_permission">تصویر یا محتوا بدون اجازه</option>
+          <option value="misleading">گمراه‌کننده یا نادرست</option>
+          <option value="personal_info">نمایش اطلاعات شخصی</option>
+          <option value="off_platform">تبلیغ خارج از لومرا</option>
+          <option value="copyright">نقض مالکیت محتوا</option>
+          <option value="other">سایر</option>
+        </select>
+        <textarea name="description" rows="2" class="mt-2 w-full resize-none rounded-2xl border border-white/10 bg-white px-4 py-3 text-sm font-bold leading-6 text-loomera-textPrimary outline-none" placeholder="توضیح اختیاری"></textarea>
+        <div class="mt-3 flex items-center gap-2">
+          <button type="submit" class="inline-flex flex-1 items-center justify-center rounded-full bg-rose-600 px-4 py-3 text-sm font-black text-white">ثبت گزارش</button>
+          <button type="button" class="inline-flex items-center justify-center rounded-full bg-white/10 px-4 py-3 text-sm font-black text-white" data-story-report-cancel>بستن</button>
+        </div>
+        <p class="mt-2 hidden text-xs font-black" data-story-report-message></p>
+      </form>
+      <a
+        href="#"
+        class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft"
+        data-story-cta
+      >
+        <span data-story-cta-label>مشاهده</span>
+        <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+      </a>
+    </footer>
+  </div>
+</div>
+
+{% if stories_payload %}
+  {{ stories_payload|json_script:"magazineStoriesData" }}
+{% elif favorite_stories_payload %}
+  {{ favorite_stories_payload|json_script:"magazineStoriesData" }}
+{% elif salon_stories_payload %}
+  {{ salon_stories_payload|json_script:"magazineStoriesData" }}
+{% endif %}

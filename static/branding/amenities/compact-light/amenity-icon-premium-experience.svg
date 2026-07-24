@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title desc">
+<title>Loomera amenity icon — Premium Experience</title>
+<desc>elevated surface + refined sparkle / compact / light mode</desc>
+
+<g>
+<rect x="18" y="31" width="28" height="11" rx="5.5" stroke="#6B55B3" stroke-width="4.25" fill="none"/>
+<path d="M32 18V26M28 22H36" stroke="#6B55B3" stroke-width="3.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M41 21V25M39 23H43" stroke="#6B55B3" stroke-width="3.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M24 46H40" stroke="#6B55B3" stroke-width="3.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+</svg>

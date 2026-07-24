@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <title>social-template-story-provider</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1920" fill="#F7F6FA"/>
+<rect x="72" y="120" width="936" height="1680" rx="48" fill="#FFFFFF" stroke="#DDD8E8"/>
+<g id="badge"><rect x="120" y="170" width="196" height="40" rx="18" fill="#F4F1F8" stroke="#DDD8E8"/><text x="298" y="196" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#57526E" text-anchor="end">Story / Provider</text></g>
+<g id="logo-slot"><rect x="824" y="170" width="138" height="34" rx="10" fill="none" stroke="#DDD8E8" stroke-dasharray="6 6"/><text x="893.0" y="193" font-family="Inter, sans-serif" font-size="15" fill="#7A738F" text-anchor="middle">LOGO</text></g>
+<g id="placeholder"><rect x="120" y="300" width="840" height="860" rx="44" fill="#F8F5FE" stroke="#DDD8E8" stroke-dasharray="10 10"/><text x="540.0" y="730.0" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" font-weight="500" fill="#7A738F" text-anchor="middle">جای عکس متخصص / Provider Photo</text></g>
+<text x="960" y="1290" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="70" font-weight="650" fill="#2E2A3C" text-anchor="end">نام متخصص</text>
+<text x="960" y="1374" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="34" fill="#57526E" text-anchor="end">تخصص، رویکرد و یک cue اعتماد</text>
+<g id="cta"><rect x="120" y="1506" width="204" height="54" rx="27" fill="#735CBE"/><text x="222.0" y="1541" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="21" font-weight="600" fill="#FFFFFF" text-anchor="middle">بررسی زمان‌ها</text></g>
+
+</svg>

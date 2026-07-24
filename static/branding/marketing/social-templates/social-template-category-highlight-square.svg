@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <title>social-template-category-highlight-square</title>
+  <desc>Loomera social media template - editable SVG</desc>
+  <defs>
+    <linearGradient id="gradV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2ECFE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gradStory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F5FE"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    
+  </defs>
+  
+<rect width="1080" height="1080" fill="#FCFBFE"/>
+<rect x="84" y="84" width="912" height="912" rx="44" fill="#FFFFFF" stroke="#DDD8E8"/>
+<g id="badge"><rect x="128" y="126" width="316" height="40" rx="18" fill="#F8F5FE" stroke="#DDD8E8"/><text x="426" y="152" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="18" font-weight="600" fill="#57526E" text-anchor="end">Service / Category Highlight</text></g>
+<g id="logo-slot"><rect x="824" y="132" width="138" height="34" rx="10" fill="none" stroke="#DDD8E8" stroke-dasharray="6 6"/><text x="893.0" y="155" font-family="Inter, sans-serif" font-size="15" fill="#7A738F" text-anchor="middle">LOGO</text></g>
+<circle cx="864" cy="378" r="124" fill="#F8F5FE"/>
+<circle cx="864" cy="378" r="78" fill="#735CBE" opacity="0.12"/>
+<path d="M820 398 C820 330 910 330 910 398 C910 444 880 472 864 486 C848 472 820 444 820 398Z" fill="none" stroke="#735CBE" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M860 420 C878 408 892 390 895 366" fill="none" stroke="#A7C8A1" stroke-width="10" stroke-linecap="round"/>
+<text x="416" y="340" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="58" font-weight="650" fill="#2E2A3C" text-anchor="end">ماساژ و ریکاوری</text>
+<text x="416" y="416" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="28" fill="#57526E" text-anchor="end">آرامش، رهایی از تنش و زمان‌هایی که با برنامه‌ی شما هماهنگ‌ترند.</text>
+<rect x="128" y="520" width="824" height="232" rx="34" fill="#F4F1F8"/>
+<text x="904" y="606" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" font-weight="600" fill="#2E2A3C" text-anchor="end">• قابل‌استفاده با artwork یا photo</text>
+<text x="904" y="654" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" fill="#57526E" text-anchor="end">• برای معرفی category، benefits و service cues</text>
+<text x="904" y="702" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="24" fill="#57526E" text-anchor="end">• مناسب light / artwork-led / reusable campaigns</text>
+<g id="cta"><rect x="128" y="824" width="196" height="54" rx="27" fill="#735CBE"/><text x="226.0" y="859" direction="rtl" font-family="Vazirmatn, Yekan Bakh, Inter, sans-serif" font-size="21" font-weight="600" fill="#FFFFFF" text-anchor="middle">مشاهده خدمات</text></g>
+
+</svg>

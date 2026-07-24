@@ -1,0 +1,129 @@
+<section class="mt-3 space-y-3 border-t border-loomera-borderSoft pt-3" data-quick-link-management-controls>
+  <details class="group overflow-hidden rounded-2xl border border-loomera-borderSoft bg-white">
+    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-xs font-black text-loomera-textPrimary">
+      <span>ویرایش مشخصات</span>
+      <i class="fa-solid fa-chevron-down text-[10px] text-loomera-textMuted transition group-open:rotate-180" aria-hidden="true"></i>
+    </summary>
+
+    <form method="post" class="grid gap-3 border-t border-loomera-borderSoft p-4 sm:grid-cols-2">
+      {% csrf_token %}
+      <input type="hidden" name="quick_link_action" value="edit">
+      <input type="hidden" name="quick_link_id" value="{{ link.id }}">
+
+      <input
+        type="text"
+        name="quick_link_title"
+        value="{{ link.title }}"
+        maxlength="160"
+        placeholder="عنوان لینک"
+        class="w-full rounded-xl border border-loomera-borderSoft px-3 py-2.5 text-xs font-bold"
+      >
+
+      <select
+        name="placement"
+        class="w-full rounded-xl border border-loomera-borderSoft px-3 py-2.5 text-xs font-bold"
+      >
+        {% for value, label in placement_options %}
+          <option value="{{ value }}" {% if link.quick_link.placement == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <input
+        type="text"
+        name="campaign_name"
+        value="{{ link.quick_link.campaign_name }}"
+        placeholder="نام کمپین"
+        class="w-full rounded-xl border border-loomera-borderSoft px-3 py-2.5 text-xs font-bold"
+      >
+
+      <label class="flex items-center gap-2 rounded-xl border border-loomera-borderSoft bg-loomera-bgSubtle/65 px-3 py-2.5 text-xs font-black">
+        <input type="checkbox" name="is_permanent" {% if link.is_permanent %}checked{% endif %}>
+        لینک دائمی
+      </label>
+
+      <textarea
+        name="internal_note"
+        rows="2"
+        placeholder="یادداشت داخلی"
+        class="sm:col-span-2 w-full rounded-xl border border-loomera-borderSoft px-3 py-2.5 text-xs font-bold leading-6"
+      >{{ link.quick_link.internal_note }}</textarea>
+
+      <button type="submit" class="sm:col-span-2 justify-self-start rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">
+        ذخیره تغییرات
+      </button>
+    </form>
+  </details>
+
+  <div class="flex flex-wrap gap-2">
+    {% if quick_link_workspace %}
+      <a
+        href="{% url 'dashboards:stylist_quick_link_detail' link.id %}"
+        class="rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText"
+      >
+        جزئیات و آمار
+      </a>
+    {% else %}
+      <a
+        href="{% url 'dashboards:quick_link_detail' link.id %}"
+        class="rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText"
+      >
+        جزئیات و آمار
+      </a>
+    {% endif %}
+
+    {% if quick_link_workspace %}
+      <a
+        href="{% url 'dashboards:stylist_quick_link_print_templates' link.id %}"
+        class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText"
+      >
+        قالب‌های چاپی
+      </a>
+    {% else %}
+      <a
+        href="{% url 'dashboards:quick_link_print_templates' link.id %}"
+        class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText"
+      >
+        قالب‌های چاپی
+      </a>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="quick_link_action" value="clone">
+      <input type="hidden" name="quick_link_id" value="{{ link.id }}">
+      <button type="submit" class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText">ساخت نسخه کپی</button>
+    </form>
+
+    {% if not link.quick_link.archived_at %}
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="quick_link_id" value="{{ link.id }}">
+        {% if link.is_active %}
+          <input type="hidden" name="quick_link_action" value="disable">
+          <button type="submit" class="rounded-full border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">غیرفعال‌سازی</button>
+        {% else %}
+          <input type="hidden" name="quick_link_action" value="enable">
+          <button type="submit" class="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">فعال‌سازی</button>
+        {% endif %}
+      </form>
+
+      <form method="post" onsubmit="return confirm('این لینک بایگانی شود؟ سابقه آن حفظ خواهد شد.');">
+        {% csrf_token %}
+        <input type="hidden" name="quick_link_action" value="archive">
+        <input type="hidden" name="quick_link_id" value="{{ link.id }}">
+        <button type="submit" class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-black text-slate-700">بایگانی</button>
+      </form>
+    {% endif %}
+
+    <form method="post" onsubmit="return confirm('حذف امن انجام شود؟ لینک دارای سابقه بایگانی خواهد شد.');">
+      {% csrf_token %}
+      <input type="hidden" name="quick_link_action" value="delete">
+      <input type="hidden" name="quick_link_id" value="{{ link.id }}">
+      <button type="submit" class="rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-700">حذف امن</button>
+    </form>
+  </div>
+
+  <p class="text-[10px] leading-5 text-loomera-textMuted">
+    خدمت، متخصص و زمان لینک دارای سابقه تغییر نمی‌کند؛ برای مسیر جدید یک نسخه کپی بساز.
+  </p>
+</section>

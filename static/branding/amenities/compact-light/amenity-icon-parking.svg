@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title desc">
+<title>Loomera amenity icon — Parking</title>
+<desc>parking bay + clear P / compact / light mode</desc>
+
+<g>
+<rect x="16" y="18" width="32" height="30" rx="8" stroke="#6B55B3" stroke-width="4.25" fill="none"/>
+<path d="M28 44V22H36C40.418 22 44 25.134 44 29C44 32.866 40.418 36 36 36H28" stroke="#6B55B3" stroke-width="3.25" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+</svg>

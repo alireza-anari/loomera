@@ -1,0 +1,486 @@
+{# templates/accounts/delete_account.html #}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}حذف حساب{% endblock %}
+{% block body_attrs %}data-page="delete-account"{% endblock %}
+
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-28 text-loomera-textPrimary lg:pb-16">
+  <!-- Mobile header -->
+  <header class="sticky top-0 z-30 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 shadow-sm backdrop-blur lg:hidden">
+    <div class="flex items-center gap-3">
+      <a href="{% url 'accounts:customer_settings' %}"
+         class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition active:scale-95"
+         aria-label="بازگشت به تنظیمات">
+        <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+      </a>
+
+      <div class="min-w-0 flex-1">
+        <h1 class="truncate text-base font-black text-loomera-textPrimary">حذف حساب</h1>
+        <p class="mt-1 truncate text-xs font-semibold text-loomera-textMuted">درخواست حذف دائمی حساب کاربری</p>
+      </div>
+
+      <a href="{% url 'accounts:customer_settings' %}"
+         class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition active:scale-95"
+         aria-label="بستن">
+        <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+      </a>
+    </div>
+  </header>
+
+  <div class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 pt-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-6 lg:pt-8 xl:px-0">
+    <div class="min-w-0 space-y-5">
+      <!-- Hero -->
+      <section class="overflow-hidden rounded-[2rem] border border-rose-200/80 bg-white shadow-lm-card">
+        <div class="relative isolate p-5 lg:p-7">
+          <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(244,63,94,0.16),transparent_34%),linear-gradient(135deg,rgba(255,241,242,0.95),rgba(255,255,255,0.98))]"></div>
+
+          <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div class="min-w-0">
+              <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white/75 px-3 py-1 text-xs font-black text-rose-700 shadow-sm backdrop-blur">
+                <i class="fa-solid fa-triangle-exclamation text-[11px]" aria-hidden="true"></i>
+                <span>عملیات حساس و دائمی</span>
+              </div>
+
+              <h2 class="text-2xl font-black leading-9 text-loomera-textPrimary lg:text-4xl lg:leading-[3.2rem]">حذف حساب کاربری</h2>
+              <p class="mt-2 max-w-2xl text-sm font-semibold leading-7 text-loomera-textMuted">
+                حذف حساب باعث از دست رفتن دسترسی به رزروها، سوابق و اطلاعات حساب می‌شود. قبل از ثبت نهایی، چند مرحله تأیید برای جلوگیری از حذف اشتباهی انجام می‌دهیم.
+              </p>
+            </div>
+
+            <a href="{% url 'accounts:customer_settings' %}"
+               class="hidden w-full shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 sm:w-auto lg:inline-flex">
+              <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+              <span>بازگشت به تنظیمات</span>
+            </a>
+          </div>
+
+          <div class="mt-5 grid gap-3 sm:grid-cols-3" aria-label="مراحل حذف حساب">
+            <div data-step-card="1" class="rounded-3xl border border-rose-200 bg-white/80 p-4 shadow-sm backdrop-blur">
+              <p class="text-xs font-black text-loomera-textMuted">مرحله ۱</p>
+              <strong class="mt-2 flex items-center gap-2 text-sm font-black leading-7 text-loomera-textPrimary">
+                <span class="h-2.5 w-2.5 rounded-full bg-rose-500"></span>
+                دلیل حذف
+              </strong>
+            </div>
+            <div data-step-card="2" class="rounded-3xl border border-white/80 bg-white/70 p-4 shadow-sm backdrop-blur">
+              <p class="text-xs font-black text-loomera-textMuted">مرحله ۲</p>
+              <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">تأیید پیامدها</strong>
+            </div>
+            <div data-step-card="3" class="rounded-3xl border border-white/80 bg-white/70 p-4 shadow-sm backdrop-blur">
+              <p class="text-xs font-black text-loomera-textMuted">مرحله ۳</p>
+              <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">تأیید نهایی</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {% if form.non_field_errors %}
+        <div class="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold leading-7 text-rose-700" role="alert">
+          {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if deletion_blockers %}
+        <section class="rounded-[1.75rem] border border-amber-200 bg-amber-50 p-4 shadow-lm-soft" role="alert" aria-label="موارد مانع حذف حساب">
+          <div class="flex gap-3">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-amber-600 shadow-sm">
+              <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0">
+              <h2 class="text-sm font-black text-amber-800">حذف حساب فعلاً قابل انجام نیست</h2>
+              <p class="mt-1 text-xs font-bold leading-6 text-amber-700">
+                برای جلوگیری از اختلال در نوبت‌ها، همکاری‌ها و امور مالی، ابتدا موارد زیر را تعیین تکلیف کن.
+              </p>
+              <ul class="mt-3 space-y-2 text-sm font-bold leading-7 text-amber-800">
+                {% for blocker in deletion_blockers %}
+                  <li class="flex gap-2">
+                    <i class="fa-solid fa-circle-exclamation mt-1.5 text-xs" aria-hidden="true"></i>
+                    <span>{{ blocker }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+              <a href="{% url 'main:contact' %}" class="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 text-xs font-black text-amber-800 shadow-sm ring-1 ring-amber-200 transition hover:bg-amber-100">
+                <i class="fa-regular fa-message" aria-hidden="true"></i>
+                <span>ارتباط با پشتیبانی</span>
+              </a>
+            </div>
+          </div>
+        </section>
+      {% endif %}
+
+      <!-- Delete account form -->
+      <form method="post" id="deleteAccountForm" class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5"
+            data-delete-blocked="{% if deletion_blockers %}1{% else %}0{% endif %}"
+            data-initial-step="{% if form.password.errors %}3{% elif form.confirm_appointments.errors or form.confirm_bookings.errors %}2{% else %}1{% endif %}">
+        {% csrf_token %}
+
+        <!-- Step indicator -->
+        <div class="mb-5 rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-3">
+          <div class="grid grid-cols-3 gap-2 text-center text-xs font-black text-loomera-textMuted">
+            <button type="button" data-step-nav="1" class="rounded-2xl px-2 py-2 transition" aria-label="مرحله دلیل حذف">
+              <span class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-loomera-primary text-white shadow-sm">۱</span>
+              دلیل حذف
+            </button>
+            <button type="button" data-step-nav="2" class="rounded-2xl px-2 py-2 transition" aria-label="مرحله تأیید پیامدها">
+              <span class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-white text-loomera-textMuted shadow-sm">۲</span>
+              پیامدها
+            </button>
+            <button type="button" data-step-nav="3" class="rounded-2xl px-2 py-2 transition" aria-label="مرحله تأیید نهایی">
+              <span class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-white text-loomera-textMuted shadow-sm">۳</span>
+              نهایی
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 1: Reason -->
+        <section data-step-content="1" class="space-y-5">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.25em] text-loomera-primary">حذف حساب من</p>
+            <h3 class="mt-2 text-xl font-black text-loomera-textPrimary">دلیل حذف حساب را انتخاب کن</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+              این بازخورد کمک می‌کند قبل از حذف حساب، مسیرهای جایگزین مثل پشتیبانی یا مدیریت اعلان‌ها را بهتر کنیم.
+            </p>
+          </div>
+
+          <div class="grid gap-3">
+            {% for value, label in form.reason.field.choices %}
+              <label class="group flex cursor-pointer items-start gap-3 rounded-[1.35rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/35">
+                <input type="radio"
+                       name="reason"
+                       value="{{ value }}"
+                       class="mt-1 h-5 w-5 shrink-0 cursor-pointer accent-loomera-primary"
+                       {% if form.reason.value == value %}checked{% endif %}>
+                <span class="text-sm font-bold leading-7 text-loomera-textPrimary">{{ label }}</span>
+              </label>
+            {% endfor %}
+          </div>
+
+          {% if form.reason.errors %}
+            <p class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-700">{{ form.reason.errors.0 }}</p>
+          {% endif %}
+
+          <div class="rounded-[1.5rem] border border-loomera-primary/15 bg-loomera-primarySoft/60 p-4">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm">
+                <i class="fa-regular fa-message" aria-hidden="true"></i>
+              </span>
+              <p class="text-sm font-semibold leading-7 text-loomera-textMuted">
+                اگر مشکل قابل پیگیری است، قبل از حذف حساب می‌توانی از
+                <a href="{% url 'main:contact' %}" class="font-black text-loomera-primary hover:text-loomera-primaryHover">پشتیبانی</a>
+                کمک بگیری.
+              </p>
+            </div>
+          </div>
+
+          <button type="button"
+                  data-next-step="1"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover active:scale-[0.99]">
+            <span>ادامه</span>
+            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+          </button>
+        </section>
+
+        <!-- Step 2: Confirmation -->
+        <section data-step-content="2" class="hidden space-y-5">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.25em] text-loomera-primary">تأیید پیامدها</p>
+            <h3 class="mt-2 text-xl font-black text-loomera-textPrimary">قبل از حذف، این موارد را تأیید کن</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+              حذف حساب قابل بازگشت نیست. برای ادامه، باید تأیید کنی که اثر این عملیات را می‌دانی.
+            </p>
+          </div>
+
+          <div class="grid gap-3">
+            <label class="group flex cursor-pointer items-start gap-3 rounded-[1.35rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft transition hover:border-rose-300 hover:bg-rose-50/50">
+              <input type="checkbox"
+                     name="confirm_appointments"
+                     class="mt-1 h-5 w-5 shrink-0 cursor-pointer rounded border-loomera-borderSoft accent-loomera-primary"
+                     {% if form.confirm_appointments.value %}checked{% endif %}>
+              <span class="text-sm font-bold leading-7 text-loomera-textPrimary">
+                می‌دانم که دسترسی به نوبت‌ها و سوابق حساب خود را از دست می‌دهم.
+              </span>
+            </label>
+            {% if form.confirm_appointments.errors %}
+              <p class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-700">{{ form.confirm_appointments.errors.0 }}</p>
+            {% endif %}
+
+            <label class="group flex cursor-pointer items-start gap-3 rounded-[1.35rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft transition hover:border-rose-300 hover:bg-rose-50/50">
+              <input type="checkbox"
+                     name="confirm_bookings"
+                     class="mt-1 h-5 w-5 shrink-0 cursor-pointer rounded border-loomera-borderSoft accent-loomera-primary"
+                     {% if form.confirm_bookings.value %}checked{% endif %}>
+              <span class="text-sm font-bold leading-7 text-loomera-textPrimary">
+                می‌دانم که پس از حذف حساب، امکان رزرو از طریق Loomera برای من متوقف می‌شود.
+              </span>
+            </label>
+            {% if form.confirm_bookings.errors %}
+              <p class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-700">{{ form.confirm_bookings.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div class="flex gap-3">
+            <button type="button"
+                    data-prev-step="2"
+                    class="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3.5 text-sm font-black text-loomera-textPrimary shadow-sm transition hover:bg-loomera-bgSubtle active:scale-[0.99]">
+              <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+              <span>بازگشت</span>
+            </button>
+            <button type="button"
+                    data-next-step="2"
+                    class="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover active:scale-[0.99]">
+              <span>ادامه</span>
+              <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+            </button>
+          </div>
+        </section>
+
+        <!-- Step 3: Final Confirmation -->
+        <section data-step-content="3" class="hidden space-y-5">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.25em] text-rose-600">تأیید نهایی</p>
+            <h3 class="mt-2 text-xl font-black text-loomera-textPrimary">برای حذف حساب، رمز عبور را وارد کن</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+              این مرحله برای جلوگیری از حذف ناخواسته حساب است. بعد از ثبت، درخواست حذف حساب ارسال می‌شود.
+            </p>
+          </div>
+
+          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+            <p class="text-xs font-black text-loomera-textMuted">ایمیل حساب</p>
+            <p class="mt-2 break-all text-sm font-black text-loomera-textPrimary">{{ user_email }}</p>
+          </div>
+
+          <div>
+            <label for="id_password" class="mb-2 block text-sm font-black text-loomera-textPrimary">رمز عبور</label>
+            <div class="[&_input]:h-12 [&_input]:w-full [&_input]:rounded-2xl [&_input]:border [&_input]:border-loomera-borderSoft [&_input]:bg-white [&_input]:px-4 [&_input]:text-sm [&_input]:font-bold [&_input]:text-loomera-textPrimary [&_input]:shadow-sm [&_input]:outline-none [&_input]:transition [&_input]:placeholder:text-loomera-textMuted/70 [&_input:focus]:border-loomera-primary [&_input:focus]:ring-4 [&_input:focus]:ring-loomera-primary/15">
+              {{ form.password }}
+            </div>
+            {% if form.password.errors %}
+              <p class="mt-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-700">{{ form.password.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div class="rounded-[1.5rem] border border-rose-200 bg-rose-50 p-4">
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-rose-600 shadow-sm">
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+              </span>
+              <p class="text-sm font-bold leading-7 text-rose-700">
+                با کلیک روی «حذف حساب»، تأیید می‌کنی که از پیامدهای حذف دائمی حساب آگاه هستی.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <button type="button"
+                    data-prev-step="3"
+                    class="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3.5 text-sm font-black text-loomera-textPrimary shadow-sm transition hover:bg-loomera-bgSubtle active:scale-[0.99]">
+              <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+              <span>بازگشت</span>
+            </button>
+            <button type="submit"
+                    data-delete-submit
+                    {% if deletion_blockers %}disabled aria-disabled="true"{% endif %}
+                    class="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-rose-600 px-5 py-3.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-rose-700 active:scale-[0.99] {% if deletion_blockers %}cursor-not-allowed opacity-60{% endif %}">
+              <i class="fa-solid fa-trash-can text-xs" aria-hidden="true"></i>
+              <span>حذف حساب</span>
+            </button>
+          </div>
+        </section>
+      </form>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="hidden lg:block">
+      <div class="sticky top-24 space-y-4">
+        <section class="rounded-[2rem] border border-rose-200/80 bg-white p-5 shadow-lm-card">
+          <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+          </span>
+          <p class="mt-4 text-xs font-black uppercase tracking-[0.22em] text-rose-600">قبل از حذف</p>
+          <h2 class="mt-2 text-lg font-black text-loomera-textPrimary">از تصمیم خود مطمئن شو</h2>
+          <p class="mt-3 text-sm font-semibold leading-7 text-loomera-textMuted">
+            اگر مشکل از اعلان‌ها، رمز عبور یا اطلاعات حساب است، می‌توانی بدون حذف حساب آن را از تنظیمات اصلاح کنی.
+          </p>
+          <a href="{% url 'main:contact' %}"
+             class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+            <i class="fa-regular fa-message text-xs" aria-hidden="true"></i>
+            <span>تماس با پشتیبانی</span>
+          </a>
+        </section>
+
+        <nav class="rounded-[2rem] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft" aria-label="میانبرهای تنظیمات">
+          <a href="{% url 'accounts:customer_settings' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <i class="fa-solid fa-gear w-5 text-center" aria-hidden="true"></i>
+            <span>تنظیمات</span>
+          </a>
+          <a href="{% url 'accounts:change_password' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <i class="fa-solid fa-key w-5 text-center" aria-hidden="true"></i>
+            <span>تغییر رمز عبور</span>
+          </a>
+          <a href="{% url 'accounts:notification_settings' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+            <i class="fa-regular fa-bell w-5 text-center" aria-hidden="true"></i>
+            <span>اعلان‌ها</span>
+          </a>
+        </nav>
+
+        <p class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-center text-xs font-bold leading-6 text-loomera-textMuted">
+          حذف حساب یک عملیات حساس است و باید با رمز عبور فعلی تأیید شود.
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile CTA -->
+  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur lg:hidden">
+    <div class="mx-auto flex max-w-md gap-3">
+      <a href="{% url 'accounts:customer_settings' %}"
+         class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm"
+         aria-label="بازگشت به تنظیمات">
+        <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+      </a>
+      <button type="button"
+              data-mobile-next
+              class="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition active:scale-[0.99]">
+        <span>ادامه</span>
+        <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</main>
+
+<script>
+  (() => {
+    const form = document.getElementById("deleteAccountForm");
+    if (!form) return;
+
+    const contents = Array.from(document.querySelectorAll("[data-step-content]"));
+    const navButtons = Array.from(document.querySelectorAll("[data-step-nav]"));
+    const stepCards = Array.from(document.querySelectorAll("[data-step-card]"));
+    const mobileNext = document.querySelector("[data-mobile-next]");
+    const deleteBlocked = form.dataset.deleteBlocked === "1";
+    let currentStep = Number(form.dataset.initialStep || 1) || 1;
+
+    const setMobileButton = () => {
+      if (!mobileNext) return;
+      if (currentStep >= 3) {
+        mobileNext.classList.remove("bg-loomera-primary", "hover:bg-loomera-primaryHover");
+        mobileNext.classList.add("bg-rose-600");
+        mobileNext.querySelector("span").textContent = "حذف حساب";
+        mobileNext.querySelector("i")?.classList.remove("fa-arrow-left");
+        mobileNext.querySelector("i")?.classList.add("fa-trash-can");
+      } else {
+        mobileNext.classList.add("bg-loomera-primary", "hover:bg-loomera-primaryHover");
+        mobileNext.classList.remove("bg-rose-600");
+        mobileNext.querySelector("span").textContent = "ادامه";
+        mobileNext.querySelector("i")?.classList.add("fa-arrow-left");
+        mobileNext.querySelector("i")?.classList.remove("fa-trash-can");
+      }
+    };
+
+    const updateStep = (step) => {
+      currentStep = Math.min(3, Math.max(1, Number(step) || 1));
+
+      contents.forEach((content) => {
+        const isActive = Number(content.dataset.stepContent) === currentStep;
+        content.classList.toggle("hidden", !isActive);
+      });
+
+      navButtons.forEach((button) => {
+        const stepNumber = Number(button.dataset.stepNav);
+        const icon = button.querySelector("span");
+        const isActive = stepNumber === currentStep;
+        button.classList.toggle("text-loomera-primary", isActive);
+        button.classList.toggle("text-loomera-textMuted", !isActive);
+        icon?.classList.toggle("bg-loomera-primary", isActive);
+        icon?.classList.toggle("text-white", isActive);
+        icon?.classList.toggle("bg-white", !isActive);
+        icon?.classList.toggle("text-loomera-textMuted", !isActive);
+      });
+
+      stepCards.forEach((card) => {
+        const isActive = Number(card.dataset.stepCard) === currentStep;
+        card.classList.toggle("border-rose-200", isActive);
+        card.classList.toggle("border-white/80", !isActive);
+        card.classList.toggle("bg-white/80", isActive);
+        card.classList.toggle("bg-white/70", !isActive);
+      });
+
+      setMobileButton();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const validateStep = (step) => {
+      if (step === 1) {
+        const reasonSelected = form.querySelector('input[name="reason"]:checked');
+        if (!reasonSelected) {
+          window.alert("لطفاً یک دلیل انتخاب کنید.");
+          return false;
+        }
+      }
+
+      if (step === 2) {
+        const confirmAppointments = form.querySelector('input[name="confirm_appointments"]')?.checked;
+        const confirmBookings = form.querySelector('input[name="confirm_bookings"]')?.checked;
+        if (!confirmAppointments || !confirmBookings) {
+          window.alert("لطفاً تمام موارد را تأیید کنید.");
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    document.querySelectorAll("[data-next-step]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const step = Number(button.dataset.nextStep);
+        if (validateStep(step)) updateStep(step + 1);
+      });
+    });
+
+    document.querySelectorAll("[data-prev-step]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const step = Number(button.dataset.prevStep);
+        updateStep(step - 1);
+      });
+    });
+
+    navButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const target = Number(button.dataset.stepNav);
+        if (target <= currentStep) updateStep(target);
+      });
+    });
+
+    mobileNext?.addEventListener("click", () => {
+      if (currentStep < 3) {
+        if (validateStep(currentStep)) updateStep(currentStep + 1);
+        return;
+      }
+      if (deleteBlocked) {
+        window.alert("حذف حساب فعلاً ممکن نیست. ابتدا موارد مانع حذف را تعیین تکلیف کنید.");
+        return;
+      }
+      form.requestSubmit ? form.requestSubmit(submitButton) : form.submit();
+    });
+
+    form.addEventListener("submit", (event) => {
+      if (deleteBlocked) {
+        event.preventDefault();
+        window.alert("حذف حساب فعلاً ممکن نیست. ابتدا موارد مانع حذف را تعیین تکلیف کنید.");
+        return;
+      }
+      if (!submitButton) return;
+      submitButton.disabled = true;
+      submitButton.classList.add("opacity-70", "cursor-not-allowed");
+      const label = submitButton.querySelector("span");
+      if (label) label.textContent = "در حال ثبت درخواست...";
+    });
+
+    updateStep(currentStep);
+  })();
+</script>
+{% endblock %}

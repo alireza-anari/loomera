@@ -1,0 +1,1325 @@
+{
+  "root": "A:\\loomera_rename_work",
+  "template_count": 200,
+  "template_balance_issues": [],
+  "css_balance": {
+    "static/css/loomera-brand.css": {
+      "exists": true,
+      "balance": 0,
+      "min_balance": 0,
+      "bytes": 144743
+    },
+    "static/css/loomera-typography.css": {
+      "exists": true,
+      "balance": 0,
+      "min_balance": 0,
+      "bytes": 10864
+    }
+  },
+  "term_scan": {
+    "fresha": [],
+    "salonify": [],
+    "generic_english": [
+      {
+        "file": "templates\\404.html",
+        "count": 2,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\dashboard_template.html",
+        "count": 13,
+        "terms": [
+          "dashboard",
+          "overview"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\address_form.html",
+        "count": 4,
+        "terms": [
+          "edit",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\add_customer.html",
+        "count": 2,
+        "terms": [
+          "next",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\change_password.html",
+        "count": 2,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\customer_addresses.html",
+        "count": 2,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\customer_panel.html",
+        "count": 14,
+        "terms": [
+          "booking",
+          "payments",
+          "profile",
+          "search",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\customer_profile.html",
+        "count": 1,
+        "terms": [
+          "profile"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\customer_settings.html",
+        "count": 2,
+        "terms": [
+          "profile",
+          "settings"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\customer_signup.html",
+        "count": 2,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\delete_account.html",
+        "count": 5,
+        "terms": [
+          "Delete",
+          "delete",
+          "next",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\edit_profile.html",
+        "count": 3,
+        "terms": [
+          "edit",
+          "profile",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\login.html",
+        "count": 2,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\notification_settings.html",
+        "count": 3,
+        "terms": [
+          "BACK",
+          "MARKETING",
+          "settings"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\register.html",
+        "count": 2,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\remember_password.html",
+        "count": 3,
+        "terms": [
+          "back",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\verify.html",
+        "count": 3,
+        "terms": [
+          "back",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\components\\appointments_empty_state.html",
+        "count": 1,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\components\\appointment_past_item.html",
+        "count": 4,
+        "terms": [
+          "booking"
+        ]
+      },
+      {
+        "file": "templates\\components\\appointment_upcoming_card.html",
+        "count": 10,
+        "terms": [
+          "booking",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\components\\booking_bar.html",
+        "count": 1,
+        "terms": [
+          "Booking"
+        ]
+      },
+      {
+        "file": "templates\\components\\book_again_card.html",
+        "count": 2,
+        "terms": [
+          "booking",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\components\\bulk_action_bar.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\components\\categories.html",
+        "count": 2,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\components\\favorits_salon_card.html",
+        "count": 1,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\components\\filter_bar.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\components\\form_card.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\components\\image_slider.html",
+        "count": 1,
+        "terms": [
+          "next"
+        ]
+      },
+      {
+        "file": "templates\\components\\loomera_typography_sample.html",
+        "count": 3,
+        "terms": [
+          "dashboard"
+        ]
+      },
+      {
+        "file": "templates\\components\\multi_form_page.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\components\\reports_filter_bar.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\components\\review_form.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\components\\stat_card.html",
+        "count": 3,
+        "terms": [
+          "dashboard"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\add_stylist.html",
+        "count": 6,
+        "terms": [
+          "preview",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\add_time_off.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\appointment_calendar.html",
+        "count": 14,
+        "terms": [
+          "workspace"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\appointment_detail.html",
+        "count": 6,
+        "terms": [
+          "cancel",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\customer_detail.html",
+        "count": 13,
+        "terms": [
+          "profile",
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\edit_day_schedule.html",
+        "count": 2,
+        "terms": [
+          "edit",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\edit_service.html",
+        "count": 7,
+        "terms": [
+          "edit",
+          "preview",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\edit_stylist.html",
+        "count": 7,
+        "terms": [
+          "edit",
+          "preview",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\finance_baskets.html",
+        "count": 10,
+        "terms": [
+          "baskets",
+          "edit",
+          "marketing",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\finance_coupons.html",
+        "count": 11,
+        "terms": [
+          "checkout",
+          "coupons",
+          "edit",
+          "marketing",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\finance_reports.html",
+        "count": 8,
+        "terms": [
+          "search",
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\home.html",
+        "count": 1,
+        "terms": [
+          "dashboard"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\manager_profile.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\manual_booking_form.html",
+        "count": 4,
+        "terms": [
+          "booking",
+          "next",
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\membership.html",
+        "count": 1,
+        "terms": [
+          "invoice"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\online_booking.html",
+        "count": 29,
+        "terms": [
+          "booking",
+          "marketing",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\payout_settings.html",
+        "count": 10,
+        "terms": [
+          "next",
+          "overview",
+          "settings",
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\platform_finance_report.html",
+        "count": 3,
+        "terms": [
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\products.html",
+        "count": 2,
+        "terms": [
+          "dashboard",
+          "workspace"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\reports.html",
+        "count": 57,
+        "terms": [
+          "dashboard",
+          "reports",
+          "workspace"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\salonManager_dashboard.html",
+        "count": 1,
+        "terms": [
+          "dashboard"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\salonsCustomersPage.html",
+        "count": 13,
+        "terms": [
+          "clients",
+          "search",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\salon_profile_creator_step10.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\salon_profile_creator_step2.html",
+        "count": 4,
+        "terms": [
+          "dashboard",
+          "search",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\salon_profile_creator_step3.html",
+        "count": 3,
+        "terms": [
+          "dashboard",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\salon_profile_creator_step6.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\salon_profile_creator_step7.html",
+        "count": 3,
+        "terms": [
+          "save",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\salon_profile_creator_step8.html",
+        "count": 2,
+        "terms": [
+          "dashboard",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\salon_profile_view.html",
+        "count": 24,
+        "terms": [
+          "marketing",
+          "profile",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\service_menu.html",
+        "count": 3,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\set_regular_shifts.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stocktakes.html",
+        "count": 1,
+        "terms": [
+          "workspace"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stylist_add_booking.html",
+        "count": 2,
+        "terms": [
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stylist_add_customer.html",
+        "count": 3,
+        "terms": [
+          "next",
+          "submit",
+          "workspace"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stylist_add_schedule.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stylist_add_time_off.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stylist_appointments.html",
+        "count": 1,
+        "terms": [
+          "next"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stylist_appointment_detail.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stylist_overview.html",
+        "count": 1,
+        "terms": [
+          "clients"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stylist_profile.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stylist_quick_links.html",
+        "count": 2,
+        "terms": [
+          "preview",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\team_member.html",
+        "count": 2,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\orders\\appointments.html",
+        "count": 1,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\orders\\appointment_detail.html",
+        "count": 23,
+        "terms": [
+          "booking",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\orders\\checkout.html",
+        "count": 129,
+        "terms": [
+          "back",
+          "booking",
+          "checkout",
+          "preview",
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\orders\\quick_link_stylist_services.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\orders\\reservation_preview.html",
+        "count": 129,
+        "terms": [
+          "back",
+          "booking",
+          "checkout",
+          "preview",
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\orders\\select_datetime.html",
+        "count": 12,
+        "terms": [
+          "back",
+          "booking",
+          "dashboard"
+        ]
+      },
+      {
+        "file": "templates\\orders\\select_stylist.html",
+        "count": 3,
+        "terms": [
+          "back",
+          "profile"
+        ]
+      },
+      {
+        "file": "templates\\orders\\select_stylists.html",
+        "count": 14,
+        "terms": [
+          "back",
+          "booking",
+          "profile"
+        ]
+      },
+      {
+        "file": "templates\\pages\\detail_salon.html",
+        "count": 17,
+        "terms": [
+          "BOOKING",
+          "back",
+          "booking",
+          "next",
+          "profile",
+          "search",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\pages\\home.html",
+        "count": 9,
+        "terms": [
+          "dashboard",
+          "preview",
+          "search",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\pages\\search.html",
+        "count": 14,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\pages\\show_salons.html",
+        "count": 85,
+        "terms": [
+          "dashboard",
+          "search",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\payments\\appointment_result.html",
+        "count": 32,
+        "terms": [
+          "checkout",
+          "payments",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\payments\\mock_gateway.html",
+        "count": 6,
+        "terms": [
+          "cancel",
+          "payments",
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\payments\\wallet_charge.html",
+        "count": 10,
+        "terms": [
+          "Back",
+          "Submit",
+          "payments",
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\payments\\wallet_detail.html",
+        "count": 16,
+        "terms": [
+          "next",
+          "payments",
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\payments\\wallet_withdraw.html",
+        "count": 16,
+        "terms": [
+          "WALLET",
+          "next",
+          "payments",
+          "submit",
+          "wallet"
+        ]
+      },
+      {
+        "file": "templates\\search\\search_results.html",
+        "count": 6,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\partials\\brand\\empty_state_illustration.html",
+        "count": 2,
+        "terms": [
+          "dashboard"
+        ]
+      },
+      {
+        "file": "templates\\partials\\brand\\head_assets.html",
+        "count": 1,
+        "terms": [
+          "preview"
+        ]
+      },
+      {
+        "file": "templates\\partials\\dashboard\\header.html",
+        "count": 1,
+        "terms": [
+          "dashboard"
+        ]
+      },
+      {
+        "file": "templates\\partials\\dashboard\\navbar.html",
+        "count": 4,
+        "terms": [
+          "dashboard"
+        ]
+      },
+      {
+        "file": "templates\\partials\\dashboard\\sidebar.html",
+        "count": 7,
+        "terms": [
+          "dashboard"
+        ]
+      },
+      {
+        "file": "templates\\partials\\search\\search_filters_sheet.html",
+        "count": 10,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\partials\\search\\search_filter_fullscreen.html",
+        "count": 1,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\partials\\search\\search_map.html",
+        "count": 3,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\partials\\search\\search_modals.html",
+        "count": 1,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\partials\\search\\search_page_shell.html",
+        "count": 8,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\partials\\search\\search_topbar.html",
+        "count": 23,
+        "terms": [
+          "back",
+          "search",
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\partials\\shell\\customer_mobile_nav.html",
+        "count": 3,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\partials\\shell\\desktop_site_header.html",
+        "count": 3,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\partials\\shell\\mobile_app_header.html",
+        "count": 1,
+        "terms": [
+          "search"
+        ]
+      },
+      {
+        "file": "templates\\main\\support\\contact_form.html",
+        "count": 2,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\main\\support\\success.html",
+        "count": 1,
+        "terms": [
+          "Back"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\components\\bulk_action_bar.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\components\\empty_state.html",
+        "count": 1,
+        "terms": [
+          "dashboard"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\components\\filter_bar.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\components\\form_card.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\components\\multi_form_page.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\components\\page_hero.html",
+        "count": 1,
+        "terms": [
+          "profile"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\components\\reports_filter_bar.html",
+        "count": 1,
+        "terms": [
+          "submit"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\components\\stat_card.html",
+        "count": 3,
+        "terms": [
+          "dashboard"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\partials\\overview_intro.html",
+        "count": 29,
+        "terms": [
+          "dashboard",
+          "workspace"
+        ]
+      },
+      {
+        "file": "templates\\csf\\partials\\favorite_salons.html",
+        "count": 3,
+        "terms": [
+          "profile",
+          "search"
+        ]
+      },
+      {
+        "file": "static\\css\\loomera-brand.css",
+        "count": 348,
+        "terms": [
+          "Booking",
+          "Checkout",
+          "Clients",
+          "Dashboard",
+          "Marketing",
+          "Payments",
+          "Profile",
+          "Reports",
+          "Search",
+          "back",
+          "booking",
+          "checkout",
+          "dashboard",
+          "marketing",
+          "profile",
+          "reports",
+          "search",
+          "submit",
+          "wallet",
+          "workspace"
+        ]
+      },
+      {
+        "file": "static\\css\\loomera-typography.css",
+        "count": 7,
+        "terms": [
+          "back",
+          "dashboard",
+          "settings"
+        ]
+      },
+      {
+        "file": "static\\css\\output.css",
+        "count": 13,
+        "terms": [
+          "search",
+          "settings",
+          "submit"
+        ]
+      },
+      {
+        "file": "static\\css\\fontawesome\\all.css",
+        "count": 30,
+        "terms": [
+          "back",
+          "cancel",
+          "dashboard",
+          "delete",
+          "edit",
+          "invoice",
+          "next",
+          "save",
+          "search",
+          "settings",
+          "wallet"
+        ]
+      },
+      {
+        "file": "static\\css\\fontawesome\\all.min.css",
+        "count": 21,
+        "terms": [
+          "back",
+          "cancel",
+          "dashboard",
+          "delete",
+          "edit",
+          "invoice",
+          "next",
+          "save",
+          "search",
+          "settings",
+          "wallet"
+        ]
+      },
+      {
+        "file": "static\\css\\fontawesome\\brands.css",
+        "count": 1,
+        "terms": [
+          "wallet"
+        ]
+      },
+      {
+        "file": "static\\css\\fontawesome\\brands.min.css",
+        "count": 1,
+        "terms": [
+          "wallet"
+        ]
+      },
+      {
+        "file": "static\\css\\fontawesome\\fontawesome.css",
+        "count": 27,
+        "terms": [
+          "back",
+          "cancel",
+          "dashboard",
+          "delete",
+          "edit",
+          "invoice",
+          "next",
+          "save",
+          "search",
+          "settings",
+          "wallet"
+        ]
+      },
+      {
+        "file": "static\\css\\fontawesome\\fontawesome.min.css",
+        "count": 20,
+        "terms": [
+          "back",
+          "cancel",
+          "dashboard",
+          "delete",
+          "edit",
+          "invoice",
+          "next",
+          "save",
+          "search",
+          "settings",
+          "wallet"
+        ]
+      },
+      {
+        "file": "static\\css\\fontawesome\\regular.css",
+        "count": 1,
+        "terms": [
+          "next"
+        ]
+      },
+      {
+        "file": "static\\css\\fontawesome\\solid.css",
+        "count": 1,
+        "terms": [
+          "next"
+        ]
+      },
+      {
+        "file": "static\\css\\fontawesome\\svg-with-js.css",
+        "count": 7,
+        "terms": [
+          "back",
+          "next"
+        ]
+      },
+      {
+        "file": "static\\css\\fontawesome\\v4-shims.css",
+        "count": 6,
+        "terms": [
+          "dashboard",
+          "edit",
+          "save",
+          "wallet"
+        ]
+      },
+      {
+        "file": "static\\css\\fontawesome\\v4-shims.min.css",
+        "count": 5,
+        "terms": [
+          "dashboard",
+          "edit",
+          "save",
+          "wallet"
+        ]
+      }
+    ],
+    "half_english": [
+      {
+        "file": "templates\\accounts\\customer_signup.html",
+        "count": 1,
+        "terms": [
+          "flow"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\login.html",
+        "count": 1,
+        "terms": [
+          "flow"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\register.html",
+        "count": 1,
+        "terms": [
+          "flow"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\remember_password.html",
+        "count": 1,
+        "terms": [
+          "flow"
+        ]
+      },
+      {
+        "file": "templates\\accounts\\verify.html",
+        "count": 1,
+        "terms": [
+          "flow"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\add_stylist.html",
+        "count": 5,
+        "terms": [
+          "preview"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\appointment_calendar.html",
+        "count": 14,
+        "terms": [
+          "workspace"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\edit_service.html",
+        "count": 5,
+        "terms": [
+          "preview"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\edit_stylist.html",
+        "count": 6,
+        "terms": [
+          "catalog",
+          "preview"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\finance_reports.html",
+        "count": 2,
+        "terms": [
+          "flow"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\payout_settings.html",
+        "count": 1,
+        "terms": [
+          "readiness"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\products.html",
+        "count": 2,
+        "terms": [
+          "backend",
+          "workspace"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\reports.html",
+        "count": 10,
+        "terms": [
+          "workspace"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\scheduled_shifts.html",
+        "count": 2,
+        "terms": [
+          "planner"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stocktakes.html",
+        "count": 1,
+        "terms": [
+          "workspace"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stylist_add_customer.html",
+        "count": 1,
+        "terms": [
+          "workspace"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\stylist_quick_links.html",
+        "count": 2,
+        "terms": [
+          "deterministic",
+          "preview"
+        ]
+      },
+      {
+        "file": "templates\\orders\\checkout.html",
+        "count": 1,
+        "terms": [
+          "preview"
+        ]
+      },
+      {
+        "file": "templates\\orders\\reservation_preview.html",
+        "count": 1,
+        "terms": [
+          "preview"
+        ]
+      },
+      {
+        "file": "templates\\pages\\home.html",
+        "count": 1,
+        "terms": [
+          "preview"
+        ]
+      },
+      {
+        "file": "templates\\payments\\wallet_charge.html",
+        "count": 1,
+        "terms": [
+          "mock"
+        ]
+      },
+      {
+        "file": "templates\\partials\\brand\\head_assets.html",
+        "count": 1,
+        "terms": [
+          "preview"
+        ]
+      },
+      {
+        "file": "templates\\partials\\search\\search_filter_fullscreen.html",
+        "count": 1,
+        "terms": [
+          "backend"
+        ]
+      },
+      {
+        "file": "templates\\dashboards\\partials\\overview_intro.html",
+        "count": 24,
+        "terms": [
+          "workspace"
+        ]
+      },
+      {
+        "file": "static\\css\\loomera-brand.css",
+        "count": 5,
+        "terms": [
+          "Flow",
+          "flow",
+          "workspace"
+        ]
+      }
+    ]
+  },
+  "tailwind_node_check": {
+    "returncode": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  "phase21_marker_present": true,
+  "phase20_marker_present": true
+}

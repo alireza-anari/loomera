@@ -1,0 +1,158 @@
+{% extends "platform_admin/base.html" %}
+{% load jalali_extras %}
+{% block platform_content %}
+<section class="space-y-6">
+  <header class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="bg-gradient-to-l from-loomera-primarySoft/70 via-white to-white p-5 lg:p-6">
+      <a class="inline-flex items-center gap-2 text-sm font-black text-loomera-primary transition hover:text-loomera-primary/80" href="{% url 'platform_admin:users' %}">
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        بازگشت به کاربران
+      </a>
+      <div class="mt-5 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex min-w-0 items-center gap-4">
+          <span class="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.5rem] bg-loomera-primary text-xl font-black text-white shadow-sm">
+            {{ target_user.name|default:target_user.mobile_number|slice:":1" }}
+          </span>
+          <div class="min-w-0">
+            <h2 class="truncate text-2xl font-black text-loomera-textPrimary lg:text-3xl">{{ target_user.get_fullName|default:target_user.mobile_number }}</h2>
+            <p class="mt-2 flex flex-wrap gap-2 text-sm font-semibold text-loomera-textMuted">
+              <span dir="ltr">{{ target_user.mobile_number }}</span>
+              <span>•</span>
+              <span>{{ target_user.email|default:"بدون ایمیل" }}</span>
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="inline-flex items-center rounded-full px-4 py-2 text-xs font-black {% if target_user.is_active %}bg-emerald-50 text-emerald-700{% else %}bg-rose-50 text-rose-700{% endif %}">
+            {{ target_user.is_active|yesno:"حساب فعال,حساب غیرفعال" }}
+          </span>
+          <span class="inline-flex items-center rounded-full px-4 py-2 text-xs font-black {% if target_user.is_admin %}bg-loomera-primarySoft text-loomera-primary{% else %}bg-loomera-surface text-loomera-textMuted{% endif %}">
+            {{ target_user.is_admin|yesno:"ادمین,کاربر عادی" }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid gap-6 xl:grid-cols-3">
+    <div class="space-y-6 xl:col-span-2">
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-black text-loomera-primary">Account</p>
+            <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">وضعیت حساب</h3>
+          </div>
+          <span class="rounded-full bg-loomera-surface px-3 py-1 text-xs font-black text-loomera-textMuted">#{{ target_user.pk }}</span>
+        </div>
+        <div class="mt-4 grid gap-3 md:grid-cols-2">
+          <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
+            <p class="text-xs font-black text-loomera-textMuted">فعال</p>
+            <strong class="mt-2 block text-loomera-textPrimary">{{ target_user.is_active|yesno:"بله,خیر" }}</strong>
+          </div>
+          <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
+            <p class="text-xs font-black text-loomera-textMuted">دسترسی ادمین</p>
+            <strong class="mt-2 block text-loomera-textPrimary">{{ target_user.is_admin|yesno:"بله,خیر" }}</strong>
+          </div>
+          <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
+            <p class="text-xs font-black text-loomera-textMuted">شماره موبایل</p>
+            <strong dir="ltr" class="mt-2 block text-loomera-textPrimary">{{ target_user.mobile_number }}</strong>
+          </div>
+          <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
+            <p class="text-xs font-black text-loomera-textMuted">ایمیل</p>
+            <strong class="mt-2 block truncate text-loomera-textPrimary">{{ target_user.email|default:"ثبت نشده" }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-black text-loomera-primary">Stylist</p>
+            <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">عضویت‌های متخصص</h3>
+          </div>
+          <span class="rounded-full bg-loomera-surface px-3 py-1 text-xs font-black text-loomera-textMuted">{{ stylist_memberships|length }} مورد</span>
+        </div>
+        <div class="mt-4 grid gap-3 md:grid-cols-2">
+          {% for m in stylist_memberships %}
+            <article class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+              <p class="font-black text-loomera-textPrimary">{{ m.salon }}</p>
+              <p class="mt-2 text-xs font-bold text-loomera-textMuted">وضعیت: {{ m.get_status_display }}</p>
+            </article>
+          {% empty %}
+            <p class="rounded-[1.5rem] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-5 text-center text-sm text-loomera-textMuted md:col-span-2">عضویت متخصصی ندارد.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-black text-loomera-primary">Manager</p>
+            <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">مجموعه‌های مدیریت‌شده</h3>
+          </div>
+          <span class="rounded-full bg-loomera-surface px-3 py-1 text-xs font-black text-loomera-textMuted">{{ managed_salons|length }} مورد</span>
+        </div>
+        <div class="mt-4 grid gap-3 md:grid-cols-2">
+          {% for s in managed_salons %}
+            <article class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+              <p class="font-black text-loomera-textPrimary">{{ s.salon_name }}</p>
+              <p class="mt-2 text-xs font-bold text-loomera-textMuted">وضعیت: {{ s.is_active|yesno:"فعال,غیرفعال" }}</p>
+            </article>
+          {% empty %}
+            <p class="rounded-[1.5rem] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-5 text-center text-sm text-loomera-textMuted md:col-span-2">مجموعه مدیریتی ندارد.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+
+    <aside class="space-y-6">
+      <section class="rounded-[2rem] border border-rose-100 bg-white p-5 shadow-sm">
+        <div class="flex items-start gap-3">
+          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+            <i class="fa-solid fa-user-slash" aria-hidden="true"></i>
+          </span>
+          <div>
+            <h3 class="text-lg font-black text-loomera-textPrimary">تعلیق حساب</h3>
+            <p class="mt-1 text-xs font-semibold leading-6 text-loomera-textMuted">این عملیات حساس است و در audit ثبت می‌شود.</p>
+          </div>
+        </div>
+        <form method="post" action="{% url 'platform_admin:user_suspend' target_user.pk %}" class="mt-4 space-y-3">
+          {% csrf_token %}
+          {% for field in suspension_form %}
+            <label class="block">
+              <span class="mb-2 block text-xs font-black text-loomera-textMuted">{{ field.label }}</span>
+              {{ field }}
+              {% if field.errors %}<small class="mt-1 block text-xs font-bold text-rose-600">{{ field.errors.0 }}</small>{% endif %}
+            </label>
+          {% endfor %}
+          <button class="w-full rounded-2xl bg-rose-600 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-rose-700" onclick="return confirm('کاربر تعلیق شود؟');">
+            تعلیق کاربر
+          </button>
+        </form>
+      </section>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <h3 class="text-lg font-black text-loomera-textPrimary">نقش‌های ادمین</h3>
+        <div class="mt-4 space-y-2 text-sm">
+          {% for role in admin_roles %}
+            <p class="rounded-2xl bg-loomera-primarySoft px-4 py-3 font-black text-loomera-primaryText">{{ role.get_role_display }}</p>
+          {% empty %}
+            <p class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-loomera-textMuted">نقش داخلی ندارد.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <h3 class="text-lg font-black text-loomera-textPrimary">لاگ‌های امنیتی اخیر</h3>
+        <div class="mt-4 space-y-2 text-sm">
+          {% for log in security_logs %}
+            <p class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-loomera-textMuted">{{ log.event_type|default:"رویداد" }} — {{ log.created_at|jalali_date:"short" }}</p>
+          {% empty %}
+            <p class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-loomera-textMuted">لاگی ثبت نشده است.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </aside>
+  </div>
+</section>
+{% endblock %}
