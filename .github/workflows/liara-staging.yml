@@ -1,0 +1,39 @@
+name: Deploy Loomera Staging to Liara
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: loomera-staging-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy staging
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Liara CLI
+        run: npm install --global @liara/cli@9
+
+      - name: Deploy to Liara
+        env:
+          LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
+        run: |
+          liara deploy \
+            --app="loomera-staging" \
+            --api-token="$LIARA_TOKEN" \
+            --no-app-logs
