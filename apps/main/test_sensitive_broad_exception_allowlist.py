@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ast
+
 from collections import Counter
 import json
 from pathlib import Path
@@ -10,6 +12,7 @@ from django.test import SimpleTestCase
 from apps.main.sensitive_exception_inventory import (
     ALLOWED_CATEGORIES,
     ALLOWED_REVIEW_STATUSES,
+    _ast_hash,
     collect_broad_exception_inventory,
     collect_forbidden_exception_handlers,
 )
@@ -132,4 +135,81 @@ class SensitiveBroadExceptionAllowlistTests(SimpleTestCase):
         self.assertEqual(
             len(identities),
             len(set(identities)),
+        )
+
+    def test_ast_hash_ignores_new_empty_optional_fields(self):
+        NodeWithoutOptionalField = type(
+            "CompatibleNode",
+            (ast.AST,),
+            {
+                "_fields": ("body",),
+            },
+        )
+
+        NodeWithOptionalField = type(
+            "CompatibleNode",
+            (ast.AST,),
+            {
+                "_fields": (
+                    "body",
+                    "type_params",
+                ),
+            },
+        )
+
+        old_version_node = NodeWithoutOptionalField()
+        old_version_node.body = [
+            ast.Pass(),
+        ]
+
+        new_version_node = NodeWithOptionalField()
+        new_version_node.body = [
+            ast.Pass(),
+        ]
+        new_version_node.type_params = []
+
+        self.assertEqual(
+            _ast_hash(old_version_node),
+            _ast_hash(new_version_node),
+        )
+
+    def test_ast_hash_detects_non_empty_optional_fields(self):
+        NodeWithoutOptionalField = type(
+            "CompatibleNode",
+            (ast.AST,),
+            {
+                "_fields": ("body",),
+            },
+        )
+
+        NodeWithOptionalField = type(
+            "CompatibleNode",
+            (ast.AST,),
+            {
+                "_fields": (
+                    "body",
+                    "type_params",
+                ),
+            },
+        )
+
+        old_version_node = NodeWithoutOptionalField()
+        old_version_node.body = [
+            ast.Pass(),
+        ]
+
+        changed_node = NodeWithOptionalField()
+        changed_node.body = [
+            ast.Pass(),
+        ]
+        changed_node.type_params = [
+            ast.Name(
+                id="T",
+                ctx=ast.Load(),
+            ),
+        ]
+
+        self.assertNotEqual(
+            _ast_hash(old_version_node),
+            _ast_hash(changed_node),
         )

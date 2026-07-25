@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import json
+
 import ast
 from collections import defaultdict
 from hashlib import sha256
 from pathlib import Path
-
 
 SENSITIVE_APPS = (
     "payments",
@@ -36,52 +37,42 @@ ALLOWED_REVIEW_STATUSES = {
 
 CATEGORY_NOTES = {
     "infrastructure_cache_boundary": (
-        "Cache backend boundary; provider-specific failures "
-        "vary by backend."
+        "Cache backend boundary; provider-specific failures " "vary by backend."
     ),
     "provider_webhook_boundary": (
         "External provider or webhook boundary that must "
         "convert failures into a controlled domain result."
     ),
     "per_item_command_boundary": (
-        "Per-record command isolation; one failed record "
-        "must not stop the batch."
+        "Per-record command isolation; one failed record " "must not stop the batch."
     ),
     "notification_delivery_boundary": (
-        "Best-effort notification delivery must not roll "
-        "back the primary action."
+        "Best-effort notification delivery must not roll " "back the primary action."
     ),
     "domain_action_boundary": (
-        "Messaging action boundary converts domain failures "
-        "into action results."
+        "Messaging action boundary converts domain failures " "into action results."
     ),
     "readiness_probe_boundary": (
-        "Readiness probe records an unavailable dependency "
-        "instead of crashing."
+        "Readiness probe records an unavailable dependency " "instead of crashing."
     ),
     "signal_safety_boundary": (
-        "Signal side effect must not break the primary "
-        "database operation."
+        "Signal side effect must not break the primary " "database operation."
     ),
     "legacy_template_fallback": (
-        "Legacy display fallback retained for compatibility; "
-        "narrowing is tracked."
+        "Legacy display fallback retained for compatibility; " "narrowing is tracked."
     ),
     "user_facing_recovery": (
-        "Legacy user-facing recovery boundary; narrowing "
-        "is tracked."
+        "Legacy user-facing recovery boundary; narrowing " "is tracked."
     ),
     "legacy_financial_lifecycle_fallback": (
         "Legacy financial/lifecycle fallback; requires "
         "dedicated regression tests before further narrowing."
     ),
     "legacy_lifecycle_fallback": (
-        "Legacy lifecycle compatibility fallback; narrowing "
-        "is tracked."
+        "Legacy lifecycle compatibility fallback; narrowing " "is tracked."
     ),
     "optional_data_compatibility_fallback": (
-        "Optional or legacy data compatibility fallback; "
-        "narrowing is tracked."
+        "Optional or legacy data compatibility fallback; " "narrowing is tracked."
     ),
 }
 
@@ -124,9 +115,7 @@ def exception_names(
         names: set[str] = set()
 
         for item in node.elts:
-            names.update(
-                exception_names(item)
-            )
+            names.update(exception_names(item))
 
         return names
 
@@ -156,16 +145,59 @@ def _owner_qualname(
     return ".".join(reversed(names)) or "<module>"
 
 
+def _canonical_ast(value):
+    """Return a Python-version-stable representation of an AST value."""
+
+    if isinstance(value, ast.AST):
+        fields = {}
+
+        for field_name, field_value in ast.iter_fields(value):
+            normalized = _canonical_ast(field_value)
+
+            # Different Python versions may add optional AST fields.
+            # Empty optional fields must not change the fingerprint.
+            if normalized is None:
+                continue
+
+            if normalized == []:
+                continue
+
+            if normalized == {}:
+                continue
+
+            fields[field_name] = normalized
+
+        return {
+            "node": type(value).__name__,
+            "fields": fields,
+        }
+
+    if isinstance(value, (list, tuple)):
+        return [_canonical_ast(item) for item in value]
+
+    if isinstance(value, bytes):
+        return {
+            "bytes": value.hex(),
+        }
+
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+
+    return {
+        "python_type": type(value).__name__,
+        "repr": repr(value),
+    }
+
+
 def _ast_hash(value: ast.AST) -> str:
-    payload = ast.dump(
-        value,
-        annotate_fields=True,
-        include_attributes=False,
+    payload = json.dumps(
+        _canonical_ast(value),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
     )
 
-    return sha256(
-        payload.encode("utf-8")
-    ).hexdigest()
+    return sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _category_for(
@@ -187,18 +219,9 @@ def _category_for(
         )
 
     if path in {
-        (
-            "apps/payments/management/commands/"
-            "expire_abandoned_online_checkouts.py"
-        ),
-        (
-            "apps/payments/management/commands/"
-            "reconcile_pending_gateway_payments.py"
-        ),
-        (
-            "apps/orders/management/commands/"
-            "repair_no_show_refunds.py"
-        ),
+        ("apps/payments/management/commands/" "expire_abandoned_online_checkouts.py"),
+        ("apps/payments/management/commands/" "reconcile_pending_gateway_payments.py"),
+        ("apps/orders/management/commands/" "repair_no_show_refunds.py"),
     }:
         return (
             "per_item_command_boundary",
@@ -215,10 +238,7 @@ def _category_for(
             "approved_boundary",
         )
 
-    if path == (
-        "apps/api/management/commands/"
-        "app_api_readiness_check.py"
-    ):
+    if path == ("apps/api/management/commands/" "app_api_readiness_check.py"):
         return (
             "readiness_probe_boundary",
             "approved_boundary",
@@ -231,13 +251,10 @@ def _category_for(
         )
 
     if (
-        path
-        == "apps/orders/notification_delivery.py"
+        path == "apps/orders/notification_delivery.py"
         or "notification" in qualname.lower()
         or qualname.startswith("_notify_")
-        or key.endswith(
-            "::dispatch_due_order_reminders"
-        )
+        or key.endswith("::dispatch_due_order_reminders")
         or key.endswith("::create_notification")
     ):
         return (
@@ -245,10 +262,7 @@ def _category_for(
             "approved_boundary",
         )
 
-    if path == (
-        "apps/orders/templatetags/"
-        "jalali_filters.py"
-    ):
+    if path == ("apps/orders/templatetags/" "jalali_filters.py"):
         return (
             "legacy_template_fallback",
             "tracked_legacy",
@@ -286,16 +300,10 @@ def collect_forbidden_exception_handlers(
 ) -> list[dict]:
     violations: list[dict] = []
 
-    for path in production_python_files(
-        base_dir
-    ):
-        relative = path.relative_to(
-            base_dir
-        ).as_posix()
+    for path in production_python_files(base_dir):
+        relative = path.relative_to(base_dir).as_posix()
 
-        source = path.read_text(
-            encoding="utf-8"
-        )
+        source = path.read_text(encoding="utf-8")
         tree = ast.parse(
             source,
             filename=str(path),
@@ -323,9 +331,7 @@ def collect_forbidden_exception_handlers(
                 {
                     "path": relative,
                     "line": node.lineno,
-                    "exceptions": sorted(
-                        forbidden
-                    ),
+                    "exceptions": sorted(forbidden),
                 }
             )
 
@@ -343,16 +349,10 @@ def collect_broad_exception_inventory(
 ) -> list[dict]:
     pending: list[dict] = []
 
-    for path in production_python_files(
-        base_dir
-    ):
-        relative = path.relative_to(
-            base_dir
-        ).as_posix()
+    for path in production_python_files(base_dir):
+        relative = path.relative_to(base_dir).as_posix()
 
-        source = path.read_text(
-            encoding="utf-8"
-        )
+        source = path.read_text(encoding="utf-8")
         tree = ast.parse(
             source,
             filename=str(path),
@@ -364,9 +364,7 @@ def collect_broad_exception_inventory(
         ] = {}
 
         for parent in ast.walk(tree):
-            for child in ast.iter_child_nodes(
-                parent
-            ):
+            for child in ast.iter_child_nodes(parent):
                 parents[child] = parent
 
         for node in ast.walk(tree):
@@ -376,9 +374,7 @@ def collect_broad_exception_inventory(
             ):
                 continue
 
-            if "Exception" not in exception_names(
-                node.type
-            ):
+            if "Exception" not in exception_names(node.type):
                 continue
 
             try_node = parents.get(node)
@@ -391,8 +387,7 @@ def collect_broad_exception_inventory(
                 ),
             ):
                 raise AssertionError(
-                    f"{relative}:{node.lineno}: "
-                    "broad handler has no Try parent"
+                    f"{relative}:{node.lineno}: " "broad handler has no Try parent"
                 )
 
             qualname = _owner_qualname(
@@ -413,24 +408,12 @@ def collect_broad_exception_inventory(
                     "path": relative,
                     "qualname": qualname,
                     "line": node.lineno,
-                    "try_handler_index": (
-                        try_node.handlers.index(
-                            node
-                        )
-                    ),
-                    "try_sha256": _ast_hash(
-                        try_node
-                    ),
-                    "handler_sha256": _ast_hash(
-                        node
-                    ),
+                    "try_handler_index": (try_node.handlers.index(node)),
+                    "try_sha256": _ast_hash(try_node),
+                    "handler_sha256": _ast_hash(node),
                     "category": category,
-                    "review_status": (
-                        review_status
-                    ),
-                    "note": CATEGORY_NOTES[
-                        category
-                    ],
+                    "review_status": (review_status),
+                    "note": CATEGORY_NOTES[category],
                 }
             )
 
@@ -450,9 +433,7 @@ def collect_broad_exception_inventory(
     inventory: list[dict] = []
 
     for items in grouped.values():
-        items.sort(
-            key=lambda item: item["line"]
-        )
+        items.sort(key=lambda item: item["line"])
 
         for ordinal, item in enumerate(
             items,
