@@ -32,6 +32,7 @@ TEST_LOC_MEM_CACHES = {
     OTP_RESEND_COOLDOWN_SECONDS=30,
     PASSWORD_RESET_SESSION_TTL_SECONDS=900,
     CACHES=TEST_LOC_MEM_CACHES,
+    SECURE_SSL_REDIRECT=False,
 )
 class Stage1AuthAndAccessTests(Stage1DomainFactoryMixin, TestCase):
     def test_role_redirect_name_maps_known_profiles(self):
