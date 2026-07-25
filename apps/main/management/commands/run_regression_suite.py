@@ -10,12 +10,12 @@ from apps.main.regression_suites import (
     REGRESSION_SUITES,
     get_regression_suite,
 )
+from django.test import override_settings
 
 
 class Command(BaseCommand):
     help = (
-        "Run one curated Loomera regression suite through "
-        "Django's DiscoverRunner."
+        "Run one curated Loomera regression suite through " "Django's DiscoverRunner."
     )
 
     def add_arguments(self, parser):
@@ -56,9 +56,7 @@ class Command(BaseCommand):
         self.stdout.write("Loomera regression suites:")
 
         for name, labels in REGRESSION_SUITES.items():
-            self.stdout.write(
-                f"- {name}: {len(labels)} module(s)"
-            )
+            self.stdout.write(f"- {name}: {len(labels)} module(s)")
 
             for label in labels:
                 self.stdout.write(f"    {label}")
@@ -71,9 +69,7 @@ class Command(BaseCommand):
         suite_name = options["suite"]
 
         if not suite_name:
-            raise CommandError(
-                "Choose a suite or use --list."
-            )
+            raise CommandError("Choose a suite or use --list.")
 
         labels = get_regression_suite(suite_name)
 
@@ -91,7 +87,8 @@ class Command(BaseCommand):
             keepdb=options["keepdb"],
             failfast=options["failfast"],
         )
-        failures = runner.run_tests(labels)
+        with override_settings(SECURE_SSL_REDIRECT=False):
+            failures = runner.run_tests(labels)
 
         if failures:
             self.stderr.write(
@@ -103,7 +100,5 @@ class Command(BaseCommand):
             raise SystemExit(1)
 
         self.stdout.write(
-            self.style.SUCCESS(
-                f"Regression suite {suite_name!r} passed."
-            )
+            self.style.SUCCESS(f"Regression suite {suite_name!r} passed.")
         )

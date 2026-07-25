@@ -7,7 +7,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 
 from apps.main.release_readiness import (
     OPERATIONAL_DRY_RUN_COMMANDS,
@@ -18,11 +18,7 @@ from apps.main.release_readiness import (
     validate_release_readiness_plan,
 )
 
-
-COMMAND_MODULE = (
-    "apps.main.management.commands."
-    "release_readiness_check"
-)
+COMMAND_MODULE = "apps.main.management.commands." "release_readiness_check"
 
 
 class ReleaseReadinessPlanTests(SimpleTestCase):
@@ -40,9 +36,7 @@ class ReleaseReadinessPlanTests(SimpleTestCase):
             ),
         )
         self.assertEqual(
-            validate_release_readiness_plan(
-                Path(settings.BASE_DIR)
-            ),
+            validate_release_readiness_plan(Path(settings.BASE_DIR)),
             (),
         )
         self.assertEqual(
@@ -60,14 +54,11 @@ class ReleaseReadinessPlanTests(SimpleTestCase):
             len(set(RELEASE_REGRESSION_SUITE)),
         )
         self.assertFalse(
-            set(STRUCTURAL_GUARD_SUITE).intersection(
-                RELEASE_REGRESSION_SUITE
-            )
+            set(STRUCTURAL_GUARD_SUITE).intersection(RELEASE_REGRESSION_SUITE)
         )
         self.assertEqual(
             len(RELEASE_READINESS_TEST_LABELS),
-            len(STRUCTURAL_GUARD_SUITE)
-            + len(RELEASE_REGRESSION_SUITE),
+            len(STRUCTURAL_GUARD_SUITE) + len(RELEASE_REGRESSION_SUITE),
         )
 
 
@@ -84,9 +75,7 @@ class ReleaseReadinessCommandTests(SimpleTestCase):
                 f"{COMMAND_MODULE}.call_command",
                 side_effect=fake_call_command,
             ),
-            patch(
-                f"{COMMAND_MODULE}.DiscoverRunner"
-            ) as runner_class,
+            patch(f"{COMMAND_MODULE}.DiscoverRunner") as runner_class,
         ):
             runner = runner_class.return_value
             runner.run_tests.return_value = 0
@@ -105,11 +94,7 @@ class ReleaseReadinessCommandTests(SimpleTestCase):
                 "makemigrations",
                 "infrastructure_preflight_check",
                 "pre_beta_check",
-                *[
-                    name
-                    for name, _kwargs
-                    in OPERATIONAL_DRY_RUN_COMMANDS
-                ],
+                *[name for name, _kwargs in OPERATIONAL_DRY_RUN_COMMANDS],
             ],
         )
         self.assertEqual(runner_class.call_count, 2)
@@ -146,18 +131,14 @@ class ReleaseReadinessCommandTests(SimpleTestCase):
             call_count += 1
 
             if name == "makemigrations":
-                raise CommandError(
-                    "sensitive migration details"
-                )
+                raise CommandError("sensitive migration details")
 
         with (
             patch(
                 f"{COMMAND_MODULE}.call_command",
                 side_effect=fake_call_command,
             ),
-            patch(
-                f"{COMMAND_MODULE}.DiscoverRunner"
-            ) as runner_class,
+            patch(f"{COMMAND_MODULE}.DiscoverRunner") as runner_class,
         ):
             runner = runner_class.return_value
             runner.run_tests.return_value = 0
@@ -193,13 +174,9 @@ class ReleaseReadinessCommandTests(SimpleTestCase):
         with (
             patch(
                 f"{COMMAND_MODULE}.call_command",
-                side_effect=CommandError(
-                    "system failed"
-                ),
+                side_effect=CommandError("system failed"),
             ),
-            patch(
-                f"{COMMAND_MODULE}.DiscoverRunner"
-            ) as runner_class,
+            patch(f"{COMMAND_MODULE}.DiscoverRunner") as runner_class,
         ):
             with self.assertRaises(SystemExit):
                 call_command(
@@ -220,12 +197,8 @@ class ReleaseReadinessCommandTests(SimpleTestCase):
         stdout = StringIO()
 
         with (
-            patch(
-                f"{COMMAND_MODULE}.call_command"
-            ),
-            patch(
-                f"{COMMAND_MODULE}.DiscoverRunner"
-            ) as runner_class,
+            patch(f"{COMMAND_MODULE}.call_command"),
+            patch(f"{COMMAND_MODULE}.DiscoverRunner") as runner_class,
         ):
             runner = runner_class.return_value
             runner.run_tests.return_value = 0
@@ -252,17 +225,11 @@ class ReleaseReadinessCommandTests(SimpleTestCase):
         self,
     ):
         stdout = StringIO()
-        custom_labels = (
-            "apps.main.test_release_quality",
-        )
+        custom_labels = ("apps.main.test_release_quality",)
 
         with (
-            patch(
-                f"{COMMAND_MODULE}.call_command"
-            ),
-            patch(
-                f"{COMMAND_MODULE}.DiscoverRunner"
-            ) as runner_class,
+            patch(f"{COMMAND_MODULE}.call_command"),
+            patch(f"{COMMAND_MODULE}.DiscoverRunner") as runner_class,
         ):
             runner = runner_class.return_value
             runner.run_tests.return_value = 0
@@ -286,13 +253,9 @@ class ReleaseReadinessCommandTests(SimpleTestCase):
         with (
             patch(
                 f"{COMMAND_MODULE}.call_command",
-                side_effect=RuntimeError(
-                    "sensitive backend details"
-                ),
+                side_effect=RuntimeError("sensitive backend details"),
             ),
-            patch(
-                f"{COMMAND_MODULE}.DiscoverRunner"
-            ),
+            patch(f"{COMMAND_MODULE}.DiscoverRunner"),
         ):
             with self.assertRaises(SystemExit):
                 call_command(
@@ -307,6 +270,41 @@ class ReleaseReadinessCommandTests(SimpleTestCase):
         self.assertNotIn(
             "sensitive backend details",
             output,
+        )
+
+    def test_nested_test_stages_disable_ssl_redirect(self):
+        stdout = StringIO()
+        observed_values = []
+
+        def fake_run_tests(_labels):
+            observed_values.append(settings.SECURE_SSL_REDIRECT)
+            return 0
+
+        with (
+            override_settings(
+                SECURE_SSL_REDIRECT=True,
+            ),
+            patch(
+                f"{COMMAND_MODULE}.call_command",
+            ),
+            patch(
+                f"{COMMAND_MODULE}.DiscoverRunner",
+            ) as runner_class,
+        ):
+            runner = runner_class.return_value
+            runner.run_tests.side_effect = fake_run_tests
+
+            call_command(
+                "release_readiness_check",
+                stdout=stdout,
+            )
+
+            # The real setting remains enabled outside nested test execution.
+            self.assertTrue(settings.SECURE_SSL_REDIRECT)
+
+        self.assertEqual(
+            observed_values,
+            [False, False],
         )
 
 
@@ -324,9 +322,7 @@ from django.test import (
 )
 
 
-class ScheduledTaskDryRunSafetyTests(
-    _SimpleTestCase
-):
+class ScheduledTaskDryRunSafetyTests(_SimpleTestCase):
     def test_dry_run_executes_only_native_dry_run_commands(
         self,
     ):
@@ -335,12 +331,8 @@ class ScheduledTaskDryRunSafetyTests(
         )
 
         with (
-            _patch(
-                "apps.main.infrastructure.call_command"
-            ) as call_command_mock,
-            _patch(
-                "apps.main.infrastructure.operational_job"
-            ) as operational_job_mock,
+            _patch("apps.main.infrastructure.call_command") as call_command_mock,
+            _patch("apps.main.infrastructure.operational_job") as operational_job_mock,
             _patch(
                 "apps.main.infrastructure.timezone.localdate",
                 return_value=_date(2026, 7, 12),
@@ -371,25 +363,15 @@ class ScheduledTaskDryRunSafetyTests(
             results,
             [
                 {
-                    "command": (
-                        "dispatch_appointment_notifications"
-                    ),
-                    "status": (
-                        "skipped_no_native_dry_run"
-                    ),
+                    "command": ("dispatch_appointment_notifications"),
+                    "status": ("skipped_no_native_dry_run"),
                 },
                 {
-                    "command": (
-                        "process_notification_deliveries"
-                    ),
-                    "status": (
-                        "skipped_no_native_dry_run"
-                    ),
+                    "command": ("process_notification_deliveries"),
+                    "status": ("skipped_no_native_dry_run"),
                 },
                 {
-                    "command": (
-                        "confirm_no_show_after_window"
-                    ),
+                    "command": ("confirm_no_show_after_window"),
                     "status": "dry_run",
                 },
                 {
@@ -398,15 +380,11 @@ class ScheduledTaskDryRunSafetyTests(
                 },
                 {
                     "command": "process_report_exports",
-                    "status": (
-                        "skipped_no_native_dry_run"
-                    ),
+                    "status": ("skipped_no_native_dry_run"),
                 },
                 {
                     "command": "build_daily_metrics",
-                    "status": (
-                        "skipped_no_native_dry_run"
-                    ),
+                    "status": ("skipped_no_native_dry_run"),
                 },
             ],
         )
@@ -419,19 +397,15 @@ class ScheduledTaskDryRunSafetyTests(
         )
 
         with (
-            _patch(
-                "apps.main.infrastructure.call_command"
-            ) as call_command_mock,
-            _patch(
-                "apps.main.infrastructure.operational_job"
-            ) as operational_job_mock,
+            _patch("apps.main.infrastructure.call_command") as call_command_mock,
+            _patch("apps.main.infrastructure.operational_job") as operational_job_mock,
             _patch(
                 "apps.main.infrastructure.timezone.localdate",
                 return_value=_date(2026, 7, 12),
             ),
         ):
-            operational_job_mock.return_value.__enter__.return_value = (
-                _SimpleNamespace(pk=901)
+            operational_job_mock.return_value.__enter__.return_value = _SimpleNamespace(
+                pk=901
             )
 
             results = run_scheduled_tasks(
@@ -474,12 +448,7 @@ class ScheduledTaskDryRunSafetyTests(
             len(results),
             6,
         )
-        self.assertTrue(
-            all(
-                result.get("run_id") == 901
-                for result in results
-            )
-        )
+        self.assertTrue(all(result.get("run_id") == 901 for result in results))
 
     def test_management_command_reports_skipped_tasks(
         self,
@@ -495,27 +464,19 @@ class ScheduledTaskDryRunSafetyTests(
             },
             {
                 "command": "unsafe-one",
-                "status": (
-                    "skipped_no_native_dry_run"
-                ),
+                "status": ("skipped_no_native_dry_run"),
             },
             {
                 "command": "unsafe-two",
-                "status": (
-                    "skipped_no_native_dry_run"
-                ),
+                "status": ("skipped_no_native_dry_run"),
             },
             {
                 "command": "unsafe-three",
-                "status": (
-                    "skipped_no_native_dry_run"
-                ),
+                "status": ("skipped_no_native_dry_run"),
             },
             {
                 "command": "unsafe-four",
-                "status": (
-                    "skipped_no_native_dry_run"
-                ),
+                "status": ("skipped_no_native_dry_run"),
             },
         ]
         stdout = _StringIO()

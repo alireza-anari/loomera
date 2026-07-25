@@ -11,6 +11,7 @@ from django.core.management.base import (
     BaseCommand,
     CommandError,
 )
+from django.test import override_settings
 from django.test.runner import DiscoverRunner
 
 from apps.main.release_readiness import (
@@ -137,15 +138,11 @@ class Command(BaseCommand):
         return "No model changes require migrations."
 
     def _run_infrastructure_preflight(self, _options):
-        self._call_management_command(
-            "infrastructure_preflight_check"
-        )
+        self._call_management_command("infrastructure_preflight_check")
         return "Infrastructure preflight passed."
 
     def _run_product_preflight(self, _options):
-        self._call_management_command(
-            "pre_beta_check"
-        )
+        self._call_management_command("pre_beta_check")
         return "Product pre-beta/pre-release preflight passed."
 
     def _run_operational_dry_runs(self, _options):
@@ -161,11 +158,7 @@ class Command(BaseCommand):
                 failures.append(command_name)
             except SystemExit as exc:
                 code = exc.code
-                normalized_code = (
-                    code
-                    if isinstance(code, int)
-                    else 1
-                )
+                normalized_code = code if isinstance(code, int) else 1
 
                 if normalized_code:
                     failures.append(command_name)
@@ -177,10 +170,7 @@ class Command(BaseCommand):
                 f"{len(failures)} operational dry-run(s) failed"
             )
 
-        return (
-            f"{len(OPERATIONAL_DRY_RUN_COMMANDS)} "
-            "operational dry-run(s) passed."
-        )
+        return f"{len(OPERATIONAL_DRY_RUN_COMMANDS)} " "operational dry-run(s) passed."
 
     def _run_test_labels(
         self,
@@ -193,19 +183,19 @@ class Command(BaseCommand):
             keepdb=options["keepdb"],
             failfast=options["failfast"],
         )
-        failures = runner.run_tests(labels)
+        # Regression tests validate application behavior, not the outer
+        # HTTP-to-HTTPS redirect enforced by staging/production settings.
+        # Individual security tests may still enable SSL redirect explicitly.
+        with override_settings(SECURE_SSL_REDIRECT=False):
+            failures = runner.run_tests(labels)
 
         if failures:
-            raise ReadinessStageFailure(
-                f"{failures} test failure(s)"
-            )
+            raise ReadinessStageFailure(f"{failures} test failure(s)")
 
         return f"{len(labels)} test module(s) passed."
 
     def _run_structural_guards(self, options):
-        plan_errors = validate_release_readiness_plan(
-            Path(settings.BASE_DIR)
-        )
+        plan_errors = validate_release_readiness_plan(Path(settings.BASE_DIR))
 
         if plan_errors:
             raise ReadinessStageFailure(
@@ -218,10 +208,7 @@ class Command(BaseCommand):
         )
 
     def _run_release_regression(self, options):
-        labels = tuple(
-            options["test_label"]
-            or RELEASE_REGRESSION_SUITE
-        )
+        labels = tuple(options["test_label"] or RELEASE_REGRESSION_SUITE)
 
         return self._run_test_labels(
             labels,
@@ -234,11 +221,7 @@ class Command(BaseCommand):
         callback: Callable[[dict], str],
         options,
     ) -> StageResult:
-        self.stdout.write(
-            self.style.HTTP_INFO(
-                f"[RUN ] {name}"
-            )
-        )
+        self.stdout.write(self.style.HTTP_INFO(f"[RUN ] {name}"))
 
         try:
             detail = callback(options)
@@ -252,18 +235,11 @@ class Command(BaseCommand):
             return StageResult(
                 name=name,
                 status="FAIL",
-                detail=(
-                    "management command failed: "
-                    f"{type(exc).__name__}"
-                ),
+                detail=("management command failed: " f"{type(exc).__name__}"),
             )
         except SystemExit as exc:
             code = exc.code
-            normalized_code = (
-                code
-                if isinstance(code, int)
-                else 1
-            )
+            normalized_code = code if isinstance(code, int) else 1
 
             if normalized_code == 0:
                 return StageResult(
@@ -275,19 +251,13 @@ class Command(BaseCommand):
             return StageResult(
                 name=name,
                 status="FAIL",
-                detail=(
-                    "stage exited with code "
-                    f"{normalized_code}"
-                ),
+                detail=("stage exited with code " f"{normalized_code}"),
             )
         except Exception as exc:
             return StageResult(
                 name=name,
                 status="FAIL",
-                detail=(
-                    "unexpected stage error: "
-                    f"{type(exc).__name__}"
-                ),
+                detail=("unexpected stage error: " f"{type(exc).__name__}"),
             )
 
         return StageResult(
@@ -301,29 +271,17 @@ class Command(BaseCommand):
         self.stdout.write("Loomera release readiness summary:")
 
         for result in results:
-            line = (
-                f"[{result.status:<4}] "
-                f"{result.name}: {result.detail}"
-            )
+            line = f"[{result.status:<4}] " f"{result.name}: {result.detail}"
 
             if result.status == "PASS":
-                self.stdout.write(
-                    self.style.SUCCESS(line)
-                )
+                self.stdout.write(self.style.SUCCESS(line))
             elif result.status == "SKIP":
-                self.stdout.write(
-                    self.style.WARNING(line)
-                )
+                self.stdout.write(self.style.WARNING(line))
             else:
-                self.stderr.write(
-                    self.style.ERROR(line)
-                )
+                self.stderr.write(self.style.ERROR(line))
 
         counts = {
-            status: sum(
-                result.status == status
-                for result in results
-            )
+            status: sum(result.status == status for result in results)
             for status in ("PASS", "FAIL", "SKIP")
         }
 
@@ -340,44 +298,28 @@ class Command(BaseCommand):
         callbacks = {
             "system-check": self._run_system_check,
             "migration-check": self._run_migration_check,
-            "infrastructure-preflight": (
-                self._run_infrastructure_preflight
-            ),
+            "infrastructure-preflight": (self._run_infrastructure_preflight),
             "product-preflight": self._run_product_preflight,
-            "operational-dry-runs": (
-                self._run_operational_dry_runs
-            ),
+            "operational-dry-runs": (self._run_operational_dry_runs),
             "structural-guards": self._run_structural_guards,
             "release-regression": self._run_release_regression,
         }
         results: list[StageResult] = []
         stop_remaining = False
 
-        self.stdout.write(
-            self.style.HTTP_INFO(
-                "Loomera release readiness started."
-            )
-        )
+        self.stdout.write(self.style.HTTP_INFO("Loomera release readiness started."))
 
         for stage_name in RELEASE_READINESS_STAGES:
             skip_reason = None
 
-            if (
-                stage_name == "migration-check"
-                and options["skip_migrations"]
-            ):
+            if stage_name == "migration-check" and options["skip_migrations"]:
                 skip_reason = "Skipped by --skip-migrations."
             elif (
                 stage_name == "operational-dry-runs"
                 and options["skip_operational_dry_runs"]
             ):
-                skip_reason = (
-                    "Skipped by --skip-operational-dry-runs."
-                )
-            elif (
-                stage_name == "release-regression"
-                and options["skip_regression"]
-            ):
+                skip_reason = "Skipped by --skip-operational-dry-runs."
+            elif stage_name == "release-regression" and options["skip_regression"]:
                 skip_reason = "Skipped by --skip-regression."
 
             if skip_reason is not None:
@@ -407,29 +349,15 @@ class Command(BaseCommand):
             )
             results.append(result)
 
-            if (
-                result.status == "FAIL"
-                and options["failfast"]
-            ):
+            if result.status == "FAIL" and options["failfast"]:
                 stop_remaining = True
 
         self._print_summary(results)
 
-        failures = sum(
-            result.status == "FAIL"
-            for result in results
-        )
+        failures = sum(result.status == "FAIL" for result in results)
 
         if failures:
-            self.stderr.write(
-                self.style.ERROR(
-                    "Loomera release readiness: FAILED"
-                )
-            )
+            self.stderr.write(self.style.ERROR("Loomera release readiness: FAILED"))
             raise SystemExit(1)
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                "Loomera release readiness: PASSED"
-            )
-        )
+        self.stdout.write(self.style.SUCCESS("Loomera release readiness: PASSED"))

@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.core.management import call_command
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 
 from apps.main.regression_suites import (
     BOOKING_SUITE,
@@ -30,10 +30,7 @@ class RegressionSuiteRegistryTests(SimpleTestCase):
 
     @staticmethod
     def _module_path(label: str) -> Path:
-        return (
-            Path(settings.BASE_DIR)
-            / Path(*label.split("."))
-        ).with_suffix(".py")
+        return (Path(settings.BASE_DIR) / Path(*label.split("."))).with_suffix(".py")
 
     def test_registry_has_expected_stable_entry_points(self):
         self.assertEqual(
@@ -75,10 +72,7 @@ class RegressionSuiteRegistryTests(SimpleTestCase):
                 for label in labels:
                     self.assertTrue(
                         label.startswith("apps."),
-                        msg=(
-                            f"{name}: non-project test "
-                            f"label {label!r}"
-                        ),
+                        msg=(f"{name}: non-project test " f"label {label!r}"),
                     )
 
     def test_all_registered_test_modules_exist(self):
@@ -96,9 +90,7 @@ class RegressionSuiteRegistryTests(SimpleTestCase):
                 path = self._module_path(label)
 
                 if not path.is_file():
-                    missing.append(
-                        f"{suite_name}: {label}"
-                    )
+                    missing.append(f"{suite_name}: {label}")
 
         self.assertEqual(missing, [])
 
@@ -124,8 +116,7 @@ class RegressionSuiteRegistryTests(SimpleTestCase):
         stdout = StringIO()
 
         with patch(
-            "apps.main.management.commands."
-            "run_regression_suite.DiscoverRunner"
+            "apps.main.management.commands." "run_regression_suite.DiscoverRunner"
         ) as runner_class:
             call_command(
                 "run_regression_suite",
@@ -144,8 +135,7 @@ class RegressionSuiteRegistryTests(SimpleTestCase):
         stdout = StringIO()
 
         with patch(
-            "apps.main.management.commands."
-            "run_regression_suite.DiscoverRunner"
+            "apps.main.management.commands." "run_regression_suite.DiscoverRunner"
         ) as runner_class:
             runner = runner_class.return_value
             runner.run_tests.return_value = 0
@@ -165,9 +155,7 @@ class RegressionSuiteRegistryTests(SimpleTestCase):
             keepdb=True,
             failfast=True,
         )
-        runner.run_tests.assert_called_once_with(
-            PAYMENTS_SUITE
-        )
+        runner.run_tests.assert_called_once_with(PAYMENTS_SUITE)
         self.assertIn(
             "Regression suite 'payments' passed.",
             stdout.getvalue(),
@@ -177,8 +165,7 @@ class RegressionSuiteRegistryTests(SimpleTestCase):
         stderr = StringIO()
 
         with patch(
-            "apps.main.management.commands."
-            "run_regression_suite.DiscoverRunner"
+            "apps.main.management.commands." "run_regression_suite.DiscoverRunner"
         ) as runner_class:
             runner = runner_class.return_value
             runner.run_tests.return_value = 2
@@ -202,3 +189,37 @@ class RegressionSuiteRegistryTests(SimpleTestCase):
             "Unknown regression suite",
         ):
             get_regression_suite("unknown")
+
+    def test_command_disables_ssl_redirect_during_suite_execution(
+        self,
+    ):
+        stdout = StringIO()
+        observed_values = []
+
+        def fake_run_tests(_labels):
+            observed_values.append(settings.SECURE_SSL_REDIRECT)
+            return 0
+
+        with (
+            override_settings(
+                SECURE_SSL_REDIRECT=True,
+            ),
+            patch(
+                "apps.main.management.commands." "run_regression_suite.DiscoverRunner"
+            ) as runner_class,
+        ):
+            runner = runner_class.return_value
+            runner.run_tests.side_effect = fake_run_tests
+
+            call_command(
+                "run_regression_suite",
+                "security",
+                stdout=stdout,
+            )
+
+            self.assertTrue(settings.SECURE_SSL_REDIRECT)
+
+        self.assertEqual(
+            observed_values,
+            [False],
+        )
