@@ -8,15 +8,11 @@ from pathlib import Path
 
 from django.conf import settings
 from django.test import SimpleTestCase
+from apps.main.sensitive_exception_inventory import stable_ast_sha256
 
 
 class PaymentGatewayContractDocumentationTests(SimpleTestCase):
-    source_path = (
-        Path(settings.BASE_DIR)
-        / "apps"
-        / "payments"
-        / "gateways.py"
-    )
+    source_path = Path(settings.BASE_DIR) / "apps" / "payments" / "gateways.py"
     manifest_path = (
         Path(settings.BASE_DIR)
         / "apps"
@@ -97,12 +93,7 @@ class PaymentGatewayContractDocumentationTests(SimpleTestCase):
     def test_executable_gateway_ast_matches_reviewed_manifest(self):
         _source, tree = self._source_and_tree()
         clean = self._remove_docstrings(tree)
-        payload = ast.dump(
-            clean,
-            annotate_fields=True,
-            include_attributes=False,
-        )
-        actual = sha256(payload.encode("utf-8")).hexdigest()
+        actual = stable_ast_sha256(clean)
 
         self.assertEqual(
             actual,

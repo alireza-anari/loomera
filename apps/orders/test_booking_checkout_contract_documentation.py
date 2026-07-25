@@ -8,6 +8,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.test import SimpleTestCase
+from apps.main.sensitive_exception_inventory import stable_ast_sha256
 
 
 class _DocstringStripper(ast.NodeTransformer):
@@ -46,12 +47,7 @@ class _DocstringStripper(ast.NodeTransformer):
 def _hash_node_without_docstrings(node):
     clean = _DocstringStripper().visit(copy.deepcopy(node))
     ast.fix_missing_locations(clean)
-    payload = ast.dump(
-        clean,
-        annotate_fields=True,
-        include_attributes=False,
-    )
-    return sha256(payload.encode("utf-8")).hexdigest()
+    return stable_ast_sha256(clean)
 
 
 def _doc_hash(doc):
@@ -79,12 +75,7 @@ def _symbol_index(tree):
 
 
 class BookingCheckoutContractDocumentationTests(SimpleTestCase):
-    source_path = (
-        Path(settings.BASE_DIR)
-        / "apps"
-        / "orders"
-        / "views.py"
-    )
+    source_path = Path(settings.BASE_DIR) / "apps" / "orders" / "views.py"
     manifest_path = (
         Path(settings.BASE_DIR)
         / "apps"
@@ -95,9 +86,7 @@ class BookingCheckoutContractDocumentationTests(SimpleTestCase):
     def _state(self):
         source = self.source_path.read_text(encoding="utf-8")
         tree = ast.parse(source, filename=str(self.source_path))
-        manifest = json.loads(
-            self.manifest_path.read_text(encoding="utf-8")
-        )
+        manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
         return manifest, _symbol_index(tree)
 
     def test_manifest_tracks_expected_contract_symbols(self):
