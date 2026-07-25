@@ -93,6 +93,7 @@ BOOKING_SUITE = (
     "apps.api.tests.test_api_v1_availability",
     "apps.api.tests.test_api_v1_next_available",
     "apps.main.test_local_beta_acceptance_seed",
+    "apps.main.test_staging_acceptance_seed",
     *QUICK_LINK_RELEASE_TESTS,
 )
 

@@ -346,7 +346,7 @@ class Command(BaseCommand):
         user.email = email
         user.is_active = True
         user.active_code = "11111"
-        user.set_password(DEFAULT_PASSWORD)
+        user.set_password(getattr(self, "seed_password", DEFAULT_PASSWORD))
         user.save(
             update_fields=[
                 "name",
