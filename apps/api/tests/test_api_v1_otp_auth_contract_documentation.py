@@ -8,6 +8,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.test import SimpleTestCase
+from apps.main.sensitive_exception_inventory import stable_ast_sha256
 
 
 class _DocstringStripper(ast.NodeTransformer):
@@ -46,12 +47,7 @@ class _DocstringStripper(ast.NodeTransformer):
 def _hash_node_without_docstrings(node):
     clean = _DocstringStripper().visit(copy.deepcopy(node))
     ast.fix_missing_locations(clean)
-    payload = ast.dump(
-        clean,
-        annotate_fields=True,
-        include_attributes=False,
-    )
-    return sha256(payload.encode("utf-8")).hexdigest()
+    return stable_ast_sha256(clean)
 
 
 def _doc_hash(doc):
@@ -80,10 +76,7 @@ def _symbol_index(tree):
 
 class OtpAuthContractDocumentationTests(SimpleTestCase):
     manifest_path = (
-        Path(settings.BASE_DIR)
-        / "apps"
-        / "api"
-        / "otp_auth_contract_manifest.json"
+        Path(settings.BASE_DIR) / "apps" / "api" / "otp_auth_contract_manifest.json"
     )
 
     expected_symbols = {
@@ -102,9 +95,7 @@ class OtpAuthContractDocumentationTests(SimpleTestCase):
     }
 
     def _state(self):
-        manifest = json.loads(
-            self.manifest_path.read_text(encoding="utf-8")
-        )
+        manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
         sources = {}
 
         for relative_path in manifest["sources"]:
@@ -128,10 +119,7 @@ class OtpAuthContractDocumentationTests(SimpleTestCase):
         )
         self.assertEqual(len(manifest["symbols"]), 12)
         self.assertEqual(
-            {
-                (item["source"], item["qualname"])
-                for item in manifest["symbols"]
-            },
+            {(item["source"], item["qualname"]) for item in manifest["symbols"]},
             self.expected_symbols,
         )
 

@@ -200,6 +200,12 @@ def _ast_hash(value: ast.AST) -> str:
     return sha256(payload.encode("utf-8")).hexdigest()
 
 
+def stable_ast_sha256(value: ast.AST) -> str:
+    """Return a Python-version-stable SHA-256 fingerprint for an AST."""
+
+    return _ast_hash(value)
+
+
 def _category_for(
     path: str,
     qualname: str,
