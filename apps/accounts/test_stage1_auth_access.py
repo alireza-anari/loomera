@@ -9,7 +9,11 @@ from django.urls import reverse
 
 from apps.accounts.models import Customer, SalonManager, Stylist
 from apps.accounts.services.sms import SMSDeliveryResult
-from apps.accounts.views import USER_SESSION_KEY, _get_valid_password_reset_session, _role_redirect_name
+from apps.accounts.views import (
+    USER_SESSION_KEY,
+    _get_valid_password_reset_session,
+    _role_redirect_name,
+)
 from tests_stage1_helpers import Stage1DomainFactoryMixin
 
 TEST_LOC_MEM_CACHES = {
@@ -37,13 +41,19 @@ class Stage1AuthAndAccessTests(Stage1DomainFactoryMixin, TestCase):
         neutral = self.make_user()
 
         self.assertEqual(_role_redirect_name(customer.user), "accounts:customer_panel")
-        self.assertEqual(_role_redirect_name(manager.user), "dashboards:salon_manager_dashboard")
-        self.assertEqual(_role_redirect_name(stylist.user), "dashboards:stylist_dashboard")
+        self.assertEqual(
+            _role_redirect_name(manager.user), "dashboards:salon_manager_dashboard"
+        )
+        self.assertEqual(
+            _role_redirect_name(stylist.user), "dashboards:stylist_dashboard"
+        )
         self.assertEqual(_role_redirect_name(neutral), "salons:show_salons")
 
     @patch("apps.accounts.views.utils.send_otp_sms")
     @patch("apps.accounts.views.utils.create_random_code", return_value=12345)
-    def test_customer_signup_starts_otp_flow_and_creates_inactive_customer(self, _mock_code, mock_send_sms):
+    def test_customer_signup_starts_otp_flow_and_creates_inactive_customer(
+        self, _mock_code, mock_send_sms
+    ):
         mock_send_sms.return_value = SMSDeliveryResult(
             success=True,
             provider="test",
@@ -87,12 +97,16 @@ class Stage1AuthAndAccessTests(Stage1DomainFactoryMixin, TestCase):
         }
         session.save()
 
-        response = self.client.post(reverse("accounts:verify"), {"active_code": "12345"})
+        response = self.client.post(
+            reverse("accounts:verify"), {"active_code": "12345"}
+        )
 
         self.assertRedirects(response, reverse("accounts:customer_panel"))
         customer.user.refresh_from_db()
         self.assertTrue(customer.user.is_active)
-        self.assertEqual(int(self.client.session.get("_auth_user_id")), customer.user.pk)
+        self.assertEqual(
+            int(self.client.session.get("_auth_user_id")), customer.user.pk
+        )
         self.assertNotIn(USER_SESSION_KEY, self.client.session)
 
     def test_verify_register_wrong_otp_increments_attempts(self):
@@ -110,7 +124,9 @@ class Stage1AuthAndAccessTests(Stage1DomainFactoryMixin, TestCase):
         }
         session.save()
 
-        response = self.client.post(reverse("accounts:verify"), {"active_code": "99999"})
+        response = self.client.post(
+            reverse("accounts:verify"), {"active_code": "99999"}
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.client.session[USER_SESSION_KEY]["otp_attempts"], 1)
@@ -135,7 +151,10 @@ class Stage1AuthAndAccessTests(Stage1DomainFactoryMixin, TestCase):
         manager = self.make_salon_manager(password="StrongPass123!")
         self.client.force_login(manager.user)
 
-        response = self.client.get(reverse("accounts:customer_panel"))
+        response = self.client.get(
+            reverse("accounts:customer_panel"),
+            secure=True,
+        )
 
         self.assertRedirects(
             response,
