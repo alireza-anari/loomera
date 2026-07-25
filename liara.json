@@ -18,4 +18,28 @@
     "retries": 5,
     "startPeriod": 90
   }
+  {
+  "build": {
+    "location": "germany"
+  },
+  "django": {
+    "pythonVersion": "3.12",
+    "timezone": "Asia/Tehran",
+    "mirror": false,
+    "geospatial": true,
+    "modifySettings": false,
+    "collectStatic": true
+  },
+  "port": 8000,
+  "healthCheck": {
+    "command": "CMD curl --fail --silent --show-error -H 'Host: staging.loomera.ir' -H 'X-Forwarded-Proto: https' http://localhost:8000/health/?live=1 || exit 1",
+    "interval": 30,
+    "timeout": 20,
+    "retries": 5,
+    "startPeriod": 90
+  },
+  "cron": [
+    "*/10 * * * * cd $ROOT && python manage.py run_scheduled_tasks --dry-run --limit 25 --skip-daily-metrics"
+  ]
+}
 }
