@@ -19,6 +19,7 @@ from .models import (
     NotificationRecipient,
     NotificationTemplate,
 )
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class SafeDict(dict):
@@ -68,7 +69,9 @@ def render_notification_payload(
     priority: str = NotificationPriority.NORMAL,
     context: dict[str, Any] | None = None,
 ):
-    template = get_active_template(event_type=event_type, audience_role=audience_role, channel=channel)
+    template = get_active_template(
+        event_type=event_type, audience_role=audience_role, channel=channel
+    )
     if not template:
         return {
             "title": title,
@@ -82,14 +85,66 @@ def render_notification_payload(
     return {
         "title": _format_template(template.title_template, context) or title,
         "body": _format_template(template.body_template, context) or body,
-        "action_url": _format_template(template.action_url_template, context) or action_url,
+        "action_url": _format_template(template.action_url_template, context)
+        or action_url,
         "icon": template.icon or icon or "fa-regular fa-bell",
         "category": template.category or category,
         "priority": template.priority or priority,
     }
 
 
-def notification_preference_enabled(*, user, audience_role: str, category: str, event_type: str, channel: str, priority: str) -> bool:
+def _legacy_customer_preference_enabled(
+    *,
+    user,
+    audience_role: str,
+    category: str,
+    channel: str,
+) -> bool | None:
+    if audience_role != NotificationAudienceRole.CUSTOMER:
+        return None
+
+    appointment_categories = {
+        NotificationCategory.BOOKING,
+        NotificationCategory.PAYMENT,
+        NotificationCategory.FINANCE,
+    }
+
+    field_name = None
+
+    if category in appointment_categories:
+        field_name = {
+            NotificationChannel.EMAIL: "notify_appointment_email",
+            NotificationChannel.SMS: "notify_appointment_sms",
+            NotificationChannel.WHATSAPP: "notify_appointment_whatsapp",
+        }.get(channel)
+
+    elif category == NotificationCategory.MARKETING:
+        field_name = {
+            NotificationChannel.EMAIL: "notify_marketing_email",
+            NotificationChannel.SMS: "notify_marketing_sms",
+            NotificationChannel.WHATSAPP: "notify_marketing_whatsapp",
+        }.get(channel)
+
+    if not field_name:
+        return None
+
+    try:
+        customer = user.customer_profile
+    except (AttributeError, ObjectDoesNotExist):
+        return None
+
+    return bool(getattr(customer, field_name, True))
+
+
+def notification_preference_enabled(
+    *,
+    user,
+    audience_role: str,
+    category: str,
+    event_type: str,
+    channel: str,
+    priority: str,
+) -> bool:
     if channel in {NotificationChannel.DASHBOARD, NotificationChannel.SYSTEM}:
         return True
 
@@ -108,16 +163,32 @@ def notification_preference_enabled(*, user, audience_role: str, category: str, 
         pref = qs.filter(**filters).order_by("-id").first()
         if pref is not None:
             return bool(pref.is_enabled)
+
+    legacy_enabled = _legacy_customer_preference_enabled(
+        user=user,
+        audience_role=audience_role,
+        category=category,
+        channel=channel,
+    )
+
+    if legacy_enabled is not None:
+        return legacy_enabled
+
     return True
 
 
 def _related_content_type(related_object):
     if related_object is None:
         return None, None
-    return ContentType.objects.get_for_model(related_object, for_concrete_model=False), related_object.pk
+    return (
+        ContentType.objects.get_for_model(related_object, for_concrete_model=False),
+        related_object.pk,
+    )
 
 
-def _normalize_recipients(recipients: Iterable[RecipientSpec | dict | Any], default_channels):
+def _normalize_recipients(
+    recipients: Iterable[RecipientSpec | dict | Any], default_channels
+):
     specs = []
     for item in recipients or []:
         if isinstance(item, RecipientSpec):
@@ -129,7 +200,9 @@ def _normalize_recipients(recipients: Iterable[RecipientSpec | dict | Any], defa
                 specs.append(
                     RecipientSpec(
                         user=user,
-                        audience_role=item.get("audience_role") or item.get("role") or NotificationAudienceRole.CUSTOMER,
+                        audience_role=item.get("audience_role")
+                        or item.get("role")
+                        or NotificationAudienceRole.CUSTOMER,
                         channels=tuple(item.get("channels") or default_channels),
                     )
                 )
@@ -214,7 +287,10 @@ def create_notification(
             priority=notification.priority,
             context=template_context or notification_metadata,
         )
-        if payload["title"] != notification.title or payload["body"] != notification.body:
+        if (
+            payload["title"] != notification.title
+            or payload["body"] != notification.body
+        ):
             # Keep the canonical notification close to dashboard rendering for the first recipient.
             notification.title = payload["title"][:180]
             notification.body = payload["body"]
@@ -222,7 +298,16 @@ def create_notification(
             notification.icon = payload["icon"]
             notification.category = payload["category"]
             notification.priority = payload["priority"]
-            notification.save(update_fields=["title", "body", "action_url", "icon", "category", "priority"])
+            notification.save(
+                update_fields=[
+                    "title",
+                    "body",
+                    "action_url",
+                    "icon",
+                    "category",
+                    "priority",
+                ]
+            )
 
         recipient, _ = NotificationRecipient.objects.get_or_create(
             notification=notification,
@@ -275,7 +360,12 @@ def create_notification(
                 priority=notification.priority,
             ):
                 continue
-            status = NotificationDeliveryStatus.SENT if channel in {NotificationChannel.DASHBOARD, NotificationChannel.SYSTEM} else NotificationDeliveryStatus.QUEUED
+            status = (
+                NotificationDeliveryStatus.SENT
+                if channel
+                in {NotificationChannel.DASHBOARD, NotificationChannel.SYSTEM}
+                else NotificationDeliveryStatus.QUEUED
+            )
             try:
                 NotificationDelivery.objects.get_or_create(
                     recipient=recipient,
@@ -283,7 +373,11 @@ def create_notification(
                     defaults={
                         "status": status,
                         "scheduled_at": timezone.now(),
-                        "sent_at": timezone.now() if status == NotificationDeliveryStatus.SENT else None,
+                        "sent_at": (
+                            timezone.now()
+                            if status == NotificationDeliveryStatus.SENT
+                            else None
+                        ),
                     },
                 )
             except IntegrityError:
@@ -293,14 +387,20 @@ def create_notification(
 
 
 def unread_count(user, *, audience_role: str | None = None) -> int:
-    qs = NotificationRecipient.objects.filter(user=user, is_read=False, is_archived=False)
+    qs = NotificationRecipient.objects.filter(
+        user=user, is_read=False, is_archived=False
+    )
     if audience_role:
         qs = qs.filter(audience_role=audience_role)
     return qs.count()
 
 
-def list_user_notifications(user, *, audience_role: str | None = None, filter_status: str = "all"):
-    qs = NotificationRecipient.objects.select_related("notification").filter(user=user, is_archived=False)
+def list_user_notifications(
+    user, *, audience_role: str | None = None, filter_status: str = "all"
+):
+    qs = NotificationRecipient.objects.select_related("notification").filter(
+        user=user, is_archived=False
+    )
     if audience_role:
         qs = qs.filter(audience_role=audience_role)
     if filter_status == "unread":
@@ -322,9 +422,9 @@ def mark_all_read(user, *, audience_role: str | None = None) -> int:
     return qs.update(is_read=True, read_at=timezone.now())
 
 
-
-
-def _customer_simple_bale_delivery_enabled(*, role: str, notification, related_object, event_type: str) -> bool:
+def _customer_simple_bale_delivery_enabled(
+    *, role: str, notification, related_object, event_type: str
+) -> bool:
     """Queue simple Bale deliveries for customer-facing booking/payment notices.
 
     This deliberately does not create messaging_actions. Customer-side booking,
@@ -364,7 +464,10 @@ def _customer_simple_bale_delivery_enabled(*, role: str, notification, related_o
     except Exception:
         return False
 
-def _stylist_order_detail_messaging_actions(*, role: str, related_object, event_type: str) -> list[dict[str, Any]]:
+
+def _stylist_order_detail_messaging_actions(
+    *, role: str, related_object, event_type: str
+) -> list[dict[str, Any]]:
     """Build safe bot action specs for stylist appointment notifications.
 
     The actual execution still happens in apps.messaging action handlers, where
@@ -397,13 +500,26 @@ def _stylist_order_detail_messaging_actions(*, role: str, related_object, event_
         common = {
             "audience_role": NotificationAudienceRole.STYLIST,
             "salon_id": detail.salon_id,
-            "metadata": {"order_detail_id": detail.pk, "source": "appointment_notification"},
+            "metadata": {
+                "order_detail_id": detail.pk,
+                "source": "appointment_notification",
+            },
         }
 
         if detail.confirmation_status == OrderDetail.ConfirmationStatus.PENDING:
             return [
-                {"type": "action", "key": ACTION_CONFIRM_APPOINTMENT, "label": "تایید", **common},
-                {"type": "action", "key": ACTION_REJECT_APPOINTMENT, "label": "رد", **common},
+                {
+                    "type": "action",
+                    "key": ACTION_CONFIRM_APPOINTMENT,
+                    "label": "تایید",
+                    **common,
+                },
+                {
+                    "type": "action",
+                    "key": ACTION_REJECT_APPOINTMENT,
+                    "label": "رد",
+                    **common,
+                },
             ]
 
         if detail.confirmation_status != OrderDetail.ConfirmationStatus.CONFIRMED:
@@ -411,12 +527,22 @@ def _stylist_order_detail_messaging_actions(*, role: str, related_object, event_
 
         if detail.customer_arrived_at and not detail.service_started_at:
             return [
-                {"type": "action", "key": ACTION_START_SERVICE, "label": "شروع خدمت", **common},
+                {
+                    "type": "action",
+                    "key": ACTION_START_SERVICE,
+                    "label": "شروع خدمت",
+                    **common,
+                },
             ]
 
         if detail.service_started_at and not detail.service_completed_at:
             return [
-                {"type": "action", "key": ACTION_COMPLETE_SERVICE, "label": "اتمام خدمت", **common},
+                {
+                    "type": "action",
+                    "key": ACTION_COMPLETE_SERVICE,
+                    "label": "اتمام خدمت",
+                    **common,
+                },
             ]
     except Exception:
         return []
@@ -424,7 +550,9 @@ def _stylist_order_detail_messaging_actions(*, role: str, related_object, event_
     return []
 
 
-def _manager_object_messaging_actions(*, role: str, related_object, event_type: str) -> list[dict[str, Any]]:
+def _manager_object_messaging_actions(
+    *, role: str, related_object, event_type: str
+) -> list[dict[str, Any]]:
     """Build safe bot action specs for manager-side staff notifications."""
 
     if str(role or "") != NotificationAudienceRole.MANAGER:
@@ -461,14 +589,41 @@ def _manager_object_messaging_actions(*, role: str, related_object, event_type: 
     }
 
     if isinstance(related_object, SalonMembership):
-        if related_object.status != SalonMembershipStatus.PENDING_ACCEPTANCE or not related_object.stylist_id:
+        if (
+            related_object.status != SalonMembershipStatus.PENDING_ACCEPTANCE
+            or not related_object.stylist_id
+        ):
             return []
         metadata = {**common["metadata"], "membership_id": related_object.pk}
         return [
-            {"type": "action", "key": ACTION_MANAGER_MEMBERSHIP_ACCEPT, "label": "تایید", **common, "metadata": metadata},
-            {"type": "action", "key": ACTION_MANAGER_MEMBERSHIP_REJECT, "label": "رد", **common, "metadata": metadata},
-            {"type": "view", "key": ACTION_MANAGER_MEMBERSHIP_PROFILE, "label": "مشاهده پروفایل", **common, "metadata": metadata},
-            {"type": "view", "key": ACTION_MANAGER_PENDING_REQUESTS, "label": "درخواست‌های دیگر", **common, "metadata": metadata},
+            {
+                "type": "action",
+                "key": ACTION_MANAGER_MEMBERSHIP_ACCEPT,
+                "label": "تایید",
+                **common,
+                "metadata": metadata,
+            },
+            {
+                "type": "action",
+                "key": ACTION_MANAGER_MEMBERSHIP_REJECT,
+                "label": "رد",
+                **common,
+                "metadata": metadata,
+            },
+            {
+                "type": "view",
+                "key": ACTION_MANAGER_MEMBERSHIP_PROFILE,
+                "label": "مشاهده پروفایل",
+                **common,
+                "metadata": metadata,
+            },
+            {
+                "type": "view",
+                "key": ACTION_MANAGER_PENDING_REQUESTS,
+                "label": "درخواست‌های دیگر",
+                **common,
+                "metadata": metadata,
+            },
         ]
 
     if isinstance(related_object, StaffLeaveRequest):
@@ -476,9 +631,27 @@ def _manager_object_messaging_actions(*, role: str, related_object, event_type: 
             return []
         metadata = {**common["metadata"], "leave_request_id": related_object.pk}
         return [
-            {"type": "action", "key": ACTION_MANAGER_LEAVE_APPROVE, "label": "تایید مرخصی", **common, "metadata": metadata},
-            {"type": "action", "key": ACTION_MANAGER_LEAVE_REJECT, "label": "رد مرخصی", **common, "metadata": metadata},
-            {"type": "view", "key": ACTION_MANAGER_SHIFTS_OVERVIEW, "label": "بررسی شیفت‌ها", **common, "metadata": metadata},
+            {
+                "type": "action",
+                "key": ACTION_MANAGER_LEAVE_APPROVE,
+                "label": "تایید مرخصی",
+                **common,
+                "metadata": metadata,
+            },
+            {
+                "type": "action",
+                "key": ACTION_MANAGER_LEAVE_REJECT,
+                "label": "رد مرخصی",
+                **common,
+                "metadata": metadata,
+            },
+            {
+                "type": "view",
+                "key": ACTION_MANAGER_SHIFTS_OVERVIEW,
+                "label": "بررسی شیفت‌ها",
+                **common,
+                "metadata": metadata,
+            },
         ]
 
     if isinstance(related_object, StaffScheduleRequest):
@@ -486,15 +659,35 @@ def _manager_object_messaging_actions(*, role: str, related_object, event_type: 
             return []
         metadata = {**common["metadata"], "schedule_request_id": related_object.pk}
         return [
-            {"type": "action", "key": ACTION_MANAGER_SCHEDULE_APPROVE, "label": "تایید شیفت", **common, "metadata": metadata},
-            {"type": "action", "key": ACTION_MANAGER_SCHEDULE_REJECT, "label": "رد شیفت", **common, "metadata": metadata},
-            {"type": "view", "key": ACTION_MANAGER_AVAILABLE_SLOTS, "label": "وقت خالی", **common, "metadata": metadata},
+            {
+                "type": "action",
+                "key": ACTION_MANAGER_SCHEDULE_APPROVE,
+                "label": "تایید شیفت",
+                **common,
+                "metadata": metadata,
+            },
+            {
+                "type": "action",
+                "key": ACTION_MANAGER_SCHEDULE_REJECT,
+                "label": "رد شیفت",
+                **common,
+                "metadata": metadata,
+            },
+            {
+                "type": "view",
+                "key": ACTION_MANAGER_AVAILABLE_SLOTS,
+                "label": "وقت خالی",
+                **common,
+                "metadata": metadata,
+            },
         ]
 
     return []
 
 
-def _manager_default_messaging_actions(*, role: str, salon_id: int | None, event_type: str) -> list[dict[str, Any]]:
+def _manager_default_messaging_actions(
+    *, role: str, salon_id: int | None, event_type: str
+) -> list[dict[str, Any]]:
     if str(role or "") != NotificationAudienceRole.MANAGER or not salon_id:
         return []
     try:
@@ -509,13 +702,17 @@ def _manager_default_messaging_actions(*, role: str, salon_id: int | None, event
         "type": "view",
         "audience_role": NotificationAudienceRole.MANAGER,
         "salon_id": salon_id,
-        "metadata": {"source": "manager_default_notification", "event_type": event_type},
+        "metadata": {
+            "source": "manager_default_notification",
+            "event_type": event_type,
+        },
     }
     return [
         {"key": ACTION_MANAGER_TODAY_CALENDAR, "label": "تقویم امروز", **common},
         {"key": ACTION_MANAGER_TODAY_SUMMARY, "label": "خلاصه امروز", **common},
         {"key": ACTION_MANAGER_SHIFTS_OVERVIEW, "label": "بررسی شیفت‌ها", **common},
     ]
+
 
 def sync_legacy_customer_notification(customer_notification):
     user = getattr(customer_notification, "user", None)
@@ -524,14 +721,28 @@ def sync_legacy_customer_notification(customer_notification):
     return create_notification(
         event_type=f"legacy_customer_{customer_notification.category}",
         category=customer_notification.category,
-        priority=customer_notification.priority if customer_notification.priority in NotificationPriority.values else NotificationPriority.NORMAL,
+        priority=(
+            customer_notification.priority
+            if customer_notification.priority in NotificationPriority.values
+            else NotificationPriority.NORMAL
+        ),
         title=customer_notification.title,
         body=customer_notification.body,
         action_url=customer_notification.action_url,
         icon=customer_notification.icon,
-        recipients=[{"user": user, "audience_role": NotificationAudienceRole.CUSTOMER, "channels": [NotificationChannel.DASHBOARD]}],
+        recipients=[
+            {
+                "user": user,
+                "audience_role": NotificationAudienceRole.CUSTOMER,
+                "channels": [NotificationChannel.DASHBOARD],
+            }
+        ],
         related_object=customer_notification,
-        metadata={"legacy_model": "CustomerNotification", "legacy_id": customer_notification.pk, **(customer_notification.metadata or {})},
+        metadata={
+            "legacy_model": "CustomerNotification",
+            "legacy_id": customer_notification.pk,
+            **(customer_notification.metadata or {}),
+        },
         dedupe_key=f"legacy_customer_notification:{customer_notification.pk}",
     )
 
@@ -539,7 +750,9 @@ def sync_legacy_customer_notification(customer_notification):
 def sync_legacy_appointment_notification(appointment_notification):
     user = getattr(appointment_notification, "target_user", None)
     if user is None and getattr(appointment_notification, "customer_id", None):
-        user = getattr(getattr(appointment_notification, "customer", None), "user", None)
+        user = getattr(
+            getattr(appointment_notification, "customer", None), "user", None
+        )
     if user is None and getattr(appointment_notification, "stylist_id", None):
         user = getattr(getattr(appointment_notification, "stylist", None), "user", None)
     if user is None:
@@ -553,13 +766,21 @@ def sync_legacy_appointment_notification(appointment_notification):
     elif "financial" in str(appointment_notification.event_type or ""):
         category = NotificationCategory.FINANCE
 
-    related_object = appointment_notification.order_detail or appointment_notification.order
-    metadata = {"legacy_model": "AppointmentNotification", "legacy_id": appointment_notification.pk, **(appointment_notification.meta or {})}
+    related_object = (
+        appointment_notification.order_detail or appointment_notification.order
+    )
+    metadata = {
+        "legacy_model": "AppointmentNotification",
+        "legacy_id": appointment_notification.pk,
+        **(appointment_notification.meta or {}),
+    }
     # Legacy rows can be created once per transport (dashboard/email/sms).
     # Only dashboard/system legacy rows may add Bale actions; otherwise the same
     # subject can fan out into multiple Bale deliveries via email/sms mirrors.
     legacy_channel = str(channel or "")
-    dashboard_channel = getattr(NotificationChannel.DASHBOARD, "value", NotificationChannel.DASHBOARD)
+    dashboard_channel = getattr(
+        NotificationChannel.DASHBOARD, "value", NotificationChannel.DASHBOARD
+    )
     if legacy_channel not in {str(dashboard_channel), "dashboard", "system", ""}:
         metadata.setdefault("messaging_disable_bale", True)
 
@@ -579,7 +800,12 @@ def sync_legacy_appointment_notification(appointment_notification):
     return create_notification(
         event_type=appointment_notification.event_type,
         category=category,
-        priority=NotificationPriority.HIGH if appointment_notification.event_type in {"no_show_confirmed", "appointment_disputed"} else NotificationPriority.NORMAL,
+        priority=(
+            NotificationPriority.HIGH
+            if appointment_notification.event_type
+            in {"no_show_confirmed", "appointment_disputed"}
+            else NotificationPriority.NORMAL
+        ),
         title=appointment_notification.title,
         body=appointment_notification.body,
         action_url=(appointment_notification.meta or {}).get("action_url", ""),
