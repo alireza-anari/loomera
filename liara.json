@@ -20,6 +20,7 @@
   },
   "cron": [
     "*/10 * * * * cd $ROOT && python manage.py run_scheduled_tasks --dry-run --limit 25 --skip-daily-metrics",
-    "15 3 * * * cd $ROOT && python manage.py build_daily_metrics"
+    "15 3 * * * cd $ROOT && python manage.py build_daily_metrics",
+    "*/10 * * * * cd $ROOT && python manage.py expire_salon_stories --limit 100"
   ]
 }
