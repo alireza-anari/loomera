@@ -747,6 +747,73 @@ def sync_legacy_customer_notification(customer_notification):
     )
 
 
+def _legacy_appointment_opt_out_reason(
+    appointment_notification,
+) -> str:
+    role = str(appointment_notification.audience_role or "")
+    channel = str(appointment_notification.channel or "")
+
+    if role == NotificationAudienceRole.CUSTOMER:
+        customer = getattr(
+            appointment_notification,
+            "customer",
+            None,
+        )
+
+        if (
+            channel == NotificationChannel.EMAIL
+            and customer is not None
+            and not getattr(
+                customer,
+                "notify_appointment_email",
+                True,
+            )
+        ):
+            return "customer_email_opt_out"
+
+        if (
+            channel == NotificationChannel.SMS
+            and customer is not None
+            and not getattr(
+                customer,
+                "notify_appointment_sms",
+                True,
+            )
+        ):
+            return "customer_sms_opt_out"
+
+    if role == NotificationAudienceRole.STYLIST:
+        stylist = getattr(
+            appointment_notification,
+            "stylist",
+            None,
+        )
+
+        if (
+            channel == NotificationChannel.EMAIL
+            and stylist is not None
+            and not getattr(
+                stylist,
+                "notify_booking_email",
+                True,
+            )
+        ):
+            return "stylist_email_opt_out"
+
+        if (
+            channel == NotificationChannel.SMS
+            and stylist is not None
+            and not getattr(
+                stylist,
+                "notify_booking_sms",
+                False,
+            )
+        ):
+            return "stylist_sms_opt_out"
+
+    return ""
+
+
 def sync_legacy_appointment_notification(appointment_notification):
     user = getattr(appointment_notification, "target_user", None)
     if user is None and getattr(appointment_notification, "customer_id", None):
@@ -797,21 +864,98 @@ def sync_legacy_appointment_notification(appointment_notification):
         if NotificationChannel.BALE not in channels:
             channels.append(NotificationChannel.BALE)
 
-    return create_notification(
+    notification = create_notification(
         event_type=appointment_notification.event_type,
         category=category,
         priority=(
             NotificationPriority.HIGH
             if appointment_notification.event_type
-            in {"no_show_confirmed", "appointment_disputed"}
+            in {
+                "no_show_confirmed",
+                "appointment_disputed",
+            }
             else NotificationPriority.NORMAL
         ),
         title=appointment_notification.title,
         body=appointment_notification.body,
         action_url=(appointment_notification.meta or {}).get("action_url", ""),
-        recipients=[{"user": user, "audience_role": role, "channels": channels}],
-        salon=getattr(appointment_notification, "salon", None),
+        recipients=[
+            {
+                "user": user,
+                "audience_role": role,
+                "channels": channels,
+            }
+        ],
+        salon=getattr(
+            appointment_notification,
+            "salon",
+            None,
+        ),
         related_object=related_object,
         metadata=metadata,
-        dedupe_key=f"legacy_appointment_notification:{appointment_notification.pk}",
+        dedupe_key=(
+            "legacy_appointment_notification:" f"{appointment_notification.pk}"
+        ),
     )
+
+    opt_out_reason = _legacy_appointment_opt_out_reason(appointment_notification)
+
+    if opt_out_reason:
+        recipient, _ = NotificationRecipient.objects.get_or_create(
+            notification=notification,
+            user=user,
+            audience_role=role,
+        )
+
+        delivery, created = NotificationDelivery.objects.get_or_create(
+            recipient=recipient,
+            channel=channel,
+            defaults={
+                "status": (NotificationDeliveryStatus.SKIPPED),
+                "scheduled_at": None,
+                "sent_at": None,
+                "failed_at": None,
+                "last_error": "",
+                "metadata": {
+                    "reason": opt_out_reason,
+                    "source": ("legacy_appointment_preference"),
+                },
+            },
+        )
+
+        # A historical delivery that was already attempted or sent
+        # must not be rewritten when legacy sync is run again.
+        can_mark_skipped = created or (
+            delivery.attempt_count == 0
+            and delivery.status != NotificationDeliveryStatus.SENT
+        )
+
+        if can_mark_skipped:
+            delivery_metadata = dict(delivery.metadata or {})
+            delivery_metadata.update(
+                {
+                    "reason": opt_out_reason,
+                    "source": ("legacy_appointment_preference"),
+                }
+            )
+
+            delivery.status = NotificationDeliveryStatus.SKIPPED
+            delivery.scheduled_at = None
+            delivery.sent_at = None
+            delivery.failed_at = None
+            delivery.last_error = ""
+            delivery.metadata = delivery_metadata
+
+            delivery.save(
+                update_fields=[
+                    "status",
+                    "scheduled_at",
+                    "sent_at",
+                    "failed_at",
+                    "last_error",
+                    "metadata",
+                    "updated_at",
+                ]
+            )
+
+    return notification

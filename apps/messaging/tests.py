@@ -862,6 +862,9 @@ class MessagingPrivacyPreferencesStage11Tests(TestCase):
             family="خصوصی",
             password="pass12345",
         )
+        self.user.is_active = True
+        self.user.save(update_fields=["is_active"])
+
         self.customer = Customer.objects.create(user=self.user)
         self.providers = ensure_default_providers()
         self.bale = self.providers[MessagingProviderKey.BALE]
@@ -971,6 +974,7 @@ class MessagingPrivacyPreferencesStage11Tests(TestCase):
 
     def test_preferences_page_writes_unified_notification_preferences(self):
         self.client.force_login(self.user)
+
         response = self.client.post(
             reverse("messaging:preferences"),
             {
@@ -983,6 +987,7 @@ class MessagingPrivacyPreferencesStage11Tests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
+
         self.assertTrue(
             NotificationPreference.objects.filter(
                 user=self.user,
@@ -991,6 +996,7 @@ class MessagingPrivacyPreferencesStage11Tests(TestCase):
                 is_enabled=True,
             ).exists()
         )
+
         self.assertTrue(
             NotificationPreference.objects.filter(
                 user=self.user,
