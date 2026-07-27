@@ -4,6 +4,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from apps.notifications.models import (
+    Notification,
     NotificationDelivery,
     NotificationDeliveryStatus,
 )
