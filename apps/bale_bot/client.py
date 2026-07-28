@@ -240,6 +240,21 @@ class BaleBotClient:
     def get_webhook_info(self) -> dict[str, Any]:
         return self.request("getWebhookInfo", {})
 
+    def get_updates(
+        self,
+        *,
+        offset: int | None = None,
+        limit: int = 100,
+        timeout: int = 0,
+    ) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "limit": int(limit),
+            "timeout": int(timeout),
+        }
+        if offset is not None:
+            payload["offset"] = int(offset)
+        return self.request("getUpdates", payload)
+
     def set_webhook(
         self,
         webhook_url: str,

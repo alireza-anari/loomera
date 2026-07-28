@@ -25,6 +25,7 @@ class MessagingManagementCommandExceptionScopeTests(
         "bale_webhook_admin.py",
         "bale_webhook_event_check.py",
         "messaging_qa_check.py",
+        "poll_bale_updates.py",
     }
 
     ALLOWED_EXCEPTION_NAMES = {
@@ -33,6 +34,7 @@ class MessagingManagementCommandExceptionScopeTests(
         "NoReverseMatch",
         "BaleBotApiError",
         "BaleWebhookIgnored",
+        "BalePollingError",
     }
 
     @classmethod
@@ -208,6 +210,9 @@ class MessagingManagementCommandExceptionScopeTests(
             "messaging_qa_check.py": [
                 {"TypeError", "ValueError"},
                 {"NoReverseMatch"},
+            ],
+            "poll_bale_updates.py": [
+                {"BalePollingError"},
             ],
         }
 
