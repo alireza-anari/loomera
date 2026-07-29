@@ -26,7 +26,6 @@
 
     "*/5 * * * * cd $ROOT && python manage.py process_notification_deliveries --limit 25",
     "*/5 * * * * cd $ROOT && python manage.py dispatch_appointment_notifications --limit 25",
-    "*/5 * * * * cd $ROOT && python manage.py confirm_no_show_after_window --limit 25",
-    "* * * * * cd $ROOT && python manage.py poll_bale_updates --limit 100 --timeout 0"
+    "*/5 * * * * cd $ROOT && python manage.py confirm_no_show_after_window --limit 25"
   ]
 }
