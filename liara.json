@@ -22,6 +22,11 @@
     "15 3 * * * cd $ROOT && python manage.py build_daily_metrics",
     "*/10 * * * * cd $ROOT && python manage.py expire_salon_stories --limit 100",
     "*/5 * * * * cd $ROOT && python manage.py process_report_exports --limit 10",
-    "30 3 * * * cd $ROOT && python manage.py cleanup_operational_data --job-run-days 30 --export-limit 100"
+    "30 3 * * * cd $ROOT && python manage.py cleanup_operational_data --job-run-days 30 --export-limit 100",
+
+    "*/5 * * * * cd $ROOT && python manage.py process_notification_deliveries --limit 25",
+    "*/5 * * * * cd $ROOT && python manage.py dispatch_appointment_notifications --limit 25",
+    "*/5 * * * * cd $ROOT && python manage.py confirm_no_show_after_window --limit 25",
+    "* * * * * cd $ROOT && python manage.py poll_bale_updates --limit 100 --timeout 0"
   ]
 }
