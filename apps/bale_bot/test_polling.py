@@ -55,7 +55,7 @@ class BalePollingTests(TestCase):
                 "message_id": update_id,
                 "from": {
                     "id": 5000 + update_id,
-                    "first_name": "??????????",
+                    "first_name": "polling failure",
                     "username": f"user_{update_id}",
                 },
                 "chat": {
