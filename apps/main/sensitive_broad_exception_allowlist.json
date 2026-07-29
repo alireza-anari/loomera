@@ -99,6 +99,39 @@
     "ordinal": 1
   },
   {
+    "path": "apps/bale_bot/polling.py",
+    "qualname": "_acquire_lock",
+    "try_handler_index": 0,
+    "try_sha256": "731474635671bb224cbb2c520b8031d4d6fd5d1bca8a20517d3a610339080a07",
+    "handler_sha256": "4442fe8b9daadea84230c06891219ed0ee92bdb14bc55bfb4d2d1d0ea49d47aa",
+    "category": "provider_webhook_boundary",
+    "review_status": "approved_boundary",
+    "note": "External provider or webhook boundary that must convert failures into a controlled domain result.",
+    "ordinal": 1
+  },
+  {
+    "path": "apps/bale_bot/polling.py",
+    "qualname": "_release_lock",
+    "try_handler_index": 0,
+    "try_sha256": "b821397faea5b2864e7fc43406eb74a5c752944452624ae7ac6157c08bb05aad",
+    "handler_sha256": "f5d73d987f0c5d9015ee398d45e9fab7ff7c0c9244f254a41d8f217768c2cdf2",
+    "category": "provider_webhook_boundary",
+    "review_status": "approved_boundary",
+    "note": "External provider or webhook boundary that must convert failures into a controlled domain result.",
+    "ordinal": 1
+  },
+  {
+    "path": "apps/bale_bot/polling.py",
+    "qualname": "poll_bale_updates",
+    "try_handler_index": 0,
+    "try_sha256": "3ef4600fe1fc668796ba8576262e7ec51890276d90eab91bfdfadadacefd1b67",
+    "handler_sha256": "b7a511631c51df647425a65b106eca47ec955dffb0bc5ce0a98164e749bc449b",
+    "category": "provider_webhook_boundary",
+    "review_status": "approved_boundary",
+    "note": "External provider or webhook boundary that must convert failures into a controlled domain result.",
+    "ordinal": 1
+  },
+  {
     "path": "apps/bale_bot/services.py",
     "qualname": "record_bale_webhook_update",
     "try_handler_index": 0,
