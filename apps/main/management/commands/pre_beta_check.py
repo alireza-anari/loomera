@@ -159,12 +159,33 @@ class Command(BaseCommand):
                 self._ok("BALE_WEBHOOK_SECRET تنظیم شده است.")
 
             if not getattr(settings, "BALE_WEBHOOK_REQUIRE_SECRET", True):
-                self._fail("BALE_WEBHOOK_REQUIRE_SECRET باید در staging/production روشن باشد.")
+                self._fail(
+                    "BALE_WEBHOOK_REQUIRE_SECRET باید در staging/production روشن باشد."
+                )
             else:
                 self._ok("BALE_WEBHOOK_REQUIRE_SECRET روشن است.")
 
-            if getattr(settings, "BALE_WEBHOOK_ALLOW_QUERY_SECRET", False):
-                self._fail("BALE_WEBHOOK_ALLOW_QUERY_SECRET نباید در staging/production روشن باشد.")
+            if getattr(
+                settings,
+                "BALE_WEBHOOK_ALLOW_QUERY_SECRET",
+                False,
+            ):
+                environment = self._environment()
+
+                if environment == "production":
+                    self._fail(
+                        "BALE_WEBHOOK_ALLOW_QUERY_SECRET "
+                        "در production نباید روشن باشد."
+                    )
+                elif environment == "staging":
+                    self._warn(
+                        "BALE_WEBHOOK_ALLOW_QUERY_SECRET در staging "
+                        "به‌عنوان fallback موقت بله فعال است."
+                    )
+                else:
+                    self._warn(
+                        "BALE_WEBHOOK_ALLOW_QUERY_SECRET " "در محیط local فعال است."
+                    )
             else:
                 self._ok("BALE_WEBHOOK_ALLOW_QUERY_SECRET خاموش است.")
 

@@ -303,14 +303,32 @@ def run_messaging_qa_check(*, strict=False):
             hint="برای staging/production باید secret اجباری باشد.",
         )
 
-    if webhook_allow_query_secret:
-        _add_issue(
-            issues,
-            code="BALE_WEBHOOK_QUERY_SECRET_ENABLED",
-            severity="warning",
-            message="BALE_WEBHOOK_ALLOW_QUERY_SECRET روشن است.",
-            hint="ارسال secret در query string امن نیست؛ برای staging/production خاموش باشد.",
+    environment = str(
+        getattr(
+            settings,
+            "LOOMERA_ENVIRONMENT",
+            "local",
         )
+        or "local"
+    ).lower()
+
+    if webhook_allow_query_secret:
+        if environment == "production":
+            _add_issue(
+                issues,
+                code="BALE_WEBHOOK_QUERY_SECRET_ENABLED",
+                severity="error" if strict else "warning",
+                message=("BALE_WEBHOOK_ALLOW_QUERY_SECRET " "در production روشن است."),
+                hint=("در production فقط احراز هویت " "مبتنی بر header مجاز است."),
+            )
+        elif environment != "staging":
+            _add_issue(
+                issues,
+                code="BALE_WEBHOOK_QUERY_SECRET_ENABLED",
+                severity="warning",
+                message=("BALE_WEBHOOK_ALLOW_QUERY_SECRET " "در محیط local روشن است."),
+                hint=("این حالت فقط برای fallback " "کنترل‌شده استفاده شود."),
+            )
 
     if bale_enabled and not webhook["reverse_ok"]:
         _add_issue(
