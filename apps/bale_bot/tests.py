@@ -20,7 +20,12 @@ from apps.messaging.models import (
     MessagingToken,
     MessagingWebhookEvent,
 )
-from apps.messaging.services import connect_identity_to_user, ensure_default_providers, get_or_create_identity, issue_messaging_token
+from apps.messaging.services import (
+    connect_identity_to_user,
+    ensure_default_providers,
+    get_or_create_identity,
+    issue_messaging_token,
+)
 
 from .client import BaleBotClient
 from .parser import BaleUpdateType, parse_bale_update
@@ -66,7 +71,9 @@ class BaleBotWebhookStage2Tests(TestCase):
 
     @override_settings(MESSAGING_ENABLED=False, BALE_BOT_ENABLED=False)
     def test_webhook_is_disabled_by_default(self):
-        response = self.client.post(self.url, data=self.payload, content_type="application/json")
+        response = self.client.post(
+            self.url, data=self.payload, content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(MessagingWebhookEvent.objects.count(), 0)
@@ -78,16 +85,18 @@ class BaleBotWebhookStage2Tests(TestCase):
         BALE_WEBHOOK_SECRET="test-secret",
     )
     def test_webhook_rejects_wrong_secret(self):
-        response = self.client.post(self.url, data=self.payload, content_type="application/json")
+        response = self.client.post(
+            self.url, data=self.payload, content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 403)
         self.assertEqual(MessagingWebhookEvent.objects.count(), 0)
 
     @override_settings(
-    MESSAGING_ENABLED=True,
-    BALE_BOT_ENABLED=True,
-    MESSAGING_ALLOWED_PROVIDERS=[MessagingProviderKey.BALE],
-    BALE_WEBHOOK_SECRET="test-secret",
+        MESSAGING_ENABLED=True,
+        BALE_BOT_ENABLED=True,
+        MESSAGING_ALLOWED_PROVIDERS=[MessagingProviderKey.BALE],
+        BALE_WEBHOOK_SECRET="test-secret",
     )
     def test_webhook_stores_raw_event_identity_and_inbound_log(self):
         response = self.client.post(
@@ -106,11 +115,15 @@ class BaleBotWebhookStage2Tests(TestCase):
         self.assertEqual(event.event_type, BaleUpdateType.MESSAGE)
         self.assertEqual(event.payload["message"]["text"], "/start invite_abc")
 
-        identity = MessagingIdentity.objects.get(provider=self.bale, provider_user_id="123456")
+        identity = MessagingIdentity.objects.get(
+            provider=self.bale, provider_user_id="123456"
+        )
         self.assertEqual(identity.chat_id, "987654")
         self.assertIsNone(identity.user)
 
-        log = MessagingMessageLog.objects.get(direction=MessagingMessageDirection.INBOUND)
+        log = MessagingMessageLog.objects.get(
+            direction=MessagingMessageDirection.INBOUND
+        )
         self.assertEqual(log.identity, identity)
         self.assertEqual(log.text, "/start invite_abc")
 
@@ -120,14 +133,23 @@ class BaleBotWebhookStage2Tests(TestCase):
         MESSAGING_ALLOWED_PROVIDERS=[MessagingProviderKey.BALE],
     )
     def test_duplicate_update_id_is_not_logged_twice(self):
-        first = self.client.post(self.url, data=self.payload, content_type="application/json")
-        second = self.client.post(self.url, data=self.payload, content_type="application/json")
+        first = self.client.post(
+            self.url, data=self.payload, content_type="application/json"
+        )
+        second = self.client.post(
+            self.url, data=self.payload, content_type="application/json"
+        )
 
         self.assertEqual(first.status_code, 200)
         self.assertEqual(second.status_code, 200)
         self.assertEqual(second.json()["duplicate"], True)
         self.assertEqual(MessagingWebhookEvent.objects.count(), 1)
-        self.assertEqual(MessagingMessageLog.objects.filter(direction=MessagingMessageDirection.INBOUND).count(), 1)
+        self.assertEqual(
+            MessagingMessageLog.objects.filter(
+                direction=MessagingMessageDirection.INBOUND
+            ).count(),
+            1,
+        )
 
     @override_settings(
         MESSAGING_ENABLED=True,
@@ -140,22 +162,33 @@ class BaleBotWebhookStage2Tests(TestCase):
             "callback_query": {
                 "id": "cb-1",
                 "from": {"id": 123456, "first_name": "کاربر"},
-                "message": {"message_id": 90, "chat": {"id": 987654, "type": "private"}},
+                "message": {
+                    "message_id": 90,
+                    "chat": {"id": 987654, "type": "private"},
+                },
                 "data": "action:unsafe-token",
             },
         }
 
-        response = self.client.post(self.url, data=payload, content_type="application/json")
+        response = self.client.post(
+            self.url, data=payload, content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 200)
         event = MessagingWebhookEvent.objects.get(update_id="202")
         self.assertEqual(event.event_type, BaleUpdateType.CALLBACK_QUERY)
-        log = MessagingMessageLog.objects.get(direction=MessagingMessageDirection.INBOUND, payload__update_id=202)
+        log = MessagingMessageLog.objects.get(
+            direction=MessagingMessageDirection.INBOUND, payload__update_id=202
+        )
         self.assertEqual(log.text, "action:unsafe-token")
 
-    @override_settings(MESSAGING_ENABLED=True, BALE_BOT_ENABLED=True, BALE_WEBHOOK_MAX_BYTES=8)
+    @override_settings(
+        MESSAGING_ENABLED=True, BALE_BOT_ENABLED=True, BALE_WEBHOOK_MAX_BYTES=8
+    )
     def test_large_payload_is_rejected_before_database_write(self):
-        response = self.client.post(self.url, data=self.payload, content_type="application/json")
+        response = self.client.post(
+            self.url, data=self.payload, content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 413)
         self.assertEqual(MessagingWebhookEvent.objects.count(), 0)
@@ -209,7 +242,9 @@ class BaleBotClientStage2Tests(TestCase):
         BALE_BOT_TOKEN="123:token",
     )
     @patch("apps.bale_bot.client.request.urlopen")
-    def test_send_message_success_is_logged_without_action_processing(self, mocked_urlopen):
+    def test_send_message_success_is_logged_without_action_processing(
+        self, mocked_urlopen
+    ):
         class FakeResponse:
             def __enter__(self):
                 return self
@@ -269,14 +304,22 @@ class BaleBotStartAndConnectStage3Tests(TestCase):
         BALE_BOT_TOKEN="123:token",
     )
     def test_plain_start_creates_guest_identity_and_sends_guest_menu_log(self):
-        response = self.client.post(self.url, data=self._message_payload("/start"), content_type="application/json")
+        response = self.client.post(
+            self.url,
+            data=self._message_payload("/start"),
+            content_type="application/json",
+        )
 
         self.assertEqual(response.status_code, 200)
-        identity = MessagingIdentity.objects.get(provider=self.bale, provider_user_id="223344")
+        identity = MessagingIdentity.objects.get(
+            provider=self.bale, provider_user_id="223344"
+        )
         self.assertIsNone(identity.user)
         self.assertEqual(identity.chat_id, "998877")
 
-        outbound = MessagingMessageLog.objects.get(direction=MessagingMessageDirection.OUTBOUND)
+        outbound = MessagingMessageLog.objects.get(
+            direction=MessagingMessageDirection.OUTBOUND
+        )
         self.assertEqual(outbound.status, MessagingMessageStatus.SKIPPED)
         self.assertIn("به Loomera خوش آمدی", outbound.text)
         self.assertIn("inline_keyboard", outbound.payload.get("reply_markup", {}))
@@ -303,17 +346,23 @@ class BaleBotStartAndConnectStage3Tests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        identity = MessagingIdentity.objects.get(provider=self.bale, provider_user_id="223344")
+        identity = MessagingIdentity.objects.get(
+            provider=self.bale, provider_user_id="223344"
+        )
         identity.refresh_from_db()
         self.assertEqual(identity.user, self.user)
         self.assertEqual(identity.status, "linked")
 
         token.refresh_from_db()
         self.assertIsNotNone(token.used_at)
-        connection = MessagingAccountConnection.objects.get(identity=identity, user=self.user)
+        connection = MessagingAccountConnection.objects.get(
+            identity=identity, user=self.user
+        )
         self.assertEqual(connection.status, MessagingConnectionStatus.ACTIVE)
 
-        outbound = MessagingMessageLog.objects.filter(direction=MessagingMessageDirection.OUTBOUND).latest("id")
+        outbound = MessagingMessageLog.objects.filter(
+            direction=MessagingMessageDirection.OUTBOUND
+        ).latest("id")
         self.assertIn("با موفقیت به ربات بله وصل شد", outbound.text)
 
     @override_settings(
@@ -331,10 +380,14 @@ class BaleBotStartAndConnectStage3Tests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        identity = MessagingIdentity.objects.get(provider=self.bale, provider_user_id="223344")
+        identity = MessagingIdentity.objects.get(
+            provider=self.bale, provider_user_id="223344"
+        )
         self.assertIsNone(identity.user)
         self.assertFalse(MessagingAccountConnection.objects.exists())
-        outbound = MessagingMessageLog.objects.filter(direction=MessagingMessageDirection.OUTBOUND).latest("id")
+        outbound = MessagingMessageLog.objects.filter(
+            direction=MessagingMessageDirection.OUTBOUND
+        ).latest("id")
         self.assertIn("اتصال حساب انجام نشد", outbound.text)
 
 
@@ -360,6 +413,48 @@ class BaleBotRoleMenusStage4Tests(TestCase):
         Stylist.objects.create(user=self.user, expert="مو", is_active=True)
         SalonManager.objects.create(user=self.user, is_active=True)
 
+    @override_settings(
+        MESSAGING_ENABLED=True,
+        BALE_BOT_ENABLED=True,
+        MESSAGING_OUTBOUND_ENABLED=False,
+        MESSAGING_ALLOWED_PROVIDERS=[MessagingProviderKey.BALE],
+        BALE_BOT_TOKEN="123:token",
+    )
+    @patch("apps.bale_bot.handlers." "BaleBotClient.answer_callback_query")
+    def test_menu_callback_is_acknowledged_immediately(
+        self,
+        mocked_answer_callback_query,
+    ):
+        identity, _ = get_or_create_identity(
+            provider=self.bale,
+            provider_user_id="444555",
+            chat_id="999888",
+        )
+        connect_identity_to_user(
+            identity,
+            self.user,
+        )
+
+        response = self.client.post(
+            self.url,
+            data=self._callback_payload(
+                "menu:customer_search",
+                update_id=404,
+            ),
+            content_type="application/json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        mocked_answer_callback_query.assert_called_once_with(
+            callback_query_id="cb-404",
+            text="در حال آماده‌سازی…",
+            show_alert=False,
+        )
+
     def _message_payload(self, text: str, *, update_id: int = 401):
         return {
             "update_id": update_id,
@@ -378,7 +473,10 @@ class BaleBotRoleMenusStage4Tests(TestCase):
             "callback_query": {
                 "id": f"cb-{update_id}",
                 "from": {"id": 444555, "first_name": "کاربر", "last_name": "چندنقشی"},
-                "message": {"message_id": update_id + 3000, "chat": {"id": 999888, "type": "private"}},
+                "message": {
+                    "message_id": update_id + 3000,
+                    "chat": {"id": 999888, "type": "private"},
+                },
                 "data": data,
             },
         }
@@ -405,9 +503,13 @@ class BaleBotRoleMenusStage4Tests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        outbound = MessagingMessageLog.objects.filter(direction=MessagingMessageDirection.OUTBOUND).latest("id")
+        outbound = MessagingMessageLog.objects.filter(
+            direction=MessagingMessageDirection.OUTBOUND
+        ).latest("id")
         markup = outbound.payload.get("reply_markup", {})
-        flat_buttons = [button for row in markup.get("inline_keyboard", []) for button in row]
+        flat_buttons = [
+            button for row in markup.get("inline_keyboard", []) for button in row
+        ]
         callback_values = {button.get("callback_data") for button in flat_buttons}
         self.assertIn("menu:customer", callback_values)
         self.assertIn("menu:stylist", callback_values)
@@ -421,7 +523,9 @@ class BaleBotRoleMenusStage4Tests(TestCase):
         BALE_BOT_TOKEN="123:token",
     )
     def test_connected_user_can_open_customer_menu_by_menu_callback(self):
-        identity, _ = get_or_create_identity(provider=self.bale, provider_user_id="444555", chat_id="999888")
+        identity, _ = get_or_create_identity(
+            provider=self.bale, provider_user_id="444555", chat_id="999888"
+        )
         connect_identity_to_user(identity, self.user)
 
         response = self.client.post(
@@ -431,13 +535,13 @@ class BaleBotRoleMenusStage4Tests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        outbound = MessagingMessageLog.objects.filter(direction=MessagingMessageDirection.OUTBOUND).latest("id")
+        outbound = MessagingMessageLog.objects.filter(
+            direction=MessagingMessageDirection.OUTBOUND
+        ).latest("id")
         self.assertIn("منوی مشتری", outbound.text)
         markup = outbound.payload.get("reply_markup", {})
         flat_buttons = [
-            button
-            for row in markup.get("inline_keyboard", [])
-            for button in row
+            button for row in markup.get("inline_keyboard", []) for button in row
         ]
 
         self.assertIn(
@@ -463,9 +567,13 @@ class BaleBotRoleMenusStage4Tests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        identity = MessagingIdentity.objects.get(provider=self.bale, provider_user_id="444555")
+        identity = MessagingIdentity.objects.get(
+            provider=self.bale, provider_user_id="444555"
+        )
         self.assertIsNone(identity.user)
-        outbound = MessagingMessageLog.objects.filter(direction=MessagingMessageDirection.OUTBOUND).latest("id")
+        outbound = MessagingMessageLog.objects.filter(
+            direction=MessagingMessageDirection.OUTBOUND
+        ).latest("id")
         self.assertIn("ابتدا حساب سایتت را به ربات وصل کن", outbound.text)
 
 
@@ -501,7 +609,10 @@ class BaleBotActionCallbackStage6Tests(TestCase):
             "callback_query": {
                 "id": f"cb-stage6-{update_id}",
                 "from": {"id": 665544, "first_name": "بله", "last_name": "اکشن"},
-                "message": {"message_id": update_id + 4000, "chat": {"id": 445566, "type": "private"}},
+                "message": {
+                    "message_id": update_id + 4000,
+                    "chat": {"id": 445566, "type": "private"},
+                },
                 "data": data,
             },
         }
@@ -515,7 +626,10 @@ class BaleBotActionCallbackStage6Tests(TestCase):
         MESSAGING_ACTIONS_ENABLED=True,
     )
     def test_bale_action_callback_uses_secure_dispatcher(self):
-        from apps.messaging.actions import build_action_callback_data, issue_action_token
+        from apps.messaging.actions import (
+            build_action_callback_data,
+            issue_action_token,
+        )
         from apps.messaging.constants import MessagingActionStatus
         from apps.messaging.models import MessagingActionExecution
 
@@ -528,7 +642,9 @@ class BaleBotActionCallbackStage6Tests(TestCase):
 
         response = self.client.post(
             self.url,
-            data=self._callback_payload(build_action_callback_data(raw_token), update_id=601),
+            data=self._callback_payload(
+                build_action_callback_data(raw_token), update_id=601
+            ),
             content_type="application/json",
         )
 
@@ -538,7 +654,9 @@ class BaleBotActionCallbackStage6Tests(TestCase):
         execution = MessagingActionExecution.objects.get(token=token)
         self.assertEqual(execution.status, MessagingActionStatus.SUCCEEDED)
 
-        outbound = MessagingMessageLog.objects.filter(direction=MessagingMessageDirection.OUTBOUND).latest("id")
+        outbound = MessagingMessageLog.objects.filter(
+            direction=MessagingMessageDirection.OUTBOUND
+        ).latest("id")
         self.assertIn("دریافت شد", outbound.text)
 
     @override_settings(
@@ -557,5 +675,7 @@ class BaleBotActionCallbackStage6Tests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        outbound = MessagingMessageLog.objects.filter(direction=MessagingMessageDirection.OUTBOUND).latest("id")
+        outbound = MessagingMessageLog.objects.filter(
+            direction=MessagingMessageDirection.OUTBOUND
+        ).latest("id")
         self.assertIn("نامعتبر", outbound.text)

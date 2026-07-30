@@ -167,6 +167,13 @@ def _handle_menu_callback(
     callback_data = parsed.callback_data or ""
     menu_key = callback_data[len(MENU_CALLBACK_PREFIX) :].strip()
 
+    if parsed.callback_query_id:
+        client.answer_callback_query(
+            callback_query_id=parsed.callback_query_id,
+            text="در حال آماده‌سازی…",
+            show_alert=False,
+        )
+
     if menu_key == MENU_GUEST:
         return _show_guest_menu(
             client,
