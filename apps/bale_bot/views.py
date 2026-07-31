@@ -15,6 +15,7 @@ from .services import (
     record_bale_webhook_update,
     sanitize_webhook_headers,
 )
+from .webhook_auth import derive_bale_webhook_path_token
 
 
 def _configured_webhook_secret() -> str:
@@ -32,7 +33,37 @@ def _provided_webhook_secret(request: HttpRequest) -> str:
     if provider_secret:
         return provider_secret
 
-    if bool(getattr(settings, "BALE_WEBHOOK_ALLOW_QUERY_SECRET", False)):
+    if bool(
+        getattr(
+            settings,
+            "BALE_WEBHOOK_ALLOW_PATH_TOKEN",
+            False,
+        )
+    ):
+        resolver_match = getattr(request, "resolver_match", None)
+        resolver_kwargs = getattr(resolver_match, "kwargs", {}) or {}
+        provided_path_token = str(resolver_kwargs.get("path_token") or "").strip()
+
+        configured_secret = _configured_webhook_secret()
+        expected_path_token = derive_bale_webhook_path_token(configured_secret)
+
+        if (
+            provided_path_token
+            and expected_path_token
+            and compare_digest(
+                provided_path_token,
+                expected_path_token,
+            )
+        ):
+            return configured_secret
+
+    if bool(
+        getattr(
+            settings,
+            "BALE_WEBHOOK_ALLOW_QUERY_SECRET",
+            False,
+        )
+    ):
         return str(request.GET.get("secret") or "").strip()
 
     return ""
@@ -53,7 +84,7 @@ class BaleWebhookView(View):
     def post(self, request: HttpRequest, *args, **kwargs) -> JsonResponse:
         """
         Accept one authenticated and bounded Bale webhook payload.
-        
+
         Feature flags are checked before parsing. When a secret is configured it is
         compared with ``compare_digest``; required-but-missing configuration is a
         service error. The raw body size is enforced before UTF-8 JSON decoding, and

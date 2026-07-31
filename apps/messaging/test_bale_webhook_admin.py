@@ -17,6 +17,9 @@ from apps.messaging.management.commands.bale_webhook_admin import (
 )
 from apps.messaging.models import MessagingProvider
 from apps.messaging.services import ensure_default_providers
+from apps.bale_bot.webhook_auth import (
+    derive_bale_webhook_path_token,
+)
 
 
 @override_settings(
@@ -27,6 +30,7 @@ from apps.messaging.services import ensure_default_providers
     BALE_WEBHOOK_SECRET="strong-secret",
     BALE_WEBHOOK_REQUIRE_SECRET=True,
     BALE_WEBHOOK_ALLOW_QUERY_SECRET=False,
+    BALE_WEBHOOK_ALLOW_PATH_TOKEN=False,
     MESSAGING_PUBLIC_BASE_URL="https://staging.example.com",
 )
 class BaleWebhookAdminTests(TestCase):
@@ -158,3 +162,61 @@ class BaleWebhookAdminTests(TestCase):
     def test_strict_fails_when_provider_action_requires_missing_token(self):
         with self.assertRaises(CommandError):
             call_command("bale_webhook_admin", "--check-provider", "--strict")
+
+    @override_settings(
+        BALE_WEBHOOK_ALLOW_PATH_TOKEN=True,
+    )
+    def test_path_token_url_does_not_contain_raw_secret(self):
+        url = build_bale_webhook_url(include_path_token=True)
+
+        expected_token = derive_bale_webhook_path_token("strong-secret")
+
+        self.assertIn(expected_token, url)
+        self.assertNotIn("strong-secret", url)
+
+    @override_settings(
+        BALE_WEBHOOK_ALLOW_PATH_TOKEN=True,
+    )
+    def test_path_token_is_redacted_from_command_output(self):
+        result = run_bale_webhook_admin(include_path_token=True)
+
+        self.assertTrue(result["webhook"]["uses_path_token"])
+        self.assertFalse(result["webhook"]["uses_query_secret"])
+        self.assertFalse(result["webhook"]["uses_secret_token"])
+        self.assertNotIn(
+            derive_bale_webhook_path_token("strong-secret"),
+            result["webhook"]["url"],
+        )
+        self.assertIn(
+            "***/",
+            result["webhook"]["url"],
+        )
+
+    @override_settings(
+        BALE_WEBHOOK_ALLOW_PATH_TOKEN=True,
+    )
+    def test_set_with_path_token_does_not_send_header_secret(self):
+        with patch(
+            "apps.bale_bot.client.BaleBotClient.set_webhook",
+            return_value={"ok": True, "result": True},
+        ) as mocked_set:
+            result = run_bale_webhook_admin(
+                set_webhook=True,
+                apply=True,
+                include_path_token=True,
+            )
+
+        mocked_set.assert_called_once()
+
+        args, kwargs = mocked_set.call_args
+        registered_url = args[0]
+
+        self.assertNotIn(
+            "strong-secret",
+            registered_url,
+        )
+        self.assertEqual(
+            kwargs["secret_token"],
+            "",
+        )
+        self.assertTrue(result["operation"]["applied"])

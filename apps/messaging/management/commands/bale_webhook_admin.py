@@ -13,6 +13,9 @@ from apps.bale_bot.client import BaleBotApiError, BaleBotClient
 from ...constants import MessagingProviderKey
 from ...models import MessagingProvider
 from ...services import ensure_default_providers, provider_allowed
+from apps.bale_bot.webhook_auth import (
+    derive_bale_webhook_path_token,
+)
 
 
 @dataclass(frozen=True)
@@ -45,12 +48,32 @@ def _public_base_url() -> str:
 
 def _redact_url(value: str) -> str:
     parsed = urlparse(str(value or ""))
-    if not parsed.query:
-        return value
+
+    redacted_path = parsed.path
+
+    try:
+        base_webhook_path = reverse("bale_bot:webhook")
+    except NoReverseMatch:
+        base_webhook_path = ""
+
+    if base_webhook_path and redacted_path.startswith(base_webhook_path):
+        remaining_path = redacted_path[len(base_webhook_path) :].strip("/")
+
+        if remaining_path:
+            redacted_path = f"{base_webhook_path}***/"
 
     query = []
-    for key, val in parse_qsl(parsed.query, keep_blank_values=True):
-        if key.lower() in {"secret", "token", "key", "signature"}:
+
+    for key, val in parse_qsl(
+        parsed.query,
+        keep_blank_values=True,
+    ):
+        if key.lower() in {
+            "secret",
+            "token",
+            "key",
+            "signature",
+        }:
             query.append((key, "***"))
         else:
             query.append((key, val))
@@ -59,7 +82,7 @@ def _redact_url(value: str) -> str:
         (
             parsed.scheme,
             parsed.netloc,
-            parsed.path,
+            redacted_path,
             parsed.params,
             urlencode(query),
             parsed.fragment,
@@ -113,19 +136,38 @@ def _add_issue(issues, *, code: str, severity: str, message: str, hint: str = ""
     )
 
 
-def build_bale_webhook_url(*, include_query_secret: bool = False) -> str:
+def build_bale_webhook_url(
+    *,
+    include_query_secret: bool = False,
+    include_path_token: bool = False,
+) -> str:
     base_url = _public_base_url()
     if not base_url:
         return ""
 
-    path = reverse("bale_bot:webhook")
+    if include_query_secret and include_path_token:
+        raise ValueError("Query secret and path token cannot be enabled together.")
+
+    secret = _setting_str("BALE_WEBHOOK_SECRET")
+
+    if include_path_token:
+        path_token = derive_bale_webhook_path_token(secret)
+
+        if not path_token:
+            return ""
+
+        path = reverse(
+            "bale_bot:webhook_path_token",
+            kwargs={"path_token": path_token},
+        )
+    else:
+        path = reverse("bale_bot:webhook")
+
     url = f"{base_url}{path}"
 
-    if include_query_secret:
-        secret = _setting_str("BALE_WEBHOOK_SECRET")
-        if secret:
-            separator = "&" if "?" in url else "?"
-            url = f"{url}{separator}secret={secret}"
+    if include_query_secret and secret:
+        separator = "&" if "?" in url else "?"
+        url = f"{url}{separator}secret={secret}"
 
     return url
 
@@ -137,6 +179,7 @@ def run_bale_webhook_admin(
     delete_webhook: bool = False,
     check_provider: bool = False,
     include_query_secret: bool = False,
+    include_path_token: bool = False,
     drop_pending_updates: bool = False,
     strict: bool = False,
 ):
@@ -150,6 +193,10 @@ def run_bale_webhook_admin(
     bale_enabled = _setting_bool("BALE_BOT_ENABLED")
     webhook_require_secret = _setting_bool("BALE_WEBHOOK_REQUIRE_SECRET", True)
     webhook_allow_query_secret = _setting_bool("BALE_WEBHOOK_ALLOW_QUERY_SECRET", False)
+    webhook_allow_path_token = _setting_bool(
+        "BALE_WEBHOOK_ALLOW_PATH_TOKEN",
+        False,
+    )
     public_base_url = _public_base_url()
 
     provider = MessagingProvider.objects.filter(key=MessagingProviderKey.BALE).first()
@@ -160,19 +207,47 @@ def run_bale_webhook_admin(
     reverse_ok = True
     reverse_error = ""
 
-    try:
-        webhook_path = reverse("bale_bot:webhook")
-        webhook_url = build_bale_webhook_url(include_query_secret=include_query_secret)
-    except NoReverseMatch as exc:
-        reverse_ok = False
-        reverse_error = str(exc)
+    auth_mode_conflict = bool(include_query_secret and include_path_token)
+
+    if auth_mode_conflict:
         _add_issue(
             issues,
-            code="BALE_WEBHOOK_REVERSE_FAILED",
-            severity="error" if strict else "warning",
-            message="مسیر webhook بله reverse نمی‌شود.",
-            hint="namespace مربوط به bale_bot:webhook را بررسی کن.",
+            code="CONFLICTING_WEBHOOK_AUTH_MODES",
+            severity="error",
+            message=(
+                "--include-query-secret و --include-path-token "
+                "نباید همزمان استفاده شوند."
+            ),
         )
+    else:
+        try:
+            if include_path_token:
+                # فقط برای خروجی گزارش است و Token واقعی را افشا نمی‌کند.
+                webhook_path = reverse(
+                    "bale_bot:webhook_path_token",
+                    kwargs={"path_token": "redacted"},
+                )
+            else:
+                webhook_path = reverse("bale_bot:webhook")
+
+            webhook_url = build_bale_webhook_url(
+                include_query_secret=include_query_secret,
+                include_path_token=include_path_token,
+            )
+        except NoReverseMatch as exc:
+            reverse_ok = False
+            reverse_error = str(exc)
+
+            _add_issue(
+                issues,
+                code="BALE_WEBHOOK_REVERSE_FAILED",
+                severity="error" if strict else "warning",
+                message="مسیر webhook بله reverse نمی‌شود.",
+                hint=(
+                    "namespace مسیرهای bale_bot:webhook و "
+                    "bale_bot:webhook_path_token را بررسی کن."
+                ),
+            )
 
     if not public_base_url:
         _add_issue(
@@ -271,6 +346,22 @@ def run_bale_webhook_admin(
             hint="secret در query string فقط برای fallback کنترل‌شده مجاز است، نه حالت پیش‌فرض staging/production.",
         )
 
+    if include_path_token and not webhook_allow_path_token:
+        _add_issue(
+            issues,
+            code="PATH_TOKEN_NOT_ALLOWED",
+            severity="error",
+            message=(
+                "--include-path-token درخواست شده اما "
+                "BALE_WEBHOOK_ALLOW_PATH_TOKEN خاموش است."
+            ),
+            hint=(
+                "برای استفاده از Path Token ابتدا "
+                "BALE_WEBHOOK_ALLOW_PATH_TOKEN=True "
+                "را در Environment تنظیم کن."
+            ),
+        )
+
     if include_query_secret:
         _add_issue(
             issues,
@@ -332,7 +423,13 @@ def run_bale_webhook_admin(
         else:
             try:
                 secret_token = (
-                    _setting_str("BALE_WEBHOOK_SECRET") if secret_configured else ""
+                    _setting_str("BALE_WEBHOOK_SECRET")
+                    if (
+                        secret_configured
+                        and not include_query_secret
+                        and not include_path_token
+                    )
+                    else ""
                 )
                 provider_response = BaleBotClient().set_webhook(
                     webhook_url,
@@ -398,6 +495,7 @@ def run_bale_webhook_admin(
             "bale_webhook_secret_configured": secret_configured,
             "bale_webhook_require_secret": webhook_require_secret,
             "bale_webhook_allow_query_secret": webhook_allow_query_secret,
+            "bale_webhook_allow_path_token": webhook_allow_path_token,
             "messaging_public_base_url_configured": bool(public_base_url),
         },
         "provider": {
@@ -412,7 +510,12 @@ def run_bale_webhook_admin(
             "url": _redact_url(webhook_url),
             "reverse_error": reverse_error,
             "uses_query_secret": bool(include_query_secret and secret_configured),
-            "uses_secret_token": bool(secret_configured and not include_query_secret),
+            "uses_path_token": bool(include_path_token and secret_configured),
+            "uses_secret_token": bool(
+                secret_configured
+                and not include_query_secret
+                and not include_path_token
+            ),
         },
         "operation": operation,
         "issues": [issue.as_dict() for issue in issues],
@@ -446,6 +549,14 @@ class Command(BaseCommand):
             help="Append webhook secret to URL query string. Requires BALE_WEBHOOK_ALLOW_QUERY_SECRET=True.",
         )
         parser.add_argument(
+            "--include-path-token",
+            action="store_true",
+            help=(
+                "Place a derived webhook token in the URL path. "
+                "Requires BALE_WEBHOOK_ALLOW_PATH_TOKEN=True."
+            ),
+        )
+        parser.add_argument(
             "--drop-pending-updates",
             action="store_true",
             help="Ask provider to drop pending updates during set/delete when supported.",
@@ -473,6 +584,7 @@ class Command(BaseCommand):
             delete_webhook=bool(options.get("delete_webhook")),
             check_provider=bool(options.get("check_provider")),
             include_query_secret=bool(options.get("include_query_secret")),
+            include_path_token=bool(options.get("include_path_token")),
             drop_pending_updates=bool(options.get("drop_pending_updates")),
             strict=bool(options.get("strict")),
         )
