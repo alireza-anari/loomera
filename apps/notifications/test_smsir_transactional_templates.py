@@ -166,11 +166,11 @@ class SMSIRTransactionalTemplateTests(SimpleTestCase):
 
         self.assertEqual(
             customer_values["LINK"],
-            "https://staging.loomera.ir/orders/a/123/",
+            "123",
         )
         self.assertEqual(
             stylist_values["LINK"],
-            "https://staging.loomera.ir/dashboards/s/a/123/",
+            "123",
         )
         self.assertLessEqual(len(customer_values["LINK"]), 50)
         self.assertLessEqual(len(stylist_values["LINK"]), 50)
