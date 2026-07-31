@@ -29,33 +29,21 @@ class PreflightReporter:
         self.results: list[CheckResult] = []
 
     def ok(self, code: str, message: str):
-        self.results.append(
-            CheckResult("OK", code, message)
-        )
+        self.results.append(CheckResult("OK", code, message))
 
     def warn(self, code: str, message: str):
-        self.results.append(
-            CheckResult("WARN", code, message)
-        )
+        self.results.append(CheckResult("WARN", code, message))
 
     def error(self, code: str, message: str):
-        self.results.append(
-            CheckResult("ERROR", code, message)
-        )
+        self.results.append(CheckResult("ERROR", code, message))
 
     @property
     def error_count(self) -> int:
-        return sum(
-            1 for item in self.results
-            if item.level == "ERROR"
-        )
+        return sum(1 for item in self.results if item.level == "ERROR")
 
     @property
     def warning_count(self) -> int:
-        return sum(
-            1 for item in self.results
-            if item.level == "WARN"
-        )
+        return sum(1 for item in self.results if item.level == "WARN")
 
     def write(self):
         for item in self.results:
@@ -67,10 +55,7 @@ class PreflightReporter:
                 style = self.command.style.ERROR
 
             self.command.stdout.write(
-                style(
-                    f"[{item.level}] {item.code}: "
-                    f"{item.message}"
-                )
+                style(f"[{item.level}] {item.code}: " f"{item.message}")
             )
 
 
@@ -88,9 +73,7 @@ def _has_value(value) -> bool:
 
 def _is_safe_url(value: str) -> bool:
     parsed = urlparse(value or "")
-    return parsed.scheme in {"http", "https"} and bool(
-        parsed.netloc
-    )
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
 
 
 def _check_route(reporter, route_name, kwargs):
@@ -130,10 +113,7 @@ def _check_payment_settings(
     else:
         reporter.error(
             "payment.mode.invalid",
-            (
-                "PAYMENT_MODE نامعتبر است. مقدار مجاز: "
-                "mock, sandbox, live"
-            ),
+            ("PAYMENT_MODE نامعتبر است. مقدار مجاز: " "mock, sandbox, live"),
         )
 
     if provider == "zibal":
@@ -144,10 +124,7 @@ def _check_payment_settings(
     else:
         reporter.error(
             "payment.provider.invalid",
-            (
-                "PAYMENT_PROVIDER باید zibal باشد. "
-                f"مقدار فعلی: {provider}"
-            ),
+            ("PAYMENT_PROVIDER باید zibal باشد. " f"مقدار فعلی: {provider}"),
         )
 
     if online_enabled:
@@ -162,10 +139,7 @@ def _check_payment_settings(
     else:
         reporter.ok(
             "payment.online_disabled",
-            (
-                "ONLINE_PAYMENT_ENABLED=False است؛ "
-                "برای بتای پرداخت در سالن امن است."
-            ),
+            ("ONLINE_PAYMENT_ENABLED=False است؛ " "برای بتای پرداخت در سالن امن است."),
         )
 
     if mode == "live" and not allow_live:
@@ -229,17 +203,12 @@ def _check_payment_settings(
             "ZIBAL_VERIFY_URL معتبر نیست.",
         )
 
-    timeout = _setting("ZIBAL_TIMEOUT", None)
-    if timeout is None:
-        timeout = _setting("PAYMENT_GATEWAY_TIMEOUT", None)
+    timeout = _setting("PAYMENT_TIMEOUT_SECONDS", None)
 
     if timeout is None:
-        reporter.warn(
-            "payment.timeout.default",
-            (
-                "Timeout اختصاصی برای درگاه پیدا نشد؛ "
-                "مقدار پیش‌فرض کد استفاده می‌شود."
-            ),
+        reporter.error(
+            "payment.timeout.missing",
+            "PAYMENT_TIMEOUT_SECONDS تنظیم نشده است.",
         )
     else:
         try:
@@ -247,20 +216,20 @@ def _check_payment_settings(
         except (TypeError, ValueError):
             reporter.error(
                 "payment.timeout.invalid",
-                "Timeout درگاه عدد معتبر نیست.",
+                "PAYMENT_TIMEOUT_SECONDS باید یک عدد معتبر باشد.",
             )
         else:
             if 1 <= timeout_value <= 30:
                 reporter.ok(
                     "payment.timeout",
-                    f"Timeout درگاه معتبر است: {timeout_value}",
+                    ("PAYMENT_TIMEOUT_SECONDS معتبر است: " f"{timeout_value:g}"),
                 )
             else:
                 reporter.warn(
                     "payment.timeout.range",
                     (
-                        "Timeout درگاه خارج از بازه پیشنهادی "
-                        f"است: {timeout_value}"
+                        "PAYMENT_TIMEOUT_SECONDS خارج از بازه پیشنهادی "
+                        "۱ تا ۳۰ ثانیه است."
                     ),
                 )
 
@@ -279,25 +248,17 @@ def _check_url_settings(reporter):
             "ALLOWED_HOSTS خالی است.",
         )
 
-    csrf_trusted = list(
-        _setting("CSRF_TRUSTED_ORIGINS", []) or []
-    )
+    csrf_trusted = list(_setting("CSRF_TRUSTED_ORIGINS", []) or [])
 
     if csrf_trusted:
         reporter.ok(
             "django.csrf_trusted_origins",
-            (
-                "CSRF_TRUSTED_ORIGINS تنظیم شده است "
-                f"({len(csrf_trusted)} مقدار)."
-            ),
+            ("CSRF_TRUSTED_ORIGINS تنظیم شده است " f"({len(csrf_trusted)} مقدار)."),
         )
     else:
         reporter.warn(
             "django.csrf_trusted_origins.empty",
-            (
-                "CSRF_TRUSTED_ORIGINS خالی است. "
-                "برای Staging/Production بررسی شود."
-            ),
+            ("CSRF_TRUSTED_ORIGINS خالی است. " "برای Staging/Production بررسی شود."),
         )
 
     candidate_base_urls = [
@@ -407,19 +368,19 @@ def _check_pending_payments(
         f"{total_pending} Payment معلق درگاهی وجود دارد.",
     )
 
-    missing_track_count = pending_qs.filter(
-        gateway_track_id__isnull=True,
-    ).count() + pending_qs.filter(
-        gateway_track_id="",
-    ).count()
+    missing_track_count = (
+        pending_qs.filter(
+            gateway_track_id__isnull=True,
+        ).count()
+        + pending_qs.filter(
+            gateway_track_id="",
+        ).count()
+    )
 
     if missing_track_count:
         reporter.error(
             "payments.pending.missing_track_id",
-            (
-                f"{missing_track_count} Payment معلق بدون "
-                "gateway_track_id وجود دارد."
-            ),
+            (f"{missing_track_count} Payment معلق بدون " "gateway_track_id وجود دارد."),
         )
     else:
         reporter.ok(
@@ -427,9 +388,7 @@ def _check_pending_payments(
             "همه Paymentهای معلق gateway_track_id دارند.",
         )
 
-    cutoff = timezone.now() - timedelta(
-        hours=max_pending_age_hours
-    )
+    cutoff = timezone.now() - timedelta(hours=max_pending_age_hours)
 
     stale_count = pending_qs.filter(
         update_date__lt=cutoff,
@@ -448,23 +407,15 @@ def _check_pending_payments(
     else:
         reporter.ok(
             "payments.pending.age",
-            (
-                "Payment معلق خیلی قدیمی‌تر از حد تعیین‌شده "
-                "وجود ندارد."
-            ),
+            ("Payment معلق خیلی قدیمی‌تر از حد تعیین‌شده " "وجود ندارد."),
         )
 
-    review_count = pending_qs.filter(
-        meta__verify_pending__requires_review=True
-    ).count()
+    review_count = pending_qs.filter(meta__verify_pending__requires_review=True).count()
 
     if review_count:
         reporter.warn(
             "payments.pending.requires_review",
-            (
-                f"{review_count} Payment نیازمند بررسی دستی "
-                "وجود دارد."
-            ),
+            (f"{review_count} Payment نیازمند بررسی دستی " "وجود دارد."),
         )
 
 
@@ -479,18 +430,13 @@ def _check_secrets_not_printed(reporter):
 
 
 class Command(BaseCommand):
-    help = (
-        "بررسی ایمن تنظیمات و وضعیت پرداخت قبل از تست "
-        "Local/Staging/Production."
-    )
+    help = "بررسی ایمن تنظیمات و وضعیت پرداخت قبل از تست " "Local/Staging/Production."
 
     def add_arguments(self, parser):
         parser.add_argument(
             "--strict",
             action="store_true",
-            help=(
-                "در صورت وجود ERROR با exit code غیرصفر خارج شود."
-            ),
+            help=("در صورت وجود ERROR با exit code غیرصفر خارج شود."),
         )
         parser.add_argument(
             "--allow-live",
@@ -504,10 +450,7 @@ class Command(BaseCommand):
             "--max-pending-age-hours",
             type=int,
             default=24,
-            help=(
-                "حداکثر سن قابل قبول Paymentهای معلق، "
-                "بر حسب ساعت."
-            ),
+            help=("حداکثر سن قابل قبول Paymentهای معلق، " "بر حسب ساعت."),
         )
 
     def handle(self, *args, **options):
@@ -520,11 +463,7 @@ class Command(BaseCommand):
             1,
         )
 
-        self.stdout.write(
-            self.style.NOTICE(
-                "=== Loomera payment preflight check ==="
-            )
-        )
+        self.stdout.write(self.style.NOTICE("=== Loomera payment preflight check ==="))
 
         _check_secrets_not_printed(reporter)
         _check_payment_settings(
@@ -541,17 +480,9 @@ class Command(BaseCommand):
         reporter.write()
 
         self.stdout.write("")
-        self.stdout.write(
-            self.style.NOTICE(
-                "=== Summary ==="
-            )
-        )
-        self.stdout.write(
-            f"errors={reporter.error_count}"
-        )
-        self.stdout.write(
-            f"warnings={reporter.warning_count}"
-        )
+        self.stdout.write(self.style.NOTICE("=== Summary ==="))
+        self.stdout.write(f"errors={reporter.error_count}")
+        self.stdout.write(f"warnings={reporter.warning_count}")
 
         if strict and reporter.error_count:
             raise SystemExit(1)

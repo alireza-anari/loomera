@@ -30,9 +30,7 @@ class PaymentPreflightCommandTests(
     def setUp(self):
         super().setUp()
 
-        self.customer = self.make_customer(
-            password="StrongPass123!"
-        )
+        self.customer = self.make_customer(password="StrongPass123!")
 
     def test_preflight_runs_without_printing_secrets(self):
         out = StringIO()
@@ -176,4 +174,37 @@ class PaymentPreflightCommandTests(
         self.assertIn(
             "warnings=",
             output,
+        )
+
+    @override_settings(PAYMENT_TIMEOUT_SECONDS=15)
+    def test_runtime_payment_timeout_setting_is_accepted(self):
+        out = StringIO()
+
+        call_command(
+            "payment_preflight_check",
+            "--strict",
+            stdout=out,
+        )
+
+        output = out.getvalue()
+
+        self.assertIn("payment.timeout", output)
+        self.assertNotIn("payment.timeout.default", output)
+        self.assertNotIn("payment.timeout.missing", output)
+
+    @override_settings(PAYMENT_TIMEOUT_SECONDS="invalid")
+    def test_invalid_runtime_payment_timeout_is_rejected(self):
+        out = StringIO()
+
+        with self.assertRaises(SystemExit) as raised:
+            call_command(
+                "payment_preflight_check",
+                "--strict",
+                stdout=out,
+            )
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn(
+            "payment.timeout.invalid",
+            out.getvalue(),
         )
