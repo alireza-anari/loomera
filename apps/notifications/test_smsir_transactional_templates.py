@@ -137,3 +137,40 @@ class SMSIRTransactionalTemplateTests(SimpleTestCase):
         )
 
         self.assertIsNone(result)
+
+    @override_settings(
+        SMSIR_TRANSACTIONAL_LINKS_ENABLED=True,
+        SMS_PUBLIC_BASE_URL="https://staging.loomera.ir",
+    )
+    def test_customer_and_stylist_deep_links(self):
+        detail = self._detail()
+        detail.pk = 123
+
+        customer_parameters = build_booking_parameters(
+            order_detail=detail,
+            audience_role="customer",
+        )
+        stylist_parameters = build_booking_parameters(
+            order_detail=detail,
+            audience_role="stylist",
+        )
+
+        customer_values = {
+            item["name"]: item["value"]
+            for item in customer_parameters
+        }
+        stylist_values = {
+            item["name"]: item["value"]
+            for item in stylist_parameters
+        }
+
+        self.assertEqual(
+            customer_values["LINK"],
+            "https://staging.loomera.ir/orders/a/123/",
+        )
+        self.assertEqual(
+            stylist_values["LINK"],
+            "https://staging.loomera.ir/dashboards/s/a/123/",
+        )
+        self.assertLessEqual(len(customer_values["LINK"]), 50)
+        self.assertLessEqual(len(stylist_values["LINK"]), 50)

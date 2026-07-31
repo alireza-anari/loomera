@@ -1266,3 +1266,17 @@ LOOMERA_API_BOOKING_DRAFT_MAX_BYTES = env.int(
     "LOOMERA_API_BOOKING_DRAFT_MAX_BYTES",
     default=4 * 1024,
 )
+
+# Loomera SMS.ir Stage 3 safety controls
+SMSIR_TRANSACTIONAL_LINKS_ENABLED = env.bool(
+    "SMSIR_TRANSACTIONAL_LINKS_ENABLED",
+    default=False,
+)
+SMSIR_BULK_NOTIFICATIONS_ENABLED = env.bool(
+    "SMSIR_BULK_NOTIFICATIONS_ENABLED",
+    default=False,
+)
+SMS_PUBLIC_BASE_URL = env(
+    "SMS_PUBLIC_BASE_URL",
+    default="",
+).strip().rstrip("/")

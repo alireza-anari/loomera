@@ -166,6 +166,11 @@ urlpatterns = [
         StylistAppointmentDetailView.as_view(),
         name="stylist_appointment_detail",
     ),
+    path(
+        "s/a/<int:appointment_id>/",
+        StylistAppointmentDetailView.as_view(),
+        name="stylist_appointment_sms",
+    ),
     path("stylist/finance/", StylistFinanceView.as_view(), name="stylist_finance"),
     path("stylist/schedule/", StylistScheduleView.as_view(), name="stylist_schedule"),
     path(
