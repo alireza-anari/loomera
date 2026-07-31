@@ -33,6 +33,7 @@ class SMSIRTransactionalResult:
 
 _TEMPLATE_SETTINGS = {
     ("booking_created", "customer"): "SMSIR_BOOKING_CREATED_TEMPLATE_ID",
+    ("booking_paid", "customer"): "SMSIR_BOOKING_CREATED_TEMPLATE_ID",
     ("booking_created", "stylist"): "SMSIR_STYLIST_NEW_BOOKING_TEMPLATE_ID",
     ("booking_paid", "stylist"): "SMSIR_STYLIST_NEW_BOOKING_TEMPLATE_ID",
     ("stylist_confirmed", "customer"): "SMSIR_BOOKING_CONFIRMED_TEMPLATE_ID",
