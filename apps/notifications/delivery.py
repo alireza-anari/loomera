@@ -131,6 +131,17 @@ def deliver_email(delivery: NotificationDelivery):
 
 
 def _send_smsir(*, mobile: str, message: str):
+    if not getattr(
+        settings,
+        "SMSIR_BULK_NOTIFICATIONS_ENABLED",
+        False,
+    ):
+        return (
+            NotificationDeliveryStatus.SKIPPED,
+            {"reason": "smsir_bulk_notifications_disabled"},
+            "",
+        )
+
     api_key = str(getattr(settings, "SMSIR_API_KEY", "") or "").strip()
     if getattr(settings, "SMSIR_USE_SANDBOX", True):
         api_key = (

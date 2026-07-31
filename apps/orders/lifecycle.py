@@ -609,12 +609,15 @@ def create_notification(
         delivery_status=delivery_status,
         meta=meta or {},
     )
-    try:
-        from apps.notifications.services import sync_legacy_appointment_notification
+    if channel in {"dashboard", "system"}:
+        try:
+            from apps.notifications.services import (
+                sync_legacy_appointment_notification,
+            )
 
-        sync_legacy_appointment_notification(notification)
-    except Exception:
-        pass
+            sync_legacy_appointment_notification(notification)
+        except Exception:
+            pass
     return notification
 
 

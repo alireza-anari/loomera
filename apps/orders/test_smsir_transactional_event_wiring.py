@@ -112,3 +112,29 @@ class SMSIRTransactionalEventWiringTests(SimpleTestCase):
         self.assertFalse(queued)
         mocked_on_commit.assert_not_called()
         mocked_create_sms.assert_not_called()
+
+    @patch(
+        "apps.notifications.services.sync_legacy_appointment_notification"
+    )
+    @patch("apps.orders.lifecycle.AppointmentNotification.objects.create")
+    def test_sms_transport_is_not_mirrored_to_unified_layer(
+        self,
+        mocked_create,
+        mocked_sync,
+    ):
+        mocked_create.return_value = SimpleNamespace(pk=55)
+        order = SimpleNamespace(salon=SimpleNamespace(pk=6))
+
+        from apps.orders.lifecycle import create_notification
+
+        create_notification(
+            order=order,
+            audience_role="customer",
+            channel="sms",
+            event_type="booking_created",
+            title="رزرو شما ثبت شد",
+            body="متن",
+            target_user=SimpleNamespace(pk=23),
+        )
+
+        mocked_sync.assert_not_called()

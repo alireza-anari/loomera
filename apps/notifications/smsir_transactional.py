@@ -4,9 +4,11 @@ import logging
 from dataclasses import dataclass
 from datetime import date, time
 from typing import Any
+from urllib.parse import urljoin
 
 import requests
 from django.conf import settings
+from django.urls import reverse
 
 from apps.accounts.services.sms import (
     SMSConfigurationError,
@@ -100,11 +102,50 @@ def _service_label(*, order_detail=None, details: list | None = None) -> str:
     return _clean_parameter(f"{names[0]} و {len(names) - 1} خدمت دیگر")
 
 
+def _booking_action_url(*, audience_role: str, primary_detail) -> str:
+    if primary_detail is None or not getattr(primary_detail, "pk", None):
+        raise SMSConfigurationError(
+            "برای ساخت لینک پیامک، شناسه نوبت موجود نیست."
+        )
+
+    base_url = str(
+        getattr(settings, "SMS_PUBLIC_BASE_URL", "") or ""
+    ).strip().rstrip("/")
+    if not base_url:
+        raise SMSConfigurationError(
+            "متغیر SMS_PUBLIC_BASE_URL تنظیم نشده است."
+        )
+    if not base_url.startswith("https://"):
+        raise SMSConfigurationError(
+            "SMS_PUBLIC_BASE_URL باید با https:// شروع شود."
+        )
+
+    role = str(audience_role or "customer").strip().lower()
+    if role == "stylist":
+        path = reverse(
+            "dashboards:stylist_appointment_sms",
+            kwargs={"appointment_id": primary_detail.pk},
+        )
+    else:
+        path = reverse(
+            "orders:appointment_sms",
+            kwargs={"pk": primary_detail.pk},
+        )
+
+    link = urljoin(f"{base_url}/", path.lstrip("/"))
+    if len(link) > MAX_PARAMETER_LENGTH:
+        raise SMSConfigurationError(
+            "لینک پیامک از محدودیت ۵۰ کاراکتر بیشتر است."
+        )
+    return link
+
+
 def build_booking_parameters(
     *,
     order=None,
     order_detail=None,
     salon=None,
+    audience_role: str = "customer",
 ) -> list[dict[str, str]]:
     details = _order_details(order)
     primary_detail = order_detail or (details[0] if details else None)
@@ -143,6 +184,16 @@ def build_booking_parameters(
         "DATE": date_label,
         "TIME": time_label,
     }
+    if getattr(
+        settings,
+        "SMSIR_TRANSACTIONAL_LINKS_ENABLED",
+        False,
+    ):
+        values["LINK"] = _booking_action_url(
+            audience_role=audience_role,
+            primary_detail=primary_detail,
+        )
+
     missing = [name for name, value in values.items() if not value]
     if missing:
         raise SMSConfigurationError(
@@ -230,6 +281,7 @@ def send_smsir_transactional(
                 order=order,
                 order_detail=order_detail,
                 salon=salon,
+                audience_role=audience_role,
             ),
         }
     except SMSConfigurationError as exc:
