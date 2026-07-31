@@ -1,5 +1,7 @@
 from __future__ import annotations
+import logging
 
+from django.conf import settings
 from dataclasses import dataclass
 from typing import Any, Iterable
 
@@ -20,6 +22,8 @@ from .models import (
     NotificationTemplate,
 )
 from django.core.exceptions import ObjectDoesNotExist
+
+logger = logging.getLogger(__name__)
 
 
 class SafeDict(dict):
@@ -212,6 +216,48 @@ def _normalize_recipients(
     return specs
 
 
+def _should_deliver_bale_immediately(
+    *,
+    notification,
+    channel: str,
+) -> bool:
+    if channel != NotificationChannel.BALE:
+        return False
+
+    if not getattr(
+        settings,
+        "LOOMERA_SEND_NOTIFICATIONS_IMMEDIATELY",
+        True,
+    ):
+        return False
+
+    metadata = dict(notification.metadata or {})
+    has_actions = bool(metadata.get("messaging_actions"))
+
+    is_important = notification.priority in {
+        NotificationPriority.HIGH,
+        NotificationPriority.CRITICAL,
+    }
+
+    return has_actions or is_important
+
+
+def _deliver_bale_delivery_safely(
+    delivery_id: int,
+) -> None:
+    try:
+        from .delivery import (
+            deliver_queued_delivery_by_id,
+        )
+
+        deliver_queued_delivery_by_id(delivery_id)
+    except Exception:
+        logger.exception(
+            "Immediate Bale notification delivery failed " "| delivery=%s",
+            delivery_id,
+        )
+
+
 @transaction.atomic
 def create_notification(
     *,
@@ -367,7 +413,7 @@ def create_notification(
                 else NotificationDeliveryStatus.QUEUED
             )
             try:
-                NotificationDelivery.objects.get_or_create(
+                delivery, created = NotificationDelivery.objects.get_or_create(
                     recipient=recipient,
                     channel=channel,
                     defaults={
@@ -380,6 +426,21 @@ def create_notification(
                         ),
                     },
                 )
+
+                if (
+                    created
+                    and delivery.status == NotificationDeliveryStatus.QUEUED
+                    and _should_deliver_bale_immediately(
+                        notification=notification,
+                        channel=channel,
+                    )
+                ):
+                    transaction.on_commit(
+                        lambda delivery_id=delivery.pk: (
+                            _deliver_bale_delivery_safely(delivery_id)
+                        ),
+                        robust=True,
+                    )
             except IntegrityError:
                 pass
 
