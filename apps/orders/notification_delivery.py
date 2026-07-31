@@ -13,6 +13,10 @@ from django.utils import timezone
 
 from loomera.logging_utils import mask_email, mask_mobile
 
+from apps.notifications.smsir_transactional import (
+    send_smsir_transactional,
+)
+
 from .models import AppointmentNotification
 
 
@@ -326,7 +330,14 @@ def deliver_sms_notification(
     notification: AppointmentNotification,
 ) -> AppointmentNotification:
     notification = AppointmentNotification.objects.select_related(
-        "customer__user", "stylist__user", "target_user"
+        "customer__user",
+        "stylist__user",
+        "target_user",
+        "order",
+        "order__salon",
+        "order_detail__service",
+        "order_detail__salon",
+        "salon",
     ).get(pk=notification.pk)
 
     if _customer_opted_out_sms(notification):
@@ -366,6 +377,24 @@ def deliver_sms_notification(
     attempts = _increment_attempt(notification)
 
     if provider == "smsir":
+        transactional = send_smsir_transactional(
+            event_type=notification.event_type,
+            audience_role=notification.audience_role,
+            mobile=mobile,
+            order=notification.order,
+            order_detail=notification.order_detail,
+            salon=notification.salon,
+        )
+        if transactional is not None:
+            meta = dict(transactional.response or {})
+            if transactional.error:
+                meta["error"] = transactional.error
+            meta["attempt_count"] = attempts
+            return _save_delivery_result(
+                notification,
+                DeliveryResult(transactional.status, meta),
+            )
+
         result = _send_smsir_bulk(
             mobile=mobile,
             message=notification.body,

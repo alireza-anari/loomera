@@ -37,6 +37,8 @@ from .lifecycle import (
     mark_review_requested,
     notify_manager_and_stylists_for_booking,
     notify_operational_milestone,
+    queue_customer_booking_cancelled_sms,
+    queue_customer_booking_rescheduled_sms,
     schedule_order_reminder,
 )
 from apps.accounts.notifications import (
@@ -3243,6 +3245,11 @@ class CancelAppointmentView(LoginRequiredMixin, View):
                 order=order,
                 refund_amount=refund_amount,
             )
+            queue_customer_booking_cancelled_sms(
+                order,
+                event_type="booking_cancelled",
+                order_detail=appointment,
+            )
 
             _notify_manager_and_stylists_for_customer_order_event(
                 order,
@@ -3631,6 +3638,7 @@ class RescheduleConfirmView(LoginRequiredMixin, View):
                 body="مشتری زمان نوبت را تغییر داد. لطفاً زمان جدید را در تقویم بررسی کنید.",
                 detail_meta={"base_appointment_id": base_id},
             )
+            queue_customer_booking_rescheduled_sms(order)
 
             messages.success(request, "زمان نوبت با موفقیت تغییر کرد.")
             return redirect("orders:appointment_detail", pk=base_id)
