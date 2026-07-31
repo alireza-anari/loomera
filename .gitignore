@@ -43,6 +43,9 @@ yarn-error.log*
 *.backup
 *.sql
 
+# Generated release packages
+/release_artifacts/
+
 # OS / editors
 .DS_Store
 Thumbs.db

@@ -9,6 +9,7 @@ SECURITY_SUITE = (
     "apps.main.test_sensitive_broad_exception_allowlist",
     "apps.main.test_python_source_encoding_integrity",
     "apps.main.test_production_settings_hygiene",
+    "apps.main.test_build_release_archive",
     "apps.main.test_production_security_audit",
     "apps.main.test_secrets_static_media_audit",
     "apps.main.test_media_proxy_security",

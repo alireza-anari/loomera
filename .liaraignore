@@ -29,6 +29,7 @@ htmlcov/
 .idea/
 requirements-freeze-check.txt
 node_check_tailwind.log
+release_artifacts/
 
 # Local patch/review artifacts — never deploy
 /loomera_stage*.py
