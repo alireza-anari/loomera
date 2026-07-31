@@ -386,6 +386,17 @@ def confirm_order_detail(*, detail: OrderDetail, actor=None) -> OrderDetail:
         include_manager=True,
         meta={"order_fully_confirmed": notify_customer},
     )
+
+    if notify_customer:
+        from apps.orders.lifecycle import (
+            queue_customer_booking_confirmed_sms,
+        )
+
+        queue_customer_booking_confirmed_sms(
+            detail.order,
+            order_detail=detail,
+        )
+
     _refresh_order(detail.order)
     return detail
 
@@ -468,6 +479,14 @@ def reject_order_detail(
             "refund_amount": refund_amount,
             "reason": reject_reason,
         },
+    )
+
+    from apps.orders.lifecycle import queue_customer_booking_cancelled_sms
+
+    queue_customer_booking_cancelled_sms(
+        detail.order,
+        event_type="stylist_rejected_cancelled",
+        order_detail=detail,
     )
 
     detail.order.refresh_from_db()

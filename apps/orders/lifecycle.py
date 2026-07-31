@@ -493,6 +493,92 @@ def _create_sms_notification(
     return maybe_deliver_immediately(notification)
 
 
+def _queue_customer_booking_sms_after_commit(
+    *,
+    order: Order,
+    event_type: str,
+    title: str,
+    body: str,
+    order_detail: OrderDetail | None = None,
+) -> bool:
+    customer = getattr(order, "customer", None)
+    target_user = getattr(customer, "user", None)
+
+    if not getattr(order, "pk", None):
+        return False
+    if not getattr(target_user, "pk", None):
+        return False
+
+    def _deliver():
+        _create_sms_notification(
+            order=order,
+            order_detail=order_detail,
+            audience_role="customer",
+            customer=customer,
+            target_user=target_user,
+            title=title,
+            body=body,
+            event_type=event_type,
+        )
+
+    transaction.on_commit(_deliver)
+    return True
+
+
+def queue_customer_booking_created_sms(
+    order: Order,
+    *,
+    event_type: str = "booking_created",
+) -> bool:
+    return _queue_customer_booking_sms_after_commit(
+        order=order,
+        event_type=event_type,
+        title="رزرو شما ثبت شد",
+        body=(
+            "رزرو شما ثبت شد و اطلاعات نوبت از طریق پیامک "
+            "برای شما ارسال می‌شود."
+        ),
+    )
+
+
+def queue_customer_booking_confirmed_sms(
+    order: Order,
+    *,
+    order_detail: OrderDetail | None = None,
+) -> bool:
+    return _queue_customer_booking_sms_after_commit(
+        order=order,
+        order_detail=order_detail,
+        event_type="stylist_confirmed",
+        title="نوبت شما تأیید شد",
+        body="نوبت شما توسط متخصص تأیید شد.",
+    )
+
+
+def queue_customer_booking_cancelled_sms(
+    order: Order,
+    *,
+    event_type: str = "booking_cancelled",
+    order_detail: OrderDetail | None = None,
+) -> bool:
+    return _queue_customer_booking_sms_after_commit(
+        order=order,
+        order_detail=order_detail,
+        event_type=event_type,
+        title="نوبت شما لغو شد",
+        body="نوبت شما لغو شد. جزئیات در حساب لومرا قابل مشاهده است.",
+    )
+
+
+def queue_customer_booking_rescheduled_sms(order: Order) -> bool:
+    return _queue_customer_booking_sms_after_commit(
+        order=order,
+        event_type="booking_rescheduled",
+        title="زمان نوبت شما تغییر کرد",
+        body="زمان جدید نوبت شما ثبت شد.",
+    )
+
+
 def create_notification(
     *,
     order: Order,
@@ -625,6 +711,12 @@ def notify_manager_and_stylists_for_booking(order: Order, *, event_type: str):
             target_user=getattr(stylist, "user", None),
             title=stylist_title,
             body=stylist_body,
+            event_type=event_type,
+        )
+
+    if event_type in {"booking_created", "booking_paid"}:
+        queue_customer_booking_created_sms(
+            order,
             event_type=event_type,
         )
 
