@@ -125,6 +125,11 @@ urlpatterns = [
         name="appointment_detail",
     ),
     path(
+        "a/<int:pk>/",
+        AppointmentDetailView.as_view(),
+        name="appointment_sms",
+    ),
+    path(
         "cancel_appointment/<int:pk>/",
         CancelAppointmentView.as_view(),
         name="cancel_appointment",

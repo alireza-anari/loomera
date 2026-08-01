@@ -100,11 +100,28 @@ def _service_label(*, order_detail=None, details: list | None = None) -> str:
     return _clean_parameter(f"{names[0]} و {len(names) - 1} خدمت دیگر")
 
 
+def _booking_link_token(*, audience_role: str, primary_detail) -> str:
+    if primary_detail is None or not getattr(primary_detail, "pk", None):
+        raise SMSConfigurationError(
+            "برای ساخت لینک پیامک، شناسه نوبت موجود نیست."
+        )
+
+    # The role-specific fixed URL is written directly in each SMS.ir template.
+    # LINK is only the dynamic numeric appointment-id segment.
+    _ = audience_role
+    token = str(primary_detail.pk)
+    if len(token) > MAX_PARAMETER_LENGTH:
+        raise SMSConfigurationError(
+            "شناسه نوبت از محدودیت پارامتر پیامک بیشتر است."
+        )
+    return token
+
 def build_booking_parameters(
     *,
     order=None,
     order_detail=None,
     salon=None,
+    audience_role: str = "customer",
 ) -> list[dict[str, str]]:
     details = _order_details(order)
     primary_detail = order_detail or (details[0] if details else None)
@@ -143,6 +160,16 @@ def build_booking_parameters(
         "DATE": date_label,
         "TIME": time_label,
     }
+    if getattr(
+        settings,
+        "SMSIR_TRANSACTIONAL_LINKS_ENABLED",
+        False,
+    ):
+        values["LINK"] = _booking_link_token(
+            audience_role=audience_role,
+            primary_detail=primary_detail,
+        )
+
     missing = [name for name, value in values.items() if not value]
     if missing:
         raise SMSConfigurationError(
@@ -230,6 +257,7 @@ def send_smsir_transactional(
                 order=order,
                 order_detail=order_detail,
                 salon=salon,
+                audience_role=audience_role,
             ),
         }
     except SMSConfigurationError as exc:

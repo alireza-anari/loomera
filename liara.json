@@ -12,7 +12,7 @@
   },
   "port": 8000,
   "healthCheck": {
-    "command": "CMD curl --fail --silent --show-error -H 'Host: staging.loomera.ir' -H 'X-Forwarded-Proto: https' http://localhost:8000/health/?live=1 || exit 1",
+    "command": "CMD curl --fail --silent --show-error -H 'Host: localhost' -H 'X-Forwarded-Proto: https' http://localhost:8000/health/?live=1 || exit 1",
     "interval": 30,
     "timeout": 20,
     "retries": 5,
@@ -23,8 +23,8 @@
     "*/10 * * * * cd $ROOT && python manage.py expire_salon_stories --limit 100",
     "*/5 * * * * cd $ROOT && python manage.py process_report_exports --limit 10",
     "30 3 * * * cd $ROOT && python manage.py cleanup_operational_data --job-run-days 30 --export-limit 100",
-
-    "*/5 * * * * cd $ROOT && python manage.py process_notification_deliveries --limit 25",
+    "* * * * * cd $ROOT && python manage.py process_notification_deliveries --limit 100",
+    "*/15 * * * * cd $ROOT && python manage.py process_notification_deliveries --limit 100 --include-failed",
     "*/5 * * * * cd $ROOT && python manage.py dispatch_appointment_notifications --limit 25",
     "*/5 * * * * cd $ROOT && python manage.py confirm_no_show_after_window --limit 25"
   ]

@@ -4,6 +4,9 @@ from django.urls import reverse
 from apps.messaging.constants import MessagingProviderKey
 from apps.messaging.models import MessagingProvider, MessagingWebhookEvent
 from apps.messaging.services import ensure_default_providers
+from apps.bale_bot.webhook_auth import (
+    derive_bale_webhook_path_token,
+)
 
 
 class BaleWebhookSecretSecurityTests(TestCase):
@@ -118,3 +121,87 @@ class BaleWebhookSecretSecurityTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()["ok"])
         self.assertEqual(MessagingWebhookEvent.objects.count(), 1)
+
+    @override_settings(
+        MESSAGING_ENABLED=True,
+        BALE_BOT_ENABLED=True,
+        MESSAGING_ALLOWED_PROVIDERS=[MessagingProviderKey.BALE],
+        BALE_WEBHOOK_SECRET="test-secret",
+        BALE_WEBHOOK_ALLOW_PATH_TOKEN=True,
+        BALE_WEBHOOK_ALLOW_QUERY_SECRET=False,
+    )
+    def test_derived_path_token_is_accepted(self):
+        path_token = derive_bale_webhook_path_token("test-secret")
+        url = reverse(
+            "bale_bot:webhook_path_token",
+            kwargs={"path_token": path_token},
+        )
+
+        response = self.client.post(
+            url,
+            data=self.payload,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])
+        self.assertEqual(
+            MessagingWebhookEvent.objects.count(),
+            1,
+        )
+
+    @override_settings(
+        MESSAGING_ENABLED=True,
+        BALE_BOT_ENABLED=True,
+        MESSAGING_ALLOWED_PROVIDERS=[MessagingProviderKey.BALE],
+        BALE_WEBHOOK_SECRET="test-secret",
+        BALE_WEBHOOK_ALLOW_PATH_TOKEN=True,
+        BALE_WEBHOOK_ALLOW_QUERY_SECRET=False,
+    )
+    def test_wrong_path_token_is_rejected(self):
+        url = reverse(
+            "bale_bot:webhook_path_token",
+            kwargs={"path_token": "a" * 64},
+        )
+
+        response = self.client.post(
+            url,
+            data=self.payload,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.json()["error"],
+            "invalid_webhook_secret",
+        )
+        self.assertEqual(
+            MessagingWebhookEvent.objects.count(),
+            0,
+        )
+
+    @override_settings(
+        MESSAGING_ENABLED=True,
+        BALE_BOT_ENABLED=True,
+        MESSAGING_ALLOWED_PROVIDERS=[MessagingProviderKey.BALE],
+        BALE_WEBHOOK_SECRET="test-secret",
+        BALE_WEBHOOK_ALLOW_PATH_TOKEN=False,
+    )
+    def test_path_token_is_rejected_when_disabled(self):
+        path_token = derive_bale_webhook_path_token("test-secret")
+        url = reverse(
+            "bale_bot:webhook_path_token",
+            kwargs={"path_token": path_token},
+        )
+
+        response = self.client.post(
+            url,
+            data=self.payload,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.json()["error"],
+            "invalid_webhook_secret",
+        )

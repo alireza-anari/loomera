@@ -1,22 +1,33 @@
-name: Deploy Loomera Staging to Liara
+name: Deploy Loomera Production to Liara
 
 on:
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Confirm production deployment"
+        required: true
+        type: choice
+        default: CANCEL
+        options:
+          - CANCEL
+          - DEPLOY
 
 permissions:
   contents: read
 
 concurrency:
-  group: loomera-staging-deployment
+  group: loomera-production-deployment
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy staging
+    name: Deploy production
 
-    if: github.ref == 'refs/heads/staging'
+    if: >
+      github.ref == 'refs/heads/main' &&
+      inputs.confirm == 'DEPLOY'
 
-    environment: staging
+    environment: production
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -33,7 +44,7 @@ jobs:
       - name: Install Liara CLI
         run: npm install --global @liara/cli@9
 
-      - name: Validate staging deployment target
+      - name: Validate production deployment target
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
           LIARA_APP_NAME: ${{ vars.LIARA_APP_NAME }}
@@ -50,12 +61,12 @@ jobs:
             exit 1
           fi
 
-          if [ "$LIARA_APP_NAME" != "loomera-staging" ]; then
-            echo "::error::Staging deployment target must be loomera-staging."
+          if [ "$LIARA_APP_NAME" = "loomera-staging" ]; then
+            echo "::error::Production deployment cannot target loomera-staging."
             exit 1
           fi
 
-          echo "Staging deployment target validated."
+          echo "Production deployment target validated."
 
       - name: Deploy to Liara
         env:

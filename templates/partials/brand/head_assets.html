@@ -16,8 +16,14 @@
 <meta property="og:site_name" content="Loomera">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fa_IR">
-<meta property="og:image" content="{% static 'branding/logo/loomera-logo-square.png' %}">
-<meta property="og:image:width" content="1254">
-<meta property="og:image:height" content="1254">
+{% static 'branding/share/loomera-social-preview-v1.png' as loomera_social_preview %}
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ loomera_social_preview }}">
+<meta property="og:image:secure_url" content="{{ request.scheme }}://{{ request.get_host }}{{ loomera_social_preview }}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Loomera">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="{% static 'branding/logo/loomera-logo-square.png' %}">
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ loomera_social_preview }}">
+<meta name="twitter:image:alt" content="Loomera">

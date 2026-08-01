@@ -229,6 +229,16 @@ def _get_smsir_api_key() -> str:
 
 
 def _send_smsir_bulk(*, mobile: str, message: str) -> DeliveryResult:
+    if not getattr(
+        settings,
+        "SMSIR_BULK_NOTIFICATIONS_ENABLED",
+        False,
+    ):
+        return DeliveryResult(
+            "skipped",
+            {"reason": "smsir_bulk_notifications_disabled"},
+        )
+
     api_key = _get_smsir_api_key()
     line_number = str(getattr(settings, "SMSIR_LINE_NUMBER", "") or "").strip()
     url = str(getattr(settings, "SMSIR_BULK_URL", "") or "").strip()
