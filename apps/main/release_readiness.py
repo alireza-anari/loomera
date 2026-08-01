@@ -13,6 +13,7 @@ STRUCTURAL_GUARD_SUITE = (
     "apps.main.test_python_source_encoding_integrity",
     "apps.main.test_production_settings_hygiene",
     "apps.main.test_build_release_archive",
+    "apps.main.test_liara_deployment_config",
     "apps.payments.test_gateway_contract_documentation",
     "apps.orders.test_booking_checkout_contract_documentation",
     "apps.api.tests.test_api_v1_otp_auth_contract_documentation",
