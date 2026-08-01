@@ -103,6 +103,11 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
             content,
         )
 
+        self.assertIn(
+            "DATABASE_URL: sqlite:///ci.sqlite3",
+            content,
+        )
+
         self.assertNotIn(
             "liara deploy",
             content,
