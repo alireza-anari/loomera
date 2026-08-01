@@ -112,3 +112,55 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
             "liara deploy",
             content,
         )
+
+    def test_production_workflow_is_manual_and_guarded(self):
+        workflow_path = (
+            Path(settings.BASE_DIR) / ".github" / "workflows" / "liara-production.yml"
+        )
+
+        content = workflow_path.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "workflow_dispatch:",
+            content,
+        )
+
+        self.assertIn(
+            "github.ref == 'refs/heads/main'",
+            content,
+        )
+
+        self.assertIn(
+            "inputs.confirm == 'DEPLOY'",
+            content,
+        )
+
+        self.assertIn(
+            "environment: production",
+            content,
+        )
+
+        self.assertIn(
+            "secrets.LIARA_API_TOKEN",
+            content,
+        )
+
+        self.assertIn(
+            "vars.LIARA_APP_NAME",
+            content,
+        )
+
+        self.assertIn(
+            'LIARA_APP_NAME" = "loomera-staging"',
+            content,
+        )
+
+        self.assertIn(
+            '--app="$LIARA_APP_NAME"',
+            content,
+        )
+
+        self.assertNotIn(
+            "\n  push:",
+            content,
+        )

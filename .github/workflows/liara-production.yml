@@ -1,0 +1,79 @@
+name: Deploy Loomera Production to Liara
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Confirm production deployment"
+        required: true
+        type: choice
+        default: CANCEL
+        options:
+          - CANCEL
+          - DEPLOY
+
+permissions:
+  contents: read
+
+concurrency:
+  group: loomera-production-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy production
+
+    if: >
+      github.ref == 'refs/heads/main' &&
+      inputs.confirm == 'DEPLOY'
+
+    environment: production
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Liara CLI
+        run: npm install --global @liara/cli@9
+
+      - name: Validate production deployment target
+        env:
+          LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
+          LIARA_APP_NAME: ${{ vars.LIARA_APP_NAME }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$LIARA_TOKEN" ]; then
+            echo "::error::LIARA_API_TOKEN is not configured."
+            exit 1
+          fi
+
+          if [ -z "$LIARA_APP_NAME" ]; then
+            echo "::error::LIARA_APP_NAME is not configured."
+            exit 1
+          fi
+
+          if [ "$LIARA_APP_NAME" = "loomera-staging" ]; then
+            echo "::error::Production deployment cannot target loomera-staging."
+            exit 1
+          fi
+
+          echo "Production deployment target validated."
+
+      - name: Deploy to Liara
+        env:
+          LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
+          LIARA_APP_NAME: ${{ vars.LIARA_APP_NAME }}
+        run: |
+          liara deploy \
+            --app="$LIARA_APP_NAME" \
+            --api-token="$LIARA_TOKEN" \
+            --no-app-logs
