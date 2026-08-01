@@ -25,8 +25,8 @@ jobs:
 
     env:
       SECRET_KEY: ci-only-secret-key-not-for-runtime
-      DEBUG: "False"
       DATABASE_URL: sqlite:///ci.sqlite3
+      DEBUG: "False"
       ALLOWED_HOSTS: localhost,127.0.0.1
       CSRF_TRUSTED_ORIGINS: http://localhost,http://127.0.0.1
       ONLINE_PAYMENT_ENABLED: "False"
