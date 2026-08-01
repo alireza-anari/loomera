@@ -13,7 +13,11 @@ concurrency:
 jobs:
   deploy:
     name: Deploy staging
+
     if: github.ref == 'refs/heads/staging'
+
+    environment: staging
+
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -29,11 +33,36 @@ jobs:
       - name: Install Liara CLI
         run: npm install --global @liara/cli@9
 
+      - name: Validate staging deployment target
+        env:
+          LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
+          LIARA_APP_NAME: ${{ vars.LIARA_APP_NAME }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$LIARA_TOKEN" ]; then
+            echo "::error::LIARA_API_TOKEN is not configured."
+            exit 1
+          fi
+
+          if [ -z "$LIARA_APP_NAME" ]; then
+            echo "::error::LIARA_APP_NAME is not configured."
+            exit 1
+          fi
+
+          if [ "$LIARA_APP_NAME" != "loomera-staging" ]; then
+            echo "::error::Staging deployment target must be loomera-staging."
+            exit 1
+          fi
+
+          echo "Staging deployment target validated."
+
       - name: Deploy to Liara
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
+          LIARA_APP_NAME: ${{ vars.LIARA_APP_NAME }}
         run: |
           liara deploy \
-            --app="loomera-staging" \
+            --app="$LIARA_APP_NAME" \
             --api-token="$LIARA_TOKEN" \
             --no-app-logs
