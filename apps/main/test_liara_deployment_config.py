@@ -164,3 +164,55 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
             "\n  push:",
             content,
         )
+
+    def test_staging_workflow_uses_staging_environment(self):
+        workflow_path = (
+            Path(settings.BASE_DIR) / ".github" / "workflows" / "liara-staging.yml"
+        )
+
+        content = workflow_path.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "workflow_dispatch:",
+            content,
+        )
+
+        self.assertIn(
+            "github.ref == 'refs/heads/staging'",
+            content,
+        )
+
+        self.assertIn(
+            "environment: staging",
+            content,
+        )
+
+        self.assertIn(
+            "secrets.LIARA_API_TOKEN",
+            content,
+        )
+
+        self.assertIn(
+            "vars.LIARA_APP_NAME",
+            content,
+        )
+
+        self.assertIn(
+            'LIARA_APP_NAME" != "loomera-staging"',
+            content,
+        )
+
+        self.assertIn(
+            '--app="$LIARA_APP_NAME"',
+            content,
+        )
+
+        self.assertNotIn(
+            '--app="loomera-staging"',
+            content,
+        )
+
+        self.assertNotIn(
+            "\n  push:",
+            content,
+        )
