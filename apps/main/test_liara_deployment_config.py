@@ -43,3 +43,32 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
             "-H 'X-Forwarded-Proto: https'",
             command,
         )
+
+    def test_notification_delivery_cron_policy(self):
+        config = self._load_config()
+        cron = config["cron"]
+
+        self.assertIn(
+            (
+                "* * * * * cd $ROOT && python manage.py "
+                "process_notification_deliveries --limit 100"
+            ),
+            cron,
+        )
+
+        self.assertIn(
+            (
+                "*/15 * * * * cd $ROOT && python manage.py "
+                "process_notification_deliveries "
+                "--limit 100 --include-failed"
+            ),
+            cron,
+        )
+
+        self.assertNotIn(
+            (
+                "*/5 * * * * cd $ROOT && python manage.py "
+                "process_notification_deliveries --limit 25"
+            ),
+            cron,
+        )
