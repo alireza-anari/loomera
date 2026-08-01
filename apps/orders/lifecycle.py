@@ -534,10 +534,7 @@ def queue_customer_booking_created_sms(
         order=order,
         event_type=event_type,
         title="رزرو شما ثبت شد",
-        body=(
-            "رزرو شما ثبت شد و اطلاعات نوبت از طریق پیامک "
-            "برای شما ارسال می‌شود."
-        ),
+        body=("رزرو شما ثبت شد و اطلاعات نوبت از طریق پیامک " "برای شما ارسال می‌شود."),
     )
 
 
@@ -609,15 +606,26 @@ def create_notification(
         delivery_status=delivery_status,
         meta=meta or {},
     )
-    if channel in {"dashboard", "system"}:
-        try:
-            from apps.notifications.services import (
-                sync_legacy_appointment_notification,
-            )
+    try:
+        from apps.notifications.services import (
+            legacy_appointment_opt_out_reason,
+            sync_legacy_appointment_notification,
+        )
 
+        should_sync = channel in {
+            "dashboard",
+            "system",
+        }
+
+        if channel in {"email", "sms"} and legacy_appointment_opt_out_reason(
+            notification
+        ):
+            should_sync = True
+
+        if should_sync:
             sync_legacy_appointment_notification(notification)
-        except Exception:
-            pass
+    except Exception:
+        pass
     return notification
 
 
