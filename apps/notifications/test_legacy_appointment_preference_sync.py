@@ -157,3 +157,34 @@ class LegacyAppointmentPreferenceSyncTests(
                 status__in=["queued", "failed"],
             ).exists()
         )
+
+    def test_opted_in_transports_are_not_mirrored_into_unified_queue(
+        self,
+    ):
+        self.customer.notify_appointment_email = True
+        self.customer.notify_appointment_sms = True
+        self.customer.save(
+            update_fields=[
+                "notify_appointment_email",
+                "notify_appointment_sms",
+            ]
+        )
+
+        dispatch_due_order_reminders(limit=1)
+
+        reminders = {
+            item.channel: item
+            for item in AppointmentNotification.objects.filter(
+                order=self.order,
+                event_type="reminder_due",
+            )
+        }
+
+        for channel in ("email", "sms"):
+            legacy = reminders[channel]
+
+            self.assertFalse(
+                Notification.objects.filter(
+                    dedupe_key=("legacy_appointment_notification:" f"{legacy.pk}")
+                ).exists()
+            )

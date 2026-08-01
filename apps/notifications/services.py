@@ -808,7 +808,7 @@ def sync_legacy_customer_notification(customer_notification):
     )
 
 
-def _legacy_appointment_opt_out_reason(
+def legacy_appointment_opt_out_reason(
     appointment_notification,
 ) -> str:
     role = str(appointment_notification.audience_role or "")
@@ -959,7 +959,7 @@ def sync_legacy_appointment_notification(appointment_notification):
         ),
     )
 
-    opt_out_reason = _legacy_appointment_opt_out_reason(appointment_notification)
+    opt_out_reason = legacy_appointment_opt_out_reason(appointment_notification)
 
     if opt_out_reason:
         recipient, _ = NotificationRecipient.objects.get_or_create(
