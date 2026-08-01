@@ -72,3 +72,38 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
             ),
             cron,
         )
+
+    def test_ci_workflow_checks_staging_and_main(self):
+        workflow_path = Path(settings.BASE_DIR) / ".github" / "workflows" / "ci.yml"
+
+        content = workflow_path.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "pull_request:",
+            content,
+        )
+
+        self.assertIn(
+            "- staging",
+            content,
+        )
+
+        self.assertIn(
+            "- main",
+            content,
+        )
+
+        self.assertIn(
+            "python manage.py check",
+            content,
+        )
+
+        self.assertIn(
+            "makemigrations --check --dry-run",
+            content,
+        )
+
+        self.assertNotIn(
+            "liara deploy",
+            content,
+        )
