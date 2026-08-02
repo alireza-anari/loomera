@@ -157,6 +157,18 @@ class ServicesAdmin(admin.ModelAdmin):
     de_active_service.short_description = "غیرفعال کردن خدمات"
     active_service.short_description = "فعال کردن خدمات"
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_manytomany(
+            db_field,
+            request,
+            **kwargs,
+        )
+
+        if db_field.name == "stylists" and formfield is not None:
+            formfield.required = False
+
+        return formfield
+
     def show_service_groups(self, obj):
         return " , ".join([group.group_title for group in obj.service_group.all()])
 
@@ -202,7 +214,10 @@ class ServicesAdmin(admin.ModelAdmin):
 
     def display_stylists(self, obj):
         return ", ".join(
-            [stylist.user.name + "" + stylist.user.family for stylist in obj.stylists.all()]
+            [
+                stylist.user.name + "" + stylist.user.family
+                for stylist in obj.stylists.all()
+            ]
         )
 
     display_stylists.short_description = "آرایشگران "
