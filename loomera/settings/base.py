@@ -845,6 +845,12 @@ LOOMERA_SUPPORT_ATTACHMENT_RETENTION_DAYS = env.int(
 SENTRY_DSN = env("SENTRY_DSN", default="").strip()
 SENTRY_TRACES_SAMPLE_RATE = env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.0)
 
+from loomera.release import RELEASE as LOOMERA_BUILD_RELEASE
+
+SENTRY_RELEASE = (
+    env("SENTRY_RELEASE", default="").strip() or LOOMERA_BUILD_RELEASE.strip()
+)
+
 if SENTRY_DSN and _module_available("sentry_sdk"):
     import sentry_sdk
 
@@ -869,6 +875,7 @@ if SENTRY_DSN and _module_available("sentry_sdk"):
         before_breadcrumb=sentry_before_breadcrumb,
         # Performance monitoring remains disabled during privacy validation.
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
+        release=SENTRY_RELEASE or None,
     )
 LOOMERA_API_VERSION = env("LOOMERA_API_VERSION", default="v1").strip() or "v1"
 LOOMERA_PUBLIC_APP_VERSION = (
