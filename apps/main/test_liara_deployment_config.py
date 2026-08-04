@@ -91,20 +91,27 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
             primary,
         )
 
-        retry_command = (
-            "*/15 * * * * cd $ROOT && python manage.py "
-            "process_notification_deliveries "
-            "--limit 100 --include-failed"
+        retry_matches = [
+            entry
+            for entry in cron
+            if entry.startswith(
+                "*/15 * * * * cd $ROOT && python manage.py "
+                "process_notification_deliveries "
+                "--limit 100 --include-failed"
+            )
+        ]
+
+        self.assertEqual(
+            len(retry_matches),
+            1,
         )
 
-        self.assertIn(
-            retry_command,
-            cron,
-        )
+        retry = retry_matches[0]
 
+        # Retry must never ping the primary delivery heartbeat.
         self.assertNotIn(
             "BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL",
-            retry_command,
+            retry,
         )
 
         self.assertNotIn(
@@ -113,6 +120,52 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
                 "process_notification_deliveries --limit 25"
             ),
             cron,
+        )
+
+    def test_notification_retry_cron_heartbeat_policy(self):
+        config = self._load_config()
+        cron = config["cron"]
+
+        retry_matches = [
+            entry
+            for entry in cron
+            if entry.startswith(
+                "*/15 * * * * cd $ROOT && python manage.py "
+                "process_notification_deliveries "
+                "--limit 100 --include-failed"
+            )
+        ]
+
+        self.assertEqual(
+            len(retry_matches),
+            1,
+        )
+
+        retry = retry_matches[0]
+
+        self.assertIn(
+            "BETTERSTACK_NOTIFICATION_RETRY_HEARTBEAT_URL",
+            retry,
+        )
+
+        self.assertIn(
+            (
+                "curl --fail --silent --show-error --max-time 10 "
+                '"$BETTERSTACK_NOTIFICATION_RETRY_HEARTBEAT_URL"'
+            ),
+            retry,
+        )
+
+        # The retry cron must never ping the primary heartbeat.
+        self.assertNotIn(
+            "BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL",
+            retry,
+        )
+
+        # Never commit a real Better Stack heartbeat URL.
+        self.assertNotIn(
+            "uptime.betterstack.com/api/v1/heartbeat/",
+            retry,
         )
 
     def test_ci_workflow_checks_staging_and_main(self):
