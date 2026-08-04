@@ -168,6 +168,56 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
             retry,
         )
 
+    def test_appointment_notifications_cron_heartbeat_policy(self):
+        config = self._load_config()
+        cron = config["cron"]
+
+        matches = [
+            entry
+            for entry in cron
+            if entry.startswith(
+                "*/5 * * * * cd $ROOT && python manage.py "
+                "dispatch_appointment_notifications --limit 25"
+            )
+        ]
+
+        self.assertEqual(
+            len(matches),
+            1,
+        )
+
+        command = matches[0]
+
+        self.assertIn(
+            "BETTERSTACK_APPOINTMENT_NOTIFICATIONS_HEARTBEAT_URL",
+            command,
+        )
+
+        self.assertIn(
+            (
+                "curl --fail --silent --show-error --max-time 10 "
+                '"$BETTERSTACK_APPOINTMENT_NOTIFICATIONS_HEARTBEAT_URL"'
+            ),
+            command,
+        )
+
+        # This cron must never ping notification delivery/retry heartbeats.
+        self.assertNotIn(
+            "BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL",
+            command,
+        )
+
+        self.assertNotIn(
+            "BETTERSTACK_NOTIFICATION_RETRY_HEARTBEAT_URL",
+            command,
+        )
+
+        # Never commit the real Better Stack heartbeat URL.
+        self.assertNotIn(
+            "uptime.betterstack.com/api/v1/heartbeat/",
+            command,
+        )
+
     def test_ci_workflow_checks_staging_and_main(self):
         workflow_path = Path(settings.BASE_DIR) / ".github" / "workflows" / "ci.yml"
 
