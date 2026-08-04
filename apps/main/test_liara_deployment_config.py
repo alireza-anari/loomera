@@ -48,21 +48,63 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
         config = self._load_config()
         cron = config["cron"]
 
-        self.assertIn(
-            (
+        primary_matches = [
+            entry
+            for entry in cron
+            if entry.startswith(
                 "* * * * * cd $ROOT && python manage.py "
                 "process_notification_deliveries --limit 100"
-            ),
-            cron,
+            )
+            and "--include-failed" not in entry
+        ]
+
+        self.assertEqual(
+            len(primary_matches),
+            1,
+        )
+
+        primary = primary_matches[0]
+
+        self.assertIn(
+            "BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL",
+            primary,
+        )
+
+        self.assertIn(
+            "&& if [ -n "
+            '"$BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL"'
+            " ]; then",
+            primary,
         )
 
         self.assertIn(
             (
-                "*/15 * * * * cd $ROOT && python manage.py "
-                "process_notification_deliveries "
-                "--limit 100 --include-failed"
+                "curl --fail --silent --show-error --max-time 10 "
+                '"$BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL"'
             ),
+            primary,
+        )
+
+        # Never commit the real heartbeat endpoint/token to source.
+        self.assertNotIn(
+            "uptime.betterstack.com/api/v1/heartbeat/",
+            primary,
+        )
+
+        retry_command = (
+            "*/15 * * * * cd $ROOT && python manage.py "
+            "process_notification_deliveries "
+            "--limit 100 --include-failed"
+        )
+
+        self.assertIn(
+            retry_command,
             cron,
+        )
+
+        self.assertNotIn(
+            "BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL",
+            retry_command,
         )
 
         self.assertNotIn(

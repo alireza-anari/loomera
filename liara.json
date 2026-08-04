@@ -23,7 +23,7 @@
     "*/10 * * * * cd $ROOT && python manage.py expire_salon_stories --limit 100",
     "*/5 * * * * cd $ROOT && python manage.py process_report_exports --limit 10",
     "30 3 * * * cd $ROOT && python manage.py cleanup_operational_data --job-run-days 30 --export-limit 100",
-    "* * * * * cd $ROOT && python manage.py process_notification_deliveries --limit 100",
+    "* * * * * cd $ROOT && python manage.py process_notification_deliveries --limit 100 && if [ -n \"$BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL\" ]; then curl --fail --silent --show-error --max-time 10 \"$BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL\" > /dev/null; fi",
     "*/15 * * * * cd $ROOT && python manage.py process_notification_deliveries --limit 100 --include-failed",
     "*/5 * * * * cd $ROOT && python manage.py dispatch_appointment_notifications --limit 25",
     "*/5 * * * * cd $ROOT && python manage.py confirm_no_show_after_window --limit 25"
