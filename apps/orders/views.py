@@ -72,7 +72,6 @@ PUBLIC_BOOKING_STYLIST_VISIBILITIES = (
 )
 
 APPOINTMENT_CHECKOUT_FORM_ACTIONS = {
-    "",
     "apply_coupon",
     "clear_coupon",
     "confirm_checkout",
@@ -110,10 +109,27 @@ def _clean_appointment_checkout_form_action(request):
     ):
         raise ValidationError("حجم اطلاعات ارسالی بیش از حد مجاز است.")
 
-    action = (request.POST.get("form_action") or "").strip()
+    raw_actions = request.POST.getlist("form_action")
+    actions = [str(value or "").strip() for value in raw_actions]
+    actions = [value for value in actions if value]
 
-    if action not in APPOINTMENT_CHECKOUT_FORM_ACTIONS:
-        raise ValidationError("عملیات checkout معتبر نیست.")
+    # A hidden action proxy may coexist with the native submit button value.
+    # Accept the last explicit known action rather than relying on QueryDict.get()
+    # ordering. Unknown values are never allowed to finalize a reservation.
+    valid_actions = [
+        value for value in actions if value in APPOINTMENT_CHECKOUT_FORM_ACTIONS
+    ]
+    action = valid_actions[-1] if valid_actions else ""
+
+    # Fail closed: finalizing a booking must always be an explicit user action.
+    # Never interpret an implicit form submit (for example Enter in the coupon
+    # field or a browser that drops the submitter button) as confirmation.
+    if not action:
+        if actions:
+            raise ValidationError("عملیات checkout معتبر نیست.")
+        raise ValidationError(
+            "عملیات مشخص نیست؛ برای ثبت نهایی رزرو از دکمه «ثبت نهایی» استفاده کنید."
+        )
 
     return action
 
@@ -4151,7 +4167,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             messages.error(request, str(exc))
             return redirect("orders:reservation_preview")
 
-        checkout_action = form_action or "confirm_checkout"
+        checkout_action = form_action
 
         post_data = request.POST.copy()
         post_data["coupon_code"] = coupon_code
@@ -4248,6 +4264,24 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             )
             coupon_code = ""
             payload = _build_checkout_payload(request=request, coupon_code="")
+
+        # Safety invariant: no database reservation may be created unless the
+        # request explicitly came from the final checkout action. Coupon
+        # actions are read-only pricing operations and must already have
+        # returned above. Keeping this guard immediately before the
+        # finalization path prevents future refactors from accidentally letting
+        # a secondary submit action fall through to Order.objects.create().
+        if checkout_action != "confirm_checkout":
+            logger.warning(
+                "Checkout non-final action reached finalization guard | action=%s | user=%s",
+                checkout_action,
+                getattr(request.user, "pk", None),
+            )
+            messages.error(
+                request,
+                "این عملیات فقط برای به‌روزرسانی پیش‌نمایش است و رزرو ثبت نشد.",
+            )
+            return self._render(request, form=form, coupon_code=coupon_code)
 
         checkout_fingerprint = _build_checkout_submission_fingerprint(
             request=request,
