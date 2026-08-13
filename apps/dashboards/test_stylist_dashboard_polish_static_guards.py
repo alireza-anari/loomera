@@ -136,7 +136,7 @@ class StylistDashboardPolishStaticGuards(unittest.TestCase):
             "در پروفایل عضو تیم فقط مرخصی تاییدشده باید نمایش داده شود.",
         )
 
-    def test_specialist_templates_have_workspace_tabs_and_panels(self):
+    def test_specialist_templates_use_direct_sections_without_workspace_tabs(self):
         templates = [
             "stylist_dashboard.html",
             "stylist_appointments.html",
@@ -161,20 +161,20 @@ class StylistDashboardPolishStaticGuards(unittest.TestCase):
                     source,
                     f"{filename} باید workspace root داشته باشد.",
                 )
-                self.assertIn(
+                self.assertNotIn(
                     "data-dashboard-workspace-tabs-shell",
                     source,
-                    f"{filename} باید نوار تب sticky داشته باشد.",
+                    f"{filename} نباید کار اصلی را پشت workspace tabs پنهان کند.",
                 )
-                self.assertIn(
+                self.assertNotIn(
                     "data-dashboard-workspace-tab",
                     source,
-                    f"{filename} باید tab button داشته باشد.",
+                    f"{filename} نباید برای جابه‌جایی بین کارهای اصلی tab button داشته باشد.",
                 )
                 self.assertIn(
-                    "data-dashboard-workspace-panel",
+                    "data-lm-direct-section",
                     source,
-                    f"{filename} باید details panel داشته باشد.",
+                    f"{filename} باید حداقل یک بخش اصلی مستقیم و همیشه قابل مشاهده داشته باشد.",
                 )
 
     def test_specialist_templates_do_not_render_active_salon_selector_in_body(self):
