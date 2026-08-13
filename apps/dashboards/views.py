@@ -14536,70 +14536,34 @@ class StylistFinanceView(StylistDashboardGuardMixin, View):
             return redirect("dashboards:stylist_dashboard")
 
         wallet, _ = StylistWallet.objects.get_or_create(stylist=stylist)
-
         if salon:
             release_eligible_stylist_wallet_funds_for_salon(salon)
-
             snapshots = (
                 OrderDetailFinancialSnapshot.objects.filter(
                     stylist=stylist,
                     salon=salon,
+                    status=OrderDetailFinancialSnapshot.Status.FINALIZED,
                 )
                 .select_related("order", "service", "salon", "order_detail")
                 .order_by("-finalized_at", "-created_at", "-id")
             )
-
             transactions_qs = (
                 wallet.transactions.select_related(
                     "order", "order_detail", "financial_snapshot"
                 )
-                .filter(
-                    Q(order_detail__salon=salon)
-                    | Q(financial_snapshot__salon=salon)
-                    | Q(order__salon=salon)
-                )
+                .filter(salon=salon)
+                .exclude(transaction_type__in=["withdraw_request", "withdraw_restore"])
                 .order_by("-created_at", "-id")
             )
         else:
-            # متخصص بدون مجموعه فعال نباید آمار مالی کل مجموعه‌ها را به‌عنوان داشبورد یک مجموعه ببیند.
             snapshots = OrderDetailFinancialSnapshot.objects.none()
             transactions_qs = wallet.transactions.none()
-            messages.warning(
-                request,
-                "برای مشاهده مالی مجموعه، ابتدا یک مجموعه فعال انتخاب کنید.",
-            )
+            messages.warning(request, "برای مشاهده درآمد، ابتدا یک مجموعه فعال انتخاب کنید.")
 
-        summary = snapshots.aggregate(
-            count=Count("id"),
-            gross=Sum("gross_amount"),
-            discount=Sum("discount_allocated"),
-            paid=Sum("paid_amount_allocated"),
-            materials=Sum("material_cost_total"),
-            stylist_share=Sum("stylist_net_share"),
-        )
-
-        finalized_summary = snapshots.filter(
-            status=OrderDetailFinancialSnapshot.Status.FINALIZED
-        ).aggregate(
+        finalized_summary = snapshots.aggregate(
             count=Count("id"),
             stylist_share=Sum("stylist_net_share"),
         )
-
-        reversed_summary = snapshots.filter(
-            status=OrderDetailFinancialSnapshot.Status.REVERSED
-        ).aggregate(
-            count=Count("id"),
-            stylist_share=Sum("stylist_net_share"),
-        )
-
-        transaction_summary = transactions_qs.aggregate(
-            pending_delta=Sum("pending_delta"),
-            available_delta=Sum("available_delta"),
-        )
-
-        salon_pending_balance = int(transaction_summary.get("pending_delta") or 0)
-        salon_available_flow = int(transaction_summary.get("available_delta") or 0)
-        salon_total_wallet_flow = salon_pending_balance + salon_available_flow
 
         context = build_dashboard_context(
             request.user,
@@ -14610,114 +14574,38 @@ class StylistFinanceView(StylistDashboardGuardMixin, View):
             salon_override=salon,
             stylist_override=stylist,
         )
-
-        if salon:
-            finance_payload = build_stylist_finance_payload(stylist, salon=salon)
-        else:
-            finance_payload = {
-                "staff_earnings": [],
-                "staff_earning_summary": {
-                    "count": 0,
-                    "gross": 0,
-                    "deductions": 0,
-                    "net": 0,
-                },
-                "staff_payable_amount": 0,
-                "staff_payout_requests": [],
-                "staff_payable_earnings_count": 0,
-            }
-
         context.update(
             {
                 "wallet": wallet,
-                # همه این‌ها فقط مربوط به مجموعه فعال هستند.
                 "snapshots": snapshots[:100],
                 "transactions": transactions_qs[:50],
                 "active_finance_salon": salon,
-                "finance_scope_label": (
-                    f"مجموعه {salon.salon_name}" if salon else "بدون مجموعه فعال"
-                ),
-                # برای template بعدی: مانده‌های بعد از تراکنش در مدل wallet کلی هستند،
-                # پس بهتر است در UI با عنوان «کل کیف پول» نمایش داده شوند یا مخفی شوند.
-                "wallet_scope_notice": (
-                    "اعداد اصلی این صفحه فقط مربوط به مجموعه فعال هستند. "
-                    "مانده کیف پول کلی ممکن است شامل درآمد سایر مجموعه‌ها هم باشد."
-                ),
-                "show_wallet_global_notice": True,
+                "finance_scope_label": f"مجموعه {salon.salon_name}" if salon else "بدون مجموعه فعال",
                 "summary_cards": [
                     {
-                        "label": "در انتظار همین مجموعه",
-                        "value": _dashboard_currency(salon_pending_balance),
+                        "label": "قابل دریافت",
+                        "value": _dashboard_currency(wallet.available_balance_for_salon(salon)),
+                        "icon": "fa-solid fa-building-columns",
+                    },
+                    {
+                        "label": "در انتظار آزادشدن",
+                        "value": _dashboard_currency(wallet.pending_balance_for_salon(salon)),
                         "icon": "fa-regular fa-clock",
                     },
                     {
-                        "label": "آزادشده از همین مجموعه",
-                        "value": _dashboard_currency(salon_available_flow),
-                        "icon": "fa-solid fa-wallet",
-                    },
-                    {
-                        "label": "کل جریان کیف پول همین مجموعه",
-                        "value": _dashboard_currency(salon_total_wallet_flow),
-                        "icon": "fa-solid fa-coins",
-                    },
-                    {
-                        "label": "تعداد خدمات مالی‌شده همین مجموعه",
-                        "value": summary.get("count") or 0,
-                        "icon": "fa-solid fa-receipt",
-                    },
-                    {
-                        "label": "جمع فروش خام همین مجموعه",
-                        "value": _dashboard_currency(summary.get("gross") or 0),
-                        "icon": "fa-solid fa-cash-register",
-                    },
-                    {
-                        "label": "جمع تخفیف خدمات همین مجموعه",
-                        "value": _dashboard_currency(summary.get("discount") or 0),
-                        "icon": "fa-solid fa-tags",
-                    },
-                    {
-                        "label": "مبلغ بعد از تخفیف همین مجموعه",
-                        "value": _dashboard_currency(summary.get("paid") or 0),
-                        "icon": "fa-solid fa-receipt",
-                    },
-                    {
-                        "label": "جمع سهم محاسبه‌شده همین مجموعه",
-                        "value": _dashboard_currency(summary.get("stylist_share") or 0),
+                        "label": "درآمد قطعی",
+                        "value": _dashboard_currency(finalized_summary.get("stylist_share") or 0),
                         "icon": "fa-solid fa-chart-line",
                     },
                     {
-                        "label": "سهم نهایی‌شده همین مجموعه",
-                        "value": _dashboard_currency(
-                            finalized_summary.get("stylist_share") or 0
-                        ),
-                        "icon": "fa-solid fa-circle-check",
-                    },
-                    {
-                        "label": "اسناد برگشت‌خورده همین مجموعه",
-                        "value": _dashboard_currency(
-                            reversed_summary.get("stylist_share") or 0
-                        ),
-                        "icon": "fa-solid fa-rotate-left",
-                    },
-                    {
-                        "label": "هزینه مواد همین مجموعه",
-                        "value": _dashboard_currency(summary.get("materials") or 0),
-                        "icon": "fa-solid fa-flask-vial",
-                    },
-                    {
-                        "label": "قابل برداشت کل کیف پول",
-                        "value": _dashboard_currency(
-                            wallet.available_balance_for_salon(salon)
-                        ),
-                        "icon": "fa-solid fa-building-columns",
+                        "label": "خدمات نهایی‌شده",
+                        "value": to_persian_digits(finalized_summary.get("count") or 0),
+                        "icon": "fa-solid fa-receipt",
                     },
                 ],
             }
         )
-
         context.update(_stylist_context_payload(ctx))
-        context.update(finance_payload)
-
         return render(request, self.template_name, context)
 
 

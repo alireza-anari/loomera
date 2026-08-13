@@ -621,24 +621,9 @@ urlpatterns = [
         name="appointment_material_usage",
     ),
     path(
-        "settings/finance/cost-center/",
-        SalonCostCenterView.as_view(),
-        name="finance_cost_center",
-    ),
-    path(
-        "settings/finance/profit-report/",
-        SalonProfitReportView.as_view(),
-        name="finance_profit_report",
-    ),
-    path(
         "settings/finance/stylist-wallets/",
         SalonStylistWalletsView.as_view(),
         name="finance_stylist_wallets",
-    ),
-    path(
-        "calendar/salon/<int:salon_id>/appointment/<int:appointment_id>/materials/",
-        AppointmentMaterialUsageView.as_view(),
-        name="appointment_material_usage",
     ),
     path(
         "calendar/salon/<int:salon_id>/appointment/<int:appointment_id>/finance/finalize/",

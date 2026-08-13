@@ -119,8 +119,9 @@ class SalonFinanceMaterialSettingsView(LoginRequiredMixin, View):
         return context
 
     def get(self, request):
-        salon = self._get_salon(request)
-        return render(request, self.template_name, self._context(request, salon))
+        # Legacy entry point: keep old bookmarks working without maintaining a second finance UI.
+        self._get_salon(request)
+        return redirect("dashboards:finance_cost_center")
 
     def post(self, request):
         salon = self._get_salon(request)
@@ -131,7 +132,7 @@ class SalonFinanceMaterialSettingsView(LoginRequiredMixin, View):
             if form.is_valid():
                 form.save()
                 messages.success(request, "ماده اولیه مجموعه ثبت شد.")
-                return redirect("dashboards:finance_materials")
+                return redirect("dashboards:finance_cost_center")
             messages.error(request, "فرم ماده اولیه کامل نیست.")
             return render(
                 request,
@@ -146,14 +147,14 @@ class SalonFinanceMaterialSettingsView(LoginRequiredMixin, View):
             material.is_active = not material.is_active
             material.save(update_fields=["is_active", "updated_at"])
             messages.success(request, "وضعیت ماده اولیه تغییر کرد.")
-            return redirect("dashboards:finance_materials")
+            return redirect("dashboards:finance_cost_center")
 
         if action == "create_template":
             form = ServiceMaterialTemplateForm(request.POST, salon=salon)
             if form.is_valid():
                 form.save()
                 messages.success(request, "قالب مواد مصرفی خدمت ثبت شد.")
-                return redirect("dashboards:finance_materials")
+                return redirect("dashboards:finance_cost_center")
             messages.error(request, "فرم قالب خدمت کامل نیست.")
             return render(
                 request,
@@ -167,14 +168,14 @@ class SalonFinanceMaterialSettingsView(LoginRequiredMixin, View):
             )
             template.delete()
             messages.success(request, "قالب مواد مصرفی حذف شد.")
-            return redirect("dashboards:finance_materials")
+            return redirect("dashboards:finance_cost_center")
 
         if action == "create_rule":
             form = StylistCommissionRuleForm(request.POST, salon=salon)
             if form.is_valid():
                 form.save()
                 messages.success(request, "قانون سهم متخصص ثبت شد.")
-                return redirect("dashboards:finance_materials")
+                return redirect("dashboards:finance_cost_center")
             messages.error(request, "فرم قانون سهم متخصص کامل نیست.")
             return render(
                 request,
@@ -189,7 +190,7 @@ class SalonFinanceMaterialSettingsView(LoginRequiredMixin, View):
             rule.is_active = not rule.is_active
             rule.save(update_fields=["is_active", "updated_at"])
             messages.success(request, "وضعیت قانون سهم تغییر کرد.")
-            return redirect("dashboards:finance_materials")
+            return redirect("dashboards:finance_cost_center")
 
         if action == "delete_rule":
             rule = get_object_or_404(
@@ -197,7 +198,7 @@ class SalonFinanceMaterialSettingsView(LoginRequiredMixin, View):
             )
             rule.delete()
             messages.success(request, "قانون سهم متخصص حذف شد.")
-            return redirect("dashboards:finance_materials")
+            return redirect("dashboards:finance_cost_center")
 
         messages.error(request, "درخواست نامعتبر است.")
-        return redirect("dashboards:finance_materials")
+        return redirect("dashboards:finance_cost_center")

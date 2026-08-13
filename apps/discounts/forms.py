@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, time
 
 from django import forms
+from django.db.models import Q
 from django.utils import timezone
 
 from apps.dashboards.jalali_utils import (
@@ -199,10 +200,10 @@ class SalonDiscountBasketForm(forms.ModelForm):
     )
     services = forms.ModelMultipleChoiceField(
         queryset=None,
-        label="خدمات داخل سبد",
+        label="خدمات شامل تخفیف",
         required=False,
         widget=forms.CheckboxSelectMultiple,
-        help_text="اگر متخصص مشخص نکنی، این سبد برای همه متخصصهای همان خدمت معتبر در نظر گرفته می‌شود.",
+        help_text="این تخفیف روی هرکدام از خدمات انتخاب‌شده قابل اعمال است؛ مشتری لازم نیست همه خدمات را با هم رزرو کند.",
     )
 
     class Meta:
@@ -249,12 +250,12 @@ class SalonDiscountBasketForm(forms.ModelForm):
                 attrs={
                     "class": "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-7 focus:border-loomera-primary focus:outline-none",
                     "rows": 3,
-                    "placeholder": "این سبد تخفیف روی چه خدماتی و با چه هدفی اعمال می‌شود؟",
+                    "placeholder": "این پیشنهاد برای چه خدماتی و با چه هدفی ساخته شده است؟",
                 }
             ),
         }
         labels = {
-            "discount_title": "عنوان سبد تخفیف",
+            "discount_title": "عنوان پیشنهاد",
             "discount": "درصد تخفیف",
             "max_discount_amount": "سقف مبلغ تخفیف",
             "is_active": "فعال باشد",
@@ -266,14 +267,26 @@ class SalonDiscountBasketForm(forms.ModelForm):
 
     def __init__(self, *args, salon=None, **kwargs):
         super().__init__(*args, **kwargs)
-        service_qs = getattr(salon, "services", None)
-        self.fields["services"].queryset = (
-            service_qs.all()
-            if service_qs is not None
-            else DiscountBasketDetails._meta.get_field(
-                "service"
-            ).remote_field.model.objects.none()
-        )
+        service_manager = getattr(salon, "services", None)
+        empty_qs = DiscountBasketDetails._meta.get_field(
+            "service"
+        ).remote_field.model.objects.none()
+        if service_manager is None:
+            service_qs = empty_qs
+        else:
+            service_qs = service_manager.all()
+            if self.instance.pk:
+                selected_ids = list(
+                    self.instance.discount_basket_details1.values_list(
+                        "service_id", flat=True
+                    )
+                )
+                service_qs = service_qs.filter(
+                    Q(is_active=True) | Q(pk__in=selected_ids)
+                ).distinct()
+            else:
+                service_qs = service_qs.filter(is_active=True)
+        self.fields["services"].queryset = service_qs.order_by("service_name")
         if self.instance.pk:
             self.fields["services"].initial = (
                 self.instance.discount_basket_details1.values_list(
@@ -312,7 +325,7 @@ class SalonDiscountBasketForm(forms.ModelForm):
 
         if services is None or not services.exists():
             raise forms.ValidationError(
-                "برای ساخت سبد تخفیف، حداقل یک خدمت را انتخاب کن."
+                "برای ساخت پیشنهاد خدمات، حداقل یک خدمت را انتخاب کن."
             )
 
         return cleaned
@@ -353,7 +366,6 @@ class SalonDiscountCampaignForm(forms.ModelForm):
         model = DiscountCampaign
         fields = [
             "title",
-            "campaign_type",
             "start_date",
             "end_date",
             "coupons",
@@ -366,11 +378,6 @@ class SalonDiscountCampaignForm(forms.ModelForm):
                 attrs={
                     "class": "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-loomera-primary focus:outline-none",
                     "placeholder": "مثلاً کمپین نوروزی رنگ و مراقبت",
-                }
-            ),
-            "campaign_type": forms.Select(
-                attrs={
-                    "class": "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-loomera-primary focus:outline-none"
                 }
             ),
             "coupons": forms.CheckboxSelectMultiple,
@@ -390,9 +397,8 @@ class SalonDiscountCampaignForm(forms.ModelForm):
         }
         labels = {
             "title": "عنوان کمپین",
-            "campaign_type": "نوع کمپین",
-            "coupons": "کدهای تخفیف داخل کمپین",
-            "baskets": "سبدهای تخفیف داخل کمپین",
+            "coupons": "کدهای تخفیف",
+            "baskets": "پیشنهادهای خدمات",
             "is_active": "فعال باشد",
             "description": "توضیحات داخلی",
         }
@@ -401,14 +407,14 @@ class SalonDiscountCampaignForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.salon = salon
         self.fields["coupons"].queryset = (
-            Coupon.objects.filter(salon=salon).order_by(
+            Coupon.objects.filter(salon=salon, is_archived=False).order_by(
                 "-is_active", "-start_date", "coupon_code"
             )
             if salon
             else Coupon.objects.none()
         )
         self.fields["baskets"].queryset = (
-            DiscountBasket.objects.filter(salon=salon).order_by(
+            DiscountBasket.objects.filter(salon=salon, is_archived=False).order_by(
                 "-is_active", "-start_date", "discount_title"
             )
             if salon
@@ -461,6 +467,23 @@ class SalonDiscountCampaignForm(forms.ModelForm):
             raise forms.ValidationError("تاریخ پایان باید بعد از تاریخ شروع باشد.")
         if not coupons and not baskets:
             raise forms.ValidationError(
-                "حداقل یک کد تخفیف یا یک سبد تخفیف به کمپین اضافه کن."
+                "حداقل یک کد تخفیف یا یک پیشنهاد خدمات به کمپین اضافه کن."
             )
         return cleaned
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        coupons = self.cleaned_data.get("coupons")
+        baskets = self.cleaned_data.get("baskets")
+        has_coupons = bool(coupons and coupons.exists())
+        has_baskets = bool(baskets and baskets.exists())
+        if has_coupons and has_baskets:
+            instance.campaign_type = DiscountCampaign.CampaignType.MIXED
+        elif has_coupons:
+            instance.campaign_type = DiscountCampaign.CampaignType.COUPON
+        elif has_baskets:
+            instance.campaign_type = DiscountCampaign.CampaignType.BASKET
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
