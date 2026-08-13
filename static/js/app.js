@@ -8,7 +8,10 @@ import initNotificationSettings from "./pages/notification_settings.js";
 import initChangePassword from "./pages/change_password.js";
 import initDeleteAccount from "./pages/delete_account_new.js";
 import initDashboardLayout from "./pages/dashboard_layout.js";
-import "./pages/dashboard_workspace.js";
+import initDashboardDirectEdit from "./pages/dashboard_direct_edit.js";
+import initDashboardTaskTabs from "./pages/dashboard_task_tabs.js";
+import initDashboardCompactRecords from "./pages/dashboard_compact_records.js";
+import initFormInteractions from "./pages/form_interactions.js";
 import initAppointmentsManagement from "./pages/appointments_management.js";
 import initReportsDashboard from "./pages/reports_dashboard.js";
 import initEditDaySchedule from "./pages/edit_day_schedule.js";
@@ -29,15 +32,39 @@ document.addEventListener("DOMContentLoaded", async () => {
   const dashboardPage = body.getAttribute("data-dashboard-page");
 
   try {
+    initDashboardDirectEdit();
+  } catch (error) {
+    console.error("[app] direct edit init failed", error);
+  }
+
+  try {
+    initDashboardTaskTabs(document);
+  } catch (error) {
+    console.error("[app] task tabs init failed", error);
+  }
+
+  try {
+    initDashboardCompactRecords(document);
+  } catch (error) {
+    console.error("[app] compact records init failed", error);
+  }
+
+  try {
+    initFormInteractions(document);
+  } catch (error) {
+    console.error("[app] form interactions init failed", error);
+  }
+
+  try {
     initLoomeraDatepickers();
   } catch (error) {
-    console.error("[app] datepicker initialization failed");
+    console.error("[app] datepicker init failed", error);
   }
 
   try {
     initCustomerNotificationHeader();
   } catch (error) {
-    console.error("[app] customer notification header initialization failed");
+    console.error("[app] customer notification header init failed", error);
   }
 
   const pages = {
@@ -67,14 +94,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       pages[page]();
     } catch (error) {
-      console.error("[app] page initialization failed");
+      console.error(`[app] page init failed: ${page}`, error);
     }
   }
 
   try {
     initLoomeraDatepickers(document);
   } catch (error) {
-    console.error("[app] datepicker refresh failed");
+    console.error("[app] datepicker refresh failed", error);
   }
 
   if (!dashboardPage) return;
@@ -95,6 +122,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (module?.default) module.default();
     }
   } catch (error) {
-    console.error("[app] dashboard page initialization failed");
+    console.error(`[app] dashboard page init failed: ${dashboardPage}`, error);
   }
 });

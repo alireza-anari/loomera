@@ -6,6 +6,7 @@
 
   const state = {
     salonId: null,
+    bookingMode: 'booking',
     selections: [],
     currentIndex: 0,
     schedules: {},
@@ -29,7 +30,7 @@
       setupEventListeners();
       await renderCurrentStep();
     } catch (error) {
-      console.error("[select-datetime] initialization failed");
+      console.error('Select datetime init failed:', error);
       alert('زمان‌های قابل رزرو بارگذاری نشد. لطفاً دوباره تلاش کنید.');
     }
   }
@@ -39,6 +40,7 @@
     if (!source) throw new Error('hidden data not found');
 
     state.salonId = source.dataset.salonId;
+    state.bookingMode = source.dataset.bookingMode || 'booking';
     state.selections = JSON.parse(source.dataset.selections || '[]').map((selection) => ({
       ...selection,
       serviceId: String(selection.serviceId),
@@ -80,13 +82,14 @@
     return { year: newYear, month: newMonth };
   }
 
-  async function loadAvailabilityForMonth(year, month) {
+  async function loadAvailabilityForMonth(year, month, options = {}) {
     const key = `${year}-${month}`;
-    if (state.loadedMonths.has(key)) return;
+    const force = Boolean(options.force);
+    if (state.loadedMonths.has(key) && !force) return;
 
     const response = await fetch(
       `/orders/api/availability/?salon_id=${encodeURIComponent(state.salonId)}&month=${month}&year=${year}`,
-      { credentials: 'same-origin' }
+      { credentials: 'same-origin', cache: 'no-store' }
     );
 
     if (!response.ok) throw new Error(`availability request failed: ${response.status}`);
@@ -96,6 +99,29 @@
     mergeAvailabilityPayload(state.bookedTimes, data.booked_times || {});
     mergeAvailabilityPayload(state.timeOffs, data.time_offs || {});
     state.loadedMonths.add(key);
+  }
+
+  function getJalaliMonthForIsoDate(dateStr) {
+    const date = parseIsoDate(dateStr);
+    const [year, month] = JalaliDate.gregorianToJalali(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      date.getDate()
+    );
+    return { year, month };
+  }
+
+  async function refreshAvailabilityForDates(dateValues) {
+    const months = new Map();
+    dateValues.filter(Boolean).forEach((dateStr) => {
+      const target = getJalaliMonthForIsoDate(dateStr);
+      months.set(`${target.year}-${target.month}`, target);
+    });
+
+    for (const target of months.values()) {
+      await loadAvailabilityForMonth(target.year, target.month, { force: true });
+    }
+    clearAvailabilityCache();
   }
 
   function mergeAvailabilityPayload(target, payload) {
@@ -709,7 +735,8 @@
     const mobileSummary = document.getElementById('mobileStickySummary');
     const ready = Boolean(state.currentDate && state.currentTime);
     const isLast = state.currentIndex === state.selections.length - 1;
-    const text = ready ? (isLast ? 'ادامه و پیش‌نمایش رزرو' : 'ثبت این خدمت و ادامه') : 'ابتدا تاریخ و زمان را انتخاب کنید';
+    const finalLabel = state.bookingMode === 'reschedule' ? 'ثبت زمان جدید' : 'ادامه و پیش‌نمایش رزرو';
+    const text = ready ? (isLast ? finalLabel : 'ثبت این خدمت و ادامه') : 'ابتدا تاریخ و زمان را انتخاب کنید';
 
     [mobileButton, desktopButton].forEach((button) => {
       if (!button) return;
@@ -869,6 +896,44 @@
     state.availabilityCache = {};
   }
 
+  async function findStalePickedSelection() {
+    const pickedDates = state.selections
+      .map((selection, index) => getPickedForIndex(index)?.date)
+      .filter(Boolean);
+
+    if (!pickedDates.length) return null;
+    await refreshAvailabilityForDates(pickedDates);
+
+    for (let index = 0; index < state.selections.length; index += 1) {
+      const selection = state.selections[index];
+      const picked = getPickedForIndex(index);
+      if (!picked) continue;
+
+      const validationSelection = selection.requestedStylistId === 'any' && picked.stylistId
+        ? {
+            ...selection,
+            requestedStylistId: String(picked.stylistId),
+            stylistId: String(picked.stylistId),
+            resolvedStylistId: String(picked.stylistId),
+          }
+        : selection;
+
+      const slots = await getAvailabilityForDate(validationSelection, picked.date);
+      const stillAvailable = slots.some((slot) => slot.time === picked.time);
+      if (!stillAvailable) return { index, selection, picked };
+    }
+
+    return null;
+  }
+
+  function clearPickedFromIndex(startIndex) {
+    for (let index = startIndex; index < state.selections.length; index += 1) {
+      const selection = state.selections[index];
+      if (selection) delete state.picked[getSelectionKey(selection)];
+      delete state.splitDayByIndex[index];
+    }
+  }
+
   async function handleContinue() {
     const selection = getCurrentSelection();
     if (!selection || !state.currentDate || !state.currentTime) {
@@ -882,9 +947,21 @@
       return;
     }
 
+    try {
+      await refreshAvailabilityForDates([state.currentDate]);
+      state.currentSlots = await getAvailabilityForDate(selection, state.currentDate);
+    } catch (error) {
+      console.error('[select_datetime] fresh availability check failed', error);
+      alert('بررسی دوباره زمان آزاد ممکن نشد. لطفاً چند لحظه دیگر تلاش کنید.');
+      return;
+    }
+
     const slot = state.currentSlots.find((item) => item.time === state.currentTime);
     if (!slot) {
-      alert('زمان انتخابی دیگر در دسترس نیست. لطفاً دوباره انتخاب کنید.');
+      state.currentTime = null;
+      renderTimeSlots(state.currentSlots, selection, false);
+      updateContinueButton();
+      alert('این ساعت همین حالا رزرو شده و از فهرست زمان‌های آزاد حذف شد. لطفاً زمان دیگری را انتخاب کنید.');
       return;
     }
 
@@ -913,6 +990,23 @@
       state.currentTime = null;
       window.scrollTo({ top: 0, behavior: 'smooth' });
       await renderCurrentStep();
+      return;
+    }
+
+    try {
+      const stale = await findStalePickedSelection();
+      if (stale) {
+        clearPickedFromIndex(stale.index);
+        state.currentIndex = stale.index;
+        state.currentDate = stale.picked.date;
+        state.currentTime = null;
+        await renderCurrentStep();
+        alert(`ساعت ${stale.picked.time} برای «${stale.selection.serviceName || 'خدمت'}» دیگر آزاد نیست و از انتخاب شما حذف شد. لطفاً یک زمان دیگر انتخاب کنید.`);
+        return;
+      }
+    } catch (error) {
+      console.error('[select_datetime] final availability refresh failed', error);
+      alert('بررسی نهایی زمان‌های آزاد ممکن نشد. لطفاً دوباره تلاش کنید.');
       return;
     }
 
@@ -985,7 +1079,7 @@
       try {
         jalaliDatepicker.startWatch({ selector: '#bookingDatePicker', autoHide: true });
       } catch (error) {
-        console.warn("[select-datetime] jalaliDatepicker initialization failed");
+        console.warn('[select_datetime] jalaliDatepicker init error', error);
       }
     }
 
@@ -1005,7 +1099,7 @@
       try {
         await loadAvailabilityForMonth(jy, jm);
       } catch (error) {
-        console.error("[select-datetime] datepicker month load failed");
+        console.error('[select_datetime] datepicker month load failed', error);
       }
 
       await renderHorizontalCalendar();

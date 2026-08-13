@@ -1,606 +1,174 @@
 {% extends "dashboard_template.html" %}
-{% block title %}خدمات مجموعه{% endblock %}
+{% block title %}خدمات{% endblock %}
 {% block body_attrs %}data-page="service-menu"{% endblock %}
+
 {% block content %}
-  {% url 'dashboards:add_service' as add_service_url %}
   {% url 'dashboards:team_member' as team_member_url %}
-  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5"
-           data-dashboard-page="service-menu"
-           data-dashboard-workspace-root
-           data-service-menu-page>
-    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7"
-             aria-labelledby="service-menu-title">
-      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]"
-           aria-hidden="true"></div>
-      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
-        <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
-          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0">
-              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-                <i class="fa-solid fa-scissors text-[10px]" aria-hidden="true"></i>
-                <span class="truncate">خدمات و قیمت‌گذاری</span>
-              </span>
-              <h1 id="service-menu-title"
-                  class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-                منوی خدمات مجموعه
-              </h1>
-              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-                کاتالوگ خدمات، قیمت‌گذاری، وضعیت فعال بودن و پوشش تیم را در یک workspace عملیاتی مدیریت کن تا رزروهای آنلاین و داخلی با کمترین اصطکاک انجام شوند.
-              </p>
-            </div>
-            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
-              <i class="fa-solid fa-list-check text-lg" aria-hidden="true"></i>
+
+  <section class="min-w-0 max-w-full space-y-4 lg:space-y-5" data-dashboard-page="service-menu" data-service-menu-page>
+    <header class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">مدیریت سالن</p>
+          <h1 class="mt-1 text-2xl font-black leading-9 text-loomera-textPrimary sm:text-3xl">خدمات</h1>
+          <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">
+            خدمت‌ها، قیمت و متخصص ارائه‌دهنده را مدیریت کن. برای اولین رزرو، یک خدمت فعال با قیمت معتبر کافی است.
+          </p>
+        </div>
+
+        <a href="{{ add_service_url }}" class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:opacity-95">
+          <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+          افزودن خدمت
+        </a>
+      </div>
+
+      <div class="mt-5 flex flex-wrap gap-2 text-xs font-bold">
+        <span class="rounded-full bg-loomera-bgSubtle px-3 py-2 text-loomera-textSecondary">{{ service_workspace.total_services_count }} خدمت</span>
+        <span class="rounded-full bg-emerald-50 px-3 py-2 text-emerald-700">{{ service_workspace.active_services_count }} فعال</span>
+        {% if service_workspace.unassigned_services_count != "۰" %}
+          <button type="button" class="rounded-full bg-amber-50 px-3 py-2 text-amber-700" data-service-filter-shortcut="unassigned">
+            {{ service_workspace.unassigned_services_count }} بدون متخصص
+          </button>
+        {% endif %}
+      </div>
+    </header>
+
+    {% if service_setup_handoff %}
+      <section
+        class="overflow-hidden rounded-[26px] border {% if service_setup_handoff.status_tone == 'success' %}border-emerald-200 bg-emerald-50/90{% else %}border-amber-200 bg-amber-50/90{% endif %} shadow-lm-soft"
+        data-service-setup-handoff
+        aria-labelledby="service-setup-handoff-title"
+      >
+        <div class="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+          <div class="flex min-w-0 items-start gap-3">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm {% if service_setup_handoff.status_tone == 'success' %}text-emerald-700{% else %}text-amber-700{% endif %}">
+              {% if service_setup_handoff.status_tone == 'success' %}
+                <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+              {% else %}
+                <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+              {% endif %}
             </span>
+
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <p class="text-[11px] font-black {% if service_setup_handoff.status_tone == 'success' %}text-emerald-700{% else %}text-amber-700{% endif %}">قدم بعدی راه‌اندازی</p>
+                <span class="rounded-full bg-white px-3 py-1 text-[10px] font-black {% if service_setup_handoff.status_tone == 'success' %}text-emerald-700{% else %}text-amber-700{% endif %}">{{ service_setup_handoff.status_label }}</span>
+              </div>
+              <h2 id="service-setup-handoff-title" class="mt-2 break-words text-base font-black leading-7 text-loomera-textPrimary sm:text-lg">{{ service_setup_handoff.title }}</h2>
+              <p class="mt-1 break-words text-sm font-bold text-loomera-textSecondary">{{ service_setup_handoff.service_name }}</p>
+              <p class="mt-2 max-w-3xl text-xs leading-6 text-loomera-textMuted sm:text-sm sm:leading-7">{{ service_setup_handoff.description }}</p>
+            </div>
           </div>
-          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
-            <a href="{{ add_service_url }}"
-               class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
-              <span class="truncate">افزودن خدمت</span>
+
+          <div class="flex shrink-0 flex-col gap-2 sm:flex-row lg:max-w-md lg:flex-wrap lg:justify-end">
+            <a href="{{ service_setup_handoff.primary_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover" data-service-setup-primary>
+              {{ service_setup_handoff.primary_label }}
+              <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
             </a>
-            <a href="{{ team_member_url }}"
-               class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-user-group text-xs text-loomera-primaryText"
-                 aria-hidden="true"></i>
-              <span class="truncate">اعضای تیم</span>
-            </a>
-            <button type="button"
-                    class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"
-                    data-service-focus-search>
-              <i class="fa-solid fa-magnifying-glass text-xs text-loomera-primaryText"
-                 aria-hidden="true"></i>
-              <span class="truncate">جستجوی سریع</span>
-            </button>
+            <a href="{{ service_setup_handoff.secondary_url }}" class="inline-flex min-h-11 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40" data-service-setup-secondary>{{ service_setup_handoff.secondary_label }}</a>
+            <a href="{{ service_setup_handoff.dismiss_url }}" class="inline-flex min-h-11 items-center justify-center px-3 py-2 text-xs font-bold text-loomera-textMuted transition hover:text-loomera-textPrimary" aria-label="بستن راهنمای قدم بعدی">بعداً انجام می‌دهم</a>
           </div>
         </div>
-        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6"
-               aria-label="فوکوس خدمات">
-          <div class="flex min-w-0 items-center justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-white/55">فوکوس فعلی</p>
-              <h2 class="mt-1 truncate text-lg font-black">سلامت کاتالوگ خدمات</h2>
+      </section>
+    {% endif %}
+
+    {% if service_workspace.unassigned_services_count != "۰" %}
+      <section class="rounded-[24px] border border-amber-200 bg-amber-50 p-4 sm:p-5" aria-label="خدمات نیازمند اقدام">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <h2 class="text-sm font-black text-amber-900">بعضی خدمات هنوز متخصص ارائه‌دهنده ندارند</h2>
+            <p class="mt-1 text-xs leading-6 text-amber-800">این خدمات تا زمان اتصال به عضو تیم، مسیر رزرو کامل ندارند.</p>
+          </div>
+          <a href="{{ team_member_url }}" class="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border border-amber-200 bg-white px-4 py-2 text-xs font-black text-amber-800">مدیریت تیم</a>
+        </div>
+      </section>
+    {% endif %}
+
+    <section class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5 lg:p-6">
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <label class="relative block min-w-0 flex-1">
+          <span class="sr-only">جستجوی خدمات</span>
+          <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
+          <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="جستجوی نام خدمت یا گروه" data-service-search>
+        </label>
+
+        <div class="lm-mobile-scroll-strip flex gap-2 overflow-x-auto pb-1" aria-label="فیلتر خدمات">
+          <button type="button" class="lm-app-touch-target shrink-0 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-service-filter="all">همه</button>
+          <button type="button" class="lm-app-touch-target shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-service-filter="active">فعال</button>
+          <button type="button" class="lm-app-touch-target shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-service-filter="unassigned">بدون متخصص</button>
+          <button type="button" class="lm-app-touch-target shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-service-filter="unpriced">بدون قیمت</button>
+          <button type="button" class="lm-app-touch-target shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-service-filter="inactive">غیرفعال</button>
+        </div>
+      </div>
+
+      <p class="mt-3 text-xs text-loomera-textMuted"><strong class="font-black text-loomera-textPrimary" data-visible-service-count>{{ service_workspace.total_services_count }}</strong> خدمت نمایش داده می‌شود.</p>
+
+      <div class="mt-5 space-y-5" data-service-catalog>
+        {% for section in service_sections %}
+          <section data-service-group>
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="text-sm font-black text-loomera-textPrimary">{{ section.label }}</h2>
+                <p class="mt-1 text-xs text-loomera-textMuted">{{ section.count_label }} خدمت</p>
+              </div>
+              {% if section.unassigned_count > 0 %}
+                <span class="rounded-full bg-amber-50 px-3 py-1.5 text-[11px] font-black text-amber-700">{{ section.unassigned_count_label }} بدون متخصص</span>
+              {% endif %}
             </div>
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-              <i class="fa-solid fa-bolt" aria-hidden="true"></i>
-            </span>
-          </div>
-          <div class="mt-5 space-y-3">
-            {% for item in service_workspace.focus_items %}
-              <article class="min-w-0 rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <div class="flex min-w-0 items-start justify-between gap-3">
-                  <h3 class="min-w-0 flex-1 text-sm font-black leading-6 text-white">{{ item.title }}</h3>
-                  <span class="max-w-[42%] shrink-0 truncate rounded-full px-3 py-1 text-[10px] font-black {% if item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-white/10 text-white{% endif %}">
-                    {{ item.value }}
-                  </span>
-                </div>
-                <p class="mt-2 text-xs leading-6 text-white/72">{{ item.description }}</p>
-              </article>
-            {% empty %}
-              <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <h3 class="text-sm font-black text-white">کاتالوگ آماده بررسی است</h3>
-                <p class="mt-2 text-xs leading-6 text-white/72">خدمات را اضافه کن و سپس قیمت و پوشش تیم را کامل کن.</p>
-              </article>
-            {% endfor %}
-          </div>
-        </aside>
+
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {% for service in section.services %}
+                <details class="lm-compact-record min-w-0"
+                         data-service-card
+                         data-lm-compact-record
+                         data-lm-compact-group="services-{{ forloop.parentloop.counter }}"
+                         data-service-status="{% if service.is_active %}active{% else %}inactive{% endif %}"
+                         data-service-coverage="{% if service.assigned_team_names %}covered{% else %}unassigned{% endif %}"
+                         data-service-priced="{% if service.price_label == 'ثبت نشده' %}unpriced{% else %}priced{% endif %}"
+                         data-service-search-value="{{ service.name }} {{ section.label }} {% for member in service.assigned_team_names %}{{ member }} {% endfor %}">
+                  <summary class="lm-compact-record-summary">
+                    {% if service.image %}
+                      <span class="lm-compact-record-avatar"><img src="{{ service.image.url }}" alt="" class="h-full w-full object-cover"></span>
+                    {% else %}
+                      <span class="lm-compact-record-avatar" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+                    {% endif %}
+                    <span class="min-w-0 flex-1 text-right">
+                      <span class="flex min-w-0 flex-wrap items-center gap-2">
+                        <strong class="min-w-0 line-clamp-2 break-words text-sm font-black leading-6 text-loomera-textPrimary">{{ service.name }}</strong>
+                        <span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ service.status_badge_class }}">{{ service.status_label }}</span>
+                      </span>
+                      <span class="mt-1 block truncate text-xs text-loomera-textMuted">{{ service.duration_label }} • {{ service.price_label }}</span>
+                    </span>
+                    <span class="lm-compact-record-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
+                  </summary>
+                  <div class="lm-compact-record-body">
+                    <div class="flex flex-wrap items-center gap-2 text-[11px] font-bold">
+                      {% if service.assigned_team_names %}<span class="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">{{ service.team_count_label }} متخصص</span>{% else %}<span class="rounded-full bg-amber-50 px-3 py-1.5 text-amber-700">بدون متخصص</span>{% endif %}
+                      {% if service.price_label == 'ثبت نشده' %}<span class="rounded-full bg-amber-50 px-3 py-1.5 text-amber-700">قیمت ناقص</span>{% endif %}
+                    </div>
+                    {% if service.has_future_active_bookings %}<p class="mt-3 rounded-2xl bg-amber-50 px-3 py-2 text-[11px] leading-5 text-amber-800">{{ service.future_active_booking_count_label }} نوبت پیشِ رو دارد؛ فعلاً نمی‌توان وضعیت خدمت را تغییر داد.</p>{% endif %}
+                    {% if service.assigned_team_names %}<p class="mt-3 text-xs leading-6 text-loomera-textMuted"><span class="font-black text-loomera-textSecondary">متخصص‌ها:</span> {{ service.assigned_team_names|join:"، " }}</p>{% endif %}
+                    <div class="mt-3 flex flex-wrap items-center gap-2 border-t border-loomera-borderSoft pt-3">
+                      <a href="{{ service.edit_url }}" class="lm-app-touch-target inline-flex items-center justify-center rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">ویرایش خدمت</a>
+                      {% if not service.is_active or not service.has_future_active_bookings %}<form method="post" action="{{ service.toggle_url }}">{% csrf_token %}<button type="submit" class="lm-app-touch-target rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-bold text-loomera-textSecondary">{% if service.is_active %}غیرفعال‌کردن{% else %}فعال‌کردن{% endif %}</button></form>{% endif %}
+                      {% if service.is_active and not service.has_future_active_bookings %}<form method="post" action="{{ service.archive_url }}">{% csrf_token %}<button type="submit" class="lm-app-touch-target rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-bold text-loomera-textSecondary">آرشیو</button></form>{% endif %}
+                      {% if not service.has_future_active_bookings %}<form method="post" action="{{ service.remove_url }}" onsubmit="return confirm('{% if service.has_booking_history %}این خدمت سابقه نوبت دارد و امن آرشیو می‌شود. ادامه می‌دهی؟{% else %}از حذف این خدمت مطمئنی؟{% endif %}');">{% csrf_token %}<button type="submit" class="lm-app-touch-target rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-bold {% if service.has_booking_history %}text-loomera-textSecondary{% else %}text-rose-700{% endif %}">{% if service.has_booking_history %}آرشیو امن{% else %}حذف{% endif %}</button></form>{% endif %}
+                    </div>
+                  </div>
+                </details>
+              {% endfor %}
+            </div>
+          </section>
+        {% empty %}
+          {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-scissors" title="هنوز خدمتی ثبت نشده است" description="برای شروع رزرو آنلاین، اولین خدمت را بساز." action_label="افزودن اولین خدمت" action_url=add_service_url %}
+        {% endfor %}
+
+        <div class="hidden rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-8 text-center text-sm text-loomera-textMuted" data-service-filter-empty>خدمتی با این جستجو یا فیلتر پیدا نشد.</div>
       </div>
     </section>
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      {% if service_setup_handoff %}
-        <section class="overflow-hidden rounded-[28px] border {% if service_setup_handoff.status_tone == 'success' %}border-emerald-200 bg-emerald-50/90{% else %}border-amber-200 bg-amber-50/90{% endif %} shadow-lm-card"
-                 data-service-setup-handoff
-                 aria-labelledby="service-setup-handoff-title">
-          <div class="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6">
-            <div class="flex min-w-0 items-start gap-3">
-              <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm {% if service_setup_handoff.status_tone == 'success' %}text-emerald-700{% else %}text-amber-700{% endif %}">
-                {% if service_setup_handoff.status_tone == 'success' %}
-                  <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
-                {% else %}
-                  <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-                {% endif %}
-              </span>
-              <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-2">
-                  <p class="text-[11px] font-black {% if service_setup_handoff.status_tone == 'success' %}text-emerald-700{% else %}text-amber-700{% endif %}">
-                    قدم بعدی راه‌اندازی
-                  </p>
-                  <span class="rounded-full bg-white px-3 py-1 text-[10px] font-black {% if service_setup_handoff.status_tone == 'success' %}text-emerald-700{% else %}text-amber-700{% endif %}">
-                    {{ service_setup_handoff.status_label }}
-                  </span>
-                </div>
-                <h2 id="service-setup-handoff-title"
-                    class="mt-2 break-words text-base font-black leading-7 text-loomera-textPrimary sm:text-lg">
-                  {{ service_setup_handoff.title }}
-                </h2>
-                <p class="mt-1 break-words text-sm font-bold text-loomera-textSecondary">{{ service_setup_handoff.service_name }}</p>
-                <p class="mt-2 max-w-3xl text-xs leading-6 text-loomera-textMuted sm:text-sm sm:leading-7">
-                  {{ service_setup_handoff.description }}
-                </p>
-              </div>
-            </div>
-            <div class="flex shrink-0 flex-col gap-2 sm:flex-row lg:max-w-md lg:flex-wrap lg:justify-end">
-              <a href="{{ service_setup_handoff.primary_url }}"
-                 class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"
-                 data-service-setup-primary>
-                <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
-                {{ service_setup_handoff.primary_label }}
-              </a>
-              <a href="{{ service_setup_handoff.secondary_url }}"
-                 class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40"
-                 data-service-setup-secondary>{{ service_setup_handoff.secondary_label }}</a>
-              <a href="{{ service_setup_handoff.dismiss_url }}"
-                 class="inline-flex min-h-11 items-center justify-center px-3 py-2 text-xs font-bold text-loomera-textMuted transition hover:text-loomera-textPrimary"
-                 aria-label="بستن راهنمای قدم بعدی">بعداً انجام می‌دهم</a>
-            </div>
-          </div>
-        </section>
-      {% endif %}
-      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90"
-           data-dashboard-workspace-tabs
-           aria-label="پیمایش بخش‌های منوی خدمات">
-        <div class="flex min-w-max items-center gap-2">
-          <button type="button"
-                  data-dashboard-workspace-tab
-                  data-target="#service-menu-section-readiness"
-                  aria-selected="true"
-                  class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5">
-            <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
-            <span>نمای کلی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText"
-                  data-dashboard-workspace-tab-badge>{{ service_workspace.total_services_count }}</span>
-          </button>
-          <button type="button"
-                  data-dashboard-workspace-tab
-                  data-target="#service-menu-section-catalog"
-                  class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-list text-[10px]" aria-hidden="true"></i>
-            <span>کاتالوگ</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted"
-                  data-dashboard-workspace-tab-badge>{{ service_sections|length }}</span>
-          </button>
-          <button type="button"
-                  data-dashboard-workspace-tab
-                  data-target="#service-menu-section-actions"
-                  class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-triangle-exclamation text-[10px]"
-               aria-hidden="true"></i>
-            <span>نیازمند اقدام</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted"
-                  data-dashboard-workspace-tab-badge
-                  data-service-action-count>{{ service_workspace.unassigned_services_count }}</span>
-          </button>
-          <button type="button"
-                  data-dashboard-workspace-tab
-                  data-target="#service-menu-section-routes"
-                  class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
-            <span>مسیرها</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted"
-                  data-dashboard-workspace-tab-badge>۳</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-    <details id="service-menu-section-readiness"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             data-dashboard-workspace-open-mobile="true"
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">آمادگی منوی خدمات برای رزرو</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <article class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-loomera-primarySoft/45 p-4 sm:p-5">
-            <div class="flex min-w-0 items-start justify-between gap-3">
-              <div class="min-w-0">
-                <p class="text-[11px] font-black text-loomera-primaryText">چک‌لیست عملیاتی</p>
-                <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">خدمات آماده، قیمت‌گذاری‌شده و دارای پوشش تیم</h3>
-                <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">
-                  برای اینکه خدمت در flow رزرو واقعاً قابل استفاده باشد، فقط ثبت نام کافی نیست؛ باید فعال، قیمت‌گذاری‌شده و به حداقل یک عضو تیم متصل باشد.
-                </p>
-              </div>
-              <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-              </span>
-            </div>
-            <div class="mt-5 grid gap-3 sm:grid-cols-3">
-              <div class="rounded-2xl bg-white/85 px-4 py-3">
-                <p class="text-[11px] font-bold text-loomera-textMuted">خدمات فعال</p>
-                <strong class="mt-1 block text-lg font-black text-loomera-textPrimary">{{ service_workspace.active_services_count }}</strong>
-              </div>
-              <div class="rounded-2xl bg-white/85 px-4 py-3">
-                <p class="text-[11px] font-bold text-loomera-textMuted">دارای قیمت</p>
-                <strong class="mt-1 block text-lg font-black text-loomera-textPrimary">{{ service_workspace.priced_services_count }}</strong>
-              </div>
-              <div class="rounded-2xl bg-white/85 px-4 py-3">
-                <p class="text-[11px] font-bold text-loomera-textMuted">بدون پوشش تیم</p>
-                <strong class="mt-1 block text-lg font-black text-loomera-textPrimary">{{ service_workspace.unassigned_services_count }}</strong>
-              </div>
-            </div>
-          </article>
-          <div class="grid min-w-0 grid-cols-2 gap-3 xl:grid-cols-3">
-            <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-scissors" aria-hidden="true"></i></span>
-              <p class="mt-4 text-[11px] font-bold text-loomera-textMuted">کل خدمات</p>
-              <strong class="mt-1 block text-2xl font-black text-loomera-textPrimary">{{ service_workspace.total_services_count }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">همه خدمات ثبت‌شده مجموعه</p>
-            </article>
-            <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
-              <p class="mt-4 text-[11px] font-bold text-loomera-textMuted">گروه‌های خدمات</p>
-              <strong class="mt-1 block text-2xl font-black text-loomera-textPrimary">{{ service_workspace.total_groups_count }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای نظم‌دهی کاتالوگ</p>
-            </article>
-            <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-successSoft text-loomera-success"><i class="fa-regular fa-clock" aria-hidden="true"></i></span>
-              <p class="mt-4 text-[11px] font-bold text-loomera-textMuted">میانگین مدت</p>
-              <strong class="mt-1 block text-2xl font-black text-loomera-textPrimary">{{ service_workspace.avg_duration }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">دقیقه برای برنامه‌ریزی تیم</p>
-            </article>
-            <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-tag" aria-hidden="true"></i></span>
-              <p class="mt-4 text-[11px] font-bold text-loomera-textMuted">قیمت‌گذاری‌شده</p>
-              <strong class="mt-1 block text-2xl font-black text-loomera-textPrimary">{{ service_workspace.priced_services_count }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">دارای حداقل یک قیمت</p>
-            </article>
-            <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-successSoft text-loomera-success"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
-              <p class="mt-4 text-[11px] font-bold text-loomera-textMuted">فعال</p>
-              <strong class="mt-1 block text-2xl font-black text-loomera-textPrimary">{{ service_workspace.active_services_count }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">قابل استفاده در رزرو</p>
-            </article>
-            <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-warningSoft text-loomera-warning"><i class="fa-solid fa-user-slash" aria-hidden="true"></i></span>
-              <p class="mt-4 text-[11px] font-bold text-loomera-textMuted">بدون پوشش</p>
-              <strong class="mt-1 block text-2xl font-black text-loomera-textPrimary">{{ service_workspace.unassigned_services_count }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">نیازمند اتصال تیم</p>
-            </article>
-          </div>
-        </div>
-      </div>
-    </details>
-    <details id="service-menu-section-catalog"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">کاتالوگ عملیاتی</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">فهرست خدمات بر اساس گروه</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="mb-5 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3">
-          <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <label class="relative block min-w-0 flex-1">
-              <span class="sr-only">جستجوی خدمات</span>
-              <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted"
-                 aria-hidden="true"></i>
-              <input type="search"
-                     class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
-                     placeholder="جستجو با نام خدمت، گروه، توضیح یا عضو تیم"
-                     data-service-search>
-            </label>
-            <div class="flex gap-2 overflow-x-auto pb-1 lg:max-w-[42rem]"
-                 aria-label="فیلتر سریع خدمات">
-              <button type="button"
-                      class="shrink-0 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText"
-                      data-service-filter="all">همه</button>
-              <button type="button"
-                      class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary"
-                      data-service-filter="active">فعال</button>
-              <button type="button"
-                      class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary"
-                      data-service-filter="inactive">غیرفعال</button>
-              <button type="button"
-                      class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary"
-                      data-service-filter="unassigned">بدون پوشش تیم</button>
-              <button type="button"
-                      class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary"
-                      data-service-filter="unpriced">بدون قیمت</button>
-            </div>
-          </div>
-          <div class="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs leading-6 text-loomera-textMuted">
-            <span>نمایش فعلی: <strong class="font-black text-loomera-textPrimary"
-         data-visible-service-count>{{ service_workspace.total_services_count }}</strong> خدمت</span>
-            <a href="{{ add_service_url }}"
-               class="inline-flex items-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white shadow-sm transition hover:opacity-95">
-              <i class="fa-solid fa-plus text-[10px]" aria-hidden="true"></i>
-              <span>خدمت جدید</span>
-            </a>
-          </div>
-        </div>
-        <div class="space-y-4" data-service-catalog>
-          {% for section in service_sections %}
-            <details class="group/service rounded-[24px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:p-4"
-                     open
-                     data-service-group>
-              <summary class="flex cursor-pointer list-none flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div class="min-w-0">
-                  <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ section.label }}</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                    {{ section.count_label }} خدمت • {{ section.active_count_label }} فعال • {{ section.unassigned_count_label }} بدون پوشش تیم
-                  </p>
-                </div>
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="inline-flex items-center rounded-full bg-loomera-bgSubtle px-3 py-1 text-xs font-bold text-loomera-textSecondary">گروه خدمات</span>
-                  {% if section.unassigned_count > 0 %}
-                    <span class="inline-flex items-center rounded-full bg-loomera-warningSoft px-3 py-1 text-xs font-bold text-loomera-warning">نیازمند اتصال تیم</span>
-                  {% endif %}
-                  <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-primary transition group-open/service:rotate-180">
-                    <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-                  </span>
-                </div>
-              </summary>
-              <div class="mt-4 grid gap-4 md:grid-cols-2 2xl:grid-cols-3"
-                   data-service-group-grid>
-                {% for service in section.services %}
-                  <article class="min-w-0 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card"
-                           data-service-card
-                           data-service-status="{% if service.is_active %}active{% else %}inactive{% endif %}"
-                           data-service-coverage="{% if service.assigned_team_names %}covered{% else %}unassigned{% endif %}"
-                           data-service-priced="{% if service.price_label == 'ثبت نشده' %}unpriced{% else %}priced{% endif %}"
-                           data-service-search-value="{{ service.name }} {{ service.short_description }} {{ section.label }} {% for member in service.assigned_team_names %}{{ member }}{% endfor %}">
-                    <div class="flex min-w-0 items-start justify-between gap-3">
-                      <div class="flex min-w-0 items-start gap-3">
-                        {% if service.image %}
-                          <img src="{{ service.image.url }}"
-                               alt="{{ service.name }}"
-                               class="h-14 w-14 shrink-0 rounded-2xl object-cover ring-1 ring-loomera-borderSoft">
-                        {% else %}
-                          <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-base font-black text-loomera-primaryText">
-                            {{ service.name|slice:":1" }}
-                          </span>
-                        {% endif %}
-                        <div class="min-w-0">
-                          <div class="flex min-w-0 flex-wrap items-center gap-2">
-                            <h4 class="min-w-0 truncate text-sm font-black text-loomera-textPrimary">{{ service.name }}</h4>
-                            <span class="inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[11px] font-bold {{ service.status_badge_class }}">{{ service.status_label }}</span>
-                          </div>
-                          <p class="mt-1 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ service.short_description }}</p>
-                        </div>
-                      </div>
-                      <a href="{{ service.edit_url }}"
-                         class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText"
-                         aria-label="ویرایش {{ service.name }}">
-                        <i class="fa-solid fa-pen text-xs" aria-hidden="true"></i>
-                      </a>
-                    </div>
-                    <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
-                      <div class="rounded-2xl bg-white px-3 py-3">
-                        <p class="text-[11px] font-bold text-loomera-textMuted">مدت</p>
-                        <p class="mt-1 font-black text-loomera-textPrimary">{{ service.duration_label }}</p>
-                      </div>
-                      <div class="rounded-2xl bg-white px-3 py-3">
-                        <p class="text-[11px] font-bold text-loomera-textMuted">پوشش تیم</p>
-                        <p class="mt-1 font-black text-loomera-textPrimary">{{ service.team_count_label }} نفر</p>
-                      </div>
-                      <div class="col-span-2 rounded-2xl bg-white px-3 py-3">
-                        <div class="flex items-center justify-between gap-3">
-                          <p class="text-[11px] font-bold text-loomera-textMuted">قیمت</p>
-                          <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold {{ service.coverage_badge_class }}">{{ service.coverage_label }}</span>
-                        </div>
-                        <p class="mt-1 font-black text-loomera-textPrimary">{{ service.price_label }}</p>
-                      </div>
-                    </div>
-                    <div class="mt-4 rounded-2xl border border-loomera-borderSoft bg-white/90 px-3 py-3">
-                      <p class="text-[11px] font-bold text-loomera-textMuted">اعضای پوشش‌دهنده</p>
-                      <div class="mt-2 flex flex-wrap gap-2">
-                        {% for member in service.assigned_team_names %}
-                          <span class="inline-flex items-center rounded-full bg-loomera-bgSubtle px-3 py-2 text-[11px] font-bold text-loomera-textSecondary">{{ member }}</span>
-                        {% empty %}
-                          <span class="inline-flex items-center rounded-full bg-loomera-warningSoft px-3 py-2 text-[11px] font-bold text-loomera-warning">هنوز به عضو تیمی متصل نشده</span>
-                        {% endfor %}
-                        {% if service.has_more_team %}
-                          <span class="inline-flex items-center rounded-full bg-loomera-bgSubtle px-3 py-2 text-[11px] font-bold text-loomera-textSecondary">+ {{ service.extra_team_count_label }} نفر دیگر</span>
-                        {% endif %}
-                      </div>
-                    </div>
-                    {% if not service.assigned_team_names or not service.is_active or service.price_label == 'ثبت نشده' or service.has_future_active_bookings %}
-                      <div class="mt-4 rounded-2xl border border-loomera-warning/20 bg-loomera-warningSoft px-3 py-3 text-xs leading-6 text-loomera-warning">
-                        <div class="flex items-start justify-between gap-3">
-                          <div class="min-w-0">
-                            <p class="font-black">نیازمند اقدام</p>
-                            <p class="mt-1">
-                              {% if service.has_future_active_bookings %}
-                                این خدمت {{ service.future_active_booking_count_label }} نوبت فعال/آینده دارد؛ حذف، آرشیو یا غیرفعال‌سازی تا تعیین تکلیف نوبت‌ها بسته است.
-                              {% elif not service.is_active %}
-                                این خدمت فعلاً غیرفعال است.
-                              {% elif service.price_label == 'ثبت نشده' %}
-                                برای این خدمت هنوز قیمت ثبت نشده است.
-                              {% elif not service.assigned_team_names %}
-                                این خدمت هنوز پوشش تیم ندارد.
-                              {% endif %}
-                            </p>
-                          </div>
-                          <i class="fa-solid fa-triangle-exclamation shrink-0 pt-1"
-                             aria-hidden="true"></i>
-                        </div>
-                      </div>
-                    {% endif %}
-                    <div class="mt-4 flex flex-wrap gap-2">
-                      <a href="{{ service.edit_url }}"
-                         class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
-                        <span>ویرایش</span>
-                        <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                      </a>
-                      {% if service.is_active and service.has_future_active_bookings %}
-                        <button type="button"
-                                disabled
-                                title="این خدمت نوبت فعال یا آینده دارد"
-                                class="inline-flex cursor-not-allowed items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textMuted opacity-60">
-                          غیرفعال‌سازی بسته است
-                        </button>
-                      {% else %}
-                        <form method="post" action="{{ service.toggle_url }}">
-                          {% csrf_token %}
-                          <button type="submit"
-                                  class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
-                            {% if service.is_active %}
-                              غیرفعال‌کردن
-                            {% else %}
-                              فعال‌کردن
-                            {% endif %}
-                          </button>
-                        </form>
-                      {% endif %}
-                      {% if service.is_active %}
-                        {% if service.has_future_active_bookings %}
-                          <button type="button"
-                                  disabled
-                                  title="این خدمت نوبت فعال یا آینده دارد"
-                                  class="inline-flex cursor-not-allowed items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textMuted opacity-60">
-                            آرشیو بسته است
-                          </button>
-                        {% else %}
-                          <form method="post" action="{{ service.archive_url }}">
-                            {% csrf_token %}
-                            <button type="submit"
-                                    class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
-                              آرشیو
-                            </button>
-                          </form>
-                        {% endif %}
-                      {% endif %}
-                      {% if service.has_future_active_bookings %}
-                        <button type="button"
-                                disabled
-                                title="این خدمت نوبت فعال یا آینده دارد"
-                                class="inline-flex cursor-not-allowed items-center gap-2 rounded-full bg-slate-200 px-3 py-2 text-xs font-black text-slate-500 opacity-80">
-                          حذف بسته است
-                        </button>
-                      {% else %}
-                        <form method="post"
-                              action="{{ service.remove_url }}"
-                              onsubmit="return confirm('{% if service.has_booking_history %}این خدمت سابقه نوبت دارد و به‌جای حذف فیزیکی، امن آرشیو می‌شود. ادامه می‌دهی؟{% else %}از حذف این خدمت مطمئنی؟{% endif %}');">
-                          {% csrf_token %}
-                          <button type="submit"
-                                  class="inline-flex items-center gap-2 rounded-full {% if service.has_booking_history %}border border-loomera-borderSoft bg-white text-loomera-textSecondary hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText{% else %}bg-loomera-danger text-white hover:opacity-95{% endif %} px-3 py-2 text-xs font-black shadow-sm transition">
-                            {% if service.has_booking_history %}
-                              آرشیو امن
-                            {% else %}
-                              حذف
-                            {% endif %}
-                          </button>
-                        </form>
-                      {% endif %}
-                    </div>
-                  </article>
-                {% endfor %}
-              </div>
-            </details>
-          {% empty %}
-            {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-scissors" title="هنوز خدمتی برای این مجموعه ثبت نشده است" description="برای شروع محیط کاری خدمات، اولین خدمت را تعریف کن تا قیمت‌گذاری و اتصال به تیم ممکن شود." action_label="افزودن خدمت" action_url=add_service_url %}
-          {% endfor %}
-          <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted"
-               data-service-filter-empty>خدمتی با این جستجو یا فیلتر پیدا نشد.</div>
-        </div>
-      </div>
-    </details>
-    <details id="service-menu-section-actions"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">اقدام‌های فوری</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">خدماتی که باید بازبینی شوند</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="grid min-w-0 gap-4 md:grid-cols-2 2xl:grid-cols-3"
-             data-service-action-list>
-          {% for section in service_sections %}
-            {% for service in section.services %}
-              {% if not service.assigned_team_names or not service.is_active or service.price_label == 'ثبت نشده' or service.has_future_active_bookings %}
-                <article class="rounded-[24px] border border-loomera-warning/20 bg-loomera-warningSoft/75 p-4"
-                         data-service-action-card>
-                  <div class="flex min-w-0 items-start justify-between gap-3">
-                    <div class="min-w-0">
-                      <p class="text-[11px] font-black text-loomera-warning">{{ section.label }}</p>
-                      <h3 class="mt-1 truncate text-sm font-black text-loomera-textPrimary">{{ service.name }}</h3>
-                    </div>
-                    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-warning shadow-sm">
-                      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                    </span>
-                  </div>
-                  <div class="mt-4 space-y-2 text-xs leading-6 text-loomera-warning">
-                    {% if not service.is_active %}<p>• خدمت غیرفعال است و در رزرو قابل استفاده نیست.</p>{% endif %}
-                    {% if service.price_label == 'ثبت نشده' %}<p>• قیمت پایه یا قیمت برای اعضای تیم ثبت نشده است.</p>{% endif %}
-                    {% if not service.assigned_team_names %}<p>• هیچ عضو فعالی برای ارائه این خدمت متصل نیست.</p>{% endif %}
-                  </div>
-                  <div class="mt-4 flex flex-wrap gap-2">
-                    <a href="{{ service.edit_url }}"
-                       class="inline-flex items-center gap-2 rounded-full bg-loomera-primary px-3 py-2 text-xs font-black text-white shadow-sm transition hover:opacity-95">
-                      <span>تکمیل خدمت</span>
-                      <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                    </a>
-                    <a href="{{ team_member_url }}"
-                       class="inline-flex items-center gap-2 rounded-full border border-loomera-warning/20 bg-white px-3 py-2 text-xs font-black text-loomera-warning transition hover:bg-loomera-warningSoft/70">
-                      <span>بررسی تیم</span>
-                    </a>
-                  </div>
-                </article>
-              {% endif %}
-            {% endfor %}
-          {% endfor %}
-          <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 2xl:col-span-3"
-               data-service-actions-empty>در حال حاضر خدمت نیازمند اقدام فوری پیدا نشد.</div>
-        </div>
-      </div>
-    </details>
-    <details id="service-menu-section-routes"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">کارهای اصلی منوی خدمات</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="grid gap-4 lg:grid-cols-3">
-          <a href="{{ add_service_url }}"
-             class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
-            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
-            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">افزودن خدمت جدید</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای سرویس‌هایی که هنوز در کاتالوگ ثبت نشده‌اند.</p>
-          </a>
-          <a href="{{ team_member_url }}"
-             class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
-            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-user-group" aria-hidden="true"></i></span>
-            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">اتصال خدمات به تیم</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای رفع خدمات بدون پوشش و آماده‌سازی تقویم رزرو.</p>
-          </a>
-          <button type="button"
-                  class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 text-right shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card"
-                  data-service-show-unassigned>
-            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-warningSoft text-loomera-warning"><i class="fa-solid fa-user-slash" aria-hidden="true"></i></span>
-            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">نمایش خدمات بدون پوشش</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">فیلتر سریع برای پیدا کردن خدماتی که باید به متخصص متصل شوند.</p>
-          </button>
-        </div>
-      </div>
-    </details>
   </section>
 {% endblock %}
+
 {% block js %}
   {{ block.super }}
   <script>
@@ -609,34 +177,16 @@
       if (!root) return;
 
       const searchInput = root.querySelector("[data-service-search]");
-      const focusSearchButton = root.querySelector("[data-service-focus-search]");
-      const showUnassignedButton = root.querySelector("[data-service-show-unassigned]");
       const filterButtons = Array.from(root.querySelectorAll("[data-service-filter]"));
-      const serviceCards = Array.from(root.querySelectorAll("[data-service-card]"));
-      const serviceGroups = Array.from(root.querySelectorAll("[data-service-group]"));
-      const filterEmpty = root.querySelector("[data-service-filter-empty]");
-      const visibleCount = root.querySelector("[data-visible-service-count]");
-      const actionCards = Array.from(root.querySelectorAll("[data-service-action-card]"));
-      const actionCount = root.querySelector("[data-service-action-count]");
-      const actionsEmpty = root.querySelector("[data-service-actions-empty]");
+      const shortcut = root.querySelector("[data-service-filter-shortcut]");
+      const cards = Array.from(root.querySelectorAll("[data-service-card]"));
+      const groups = Array.from(root.querySelectorAll("[data-service-group]"));
+      const empty = root.querySelector("[data-service-filter-empty]");
+      const count = root.querySelector("[data-visible-service-count]");
       let activeFilter = "all";
 
-      const persianDigits = (value) => String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
-
-      const setButtonState = () => {
-        filterButtons.forEach((button) => {
-          const active = button.dataset.serviceFilter === activeFilter;
-          button.classList.toggle("border-loomera-primary/20", active);
-          button.classList.toggle("bg-loomera-primarySoft", active);
-          button.classList.toggle("text-loomera-primaryText", active);
-          button.classList.toggle("border-loomera-borderSoft", !active);
-          button.classList.toggle("bg-white", !active);
-          button.classList.toggle("text-loomera-textSecondary", !active);
-          button.setAttribute("aria-pressed", active ? "true" : "false");
-        });
-      };
-
-      const matchesFilter = (card) => {
+      const fa = (value) => String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
+      const matches = (card) => {
         if (activeFilter === "active") return card.dataset.serviceStatus === "active";
         if (activeFilter === "inactive") return card.dataset.serviceStatus === "inactive";
         if (activeFilter === "unassigned") return card.dataset.serviceCoverage === "unassigned";
@@ -644,58 +194,44 @@
         return true;
       };
 
-      const applyFilters = () => {
+      const apply = () => {
         const query = (searchInput?.value || "").trim().toLowerCase();
         let shown = 0;
-
-        serviceCards.forEach((card) => {
-          const searchValue = (card.dataset.serviceSearchValue || card.textContent || "").toLowerCase();
-          const visible = matchesFilter(card) && (!query || searchValue.includes(query));
+        cards.forEach((card) => {
+          const haystack = (card.dataset.serviceSearchValue || card.textContent || "").toLowerCase();
+          const visible = matches(card) && (!query || haystack.includes(query));
           card.classList.toggle("hidden", !visible);
           if (visible) shown += 1;
         });
-
-        serviceGroups.forEach((group) => {
-          const visibleCards = Array.from(group.querySelectorAll("[data-service-card]")).some((card) => !card.classList.contains("hidden"));
-          group.classList.toggle("hidden", !visibleCards);
-          if (visibleCards) group.open = true;
+        groups.forEach((group) => {
+          const visible = Array.from(group.querySelectorAll("[data-service-card]")).some((card) => !card.classList.contains("hidden"));
+          group.classList.toggle("hidden", !visible);
         });
-
-        filterEmpty?.classList.toggle("hidden", shown !== 0 || serviceCards.length === 0);
-        if (visibleCount) visibleCount.textContent = persianDigits(shown);
-        setButtonState();
-
-        window.LoomeraDashboardWorkspace?.refresh(root);
+        filterButtons.forEach((button) => {
+          const selected = button.dataset.serviceFilter === activeFilter;
+          button.classList.toggle("bg-loomera-primarySoft", selected);
+          button.classList.toggle("text-loomera-primaryText", selected);
+          button.classList.toggle("border-loomera-primary/20", selected);
+          button.classList.toggle("bg-white", !selected);
+          button.classList.toggle("text-loomera-textSecondary", !selected);
+          button.classList.toggle("border-loomera-borderSoft", !selected);
+          button.setAttribute("aria-pressed", selected ? "true" : "false");
+        });
+        empty?.classList.toggle("hidden", shown !== 0 || cards.length === 0);
+        if (count) count.textContent = fa(shown);
       };
 
-      filterButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          activeFilter = button.dataset.serviceFilter || "all";
-          applyFilters();
-        });
-      });
-
-      searchInput?.addEventListener("input", applyFilters);
-
-      focusSearchButton?.addEventListener("click", () => {
-        const catalogPanel = document.getElementById("service-menu-section-catalog");
-        if (catalogPanel) catalogPanel.open = true;
-        window.LoomeraDashboardWorkspace?.refresh(root);
-        searchInput?.focus({ preventScroll: false });
-        searchInput?.scrollIntoView({ behavior: "smooth", block: "center" });
-      });
-
-      showUnassignedButton?.addEventListener("click", () => {
-        const catalogPanel = document.getElementById("service-menu-section-catalog");
-        if (catalogPanel) catalogPanel.open = true;
+      filterButtons.forEach((button) => button.addEventListener("click", () => {
+        activeFilter = button.dataset.serviceFilter || "all";
+        apply();
+      }));
+      shortcut?.addEventListener("click", () => {
         activeFilter = "unassigned";
-        applyFilters();
+        apply();
         searchInput?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
-
-      if (actionCount) actionCount.textContent = persianDigits(actionCards.length);
-      actionsEmpty?.classList.toggle("hidden", actionCards.length !== 0);
-      applyFilters();
+      searchInput?.addEventListener("input", apply);
+      apply();
     });
   </script>
 {% endblock %}

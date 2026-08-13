@@ -1,173 +1,18 @@
 {% extends "base.html" %}
-{% load static %}
-{% load humanize %}
-{% load articles_extras %}
-
-{% block title %}همه استوری‌های مجموعه‌ها | مجله لومرا{% endblock %}
-{% block meta_description %}مشاهده استوری‌های مجموعه‌های زیبایی در لومرا بر اساس جدیدترین، پربازدیدترین، موضوع و خدمات مرتبط{% endblock %}
-{% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
+{% load static articles_extras %}
+{% block title %}استوری‌های مجموعه‌ها | مجله لومرا{% endblock %}
+{% block meta_description %}استوری‌های مجموعه‌های زیبایی در لومرا{% endblock %}
 {% block body_attrs %}data-page="magazine-stories"{% endblock %}
-
 {% block content %}
-<main class="min-h-screen bg-loomera-bg pb-20">
-  <section class="bg-white">
-    <div class="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:py-14 xl:px-0">
-      <a href="{% url 'articles:magazine_home' %}" class="mb-5 inline-flex items-center gap-2 text-sm font-black text-loomera-primary">
-        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-        مجله لومرا
-      </a>
-
-      <h1 class="text-3xl font-black text-loomera-textPrimary lg:text-4xl">همه استوری‌های مجموعه‌ها</h1>
-      <p class="mt-3 max-w-2xl text-sm leading-8 text-loomera-textMuted">
-        محتوای کوتاه مجموعه‌ها را بر اساس جدیدترین، پربازدیدترین، نزدیک به انقضا و موضوعات مختلف ببین.
-      </p>
-    </div>
+<main class="min-h-dvh bg-loomera-bg pb-24 text-loomera-textPrimary">
+  <header class="border-b border-loomera-borderSoft bg-white"><div class="mx-auto w-full max-w-7xl px-4 py-7 sm:px-6 lg:py-10 xl:px-0"><a href="{% url 'articles:magazine_home' %}" class="inline-flex items-center gap-2 text-xs font-black text-loomera-primary"><i class="fa-solid fa-arrow-right"></i>مجله لومرا</a><div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 class="text-2xl font-black lg:text-3xl">استوری‌های مجموعه‌ها</h1><p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">محتوای کوتاه مجموعه‌ها را ببین؛ برای محدودکردن نتایج از فیلتر استفاده کن.</p></div><button type="button" data-story-filter-open class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 text-sm font-black text-white"><i class="fa-solid fa-sliders"></i>فیلتر{% if current_q or current_topic or current_service_group or current_scope != 'all' or current_sort != 'newest' %}<span class="rounded-full bg-white px-2 py-0.5 text-[10px] text-loomera-primary">فعال</span>{% endif %}</button></div></div></header>
+  <section class="mx-auto mt-5 w-full max-w-7xl px-4 sm:px-6 xl:px-0">
+    <div class="mb-4 flex flex-wrap gap-2 text-xs font-black">{% if current_q %}<span class="rounded-full bg-white px-3 py-2 shadow-lm-soft">جستجو: {{ current_q }}</span>{% endif %}{% if current_scope == 'favorites' %}<span class="rounded-full bg-white px-3 py-2 shadow-lm-soft">علاقه‌مندی‌ها</span>{% endif %}{% if current_sort != 'newest' %}<span class="rounded-full bg-white px-3 py-2 shadow-lm-soft">{% if current_sort == 'popular' %}پربازدیدترین{% else %}نزدیک به انقضا{% endif %}</span>{% endif %}{% if current_topic %}<span class="rounded-full bg-white px-3 py-2 shadow-lm-soft">موضوع انتخاب‌شده</span>{% endif %}{% if current_service_group %}<span class="rounded-full bg-white px-3 py-2 shadow-lm-soft">گروه خدمت</span>{% endif %}</div>
+    {% if stories %}<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{% for story in stories %}<article class="overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:shadow-lm-card"><button type="button" class="block w-full text-right" data-story-open data-story-id="{{ story.id }}"><div class="relative aspect-[4/3] overflow-hidden rounded-[20px] bg-loomera-primarySoft">{% if story.cover_image %}<img src="{{ story.cover_image.url }}" alt="{{ story.title }}" class="h-full w-full object-cover">{% elif story.salon.logo %}<img src="{{ story.salon.logo.url }}" alt="{{ story.salon.salon_name }}" class="h-full w-full object-cover">{% else %}<div class="flex h-full items-center justify-center text-3xl text-loomera-primary"><i class="fa-solid fa-spa"></i></div>{% endif %}<span class="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-black text-loomera-primary">{{ story.salon.salon_name }}</span></div><h2 class="mt-3 line-clamp-2 text-sm font-black leading-7">{{ story.title }}</h2>{% if story.summary %}<p class="mt-1 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ story.summary }}</p>{% endif %}<div class="mt-3 flex items-center gap-2 border-t border-loomera-borderSoft pt-3 text-[10px] font-bold text-loomera-textMuted"><span>{{ story.view_count|fa_digits }} بازدید</span>{% if story.published_at %}<span>•</span><span>{{ story.published_at|article_jalali_long }}</span>{% endif %}</div></button></article>{% endfor %}</div>{% else %}<div class="rounded-[28px] border border-dashed border-loomera-borderSoft bg-white p-9 text-center shadow-lm-soft"><i class="fa-regular fa-circle-play text-2xl text-loomera-primary"></i><h2 class="mt-4 text-lg font-black">استوری‌ای پیدا نشد</h2><p class="mt-2 text-sm text-loomera-textMuted">فیلترها را تغییر بده یا بعداً دوباره سر بزن.</p></div>{% endif %}
+    {% if is_paginated %}<nav class="mt-7 flex justify-center gap-2">{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ current_q }}&sort={{ current_sort }}&topic={{ current_topic }}&service_group={{ current_service_group }}&scope={{ current_scope }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black">قبلی</a>{% endif %}<span class="rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">{{ page_obj.number|fa_digits }} از {{ page_obj.paginator.num_pages|fa_digits }}</span>{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ current_q }}&sort={{ current_sort }}&topic={{ current_topic }}&service_group={{ current_service_group }}&scope={{ current_scope }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black">بعدی</a>{% endif %}</nav>{% endif %}
   </section>
-
-  <section class="mx-auto mt-6 w-full max-w-7xl px-4 sm:px-6 xl:px-0">
-    <form method="get" class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card">
-      <div class="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(150px,.7fr))_auto]">
-        <label class="block">
-          <span class="mb-2 block text-xs font-black text-loomera-textMuted">جستجو</span>
-          <input
-            type="search"
-            name="q"
-            value="{{ current_q }}"
-            placeholder="نام مجموعه، عنوان استوری یا متخصص"
-            class="h-12 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary focus:ring-4 focus:ring-loomera-focusRing/25"
-          >
-        </label>
-
-        <label class="block">
-          <span class="mb-2 block text-xs font-black text-loomera-textMuted">نمایش</span>
-          <select name="scope" class="h-12 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary">
-            <option value="all" {% if current_scope == "all" %}selected{% endif %}>همه قابل مشاهده‌ها</option>
-            <option value="favorites" {% if current_scope == "favorites" %}selected{% endif %}>مجموعه‌های مورد علاقه من</option>
-          </select>
-        </label>
-
-        <label class="block">
-          <span class="mb-2 block text-xs font-black text-loomera-textMuted">مرتب‌سازی</span>
-          <select name="sort" class="h-12 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary">
-            <option value="newest" {% if current_sort == "newest" %}selected{% endif %}>جدیدترین</option>
-            <option value="popular" {% if current_sort == "popular" %}selected{% endif %}>بیشترین بازدید</option>
-            <option value="ending" {% if current_sort == "ending" %}selected{% endif %}>نزدیک به انقضا</option>
-          </select>
-        </label>
-
-        <label class="block">
-          <span class="mb-2 block text-xs font-black text-loomera-textMuted">موضوع</span>
-          <select name="topic" class="h-12 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary">
-            <option value="">همه موضوعات</option>
-            {% for category in categories %}
-              <option value="{{ category.slug }}" {% if current_topic == category.slug %}selected{% endif %}>{{ category.title }}</option>
-            {% endfor %}
-          </select>
-        </label>
-
-        <label class="block">
-          <span class="mb-2 block text-xs font-black text-loomera-textMuted">گروه خدمت</span>
-          <select name="service_group" class="h-12 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary">
-            <option value="">همه خدمات</option>
-            {% for group in service_groups %}
-              <option value="{{ group.id }}" {% if current_service_group == group.id|stringformat:"s" %}selected{% endif %}>{{ group.group_title }}</option>
-            {% endfor %}
-          </select>
-        </label>
-
-        <button type="submit" class="mt-6 inline-flex h-12 items-center justify-center rounded-2xl bg-loomera-primary px-5 text-sm font-black text-white shadow-lm-soft lg:mt-auto">
-          اعمال
-        </button>
-      </div>
-    </form>
-  </section>
-
-  <section class="mx-auto mt-6 w-full max-w-7xl px-4 sm:px-6 xl:px-0">
-    {% if stories %}
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {% for story in stories %}
-          <article class="overflow-hidden rounded-[1.8rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-1 hover:shadow-lm-card">
-            <button
-              type="button"
-              class="block w-full text-right"
-              data-story-open
-              data-story-id="{{ story.id }}"
-            >
-              <div class="relative aspect-[4/3] overflow-hidden rounded-[1.4rem] bg-loomera-primarySoft">
-                {% if story.cover_image %}
-                  <img src="{{ story.cover_image.url }}" alt="{{ story.title }}" class="h-full w-full object-cover">
-                {% elif story.salon.logo %}
-                  <img src="{{ story.salon.logo.url }}" alt="{{ story.salon.salon_name }}" class="h-full w-full object-cover">
-                {% else %}
-                  <div class="flex h-full w-full items-center justify-center text-4xl text-loomera-primary">
-                    <i class="fa-solid fa-spa" aria-hidden="true"></i>
-                  </div>
-                {% endif %}
-
-                <span class="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-loomera-primary shadow-lm-soft">
-                  {{ story.salon.salon_name }}
-                </span>
-              </div>
-
-              <h2 class="mt-4 line-clamp-2 text-base font-black leading-7 text-loomera-textPrimary">{{ story.title }}</h2>
-              {% if story.summary %}
-                <p class="mt-2 line-clamp-2 text-sm leading-7 text-loomera-textMuted">{{ story.summary }}</p>
-              {% endif %}
-
-              <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-loomera-borderSoft pt-3 text-xs font-bold text-loomera-textMuted">
-                {% if story.published_at %}
-                  <span>{{ story.published_at|article_jalali_long }}</span>
-                {% endif %}
-                <span class="h-1 w-1 rounded-full bg-loomera-border"></span>
-                <span>{{ story.view_count|fa_digits }} بازدید</span>
-                {% if story.expires_at %}
-                  <span class="h-1 w-1 rounded-full bg-loomera-border"></span>
-                  <span>تا {{ story.expires_at|article_jalali_short }}</span>
-                {% endif %}
-              </div>
-            </button>
-          </article>
-        {% endfor %}
-      </div>
-
-      {% if is_paginated %}
-        <nav class="mt-8 flex items-center justify-center gap-2">
-          {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}&q={{ current_q }}&sort={{ current_sort }}&topic={{ current_topic }}&service_group={{ current_service_group }}&scope={{ current_scope }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary shadow-lm-soft">
-              قبلی
-            </a>
-          {% endif %}
-
-          <span class="rounded-full bg-loomera-primarySoft px-4 py-2 text-sm font-black text-loomera-primary">
-            صفحه {{ page_obj.number|fa_digits }} از {{ page_obj.paginator.num_pages|fa_digits }}
-          </span>
-
-          {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}&q={{ current_q }}&sort={{ current_sort }}&topic={{ current_topic }}&service_group={{ current_service_group }}&scope={{ current_scope }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary shadow-lm-soft">
-              بعدی
-            </a>
-          {% endif %}
-        </nav>
-      {% endif %}
-    {% else %}
-      <div class="rounded-[2rem] border border-dashed border-loomera-borderSoft bg-white p-8 text-center shadow-lm-card">
-        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-          <i class="fa-regular fa-circle-play text-2xl" aria-hidden="true"></i>
-        </div>
-        <h2 class="mt-4 text-lg font-black text-loomera-textPrimary">استوری‌ای با این فیلترها پیدا نشد</h2>
-        <p class="mt-2 text-sm leading-7 text-loomera-textMuted">فیلترها را تغییر بده یا بعداً دوباره سر بزن.</p>
-      </div>
-    {% endif %}
-  </section>
-
+  <div data-story-filter-modal class="fixed inset-0 z-[95] hidden items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center sm:p-4"><form method="get" class="max-h-[92dvh] w-full max-w-3xl overflow-y-auto rounded-t-[30px] bg-white p-5 shadow-lm-elevated sm:rounded-[30px] sm:p-6"><div class="flex items-center justify-between"><div><p class="text-xs font-black text-loomera-primary">فیلتر استوری‌ها</p><h2 class="mt-1 text-lg font-black">نتایج دلخواهت را مشخص کن</h2></div><button type="button" data-story-filter-close class="h-10 w-10 rounded-2xl border border-loomera-borderSoft"><i class="fa-solid fa-xmark"></i></button></div><div class="mt-5 grid gap-4 sm:grid-cols-2"><label class="sm:col-span-2"><span class="mb-2 block text-xs font-black text-loomera-textMuted">جستجو</span><input type="search" name="q" value="{{ current_q }}" placeholder="نام مجموعه، عنوان یا متخصص" class="h-12 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm outline-none focus:border-loomera-primary"></label><label><span class="mb-2 block text-xs font-black text-loomera-textMuted">نمایش</span><select name="scope" class="h-12 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm"><option value="all" {% if current_scope == 'all' %}selected{% endif %}>همه</option><option value="favorites" {% if current_scope == 'favorites' %}selected{% endif %}>فقط علاقه‌مندی‌های من</option></select></label><label><span class="mb-2 block text-xs font-black text-loomera-textMuted">مرتب‌سازی</span><select name="sort" class="h-12 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm"><option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>جدیدترین</option><option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>بیشترین بازدید</option><option value="ending" {% if current_sort == 'ending' %}selected{% endif %}>نزدیک به انقضا</option></select></label><label><span class="mb-2 block text-xs font-black text-loomera-textMuted">موضوع</span><select name="topic" class="h-12 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm"><option value="">همه موضوعات</option>{% for category in categories %}<option value="{{ category.slug }}" {% if current_topic == category.slug %}selected{% endif %}>{{ category.title }}</option>{% endfor %}</select></label><label><span class="mb-2 block text-xs font-black text-loomera-textMuted">گروه خدمت</span><select name="service_group" class="h-12 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm"><option value="">همه خدمات</option>{% for group in service_groups %}<option value="{{ group.id }}" {% if current_service_group == group.id|stringformat:'s' %}selected{% endif %}>{{ group.group_title }}</option>{% endfor %}</select></label></div><div class="mt-5 flex gap-3 border-t border-loomera-borderSoft pt-4"><a href="{% url 'articles:story_explore' %}" class="inline-flex min-h-11 flex-1 items-center justify-center rounded-full border border-loomera-borderSoft text-xs font-black text-loomera-textSecondary">پاک‌سازی</a><button type="submit" class="inline-flex min-h-11 flex-[1.5] items-center justify-center rounded-full bg-loomera-primary text-sm font-black text-white">اعمال فیلتر</button></div></form></div>
   {% include "articles/partials/story_viewer.html" with stories_payload=stories_payload %}
 </main>
 {% endblock %}
-
-{% block js %}
-  {{ block.super }}
-  <script type="module">
-    import { initMagazinePage } from "{% static 'js/pages/magazine.js' %}";
-    initMagazinePage();
-  </script>
-{% endblock %}
+{% block js %}{{ block.super }}<script type="module">import { initMagazinePage } from "{% static 'js/pages/magazine.js' %}";initMagazinePage();</script><script>document.addEventListener('DOMContentLoaded',()=>{const m=document.querySelector('[data-story-filter-modal]');const set=v=>{m?.classList.toggle('hidden',!v);m?.classList.toggle('flex',v)};document.querySelector('[data-story-filter-open]')?.addEventListener('click',()=>set(true));document.querySelector('[data-story-filter-close]')?.addEventListener('click',()=>set(false));m?.addEventListener('click',e=>{if(e.target===m)set(false)});document.addEventListener('keydown',e=>{if(e.key==='Escape')set(false)})});</script>{% endblock %}

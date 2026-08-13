@@ -1,0 +1,10 @@
+{% url 'dashboards:finance_coupons' as discount_codes_url %}
+{% url 'dashboards:finance_baskets' as discount_packages_url %}
+{% url 'dashboards:finance_campaigns' as discount_campaigns_url %}
+<nav class="overflow-x-auto rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-1.5" aria-label="انواع تخفیف">
+  <div class="flex min-w-max items-center gap-1.5">
+    <a href="{{ discount_codes_url }}" class="inline-flex min-h-10 items-center rounded-[16px] px-4 py-2 text-xs font-black transition {% if active_discount == 'codes' %}bg-white text-loomera-primaryText shadow-sm{% else %}text-loomera-textSecondary hover:bg-white/80{% endif %}">کد تخفیف</a>
+    <a href="{{ discount_packages_url }}" class="inline-flex min-h-10 items-center rounded-[16px] px-4 py-2 text-xs font-black transition {% if active_discount == 'packages' %}bg-white text-loomera-primaryText shadow-sm{% else %}text-loomera-textSecondary hover:bg-white/80{% endif %}">پیشنهاد خدمات</a>
+    <a href="{{ discount_campaigns_url }}" class="inline-flex min-h-10 items-center rounded-[16px] px-4 py-2 text-xs font-black transition {% if active_discount == 'campaigns' %}bg-white text-loomera-primaryText shadow-sm{% else %}text-loomera-textSecondary hover:bg-white/80{% endif %}">کمپین تخفیف</a>
+  </div>
+</nav>

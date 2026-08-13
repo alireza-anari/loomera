@@ -23,7 +23,7 @@ export default function initAppointmentsManagement() {
         maxDate: "attr",
       });
     } catch (error) {
-      console.warn("[appointments] jalaliDatepicker initialization failed");
+      console.warn("[appointments] jalaliDatepicker init error", error);
     }
   };
 
@@ -215,6 +215,64 @@ export default function initAppointmentsManagement() {
     });
   };
 
+  const initCalendarViewSwitcher = (root = document) => {
+    const board = root.querySelector?.("[data-appointment-calendar-board]");
+    if (!board) return;
+
+    const buttons = Array.from(board.querySelectorAll("[data-calendar-view-toggle]"));
+    if (!buttons.length) return;
+
+    const viewportKey = isMobileViewport() ? "mobile" : "desktop";
+    const storageKey = `loomera:appointments:calendar-view:${viewportKey}`;
+    const defaultMode = isMobileViewport() ? "day" : "week";
+    const serverMode = ["day", "week"].includes(board.dataset.calendarMode)
+      ? board.dataset.calendarMode
+      : null;
+    let savedMode = null;
+
+    try {
+      savedMode = window.sessionStorage.getItem(storageKey);
+    } catch (error) {
+      savedMode = null;
+    }
+
+    const applyMode = (mode, { persist = true } = {}) => {
+      const normalized = mode === "week" ? "week" : "day";
+      board.dataset.calendarMode = normalized;
+
+      buttons.forEach((button) => {
+        const active = button.dataset.calendarViewToggle === normalized;
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+
+      if (persist) {
+        try {
+          window.sessionStorage.setItem(storageKey, normalized);
+        } catch (error) {
+          // Storage is a progressive enhancement only.
+        }
+      }
+    };
+
+    buttons.forEach((button) => {
+      if (button.dataset.calendarToggleBound === "true") return;
+      button.dataset.calendarToggleBound = "true";
+      button.addEventListener("click", () => {
+        applyMode(button.dataset.calendarViewToggle || defaultMode);
+      });
+    });
+
+    applyMode(serverMode || savedMode || defaultMode, { persist: Boolean(serverMode) });
+
+    if (isMobileViewport()) {
+      const selectedDay = board.querySelector(".lm-calendar-mobile-day.is-active");
+      window.setTimeout(() => {
+        selectedDay?.scrollIntoView?.({ behavior: "smooth", inline: "center", block: "nearest" });
+      }, 80);
+    }
+  };
+
   const refreshDashboardWorkspace = (root = document) => {
     if (window.LoomeraDashboardWorkspace?.refresh) {
       window.LoomeraDashboardWorkspace.refresh(root);
@@ -300,7 +358,7 @@ export default function initAppointmentsManagement() {
       bindWorkspace(nextWorkspace);
     } catch (error) {
       if (error.name === "AbortError") return;
-      console.error("[appointments] ajax navigation failed");
+      console.error("[appointments] ajax navigation failed", error);
       window.location.href = url;
     } finally {
       pageState.controller = null;
@@ -360,6 +418,7 @@ export default function initAppointmentsManagement() {
     initFilterModal(root);
     initBulkSelection(root);
     initAccordions(root);
+    initCalendarViewSwitcher(root);
     bindAjaxLinks(root);
     bindFilterForm(root);
     refreshDashboardWorkspace(root);
@@ -383,6 +442,7 @@ export default function initAppointmentsManagement() {
         const workspace = getWorkspace();
         if (!workspace) return;
         initAccordions(workspace);
+        initCalendarViewSwitcher(workspace);
         refreshDashboardWorkspace(workspace);
       },
       { passive: true }
@@ -396,6 +456,7 @@ export default function initAppointmentsManagement() {
       if (!workspace) return;
       window.setTimeout(() => {
         initAccordions(workspace);
+        initCalendarViewSwitcher(workspace);
         refreshDashboardWorkspace(workspace);
       }, 160);
     });

@@ -1,84 +1,76 @@
-<section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-    <div>
-      <div class="flex flex-wrap items-center gap-2">
-        <h2 class="text-lg font-black text-slate-950">فیلتر گزارش‌ها</h2>
-        {% if reports_dashboard.has_filters %}
-          <span class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-bold text-loomera-primaryText">
-            <i class="fa-solid fa-filter text-[10px]"></i>
-            <span>{{ reports_dashboard.active_filter_count }} فیلتر فعال</span>
-          </span>
-        {% endif %}
-      </div>
-      <p class="mt-2 text-sm leading-7 text-slate-500">
-        بازه‌های زمانی گروه‌بندی زمانی، عضو تیم، خدمت و وضعیت را با هم ترکیب کن تا تحلیل دقیق‌تری از عملکرد بازه داشته باشی.
-      </p>
-    </div>
-
-    <div class="flex flex-wrap items-center gap-3">
-      <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
-        <i class="fa-regular fa-calendar text-loomera-primaryText"></i>
-        <span>{{ reports_dashboard.active_range_label }}</span>
+<div data-reports-filter-form-shell>
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex min-w-0 flex-wrap items-center gap-2">
+      <span class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-3 py-2 text-xs font-bold text-loomera-textSecondary">
+        <svg viewBox="0 0 24 24" class="h-4 w-4 text-loomera-primaryText" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+        {{ reports_dashboard.active_range_label }}
       </span>
+      {% if reports_dashboard.has_filters %}
+        <span class="inline-flex items-center rounded-full bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText">
+          {{ reports_dashboard.active_filter_count }} فیلتر فعال
+        </span>
+      {% endif %}
+    </div>
 
+    {% if reports_dashboard.has_filters %}
       <a href="{{ reports_dashboard.clear_filters_url }}"
-         class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-loomera-primary/20 hover:bg-loomera-surfaceSoft">
-        <span>پاک‌سازی</span>
-        <i class="fa-solid fa-rotate-left text-xs"></i>
+         class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
+        پاک‌سازی همه
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
       </a>
+    {% endif %}
+  </div>
+
+  {% if reports_dashboard.active_filter_chips %}
+    <div class="mt-4 flex flex-wrap items-center gap-2" aria-label="فیلترهای فعال">
+      {% for chip in reports_dashboard.active_filter_chips %}
+        <span class="inline-flex min-h-9 items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft/65 px-3 py-1.5 text-xs font-bold text-loomera-textSecondary">
+          <span class="text-loomera-textMuted">{{ chip.label }}</span>
+          <strong class="text-loomera-primaryText">{{ chip.value }}</strong>
+        </span>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="mt-5 border-t border-loomera-borderSoft pt-5">
+    <p class="mb-3 text-xs font-black text-loomera-textMuted">بازه‌های سریع</p>
+    <div class="flex flex-wrap items-center gap-2">
+      {% for preset in reports_dashboard.preset_links %}
+        <a href="{{ preset.url }}"
+           class="inline-flex min-h-10 items-center rounded-full px-4 py-2 text-xs font-black transition {% if preset.is_active %}bg-loomera-primary text-white shadow-[0_10px_20px_rgba(115,92,190,0.16)]{% else %}border border-loomera-borderSoft bg-white text-loomera-textSecondary hover:border-loomera-primary/20 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText{% endif %}">
+          {{ preset.label }}
+        </a>
+      {% endfor %}
     </div>
   </div>
 
-  <div class="mt-5 flex flex-wrap items-center gap-2">
-    {% for preset in reports_dashboard.preset_links %}
-      <a href="{{ preset.url }}"
-         class="inline-flex items-center rounded-full px-4 py-2 text-xs font-bold transition {% if preset.is_active %}bg-loomera-primary text-white{% else %}bg-slate-100 text-slate-600 hover:bg-loomera-primarySoft hover:text-loomera-primaryText{% endif %}">
-        {{ preset.label }}
-      </a>
-    {% endfor %}
-  </div>
-
-  <form method="get" action="{{ reports_dashboard.base_url }}" class="mt-5 grid gap-4 xl:grid-cols-7">
-    <label class="xl:col-span-2">
-      <span class="mb-2 block text-xs font-bold text-slate-500">جستجو</span>
+  <form method="get" action="{{ reports_dashboard.base_url }}" class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-6" data-reports-filter-form>
+    <label class="md:col-span-2 xl:col-span-2">
+      <span class="mb-2 block text-xs font-bold text-loomera-textMuted">جستجو</span>
       <div class="relative">
-        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400">
-          <i class="fa-solid fa-magnifying-glass text-xs"></i>
+        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-loomera-textMuted">
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         </span>
-        <input type="text"
-               name="q"
-               value="{{ reports_dashboard.filters.q }}"
-               placeholder="مشتری، متخصص، خدمت یا توضیح"
-               class="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-11 pl-4 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+        <input type="text" name="q" value="{{ reports_dashboard.filters.q }}" placeholder="مشتری، متخصص یا خدمت"
+               class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pr-11 pl-4 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
       </div>
     </label>
 
     <label>
-      <span class="mb-2 block text-xs font-bold text-slate-500">از تاریخ</span>
-      <input type="text"
-             name="start"
-             value="{{ reports_dashboard.filters.start }}"
-             data-jalali-date
-             data-jdp
-             placeholder="۱۴۰۴/۱۲/۰۱"
-             class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+      <span class="mb-2 block text-xs font-bold text-loomera-textMuted">از تاریخ</span>
+      <input type="text" name="start" value="{{ reports_dashboard.filters.start }}" data-jalali-date data-jdp placeholder="۱۴۰۴/۱۲/۰۱"
+             class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
     </label>
 
     <label>
-      <span class="mb-2 block text-xs font-bold text-slate-500">تا تاریخ</span>
-      <input type="text"
-             name="end"
-             value="{{ reports_dashboard.filters.end }}"
-             data-jalali-date
-             data-jdp
-             placeholder="۱۴۰۴/۱۲/۲۹"
-             class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+      <span class="mb-2 block text-xs font-bold text-loomera-textMuted">تا تاریخ</span>
+      <input type="text" name="end" value="{{ reports_dashboard.filters.end }}" data-jalali-date data-jdp placeholder="۱۴۰۴/۱۲/۲۹"
+             class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
     </label>
 
     <label>
-      <span class="mb-2 block text-xs font-bold text-slate-500">گروه‌بندی</span>
-      <select name="group_by"
-              class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+      <span class="mb-2 block text-xs font-bold text-loomera-textMuted">گروه‌بندی</span>
+      <select name="group_by" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
         {% for option in reports_dashboard.filter_options.group_by %}
           <option value="{{ option.id }}" {% if reports_dashboard.filters.group_by == option.id %}selected{% endif %}>{{ option.label }}</option>
         {% endfor %}
@@ -86,31 +78,8 @@
     </label>
 
     <label>
-      <span class="mb-2 block text-xs font-bold text-slate-500">متخصص</span>
-      <select name="stylist"
-              class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
-        <option value="">همه اعضای تیم</option>
-        {% for option in reports_dashboard.filter_options.stylists %}
-          <option value="{{ option.id }}" {% if reports_dashboard.filters.stylist == option.id|stringformat:'s' %}selected{% endif %}>{{ option.label }}</option>
-        {% endfor %}
-      </select>
-    </label>
-
-    <label>
-      <span class="mb-2 block text-xs font-bold text-slate-500">خدمت</span>
-      <select name="service"
-              class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
-        <option value="">همه خدمات</option>
-        {% for option in reports_dashboard.filter_options.services %}
-          <option value="{{ option.id }}" {% if reports_dashboard.filters.service == option.id|stringformat:'s' %}selected{% endif %}>{{ option.label }}</option>
-        {% endfor %}
-      </select>
-    </label>
-
-    <label>
-      <span class="mb-2 block text-xs font-bold text-slate-500">وضعیت</span>
-      <select name="status"
-              class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+      <span class="mb-2 block text-xs font-bold text-loomera-textMuted">وضعیت</span>
+      <select name="status" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
         <option value="">همه وضعیت‌ها</option>
         {% for option in reports_dashboard.filter_options.statuses %}
           <option value="{{ option.id }}" {% if reports_dashboard.filters.status == option.id %}selected{% endif %}>{{ option.label }}</option>
@@ -118,32 +87,40 @@
       </select>
     </label>
 
+    <label class="md:col-span-1 xl:col-span-2">
+      <span class="mb-2 block text-xs font-bold text-loomera-textMuted">متخصص</span>
+      <select name="stylist" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+        <option value="">همه اعضای تیم</option>
+        {% for option in reports_dashboard.filter_options.stylists %}
+          <option value="{{ option.id }}" {% if reports_dashboard.filters.stylist == option.id|stringformat:'s' %}selected{% endif %}>{{ option.label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label class="md:col-span-1 xl:col-span-2">
+      <span class="mb-2 block text-xs font-bold text-loomera-textMuted">خدمت</span>
+      <select name="service" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+        <option value="">همه خدمات</option>
+        {% for option in reports_dashboard.filter_options.services %}
+          <option value="{{ option.id }}" {% if reports_dashboard.filters.service == option.id|stringformat:'s' %}selected{% endif %}>{{ option.label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
     <input type="hidden" name="tab" value="{{ reports_dashboard.filters.tab }}">
 
-    <div class="xl:col-span-7 flex flex-wrap items-center justify-between gap-3 pt-2">
-      <div class="flex flex-wrap gap-2">
-        <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-600">
-          <i class="fa-regular fa-calendar-days text-loomera-primaryText"></i>
-          {{ reports_dashboard.active_range_label }}
-        </span>
-        <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-600">
-          <i class="fa-solid fa-arrows-split-up-and-left text-loomera-primaryText"></i>
-          {{ reports_dashboard.filter_summary.group_by_label }}
-        </span>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-3">
-        <a href="{{ reports_dashboard.export_url }}"
-          class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-          <span>دانلود CSV</span>
-          <i class="fa-solid fa-file-csv text-xs"></i>
-        </a>
-        <button type="submit"
-                class="inline-flex items-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95">
-          <span>اعمال فیلترها</span>
-          <i class="fa-solid fa-arrow-left text-xs"></i>
+    <div class="md:col-span-2 xl:col-span-6 flex flex-col-reverse gap-3 border-t border-loomera-borderSoft pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <a href="{{ reports_dashboard.export_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
+        دانلود CSV
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      </a>
+      <div class="flex items-center gap-2 sm:mr-auto">
+        <button type="button" class="inline-flex min-h-11 flex-1 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle sm:flex-none" data-reports-filter-close>انصراف</button>
+        <button type="submit" class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_14px_28px_rgba(115,92,190,0.20)] transition hover:opacity-95 sm:flex-none">
+          اعمال فیلترها
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
         </button>
       </div>
     </div>
   </form>
-</section>
+</div>

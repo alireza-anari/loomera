@@ -1,62 +1,26 @@
 {% extends "dashboard_template.html" %}
+{% load static %}
 {% load jalali_extras %}
 {% block title %}جزئیات نوبت من{% endblock %}
 {% block body_attrs %}data-page="stylist-appointment-detail"{% endblock %}
 
+{% block head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/pages/stylist_workspace.css' %}">
+{% endblock %}
+
 {% block content %}
   {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible" data-dashboard-workspace-root data-dashboard-page="stylist-appointment-detail">
+  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-appointment-detail">
     {% include "dashboards/components/page_hero.html" with eyebrow="نوبت شخصی" eyebrow_icon="fa-regular fa-calendar-check" title="جزئیات نوبت من" description="اطلاعات همین رزرو، مشتری مرتبط و مرحله عملیاتی این خدمت فقط در مجموعه فعال فعلی نمایش داده می‌شود." action_label="بازگشت به نوبت‌ها" action_url=stylist_appointments_url badges=page_meta.badges %}
 
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش جزئیات نوبت متخصص">
-        <div class="flex min-w-max gap-2">
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-appointment-section-summary" aria-selected="true" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5">
-            <i class="fa-regular fa-rectangle-list text-[10px]" aria-hidden="true"></i>
-            <span>خلاصه</span>
-          </button>
 
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-appointment-section-actions" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
-            <span>اقدام‌ها</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ stylist_lifecycle_actions|length }}</span>
-          </button>
 
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-appointment-section-timeline" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-timeline text-[10px]" aria-hidden="true"></i>
-            <span>تایم‌لاین</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ stylist_lifecycle_timeline|length }}</span>
-          </button>
-
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-appointment-section-disputes" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-scale-balanced text-[10px]" aria-hidden="true"></i>
-            <span>اختلاف</span>
-            {% if has_stylist_dispute_cases %}
-              <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-black text-rose-700">{{ stylist_dispute_count_label }}</span>
-            {% endif %}
-          </button>
-
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-appointment-section-materials" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-flask-vial text-[10px]" aria-hidden="true"></i>
-            <span>مواد مصرفی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ material_usages|length }}</span>
-          </button>
-
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-appointment-section-finance" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-wallet text-[10px]" aria-hidden="true"></i>
-            <span>مالی</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <details id="stylist-appointment-section-summary"
+    <section id="stylist-appointment-section-summary"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             data-dashboard-workspace-open-mobile="true"
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             data-dashboard-workspace-panel data-lm-direct-section>
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">خلاصه نوبت</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">{{ appointment.customer_name }}</h2>
@@ -64,10 +28,7 @@
             {{ appointment.service_name }} • {{ appointment.date_label }} • {{ appointment.time_label }}{% if appointment.end_time_label != '—' %} تا {{ appointment.end_time_label }}{% endif %}
           </p>
         </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+</header>
 
       <div class="grid gap-4 p-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)] sm:p-5 lg:p-6">
         <article class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
@@ -77,7 +38,7 @@
               <p class="mt-2 text-sm font-bold text-loomera-textSecondary">{{ appointment.service_name }}</p>
             </div>
 
-            <span class="inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-black {{ appointment.status_badge_class }}">
+            <span class="lm-status-chip inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-black {{ appointment.status_badge_class }}">
               {{ appointment.status_label }}
             </span>
           </div>
@@ -145,13 +106,12 @@
           </div>
         </article>
       </div>
-    </details>
+    </section>
 
-    <details id="stylist-appointment-section-actions"
+    <section id="stylist-appointment-section-actions"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-amber-200 bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-amber-100 bg-amber-50/80 px-4 py-3 shadow-sm transition hover:bg-amber-50 sm:px-5 lg:px-6 lg:py-4">
+             data-dashboard-workspace-panel data-lm-direct-section>
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-amber-100 bg-amber-50/80 px-4 py-3 shadow-sm transition hover:bg-amber-50 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-amber-700">دم‌دست و قبل از مواد مصرفی</p>
           <h2 class="mt-1 truncate text-base font-black text-slate-950 sm:text-lg">اقدام‌های عملیاتی متخصص</h2>
@@ -159,10 +119,7 @@
             تأیید، رد، رسیدن مشتری، شروع کار، پایان کار و تأیید پرداخت نقدی از همین بخش انجام می‌شود.
           </p>
         </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+</header>
 
       <div class="space-y-4 p-4 sm:p-5 lg:p-6">
         {% if appointment_obj.order.selected_payment_method == "pay_in_salon" and appointment_obj.order.service_completed_at and not appointment_obj.order.is_paid %}
@@ -213,12 +170,14 @@
           </div>
         {% endif %}
       </div>
-    </details>
+    </section>
+
+    <div data-lm-task-tabs-anchor="stylist-appointment-detail" data-lm-task-tabs-label="جزئیات تکمیلی نوبت"></div>
 
     <details id="stylist-appointment-section-timeline"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel
-             open>
+             data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="history" data-lm-task-label="سوابق" data-lm-task-order="3">
       <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">تاریخچه عملیات</p>
@@ -252,7 +211,7 @@
     <details id="stylist-appointment-section-disputes"
          class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
          data-dashboard-workspace-panel
-         open>
+         data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="history" data-lm-task-label="سوابق" data-lm-task-order="3">
       <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">پرونده اختلاف</p>
@@ -304,11 +263,10 @@
       </div>
     </details>
 
-    <details id="stylist-appointment-section-materials"
+    <section id="stylist-appointment-section-materials"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="materials" data-lm-task-label="مواد مصرفی" data-lm-task-default data-lm-task-order="1">
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">مواد مصرفی</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مواد مصرفی این خدمت</h2>
@@ -316,10 +274,7 @@
             مواد مصرفی واقعی این نوبت را قبل از نهایی‌سازی مالی ثبت کن.
           </p>
         </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+</header>
 
       <div class="space-y-5 p-4 sm:p-5 lg:p-6">
         {% if can_finalize_finance %}
@@ -523,13 +478,12 @@
           </div>
         {% endif %}
       </div>
-    </details>
+    </section>
 
-    <details id="stylist-appointment-section-finance"
+    <section id="stylist-appointment-section-finance"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="finance" data-lm-task-label="مالی" data-lm-task-order="2">
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">مالی</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">خلاصه مالی این خدمت</h2>
@@ -537,10 +491,7 @@
             نهایی‌سازی مالی بعد از پایان کار انجام می‌شود.
           </p>
         </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+</header>
 
       <div class="space-y-5 p-4 sm:p-5 lg:p-6">
         {% if is_financial_finalized and financial_snapshot %}
@@ -588,6 +539,6 @@
           {% endif %}
         {% endif %}
       </div>
-    </details>
+    </section>
   </section>
 {% endblock %}

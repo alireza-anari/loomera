@@ -57,7 +57,7 @@
             setupEventListeners();
             updateContinueButton();
         } catch (error) {
-            console.error("[select-stylist] initialization failed");
+            console.error('❌ Initialization error:', error);
             alert('صفحه به‌درستی بارگذاری نشد. لطفاً دوباره تلاش کنید.');
         }
     }

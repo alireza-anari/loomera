@@ -2,7 +2,7 @@
 <nav class="lm-dashboard-topbar fixed left-0 right-0 top-0 z-50 border-b border-loomera-borderSoft bg-white/95 shadow-[0_10px_30px_rgba(46,42,60,0.08)] backdrop-blur transition-[right] duration-300 ease-out lg:right-[22rem]"
      data-shell-header="partner-desktop-mobile"
      data-dashboard-topbar
-     aria-label="نوار عملیاتی پنل مجموعه">
+     aria-label="نوار اصلی پنل مجموعه">
   <div class="mx-auto flex min-h-16 w-full max-w-[1680px] items-center justify-between gap-3 px-3 py-3 sm:px-5 lg:px-8">
     <div class="flex min-w-0 items-center gap-3">
       <button type="button"
@@ -48,13 +48,13 @@
 
         <div id="dashboard-notification-panel"
              role="dialog"
-             aria-label="اعلان‌های محیط کاری"
+             aria-label="اعلان‌ها"
              class="hidden fixed left-1/2 top-[4.75rem] z-[90] w-[calc(100vw-1rem)] max-w-[24rem] -translate-x-1/2 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-[0_24px_70px_rgba(35,31,50,0.18)] ring-1 ring-white/70 lg:absolute lg:left-0 lg:right-auto lg:top-[calc(100%+0.75rem)] lg:w-[26rem] lg:max-w-[min(26rem,calc(100vw-3rem))] lg:translate-x-0"
              data-notification-panel>
           <div class="flex items-start justify-between gap-3 border-b border-loomera-borderSoft px-4 py-4">
             <div class="min-w-0">
-              <h3 class="text-sm font-black text-loomera-textPrimary">{{ dashboard_notifications.title|default:"اعلان‌های محیط کاری" }}</h3>
-              <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">{{ dashboard_notifications.subtitle|default:"نوبت‌ها، پرداخت‌ها و یادداشت‌های عملیاتی اخیر" }}</p>
+              <h3 class="text-sm font-black text-loomera-textPrimary">{{ dashboard_notifications.title|default:"اعلان‌ها" }}</h3>
+              <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">{{ dashboard_notifications.subtitle|default:"نوبت‌ها، پرداخت‌ها و یادداشت‌های اخیر" }}</p>
             </div>
             <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText" data-dashboard-notification-unread-count>
               {{ dashboard_notifications.unread_count }} خوانده‌نشده
@@ -104,7 +104,7 @@
           <div class="border-t border-loomera-borderSoft p-3">
             <a href="{{ dashboard_notifications.panel_url }}"
                class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:bg-loomera-bgSubtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <span>{{ dashboard_notifications.panel_label|default:"رفتن به تقویم و عملیات نوبت‌ها" }}</span>
+              <span>{{ dashboard_notifications.panel_label|default:"مشاهده نوبت‌ها" }}</span>
               <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
             </a>
           </div>

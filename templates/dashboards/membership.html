@@ -11,7 +11,7 @@
     <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="membership-title">
       <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.18),transparent_44%),linear-gradient(180deg,rgba(245,240,255,0.96),rgba(255,255,255,0))]" aria-hidden="true"></div>
 
-      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
+      <div class="relative min-w-0">
         <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
           <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0">
@@ -24,7 +24,7 @@
                 عضویت و پلن‌های مجموعه
               </h1>
               <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-                وضعیت طرح فعلی، آمادگی محیط کاری، محدوده قابلیت‌ها و context صورتحساب را در یک workspace عملیاتی ببین؛ بدون اینکه فعلاً موتور subscription یا billing واقعی تغییر کند.
+                طرح فعلی و قابلیت‌های در دسترس مجموعه را ببین.
               </p>
             </div>
 
@@ -49,179 +49,22 @@
           </div>
         </div>
 
-        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس عضویت">
-          <div class="flex min-w-0 items-center justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-white/55">فوکوس فعلی</p>
-              <h2 class="mt-1 truncate text-lg font-black">{{ membership_workspace.plan_name }}</h2>
-            </div>
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-              <i class="fa-solid fa-gem" aria-hidden="true"></i>
-            </span>
-          </div>
 
-          <div class="mt-5 space-y-3">
-            <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-              <div class="flex min-w-0 items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="text-[11px] font-black text-white/55">وضعیت پلن</p>
-                  <h3 class="mt-1 text-sm font-black text-white">{{ membership_workspace.plan_state_label }}</h3>
-                </div>
-                <span class="shrink-0 rounded-full bg-white/15 px-3 py-1 text-[10px] font-black text-white">فعال</span>
-              </div>
-              <p class="mt-2 text-xs leading-6 text-white/72">{{ membership_workspace.billing_status_label }}</p>
-            </article>
 
-            <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-              <div class="flex items-center justify-between gap-3 text-xs font-black text-white/70">
-                <span>آمادگی workspace</span>
-                <span>{{ membership_workspace.readiness_progress }}٪</span>
-              </div>
-              <div class="mt-3 h-2 rounded-full bg-white/15">
-                <div class="h-2 rounded-full bg-white" style="width: {{ membership_workspace.readiness_progress }}%"></div>
-              </div>
-              <p class="mt-3 text-xs leading-6 text-white/72">{{ membership_workspace.ready_count_label }} از {{ membership_workspace.total_checks_label }} حوزه کلیدی آماده است.</p>
-            </article>
-
-            {% for badge in membership_workspace.hero_badges %}
-              <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <div class="flex items-center gap-3">
-                  <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-                    <i class="{{ badge.icon }} text-xs" aria-hidden="true"></i>
-                  </span>
-                  <p class="min-w-0 truncate text-sm font-black text-white">{{ badge.label }}</p>
-                </div>
-              </article>
-            {% endfor %}
-          </div>
-        </aside>
       </div>
     </section>
 
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های عضویت">
-        <div class="flex min-w-max items-center gap-2">
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#membership-section-overview" aria-selected="true">
-            <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
-            <span>نمای کلی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>{{ membership_workspace.usage_summary|length }}</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#membership-section-plans">
-            <i class="fa-solid fa-crown text-[10px]" aria-hidden="true"></i>
-            <span>پلن‌ها</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ membership_workspace.plan_cards|length }}</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#membership-section-readiness">
-            <i class="fa-solid fa-shield-heart text-[10px]" aria-hidden="true"></i>
-            <span>آمادگی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ membership_workspace.readiness_items|length }}</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#membership-section-billing">
-            <i class="fa-solid fa-file-invoice-dollar text-[10px]" aria-hidden="true"></i>
-            <span>صورتحساب</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ membership_workspace.billing_placeholders|length }}</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#membership-section-capabilities">
-            <i class="fa-solid fa-layer-group text-[10px]" aria-hidden="true"></i>
-            <span>قابلیت‌ها</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ membership_workspace.capability_groups|length }}</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#membership-section-routes">
-            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
-            <span>مسیرها</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ membership_workspace.actions|length }}</span>
-          </button>
-        </div>
-      </nav>
-    </div>
 
-    <details id="membership-section-overview" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">خلاصه عضویت و استفاده</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-      </summary>
 
-      <div class="p-4 sm:p-5 lg:p-6">
-        <section class="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-          <article class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 sm:p-5">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div class="min-w-0">
-                <p class="text-[11px] font-black text-loomera-primaryText">وضعیت پلن</p>
-                <h3 class="mt-2 text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ membership_workspace.plan_name }}</h3>
-                <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">{{ membership_workspace.billing_status_label }}</p>
-              </div>
-              <span class="inline-flex shrink-0 items-center rounded-full px-3 py-2 text-xs font-black {% if membership_workspace.plan_state_tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif membership_workspace.plan_state_tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">{{ membership_workspace.plan_state_label }}</span>
-            </div>
 
-            <div class="mt-5 grid gap-3 md:grid-cols-3">
-              <div class="rounded-[22px] border border-loomera-borderSoft bg-white px-4 py-4">
-                <p class="text-xs font-bold text-loomera-textMuted">تمدید</p>
-                <p class="mt-2 text-sm font-black leading-7 text-loomera-textPrimary">{{ membership_workspace.renewal_label }}</p>
-              </div>
-              <div class="rounded-[22px] border border-loomera-borderSoft bg-white px-4 py-4">
-                <p class="text-xs font-bold text-loomera-textMuted">صورتحساب</p>
-                <p class="mt-2 text-sm font-black leading-7 text-loomera-textPrimary">{{ membership_workspace.invoice_label }}</p>
-              </div>
-              <div class="rounded-[22px] border border-loomera-borderSoft bg-white px-4 py-4">
-                <p class="text-xs font-bold text-loomera-textMuted">آمادگی محیط کاری</p>
-                <p class="mt-2 text-sm font-black leading-7 text-loomera-textPrimary">{{ membership_workspace.ready_count_label }} از {{ membership_workspace.total_checks_label }} حوزه کلیدی</p>
-              </div>
-            </div>
-          </article>
 
-          <article class="rounded-[26px] border border-loomera-primary/15 bg-white p-4 shadow-lm-soft sm:p-5">
-            <div class="flex items-start justify-between gap-4">
-              <div class="min-w-0">
-                <p class="text-[11px] font-black text-loomera-primaryText">چک‌لیست عملیاتی</p>
-                <h3 class="mt-2 text-base font-black text-loomera-textPrimary">آمادگی برای استفاده پایدار از پنل</h3>
-                <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">قبل از لانچ بتا، وضعیت عمومی مجموعه، رزروپذیری، مالی و اعتماد صفحه باید واضح باشد.</p>
-              </div>
-              <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span>
-            </div>
-
-            <div class="mt-5">
-              <div class="flex items-center justify-between gap-3 text-xs font-black text-loomera-textMuted">
-                <span>پیشرفت آمادگی</span>
-                <span>{{ membership_workspace.readiness_progress }}٪</span>
-              </div>
-              <div class="mt-3 h-2 rounded-full bg-loomera-bgSubtle">
-                <div class="h-2 rounded-full bg-loomera-primary" style="width: {{ membership_workspace.readiness_progress }}%"></div>
-              </div>
-              <p class="mt-3 text-xs leading-6 text-loomera-textMuted">{{ membership_workspace.ready_count_label }} مورد آماده و {{ membership_workspace.total_checks_label }} حوزه در مجموع بررسی می‌شود.</p>
-            </div>
-          </article>
-        </section>
-
-        <section class="mt-4 grid min-w-0 grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-4">
-          {% for item in membership_workspace.usage_summary %}
-            <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-card sm:rounded-[26px] sm:p-4">
-              <div class="flex items-start justify-between gap-2">
-                <div class="min-w-0">
-                  <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">{{ item.title }}</p>
-                  <strong class="mt-2 block text-lg font-black text-loomera-textPrimary sm:mt-3 sm:text-2xl">{{ item.value }}</strong>
-                </div>
-                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl {% if item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-loomera-bgSubtle text-loomera-textSecondary{% endif %} sm:h-11 sm:w-11"><i class="{{ item.icon }}" aria-hidden="true"></i></span>
-              </div>
-              <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:mt-3 sm:text-xs sm:leading-6">{{ item.meta }}</p>
-            </article>
-          {% empty %}
-            <div class="col-span-2 rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted xl:col-span-4">خلاصه‌ای برای استفاده از پلن ثبت نشده است.</div>
-          {% endfor %}
-        </section>
-      </div>
-    </details>
-
-    <details id="membership-section-plans" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+    <section id="membership-section-plans" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="membership" data-lm-task-key="plans" data-lm-task-label="پلن‌ها" data-lm-task-default data-lm-task-order="1">
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">پلن و دسترسی</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">پلن‌های داخل workspace</h2>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">پلن‌های عضویت</h2>
         </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-      </summary>
+</header>
 
       <div class="p-4 sm:p-5 lg:p-6">
         <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -261,75 +104,16 @@
           <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted lg:col-span-2" data-membership-plan-empty>پلنی با این جستجو یا فیلتر پیدا نشد.</div>
         </div>
       </div>
-    </details>
+    </section>
 
-    <details id="membership-section-readiness" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">آمادگی محیط کاری</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">حوزه‌های مرتبط با عضویت</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-      </summary>
 
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="mb-5 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div class="min-w-0">
-              <p class="text-xs leading-6 text-loomera-textMuted">این بخش نشان می‌دهد طرح همکاری مجموعه روی چه پایه‌هایی سوار است و کدام بخش‌ها قبل از رشد یا upgrade باید کامل شوند.</p>
-            </div>
-            <div class="min-w-[180px] rounded-[20px] bg-white px-4 py-3">
-              <div class="flex items-center justify-between gap-3 text-xs font-black text-loomera-textMuted"><span>پیشرفت</span><span>{{ membership_workspace.readiness_progress }}٪</span></div>
-              <div class="mt-3 h-2 rounded-full bg-loomera-bgSubtle"><div class="h-2 rounded-full bg-loomera-primary" style="width: {{ membership_workspace.readiness_progress }}%"></div></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <label class="relative block min-w-0 flex-1">
-            <span class="sr-only">جستجوی آمادگی عضویت</span>
-            <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
-            <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="جستجو در حوزه‌های آمادگی" data-membership-readiness-search>
-          </label>
-          <div class="flex gap-2 overflow-x-auto pb-1" aria-label="فیلتر سریع آمادگی">
-            <button type="button" class="shrink-0 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-membership-readiness-filter="all">همه</button>
-            <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-membership-readiness-filter="ready">آماده</button>
-            <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-membership-readiness-filter="missing">نیازمند تکمیل</button>
-          </div>
-        </div>
-
-        <div class="grid gap-3 md:grid-cols-2" data-membership-readiness-grid>
-          {% for item in membership_workspace.readiness_items %}
-            <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4" data-membership-readiness-card data-membership-readiness-status="{% if item.is_ready %}ready{% else %}missing{% endif %}" data-membership-search-value="{{ item.title }} {{ item.description }} {{ item.meta }} {{ item.cta_label }}">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <h3 class="text-sm font-black text-loomera-textPrimary">{{ item.title }}</h3>
-                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
-                </div>
-                <span class="inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[10px] font-black {% if item.is_ready %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">{% if item.is_ready %}آماده{% else %}نیازمند تکمیل{% endif %}</span>
-              </div>
-              <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-                <span class="rounded-full bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary">{{ item.meta }}</span>
-                <a href="{{ item.cta_url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
-                  <span>{{ item.cta_label }}</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                </a>
-              </div>
-            </article>
-          {% empty %}
-            <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2">حوزه آمادگی برای عضویت ثبت نشده است.</div>
-          {% endfor %}
-          <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2" data-membership-readiness-empty>موردی با این جستجو یا فیلتر پیدا نشد.</div>
-        </div>
-      </div>
-    </details>
 
     <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-      <details id="membership-section-billing" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+      <details id="membership-section-billing" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-task-panel="membership" data-lm-task-key="billing" data-lm-task-label="صورتحساب" data-lm-task-order="2">
         <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
           <div class="min-w-0">
             <p class="text-[11px] font-black text-loomera-primaryText">شفافیت مالی</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">صورتحساب و وضعیت subscription</h2>
+            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">صورتحساب و وضعیت عضویت</h2>
           </div>
           <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
         </summary>
@@ -338,8 +122,8 @@
             <div class="flex items-start gap-3">
               <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></span>
               <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">موتور billing هنوز فعال نیست</h3>
-                <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">این صفحه فقط وضعیت محصولی و operational readiness را نشان می‌دهد؛ فاکتور subscription، تمدید خودکار و upgrade/downgrade واقعی بعداً به backend مالی متصل می‌شود.</p>
+                <h3 class="text-sm font-black text-loomera-textPrimary">صورتحساب خودکار هنوز فعال نیست</h3>
+                <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">صورتحساب، تمدید خودکار و تغییر پلن هنوز فعال نشده‌اند.</p>
               </div>
             </div>
           </div>
@@ -354,7 +138,7 @@
         </div>
       </details>
 
-      <details id="membership-section-capabilities" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+      <details id="membership-section-capabilities" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-task-panel="membership" data-lm-task-key="capabilities" data-lm-task-label="امکانات پلن" data-lm-task-order="3">
         <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
           <div class="min-w-0">
             <p class="text-[11px] font-black text-loomera-primaryText">محدوده قابلیت‌ها</p>
@@ -363,7 +147,7 @@
           <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
         </summary>
         <div class="p-4 sm:p-5 lg:p-6">
-          <p class="text-xs leading-6 text-loomera-textMuted">این فهرست کمک می‌کند مشخص باشد در نسخه فعلی پنل مجموعه چه چیزهایی داخل plan دیده می‌شوند و چه چیزهایی برای فازهای بعد نگه داشته شده‌اند.</p>
+          <p class="text-xs leading-6 text-loomera-textMuted">امکانات پلن فعلی و قابلیت‌های در دسترس را اینجا می‌بینی.</p>
           <ul class="mt-4 space-y-3 text-sm text-loomera-textSecondary">
             {% for item in membership_workspace.included_surfaces %}
               <li class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 leading-7">{{ item }}</li>
@@ -392,34 +176,7 @@
       </details>
     </div>
 
-    <details id="membership-section-routes" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ادامه کار از همینجا</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-      </summary>
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {% for action in membership_workspace.actions %}
-            <a href="{{ action.url }}" class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/25 hover:shadow-lm-card">
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
-              <h3 class="mt-3 text-sm font-black text-loomera-textPrimary">{{ action.label }}</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای تکمیل آمادگی پلن و workspace این مسیر را بررسی کن.</p>
-            </a>
-          {% empty %}
-            <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted sm:col-span-2 xl:col-span-4">مسیر سریعی برای عضویت ثبت نشده است.</div>
-          {% endfor %}
 
-          <a href="{{ salon_profile_url }}" class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/25 hover:shadow-lm-card">
-            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
-            <h3 class="mt-3 text-sm font-black text-loomera-textPrimary">پروفایل مجموعه</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">اطلاعات عمومی و اعتماد صفحه را برای پلن فعلی کامل کن.</p>
-          </a>
-        </div>
-      </div>
-    </details>
   </section>
 {% endblock %}
 

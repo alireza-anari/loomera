@@ -1,228 +1,105 @@
 {% extends "dashboard_template.html" %}
 {% load static salons_filters %}
-{% load messaging_connect %}
 
-{% block title %}پروفایل مدیر مجموعه{% endblock %}
+{% block title %}پروفایل مدیر{% endblock %}
 
 {% block content %}
-  {% url 'dashboards:home' as dashboard_home_url %}
   {% url 'dashboards:workspace_settings' as workspace_settings_url %}
-  {% url 'dashboards:salon_profile' as salon_profile_url %}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible" data-dashboard-workspace-root data-dashboard-page="manager-profile">
-    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="manager-profile-title">
-      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
-
-      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.22fr)_minmax(320px,0.78fr)] xl:items-stretch">
-        <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
-          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0">
-              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-                <i class="fa-regular fa-user text-[10px]" aria-hidden="true"></i>
-                <span class="truncate">حساب مدیر مجموعه</span>
-              </span>
-
-              <h1 id="manager-profile-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-                پروفایل مدیر مجموعه
-              </h1>
-              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-                اطلاعات حساب، تصویر پروفایل و جزئیات تماس مدیر مجموعه را یک‌جا مدیریت کن تا هویت مدیر در فضای کاری Loomera شفاف و به‌روز بماند.
-              </p>
-            </div>
-
-            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
-              <i class="fa-solid fa-id-badge text-lg" aria-hidden="true"></i>
-            </span>
-          </div>
-
-          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
-            <a href="{{ workspace_settings_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-sliders text-xs" aria-hidden="true"></i>
-              <span class="truncate">تنظیمات Workspace</span>
-            </a>
-
-            <a href="{{ salon_profile_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-store text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">پروفایل مجموعه</span>
-            </a>
-
-            <a href="{{ dashboard_home_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-house text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">خانه داشبورد</span>
-            </a>
-          </div>
-        </div>
-
-        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس پروفایل مدیر">
-          <div class="flex min-w-0 items-start justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-white/55">فوکوس حساب</p>
-              <h2 class="mt-1 truncate text-lg font-black">آمادگی پروفایل مدیر</h2>
-              <p class="mt-2 text-xs leading-6 text-white/70">برای ارتباطات داخلی، اعلان‌ها و مدیریت روزانه، اطلاعات تماس و تصویر مدیر را کامل نگه دار.</p>
-            </div>
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-              <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
-            </span>
-          </div>
-
-          <div class="mt-5 rounded-[24px] border border-white/10 bg-white/10 p-4">
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-xs font-black text-white/65">درصد تکمیل</span>
-              <strong class="text-lg font-black text-white" data-manager-readiness-percent>۰٪</strong>
-            </div>
-            <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-white/12">
-              <div class="h-full rounded-full bg-white transition-all duration-300" style="width: 0%" data-manager-readiness-bar></div>
-            </div>
-            <p class="mt-3 text-xs leading-6 text-white/72" data-manager-readiness-text>اطلاعات اصلی را کامل کن تا پروفایل مدیر آماده شود.</p>
-          </div>
-
-          <div class="mt-3 grid grid-cols-2 gap-3 text-xs">
-            <div class="rounded-2xl bg-white/10 p-3">
-              <p class="font-bold text-white/55">تصویر</p>
-              <p class="mt-1 font-black text-white" data-manager-image-status>{% if manager_profile.profile_image %}ثبت شده{% else %}نیازمند آپلود{% endif %}</p>
-            </div>
-            <div class="rounded-2xl bg-white/10 p-3">
-              <p class="font-bold text-white/55">نقش</p>
-              <p class="mt-1 font-black text-white">مدیر مجموعه</p>
-            </div>
-          </div>
-        </aside>
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible" data-dashboard-page="manager-profile" data-direct-edit-page>
+    <header class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5">
+      <a href="{{ workspace_settings_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
+        <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
+        <span>تنظیمات</span>
+      </a>
+      <div class="mt-3 max-w-2xl">
+        <h1 class="text-xl font-black text-loomera-textPrimary sm:text-2xl">پروفایل مدیر</h1>
+        <p class="mt-1 text-sm leading-7 text-loomera-textMuted">اطلاعات شخصی حساب مدیر را ویرایش کن. اطلاعاتی که مشتری درباره مجموعه می‌بیند از «پروفایل مجموعه» مدیریت می‌شود.</p>
       </div>
-    </section>
+    </header>
 
-    {% bale_connect_card %}
-
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های پروفایل مدیر">
-        <div class="flex min-w-max items-center gap-2">
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#manager-section-overview" aria-selected="true">
-            <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i><span>نمای کلی</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#manager-section-profile">
-            <i class="fa-solid fa-user-pen text-[10px]" aria-hidden="true"></i><span>اطلاعات مدیر</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#manager-section-contact">
-            <i class="fa-solid fa-address-book text-[10px]" aria-hidden="true"></i><span>تماس و آدرس</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#manager-section-review">
-            <i class="fa-solid fa-list-check text-[10px]" aria-hidden="true"></i><span>بازبینی و ذخیره</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#manager-section-routes">
-            <i class="fa-solid fa-route text-[10px]" aria-hidden="true"></i><span>مسیرها</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <form method="post" enctype="multipart/form-data" id="managerProfileForm" class="min-w-0 space-y-5" data-manager-profile-form data-manager-has-image="{% if manager_profile.profile_image %}true{% else %}false{% endif %}">
+    <form method="post" enctype="multipart/form-data" id="managerProfileForm" class="min-w-0 space-y-4 pb-24 lg:pb-4" data-manager-profile-form data-direct-edit-form>
       {% csrf_token %}
 
       {% if form.non_field_errors %}
-        <div class="rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-7 text-rose-700">
+        <div class="rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-7 text-rose-700" role="alert">
           {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
         </div>
       {% endif %}
 
-      <details id="manager-section-overview" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت پروفایل مدیر</h2></div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
-
-        <div class="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:p-6">
-          <article class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 sm:p-5">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">چک‌لیست عملیاتی</p><h3 class="mt-1 text-base font-black text-loomera-textPrimary">آمادگی اطلاعات حساب</h3><p class="mt-2 text-xs leading-6 text-loomera-textMuted">این موارد برای اعلان‌ها و شناسایی سریع مدیر مجموعه مهم هستند.</p></div>
-              <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i></span>
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5 lg:p-6" aria-labelledby="manager-account-title">
+        <div class="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8">
+          <div class="flex items-center gap-4 lg:flex-col lg:items-center lg:border-l lg:border-loomera-borderSoft lg:pl-8 lg:text-center">
+            <div class="relative shrink-0" data-manager-avatar-preview>
+              {% if manager_profile.profile_image %}
+                <img id="managerProfileImagePreview" src="{{ manager_profile.profile_image.url }}" alt="تصویر پروفایل {{ request.user.get_fullName }}" class="h-24 w-24 rounded-full border-4 border-white object-cover shadow-lm-card lg:h-28 lg:w-28">
+              {% else %}
+                <div id="managerProfileImagePreview" class="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-loomera-primary to-loomera-primaryText text-2xl font-black text-white shadow-lm-card lg:h-28 lg:w-28">{{ dashboard_header.manager_initials }}</div>
+              {% endif %}
+              <label for="managerProfileImageInput" class="absolute bottom-0 right-0 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-loomera-primary text-white shadow-lg transition hover:opacity-95 focus-within:ring-4 focus-within:ring-loomera-primary/15">
+                <i class="fa-solid fa-camera text-xs" aria-hidden="true"></i>
+                <span class="sr-only">تغییر تصویر پروفایل</span>
+              </label>
+              <input id="managerProfileImageInput" type="file" name="image" accept="image/*" class="hidden">
             </div>
-            <div class="mt-5 space-y-3 text-sm">
-              <div class="flex items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3"><span class="font-bold text-loomera-textSecondary">نام و نام خانوادگی</span><span class="rounded-full px-3 py-1 text-[11px] font-black" data-manager-status-name>در حال بررسی</span></div>
-              <div class="flex items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3"><span class="font-bold text-loomera-textSecondary">ایمیل</span><span class="rounded-full px-3 py-1 text-[11px] font-black" data-manager-status-email>در حال بررسی</span></div>
-              <div class="flex items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3"><span class="font-bold text-loomera-textSecondary">شماره تماس مجموعه</span><span class="rounded-full px-3 py-1 text-[11px] font-black" data-manager-status-salon-phone>در حال بررسی</span></div>
-              <div class="flex items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3"><span class="font-bold text-loomera-textSecondary">تصویر پروفایل</span><span class="rounded-full px-3 py-1 text-[11px] font-black" data-manager-status-image>در حال بررسی</span></div>
+            <div class="min-w-0">
+              <h2 class="truncate text-base font-black text-loomera-textPrimary" data-manager-preview-name>{{ request.user.get_fullName|default:"مدیر مجموعه" }}</h2>
+              <p class="mt-1 text-xs font-bold text-loomera-textMuted">حساب مدیر مجموعه</p>
+              <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">یک تصویر واضح و مربعی انتخاب کن.</p>
             </div>
-          </article>
+          </div>
 
-          <article class="rounded-[26px] border border-loomera-primary/15 bg-white p-4 shadow-lm-soft sm:p-5">
-            <div class="flex flex-col items-center text-center">
-              <div class="relative" data-manager-avatar-preview>
-                {% if manager_profile.profile_image %}
-                  <img id="managerProfileImagePreview" src="{{ manager_profile.profile_image.url }}" alt="{{ request.user.get_fullName }}" class="h-28 w-28 rounded-full border-4 border-white object-cover shadow-lm-card">
-                {% else %}
-                  <div id="managerProfileImagePreview" class="flex h-28 w-28 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-loomera-primary to-loomera-primaryText text-2xl font-black text-white shadow-lm-card">{{ dashboard_header.manager_initials }}</div>
-                {% endif %}
-                <label for="managerProfileImageInput" class="absolute bottom-0 right-0 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-loomera-primary text-white shadow-lg transition hover:opacity-95 focus-within:ring-4 focus-within:ring-loomera-primary/15">
-                  <i class="fa-solid fa-camera text-xs" aria-hidden="true"></i><span class="sr-only">انتخاب تصویر پروفایل</span>
-                </label>
-                <input id="managerProfileImageInput" type="file" name="image" accept="image/*" class="hidden">
+          <div class="min-w-0">
+            <div class="mb-5">
+              <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات حساب</p>
+              <h2 id="manager-account-title" class="mt-1 text-base font-black text-loomera-textPrimary">نام و راه ارتباطی مدیر</h2>
+              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">این اطلاعات مربوط به حساب خود مدیر است و با اطلاعات عمومی مجموعه جدا نگه داشته می‌شود.</p>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label for="{{ form.name.id_for_label }}" class="mb-2 block text-xs font-extrabold text-loomera-textMuted">نام</label>
+                {{ form.name|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}
+                {% for error in form.name.errors %}<span class="mt-2 block text-xs font-semibold text-rose-600">{{ error }}</span>{% endfor %}
               </div>
-              <h3 class="mt-4 text-lg font-black text-loomera-textPrimary" data-manager-preview-name>{{ request.user.get_fullName }}</h3>
-              <p class="mt-1 text-sm font-bold text-loomera-textMuted">مدیر مجموعه</p>
-              <div class="mt-5 grid w-full gap-3 text-right sm:grid-cols-2">
-                <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-3 py-3"><p class="text-[11px] font-bold text-loomera-textMuted">ایمیل</p><p class="mt-1 truncate text-xs font-black text-loomera-textPrimary ltr" data-manager-preview-email>{{ form.email.value|default:"ثبت نشده" }}</p></div>
-                <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-3 py-3"><p class="text-[11px] font-bold text-loomera-textMuted">موبایل</p><p class="mt-1 truncate text-xs font-black text-loomera-textPrimary ltr" data-manager-preview-mobile>{{ form.mobile_number.value|default:"ثبت نشده" }}</p></div>
+
+              <div>
+                <label for="{{ form.family.id_for_label }}" class="mb-2 block text-xs font-extrabold text-loomera-textMuted">نام خانوادگی</label>
+                {{ form.family|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}
+                {% for error in form.family.errors %}<span class="mt-2 block text-xs font-semibold text-rose-600">{{ error }}</span>{% endfor %}
+              </div>
+
+              <div>
+                <label class="mb-2 block text-xs font-extrabold text-loomera-textMuted">شماره موبایل حساب</label>
+                <div class="flex min-h-[50px] items-center rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm font-black text-loomera-textSecondary ltr" data-manager-account-mobile>{{ request.user.mobile_number }}</div>
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">این شماره شناسه ورود حساب است و از پروفایل قابل تغییر نیست.</p>
+              </div>
+
+              <div>
+                <label for="{{ form.email.id_for_label }}" class="mb-2 block text-xs font-extrabold text-loomera-textMuted">ایمیل <span class="font-normal">(اختیاری)</span></label>
+                {{ form.email|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10 ltr" }}
+                {% for error in form.email.errors %}<span class="mt-2 block text-xs font-semibold text-rose-600">{{ error }}</span>{% endfor %}
               </div>
             </div>
-          </article>
-        </div>
-      </details>
-
-      <details id="manager-section-profile" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">هویت مدیر</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">اطلاعات اصلی مدیر</h2></div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div><label class="mb-2 block text-xs font-extrabold text-loomera-textMuted">نام</label>{{ form.name|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}{% for error in form.name.errors %}<span class="mt-2 block text-xs font-semibold text-rose-600">{{ error }}</span>{% endfor %}</div>
-            <div><label class="mb-2 block text-xs font-extrabold text-loomera-textMuted">نام خانوادگی</label>{{ form.family|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}{% for error in form.family.errors %}<span class="mt-2 block text-xs font-semibold text-rose-600">{{ error }}</span>{% endfor %}</div>
-            <div><label class="mb-2 block text-xs font-extrabold text-loomera-textMuted">شماره موبایل</label>{{ form.mobile_number|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3.5 text-sm font-bold text-loomera-textMuted outline-none ltr" }}<p class="mt-2 text-xs leading-6 text-loomera-textMuted">شماره موبایل از این بخش قابل ویرایش نیست.</p></div>
-            <div><label class="mb-2 block text-xs font-extrabold text-loomera-textMuted">ایمیل</label>{{ form.email|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10 ltr" }}{% for error in form.email.errors %}<span class="mt-2 block text-xs font-semibold text-rose-600">{{ error }}</span>{% endfor %}</div>
           </div>
         </div>
-      </details>
+      </section>
 
-      <details id="manager-section-contact" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">ارتباط و دسترسی</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">شماره تماس مجموعه و آدرس</h2></div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
-        <div class="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.55fr)] lg:p-6">
-          <div class="space-y-4">
-            <div><label class="mb-2 block text-xs font-extrabold text-loomera-textMuted">شماره تماس مجموعه</label>{{ form.salon_number|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10 ltr" }}{% for error in form.salon_number.errors %}<span class="mt-2 block text-xs font-semibold text-rose-600">{{ error }}</span>{% endfor %}</div>
-            <div><label class="mb-2 block text-xs font-extrabold text-loomera-textMuted">آدرس</label>{{ form.address|add_class:"min-h-[128px] w-full rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold leading-8 text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}{% for error in form.address.errors %}<span class="mt-2 block text-xs font-semibold text-rose-600">{{ error }}</span>{% endfor %}</div>
+      <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-30 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur" data-direct-edit-savebar>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <p class="text-xs font-black text-loomera-textPrimary" data-direct-edit-status>همه تغییرات ذخیره شده‌اند</p>
+            <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">فقط اطلاعات حساب مدیر ذخیره می‌شود؛ اطلاعات مجموعه از این صفحه تغییر نمی‌کند.</p>
           </div>
-          <aside class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <div class="flex items-start gap-3"><span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></span><div class="min-w-0"><h3 class="text-sm font-black text-loomera-textPrimary">نکته عملیاتی</h3><p class="mt-2 text-xs leading-6 text-loomera-textMuted">شماره تماس مجموعه و آدرس کمک می‌کند تیم پشتیبانی و فرایندهای داخلی اطلاعات کامل‌تری از حساب مدیر داشته باشند.</p></div></div>
-            <div class="mt-4 rounded-2xl bg-white px-3 py-3"><p class="text-[11px] font-bold text-loomera-textMuted">شماره مجموعه در پیش‌نمایش</p><p class="mt-1 truncate text-sm font-black text-loomera-textPrimary ltr" data-manager-preview-salon-phone>{{ form.salon_number.value|default:"ثبت نشده" }}</p></div>
-          </aside>
-        </div>
-      </details>
-
-      <details id="manager-section-review" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">بازبینی نهایی</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ذخیره تغییرات پروفایل مدیر</h2></div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="grid gap-4 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]">
-            <article class="rounded-[24px] border border-loomera-primary/15 bg-loomera-primarySoft/45 p-4"><h3 class="text-sm font-black text-loomera-textPrimary">قبل از ذخیره</h3><ul class="mt-3 space-y-2 text-xs leading-6 text-loomera-textSecondary"><li>نام و نام خانوادگی باید با حساب مدیر مجموعه همخوان باشد.</li><li>ایمیل برای پیگیری‌ها و اعلان‌های مدیریتی استفاده می‌شود.</li><li>تصویر پروفایل به تشخیص سریع مدیر در داشبورد کمک می‌کند.</li></ul></article>
-            <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft"><div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">آمادگی فعلی</p><h3 class="mt-1 text-base font-black text-loomera-textPrimary" data-manager-review-title>در حال بررسی</h3><p class="mt-2 text-xs leading-6 text-loomera-textMuted" data-manager-review-description>اطلاعات را تکمیل کن و سپس ذخیره را بزن.</p></div><span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i></span></div><div class="mt-5 flex flex-col gap-3 sm:flex-row sm:justify-end"><a href="{{ dashboard_home_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-bold text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">بازگشت</a><button type="submit" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white shadow-[0_14px_32px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:opacity-95">ذخیره تغییرات</button></div></article>
+          <div class="flex gap-2">
+            <a href="{{ workspace_settings_url }}" class="inline-flex min-h-11 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">انصراف</a>
+            <button type="submit" class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white shadow-[0_14px_32px_rgba(115,92,190,0.20)] transition hover:opacity-95 sm:flex-none">
+              <i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>
+              <span>ذخیره پروفایل</span>
+            </button>
           </div>
         </div>
-      </details>
-
-      <details id="manager-section-routes" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">صفحات مرتبط با حساب مدیر</h2></div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
-        <div class="grid gap-3 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-3 lg:p-6">
-          <a href="{{ workspace_settings_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card"><span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-sliders" aria-hidden="true"></i></span><h3 class="mt-4 text-sm font-black text-loomera-textPrimary">تنظیمات Workspace</h3><p class="mt-2 text-xs leading-6 text-loomera-textMuted">مدیریت تنظیمات، حساب و پیکربندی‌های اصلی.</p></a>
-          <a href="{{ salon_profile_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card"><span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-store" aria-hidden="true"></i></span><h3 class="mt-4 text-sm font-black text-loomera-textPrimary">پروفایل مجموعه</h3><p class="mt-2 text-xs leading-6 text-loomera-textMuted">اطلاعات عمومی، گالری و صفحه انتشار مجموعه.</p></a>
-          <a href="{{ dashboard_home_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card sm:col-span-2 lg:col-span-1"><span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-house" aria-hidden="true"></i></span><h3 class="mt-4 text-sm font-black text-loomera-textPrimary">خانه داشبورد</h3><p class="mt-2 text-xs leading-6 text-loomera-textMuted">بازگشت به خلاصه عملیاتی و اقدام‌های سریع.</p></a>
-        </div>
-      </details>
+      </div>
     </form>
   </section>
 {% endblock %}

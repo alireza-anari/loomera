@@ -71,7 +71,7 @@ Expected context:
     </div>
   </section>
 
-  <nav class="mt-5 rounded-[1.75rem] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft" aria-label="مراحل رزرو">
+  <nav class="mt-5 hidden rounded-[1.75rem] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft lg:block" aria-label="مراحل رزرو">
     <ol class="grid grid-cols-4 gap-2 text-center text-[11px] font-black text-loomera-textMuted sm:text-xs" role="list">
       <li class="rounded-2xl {% if step_current == '1' %}bg-loomera-primarySoft text-loomera-primary{% else %}bg-loomera-successSoft text-loomera-textPrimary{% endif %} px-2 py-3">
         <span class="mx-auto mb-2 flex h-7 w-7 items-center justify-center rounded-full {% if step_current == '1' %}bg-loomera-primary text-white{% else %}bg-loomera-success text-white{% endif %} shadow-sm">

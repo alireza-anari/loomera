@@ -5,27 +5,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
   <title>{% block title %}{{ page_title|default:"داشبورد مجموعه" }}{% endblock %}</title>
-  <meta name="description" content="{% block meta_description %}داشبورد مدیریت Loomera برای پیگیری نوبت‌ها، خدمات، تیم و عملیات مجموعه.{% endblock %}">
+  <meta name="description" content="{% block meta_description %}داشبورد مدیریت Loomera برای پیگیری نوبت‌ها، خدمات، تیم و مجموعه.{% endblock %}">
   <meta property="og:title" content="{% block og_title %}داشبورد Loomera{% endblock %}">
-  <meta property="og:description" content="{% block og_description %}مدیریت آرام‌تر و دقیق‌تر عملیات مجموعه در Loomera.{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}مدیریت ساده‌تر و دقیق‌تر مجموعه در Loomera.{% endblock %}">
   <meta name="twitter:title" content="{% block twitter_title %}داشبورد Loomera{% endblock %}">
   <script>
     document.documentElement.setAttribute("data-theme", "light");
   </script>
-  <meta name="twitter:description" content="{% block twitter_description %}مدیریت آرام‌تر و دقیق‌تر عملیات مجموعه در Loomera.{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}مدیریت ساده‌تر و دقیق‌تر مجموعه در Loomera.{% endblock %}">
   {% include "partials/brand/head_assets.html" %}
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
   <link rel="stylesheet" href="{% static 'css/loomera-brand.css' %}">
   <link rel="stylesheet" href="{% static 'css/loomera-palette-override.css' %}">
   <link rel="stylesheet" href="{% static 'css/loomera-typography.css' %}">
+  <link rel="stylesheet" href="{% static 'css/loomera-validation.css' %}">
   <link rel="stylesheet" href="{% static 'css/fontawesome/all.min.css' %}">
   <link rel="stylesheet" href="{% static 'vendor/jalalidatepicker/jalalidatepicker.min.css' %}">
 
   {% block head %}{% endblock %}
 </head>
 
-<body class="lm-shell lm-partner-shell lm-dashboard-canvas min-h-full overflow-x-hidden bg-loomera-bg text-loomera-textPrimary antialiased {% block shell_body_class %}{% endblock %}" data-shell="partner-dashboard" {% block body_attrs %}data-page="dashboard-layout"{% endblock %}>
-  <div class="lm-partner-shell-root relative min-h-dvh overflow-x-hidden bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.12),transparent_34%),linear-gradient(180deg,#FCFBFE_0%,#F7F6FA_100%)]" data-dashboard-root>
+<body class="lm-shell lm-partner-shell lm-dashboard-canvas min-h-full bg-loomera-bg text-loomera-textPrimary antialiased {% block shell_body_class %}{% endblock %}" data-shell="partner-dashboard" {% block body_attrs %}data-page="dashboard-layout"{% endblock %}>
+  <div class="lm-partner-shell-root relative min-h-dvh bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.12),transparent_34%),linear-gradient(180deg,#FCFBFE_0%,#F7F6FA_100%)]" data-dashboard-root>
     {% dashboard_sidebar %}
 
     <div id="dashboard-overlay"
@@ -52,7 +53,7 @@
             {% block dashboard_workspace_actions %}{% endblock %}
             {% block dashboard_workspace_tabs %}{% endblock %}
 
-            <section class="lm-dashboard-section mt-4 min-w-0 max-w-full space-y-6 overflow-x-hidden lg:mt-6" data-dashboard-workspace-content>
+            <section class="lm-dashboard-section mt-4 min-w-0 max-w-full space-y-6 lg:mt-6" data-dashboard-workspace-content>
               {% block content %}{% endblock %}
             </section>
           </div>

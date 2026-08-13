@@ -6,137 +6,197 @@
 
 {% block content %}
   <section
-    class="min-w-0 max-w-full space-y-5 overflow-visible"
+    class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5"
     data-dashboard-workspace-root
     data-dashboard-page="manager-quick-links"
   >
-    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7">
-      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.18),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.96),rgba(255,255,255,0))]" aria-hidden="true"></div>
+    <header class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="quick-links-page-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
 
       <div class="relative flex min-w-0 flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div class="min-w-0">
-          <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-            <i class="fa-solid fa-chart-simple text-[10px]" aria-hidden="true"></i>
-            مدیریت و Attribution
-          </span>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+              <i class="fa-solid fa-link text-[10px]" aria-hidden="true"></i>
+              لینک‌های رزرو
+            </span>
+            <span class="inline-flex items-center gap-2 rounded-full bg-loomera-bgSubtle px-3 py-1.5 text-[11px] font-black text-loomera-textSecondary">
+              <span class="h-1.5 w-1.5 rounded-full bg-loomera-success" aria-hidden="true"></span>
+              {{ quick_link_page.summary.active_links|fa_digits }} لینک فعال
+            </span>
+          </div>
 
-          <h1 class="mt-4 text-2xl font-black leading-9 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-            لینک‌های رزرو
+          <h1 id="quick-links-page-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+            مدیریت لینک‌های رزرو
           </h1>
-
           <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-            عملکرد تمام لینک‌های رزرو مجموعه را ببین، منبع ورود مشتری را مقایسه کن و QR هر لینک را دریافت کن.
+            برای هر کانال یا کمپین لینک جدا بساز، QR و قالب چاپ بگیر و از روی بازدید و رزرو موفق بفهم کدام مسیر بهتر کار می‌کند.
           </p>
         </div>
 
-        <div class="flex shrink-0 flex-wrap gap-3">
-          <a
-            href="{{ quick_link_page.online_booking_url }}"
-            class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText"
-          >
-            <i class="fa-solid fa-gear text-xs" aria-hidden="true"></i>
-            تنظیمات رزرو آنلاین
-          </a>
-
+        <div class="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col">
           <a
             href="{{ quick_link_page.create_url }}"
-            class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_16px_34px_rgba(115,92,190,0.22)] transition hover:-translate-y-0.5"
+            data-quick-link-tab-trigger="create"
+            class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5"
           >
             <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
             ساخت لینک جدید
           </a>
+          <a
+            href="{{ quick_link_page.online_booking_url }}"
+            class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText"
+          >
+            <i class="fa-solid fa-calendar-check text-xs" aria-hidden="true"></i>
+            رزرو آنلاین
+          </a>
         </div>
       </div>
-    </section>
+    </header>
 
-    {% include "dashboards/quick_links/_create_form.html" %}
+    <nav class="overflow-x-auto pb-1" aria-label="بخش‌های مدیریت لینک‌های رزرو" data-quick-link-tabs>
+      <div class="inline-flex min-w-full gap-2 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-2 shadow-lm-soft" role="tablist" aria-orientation="horizontal">
+        <button
+          type="button"
+          id="quick-link-tab-links"
+          role="tab"
+          aria-selected="true"
+          aria-controls="quick-link-panel-links"
+          tabindex="0"
+          class="inline-flex shrink-0 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-3 text-sm font-black text-loomera-primaryText shadow-sm transition"
+          data-quick-link-tab="links"
+        >
+          <i class="fa-solid fa-link text-xs" aria-hidden="true"></i>
+          <span>لینک‌ها</span>
+          <span class="inline-flex min-w-7 items-center justify-center rounded-full bg-white/80 px-2 py-1 text-[11px] font-black text-loomera-primaryText">{{ quick_link_page.summary.total_links|fa_digits }}</span>
+        </button>
 
-    <form
-      method="get"
-      class="grid min-w-0 gap-3 rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
+        <button
+          type="button"
+          id="quick-link-tab-performance"
+          role="tab"
+          aria-selected="false"
+          aria-controls="quick-link-panel-performance"
+          tabindex="-1"
+          class="inline-flex shrink-0 items-center gap-2 rounded-2xl border border-transparent px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/60 hover:text-loomera-primary"
+          data-quick-link-tab="performance"
+        >
+          <i class="fa-solid fa-chart-line text-xs" aria-hidden="true"></i>
+          <span>عملکرد</span>
+        </button>
+
+        <button
+          type="button"
+          id="quick-link-tab-create"
+          role="tab"
+          aria-selected="false"
+          aria-controls="quick-link-panel-create"
+          tabindex="-1"
+          class="inline-flex shrink-0 items-center gap-2 rounded-2xl border border-transparent px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/60 hover:text-loomera-primary"
+          data-quick-link-tab="create"
+        >
+          <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+          <span>ساخت لینک</span>
+        </button>
+      </div>
+    </nav>
+
+    <div
+      id="quick-link-panel-links"
+      role="tabpanel"
+      aria-labelledby="quick-link-tab-links"
+      class="space-y-4 lg:space-y-5"
+      data-quick-link-panel="links"
     >
-      <div>
-        <label for="quick-link-period" class="mb-2 block text-xs font-black text-loomera-textPrimary">
-          بازه زمانی
-        </label>
+    <details class="group overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card">
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6">
+        <div class="flex min-w-0 items-center gap-3">
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-bgSubtle text-loomera-textSecondary">
+            <i class="fa-solid fa-filter text-sm" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">نمایش و مرتب‌سازی</p>
+            <h2 class="mt-1 text-base font-black text-loomera-textPrimary">فیلتر لینک‌ها</h2>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">بازه فعلی: {{ quick_link_page.period.label }}</p>
+          </div>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
 
-        <select
-          id="quick-link-period"
-          name="period"
-          class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
-        >
-          {% for value, label in quick_link_page.period_options %}
-            <option value="{{ value }}" {% if quick_link_page.period.key == value %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div>
-        <label for="quick-link-sort" class="mb-2 block text-xs font-black text-loomera-textPrimary">
-          مرتب‌سازی
-        </label>
-
-        <select
-          id="quick-link-sort"
-          name="sort"
-          class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
-        >
-          {% for value, label in quick_link_page.sort_options %}
-            <option value="{{ value }}" {% if quick_link_page.sort == value %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <button
-        type="submit"
-        class="inline-flex min-h-11 items-center justify-center gap-2 self-end rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white"
+      <form
+        method="get"
+        class="grid min-w-0 gap-3 border-t border-loomera-borderSoft p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:p-6"
       >
-        <i class="fa-solid fa-filter text-xs" aria-hidden="true"></i>
-        اعمال
-      </button>
-    </form>
-
-    {% include "dashboards/quick_links/_summary_cards.html" %}
-
-    <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5 lg:p-6">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p class="text-[11px] font-black text-loomera-primaryText">
-            {{ quick_link_page.period.label }}
-          </p>
-          <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">
-            مدیریت لینک‌های ساخته‌شده
-          </h2>
-          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-            همه لینک‌های همین سالن، شامل لینک‌های ساخته‌شده توسط مدیر و متخصص‌ها.
-          </p>
+          <label for="quick-link-period" class="mb-2 block text-xs font-black text-loomera-textPrimary">بازه زمانی</label>
+          <select
+            id="quick-link-period"
+            name="period"
+            class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
+          >
+            {% for value, label in quick_link_page.period_options %}
+              <option value="{{ value }}" {% if quick_link_page.period.key == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
         </div>
 
-        <span class="inline-flex min-h-10 items-center justify-center rounded-full bg-loomera-bgSubtle px-4 py-2 text-xs font-black text-loomera-textSecondary">
+        <div>
+          <label for="quick-link-sort" class="mb-2 block text-xs font-black text-loomera-textPrimary">مرتب‌سازی</label>
+          <select
+            id="quick-link-sort"
+            name="sort"
+            class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
+          >
+            {% for value, label in quick_link_page.sort_options %}
+              <option value="{{ value }}" {% if quick_link_page.sort == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          class="inline-flex min-h-11 items-center justify-center gap-2 self-end rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft"
+        >
+          <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
+          اعمال فیلتر
+        </button>
+      </form>
+    </details>
+
+    <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" aria-labelledby="quick-link-list-title">
+      <header class="flex flex-col gap-3 border-b border-loomera-borderSoft px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 lg:px-6">
+        <div class="flex min-w-0 items-start gap-3">
+          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+            <i class="fa-solid fa-list-ul" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">لینک‌های ساخته‌شده</p>
+            <h2 id="quick-link-list-title" class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">مدیریت و مقایسه لینک‌ها</h2>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">لینک‌های مدیر و متخصص‌های همین مجموعه در یک جا؛ آمار و اقدام‌های هر لینک کنار خودش قرار دارد.</p>
+          </div>
+        </div>
+
+        <span class="inline-flex min-h-9 shrink-0 items-center justify-center rounded-full bg-loomera-bgSubtle px-3 py-2 text-[11px] font-black text-loomera-textSecondary">
           {{ quick_link_page.summary.total_links|fa_digits }} لینک
         </span>
-      </div>
+      </header>
 
       {% if quick_link_page.links %}
-        <div class="mt-5 grid min-w-0 gap-4 xl:grid-cols-2">
+        <div class="grid min-w-0 gap-3 p-4 sm:p-5 xl:grid-cols-2 lg:p-6">
           {% for link in quick_link_page.links %}
-            <article class="min-w-0 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4 transition hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-soft">
-              <div class="flex min-w-0 flex-col gap-4">
+            <article class="min-w-0 overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/45 transition hover:border-loomera-primary/20 hover:bg-white hover:shadow-lm-soft">
+              <div class="p-4 sm:p-5">
                 <div class="flex min-w-0 items-start justify-between gap-3">
                   <div class="min-w-0">
                     <div class="flex flex-wrap items-center gap-2">
-                      <h3 class="truncate text-sm font-black text-loomera-textPrimary">
-                        {{ link.title }}
-                      </h3>
-
-                      <span class="rounded-full px-3 py-1 text-[10px] font-black {% if link.status_tone == 'success' %}bg-emerald-100 text-emerald-700{% elif link.status_tone == 'danger' %}bg-rose-100 text-rose-700{% elif link.status_tone == 'warning' %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-600{% endif %}">
+                      <h3 class="truncate text-sm font-black text-loomera-textPrimary sm:text-[15px]">{{ link.title }}</h3>
+                      <span class="rounded-full px-2.5 py-1 text-[10px] font-black {% if link.status_tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif link.status_tone == 'danger' %}bg-loomera-dangerSoft text-loomera-danger{% elif link.status_tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% else %}bg-white text-loomera-textMuted{% endif %}">
                         {{ link.status_label }}
                       </span>
                     </div>
-
-                    <p class="mt-2 text-xs leading-6 text-loomera-textMuted">
-                      {{ link.placement_label }} • {{ link.campaign_name }} • {{ link.mode_label }}
-                    </p>
+                    <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ link.placement_label }} • {{ link.campaign_name }} • {{ link.mode_label }}</p>
                   </div>
 
                   <span class="shrink-0 rounded-full bg-white px-3 py-1.5 text-[10px] font-black text-loomera-primaryText">
@@ -144,91 +204,214 @@
                   </span>
                 </div>
 
-                <div class="grid gap-2 text-xs leading-6 text-loomera-textSecondary sm:grid-cols-2">
-                  <p><span class="font-black text-loomera-textPrimary">خدمت:</span> {{ link.service_name }}</p>
-                  <p><span class="font-black text-loomera-textPrimary">متخصص:</span> {{ link.stylist_name }}</p>
-                  <p><span class="font-black text-loomera-textPrimary">سازنده:</span> {{ link.creator_label }}</p>
-                  <p><span class="font-black text-loomera-textPrimary">ساخت:</span> {{ link.quick_link.created_at|date:"Y/m/d H:i"|fa_digits }}</p>
-                </div>
-
-                <div
-                  class="rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 text-left text-[11px] leading-6 text-loomera-textSecondary break-all"
-                  dir="ltr"
-                  data-manager-quick-link-url-{{ link.id }}
-                >{{ link.url }}</div>
-
-                <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  <div class="rounded-2xl bg-white p-3 text-center">
-                    <p class="text-lg font-black text-loomera-textPrimary">{{ link.total_opens|fa_digits }}</p>
-                    <p class="mt-1 text-[10px] font-bold text-loomera-textMuted">بازشدن</p>
+                <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                  <div class="rounded-2xl bg-white/85 px-3 py-2.5">
+                    <p class="text-[10px] font-bold text-loomera-textMuted">خدمت</p>
+                    <p class="mt-1 truncate text-xs font-black text-loomera-textPrimary">{{ link.service_name }}</p>
                   </div>
-
-                  <div class="rounded-2xl bg-white p-3 text-center">
-                    <p class="text-lg font-black text-loomera-textPrimary">{{ link.unique_visitors|fa_digits }}</p>
-                    <p class="mt-1 text-[10px] font-bold text-loomera-textMuted">یکتا</p>
-                  </div>
-
-                  <div class="rounded-2xl bg-white p-3 text-center">
-                    <p class="text-lg font-black text-loomera-textPrimary">{{ link.converted_count|fa_digits }}</p>
-                    <p class="mt-1 text-[10px] font-bold text-loomera-textMuted">رزرو</p>
-                  </div>
-
-                  <div class="rounded-2xl bg-white p-3 text-center">
-                    <p class="text-lg font-black text-loomera-textPrimary">{{ link.conversion_rate|floatformat:2|fa_digits }}٪</p>
-                    <p class="mt-1 text-[10px] font-bold text-loomera-textMuted">تبدیل</p>
+                  <div class="rounded-2xl bg-white/85 px-3 py-2.5">
+                    <p class="text-[10px] font-bold text-loomera-textMuted">متخصص</p>
+                    <p class="mt-1 truncate text-xs font-black text-loomera-textPrimary">{{ link.stylist_name }}</p>
                   </div>
                 </div>
 
-                <div class="flex flex-wrap gap-2 border-t border-loomera-borderSoft pt-3">
+                <div class="mt-3 grid grid-cols-4 gap-2">
+                  <div class="rounded-2xl bg-white p-2.5 text-center">
+                    <p class="text-base font-black text-loomera-textPrimary">{{ link.total_opens|fa_digits }}</p>
+                    <p class="mt-1 text-[9px] font-bold text-loomera-textMuted">بازشدن</p>
+                  </div>
+                  <div class="rounded-2xl bg-white p-2.5 text-center">
+                    <p class="text-base font-black text-loomera-textPrimary">{{ link.unique_visitors|fa_digits }}</p>
+                    <p class="mt-1 text-[9px] font-bold text-loomera-textMuted">یکتا</p>
+                  </div>
+                  <div class="rounded-2xl bg-white p-2.5 text-center">
+                    <p class="text-base font-black text-loomera-textPrimary">{{ link.converted_count|fa_digits }}</p>
+                    <p class="mt-1 text-[9px] font-bold text-loomera-textMuted">رزرو</p>
+                  </div>
+                  <div class="rounded-2xl bg-white p-2.5 text-center">
+                    <p class="text-base font-black text-loomera-primaryText">{{ link.conversion_rate|floatformat:2|fa_digits }}٪</p>
+                    <p class="mt-1 text-[9px] font-bold text-loomera-textMuted">تبدیل</p>
+                  </div>
+                </div>
+
+                <details class="group mt-3 overflow-hidden rounded-2xl border border-loomera-borderSoft bg-white/80">
+                  <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5">
+                    <span class="text-[11px] font-black text-loomera-textSecondary">اطلاعات لینک</span>
+                    <i class="fa-solid fa-chevron-down text-[9px] text-loomera-textMuted transition group-open:rotate-180" aria-hidden="true"></i>
+                  </summary>
+                  <div class="space-y-3 border-t border-loomera-borderSoft p-3">
+                    <div
+                      class="break-all rounded-xl bg-loomera-bgSubtle px-3 py-2.5 text-left text-[10px] leading-5 text-loomera-textSecondary"
+                      dir="ltr"
+                      data-manager-quick-link-url-{{ link.id }}
+                    >{{ link.url }}</div>
+                    <div class="grid gap-2 text-[10px] leading-5 text-loomera-textMuted sm:grid-cols-2">
+                      <p><span class="font-black text-loomera-textPrimary">سازنده:</span> {{ link.creator_label }}</p>
+                      <p><span class="font-black text-loomera-textPrimary">ساخت:</span> {{ link.quick_link.created_at|date:"Y/m/d H:i"|fa_digits }}</p>
+                    </div>
+                  </div>
+                </details>
+
+                <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
                   <button
                     type="button"
-                    class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary"
+                    class="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary transition hover:border-loomera-primary/20 hover:text-loomera-primaryText"
                     data-manager-copy-quick-link
                     data-copy-target="[data-manager-quick-link-url-{{ link.id }}]"
                   >
-                    کپی لینک
+                    <i class="fa-regular fa-copy text-[10px]" aria-hidden="true"></i>
+                    کپی
                   </button>
-
                   <a
                     href="{{ link.url }}"
                     target="_blank"
                     rel="noopener"
-                    class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText"
+                    class="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary transition hover:border-loomera-primary/20 hover:text-loomera-primaryText"
                   >
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[9px]" aria-hidden="true"></i>
                     بازکردن
                   </a>
-
-                  <a
-                    href="{{ link.qr_preview_url }}"
-                    target="_blank"
-                    rel="noopener"
-                    class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText"
-                  >
-                    پیش‌نمایش QR
-                  </a>
-
                   <a
                     href="{{ link.qr_download_url }}"
-                    class="rounded-full bg-loomera-primary px-3 py-2 text-xs font-black text-white"
+                    class="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-loomera-primary/15 bg-loomera-primarySoft/55 px-3 py-2 text-[11px] font-black text-loomera-primaryText"
                   >
+                    <i class="fa-solid fa-qrcode text-[10px]" aria-hidden="true"></i>
                     دانلود QR
+                  </a>
+                  <a
+                    href="{{ link.print_url }}"
+                    class="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-loomera-primary px-3 py-2 text-[11px] font-black text-white shadow-lm-soft"
+                  >
+                    <i class="fa-solid fa-print text-[10px]" aria-hidden="true"></i>
+                    چاپ
                   </a>
                 </div>
 
-                {% include "dashboards/quick_links/_management_controls.html" with link=link placement_options=quick_link_create_workspace.placement_options %}
+                <a
+                  href="{{ link.qr_preview_url }}"
+                  target="_blank"
+                  rel="noopener"
+                  class="mt-2 inline-flex min-h-9 items-center gap-2 text-[11px] font-black text-loomera-primaryText"
+                >
+                  <i class="fa-regular fa-eye text-[10px]" aria-hidden="true"></i>
+                  پیش‌نمایش QR
+                </a>
+
+                <div class="mt-3 border-t border-loomera-borderSoft pt-3">
+                  {% include "dashboards/quick_links/_management_controls.html" with link=link placement_options=quick_link_create_workspace.placement_options %}
+                </div>
               </div>
             </article>
           {% endfor %}
         </div>
       {% else %}
-        <div class="mt-5">
+        <div class="p-4 sm:p-5 lg:p-6">
           {% include "dashboards/quick_links/_empty_state.html" %}
         </div>
       {% endif %}
     </section>
+
+    </div>
+
+    <div
+      id="quick-link-panel-performance"
+      role="tabpanel"
+      aria-labelledby="quick-link-tab-performance"
+      class="hidden space-y-4 lg:space-y-5"
+      data-quick-link-panel="performance"
+      hidden
+    >
+      {% include "dashboards/quick_links/_summary_cards.html" %}
+    </div>
+
+    <div
+      id="quick-link-panel-create"
+      role="tabpanel"
+      aria-labelledby="quick-link-tab-create"
+      class="hidden space-y-4 lg:space-y-5"
+      data-quick-link-panel="create"
+      hidden
+    >
+      {% include "dashboards/quick_links/_create_form.html" %}
+    </div>
   </section>
 
   <script>
+    (function () {
+      const root = document.querySelector('[data-dashboard-page="manager-quick-links"]');
+      if (!root) return;
+
+      const tabs = Array.from(root.querySelectorAll('[data-quick-link-tab]'));
+      const panels = Array.from(root.querySelectorAll('[data-quick-link-panel]'));
+      const activeClasses = ['border', 'border-loomera-primary/20', 'bg-loomera-primarySoft', 'text-loomera-primaryText', 'shadow-sm'];
+      const inactiveClasses = ['border', 'border-transparent', 'text-loomera-textSecondary'];
+
+      function activateTab(name, options) {
+        const settings = options || {};
+        const selectedTab = tabs.find(function (tab) { return tab.dataset.quickLinkTab === name; });
+        const selectedPanel = panels.find(function (panel) { return panel.dataset.quickLinkPanel === name; });
+        if (!selectedTab || !selectedPanel) return;
+
+        tabs.forEach(function (tab) {
+          const isActive = tab === selectedTab;
+          tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          tab.tabIndex = isActive ? 0 : -1;
+          activeClasses.forEach(function (className) { tab.classList.toggle(className, isActive); });
+          inactiveClasses.forEach(function (className) { tab.classList.toggle(className, !isActive); });
+        });
+
+        panels.forEach(function (panel) {
+          const isActive = panel === selectedPanel;
+          panel.hidden = !isActive;
+          panel.classList.toggle('hidden', !isActive);
+        });
+
+        if (settings.updateHash) {
+          const nextHash = name === 'create' ? '#create-quick-link' : '#quick-links-' + name;
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', nextHash);
+          } else {
+            window.location.hash = nextHash;
+          }
+        }
+
+        if (settings.focus) selectedTab.focus();
+        if (settings.scroll) root.querySelector('[data-quick-link-tabs]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      tabs.forEach(function (tab, index) {
+        tab.addEventListener('click', function () {
+          activateTab(tab.dataset.quickLinkTab, { updateHash: true });
+        });
+
+        tab.addEventListener('keydown', function (event) {
+          if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+          event.preventDefault();
+          const direction = event.key === 'ArrowLeft' ? 1 : -1;
+          const nextIndex = (index + direction + tabs.length) % tabs.length;
+          activateTab(tabs[nextIndex].dataset.quickLinkTab, { updateHash: true, focus: true });
+        });
+      });
+
+      root.querySelectorAll('[data-quick-link-tab-trigger]').forEach(function (trigger) {
+        trigger.addEventListener('click', function (event) {
+          const name = trigger.dataset.quickLinkTabTrigger;
+          if (!name) return;
+          event.preventDefault();
+          activateTab(name, { updateHash: true, scroll: true });
+        });
+      });
+
+      const hash = window.location.hash;
+      let initialTab = 'links';
+      if (hash === '#create-quick-link' || hash === '#quick-links-create') initialTab = 'create';
+      if (hash === '#quick-links-performance') initialTab = 'performance';
+      {% if quick_link_create_workspace.errors or quick_link_create_workspace.generated_link %}
+        initialTab = 'create';
+      {% endif %}
+      activateTab(initialTab);
+    })();
+
     document.addEventListener("click", async function (event) {
       const button = event.target.closest("[data-manager-copy-quick-link]");
       if (!button) return;
@@ -241,11 +424,11 @@
 
       try {
         await navigator.clipboard.writeText(value);
-        const previousLabel = button.textContent;
-        button.textContent = "کپی شد";
+        const previousLabel = button.innerHTML;
+        button.innerHTML = '<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> کپی شد';
 
         window.setTimeout(function () {
-          button.textContent = previousLabel;
+          button.innerHTML = previousLabel;
         }, 1400);
       } catch (_error) {
         window.prompt("لینک را کپی کن:", value);

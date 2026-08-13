@@ -8,7 +8,7 @@
   <header class="relative min-w-0 overflow-hidden rounded-[32px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6 lg:p-7" aria-labelledby="finance-materials-title">
     <div class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_44%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
 
-    <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] xl:items-stretch">
+    <div class="relative min-w-0">
       <div class="min-w-0 rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
         <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="min-w-0">
@@ -53,164 +53,22 @@
         </div>
       </div>
 
-      <aside class="min-w-0 rounded-[28px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس تنظیمات مالی">
-        <div class="flex min-w-0 items-center justify-between gap-3">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-white/60">فوکوس این صفحه</p>
-            <h2 class="mt-1 truncate text-lg font-black">قوانین قابل اجرا برای بتا</h2>
-          </div>
-          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-            <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
-          </span>
-        </div>
 
-        <div class="mt-5 space-y-3">
-          <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-            <div class="flex items-start justify-between gap-3">
-              <h3 class="text-sm font-black leading-6 text-white">مواد پایه</h3>
-              <span class="rounded-full bg-white/15 px-3 py-1 text-[10px] font-black text-white">{{ active_materials_count|intcomma }} فعال</span>
-            </div>
-            <p class="mt-2 text-xs leading-6 text-white/72">اول مواد پرتکرار مجموعه را تعریف کن تا قالب‌های خدمات قابل استفاده باشند.</p>
-          </article>
 
-          <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-            <div class="flex items-start justify-between gap-3">
-              <h3 class="text-sm font-black leading-6 text-white">قالب مصرف خدمت</h3>
-              <span class="rounded-full bg-white/15 px-3 py-1 text-[10px] font-black text-white">{{ active_templates_count|intcomma }} فعال</span>
-            </div>
-            <p class="mt-2 text-xs leading-6 text-white/72">قالب‌ها فقط پیشنهاد اولیه‌اند و مصرف واقعی در داشبورد متخصص ثبت می‌شود.</p>
-          </article>
-
-          <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-            <div class="flex items-start justify-between gap-3">
-              <h3 class="text-sm font-black leading-6 text-white">سهم متخصص</h3>
-              <span class="rounded-full bg-white/15 px-3 py-1 text-[10px] font-black text-white">{{ active_rules_count|intcomma }} فعال</span>
-            </div>
-            <p class="mt-2 text-xs leading-6 text-white/72">برای خدمات پرتکرار، قانون سهم را قبل از شروع رزروهای مالی مشخص کن.</p>
-          </article>
-        </div>
-      </aside>
     </div>
   </header>
 
-  <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-    <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های مواد و قوانین مالی">
-      <div class="flex min-w-max items-center gap-2">
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#finance-materials-overview" aria-selected="true">
-          <i class="fa-solid fa-gauge-high text-[10px]" aria-hidden="true"></i>
-          <span>آمادگی</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>۴</span>
-        </button>
 
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#finance-materials-forms">
-          <i class="fa-solid fa-pen-to-square text-[10px]" aria-hidden="true"></i>
-          <span>فرم‌ها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۳</span>
-        </button>
 
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#finance-materials-list">
-          <i class="fa-solid fa-flask-vial text-[10px]" aria-hidden="true"></i>
-          <span>مواد</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ materials_count|intcomma }}</span>
-        </button>
 
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#finance-templates-list">
-          <i class="fa-solid fa-layer-group text-[10px]" aria-hidden="true"></i>
-          <span>قالب‌ها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ templates_count|intcomma }}</span>
-        </button>
 
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#finance-rules-list">
-          <i class="fa-solid fa-percent text-[10px]" aria-hidden="true"></i>
-          <span>قوانین سهم</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ rules_count|intcomma }}</span>
-        </button>
-
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#finance-materials-routes">
-          <i class="fa-solid fa-route text-[10px]" aria-hidden="true"></i>
-          <span>مسیرها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۲</span>
-        </button>
-      </div>
-    </nav>
-  </div>
-
-  <details id="finance-materials-overview" class="group scroll-mt-28 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">آمادگی مالی</p>
-        <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">چک‌لیست مواد، قالب‌ها و سهم متخصص</h2>
-      </div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
-
-    <div class="p-4 sm:p-5 lg:p-6">
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-xs font-bold text-loomera-textMuted">مواد فعال</span>
-            <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-successSoft text-loomera-success"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
-          </div>
-          <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ active_materials_count|intcomma }} از {{ materials_count|intcomma }}</strong>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">بدون ماده فعال، قالب مواد برای خدمات کاربرد عملیاتی ندارد.</p>
-        </article>
-
-        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-xs font-bold text-loomera-textMuted">قالب فعال</span>
-            <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
-          </div>
-          <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ active_templates_count|intcomma }} از {{ templates_count|intcomma }}</strong>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای خدمات پرتکرار، قالب مصرف پیش‌فرض بساز تا ثبت مصرف بعدی سریع‌تر شود.</p>
-        </article>
-
-        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-xs font-bold text-loomera-textMuted">قوانین سهم</span>
-            <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-warningSoft text-loomera-warning"><i class="fa-solid fa-percent" aria-hidden="true"></i></span>
-          </div>
-          <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ active_rules_count|intcomma }} از {{ rules_count|intcomma }}</strong>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">سهم متخصص را قبل از پردازش تسویه‌ها و گزارش سود مشخص کن.</p>
-        </article>
-
-        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-xs font-bold text-loomera-textMuted">خدمات / تیم</span>
-            <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm"><i class="fa-solid fa-user-gear" aria-hidden="true"></i></span>
-          </div>
-          <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ service_count|intcomma }} خدمت • {{ stylist_count|intcomma }} عضو</strong>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">قالب‌ها و قوانین سهم باید با خدمات و اعضای فعال مجموعه همخوان باشند.</p>
-        </article>
-      </div>
-
-      <div class="mt-5 rounded-[26px] border border-loomera-primary/15 bg-loomera-primarySoft/50 p-4 sm:p-5">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">قاعده عملیاتی</p>
-            <h3 class="mt-1 text-base font-black text-loomera-textPrimary">در داشبورد مجموعه فقط قوانین و قالب‌ها ساخته می‌شوند</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textSecondary">ثبت مصرف واقعی مواد مربوط به هر نوبت، در جریان کاری متخصص انجام می‌شود. این صفحه فقط استانداردهای پیش‌فرض را آماده می‌کند.</p>
-          </div>
-          <a href="{{ calendar_url }}" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-primary/15 bg-white px-4 py-2 text-xs font-black text-loomera-primaryText transition hover:-translate-y-0.5 hover:bg-loomera-primarySoft/40">
-            <i class="fa-regular fa-calendar-check text-[11px]" aria-hidden="true"></i>
-            <span>بررسی نوبت‌ها</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </details>
-
-  <details id="finance-materials-forms" class="group scroll-mt-28 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+  <section id="finance-materials-forms" class="group scroll-mt-28 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="finance-materials" data-lm-task-key="forms" data-lm-task-label="ثبت و تنظیم" data-lm-task-default data-lm-task-order="1">
+    <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
       <div class="min-w-0">
         <p class="text-[11px] font-black text-loomera-primaryText">ثبت و تعریف</p>
         <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">فرم‌های مواد، قالب و سهم متخصص</h2>
       </div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
+</header>
 
     <div class="grid min-w-0 gap-4 p-4 sm:p-5 lg:p-6 xl:grid-cols-3">
       <article class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
@@ -356,18 +214,17 @@
         </form>
       </article>
     </div>
-  </details>
+  </section>
 
-  <details id="finance-materials-list" class="group scroll-mt-28 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+  <section id="finance-materials-list" class="group scroll-mt-28 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="finance-materials" data-lm-task-key="materials" data-lm-task-label="مواد اولیه" data-lm-task-order="2">
+    <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
       <div class="min-w-0">
         <p class="text-[11px] font-black text-loomera-primaryText">مواد پایه</p>
         <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مواد اولیه مجموعه</h2>
       </div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
+
+
+</header>
 
     <div class="p-4 sm:p-5 lg:p-6">
       <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -407,18 +264,17 @@
         <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-6 text-center text-sm leading-7 text-loomera-textMuted">هنوز ماده اولیه‌ای ثبت نشده است. از بخش فرم‌ها اولین ماده را تعریف کن.</div>
       {% endif %}
     </div>
-  </details>
+  </section>
 
-  <details id="finance-templates-list" class="group scroll-mt-28 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+  <section id="finance-templates-list" class="group scroll-mt-28 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="finance-materials" data-lm-task-key="templates" data-lm-task-label="قالب خدمات" data-lm-task-order="3">
+    <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
       <div class="min-w-0">
         <p class="text-[11px] font-black text-loomera-primaryText">قالب خدمات</p>
         <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">قالب مواد مصرفی خدمات</h2>
       </div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
+
+
+</header>
 
     <div class="p-4 sm:p-5 lg:p-6">
       <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -456,18 +312,17 @@
         <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-6 text-center text-sm leading-7 text-loomera-textMuted">هنوز قالب مواد مصرفی برای خدمات ساخته نشده است.</div>
       {% endif %}
     </div>
-  </details>
+  </section>
 
-  <details id="finance-rules-list" class="group scroll-mt-28 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+  <section id="finance-rules-list" class="group scroll-mt-28 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="finance-materials" data-lm-task-key="rules" data-lm-task-label="قوانین سهم" data-lm-task-order="4">
+    <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
       <div class="min-w-0">
         <p class="text-[11px] font-black text-loomera-primaryText">قوانین سهم</p>
         <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">قوانین سهم متخصص</h2>
       </div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
+
+
+</header>
 
     <div class="p-4 sm:p-5 lg:p-6">
       <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -518,33 +373,9 @@
         <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-6 text-center text-sm leading-7 text-loomera-textMuted">هنوز قانون سهم متخصص تعریف نشده است.</div>
       {% endif %}
     </div>
-  </details>
+  </section>
 
-  <details id="finance-materials-routes" class="group scroll-mt-28 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p>
-        <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ادامه کار مالی</h2>
-      </div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
 
-    <div class="grid gap-3 p-4 sm:p-5 lg:p-6 md:grid-cols-2">
-      <a href="{{ payout_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
-        <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">امور مالی مجموعه</h3>
-        <p class="mt-2 text-xs leading-6 text-loomera-textMuted">کیف پول، برداشت، گردش مالی و اسناد تسویه را مدیریت کن.</p>
-      </a>
-
-      <a href="{{ calendar_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-regular fa-calendar-check" aria-hidden="true"></i></span>
-        <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">تقویم نوبت‌ها</h3>
-        <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای بررسی اثر قوانین مالی روی نوبت‌ها و برنامه تیم به تقویم برگرد.</p>
-      </a>
-    </div>
-  </details>
 </section>
 {% endblock %}
 

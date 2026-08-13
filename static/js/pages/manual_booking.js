@@ -1,5 +1,4 @@
-const SLOT_STEP = 15;
-const AVAILABILITY_MONTHS_TO_PRELOAD = 3;
+const AVAILABLE_DATES_INITIAL_LIMIT = 8;
 
 function normalizeDigits(value) {
   return String(value || "")
@@ -19,49 +18,28 @@ function parseIsoDate(dateStr) {
 function formatGregorianToJalali(dateStr, options = {}) {
   if (!dateStr) return "";
   const date = typeof dateStr === "string" ? parseIsoDate(dateStr) : dateStr;
-  const [jy, jm, jd] = JalaliDate.gregorianToJalali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+  const [jy, jm, jd] = JalaliDate.gregorianToJalali(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate(),
+  );
   const months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
   const weekdays = ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه", "شنبه"];
-  const base = `${toPersianDigits(jd)} ${months[jm - 1]} ${toPersianDigits(jy)}`;
+  const base = `${toPersianDigits(jd)} ${months[jm - 1]}`;
+  if (options.withYear) return `${base} ${toPersianDigits(jy)}`;
   return options.withWeekday ? `${weekdays[date.getDay()]} ${base}` : base;
 }
 
-function formatGregorianToJalaliNumeric(dateStr) {
-  if (!dateStr) return "";
-  const date = typeof dateStr === "string" ? parseIsoDate(dateStr) : dateStr;
-  const [jy, jm, jd] = JalaliDate.gregorianToJalali(date.getFullYear(), date.getMonth() + 1, date.getDate());
-  return `${toPersianDigits(jy)}/${toPersianDigits(String(jm).padStart(2, "0"))}/${toPersianDigits(String(jd).padStart(2, "0"))}`;
-}
-
-function jalaliInputToGregorian(jalaliValue) {
-  const normalized = normalizeDigits(jalaliValue).replace(/\//g, "-").trim();
-  const match = normalized.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (!match) return null;
-  const [gy, gm, gd] = JalaliDate.jalaliToGregorian(Number(match[1]), Number(match[2]), Number(match[3]));
-  return `${gy}-${String(gm).padStart(2, "0")}-${String(gd).padStart(2, "0")}`;
-}
-
-function shiftJalaliMonth(year, month, delta) {
-  let newYear = year;
-  let newMonth = month + delta;
-  while (newMonth > 12) { newMonth -= 12; newYear += 1; }
-  while (newMonth < 1) { newMonth += 12; newYear -= 1; }
-  return { year: newYear, month: newMonth };
-}
-
 function toMinutes(timeStr) {
-  const [hour, minute] = String(timeStr).split(":").map(Number);
-  return hour * 60 + minute;
+  const [hour, minute] = String(timeStr || "").split(":").map(Number);
+  return (hour || 0) * 60 + (minute || 0);
 }
 
 function minutesToTime(minutes) {
-  const hour = Math.floor(minutes / 60);
-  const minute = minutes % 60;
+  const normalized = Math.max(0, Number(minutes) || 0);
+  const hour = Math.floor(normalized / 60);
+  const minute = normalized % 60;
   return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
-}
-
-function slotOverlaps(startA, endA, startB, endB) {
-  return startA < endB && endA > startB;
 }
 
 export default function initManualBookingPage() {
@@ -74,23 +52,20 @@ export default function initManualBookingPage() {
     try {
       return JSON.parse(node.textContent || "[]");
     } catch (error) {
-      console.error("[manual-booking] invalid embedded data");
+      console.error(`[manual-booking] invalid json payload: ${id}`, error);
       return [];
     }
   }
 
   const state = {
-    salonId: source.dataset.salonId,
     customers: readJsonScript("manualBookingCustomersData"),
     services: readJsonScript("manualBookingServicesData"),
     stylists: readJsonScript("manualBookingStylistsData"),
-    schedules: {},
-    bookedTimes: {},
-    timeOffs: {},
-    loadedMonths: new Set(),
+    availability: [],
+    availabilityRequestId: 0,
+    showAllDates: false,
     selectedDate: document.getElementById("id_appointment_date")?.value || "",
     selectedTime: document.getElementById("id_start_time")?.value || "",
-    currentSlots: [],
   };
 
   const els = {
@@ -109,6 +84,7 @@ export default function initManualBookingPage() {
     calendar: document.getElementById("manualBookingCalendar"),
     monthTitle: document.getElementById("manualBookingMonthTitle"),
     calendarHint: document.getElementById("manualBookingCalendarHint"),
+    moreDates: document.getElementById("manualBookingMoreDates"),
     timeSlots: document.getElementById("manualBookingTimeSlots"),
     selectedDateLabel: document.getElementById("manualBookingSelectedDateLabel"),
     summaryCustomer: document.getElementById("manualBookingSummaryCustomer"),
@@ -131,53 +107,46 @@ export default function initManualBookingPage() {
   }
 
   function getSelectedCustomer() {
-    return findById(state.customers, els.customerHidden.value);
+    return findById(state.customers, els.customerHidden?.value);
   }
 
   function getSelectedService() {
-    return findById(state.services, els.serviceHidden.value);
+    return findById(state.services, els.serviceHidden?.value);
   }
 
   function getSelectedStylist() {
-    return findById(state.stylists, els.stylistHidden.value);
+    return findById(state.stylists, els.stylistHidden?.value);
   }
+
   function setText(element, value, fallback = "—") {
-    if (!element) return;
-    element.textContent = value || fallback;
+    if (element) element.textContent = value || fallback;
   }
 
   function updateBookingSummary() {
     const customer = getSelectedCustomer();
     const service = getSelectedService();
     const stylist = getSelectedStylist();
-
-    const customerLabel = customer?.label || els.customerInput?.value?.trim();
-    const serviceLabel = service?.name || els.serviceInput?.value?.trim();
-    const stylistLabel = stylist?.name || els.stylistInput?.value?.trim();
-
     const dateLabel = state.selectedDate
       ? formatGregorianToJalali(state.selectedDate, { withWeekday: true })
       : "";
 
-    setText(els.summaryCustomer, customerLabel, "انتخاب نشده");
-    setText(els.summaryService, serviceLabel, "انتخاب نشده");
-    setText(els.summaryStylist, stylistLabel, "انتخاب نشده");
+    setText(els.summaryCustomer, customer?.label || els.customerInput?.value?.trim(), "انتخاب نشده");
+    setText(els.summaryService, service?.name || els.serviceInput?.value?.trim(), "انتخاب نشده");
+    setText(els.summaryStylist, stylist?.name || els.stylistInput?.value?.trim(), "انتخاب نشده");
     setText(els.summaryDate, dateLabel, "—");
     setText(els.summaryTime, state.selectedTime, "—");
 
     if (els.summaryStatus) {
       const isReady = Boolean(
-        els.customerHidden.value &&
-        els.serviceHidden.value &&
-        els.stylistHidden.value &&
+        els.customerHidden?.value &&
+        els.serviceHidden?.value &&
+        els.stylistHidden?.value &&
         state.selectedDate &&
         state.selectedTime
       );
-
       els.summaryStatus.textContent = isReady
         ? "رزرو آماده ثبت است."
         : "برای ثبت، همه مراحل را کامل کن.";
-
       els.summaryStatus.classList.toggle("text-loomera-success", isReady);
       els.summaryStatus.classList.toggle("text-loomera-primaryText", !isReady);
     }
@@ -185,30 +154,30 @@ export default function initManualBookingPage() {
 
   function syncInputLabelsFromHidden() {
     const customer = getSelectedCustomer();
-    if (customer && !els.customerInput.value) els.customerInput.value = customer.label;
-
+    if (customer && !els.customerInput?.value) els.customerInput.value = customer.label;
     const service = getSelectedService();
-    if (service && !els.serviceInput.value) els.serviceInput.value = service.name;
-
+    if (service && !els.serviceInput?.value) els.serviceInput.value = service.name;
     const stylist = getSelectedStylist();
-    if (stylist && !els.stylistInput.value) els.stylistInput.value = stylist.name;
-
-    if (state.selectedDate && !els.dateInput.value) {
-      els.dateInput.value = formatGregorianToJalaliNumeric(state.selectedDate);
-    }
+    if (stylist && !els.stylistInput?.value) els.stylistInput.value = stylist.name;
     updateBookingSummary();
   }
 
-  function resetScheduleSelection() {
+  function clearSelectedSlot() {
     state.selectedDate = "";
     state.selectedTime = "";
-    state.currentSlots = [];
-    els.dateHidden.value = "";
-    els.timeHidden.value = "";
-    els.dateInput.value = "";
-    els.selectedDateLabel.textContent = "";
-    renderTimeSlots([]);
+    if (els.dateHidden) els.dateHidden.value = "";
+    if (els.timeHidden) els.timeHidden.value = "";
+    if (els.dateInput) els.dateInput.value = "";
+    if (els.selectedDateLabel) els.selectedDateLabel.textContent = "";
     updateBookingSummary();
+  }
+
+  function resetAvailability() {
+    state.availability = [];
+    state.showAllDates = false;
+    clearSelectedSlot();
+    renderAvailableDates();
+    renderTimeSlots([]);
   }
 
   function getServiceOptions(query = "") {
@@ -248,7 +217,6 @@ export default function initManualBookingPage() {
       container.classList.remove("hidden");
       return;
     }
-
     container.innerHTML = options.map((option) => `
       <button type="button" class="flex w-full items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 text-right text-sm text-loomera-textSecondary transition last:border-b-0 hover:bg-loomera-primarySoft/40 hover:text-loomera-primary" data-option-id="${option.id}">
         <span class="truncate">${renderLabel(option)}</span>
@@ -262,7 +230,8 @@ export default function initManualBookingPage() {
   }
 
   function hideAllSuggestions() {
-    [els.customerSuggestions, els.serviceSuggestions, els.stylistSuggestions].forEach((container) => container?.classList.add("hidden"));
+    [els.customerSuggestions, els.serviceSuggestions, els.stylistSuggestions]
+      .forEach((container) => container?.classList.add("hidden"));
   }
 
   function selectCustomer(id) {
@@ -274,7 +243,7 @@ export default function initManualBookingPage() {
     updateBookingSummary();
   }
 
-  function selectService(id) {
+  async function selectService(id) {
     const service = findById(state.services, id);
     if (!service) return;
     els.serviceHidden.value = service.id;
@@ -284,13 +253,13 @@ export default function initManualBookingPage() {
       els.stylistHidden.value = "";
       els.stylistInput.value = "";
     }
-    resetScheduleSelection();
+    resetAvailability();
     hideAllSuggestions();
     updateBookingSummary();
-    renderAvailabilityCalendar();
+    await loadAvailability();
   }
 
-  function selectStylist(id) {
+  async function selectStylist(id) {
     const stylist = findById(state.stylists, id);
     if (!stylist) return;
     els.stylistHidden.value = stylist.id;
@@ -300,10 +269,10 @@ export default function initManualBookingPage() {
       els.serviceHidden.value = "";
       els.serviceInput.value = "";
     }
-    resetScheduleSelection();
+    resetAvailability();
     hideAllSuggestions();
     updateBookingSummary();
-    renderAvailabilityCalendar();
+    await loadAvailability();
   }
 
   function bindAutocomplete(input, container, getOptions, renderLabel, onSelect, onClear) {
@@ -312,148 +281,88 @@ export default function initManualBookingPage() {
       renderSuggestionList(container, getOptions(input.value), renderLabel, onSelect);
     });
     input.addEventListener("input", () => {
-      if (!input.value.trim()) onClear();
+      onClear();
       renderSuggestionList(container, getOptions(input.value), renderLabel, onSelect);
     });
   }
 
-  bindAutocomplete(els.customerInput, els.customerSuggestions, getCustomerOptions, (customer) => customer.label, selectCustomer, () => {
-    els.customerHidden.value = "";
-    updateBookingSummary();
-  });
+  bindAutocomplete(
+    els.customerInput,
+    els.customerSuggestions,
+    getCustomerOptions,
+    (customer) => customer.label,
+    selectCustomer,
+    () => {
+      els.customerHidden.value = "";
+      updateBookingSummary();
+    },
+  );
 
-  bindAutocomplete(els.serviceInput, els.serviceSuggestions, getServiceOptions, (service) => service.name, selectService, () => {
-    els.serviceHidden.value = "";
-    resetScheduleSelection();
-    updateBookingSummary();
-    renderAvailabilityCalendar();
-  })
+  bindAutocomplete(
+    els.serviceInput,
+    els.serviceSuggestions,
+    getServiceOptions,
+    (service) => service.name,
+    selectService,
+    () => {
+      els.serviceHidden.value = "";
+      resetAvailability();
+      updateBookingSummary();
+    },
+  );
 
-  bindAutocomplete(els.stylistInput, els.stylistSuggestions, getStylistOptions, (stylist) => stylist.name, selectStylist, () => {
-    els.stylistHidden.value = "";
-    resetScheduleSelection();
-    updateBookingSummary();
-    renderAvailabilityCalendar();
-  });
+  bindAutocomplete(
+    els.stylistInput,
+    els.stylistSuggestions,
+    getStylistOptions,
+    (stylist) => stylist.name,
+    selectStylist,
+    () => {
+      els.stylistHidden.value = "";
+      resetAvailability();
+      updateBookingSummary();
+    },
+  );
 
   document.addEventListener("click", (event) => {
     if (!event.target.closest("[data-autocomplete-root]")) hideAllSuggestions();
   });
 
-  function mergeAvailabilityPayload(target, payload) {
-    Object.entries(payload).forEach(([stylistId, days]) => {
-      if (!target[stylistId]) target[stylistId] = {};
-      Object.entries(days || {}).forEach(([dateStr, items]) => {
-        target[stylistId][dateStr] = items || [];
-      });
-    });
+  function findAvailabilityDay(dateValue) {
+    return state.availability.find((day) => day.value === dateValue);
   }
 
-  async function loadAvailabilityForMonth(year, month) {
-    const key = `${year}-${month}`;
-    if (state.loadedMonths.has(key)) return;
-    const response = await fetch(`/orders/api/availability/?salon_id=${encodeURIComponent(state.salonId)}&month=${month}&year=${year}`, { credentials: "same-origin" });
-    if (!response.ok) throw new Error(`availability request failed: ${response.status}`);
-    const data = await response.json();
-    mergeAvailabilityPayload(state.schedules, data.schedules || {});
-    mergeAvailabilityPayload(state.bookedTimes, data.booked_times || {});
-    mergeAvailabilityPayload(state.timeOffs, data.time_offs || {});
-    state.loadedMonths.add(key);
-  }
-
-  async function preloadAvailabilityWindow() {
-    const today = JalaliDate.today();
-    for (let offset = 0; offset < AVAILABILITY_MONTHS_TO_PRELOAD; offset += 1) {
-      const target = shiftJalaliMonth(today.jy, today.jm, offset);
-      await loadAvailabilityForMonth(target.year, target.month);
-    }
-  }
-
-  function isBlockedByBookings(stylistId, dateStr, startMinutes, endMinutes) {
-    const bookings = state.bookedTimes[stylistId]?.[dateStr] || [];
-    return bookings.some((booking) => {
-      if (!booking.time) return false;
-      const bookingStart = toMinutes(booking.time);
-      const bookingEnd = booking.end_time ? toMinutes(booking.end_time) : bookingStart + Number(booking.duration || 0);
-      return slotOverlaps(startMinutes, endMinutes, bookingStart, bookingEnd);
-    });
-  }
-
-  function isBlockedByTimeOff(stylistId, dateStr, startMinutes, endMinutes) {
-    const timeOffs = state.timeOffs[stylistId]?.[dateStr] || [];
-    return timeOffs.some((item) => {
-      const offStart = item.start_time ? toMinutes(item.start_time) : 0;
-      const offEnd = item.end_time ? toMinutes(item.end_time) : 24 * 60;
-      return slotOverlaps(startMinutes, endMinutes, offStart, offEnd);
-    });
-  }
-
-  function getScheduleWindows(stylistId, dateStr, serviceId) {
-    const windows = state.schedules[stylistId]?.[dateStr] || [];
-    return windows.filter((window) => !window.service_id || String(window.service_id) === String(serviceId));
-  }
-
-  function isToday(dateStr) {
-    const now = new Date();
-    return dateStr === `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  }
-
-  function currentTimeMinutes() {
-    const now = new Date();
-    return now.getHours() * 60 + now.getMinutes();
-  }
-
-  function getAvailabilityForDate(dateStr) {
+  function getSlotsForDay(day) {
     const service = getSelectedService();
-    const stylist = getSelectedStylist();
-    if (!service || !stylist || !dateStr) return [];
-
-    const stylistId = String(stylist.id);
-    const duration = Number(service.duration || 0);
-    const windows = getScheduleWindows(stylistId, dateStr, service.id);
-    if (!windows.length) return [];
-
-    const slotMap = new Map();
-    windows.forEach((window) => {
-      const start = toMinutes(window.start_time);
-      const end = toMinutes(window.end_time);
-      for (let minute = start; minute + duration <= end; minute += SLOT_STEP) {
-        const slotEnd = minute + duration;
-        if (isToday(dateStr) && minute <= currentTimeMinutes()) continue;
-        if (isBlockedByBookings(stylistId, dateStr, minute, slotEnd)) continue;
-        if (isBlockedByTimeOff(stylistId, dateStr, minute, slotEnd)) continue;
-        const time = minutesToTime(minute);
-        if (!slotMap.has(time)) {
-          slotMap.set(time, {
-            date: dateStr,
-            time,
-            end_time: minutesToTime(slotEnd),
-          });
-        }
-      }
-    });
-    return Array.from(slotMap.values()).sort((a, b) => a.time.localeCompare(b.time));
+    const duration = Number(service?.duration || 0);
+    return (day?.times || []).map((time) => ({
+      date: day.value,
+      time,
+      end_time: minutesToTime(toMinutes(time) + duration),
+    }));
   }
 
   function renderTimeSlots(slots) {
     if (!els.timeSlots) return;
     if (!slots.length) {
       const message = state.selectedDate
-        ? 'برای این روز، زمان آزادی پیدا نشد.'
-        : 'بعد از انتخاب روز، ساعت‌های آزاد همین‌جا نمایش داده می‌شوند.';
-      els.timeSlots.innerHTML = `<div class="col-span-full rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm text-loomera-textMuted">${message}</div>`;
+        ? "برای این روز، زمان آزادی باقی نمانده است."
+        : "بعد از انتخاب یکی از روزهای آزاد، ساعت‌های قابل رزرو همین‌جا نمایش داده می‌شوند.";
+      els.timeSlots.innerHTML = `<div class="col-span-full rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-5 text-center text-sm text-loomera-textMuted">${message}</div>`;
       refreshWorkspaceLayout();
       return;
     }
+
     els.timeSlots.innerHTML = slots.map((slot) => {
       const active = state.selectedTime === slot.time;
       return `
-        <button type="button" class="manual-booking-slot rounded-[22px] border px-3 py-3 text-center transition ${active ? 'border-loomera-primary bg-loomera-primary text-white shadow-[0_16px_32px_rgba(115,92,190,0.22)]' : 'border-loomera-borderSoft bg-white text-loomera-textPrimary hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/55 hover:text-loomera-primary'}" data-time="${slot.time}">
+        <button type="button" class="manual-booking-slot rounded-[20px] border px-3 py-3 text-center transition ${active ? "border-loomera-primary bg-loomera-primary text-white shadow-[0_16px_32px_rgba(115,92,190,0.22)]" : "border-loomera-borderSoft bg-white text-loomera-textPrimary hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/55 hover:text-loomera-primary"}" data-time="${slot.time}">
           <div class="text-sm font-black">${slot.time}</div>
-          <div class="mt-1 text-[11px] ${active ? 'text-white/80' : 'text-loomera-textMuted'}">تا ${slot.end_time}</div>
+          <div class="mt-1 text-[11px] ${active ? "text-white/80" : "text-loomera-textMuted"}">تا ${slot.end_time}</div>
         </button>
       `;
     }).join("");
+
     els.timeSlots.querySelectorAll(".manual-booking-slot").forEach((button) => {
       button.addEventListener("click", () => {
         state.selectedTime = button.dataset.time;
@@ -462,139 +371,160 @@ export default function initManualBookingPage() {
         renderTimeSlots(slots);
       });
     });
-
     refreshWorkspaceLayout();
   }
 
-  async function renderAvailabilityCalendar() {
+  function selectAvailableDate(dateValue) {
+    const day = findAvailabilityDay(dateValue);
+    if (!day) return;
+    state.selectedDate = day.value;
+    state.selectedTime = "";
+    els.dateHidden.value = day.value;
+    els.timeHidden.value = "";
+    if (els.dateInput) els.dateInput.value = day.value;
+    els.selectedDateLabel.textContent = formatGregorianToJalali(day.value, { withWeekday: true });
+    updateBookingSummary();
+    renderAvailableDates();
+    renderTimeSlots(getSlotsForDay(day));
+  }
+
+  function renderAvailableDates() {
+    if (!els.calendar) return;
     const service = getSelectedService();
     const stylist = getSelectedStylist();
 
     if (!service || !stylist) {
-      els.monthTitle.textContent = 'تقویم دسترسی آرایشگر';
-      els.calendarHint.textContent = 'ابتدا خدمت و آرایشگر را انتخاب کنید';
-      els.calendar.innerHTML = '<div class="col-span-full rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm text-loomera-textMuted">بعد از انتخاب خدمت و آرایشگر، روزهای آزاد اینجا نمایش داده می‌شوند.</div>';
+      els.monthTitle.textContent = "روزهای آزاد متخصص";
+      els.calendarHint.textContent = "ابتدا خدمت و متخصص را انتخاب کن";
+      els.calendar.innerHTML = '<div class="col-span-full rounded-[22px] border border-dashed border-loomera-borderSoft bg-white/70 px-4 py-5 text-center text-sm text-loomera-textMuted">بعد از انتخاب خدمت و متخصص، فقط روزهای دارای ظرفیت نمایش داده می‌شوند.</div>';
+      els.moreDates?.classList.add("hidden");
+      refreshWorkspaceLayout();
       return;
     }
 
-    try {
-      await preloadAvailabilityWindow();
-    } catch (error) {
-      console.error("[manual-booking] availability preload failed");
-      els.calendar.innerHTML = '<div class="col-span-full rounded-[22px] border border-loomera-danger/20 bg-loomera-dangerSoft px-4 py-6 text-center text-sm text-loomera-danger">خطا در بارگذاری زمان‌های آزاد آرایشگر.</div>';
+    if (!state.availability.length) {
+      els.monthTitle.textContent = "روزهای آزاد متخصص";
+      els.calendarHint.textContent = `${service.name} • ${stylist.name}`;
+      els.calendar.innerHTML = '<div class="col-span-full rounded-[22px] border border-dashed border-loomera-borderSoft bg-white/70 px-4 py-5 text-center text-sm text-loomera-textMuted">در بازه پیش رو، زمان آزادی برای این متخصص پیدا نشد.</div>';
+      els.moreDates?.classList.add("hidden");
+      refreshWorkspaceLayout();
       return;
     }
 
-    const today = JalaliDate.today();
-    els.monthTitle.textContent = `تقویم ${today.getMonthName()} ${toPersianDigits(today.jy)}`;
-    els.calendarHint.textContent = `${service.name} • ${stylist.name}`;
+    const visibleDays = state.showAllDates
+      ? state.availability
+      : state.availability.slice(0, AVAILABLE_DATES_INITIAL_LIMIT);
+    els.monthTitle.textContent = "روزهای آزاد بعدی";
+    els.calendarHint.textContent = `${service.name} • ${stylist.name} • ${toPersianDigits(state.availability.length)} روز دارای ظرفیت`;
 
-    const days = [];
-    for (let offset = 0; offset < 45; offset += 1) {
-      days.push(today.addDays(offset));
-    }
-
-    els.calendar.innerHTML = days.map((jalaliDay) => {
-      const gregorian = jalaliDay.toGregorian();
-      const dateStr = `${gregorian.getFullYear()}-${String(gregorian.getMonth() + 1).padStart(2, "0")}-${String(gregorian.getDate()).padStart(2, "0")}`;
-      const slots = getAvailabilityForDate(dateStr);
-      const available = slots.length > 0;
-      const selected = state.selectedDate === dateStr;
-      const classes = selected
-        ? 'border-loomera-primary bg-loomera-primary text-white shadow-[0_16px_32px_rgba(115,92,190,0.22)]'
-        : available
-          ? 'border-loomera-success/20 bg-loomera-successSoft text-loomera-success hover:border-loomera-success/40 hover:bg-white'
-          : 'border-loomera-borderSoft bg-white text-loomera-textMuted cursor-not-allowed opacity-70';
-      const disabled = available ? '' : 'disabled';
+    els.calendar.innerHTML = visibleDays.map((day) => {
+      const selected = state.selectedDate === day.value;
+      const slotCount = Array.isArray(day.times) ? day.times.length : 0;
       return `
-        <button type="button" class="manual-booking-day rounded-[22px] border px-2 py-3 text-center transition ${classes}" data-date="${dateStr}" ${disabled}>
-          <div class="text-[11px] font-bold">${jalaliDay.getShortDayName()}</div>
-          <div class="mt-1 text-xl font-black">${toPersianDigits(jalaliDay.jd)}</div>
-          <div class="mt-1 text-[10px] ${selected ? 'text-white/80' : available ? 'text-loomera-success' : 'text-loomera-textMuted'}">${available ? `${toPersianDigits(slots.length)} زمان` : 'غیرفعال'}</div>
+        <button type="button" class="manual-booking-day rounded-[20px] border px-3 py-3 text-center transition ${selected ? "border-loomera-primary bg-loomera-primary text-white shadow-[0_16px_32px_rgba(115,92,190,0.22)]" : "border-loomera-success/20 bg-white text-loomera-textPrimary hover:border-loomera-success/40 hover:bg-loomera-successSoft"}" data-date="${day.value}">
+          <div class="text-xs font-black">${formatGregorianToJalali(day.value, { withWeekday: true })}</div>
+          <div class="mt-1 text-[10px] ${selected ? "text-white/80" : "text-loomera-success"}">${toPersianDigits(slotCount)} زمان آزاد</div>
         </button>
       `;
     }).join("");
 
-    els.calendar.querySelectorAll('.manual-booking-day:not([disabled])').forEach((button) => {
-      button.addEventListener('click', () => {
-        state.selectedDate = button.dataset.date;
-        els.dateHidden.value = state.selectedDate;
-        els.dateInput.value = formatGregorianToJalaliNumeric(state.selectedDate);
-        els.selectedDateLabel.textContent = formatGregorianToJalali(state.selectedDate, { withWeekday: true });
-        updateBookingSummary();
-        state.currentSlots = getAvailabilityForDate(state.selectedDate);
-        renderAvailabilityCalendar();
-        renderTimeSlots(state.currentSlots);
-      });
+    els.calendar.querySelectorAll(".manual-booking-day").forEach((button) => {
+      button.addEventListener("click", () => selectAvailableDate(button.dataset.date));
     });
 
-    if (state.selectedDate) {
-      state.currentSlots = getAvailabilityForDate(state.selectedDate);
-      if (!state.currentSlots.length) {
-        state.selectedDate = '';
-        state.selectedTime = '';
-        els.dateHidden.value = '';
-        els.timeHidden.value = '';
-        els.dateInput.value = '';
-        els.selectedDateLabel.textContent = '';
-        updateBookingSummary();
-        renderTimeSlots([]);
-      } else {
-        if (!state.currentSlots.some((slot) => slot.time === state.selectedTime)) {
-          state.selectedTime = '';
-          els.timeHidden.value = '';
-          updateBookingSummary();
-        }
-        renderTimeSlots(state.currentSlots);
+    if (els.moreDates) {
+      const hasMore = state.availability.length > AVAILABLE_DATES_INITIAL_LIMIT;
+      els.moreDates.classList.toggle("hidden", !hasMore || state.showAllDates);
+      els.moreDates.classList.toggle("flex", hasMore && !state.showAllDates);
+      if (hasMore && !state.showAllDates) {
+        const remaining = state.availability.length - AVAILABLE_DATES_INITIAL_LIMIT;
+        els.moreDates.textContent = `نمایش ${toPersianDigits(remaining)} تاریخ آزاد بیشتر`;
       }
-    } else {
-      renderTimeSlots([]);
     }
+    refreshWorkspaceLayout();
   }
 
-  function initJalaliDatePicker() {
-    if (typeof jalaliDatepicker === 'undefined' || !els.dateInput) return;
+  function renderLoadingAvailability() {
+    if (!els.calendar) return;
+    els.monthTitle.textContent = "در حال بررسی برنامه متخصص";
+    els.calendarHint.textContent = "زمان‌های آزاد واقعی در حال محاسبه هستند";
+    els.calendar.innerHTML = '<div class="col-span-full flex min-h-20 items-center justify-center gap-2 rounded-[22px] border border-dashed border-loomera-borderSoft bg-white/70 px-4 text-sm font-bold text-loomera-textMuted"><i class="fa-solid fa-spinner fa-spin text-loomera-primary" aria-hidden="true"></i><span>در حال دریافت زمان‌های آزاد…</span></div>';
+    els.moreDates?.classList.add("hidden");
+  }
+
+  async function loadAvailability() {
+    const service = getSelectedService();
+    const stylist = getSelectedStylist();
+    if (!service || !stylist) {
+      renderAvailableDates();
+      return;
+    }
+
+    const endpoint = source.dataset.availabilityUrl;
+    if (!endpoint) {
+      console.error("[manual-booking] availability URL is missing");
+      return;
+    }
+
+    const requestId = ++state.availabilityRequestId;
+    renderLoadingAvailability();
+    renderTimeSlots([]);
+
+    const query = new URLSearchParams({
+      service_id: String(service.id),
+      stylist_id: String(stylist.id),
+    });
+
     try {
-      jalaliDatepicker.startWatch({ selector: '#manualBookingDatePicker', autoHide: true });
-    } catch (error) {
-      console.warn("[manual-booking] jalaliDatepicker initialization failed");
-    }
+      const response = await fetch(`${endpoint}?${query.toString()}`, {
+        credentials: "same-origin",
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      const data = await response.json().catch(() => ({}));
+      if (requestId !== state.availabilityRequestId) return;
+      if (!response.ok) throw new Error(data.error || "زمان‌های آزاد دریافت نشد.");
 
-    els.dateInput.addEventListener('change', async () => {
-      const gregorianDate = jalaliInputToGregorian(els.dateInput.value);
-      if (!gregorianDate) return;
-      const gDate = parseIsoDate(gregorianDate);
-      const [jy, jm] = JalaliDate.gregorianToJalali(gDate.getFullYear(), gDate.getMonth() + 1, gDate.getDate());
-      try {
-        await loadAvailabilityForMonth(jy, jm);
-      } catch (error) {
-        console.error("[manual-booking] datepicker month load failed");
+      state.availability = Array.isArray(data.availability) ? data.availability : [];
+      state.showAllDates = false;
+
+      const selectedDay = findAvailabilityDay(state.selectedDate);
+      if (!selectedDay) {
+        clearSelectedSlot();
+      } else {
+        const slots = getSlotsForDay(selectedDay);
+        if (!slots.some((slot) => slot.time === state.selectedTime)) {
+          state.selectedTime = "";
+          els.timeHidden.value = "";
+        }
+        els.selectedDateLabel.textContent = formatGregorianToJalali(selectedDay.value, { withWeekday: true });
+        renderTimeSlots(slots);
       }
-      state.selectedDate = gregorianDate;
-      els.dateHidden.value = gregorianDate;
-      els.selectedDateLabel.textContent = formatGregorianToJalali(gregorianDate, { withWeekday: true });
+      renderAvailableDates();
       updateBookingSummary();
-      state.currentSlots = getAvailabilityForDate(gregorianDate);
-      if (!state.currentSlots.length) {
-        els.timeHidden.value = '';
-        state.selectedTime = '';
-        updateBookingSummary();
-      }
-      renderAvailabilityCalendar();
-      renderTimeSlots(state.currentSlots);
-    });
+    } catch (error) {
+      if (requestId !== state.availabilityRequestId) return;
+      console.error("[manual-booking] availability request failed", error);
+      state.availability = [];
+      clearSelectedSlot();
+      els.monthTitle.textContent = "زمان‌های آزاد";
+      els.calendarHint.textContent = "دریافت برنامه متخصص ناموفق بود";
+      els.calendar.innerHTML = `<div class="col-span-full rounded-[22px] border border-loomera-danger/20 bg-loomera-dangerSoft px-4 py-5 text-center text-sm text-loomera-danger">${error.message || "زمان‌های آزاد دریافت نشد."}</div>`;
+      renderTimeSlots([]);
+      refreshWorkspaceLayout();
+    }
   }
+
+  els.moreDates?.addEventListener("click", () => {
+    state.showAllDates = true;
+    renderAvailableDates();
+  });
 
   syncInputLabelsFromHidden();
-  initJalaliDatePicker();
-  renderAvailabilityCalendar();
-
-  if (state.selectedDate) {
-    state.currentSlots = getAvailabilityForDate(state.selectedDate);
-    renderTimeSlots(state.currentSlots);
-    els.selectedDateLabel.textContent = formatGregorianToJalali(state.selectedDate, { withWeekday: true });
+  renderAvailableDates();
+  renderTimeSlots([]);
+  if (getSelectedService() && getSelectedStylist()) {
+    loadAvailability();
   }
-
   updateBookingSummary();
   refreshWorkspaceLayout();
   window.setTimeout(refreshWorkspaceLayout, 80);

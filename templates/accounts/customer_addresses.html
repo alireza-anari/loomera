@@ -28,7 +28,7 @@
     </div>
   </header>
 
-  <div class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 pt-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-6 lg:pt-8 xl:px-0">
+  <div class="mx-auto w-full max-w-4xl px-4 pt-5 lg:px-6 lg:pt-8 xl:px-0">
     <section class="min-w-0 space-y-5" aria-labelledby="addressesPageTitle">
       <!-- Hero -->
       <header class="relative overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:p-7">
@@ -61,28 +61,7 @@
           </div>
         </div>
 
-        <div class="relative mt-5 grid gap-3 sm:grid-cols-3">
-          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/75 p-4 shadow-sm backdrop-blur">
-            <p class="text-xs font-black text-loomera-textMuted">تعداد آدرس‌ها</p>
-            <strong class="mt-2 block text-2xl font-black text-loomera-textPrimary">{{ addresses|length }}</strong>
-          </div>
-          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/75 p-4 shadow-sm backdrop-blur">
-            <p class="text-xs font-black text-loomera-textMuted">آدرس پیش‌فرض</p>
-            <strong class="mt-2 block truncate text-sm font-black leading-7 text-loomera-textPrimary">
-              {% if addresses %}
-                {% for address in addresses %}{% if address.is_default %}{{ address.title }}{% endif %}{% endfor %}
-              {% else %}
-                ثبت نشده
-              {% endif %}
-            </strong>
-          </div>
-          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/75 p-4 shadow-sm backdrop-blur">
-            <p class="text-xs font-black text-loomera-textMuted">وضعیت</p>
-            <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">
-              {% if addresses %}آماده استفاده{% else %}نیاز به ثبت آدرس{% endif %}
-            </strong>
-          </div>
-        </div>
+
       </header>
 
       <!-- List -->
@@ -200,39 +179,11 @@
     </section>
 
     <!-- Sidebar -->
-    <aside class="hidden lg:block">
-      <div class="sticky top-24 space-y-4">
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
-          <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-            <i class="fa-solid fa-compass" aria-hidden="true"></i>
-          </div>
-          <h2 class="mt-4 text-lg font-black text-loomera-textPrimary">راهنمای آدرس‌ها</h2>
-          <p class="mt-2 text-sm font-medium leading-7 text-loomera-textMuted">
-            آدرس پیش‌فرض برای هماهنگی سریع‌تر، نمایش جزئیات حساب و تجربه بهتر در رزروهای بعدی استفاده می‌شود.
-          </p>
-          <a href="{% url 'accounts:customer_address_add' %}"
-             class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
-            <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
-            <span>افزودن آدرس</span>
-          </a>
-        </section>
 
-        <nav class="rounded-[2rem] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft" aria-label="لینک‌های حساب کاربری">
-          <a href="{% url 'accounts:customerProfile' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
-            <i class="fa-regular fa-user text-sm" aria-hidden="true"></i>
-            <span>پروفایل من</span>
-          </a>
-          <a href="{% url 'orders:appointments' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
-            <i class="fa-regular fa-calendar-check text-sm" aria-hidden="true"></i>
-            <span>نوبت‌های من</span>
-          </a>
-        </nav>
-      </div>
-    </aside>
   </div>
 
   <!-- Mobile CTA -->
-  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.10)] backdrop-blur lg:hidden">
+  <div data-mobile-primary-action class="lm-shell-aware-mobile-action fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.10)] backdrop-blur lg:hidden">
     <div class="mx-auto flex w-full max-w-md gap-2">
       <a href="{% url 'accounts:customer_address_add' %}"
          class="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition active:scale-[0.98]">

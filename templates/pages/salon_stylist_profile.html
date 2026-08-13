@@ -1,146 +1,18 @@
 {% extends "base.html" %}
-{% load static %}
-
 {% block title %}{{ stylist.professional_display_name }} | {{ salon.salon_name }}{% endblock %}
-{% block meta_description %}پروفایل {{ stylist.professional_display_name }} در {{ salon.salon_name }}؛ مشاهده تخصص، خدمات قابل رزرو، نمونه‌کارها، امتیازها و نظرات مشتریان.{% endblock %}
-{% block head %}
-  {{ block.super }}
-  {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
-  {% if robots_noindex %}<meta name="robots" content="noindex,follow">{% endif %}
-{% endblock %}
-
+{% block meta_description %}پروفایل {{ stylist.professional_display_name }} در {{ salon.salon_name }}؛ خدمات قابل رزرو، نمونه‌کارها و نظر مشتریان.{% endblock %}
+{% block head %}{{ block.super }}{% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}{% if robots_noindex %}<meta name="robots" content="noindex,follow">{% endif %}{% endblock %}
 {% block content %}
-<main class="min-h-screen bg-loomera-bg pb-20 text-loomera-textPrimary">
-  <section class="relative overflow-hidden bg-slate-950 text-white">
-    {% if salon.banner_image %}
-      <img src="{{ salon.banner_image.url }}" alt="{{ salon.salon_name }}" class="absolute inset-0 h-full w-full object-cover opacity-35" />
-    {% endif %}
-    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-900/40"></div>
-
-    <div class="relative mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 lg:flex-row lg:items-end lg:justify-between lg:px-6 lg:py-12">
-      <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end">
-        <div class="relative h-28 w-28 shrink-0 overflow-hidden rounded-3xl border border-white/30 bg-white/10 shadow-xl">
-          {% if stylist.profile_image %}
-            <img src="{{ stylist.profile_image.url }}" alt="{{ stylist.professional_display_name }}" class="h-full w-full object-cover" />
-          {% else %}
-            <div class="flex h-full w-full items-center justify-center bg-loomera-primarySoft text-4xl font-black text-loomera-primaryText">
-              {{ stylist.professional_display_name|slice:":1" }}
-            </div>
-          {% endif %}
-        </div>
-        <div class="min-w-0">
-          <a href="{{ salon.get_absolute_url }}" class="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white/85 transition hover:bg-white/15">
-            <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
-            بازگشت به {{ salon.salon_name }}
-          </a>
-          <h1 class="text-2xl font-black lg:text-4xl">{{ stylist.professional_display_name }}</h1>
-          <p class="mt-2 text-sm font-semibold text-white/80">{{ stylist.resume_headline|default:stylist.expert|default:"متخصص زیبایی" }}</p>
-          {% if membership and membership.role_title %}
-            <p class="mt-1 text-xs text-white/60">{{ membership.role_title }} در {{ salon.salon_name }}</p>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-2 text-center sm:grid-cols-4 lg:min-w-[460px]">
-        <div class="rounded-3xl bg-white/10 p-3 backdrop-blur">
-          <p class="text-lg font-black">{{ rating_in_salon.average|floatformat:1 }}</p>
-          <p class="mt-1 text-[11px] font-bold text-white/65">امتیاز در این مجموعه</p>
-        </div>
-        <div class="rounded-3xl bg-white/10 p-3 backdrop-blur">
-          <p class="text-lg font-black">{{ rating_in_salon.count }}</p>
-          <p class="mt-1 text-[11px] font-bold text-white/65">نظر در این مجموعه</p>
-        </div>
-        <div class="rounded-3xl bg-white/10 p-3 backdrop-blur">
-          <p class="text-lg font-black">{{ completed_in_salon }}</p>
-          <p class="mt-1 text-[11px] font-bold text-white/65">نوبت تکمیل‌شده</p>
-        </div>
-        <div class="rounded-3xl bg-white/10 p-3 backdrop-blur">
-          <p class="text-lg font-black">{{ overall_rating.average|floatformat:1 }}</p>
-          <p class="mt-1 text-[11px] font-bold text-white/65">امتیاز کلی</p>
-        </div>
-      </div>
+<main class="min-h-dvh bg-loomera-bg pb-28 text-loomera-textPrimary">
+  <section class="border-b border-loomera-borderSoft bg-white"><div class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:py-8"><a href="{{ salon.get_absolute_url }}#team" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary"><i class="fa-solid fa-arrow-right text-[10px]"></i>{{ salon.salon_name }}</a><div class="mt-5 flex flex-col gap-5 sm:flex-row sm:items-center"><div class="h-24 w-24 shrink-0 overflow-hidden rounded-[26px] bg-loomera-primarySoft shadow-lm-soft">{% if stylist.profile_image %}<img src="{{ stylist.profile_image.url }}" class="h-full w-full object-cover" alt="{{ stylist.professional_display_name }}">{% else %}<span class="flex h-full w-full items-center justify-center text-3xl font-black text-loomera-primary">{{ stylist.professional_display_name|slice:":1" }}</span>{% endif %}</div><div class="min-w-0 flex-1"><p class="text-xs font-black text-loomera-primary">متخصص در {{ salon.salon_name }}</p><h1 class="mt-1 text-2xl font-black lg:text-3xl">{{ stylist.professional_display_name }}</h1><p class="mt-2 text-sm font-bold text-loomera-textSecondary">{{ stylist.resume_headline|default:stylist.expert|default:"متخصص زیبایی" }}</p>{% if membership and membership.role_title %}<p class="mt-1 text-xs text-loomera-textMuted">{{ membership.role_title }}</p>{% endif %}</div><a href="{{ book_with_stylist_url }}" class="inline-flex min-h-12 items-center justify-center rounded-full bg-loomera-primary px-6 text-sm font-black text-white">رزرو با این متخصص</a></div><div class="mt-5 grid grid-cols-3 gap-3"><div class="rounded-2xl bg-loomera-bgSubtle p-3 text-center"><p class="text-lg font-black">{{ rating_in_salon.average|floatformat:1 }}</p><p class="text-[10px] text-loomera-textMuted">امتیاز در این مجموعه</p></div><div class="rounded-2xl bg-loomera-bgSubtle p-3 text-center"><p class="text-lg font-black">{{ rating_in_salon.count }}</p><p class="text-[10px] text-loomera-textMuted">نظر مشتری</p></div><div class="rounded-2xl bg-loomera-bgSubtle p-3 text-center"><p class="text-lg font-black">{{ completed_in_salon }}</p><p class="text-[10px] text-loomera-textMuted">خدمت تکمیل‌شده</p></div></div></div></section>
+  <div class="mx-auto grid w-full max-w-6xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:py-7">
+    <div class="space-y-4">
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card"><p class="text-xs font-black text-loomera-primary">معرفی</p><h2 class="mt-1 text-lg font-black">درباره متخصص</h2><p class="mt-3 text-sm leading-8 text-loomera-textSecondary">{{ stylist.resume_summary|default:stylist.description|default:"این متخصص هنوز توضیحی برای پروفایل خود ثبت نکرده است." }}</p></section>
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card"><div class="flex items-end justify-between gap-3"><div><p class="text-xs font-black text-loomera-primary">رزرو</p><h2 class="mt-1 text-lg font-black">خدمات قابل ارائه</h2></div><a href="{{ book_with_stylist_url }}" class="text-xs font-black text-loomera-primary">مشاهده در صفحه مجموعه</a></div>{% if service_cards %}<div class="mt-4 grid gap-3 sm:grid-cols-2">{% for item in service_cards %}<article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4"><h3 class="text-sm font-black">{{ item.service.service_name }}</h3>{% if item.service.descriptions %}<p class="mt-2 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ item.service.descriptions }}</p>{% endif %}<a href="{{ item.booking_url }}" class="mt-3 inline-flex rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">انتخاب این خدمت</a></article>{% endfor %}</div>{% else %}<p class="mt-4 rounded-2xl bg-loomera-bgSubtle p-4 text-sm text-loomera-textMuted">فعلاً خدمت فعالی برای رزرو با این متخصص وجود ندارد.</p>{% endif %}</section>
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card"><p class="text-xs font-black text-loomera-primary">نمونه‌کار</p><h2 class="mt-1 text-lg font-black">کارهای اخیر</h2>{% if portfolio_items %}<div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">{% for sample in portfolio_items %}<figure class="overflow-hidden rounded-[22px] border border-loomera-borderSoft bg-white"><img src="{{ sample.sample_image.url }}" class="h-40 w-full object-cover" alt="نمونه‌کار {{ stylist.professional_display_name }}"><figcaption class="p-3">{% if sample.service %}<p class="truncate text-xs font-black">{{ sample.service.service_name }}</p>{% endif %}{% if sample.is_verified_work or sample.appointment_id %}<span class="mt-2 inline-flex rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-black text-emerald-700">تأییدشده</span>{% endif %}</figcaption></figure>{% endfor %}</div>{% else %}<p class="mt-4 rounded-2xl bg-loomera-bgSubtle p-4 text-sm text-loomera-textMuted">هنوز نمونه‌کار عمومی ثبت نشده است.</p>{% endif %}</section>
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card"><p class="text-xs font-black text-loomera-primary">نظر مشتریان</p><h2 class="mt-1 text-lg font-black">تجربه‌های ثبت‌شده در {{ salon.salon_name }}</h2>{% if reviews %}<div class="mt-4 space-y-3">{% for review in reviews %}<article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4"><div class="flex items-center justify-between gap-3"><p class="text-sm font-black">{% if review.comment_user %}{{ review.comment_user.get_fullName }}{% else %}مشتری لومرا{% endif %}</p>{% if review.scoring %}<span class="rounded-full bg-white px-2 py-1 text-xs font-black">{{ review.scoring.score }} <i class="fa-solid fa-star text-amber-400"></i></span>{% endif %}</div>{% if review.service %}<p class="mt-1 text-xs text-loomera-textMuted">{{ review.service.service_name }}</p>{% endif %}<p class="mt-2 text-sm leading-7 text-loomera-textSecondary">{{ review.comment_text }}</p></article>{% endfor %}</div>{% else %}<p class="mt-4 rounded-2xl bg-loomera-bgSubtle p-4 text-sm text-loomera-textMuted">هنوز نظری برای این متخصص ثبت نشده است.</p>{% endif %}</section>
     </div>
-  </section>
-
-  <div class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-5 px-4 py-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:px-6">
-    <div class="space-y-5">
-      <section class="lm-card lm-card--spacious rounded-3xl border border-loomera-border bg-white p-5 shadow-sm">
-        <p class="lm-overline">معرفی</p>
-        <h2 class="lm-section-title mt-1">درباره متخصص</h2>
-        <p class="mt-3 leading-8 text-slate-600">{{ stylist.resume_summary|default:stylist.description|default:"این متخصص هنوز توضیحی برای پروفایل خود ثبت نکرده است." }}</p>
-      </section>
-
-      <section class="lm-card lm-card--spacious rounded-3xl border border-loomera-border bg-white p-5 shadow-sm">
-        <div class="flex items-center justify-between gap-3">
-          <div>
-            <p class="lm-overline">رزرو در همین مجموعه</p>
-            <h2 class="lm-section-title mt-1">خدمات قابل ارائه</h2>
-          </div>
-          <a href="{{ book_with_stylist_url }}" class="lm-btn lm-btn-primary hidden rounded-full px-4 py-2 text-sm font-black sm:inline-flex">رزرو از صفحه مجموعه</a>
-        </div>
-
-        {% if service_cards %}
-          <div class="mt-4 grid gap-3 sm:grid-cols-2">
-            {% for item in service_cards %}
-              <article class="rounded-3xl border border-loomera-borderSoft bg-slate-50 p-4">
-                <h3 class="font-black text-slate-900">{{ item.service.service_name }}</h3>
-                {% if item.service.descriptions %}<p class="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{{ item.service.descriptions }}</p>{% endif %}
-                <a href="{{ item.booking_url }}" class="mt-4 inline-flex rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">رزرو این خدمت</a>
-              </article>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="mt-4 rounded-3xl bg-slate-50 p-4 text-sm text-slate-500">فعلاً خدمتی برای این متخصص در این مجموعه فعال نشده است.</p>
-        {% endif %}
-      </section>
-
-      <section class="lm-card lm-card--spacious rounded-3xl border border-loomera-border bg-white p-5 shadow-sm">
-        <p class="lm-overline">رزومه واقعی</p>
-        <h2 class="lm-section-title mt-1">نمونه‌کارها</h2>
-        {% if portfolio_items %}
-          <div class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
-            {% for sample in portfolio_items %}
-              <figure class="overflow-hidden rounded-3xl border border-loomera-borderSoft bg-white shadow-sm">
-                <img src="{{ sample.sample_image.url }}" alt="نمونه‌کار {{ stylist.professional_display_name }}" class="h-40 w-full object-cover" />
-                <figcaption class="p-3 text-xs leading-5 text-slate-600">
-                  {% if sample.service %}<strong class="block text-sm text-slate-900">{{ sample.service.service_name }}</strong>{% endif %}
-                  {% if sample.is_verified_work or sample.appointment_id %}<span class="mt-2 inline-flex rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700">کار تأییدشده</span>{% endif %}
-                </figcaption>
-              </figure>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="mt-4 rounded-3xl bg-slate-50 p-4 text-sm text-slate-500">هنوز نمونه‌کار عمومی برای این متخصص ثبت نشده است.</p>
-        {% endif %}
-      </section>
-
-      <section class="lm-card lm-card--spacious rounded-3xl border border-loomera-border bg-white p-5 shadow-sm">
-        <p class="lm-overline">نظر مشتریان</p>
-        <h2 class="lm-section-title mt-1">نظرات درباره این متخصص در {{ salon.salon_name }}</h2>
-        {% if reviews %}
-          <div class="mt-4 grid gap-3">
-            {% for review in reviews %}
-              <article class="rounded-3xl border border-loomera-borderSoft bg-slate-50 p-4">
-                <div class="flex items-center justify-between gap-3">
-                  <p class="font-black text-slate-900">{% if review.comment_user %}{{ review.comment_user.get_fullName }}{% else %}مشتری Loomera{% endif %}</p>
-                  {% if review.scoring %}<span class="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-xs font-bold text-slate-700">{{ review.scoring.score }} <i class="fa-solid fa-star text-yellow-400" aria-hidden="true"></i></span>{% endif %}
-                </div>
-                {% if review.service %}<p class="mt-1 text-xs text-slate-500">{{ review.service.service_name }}</p>{% endif %}
-                <p class="mt-3 leading-7 text-slate-600">{{ review.comment_text }}</p>
-              </article>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="mt-4 rounded-3xl bg-slate-50 p-4 text-sm text-slate-500">هنوز نظری برای این متخصص در این مجموعه ثبت نشده است.</p>
-        {% endif %}
-      </section>
-    </div>
-
-    <aside class="space-y-4 lg:sticky lg:top-24">
-
-      <a href="{{ book_with_stylist_url }}" class="lm-btn lm-btn-primary inline-flex w-full justify-center rounded-full px-5 py-4 text-sm font-black text-white">رزرو با این متخصص</a>
-      <a href="{{ salon.get_absolute_url }}#team" class="lm-btn lm-btn-secondary inline-flex w-full justify-center rounded-full border border-loomera-border px-5 py-3 text-sm font-bold text-slate-700">بازگشت به تیم مجموعه</a>
-    </aside>
+    <aside class="hidden lg:block lg:sticky lg:top-24 lg:self-start"><div class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card"><p class="text-xs font-black text-loomera-primary">رزرو سریع</p><h2 class="mt-1 text-lg font-black">{{ stylist.professional_display_name }}</h2><p class="mt-2 text-xs leading-6 text-loomera-textMuted">خدمتت را انتخاب کن و زمان‌های آزاد همین متخصص را در صفحه مجموعه ببین.</p><a href="{{ book_with_stylist_url }}" class="mt-4 inline-flex w-full items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white">انتخاب خدمت و زمان</a><a href="{{ salon.get_absolute_url }}#team" class="mt-2 inline-flex w-full items-center justify-center rounded-full border border-loomera-borderSoft px-5 py-3 text-xs font-black text-loomera-textSecondary">بازگشت به مجموعه</a></div></aside>
   </div>
 </main>
 {% endblock %}

@@ -1,590 +1,83 @@
 {% extends "dashboard_template.html" %}
 
-{% block title %}تنظیمات محیط کاری{% endblock %}
+{% block title %}تنظیمات{% endblock %}
 
 {% block content %}
 <section class="min-w-0 max-w-full space-y-5 overflow-visible" data-dashboard-workspace-root data-settings-workspace>
-  <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="workspace-settings-title">
+  <section class="relative overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="workspace-settings-title">
     <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.92),rgba(255,255,255,0))]" aria-hidden="true"></div>
 
-    <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
-      <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
-        <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div class="min-w-0">
-            <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-              <i class="fa-solid fa-gear text-[10px]" aria-hidden="true"></i>
-              <span class="truncate">Workspace settings</span>
-            </span>
+    <div class="relative flex min-w-0 flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+      <div class="min-w-0">
+        <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+          <i class="fa-solid fa-gear text-[10px]" aria-hidden="true"></i>
+          <span>تنظیمات</span>
+        </span>
 
-            <h1 id="workspace-settings-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-              تنظیمات محیط کاری مجموعه
-            </h1>
-
-            <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-              تنظیمات مجموعه، رزرو آنلاین، خدمات، تیم، مالی و حساب مدیر را مثل یک مرکز فرماندهی متمرکز مدیریت کن؛ بدون جابه‌جایی اضافه بین صفحه‌های پراکنده.
-            </p>
-          </div>
-
-          <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
-            <i class="fa-solid fa-sliders text-lg" aria-hidden="true"></i>
-          </span>
-        </div>
-
-        <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
-          {% for item in workspace_settings_summary %}
-            <article class="min-w-0 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3">
-              <p class="truncate text-[11px] font-bold text-loomera-textMuted">{{ item.label }}</p>
-              <strong class="mt-1 block truncate text-sm font-black text-loomera-textPrimary">{{ item.value }}</strong>
-            </article>
-          {% empty %}
-            <article class="min-w-0 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3 sm:col-span-3">
-              <p class="text-xs font-bold text-loomera-textMuted">خلاصه محیط کاری هنوز آماده نشده است.</p>
-            </article>
-          {% endfor %}
-        </div>
-
-        <div class="mt-6 flex flex-wrap gap-3">
-          <a href="{% url 'dashboards:home' %}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-            <i class="fa-solid fa-arrow-right text-[11px]" aria-hidden="true"></i>
-            <span>بازگشت به داشبورد</span>
-          </a>
-
-          <a href="{% url 'dashboards:salon_profile' %}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white shadow-[0_16px_34px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5 hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-            <i class="fa-solid fa-store text-[11px]" aria-hidden="true"></i>
-            <span>مشاهده پروفایل مجموعه</span>
-          </a>
-        </div>
+        <h1 id="workspace-settings-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+          تنظیمات مجموعه و حساب
+        </h1>
+        <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+          فقط تنظیماتی که رفتار مجموعه یا حساب مدیر را تغییر می‌دهند اینجا هستند؛ کارهای روزانه مثل تقویم، تیم، خدمات، مالی و گزارش‌ها از منوی اصلی مدیریت می‌شوند.
+        </p>
       </div>
 
-      <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس تنظیمات محیط کاری">
-        <div class="flex min-w-0 items-center justify-between gap-3">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-white/55">فوکوس فعلی</p>
-            <h2 class="mt-1 truncate text-lg font-black">آمادگی تنظیمات مجموعه</h2>
-          </div>
-
-          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-          </span>
-        </div>
-
-        <div class="mt-5 rounded-[22px] border border-white/10 bg-white/10 p-4" data-settings-readiness>
-          <div class="flex items-center justify-between gap-3">
-            <p class="text-xs font-black text-white/72">مسیرهای آماده</p>
-            <strong class="text-xl font-black text-white" data-settings-readiness-percent>—</strong>
-          </div>
-
-          <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/15">
-            <span class="block h-full rounded-full bg-white transition-all duration-300" style="width: 0%" data-settings-readiness-bar></span>
-          </div>
-
-          <p class="mt-3 text-xs leading-6 text-white/70" data-settings-readiness-copy>
-            وضعیت لینک‌ها و دسته‌های تنظیمات پس از بارگذاری صفحه محاسبه می‌شود.
-          </p>
-        </div>
-
-        <div class="mt-3 grid grid-cols-2 gap-3">
-          <div class="rounded-[20px] border border-white/10 bg-white/10 p-3">
-            <p class="text-[11px] font-bold text-white/55">دسته‌ها</p>
-            <strong class="mt-1 block text-lg font-black text-white">{{ workspace_settings_sections|length }}</strong>
-          </div>
-
-          <div class="rounded-[20px] border border-white/10 bg-white/10 p-3">
-            <p class="text-[11px] font-bold text-white/55">نیازمند بررسی</p>
-            <strong class="mt-1 block text-lg font-black text-white" data-settings-needs-count>—</strong>
-          </div>
-        </div>
-      </aside>
+      <a href="{% url 'dashboards:home' %}" class="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 sm:w-auto">
+        <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+        <span>بازگشت به داشبورد</span>
+      </a>
     </div>
   </section>
 
-  <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-    <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش تنظیمات محیط کاری">
-      <div class="flex min-w-max items-center gap-2">
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#settings-section-overview" aria-selected="true">
-          <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
-          <span>نمای کلی</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>{{ workspace_settings_sections|length }}</span>
-        </button>
-
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#settings-section-categories">
-          <i class="fa-solid fa-layer-group text-[10px]" aria-hidden="true"></i>
-          <span>دسته‌ها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ workspace_settings_sections|length }}</span>
-        </button>
-
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#settings-section-links">
-          <i class="fa-solid fa-link text-[10px]" aria-hidden="true"></i>
-          <span>لینک‌ها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge data-settings-links-badge>—</span>
-        </button>
-
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#settings-section-actions">
-          <i class="fa-solid fa-triangle-exclamation text-[10px]" aria-hidden="true"></i>
-          <span>نیازمند اقدام</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge data-settings-needs-badge>—</span>
-        </button>
-
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#settings-section-routes">
-          <i class="fa-solid fa-route text-[10px]" aria-hidden="true"></i>
-          <span>مسیرها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۴</span>
-        </button>
-      </div>
-    </nav>
-  </div>
-
-  <section class="rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5 lg:p-6" aria-labelledby="settings-operations-title">
-    <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">کنترل سریع تنظیمات</p>
-        <h2 id="settings-operations-title" class="mt-1 text-lg font-black text-loomera-textPrimary">جستجو و اولویت‌بندی مسیرها</h2>
-        <p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای پیدا کردن سریع تنظیمات، با نام دسته، توضیح یا لینک جستجو کن و مسیرهای ناقص را جدا ببین.</p>
-      </div>
-
-      <div class="flex min-w-0 flex-col gap-3 lg:min-w-[34rem] lg:flex-row lg:items-center">
-        <label class="relative block min-w-0 flex-1">
-          <span class="sr-only">جستجوی تنظیمات</span>
-          <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
-          <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="جستجو در تنظیمات، تیم، مالی، خدمات..." data-settings-search>
-        </label>
-
-        <div class="flex gap-2 overflow-x-auto pb-1" aria-label="فیلتر سریع تنظیمات">
-          <button type="button" class="shrink-0 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-settings-filter="all" aria-pressed="true">همه</button>
-          <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-settings-filter="ready" aria-pressed="false">آماده</button>
-          <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-settings-filter="needs-action" aria-pressed="false">نیازمند اقدام</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <details id="settings-section-overview" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">نمای کلی</p>
-        <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت تنظیمات محیط کاری</h2>
-      </div>
-
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
-
-    <div class="p-4 sm:p-5 lg:p-6">
-      <div class="grid gap-3 md:grid-cols-3">
-        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-xs font-bold text-loomera-textMuted">دسته‌های اصلی</span>
-            <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-              <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-            </span>
-          </div>
-          <strong class="mt-3 block text-xl font-black text-loomera-textPrimary">{{ workspace_settings_sections|length }}</strong>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">ساختار اصلی تنظیمات مجموعه در چند دسته عملیاتی.</p>
-        </article>
-
-        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-xs font-bold text-loomera-textMuted">لینک‌های عملیاتی</span>
-            <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-              <i class="fa-solid fa-link" aria-hidden="true"></i>
-            </span>
-          </div>
-          <strong class="mt-3 block text-xl font-black text-loomera-textPrimary" data-settings-links-count>—</strong>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">مسیرهای سریع قابل استفاده داخل همین workspace.</p>
-        </article>
-
-        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-xs font-bold text-loomera-textMuted">نیازمند اقدام</span>
-            <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-warningSoft text-loomera-warning">
-              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-            </span>
-          </div>
-          <strong class="mt-3 block text-xl font-black text-loomera-textPrimary" data-settings-needs-count-inline>—</strong>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">لینک‌هایی که هنوز route نهایی یا مسیر فعال ندارند.</p>
-        </article>
-      </div>
-
-      <div class="mt-5 rounded-[24px] border border-loomera-primary/15 bg-loomera-primarySoft/45 p-4">
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+  <section class="grid gap-4 xl:grid-cols-3" aria-label="دسته‌های تنظیمات">
+    {% for group in workspace_settings_groups %}
+      <article class="flex min-w-0 flex-col rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" data-settings-group="{{ group.key }}">
+        <div class="flex items-start gap-3">
+          <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+            <i class="{{ group.icon }}" aria-hidden="true"></i>
+          </span>
           <div class="min-w-0">
-            <h3 class="text-sm font-black text-loomera-textPrimary">اولویت پیشنهادی</h3>
-            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای بتا، اول مسیرهای رزرو آنلاین، منوی خدمات، تیم و امور مالی را کامل بررسی کن.</p>
+            <p class="text-[11px] font-black text-loomera-primaryText">{{ group.eyebrow }}</p>
+            <h2 class="mt-1 text-base font-black leading-7 text-loomera-textPrimary">{{ group.title }}</h2>
           </div>
-
-          <a href="{% url 'dashboards:online_booking' %}" class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5">
-            <span>شروع از رزرو آنلاین</span>
-            <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-          </a>
         </div>
-      </div>
-    </div>
-  </details>
 
-  <details id="settings-section-categories" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">دسته‌ها</p>
-        <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">دسته‌بندی تنظیمات</h2>
-      </div>
+        <p class="mt-4 min-h-0 text-sm leading-7 text-loomera-textMuted xl:min-h-[3.5rem]">{{ group.description }}</p>
 
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
-
-    <div class="p-4 sm:p-5 lg:p-6">
-      <div class="grid gap-4 xl:grid-cols-2" data-settings-cards-grid>
-        {% for section in workspace_settings_sections %}
-          <article class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-card sm:p-5" data-settings-card data-settings-status="{% if section.primary_url and section.primary_url != '#' %}ready{% else %}needs-action{% endif %}" data-settings-search-value="{{ section.title }} {{ section.description }} {{ section.badge }} {{ section.primary_label }}{% for link in section.links %} {{ link.label }} {{ link.meta }}{% endfor %}">
-            <div class="flex items-start justify-between gap-3">
-              <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-                <i class="{{ section.icon }}" aria-hidden="true"></i>
+        <div class="mt-5 space-y-2 border-t border-loomera-borderSoft pt-4">
+          {% for item in group.items %}
+            <a href="{{ item.url }}" class="group/item flex min-w-0 items-center gap-3 rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 px-3.5 py-3.5 transition hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-soft">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition group-hover/item:border-loomera-primary/20 group-hover/item:text-loomera-primaryText">
+                <i class="{{ item.icon }} text-sm" aria-hidden="true"></i>
               </span>
-
-              {% if section.badge %}
-                <span class="max-w-[48%] truncate rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-3 py-1 text-[11px] font-black text-loomera-textMuted">{{ section.badge }}</span>
-              {% endif %}
-            </div>
-
-            <div class="mt-4 min-w-0">
-              <h3 class="truncate text-base font-black text-loomera-textPrimary">{{ section.title }}</h3>
-              <p class="mt-2 text-sm leading-7 text-loomera-textMuted">{{ section.description }}</p>
-            </div>
-
-            <div class="mt-5 flex flex-wrap gap-2">
-              {% if section.primary_url and section.primary_url != '#' %}
-                <a href="{{ section.primary_url }}" class="inline-flex items-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white shadow-sm transition hover:opacity-95">
-                  <span>{{ section.primary_label }}</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                </a>
-              {% else %}
-                <span class="inline-flex items-center gap-2 rounded-full border border-loomera-warning/20 bg-loomera-warningSoft px-4 py-2 text-xs font-black text-loomera-warning">
-                  <i class="fa-solid fa-triangle-exclamation text-[10px]" aria-hidden="true"></i>
-                  <span>مسیر اصلی آماده نیست</span>
-                </span>
-              {% endif %}
-            </div>
-
-            <div class="mt-5 space-y-2">
-              {% for link in section.links %}
-                {% if link.url and link.url != '#' %}
-                  <a href="{{ link.url }}" class="flex min-w-0 items-center justify-between gap-3 rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3 transition hover:border-loomera-primary/25 hover:bg-white">
-                    <span class="min-w-0">
-                      <span class="block truncate text-sm font-black text-loomera-textPrimary">{{ link.label }}</span>
-                      <span class="mt-1 block truncate text-xs text-loomera-textMuted">{{ link.meta }}</span>
-                    </span>
-                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary">
-                      <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                    </span>
-                  </a>
-                {% else %}
-                  <div class="flex min-w-0 items-center justify-between gap-3 rounded-[20px] border border-loomera-warning/20 bg-loomera-warningSoft/70 px-4 py-3">
-                    <span class="min-w-0">
-                      <span class="block truncate text-sm font-black text-loomera-warning">{{ link.label }}</span>
-                      <span class="mt-1 block truncate text-xs text-loomera-warning">{{ link.meta }}</span>
-                    </span>
-                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/80 text-loomera-warning">
-                      <i class="fa-solid fa-triangle-exclamation text-[10px]" aria-hidden="true"></i>
-                    </span>
-                  </div>
-                {% endif %}
-              {% endfor %}
-            </div>
-          </article>
-        {% empty %}
-          <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted xl:col-span-2">
-            هنوز دسته‌ای برای تنظیمات محیط کاری تعریف نشده است.
-          </div>
-        {% endfor %}
-
-        <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted xl:col-span-2" data-settings-empty>
-          موردی با این جستجو یا فیلتر پیدا نشد.
+              <span class="min-w-0 flex-1">
+                <span class="block text-sm font-black leading-6 text-loomera-textPrimary">{{ item.title }}</span>
+                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">{{ item.description }}</span>
+              </span>
+              <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-loomera-textMuted transition group-hover/item:bg-loomera-primarySoft group-hover/item:text-loomera-primaryText">
+                <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+              </span>
+            </a>
+          {% endfor %}
         </div>
-      </div>
-    </div>
-  </details>
+      </article>
+    {% endfor %}
+  </section>
 
-  <details id="settings-section-links" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+  <section class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 sm:p-5" aria-labelledby="settings-legal-title">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">لینک‌ها</p>
-        <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">همه مسیرهای تنظیمات</h2>
+        <p class="text-[11px] font-black text-loomera-textMuted">اطلاعات حقوقی</p>
+        <h2 id="settings-legal-title" class="mt-1 text-sm font-black text-loomera-textPrimary">حریم خصوصی و شرایط استفاده</h2>
       </div>
-
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
-
-    <div class="p-4 sm:p-5 lg:p-6">
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3" data-settings-links-grid>
-        {% for section in workspace_settings_sections %}
-          {% for link in section.links %}
-            {% if link.url and link.url != '#' %}
-              <a href="{{ link.url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card" data-settings-link data-settings-status="ready" data-settings-search-value="{{ section.title }} {{ link.label }} {{ link.meta }}">
-                <div class="flex items-start justify-between gap-3">
-                  <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                    <i class="{{ section.icon }}" aria-hidden="true"></i>
-                  </span>
-                  <span class="rounded-full bg-loomera-successSoft px-3 py-1 text-[10px] font-black text-loomera-success">آماده</span>
-                </div>
-
-                <h3 class="mt-4 truncate text-sm font-black text-loomera-textPrimary">{{ link.label }}</h3>
-                <p class="mt-2 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ link.meta }}</p>
-                <p class="mt-3 text-[11px] font-bold text-loomera-primaryText">{{ section.title }}</p>
-              </a>
-            {% else %}
-              <article class="rounded-[24px] border border-loomera-warning/20 bg-loomera-warningSoft/60 p-4" data-settings-link data-settings-status="needs-action" data-settings-search-value="{{ section.title }} {{ link.label }} {{ link.meta }}">
-                <div class="flex items-start justify-between gap-3">
-                  <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/80 text-loomera-warning">
-                    <i class="{{ section.icon }}" aria-hidden="true"></i>
-                  </span>
-                  <span class="rounded-full bg-white/80 px-3 py-1 text-[10px] font-black text-loomera-warning">نیازمند مسیر</span>
-                </div>
-
-                <h3 class="mt-4 truncate text-sm font-black text-loomera-warning">{{ link.label }}</h3>
-                <p class="mt-2 line-clamp-2 text-xs leading-6 text-loomera-warning">{{ link.meta }}</p>
-                <p class="mt-3 text-[11px] font-bold text-loomera-warning">{{ section.title }}</p>
-              </article>
-            {% endif %}
-          {% endfor %}
+      <div class="flex flex-wrap gap-2">
+        {% for link in workspace_settings_legal_links %}
+          <a href="{{ link.url }}" class="inline-flex min-h-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:text-loomera-primaryText">
+            {{ link.label }}
+          </a>
         {% endfor %}
       </div>
     </div>
-  </details>
-
-  <details id="settings-section-actions" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">نیازمند اقدام</p>
-        <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مسیرهای ناقص یا قابل پیگیری</h2>
-      </div>
-
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
-
-    <div class="p-4 sm:p-5 lg:p-6">
-      <div class="space-y-3" data-settings-needs-list>
-        {% for section in workspace_settings_sections %}
-          {% if not section.primary_url or section.primary_url == '#' %}
-            <article class="rounded-[22px] border border-loomera-warning/20 bg-loomera-warningSoft/60 p-4" data-settings-need-item>
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <h3 class="truncate text-sm font-black text-loomera-warning">{{ section.title }}</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-warning">مسیر اصلی این دسته هنوز به route فعال وصل نیست.</p>
-                </div>
-                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/80 text-loomera-warning">
-                  <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                </span>
-              </div>
-            </article>
-          {% endif %}
-
-          {% for link in section.links %}
-            {% if not link.url or link.url == '#' %}
-              <article class="rounded-[22px] border border-loomera-warning/20 bg-loomera-warningSoft/60 p-4" data-settings-need-item>
-                <div class="flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <h3 class="truncate text-sm font-black text-loomera-warning">{{ link.label }}</h3>
-                    <p class="mt-1 text-xs leading-6 text-loomera-warning">{{ link.meta }}</p>
-                    <p class="mt-2 text-[11px] font-bold text-loomera-warning">{{ section.title }}</p>
-                  </div>
-                  <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/80 text-loomera-warning">
-                    <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
-                  </span>
-                </div>
-              </article>
-            {% endif %}
-          {% endfor %}
-        {% endfor %}
-      </div>
-
-      <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted" data-settings-needs-empty>
-        همه مسیرهای تنظیمات فعال هستند و مورد فوری برای پیگیری دیده نمی‌شود.
-      </div>
-    </div>
-  </details>
-
-  <details id="settings-section-routes" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">مسیرها</p>
-        <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">دسترسی سریع به صفحه‌های کلیدی</h2>
-      </div>
-
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
-
-    <div class="p-4 sm:p-5 lg:p-6">
-      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <a href="{% url 'dashboards:online_booking' %}" class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="fa-solid fa-globe" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">رزرو آنلاین</h3>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">کنترل صفحه عمومی و لینک سریع رزرو.</p>
-        </a>
-
-        <a href="{% url 'dashboards:service_menu' %}" class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="fa-solid fa-scissors" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">منوی خدمات</h3>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">قیمت، زمان و پوشش تیم برای خدمات.</p>
-        </a>
-
-        <a href="{% url 'dashboards:team_managment' %}" class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="fa-solid fa-user-group" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">تیم مجموعه</h3>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">اعضا، شیفت‌ها و آمادگی پذیرش رزرو.</p>
-        </a>
-
-        <a href="{% url 'dashboards:finance_hub' %}" class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="fa-solid fa-wallet" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">امور مالی</h3>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">کیف پول، شبا، برداشت و گزارش مالی.</p>
-        </a>
-      </div>
-    </div>
-  </details>
+  </section>
 </section>
-{% endblock %}
-
-{% block js %}
-  {{ block.super }}
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const root = document.querySelector("[data-settings-workspace]");
-      if (!root) return;
-
-      const toPersianDigits = function (value) {
-        return String(value).replace(/\d/g, function (digit) {
-          return "۰۱۲۳۴۵۶۷۸۹"[Number(digit)];
-        });
-      };
-
-      const searchInput = root.querySelector("[data-settings-search]");
-      const filterButtons = Array.from(root.querySelectorAll("[data-settings-filter]"));
-      const categoryCards = Array.from(root.querySelectorAll("[data-settings-card]"));
-      const linkCards = Array.from(root.querySelectorAll("[data-settings-link]"));
-      const emptyState = root.querySelector("[data-settings-empty]");
-      const needsItems = Array.from(root.querySelectorAll("[data-settings-need-item]"));
-      const needsEmpty = root.querySelector("[data-settings-needs-empty]");
-      const linksCount = root.querySelector("[data-settings-links-count]");
-      const linksBadge = root.querySelector("[data-settings-links-badge]");
-      const needsCount = root.querySelector("[data-settings-needs-count]");
-      const needsInline = root.querySelector("[data-settings-needs-count-inline]");
-      const needsBadge = root.querySelector("[data-settings-needs-badge]");
-      const readinessPercent = root.querySelector("[data-settings-readiness-percent]");
-      const readinessBar = root.querySelector("[data-settings-readiness-bar]");
-      const readinessCopy = root.querySelector("[data-settings-readiness-copy]");
-
-      let activeFilter = "all";
-
-      const normalize = function (value) {
-        return String(value || "").trim().toLowerCase();
-      };
-
-      const matchesFilter = function (element) {
-        if (activeFilter === "ready") return element.dataset.settingsStatus === "ready";
-        if (activeFilter === "needs-action") return element.dataset.settingsStatus === "needs-action";
-        return true;
-      };
-
-      const matchesSearch = function (element, query) {
-        if (!query) return true;
-        return normalize(element.dataset.settingsSearchValue || element.textContent).includes(query);
-      };
-
-      const updateFilterButtons = function () {
-        filterButtons.forEach(function (button) {
-          const active = button.dataset.settingsFilter === activeFilter;
-          button.classList.toggle("border-loomera-primary/20", active);
-          button.classList.toggle("bg-loomera-primarySoft", active);
-          button.classList.toggle("text-loomera-primaryText", active);
-          button.classList.toggle("border-loomera-borderSoft", !active);
-          button.classList.toggle("bg-white", !active);
-          button.classList.toggle("text-loomera-textSecondary", !active);
-          button.setAttribute("aria-pressed", active ? "true" : "false");
-        });
-      };
-
-      const applyFilters = function () {
-        const query = normalize(searchInput ? searchInput.value : "");
-        let visibleCategories = 0;
-
-        categoryCards.forEach(function (card) {
-          const visible = matchesFilter(card) && matchesSearch(card, query);
-          card.classList.toggle("hidden", !visible);
-          if (visible) visibleCategories += 1;
-        });
-
-        linkCards.forEach(function (card) {
-          const visible = matchesFilter(card) && matchesSearch(card, query);
-          card.classList.toggle("hidden", !visible);
-        });
-
-        if (emptyState) emptyState.classList.toggle("hidden", visibleCategories !== 0);
-        updateFilterButtons();
-
-        if (window.LoomeraDashboardWorkspace) {
-          window.LoomeraDashboardWorkspace.refresh(root);
-        }
-      };
-
-      const updateCounters = function () {
-        const totalLinks = linkCards.length;
-        const totalNeeds =
-          needsItems.length +
-          categoryCards.filter(function (card) {
-            return card.dataset.settingsStatus === "needs-action";
-          }).length;
-
-        const readyLinks = linkCards.filter(function (card) {
-          return card.dataset.settingsStatus === "ready";
-        }).length;
-
-        const readiness = totalLinks ? Math.round((readyLinks / totalLinks) * 100) : 0;
-
-        if (linksCount) linksCount.textContent = toPersianDigits(totalLinks);
-        if (linksBadge) linksBadge.textContent = toPersianDigits(totalLinks);
-        if (needsCount) needsCount.textContent = toPersianDigits(totalNeeds);
-        if (needsInline) needsInline.textContent = toPersianDigits(totalNeeds);
-        if (needsBadge) needsBadge.textContent = toPersianDigits(totalNeeds);
-        if (needsEmpty) needsEmpty.classList.toggle("hidden", totalNeeds !== 0);
-        if (readinessPercent) readinessPercent.textContent = toPersianDigits(readiness) + "٪";
-        if (readinessBar) readinessBar.style.width = readiness + "%";
-
-        if (readinessCopy) {
-          readinessCopy.textContent = totalNeeds
-            ? "چند مسیر هنوز به بررسی یا اتصال نهایی نیاز دارد."
-            : "همه مسیرهای تنظیمات فعال هستند و برای استفاده روزانه آماده‌اند.";
-        }
-      };
-
-      filterButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
-          activeFilter = button.dataset.settingsFilter || "all";
-          applyFilters();
-        });
-      });
-
-      if (searchInput) {
-        searchInput.addEventListener("input", applyFilters);
-      }
-
-      updateCounters();
-      applyFilters();
-    });
-  </script>
 {% endblock %}

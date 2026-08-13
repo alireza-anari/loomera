@@ -1,0 +1,304 @@
+/* Loomera validation & feedback contract
+   Global visual rules only: keeps backend/form logic intact while making
+   validation, errors, warnings and editable controls unmistakable. */
+
+:root,
+html[data-theme="light"] {
+  --lm-danger: #A73F51;
+  --lm-danger-soft: #FFF0F3;
+  --lm-danger-border: #E6A6B1;
+  --lm-danger-strong: #8F3042;
+  --lm-warning: #946200;
+  --lm-warning-soft: #FFF5DA;
+  --lm-warning-border: #E6C36C;
+  --lm-success: #3F7D57;
+  --lm-success-soft: #ECF7EF;
+  --lm-success-border: #A9D1B6;
+  --lm-info: #4E6FAC;
+  --lm-info-soft: #EEF3FC;
+  --lm-info-border: #B7C7E7;
+  --lm-form-border: #CFC8DC;
+  --lm-form-border-hover: #BEB4D0;
+  --lm-form-bg: #FFFFFF;
+  --lm-form-placeholder: #777086;
+}
+
+/* Form controls: a slightly stronger resting border makes editable areas
+   obvious without turning every form into a heavy boxed layout. */
+form :where(
+  input[type="text"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  input[type="search"],
+  input[type="url"],
+  input[type="file"],
+  select,
+  textarea,
+  .form-control,
+  .lm-control,
+  .lm-input,
+  .lm-select,
+  .lm-textarea
+):not(.sr-only):not([disabled]) {
+  border-color: var(--lm-form-border);
+}
+
+form :where(
+  input[type="text"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  input[type="search"],
+  input[type="url"],
+  select,
+  textarea,
+  .form-control,
+  .lm-control,
+  .lm-input,
+  .lm-select,
+  .lm-textarea
+):not(.sr-only):not([disabled]):hover {
+  border-color: var(--lm-form-border-hover);
+}
+
+form :where(
+  input[type="text"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  input[type="search"],
+  input[type="url"],
+  select,
+  textarea,
+  .form-control,
+  .lm-control,
+  .lm-input,
+  .lm-select,
+  .lm-textarea
+):not(.sr-only):not([disabled]):focus,
+form :where(
+  input[type="text"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  input[type="search"],
+  input[type="url"],
+  select,
+  textarea,
+  .form-control,
+  .lm-control,
+  .lm-input,
+  .lm-select,
+  .lm-textarea
+):not(.sr-only):not([disabled]):focus-visible {
+  border-color: var(--lm-primary) !important;
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(115, 92, 190, 0.14);
+}
+
+form :where(input, select, textarea)::placeholder {
+  color: var(--lm-form-placeholder);
+  opacity: .82;
+}
+
+/* Invalid controls. `form_interactions.js` hydrates aria-invalid/is-invalid
+   for templates that only render an error line beside a Django field. */
+form :where(
+  input,
+  select,
+  textarea,
+  .form-control,
+  .lm-control,
+  .lm-input,
+  .lm-select,
+  .lm-textarea
+)[aria-invalid="true"],
+form :where(
+  input,
+  select,
+  textarea,
+  .form-control,
+  .lm-control,
+  .lm-input,
+  .lm-select,
+  .lm-textarea
+).is-invalid,
+form .lm-field--invalid :where(input, select, textarea, .form-control, .lm-control, .lm-input, .lm-select, .lm-textarea) {
+  border-color: var(--lm-danger) !important;
+  background-color: color-mix(in srgb, var(--lm-danger-soft) 62%, white) !important;
+  color: var(--lm-text-primary);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--lm-danger) 14%, transparent);
+}
+
+form :where(input, select, textarea)[aria-invalid="true"]:focus,
+form :where(input, select, textarea).is-invalid:focus,
+form .lm-field--invalid :where(input, select, textarea):focus {
+  border-color: var(--lm-danger-strong) !important;
+  box-shadow: 0 0 0 4px rgba(167, 63, 81, .16) !important;
+}
+
+/* Compound controls used by auth/signup pages. */
+.lm-login-control:has([aria-invalid="true"]),
+.lm-signup-control:has([aria-invalid="true"]),
+.lm-auth-password-control:has([aria-invalid="true"]),
+.lm-field--invalid .lm-login-control,
+.lm-field--invalid .lm-signup-control,
+.lm-field--invalid .lm-auth-password-control {
+  border-color: var(--lm-danger) !important;
+  background: color-mix(in srgb, var(--lm-danger-soft) 72%, white) !important;
+  box-shadow: 0 0 0 4px rgba(167, 63, 81, .10) !important;
+}
+
+.lm-field--invalid .lm-field-label,
+.lm-field:has([aria-invalid="true"]) .lm-field-label {
+  color: var(--lm-danger-strong) !important;
+}
+
+/* Django and Loomera error text. */
+.errorlist,
+.lm-field-error,
+.lm-auth-field-error,
+.lm-signup-error,
+[data-field-error] {
+  color: var(--lm-danger-strong) !important;
+  font-weight: 800 !important;
+}
+
+.errorlist {
+  margin: .5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: .78rem;
+  line-height: 1.75;
+}
+
+.errorlist li + li {
+  margin-top: .2rem;
+}
+
+.errorlist.nonfield,
+.lm-form-error,
+.lm-auth-error,
+[data-form-error] {
+  border: 1px solid var(--lm-danger-border) !important;
+  border-radius: 1rem;
+  background: var(--lm-danger-soft) !important;
+  color: var(--lm-danger-strong) !important;
+  padding: .8rem 1rem;
+  font-weight: 800;
+  line-height: 1.8;
+}
+
+/* Legacy Tailwind error utilities are deliberately re-semanticized here,
+   after the palette bridge, so they cannot collapse back to neutral gray. */
+.text-red-500,
+.text-red-600,
+.text-red-700,
+.text-rose-500,
+.text-rose-600,
+.text-rose-700,
+.text-rose-800 {
+  color: var(--lm-danger-strong) !important;
+}
+
+.border-red-100,
+.border-red-200,
+.border-rose-100,
+.border-rose-200,
+.border-rose-300 {
+  border-color: var(--lm-danger-border) !important;
+}
+
+.bg-red-50,
+.bg-rose-50 {
+  background-color: var(--lm-danger-soft) !important;
+}
+
+.text-amber-500,
+.text-amber-600,
+.text-amber-700,
+.text-amber-800 {
+  color: var(--lm-warning) !important;
+}
+
+.border-amber-100,
+.border-amber-200,
+.border-amber-300 {
+  border-color: var(--lm-warning-border) !important;
+}
+
+/* Shared flash messages. */
+.lm-flash {
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 1.1rem;
+  padding: .85rem 1rem;
+  color: var(--lm-text-primary);
+  box-shadow: 0 18px 46px rgba(46, 42, 60, .14);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.lm-flash--error {
+  border-color: var(--lm-danger-border);
+  background: color-mix(in srgb, var(--lm-danger-soft) 94%, white);
+  color: var(--lm-danger-strong);
+}
+
+.lm-flash--warning {
+  border-color: var(--lm-warning-border);
+  background: color-mix(in srgb, var(--lm-warning-soft) 94%, white);
+  color: #765000;
+}
+
+.lm-flash--success {
+  border-color: var(--lm-success-border);
+  background: color-mix(in srgb, var(--lm-success-soft) 94%, white);
+  color: #2F6745;
+}
+
+.lm-flash--info {
+  border-color: var(--lm-info-border);
+  background: color-mix(in srgb, var(--lm-info-soft) 94%, white);
+  color: #3F5F9D;
+}
+
+.lm-flash--neutral {
+  border-color: var(--lm-border);
+  background: rgba(255, 255, 255, .96);
+  color: var(--lm-text-secondary);
+}
+
+.lm-flash__icon {
+  background: rgba(255, 255, 255, .74);
+  border: 1px solid currentColor;
+  border-color: color-mix(in srgb, currentColor 16%, transparent);
+}
+
+/* Disabled/readonly should be visibly different from editable controls. */
+form :where(input, select, textarea)[disabled],
+form :where(input, textarea)[readonly] {
+  border-color: var(--lm-border-soft) !important;
+  background: var(--lm-bg-subtle) !important;
+  color: var(--lm-text-muted) !important;
+}
+
+@media (max-width: 639px) {
+  .lm-flash {
+    border-radius: 1rem;
+    padding: .75rem .85rem;
+  }
+}

@@ -16,7 +16,7 @@
     </div>
 
     {% if action_label and action_url %}
-      <a href="{{ action_url }}" class="lm-btn lm-btn-primary inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(109,94,247,0.18)] transition hover:opacity-95">
+      <a href="{{ action_url }}" data-primary-action class="lm-btn lm-btn-primary inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(109,94,247,0.18)] transition hover:opacity-95">
         <span>{{ action_label }}</span>
         <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
       </a>

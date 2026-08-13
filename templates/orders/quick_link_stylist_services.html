@@ -8,7 +8,7 @@
   <!-- Mobile header -->
   <header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 backdrop-blur lg:hidden">
     <div class="flex items-center justify-between gap-3">
-      <a href="{% url 'salons:detail_salon' salon.id %}" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft" aria-label="بازگشت به مجموعه">
+      <a href="{{ salon.get_absolute_url }}" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft" aria-label="بازگشت به مجموعه">
         <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
       </a>
       <div class="min-w-0 text-center">
@@ -52,7 +52,7 @@
               </div>
             </div>
 
-            <a href="{% url 'salons:detail_salon' salon.id %}" class="hidden shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/50 lg:inline-flex">
+            <a href="{{ salon.get_absolute_url }}" class="hidden shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/50 lg:inline-flex">
               <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
               <span>بازگشت به مجموعه</span>
             </a>
@@ -201,7 +201,7 @@
   </div>
 
   <!-- Mobile sticky CTA -->
-  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur lg:hidden">
+  <div data-mobile-primary-action class="fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur lg:hidden">
     <div class="mx-auto max-w-md space-y-3">
       <div class="flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3">
         <span class="text-xs font-bold text-loomera-textMuted">خدمات انتخاب‌شده</span>

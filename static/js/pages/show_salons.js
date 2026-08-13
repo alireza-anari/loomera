@@ -21,8 +21,7 @@ function initHorizontalRails() {
 
     if (!rail) return;
 
-    const getScrollAmount = () =>
-      Math.max(260, Math.floor(rail.clientWidth * 0.78));
+    const getScrollAmount = () => Math.max(260, Math.floor(rail.clientWidth * 0.78));
 
     prev?.addEventListener("click", () => {
       rail.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
@@ -67,89 +66,73 @@ function removeFavoriteCard(button) {
 }
 
 function initFavoriteButtons() {
-  document
-    .querySelectorAll("[data-favorite-button][data-salon-id]")
-    .forEach((button) => {
-      if (button.dataset.bound === "1") return;
-      button.dataset.bound = "1";
+  document.querySelectorAll("[data-favorite-button][data-salon-id]").forEach((button) => {
+    if (button.dataset.bound === "1") return;
+    button.dataset.bound = "1";
 
-      const initialState = button.getAttribute("aria-pressed") === "true";
-      syncFavoriteIcon(button, initialState);
+    const initialState = button.getAttribute("aria-pressed") === "true";
+    syncFavoriteIcon(button, initialState);
 
-      button.addEventListener("click", async (event) => {
-        event.preventDefault();
-        event.stopPropagation();
+    button.addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
 
-        if (button.dataset.loading === "1") return;
+      if (button.dataset.loading === "1") return;
 
-        const salonId = button.dataset.salonId;
-        const endpoint = button.dataset.favoriteUrl || "/csf/add_favorite/";
+      const salonId = button.dataset.salonId;
+      const endpoint = button.dataset.favoriteUrl || "/csf/add_favorite/";
 
-        if (!salonId) return;
+      if (!salonId) return;
 
-        button.dataset.loading = "1";
-        button.classList.add("opacity-70", "pointer-events-none");
+      button.dataset.loading = "1";
+      button.classList.add("opacity-70", "pointer-events-none");
+
+      try {
+        const response = await fetch(`${endpoint}?salonId=${encodeURIComponent(salonId)}`, {
+          credentials: "same-origin",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": getCsrfToken(),
+          },
+        });
+
+        const raw = (await response.text()).trim();
+        let payload = null;
 
         try {
-          const response = await fetch(endpoint, {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              "X-Requested-With": "XMLHttpRequest",
-              "X-CSRFToken": getCsrfToken(),
-            },
-            body: new URLSearchParams({
-              salonId,
-            }),
-          });
-
-          const raw = (await response.text()).trim();
-          let payload = null;
-
-          try {
-            payload = raw ? JSON.parse(raw) : null;
-          } catch (error) {
-            payload = null;
-          }
-
-          if (response.status === 401 || response.redirected) {
-            window.location.href = buildLoginRedirectUrl();
-            return;
-          }
-
-          if (!response.ok) {
-            window.alert(
-              payload?.message || raw || "تغییر علاقه‌مندی با خطا مواجه شد.",
-            );
-            return;
-          }
-
-          const isFavorite =
-            typeof payload?.is_favorite === "boolean"
-              ? payload.is_favorite
-              : raw.includes("اضافه") ||
-                raw.includes("added") ||
-                raw.includes("true");
-
-          syncFavoriteIcon(button, isFavorite);
-
-          if (
-            !isFavorite ||
-            raw.includes("حذف") ||
-            payload?.action === "removed"
-          ) {
-            removeFavoriteCard(button);
-          }
+          payload = raw ? JSON.parse(raw) : null;
         } catch (error) {
-          console.error("[show-salons] favorite update failed");
-          window.alert("در تغییر علاقه‌مندی مشکلی پیش آمد.");
-        } finally {
-          delete button.dataset.loading;
-          button.classList.remove("opacity-70", "pointer-events-none");
+          payload = null;
         }
-      });
+
+        if (response.status === 401 || response.redirected) {
+          window.location.href = buildLoginRedirectUrl();
+          return;
+        }
+
+        if (!response.ok) {
+          window.alert(payload?.message || raw || "تغییر علاقه‌مندی با خطا مواجه شد.");
+          return;
+        }
+
+        const isFavorite = typeof payload?.is_favorite === "boolean"
+          ? payload.is_favorite
+          : raw.includes("اضافه") || raw.includes("added") || raw.includes("true");
+
+        syncFavoriteIcon(button, isFavorite);
+
+        if (!isFavorite || raw.includes("حذف") || payload?.action === "removed") {
+          removeFavoriteCard(button);
+        }
+      } catch (error) {
+        console.error("[show_salons] favorite toggle failed", error);
+        window.alert("در تغییر علاقه‌مندی مشکلی پیش آمد.");
+      } finally {
+        delete button.dataset.loading;
+        button.classList.remove("opacity-70", "pointer-events-none");
+      }
     });
+  });
 }
 
 function initSearchForm() {

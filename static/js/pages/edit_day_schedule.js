@@ -47,7 +47,7 @@ function applyPersianDateLabels() {
       target.setAttribute("lang", "fa");
     });
   } catch (error) {
-    console.warn("[edit-day-schedule] Persian date formatting failed");
+    console.warn("[edit-day-schedule] Persian date formatting failed", error);
   }
 }
 

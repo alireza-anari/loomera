@@ -10,7 +10,7 @@
              aria-label="{{ item.label }}"
              {% if item.is_active %}aria-current="page"{% endif %}
              class="lm-partner-mobile-nav__item lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if item.is_active %}is-active bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textMuted hover:bg-loomera-bgSubtle hover:text-loomera-textPrimary{% endif %}">
-            <i class="{{ item.icon }} text-sm" aria-hidden="true"></i>
+            {% include "partials/dashboard/nav_icon.html" with key=item.key %}
             <span class="max-w-full truncate">{{ item.short_label }}</span>
           </a>
         {% else %}
@@ -18,7 +18,7 @@
                 aria-label="{{ item.label }}؛ در دسترس نیست"
                 aria-disabled="true"
                 class="lm-partner-mobile-nav__item is-disabled lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold text-loomera-textMuted">
-            <i class="{{ item.icon }} text-sm" aria-hidden="true"></i>
+            {% include "partials/dashboard/nav_icon.html" with key=item.key %}
             <span class="max-w-full truncate">{{ item.short_label }}</span>
           </span>
         {% endif %}
@@ -83,13 +83,63 @@
 
     <div class="flex min-w-0 flex-1 items-stretch justify-between gap-1">
       {% for item in dashboard_mobile_nav_items|slice:"2:" %}
-        {% if item.is_available %}
+        {% if item.kind == "panel" %}
+          <div class="relative flex min-w-0 flex-1" data-mobile-management-root>
+            <button type="button"
+                    role="listitem"
+                    aria-label="{{ item.label }}"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                    aria-controls="partner-mobile-management-panel"
+                    data-mobile-management-toggle
+                    class="lm-partner-mobile-nav__item lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if item.is_active %}is-active bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textMuted hover:bg-loomera-bgSubtle hover:text-loomera-textPrimary{% endif %}">
+              {% include "partials/dashboard/nav_icon.html" with key=item.key %}
+              <span class="max-w-full truncate">{{ item.short_label }}</span>
+            </button>
+
+            <div id="partner-mobile-management-panel"
+                 class="hidden fixed inset-x-2 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] z-50 max-h-[min(66vh,32rem)] overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white p-3 shadow-[0_24px_70px_rgba(46,42,60,0.18)]"
+                 role="dialog"
+                 aria-label="{{ item.label }}"
+                 data-mobile-management-panel>
+              <div class="flex items-start justify-between gap-3 px-2 pb-3">
+                <div>
+                  <h3 class="text-sm font-black text-loomera-textPrimary">{{ item.label }}</h3>
+                  <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">{% if dashboard_role == 'stylist' %}ابزارهای شخصی و تنظیمات کاری{% else %}کارهای اصلی راه‌اندازی و مدیریت مجموعه{% endif %}</p>
+                </div>
+                <button type="button"
+                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-loomera-bgSubtle text-loomera-textSecondary"
+                        aria-label="بستن {{ item.label }}"
+                        data-mobile-management-close>
+                  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="max-h-[50vh] space-y-1.5 overflow-y-auto overscroll-contain">
+                {% for management_item in item.panel_items %}
+                  {% if management_item.is_available %}
+                    <a href="{{ management_item.url }}"
+                       class="flex items-center gap-3 rounded-2xl px-3 py-3 transition {% if management_item.is_active %}bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textSecondary hover:bg-loomera-bgSubtle{% endif %}">
+                      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm ring-1 ring-loomera-primary/10">
+                        {% include "partials/dashboard/nav_icon.html" with key=management_item.key %}
+                      </span>
+                      <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-black">{{ management_item.label }}</p>
+                        <p class="mt-0.5 truncate text-[11px] text-loomera-textMuted">{{ management_item.caption }}</p>
+                      </div>
+                      <i class="fa-solid fa-arrow-left shrink-0 text-[10px] text-loomera-textMuted" aria-hidden="true"></i>
+                    </a>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% elif item.is_available %}
           <a href="{{ item.url }}"
              role="listitem"
              aria-label="{{ item.label }}"
              {% if item.is_active %}aria-current="page"{% endif %}
              class="lm-partner-mobile-nav__item lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if item.is_active %}is-active bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textMuted hover:bg-loomera-bgSubtle hover:text-loomera-textPrimary{% endif %}">
-            <i class="{{ item.icon }} text-sm" aria-hidden="true"></i>
+            {% include "partials/dashboard/nav_icon.html" with key=item.key %}
             <span class="max-w-full truncate">{{ item.short_label }}</span>
           </a>
         {% else %}
@@ -97,7 +147,7 @@
                 aria-label="{{ item.label }}؛ در دسترس نیست"
                 aria-disabled="true"
                 class="lm-partner-mobile-nav__item is-disabled lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold text-loomera-textMuted">
-            <i class="{{ item.icon }} text-sm" aria-hidden="true"></i>
+            {% include "partials/dashboard/nav_icon.html" with key=item.key %}
             <span class="max-w-full truncate">{{ item.short_label }}</span>
           </span>
         {% endif %}

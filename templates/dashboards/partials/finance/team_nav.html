@@ -1,0 +1,8 @@
+{% url 'dashboards:finance_stylist_wallets' as finance_team_income_url %}
+{% url 'dashboards:finance_stylist_withdrawals' as finance_team_withdrawals_url %}
+<nav class="overflow-x-auto rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/90 p-1.5" aria-label="مالی متخصصان" data-team-finance-nav>
+  <div class="flex min-w-max items-center gap-1.5">
+    <a href="{{ finance_team_income_url }}" class="rounded-2xl px-4 py-2 text-xs font-black transition {% if active_team_finance == 'income' %}bg-white text-loomera-primaryText shadow-sm{% else %}text-loomera-textMuted hover:bg-white hover:text-loomera-textPrimary{% endif %}">درآمد متخصصان</a>
+    <a href="{{ finance_team_withdrawals_url }}" class="rounded-2xl px-4 py-2 text-xs font-black transition {% if active_team_finance == 'withdrawals' %}bg-white text-loomera-primaryText shadow-sm{% else %}text-loomera-textMuted hover:bg-white hover:text-loomera-textPrimary{% endif %}">برداشت متخصصان</a>
+  </div>
+</nav>

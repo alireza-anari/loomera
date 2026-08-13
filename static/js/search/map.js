@@ -157,7 +157,7 @@ function openMarkerPopup(marker, salon, mapInstance, shouldFocusList = false) {
       mapInstance.panTo(latLng, { animate: true, duration: 0.25 });
     }
   } catch (error) {
-    console.warn("[map] popup open failed");
+    console.warn("[map] open popup warning", error);
   }
 
   if (shouldFocusList) {
@@ -165,7 +165,7 @@ function openMarkerPopup(marker, salon, mapInstance, shouldFocusList = false) {
   }
 
   window.setTimeout(() => {
-    console.warn("[map] resize after marker failed");
+    try { mapInstance?.invalidateSize?.({ pan: false }); } catch (error) { console.warn("[map] invalidate after marker warning", error); }
   }, 120);
 }
 
@@ -350,10 +350,10 @@ export async function initMap() {
     });
 
     setTimeout(() => {
-      console.warn("[map] resize failed");
+      try { mapInstance.invalidateSize({ pan: false }); } catch (error) { console.warn("[map] invalidateSize warning", error); }
     }, 250);
   } catch (error) {
-    console.error("[map] initialization failed");
+    console.error("[map] init failed", error);
     showMapFallback("راه‌اندازی نقشه انجام نشد. جستجو از طریق لیست ادامه پیدا می‌کند.");
   }
 }

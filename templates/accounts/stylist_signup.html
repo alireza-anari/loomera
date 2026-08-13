@@ -1,175 +1,107 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}ثبت‌نام متخصص{% endblock %}
+{% block title %}ثبت‌نام متخصص | لومرا{% endblock %}
 {% block body_attrs %}data-page="auth" data-auth-flow="stylist-signup"{% endblock %}
-{% block main_class %}!max-w-none !px-0 !pt-0{% endblock %}
+{% block main_class %}lm-signup-main{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/pages/signup.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="relative isolate min-h-[calc(100dvh-5rem)] overflow-hidden bg-loomera-bg text-loomera-textPrimary" aria-labelledby="signup-title">
-  <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
-    <div class="absolute inset-x-0 top-0 h-[36rem] bg-[radial-gradient(circle_at_82%_8%,rgba(115,92,190,0.18),transparent_34%),radial-gradient(circle_at_12%_35%,rgba(167,200,161,0.28),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.94),rgba(249,247,253,0.96))]"></div>
-    <div class="absolute -right-28 top-20 h-80 w-80 rounded-full bg-loomera-primary/10 blur-3xl"></div>
-    <div class="absolute -left-24 bottom-10 h-96 w-96 rounded-full bg-loomera-accent/20 blur-3xl"></div>
+<section class="lm-signup-shell" aria-labelledby="signup-title">
+  <div class="lm-signup-background" aria-hidden="true">
+    <img src="{% static 'branding/auth/stylist-signup-hero.png' %}" alt="" class="lm-signup-background-image" loading="eager" decoding="async" fetchpriority="high">
+    <div class="lm-signup-background-softener"></div>
   </div>
+  <div class="lm-signup-mobile-surface" aria-hidden="true"></div>
 
-  <div class="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_520px] lg:items-start lg:px-8 lg:py-10">
-    <aside class="relative overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/70 p-5 shadow-lm-elevated backdrop-blur-xl lg:sticky lg:top-24 lg:p-7" aria-label="معرفی ثبت‌نام متخصص">
-      <div class="absolute -left-20 top-10 h-52 w-52 rounded-full bg-loomera-primarySoft blur-2xl" aria-hidden="true"></div>
-
-      <div class="relative">
-        <div class="flex items-center justify-between gap-3">
-          <a href="{% url 'salons:home' %}" class="inline-flex items-center gap-2.5 rounded-full bg-white/80 py-2 pl-3.5 pr-2 shadow-lm-soft" aria-label="صفحه اصلی Loomera">
-            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-loomera-primary/10">
-              <img src="{% static 'branding/logo/loomera-glyph-mark.png' %}" alt="" class="h-5 w-5 object-contain" loading="eager" decoding="async">
-            </span>
-            <span class="text-sm font-black leading-none tracking-tight text-loomera-primary">Loomera</span>
-          </a>
-          <span class="rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary">متخصص</span>
-        </div>
-
-        <div class="mt-8 max-w-2xl">
-          <p class="text-sm font-black text-loomera-primary">Specialist Account</p>
-          <h1 id="signup-title" class="mt-4 text-3xl font-black leading-[1.2] text-loomera-textPrimary sm:text-4xl lg:text-5xl">
-            حساب متخصص بساز
-          </h1>
-          <p class="mt-4 text-sm font-medium leading-8 text-loomera-textSecondary lg:text-base">
-            برای مدیریت پروفایل حرفه‌ای، دریافت درخواست همکاری از سالن‌ها، مشاهده نوبت‌ها و استفاده از داشبورد متخصص.
-          </p>
-        </div>
-
-        <div class="mt-7 grid gap-3">
-          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-soft">
-            <p class="text-sm font-black text-loomera-textPrimary">بعد از ثبت‌نام</p>
-            <div class="mt-4 grid gap-3" role="list">
-              <div class="flex gap-3" role="listitem">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-loomera-primarySoft text-xs text-loomera-primary">۱</span>
-                <span class="text-sm leading-7 text-loomera-textSecondary">کد تأیید برای شماره موبایل ارسال می‌شود.</span>
-              </div>
-              <div class="flex gap-3" role="listitem">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-loomera-primarySoft text-xs text-loomera-primary">۲</span>
-                <span class="text-sm leading-7 text-loomera-textSecondary">بعد از تأیید، وارد صفحه تکمیل پروفایل متخصص می‌شوی.</span>
-              </div>
-              <div class="flex gap-3" role="listitem">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-loomera-primarySoft text-xs text-loomera-primary">۳</span>
-                <span class="text-sm leading-7 text-loomera-textSecondary">اتصال به سالن از طریق درخواست همکاری در مرحله بعد تکمیل می‌شود.</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-            <p class="text-sm font-bold leading-7 text-loomera-textSecondary">
-              اگر صاحب سالن یا مجموعه هستی، مسیر ثبت سالن مناسب‌تر است.
-            </p>
-            <a href="{% url 'accounts:register' %}" class="mt-3 inline-flex w-full items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm font-black text-loomera-primary transition hover:border-loomera-primary/40">
-              ثبت سالن یا مرکز زیبایی
-            </a>
-          </div>
-        </div>
-      </div>
-    </aside>
-
-    <section class="rounded-[2rem] border border-white/80 bg-white/92 p-5 shadow-lm-elevated backdrop-blur-xl sm:p-7 lg:p-8" aria-label="فرم ثبت‌نام متخصص">
-      <div>
-        <span class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary">
-          <i class="fa-solid fa-user-check text-[10px]" aria-hidden="true"></i>
-          ثبت‌نام متخصص
-        </span>
-        <h2 class="mt-4 text-2xl font-black text-loomera-textPrimary sm:text-3xl">اطلاعات حساب</h2>
-        <p class="mt-2 text-sm leading-7 text-loomera-textMuted">شماره موبایل در مرحله بعد با کد پیامکی تأیید می‌شود.</p>
-      </div>
-
-      <form method="post" id="stylist-signup-form" class="mt-7 space-y-5" novalidate>
-        {% csrf_token %}
-
-        {% if form.non_field_errors %}
-          <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold leading-7 text-red-700" role="alert">
-            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
-          </div>
-        {% endif %}
-
-        <div class="grid gap-4 sm:grid-cols-2">
-          <label class="block" for="id_name">
-            <span class="mb-2 block text-sm font-black text-loomera-textPrimary">نام</span>
-            <input class="w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted/60 focus:border-loomera-primary focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" type="text" name="name" id="id_name" value="{{ form.name.value|default_if_none:'' }}" autocomplete="given-name" placeholder="نام">
-            {% if form.name.errors %}<small class="mt-2 block text-xs font-bold text-red-600">{{ form.name.errors.0 }}</small>{% endif %}
-          </label>
-
-          <label class="block" for="id_family">
-            <span class="mb-2 block text-sm font-black text-loomera-textPrimary">نام خانوادگی</span>
-            <input class="w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted/60 focus:border-loomera-primary focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" type="text" name="family" id="id_family" value="{{ form.family.value|default_if_none:'' }}" autocomplete="family-name" placeholder="نام خانوادگی">
-            {% if form.family.errors %}<small class="mt-2 block text-xs font-bold text-red-600">{{ form.family.errors.0 }}</small>{% endif %}
-          </label>
-        </div>
-
-        <label class="block" for="id_expert">
-          <span class="mb-2 block text-sm font-black text-loomera-textPrimary">تخصص اصلی</span>
-          <input class="w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted/60 focus:border-loomera-primary focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" type="text" name="expert" id="id_expert" value="{{ form.expert.value|default_if_none:'' }}" placeholder="مثلاً رنگ مو، ناخن، ماساژ، پوست و زیبایی">
-          {% if form.expert.errors %}<small class="mt-2 block text-xs font-bold text-red-600">{{ form.expert.errors.0 }}</small>{% endif %}
-        </label>
-
-        <label class="block" for="id_mobile_number">
-          <span class="mb-2 block text-sm font-black text-loomera-textPrimary">شماره موبایل</span>
-          <span class="flex items-center overflow-hidden rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle transition focus-within:border-loomera-primary focus-within:bg-white focus-within:ring-4 focus:ring-loomera-primary/10">
-            <span class="flex h-12 w-12 shrink-0 items-center justify-center text-loomera-primary"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></span>
-            <input class="min-w-0 flex-1 bg-transparent px-1 py-3 text-left text-sm font-black text-loomera-textPrimary outline-none placeholder:text-loomera-textMuted/60" type="tel" name="mobile_number" id="id_mobile_number" value="{{ form.mobile_number.value|default_if_none:'' }}" inputmode="numeric" autocomplete="tel" placeholder="09xxxxxxxxx" dir="ltr" required>
-          </span>
-          {% if form.mobile_number.errors %}<small class="mt-2 block text-xs font-bold text-red-600">{{ form.mobile_number.errors.0 }}</small>{% endif %}
-        </label>
-
-        <label class="block" for="id_password1">
-          <span class="mb-2 block text-sm font-black text-loomera-textPrimary">رمز عبور</span>
-          <span class="flex items-center overflow-hidden rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle transition focus-within:border-loomera-primary focus-within:bg-white focus-within:ring-4 focus:ring-loomera-primary/10">
-            <span class="flex h-12 w-12 shrink-0 items-center justify-center text-loomera-primary"><i class="fa-solid fa-key" aria-hidden="true"></i></span>
-            <input class="password-input min-w-0 flex-1 bg-transparent px-1 py-3 text-sm font-bold text-loomera-textPrimary outline-none placeholder:text-loomera-textMuted/60" type="password" name="password1" id="id_password1" autocomplete="new-password" placeholder="حداقل ۸ کاراکتر" required>
-            <button type="button" class="toggle-password flex h-12 w-12 shrink-0 items-center justify-center text-loomera-textMuted transition hover:text-loomera-primary" data-input="id_password1" aria-label="نمایش یا پنهان‌کردن رمز عبور"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
-          </span>
-          <div class="mt-2 flex gap-1" aria-hidden="true">
-            <span data-strength-bar class="h-1.5 flex-1 rounded-full bg-loomera-borderSoft"></span>
-            <span data-strength-bar class="h-1.5 flex-1 rounded-full bg-loomera-borderSoft"></span>
-            <span data-strength-bar class="h-1.5 flex-1 rounded-full bg-loomera-borderSoft"></span>
-          </div>
-          <p data-password-hint class="mt-2 text-xs font-bold leading-6 text-loomera-textMuted">
-            حداقل ۸ کاراکتر؛ ترکیب حروف و عدد بهتر است.
-          </p>
-          {% if form.password1.errors %}<small class="mt-2 block text-xs font-bold text-red-600">{{ form.password1.errors.0 }}</small>{% endif %}        
-        </label>
-
-        <label class="block" for="id_password2">
-          <span class="mb-2 block text-sm font-black text-loomera-textPrimary">تکرار رمز عبور</span>
-          <span class="flex items-center overflow-hidden rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle transition focus-within:border-loomera-primary focus-within:bg-white focus-within:ring-4 focus:ring-loomera-primary/10">
-            <span class="flex h-12 w-12 shrink-0 items-center justify-center text-loomera-primary"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span>
-            <input class="password-input min-w-0 flex-1 bg-transparent px-1 py-3 text-sm font-bold text-loomera-textPrimary outline-none placeholder:text-loomera-textMuted/60" type="password" name="password2" id="id_password2" autocomplete="new-password" placeholder="رمز عبور را دوباره وارد کن" required>
-            <button type="button" class="toggle-password flex h-12 w-12 shrink-0 items-center justify-center text-loomera-textMuted transition hover:text-loomera-primary" data-input="id_password2" aria-label="نمایش یا پنهان‌کردن رمز عبور"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
-          </span>
-          {% if form.password2.errors %}<small class="mt-2 block text-xs font-bold text-red-600">{{ form.password2.errors.0 }}</small>{% endif %}
-        </label>
-
-        <label class="flex items-start gap-3 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3">
-          <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms" class="mt-1 h-4 w-4 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary" {% if form.agree_to_terms.value %}checked{% endif %}>
-          <span class="text-xs font-bold leading-6 text-loomera-textSecondary">
-            با
-            <a href="{% url 'accounts:terms_of_use' %}" class="text-loomera-primary hover:text-loomera-primaryHover">شرایط استفاده</a>
-            و
-            <a href="{% url 'accounts:privacy_policy' %}" class="text-loomera-primary hover:text-loomera-primaryHover">حریم خصوصی</a>
-            موافقم.
-            {% if form.agree_to_terms.errors %}<small class="mt-1 block text-xs font-bold text-red-600">{{ form.agree_to_terms.errors.0 }}</small>{% endif %}
-          </span>
-        </label>
-
-        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-6 py-3.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-primary/20">
-          <span>ثبت‌نام متخصص</span>
-          <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
-        </button>
-      </form>
-
-      <div class="mt-6 flex flex-col gap-3 rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4 sm:flex-row sm:items-center sm:justify-between">
-        <p class="text-sm font-bold text-loomera-textSecondary">قبلاً حساب داری؟</p>
-        <a href="{% url 'accounts:login' %}" class="inline-flex items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm font-black text-loomera-primary transition hover:border-loomera-primary/40">
-          ورود به حساب
+  <div class="lm-signup-frame">
+    <div class="lm-signup-panel">
+      <div class="lm-signup-toolbar">
+        <a href="{% url 'salons:home' %}" class="lm-signup-brand-pill" aria-label="صفحه اصلی Loomera">
+          <img src="{% static 'branding/logo/loomera-glyph-mark.png' %}" alt="" class="lm-signup-brand-logo" loading="eager" decoding="async">
+          <span>Loomera</span>
         </a>
       </div>
-    </section>
+
+      <section class="lm-signup-card" aria-label="فرم ثبت‌نام متخصص">
+        <header>
+          <h1 id="signup-title" class="lm-signup-title"><span>ثبت‌نام </span><span class="lm-signup-title-brand">متخصص</span></h1>
+          <p class="lm-signup-subtitle">حساب حرفه‌ای خودت را بساز؛ شماره موبایل در مرحله بعد با کد پیامکی تأیید می‌شود.</p>
+        </header>
+
+        <form method="post" id="stylist-signup-form" class="lm-signup-form" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="rounded-2xl border border-red-200 bg-red-50/90 px-4 py-3 text-sm font-bold leading-7 text-red-700" role="alert">
+              {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="lm-signup-grid-2">
+            <label class="lm-signup-field" for="id_name">
+              <span class="lm-signup-label">نام</span>
+              <input class="lm-signup-input-solo" type="text" name="name" id="id_name" value="{{ form.name.value|default_if_none:'' }}" autocomplete="given-name" placeholder="نام">
+              {% if form.name.errors %}<small class="lm-signup-error">{{ form.name.errors.0 }}</small>{% endif %}
+            </label>
+            <label class="lm-signup-field" for="id_family">
+              <span class="lm-signup-label">نام خانوادگی</span>
+              <input class="lm-signup-input-solo" type="text" name="family" id="id_family" value="{{ form.family.value|default_if_none:'' }}" autocomplete="family-name" placeholder="نام خانوادگی">
+              {% if form.family.errors %}<small class="lm-signup-error">{{ form.family.errors.0 }}</small>{% endif %}
+            </label>
+          </div>
+
+          <label class="lm-signup-field" for="id_expert">
+            <span class="lm-signup-label">تخصص اصلی</span>
+            <input class="lm-signup-input-solo" type="text" name="expert" id="id_expert" value="{{ form.expert.value|default_if_none:'' }}" placeholder="مثلاً رنگ مو، ناخن، ماساژ، پوست و زیبایی">
+            {% if form.expert.errors %}<small class="lm-signup-error">{{ form.expert.errors.0 }}</small>{% endif %}
+          </label>
+
+          <label class="lm-signup-field" for="id_mobile_number">
+            <span class="lm-signup-label">شماره موبایل</span>
+            <span class="lm-signup-control">
+              <span class="lm-signup-control-icon"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></span>
+              <input class="lm-signup-input" type="tel" name="mobile_number" id="id_mobile_number" value="{{ form.mobile_number.value|default_if_none:'' }}" inputmode="numeric" autocomplete="tel" placeholder="09xxxxxxxxx" dir="ltr" required>
+            </span>
+            {% if form.mobile_number.errors %}<small class="lm-signup-error">{{ form.mobile_number.errors.0 }}</small>{% endif %}
+          </label>
+
+          <label class="lm-signup-field" for="id_password1">
+            <span class="lm-signup-label">رمز عبور</span>
+            <span class="lm-signup-control">
+              <span class="lm-signup-control-icon"><i class="fa-solid fa-key" aria-hidden="true"></i></span>
+              <input class="password-input lm-signup-input" type="password" name="password1" id="id_password1" autocomplete="new-password" placeholder="حداقل ۸ کاراکتر" required>
+              <button type="button" class="toggle-password lm-signup-password-toggle" data-input="id_password1" aria-label="نمایش یا پنهان‌کردن رمز عبور"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
+            </span>
+            <div class="lm-signup-strength" aria-hidden="true"><span data-strength-bar class="bg-loomera-borderSoft"></span><span data-strength-bar class="bg-loomera-borderSoft"></span><span data-strength-bar class="bg-loomera-borderSoft"></span></div>
+            <p data-password-hint class="lm-signup-hint">حداقل ۸ کاراکتر؛ ترکیب حروف و عدد بهتر است.</p>
+            {% if form.password1.errors %}<small class="lm-signup-error">{{ form.password1.errors.0 }}</small>{% endif %}
+          </label>
+
+          <label class="lm-signup-field" for="id_password2">
+            <span class="lm-signup-label">تکرار رمز عبور</span>
+            <span class="lm-signup-control">
+              <span class="lm-signup-control-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span>
+              <input class="password-input lm-signup-input" type="password" name="password2" id="id_password2" autocomplete="new-password" placeholder="رمز عبور را دوباره وارد کن" required>
+              <button type="button" class="toggle-password lm-signup-password-toggle" data-input="id_password2" aria-label="نمایش یا پنهان‌کردن رمز عبور"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
+            </span>
+            {% if form.password2.errors %}<small class="lm-signup-error">{{ form.password2.errors.0 }}</small>{% endif %}
+          </label>
+
+          <label class="lm-signup-terms" for="id_agree_to_terms">
+            <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms" {% if form.agree_to_terms.value %}checked{% endif %}>
+            <span>با <a href="{% url 'accounts:terms_of_use' %}">شرایط استفاده</a> و <a href="{% url 'accounts:privacy_policy' %}">حریم خصوصی</a> موافقم.</span>
+          </label>
+          {% if form.agree_to_terms.errors %}<small class="lm-signup-error">{{ form.agree_to_terms.errors.0 }}</small>{% endif %}
+
+          <button type="submit" class="lm-signup-submit"><span>ثبت‌نام متخصص</span><i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i></button>
+        </form>
+
+        <footer class="lm-signup-footer">قبلاً حساب داری؟ <a href="{% url 'accounts:login' %}">ورود</a></footer>
+      </section>
+    </div>
   </div>
 </section>
 {% endblock %}
@@ -188,7 +120,6 @@
         icon.classList.toggle('fa-eye-slash');
       });
     });
-
     var mobileInput = document.getElementById('id_mobile_number');
     if (mobileInput) {
       mobileInput.addEventListener('input', function (e) {
@@ -198,29 +129,18 @@
     var password = document.getElementById('id_password1');
     var bars = Array.from(document.querySelectorAll('[data-strength-bar]'));
     var hint = document.querySelector('[data-password-hint]');
-
     if (password && bars.length) {
       password.addEventListener('input', function () {
         var value = password.value || '';
         var score = 0;
-
         if (value.length >= 8) score++;
         if (/[A-Za-zآ-ی]/.test(value) && /\d/.test(value)) score++;
         if (value.length >= 12 || /[^A-Za-z0-9آ-ی]/.test(value)) score++;
-
         bars.forEach(function (bar, index) {
-          bar.className = 'h-1.5 flex-1 rounded-full ' + (
-            index < score ? 'bg-loomera-primary' : 'bg-loomera-borderSoft'
-          );
+          bar.className = index < score ? 'bg-loomera-primary' : 'bg-loomera-borderSoft';
         });
-
         if (hint) {
-          hint.textContent =
-            score >= 3
-              ? 'رمز قوی است.'
-              : score === 2
-                ? 'رمز قابل قبول است؛ بهتر است قوی‌تر شود.'
-                : 'حداقل ۸ کاراکتر؛ ترکیب حروف و عدد بهتر است.';
+          hint.textContent = score >= 3 ? 'رمز قوی است.' : score === 2 ? 'رمز قابل قبول است؛ بهتر است قوی‌تر شود.' : 'حداقل ۸ کاراکتر؛ ترکیب حروف و عدد بهتر است.';
         }
       });
     }

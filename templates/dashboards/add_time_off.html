@@ -1,13 +1,39 @@
 {% extends "dashboard_template.html" %}
+{% load static salons_filters %}
 {% block title %}ثبت مرخصی{% endblock %}
 {% block body_attrs %}data-page="add-time-off"{% endblock %}
 
+{% block head %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+  <style>
+    .flatpickr-calendar.noCalendar {
+      width: min(320px, calc(100vw - 24px));
+      border: 1px solid rgba(115, 92, 190, .15);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(46, 42, 60, .18);
+      font-family: inherit;
+      direction: ltr;
+    }
+    .flatpickr-calendar.noCalendar .flatpickr-time { height: 64px; max-height: 64px; border: 0; }
+    .flatpickr-calendar.noCalendar .flatpickr-time input,
+    .flatpickr-calendar.noCalendar .flatpickr-time .flatpickr-am-pm {
+      font-family: inherit;
+      font-weight: 800;
+      color: #2E2A3C;
+    }
+    .flatpickr-calendar.noCalendar .flatpickr-time input:hover,
+    .flatpickr-calendar.noCalendar .flatpickr-time input:focus { background: #F6F2FF; }
+    .flatpickr-calendar.noCalendar .numInputWrapper span { border-color: rgba(115, 92, 190, .12); }
+  </style>
+{% endblock %}
+
 {% block content %}
-  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-workspace-root data-dashboard-page="add-time-off">
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-workspace-root data-dashboard-page="add-time-off" data-direct-edit-page>
     <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="add-time-off-title">
       <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
 
-      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] xl:items-stretch">
+      <div class="relative min-w-0">
         <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
           <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0">
@@ -20,7 +46,7 @@
                 ثبت مرخصی برای {{ stylist.get_fullName }}
               </h1>
               <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-                برای {{ jalali_date_display }} مرخصی تمام‌روز یا ساعتی ثبت کن و قبل از ذخیره، اثر آن روی برنامه همان روز را ببین.
+                برای {{ stylist.get_fullName }} در {{ jalali_date_display }} مرخصی ثبت کن؛ می‌توانی کل روز یا فقط یک بازه زمانی را انتخاب کنی. پس از ثبت، برنامه همان روز متناسب با بازه مرخصی به‌روزرسانی می‌شود.
               </p>
             </div>
 
@@ -29,17 +55,7 @@
             </span>
           </div>
 
-          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
-            <a href="{{ profile_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-user text-xs" aria-hidden="true"></i>
-              <span class="truncate">پروفایل عضو</span>
-            </a>
-
-            <a href="{{ day_schedule_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-calendar-day text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">برنامه همین روز</span>
-            </a>
-
+          <div class="mt-6 flex min-w-0 justify-start">
             <a href="{{ back_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
               <i class="fa-solid fa-arrow-right text-xs text-loomera-primaryText" aria-hidden="true"></i>
               <span class="truncate">بازگشت به شیفت‌ها</span>
@@ -47,146 +63,30 @@
           </div>
         </div>
 
-        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس روز مرخصی">
-          <div class="flex min-w-0 items-center justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-white/55">فوکوس این روز</p>
-              <h2 class="mt-1 truncate text-lg font-black">اثر مرخصی روی برنامه</h2>
-            </div>
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-              <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-            </span>
-          </div>
 
-          <div class="mt-5 space-y-3">
-            {% for item in add_time_off_workspace.focus_items %}
-              <article class="min-w-0 rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <div class="flex min-w-0 items-start justify-between gap-3">
-                  <h3 class="min-w-0 flex-1 text-sm font-black leading-6 text-white">{{ item.title }}</h3>
-                  <span class="max-w-[42%] shrink-0 truncate rounded-full px-3 py-1 text-[10px] font-black {% if item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-white/10 text-white{% endif %}">
-                    {{ item.value }}
-                  </span>
-                </div>
-                <p class="mt-2 text-xs leading-6 text-white/72">{{ item.description }}</p>
-              </article>
-            {% empty %}
-              <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <h3 class="text-sm font-black text-white">وضعیت ویژه‌ای وجود ندارد</h3>
-                <p class="mt-2 text-xs leading-6 text-white/72">برای این روز مورد فوری برای بررسی ثبت نشده است.</p>
-              </article>
-            {% endfor %}
-          </div>
-        </aside>
+
       </div>
     </section>
 
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      <nav class="relative z-40 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های ثبت مرخصی">
-        <div class="flex min-w-max items-center gap-2">
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#timeoff-section-readiness" aria-controls="timeoff-section-readiness">
-            <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
-            <span>آمادگی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>۳</span>
-          </button>
 
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab data-target="#timeoff-section-form" aria-controls="timeoff-section-form">
-            <i class="fa-solid fa-pen-to-square text-[10px]" aria-hidden="true"></i>
-            <span>فرم مرخصی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۱</span>
-          </button>
 
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab data-target="#timeoff-section-impact" aria-controls="timeoff-section-impact">
-            <i class="fa-solid fa-calendar-day text-[10px]" aria-hidden="true"></i>
-            <span>اثر روی شیفت‌ها</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ add_time_off_workspace.existing_shift_count_label }}</span>
-          </button>
-
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primary" data-dashboard-workspace-tab data-target="#timeoff-section-review" aria-controls="timeoff-section-review">
-            <i class="fa-solid fa-check-double text-[10px]" aria-hidden="true"></i>
-            <span>بازبینی و ثبت</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۲</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <details id="timeoff-section-readiness" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">آمادگی ثبت مرخصی</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">چک‌لیست تصمیم‌گیری</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="grid gap-3 sm:grid-cols-3">
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-xs font-bold text-loomera-textMuted">ساعت کاری مجموعه</span>
-              <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm"><i class="fa-regular fa-clock" aria-hidden="true"></i></span>
-            </div>
-            <strong class="mt-3 block text-sm font-black leading-7 text-loomera-textPrimary">{{ add_time_off_workspace.salon_hours_label }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">مرخصی ساعتی باید با ساعت کاری روز هماهنگ باشد.</p>
-          </article>
-
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-xs font-bold text-loomera-textMuted">شیفت‌های همین روز</span>
-              <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-calendar-day" aria-hidden="true"></i></span>
-            </div>
-            <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ add_time_off_workspace.existing_shift_count_label }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">شیفت‌های متداخل با مرخصی حذف یا تحت تأثیر قرار می‌گیرند.</p>
-          </article>
-
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-xs font-bold text-loomera-textMuted">اسلات‌های زمانی</span>
-              <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-successSoft text-loomera-success"><i class="fa-solid fa-list" aria-hidden="true"></i></span>
-            </div>
-            <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ add_time_off_workspace.time_slot_count_label }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">بازه‌های قابل انتخاب بر اساس ساعت کاری مجموعه ساخته شده‌اند.</p>
-          </article>
-        </div>
-
-        <div class="mt-5 rounded-[26px] border border-loomera-primary/15 bg-loomera-primarySoft/45 p-4 sm:p-5" data-time-off-readiness-card>
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-loomera-primaryText">وضعیت فرم</p>
-              <h3 class="mt-1 text-base font-black text-loomera-textPrimary" data-time-off-readiness-title>آماده تکمیل اطلاعات</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted" data-time-off-readiness-desc>نوع مرخصی و حالت تمام‌روز یا ساعتی را مشخص کن.</p>
-            </div>
-            <div class="shrink-0 rounded-[24px] border border-white/80 bg-white/90 px-4 py-3 text-center shadow-sm">
-              <p class="text-[11px] font-bold text-loomera-textMuted">تکمیل</p>
-              <strong class="mt-1 block text-xl font-black text-loomera-primaryText" data-time-off-readiness-percent>۰٪</strong>
-            </div>
-          </div>
-          <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/80">
-            <div class="h-full w-0 rounded-full bg-loomera-primary transition-all duration-300" data-time-off-readiness-bar></div>
-          </div>
-        </div>
-      </div>
-    </details>
-
-    <form method="post" class="contents" data-time-off-form>
+    <form method="post" class="space-y-4 pb-24 lg:pb-4" data-time-off-form data-direct-edit-form>
       {% csrf_token %}
+
       {% for hidden in form.hidden_fields %}
         {{ hidden }}
       {% endfor %}
 
-      <div class="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-        <details id="timeoff-section-form" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-          <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+      <div data-lm-task-tabs-anchor="manager-time-off" data-lm-task-tabs-label="بخش‌های مرخصی"></div>
+
+      <div>
+        <section id="timeoff-section-form" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-lm-task-panel="manager-time-off" data-lm-task-key="request" data-lm-task-label="ثبت مرخصی" data-lm-task-default data-lm-task-order="1">
+          <div class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
             <div class="min-w-0">
               <p class="text-[11px] font-black text-loomera-primaryText">فرم مرخصی</p>
               <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">نوع و بازه مرخصی</h2>
             </div>
-            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-              <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-            </span>
-          </summary>
+          </div>
 
           <div class="p-4 sm:p-5 lg:p-6">
             {% if form.non_field_errors %}
@@ -205,9 +105,13 @@
               </div>
 
               <div class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-                <label class="flex cursor-pointer items-center gap-3">
-                  <input type="checkbox" data-all-day-toggle class="h-5 w-5 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20">
+                <label class="lm-provider-switch-row flex cursor-pointer items-center justify-between gap-3">
                   <span class="text-sm font-black text-loomera-textPrimary">مرخصی تمام‌روز</span>
+                  <span class="flex items-center gap-2">
+                    <input type="checkbox" data-all-day-toggle class="lm-provider-switch-input sr-only" role="switch">
+                    <span class="lm-provider-switch-track" aria-hidden="true"><span class="lm-provider-switch-thumb"></span></span>
+                    <span class="lm-provider-switch-state text-xs font-black text-loomera-textMuted"><span class="lm-provider-switch-state-off">غیرفعال</span><span class="lm-provider-switch-state-on text-loomera-primaryText">فعال</span></span>
+                  </span>
                 </label>
 
                 <p class="mt-3 text-sm leading-7 text-loomera-textMuted" data-time-off-hint>
@@ -217,16 +121,24 @@
 
               <div class="grid gap-4 md:grid-cols-2">
                 <div>
-                  <label class="mb-2 block text-xs font-black text-loomera-textMuted" for="{{ form.start_time.id_for_label }}">{{ form.start_time.label }}</label>
-                  {{ form.start_time }}
+                  <label class="mb-2 block text-xs font-black text-loomera-textMuted" for="time_off_start_picker">{{ form.start_time.label }}</label>
+                  <div class="relative">
+                    {{ form.start_time|add_class:"sr-only" }}
+                    <input id="time_off_start_picker" type="text" data-time-off-picker data-select-target="{{ form.start_time.id_for_label }}" autocomplete="off" placeholder="انتخاب ساعت" class="lm-time-field w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3.5 pl-12 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted">
+                    <button type="button" data-time-off-picker-trigger data-target-input="time_off_start_picker" class="absolute left-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl text-loomera-primaryText transition hover:bg-loomera-primarySoft disabled:cursor-not-allowed disabled:text-loomera-textMuted" aria-label="انتخاب ساعت شروع"><i class="fa-regular fa-clock" aria-hidden="true"></i></button>
+                  </div>
                   {% if form.start_time.errors %}
                     <p class="mt-2 text-xs leading-6 text-loomera-danger">{{ form.start_time.errors|join:"، " }}</p>
                   {% endif %}
                 </div>
 
                 <div>
-                  <label class="mb-2 block text-xs font-black text-loomera-textMuted" for="{{ form.end_time.id_for_label }}">{{ form.end_time.label }}</label>
-                  {{ form.end_time }}
+                  <label class="mb-2 block text-xs font-black text-loomera-textMuted" for="time_off_end_picker">{{ form.end_time.label }}</label>
+                  <div class="relative">
+                    {{ form.end_time|add_class:"sr-only" }}
+                    <input id="time_off_end_picker" type="text" data-time-off-picker data-select-target="{{ form.end_time.id_for_label }}" autocomplete="off" placeholder="انتخاب ساعت" class="lm-time-field w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3.5 pl-12 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted">
+                    <button type="button" data-time-off-picker-trigger data-target-input="time_off_end_picker" class="absolute left-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl text-loomera-primaryText transition hover:bg-loomera-primarySoft disabled:cursor-not-allowed disabled:text-loomera-textMuted" aria-label="انتخاب ساعت پایان"><i class="fa-regular fa-clock" aria-hidden="true"></i></button>
+                  </div>
                   {% if form.end_time.errors %}
                     <p class="mt-2 text-xs leading-6 text-loomera-danger">{{ form.end_time.errors|join:"، " }}</p>
                   {% endif %}
@@ -234,26 +146,19 @@
               </div>
             </div>
           </div>
-        </details>
+        </section>
 
-        <details id="timeoff-section-impact" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-          <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <section id="timeoff-section-impact" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-lm-task-panel="manager-time-off" data-lm-task-key="impact" data-lm-task-label="اثر روی برنامه" data-lm-task-order="2">
+          <div class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
             <div class="min-w-0">
               <p class="text-[11px] font-black text-loomera-primaryText">اثر روی برنامه</p>
               <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">شیفت‌های ثبت‌شده این روز</h2>
             </div>
-            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-              <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-            </span>
-          </summary>
+          </div>
 
           <div class="p-4 sm:p-5 lg:p-6">
-            <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <p class="max-w-2xl text-xs leading-6 text-loomera-textMuted">برای اینکه بدانی ثبت مرخصی چه اثری روی برنامه همین روز دارد، شیفت‌های موجود را قبل از ذخیره مرور کن.</p>
-              <a href="{{ day_schedule_url }}" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/40">
-                <i class="fa-solid fa-calendar-day text-[10px]" aria-hidden="true"></i>
-                <span>ویرایش برنامه روز</span>
-              </a>
+            <div class="mb-4">
+              <p class="max-w-2xl text-xs leading-6 text-loomera-textMuted">شیفت‌های فعلی این تاریخ را مرور کن؛ مرخصی تمام‌روز همه بازه‌های کاری همان روز را تحت تأثیر قرار می‌دهد و مرخصی ساعتی فقط با بازه‌های هم‌پوشان درگیر می‌شود.</p>
             </div>
 
             <div class="space-y-3">
@@ -273,61 +178,23 @@
               {% endfor %}
             </div>
           </div>
-        </details>
+        </section>
       </div>
 
-      <details id="timeoff-section-review" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">بازبینی و ثبت</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">خلاصه مرخصی قبل از ذخیره</h2>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-          </span>
-        </summary>
 
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.55fr)]">
-            <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-                <p class="text-[11px] font-bold text-loomera-textMuted">عضو تیم</p>
-                <strong class="mt-2 block truncate text-sm font-black text-loomera-textPrimary">{{ stylist.get_fullName }}</strong>
-              </article>
-              <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-                <p class="text-[11px] font-bold text-loomera-textMuted">تاریخ</p>
-                <strong class="mt-2 block truncate text-sm font-black text-loomera-textPrimary">{{ jalali_date_display }}</strong>
-              </article>
-              <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-                <p class="text-[11px] font-bold text-loomera-textMuted">نوع ثبت</p>
-                <strong class="mt-2 block truncate text-sm font-black text-loomera-textPrimary" data-time-off-summary-mode>تمام‌روز</strong>
-              </article>
-              <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-                <p class="text-[11px] font-bold text-loomera-textMuted">بازه زمانی</p>
-                <strong class="mt-2 block truncate text-sm font-black text-loomera-textPrimary" data-time-off-summary-range>همه روز</strong>
-              </article>
-            </div>
 
-            <aside class="rounded-[26px] border border-loomera-primary/15 bg-loomera-primarySoft/45 p-4">
-              <p class="text-[11px] font-black text-loomera-primaryText">پیام عملیاتی</p>
-              <h3 class="mt-1 text-sm font-black text-loomera-textPrimary" data-time-off-submit-title>آماده بررسی نهایی</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted" data-time-off-submit-desc>قبل از ثبت، مطمئن شو اثر حذف شیفت‌ها را بررسی کرده‌ای.</p>
-            </aside>
-          </div>
-
-          <div class="mt-5 flex flex-col gap-3 border-t border-loomera-borderSoft pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <a href="{{ back_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
-              <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
-              <span>بازگشت</span>
-            </a>
-
-            <button type="submit" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>
-              <span>ثبت مرخصی</span>
-            </button>
-          </div>
+      <div class="hidden" aria-hidden="true"><span data-time-off-summary-range>همه روز</span><span data-time-off-submit-title></span><span data-time-off-submit-desc></span></div>
+      <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-30 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur" data-direct-edit-savebar>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0"><p class="text-xs font-black text-loomera-textPrimary" data-direct-edit-status>تغییری ذخیره نشده</p><p class="mt-1 text-[11px] text-loomera-textMuted">نوع و ساعت مرخصی را تعیین کن؛ اثر روی شیفت‌ها همین بالا دیده می‌شود.</p></div>
+          <div class="flex justify-end"><button type="submit" class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white shadow-[0_14px_32px_rgba(115,92,190,0.20)] sm:flex-none"><i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i><span>ثبت مرخصی</span></button></div>
         </div>
-      </details>
+      </div>
     </form>
   </section>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
 {% endblock %}

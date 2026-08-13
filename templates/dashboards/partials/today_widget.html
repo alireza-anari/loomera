@@ -4,33 +4,40 @@
       <i class="fa-regular fa-calendar-plus text-base" aria-hidden="true"></i>
     </span>
     <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">برای امروز نوبتی ثبت نشده</h3>
-    <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برنامه روزانه مجموعه بعد از ثبت رزروهای امروز اینجا نمایش داده می‌شود.</p>
+    <p class="mt-2 text-xs leading-6 text-loomera-textMuted">رزروهای امروز بعد از ثبت، همین‌جا در دسترس مدیریت قرار می‌گیرند.</p>
   </div>
 {% else %}
-  <div class="space-y-3" role="list" aria-label="نوبت‌های امروز مجموعه">
+  <div class="grid gap-3 lg:grid-cols-2" role="list" aria-label="نوبت‌های امروز مجموعه">
     {% for item in dashboard_home.today.items %}
-      <article role="listitem" class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4 transition hover:border-loomera-primary/20 hover:bg-white">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex min-w-0 items-start gap-3">
-            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-lm-soft">
-              <i class="fa-regular fa-clock text-sm" aria-hidden="true"></i>
-            </span>
-            <div class="min-w-0">
-              <div class="flex min-w-0 flex-wrap items-center gap-2">
-                <h3 class="max-w-[160px] truncate text-sm font-black text-loomera-textPrimary sm:max-w-[220px]">{{ item.customer_name }}</h3>
-                <span class="inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
+      {% if item.detail_url and item.detail_url != '#' %}
+        <a href="{{ item.detail_url }}" role="listitem" class="block rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-soft" aria-label="مدیریت نوبت {{ item.customer_name }} در {{ item.time }}">
+      {% else %}
+        <article role="listitem" class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+      {% endif %}
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex min-w-0 items-start gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-lm-soft">
+                <i class="fa-regular fa-clock text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <div class="flex min-w-0 flex-wrap items-center gap-2">
+                  <h3 class="max-w-[180px] truncate text-sm font-black text-loomera-textPrimary sm:max-w-[240px]">{{ item.customer_name }}</h3>
+                  <span class="lm-status-chip inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
+                </div>
+                <p class="mt-2 truncate text-sm text-loomera-textSecondary">{{ item.service_name }}</p>
+                <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ item.stylist_name }}</p>
               </div>
-              <p class="mt-2 truncate text-sm text-loomera-textSecondary">{{ item.service_name }}</p>
-              <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ item.stylist_name }}</p>
-              <p class="mt-2 text-[11px] font-bold text-loomera-textMuted">{{ item.full_date_label }}</p>
+            </div>
+            <div class="shrink-0 rounded-2xl bg-white px-3 py-2 text-center shadow-lm-soft">
+              <strong class="block text-sm font-black text-loomera-textPrimary">{{ item.time }}</strong>
+              <span class="mt-1 block text-[10px] font-bold text-loomera-textMuted">{{ item.price_label }}</span>
             </div>
           </div>
-          <div class="shrink-0 rounded-2xl bg-white px-3 py-2 text-left shadow-lm-soft">
-            <strong class="block text-sm font-black text-loomera-textPrimary">{{ item.time }}</strong>
-            <span class="mt-1 block text-[10px] font-bold text-loomera-textMuted">{{ item.price_label }}</span>
-          </div>
-        </div>
-      </article>
+      {% if item.detail_url and item.detail_url != '#' %}
+        </a>
+      {% else %}
+        </article>
+      {% endif %}
     {% endfor %}
   </div>
 {% endif %}

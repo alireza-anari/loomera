@@ -86,6 +86,7 @@ export default function initSalonLocationStep() {
   const body = document.body;
   const mapEnabled = String(body.dataset.mapEnabled || "").toLowerCase() === "true";
   const reverseGeocodeUrl = body.dataset.reverseGeocodeUrl || "";
+  const mapTileUrlTemplate = body.dataset.mapTileUrlTemplate || "";
   const markerIconUrl = body.dataset.markerIconUrl || "";
   const markerIcon = createMarkerIcon(markerIconUrl);
 
@@ -115,8 +116,21 @@ export default function initSalonLocationStep() {
   let marker = null;
   let reverseLookupCounter = 0;
 
-  const tileSeedUrl = "/search/map-tiles/0/0/0/";
-  const tileUrl = tileSeedUrl.replace(/0\/0\/0\/?$/, "{z}/{x}/{y}/");
+  const tileSeedUrl = body.dataset.mapTileSeedUrl || "/search/map-tiles/0/0/0/";
+  const tileUrl = mapTileUrlTemplate
+    ? mapTileUrlTemplate
+        .replace("987654", "{z}")
+        .replace("876543", "{x}")
+        .replace("765432", "{y}")
+    : tileSeedUrl.replace(/0\/0\/0\/?$/, "{z}/{x}/{y}/");
+
+  function ensureMapDimensions() {
+    if (!mapRoot) return;
+    const computed = window.getComputedStyle(mapRoot);
+    if (parseFloat(computed.height || "0") <= 0) {
+      mapRoot.style.height = window.matchMedia("(min-width: 640px)").matches ? "400px" : "320px";
+    }
+  }
 
   function showMapWarning(message) {
     if (!warningBox) return;
@@ -280,6 +294,7 @@ export default function initSalonLocationStep() {
     try {
       await waitForLeaflet();
       patchLeafletMarkerIcon(markerIconUrl);
+      ensureMapDimensions();
 
       mapInstance = window.L.map(mapRoot, {
         zoomControl: true,
@@ -323,8 +338,15 @@ export default function initSalonLocationStep() {
         }
       }
 
+      window.requestAnimationFrame(() => {
+        try {
+          ensureMapDimensions();
+          mapInstance.invalidateSize();
+        } catch (error) {}
+      });
       window.setTimeout(() => {
         try {
+          ensureMapDimensions();
           mapInstance.invalidateSize();
         } catch (error) {}
       }, 250);

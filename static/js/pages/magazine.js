@@ -19,7 +19,7 @@ function normalizeStoriesData(value) {
     try {
       return normalizeStoriesData(JSON.parse(trimmed));
     } catch (error) {
-      console.warn("[magazine] invalid nested stories data");
+      console.warn("[magazine] invalid nested stories JSON", error);
       return [];
     }
   }
@@ -37,7 +37,7 @@ function readStoriesData() {
   try {
     return normalizeStoriesData(JSON.parse(script.textContent || "[]"));
   } catch (error) {
-    console.warn("[magazine] invalid stories data");
+    console.warn("[magazine] invalid stories JSON", error);
     return [];
   }
 }
@@ -62,7 +62,7 @@ function postStoryEvent(url, payload = {}) {
     },
     body: formData,
   }).catch((error) => {
-    console.warn("[magazine] story event request failed");
+    console.warn("[magazine] story event failed", error);
   });
 }
 
@@ -382,28 +382,68 @@ function initMagazineHorizontalRails() {
     rail.dataset.magazineRailBound = "1";
 
     let isDown = false;
+    let isDragging = false;
+    let suppressClick = false;
     let startX = 0;
     let scrollLeft = 0;
+    let pointerId = null;
+
+    const finishPointerGesture = () => {
+      if (pointerId !== null && rail.hasPointerCapture?.(pointerId)) {
+        rail.releasePointerCapture?.(pointerId);
+      }
+
+      suppressClick = isDragging;
+      isDown = false;
+      isDragging = false;
+      pointerId = null;
+
+      // A synthetic click, when emitted, fires immediately after pointerup.
+      // Clear the drag guard on the next task so a later real click is never blocked.
+      window.setTimeout(() => {
+        suppressClick = false;
+      }, 0);
+    };
 
     rail.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+
       isDown = true;
+      isDragging = false;
+      suppressClick = false;
+      pointerId = event.pointerId;
       startX = event.pageX;
       scrollLeft = rail.scrollLeft;
-      rail.setPointerCapture?.(event.pointerId);
     });
 
     rail.addEventListener("pointermove", (event) => {
       if (!isDown) return;
+
       const dx = event.pageX - startX;
-      if (Math.abs(dx) > 6) {
-        rail.scrollLeft = scrollLeft - dx;
+      if (!isDragging && Math.abs(dx) <= 6) return;
+
+      if (!isDragging) {
+        isDragging = true;
+        // Capture only after an actual drag begins. Capturing on pointerdown
+        // retargets a normal article-card click to the rail and breaks navigation.
+        rail.setPointerCapture?.(event.pointerId);
       }
+
+      event.preventDefault();
+      rail.scrollLeft = scrollLeft - dx;
     });
 
-    ["pointerup", "pointercancel", "pointerleave"].forEach((eventName) => {
-      rail.addEventListener(eventName, () => {
-        isDown = false;
-      });
+    rail.addEventListener("pointerup", finishPointerGesture);
+    rail.addEventListener("pointercancel", finishPointerGesture);
+
+    rail.addEventListener("click", (event) => {
+      if (!suppressClick) return;
+      event.preventDefault();
+      event.stopPropagation();
+    }, true);
+
+    rail.addEventListener("dragstart", (event) => {
+      if (isDown) event.preventDefault();
     });
   });
 

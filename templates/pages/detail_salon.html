@@ -2,6 +2,7 @@
 {% load static %}
 {% load humanize %}
 {% load salons_filters %}
+
 {% block title %}{{ salon.effective_seo_title }}{% endblock %}
 {% block meta_description %}{{ salon.effective_seo_description }}{% endblock %}
 {% block og_title %}{{ salon.effective_seo_title }}{% endblock %}
@@ -9,13 +10,12 @@
 {% block twitter_title %}{{ salon.effective_seo_title }}{% endblock %}
 {% block twitter_description %}{{ salon.effective_seo_description }}{% endblock %}
 {% block main_class %}lm-venue-profile-shell{% endblock %}
-{% block body_attrs %}
-  data-page="detail_salon" data-map-enabled="{{ map_provider_enabled|yesno:'true,false' }}" data-map-tile-url-template="{% url "search:map_tile_proxy" 0 0 0 %}"
-{% endblock %}
+{% block body_attrs %}data-page="detail_salon" data-map-enabled="{{ map_provider_enabled|yesno:'true,false' }}" data-map-tile-url-template="{% url "search:map_tile_proxy" 0 0 0 %}"{% endblock %}
+
 {% block vendor_css %}
-  <link rel="stylesheet"
-        href="{% static 'vendor/mapp/dist/css/mapp.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/mapp/dist/css/mapp.min.css' %}">
 {% endblock %}
+
 {% block head %}
   <link rel="canonical" href="{{ canonical_url }}">
   {% if robots_noindex %}<meta name="robots" content="noindex,follow">{% endif %}
@@ -27,45 +27,6 @@
     body[data-page="detail_salon"] { overflow-x: hidden; }
     body[data-page="detail_salon"] main { overflow-x: clip; }
     #detail_topbar { max-width: 100vw; }
-    [data-section-nav-floating] {
-      width: auto;
-      max-width: none;
-      color: #fff;
-    }
-
-    [data-section-nav-floating].is-visible {
-      opacity: 1 !important;
-      pointer-events: auto !important;
-      transform: translateY(0) scale(1) !important;
-    }
-
-    [data-section-nav-floating]:not(.is-visible) {
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(-0.5rem) scale(.98) !important;
-    }
-
-    @media (min-width: 1024px) {
-      [data-section-nav-floating] {
-        max-width: min(54vw, 680px);
-      }
-
-      [data-section-nav-floating].is-visible {
-        transform: translate(-50%, -50%) scale(1) !important;
-      }
-
-      [data-section-nav-floating]:not(.is-visible) {
-        transform: translate(-50%, -50%) scale(.96) !important;
-      }
-    }
-
-    [data-section-nav-floating] a.is-active,
-    [data-section-nav-floating] a[aria-current="true"] {
-      background: rgba(255, 255, 255, 0.18) !important;
-      color: #fff !important;
-      border-color: rgba(255, 255, 255, 0.28) !important;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-    }
     #salonMap {
       width: 100%;
       height: 320px;
@@ -87,759 +48,552 @@
     }
     #salonMap img,
     .leaflet-container img { max-width: none !important; }
-    
+
   </style>
 {% endblock %}
+
 {% block vendor_js_before_app %}
   <script src="{% static 'vendor/mapp/dist/js/jquery-3.2.1.min.js' %}"></script>
   <script src="{% static 'vendor/mapp/dist/js/mapp.env.js' %}"></script>
   <script src="{% static 'vendor/mapp/dist/js/mapp.env.bridge.js' %}"></script>
   <script src="{% static 'vendor/mapp/dist/js/mapp.min.js' %}"></script>
 {% endblock %}
+
 {% block content %}
-  <form class="hidden" aria-hidden="true">
-    {% csrf_token %}
-  </form>
-  <article class="relative min-h-dvh bg-loomera-bg pb-64 text-loomera-textPrimary sm:pb-56 lg:pb-16"
-           data-profile="venue-detail"
-           aria-labelledby="venueProfileTitle">
-    <!-- HERO / GALLERY -->
-    <section class="lm-venue-hero" aria-label="گالری {{ salon.salon_name }}">
-      {% include "components/image_slider.html" with slider_id="salon_hero" images=salon.gallery_images.all %}
-    </section>
-    <!-- TOP BAR -->
-    <div id="detail_topbar"
-         class="lm-venue-topbar fixed left-0 top-0 z-40 flex w-full items-center justify-between px-4 py-3 text-white transition-all duration-300">
-      <div class="relative z-10 flex min-w-0 max-w-[42vw] items-center gap-3 lg:max-w-[26vw]">
-        <button data-action="go-back"
-                type="button"
-                class="lm-venue-topbar__action"
-                aria-label="بازگشت">
-          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-        </button>
-        <span id="detail_scrolledTitle"
-              class="min-w-0 translate-y-2 truncate text-sm font-bold opacity-0 transition-all duration-300 lg:text-base">
-          {{ salon.salon_name }}
-        </span>
-      </div>
-      <nav id="detail_topbarTabs"
-           data-section-nav-floating
-           class="pointer-events-none fixed inset-x-3 top-[calc(var(--lm-detail-topbar-height,64px)+0.5rem)] z-50 flex translate-y-[-0.5rem] scale-[0.98] items-center justify-start overflow-x-auto rounded-full border border-white/15 bg-slate-950/75 px-2 py-1 opacity-0 shadow-lm-card backdrop-blur-xl transition-all duration-300 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:absolute lg:inset-x-auto lg:left-1/2 lg:top-1/2 lg:z-auto lg:w-[min(54vw,680px)] lg:-translate-x-1/2 lg:-translate-y-1/2 lg:justify-center"
-           aria-label="بخش‌های صفحه مجموعه در هدر">
-        <div class="flex items-center gap-1 whitespace-nowrap text-xs font-black">
-          <a href="#services"
-             class="inline-flex shrink-0 rounded-full border border-transparent px-3.5 py-2 text-white/80 transition hover:bg-white/10 hover:text-white">خدمات</a>
-          <a href="#samples"
-             class="inline-flex shrink-0 rounded-full border border-transparent px-3.5 py-2 text-white/80 transition hover:bg-white/10 hover:text-white">نمونه‌کارها</a>
-          {% if has_salon_content %}<a href="#salon-content"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-3.5 py-2 text-white/80 transition hover:bg-white/10 hover:text-white">مطالب</a>{% endif %}
-          {% if stylists %}<a href="#team"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-3.5 py-2 text-white/80 transition hover:bg-white/10 hover:text-white">متخصص‌ها</a>{% endif %}
-          <a href="#reviews"
-             class="inline-flex shrink-0 rounded-full border border-transparent px-3.5 py-2 text-white/80 transition hover:bg-white/10 hover:text-white">نظرات</a>
-          <a href="#about"
-             class="inline-flex shrink-0 rounded-full border border-transparent px-3.5 py-2 text-white/80 transition hover:bg-white/10 hover:text-white">درباره</a>
-          {% if salon.location %}<a href="#location"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-3.5 py-2 text-white/80 transition hover:bg-white/10 hover:text-white">موقعیت</a>{% endif %}
-          {% if supplementary_info %}<a href="#extra"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-3.5 py-2 text-white/80 transition hover:bg-white/10 hover:text-white">اطلاعات</a>{% endif %}
-        </div>
-      </nav>
-      <div class="relative z-10 flex items-center gap-2">
-        <button data-action="share-page"
-                type="button"
-                data-share-url="{{ request.build_absolute_uri }}"
-                data-share-title="{{ salon.salon_name|escape }}"
-                class="lm-venue-topbar__action"
-                aria-label="اشتراک‌گذاری {{ salon.salon_name }}">
-          <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
-        </button>
-        <button data-salon-id="{{ salon.id }}"
-                type="button"
-                class="lm-venue-topbar__action like-button"
-                data-favorite-url="{% url 'csf:add_favorite' %}"
-                aria-label="افزودن {{ salon.salon_name }} به علاقه‌مندی‌ها"
-                aria-pressed="{% if user.is_authenticated and is_favorite %}true{% else %}false{% endif %}">
-          <i class="{% if user.is_authenticated and is_favorite %}fa-solid fa-heart text-red-500{% else %}fa-regular fa-heart{% endif %}"
-             aria-hidden="true"></i>
-        </button>
-      </div>
+<article class="relative min-h-dvh bg-loomera-bg pb-36 text-loomera-textPrimary sm:pb-32 lg:pb-16" data-profile="venue-detail" aria-labelledby="venueProfileTitle">
+
+  <!-- HERO / GALLERY -->
+  <section class="lm-venue-hero" aria-label="گالری {{ salon.salon_name }}">
+    {% include "components/image_slider.html" with slider_id="salon_hero" images=salon.gallery_images.all %}
+  </section>
+
+  <!-- TOP BAR -->
+  <div id="detail_topbar"
+       class="lm-venue-topbar fixed left-0 top-0 z-40 flex w-full items-center justify-between px-4 py-3 text-white transition-all duration-300">
+    <div class="relative z-10 flex min-w-0 max-w-[42vw] items-center gap-3 lg:max-w-[26vw]">
+      <button data-action="go-back"
+              type="button"
+              class="lm-venue-topbar__action"
+              aria-label="بازگشت">
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </button>
+      <span id="detail_scrolledTitle" class="min-w-0 translate-y-2 truncate text-sm font-bold opacity-0 transition-all duration-300 lg:text-base">
+        {{ salon.salon_name }}
+      </span>
     </div>
-    <div class="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-5 px-4 pt-4 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-start lg:gap-7 lg:px-6 lg:pt-6 xl:px-0">
-      <div class="min-w-0 space-y-4 lg:space-y-5">
-        <!-- SUMMARY -->
-        <section class="lm-venue-summary lm-card lm-card--spacious"
-                 aria-labelledby="venueProfileTitle">
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div class="min-w-0 flex-1">
-              <div class="mb-3 flex flex-wrap items-center gap-2">
-                <span class="lm-badge lm-badge--neutral rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-bold text-loomera-primaryText">مجموعه زیبایی</span>
-                {% if salon.neighborhood %}
-                  <span class="lm-chip rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{{ salon.neighborhood.name }}</span>
-                {% elif salon.zone %}
-                  <span class="lm-chip rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">منطقه {{ salon.zone }}</span>
-                {% endif %}
-              </div>
-              <h1 id="venueProfileTitle"
-                  class="lm-page-title text-2xl font-black text-slate-950 lg:text-4xl">{{ salon.salon_name }}</h1>
-              <div class="mt-3 flex flex-col gap-2 text-sm text-slate-600 lg:flex-row lg:flex-wrap lg:items-center lg:gap-4">
-                <div class="inline-flex items-center gap-2">
-                  {% include "components/rating_stars.html" with value=average_score show_number=True count=total_reviews size_class="text-[15px]" %}
-                </div>
-                {% if salon.address %}
-                  <p class="inline-flex min-w-0 items-start gap-2 leading-6">
-                    <i class="fa-solid fa-location-dot mt-1 text-loomera-primaryText"
-                       aria-hidden="true"></i>
-                    <span>{{ salon.address }}</span>
-                  </p>
-                {% endif %}
-              </div>
+
+    <div class="relative z-10 flex items-center gap-2">
+      <button data-action="share-page"
+              type="button"
+              data-share-url="{{ request.build_absolute_uri }}"
+              data-share-title="{{ salon.salon_name|escape }}"
+              class="lm-venue-topbar__action"
+              aria-label="اشتراک‌گذاری {{ salon.salon_name }}">
+        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+      </button>
+      <button data-salon-id="{{ salon.id }}"
+              type="button"
+              class="lm-venue-topbar__action like-button"
+              data-favorite-url="{% url 'csf:add_favorite' %}"
+              aria-label="افزودن {{ salon.salon_name }} به علاقه‌مندی‌ها"
+              aria-pressed="{% if user.is_authenticated and is_favorite %}true{% else %}false{% endif %}">
+        <i class="{% if user.is_authenticated and is_favorite %}fa-solid fa-heart text-red-500{% else %}fa-regular fa-heart{% endif %}" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-5 px-4 pt-4 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-start lg:gap-7 lg:px-6 lg:pt-6 xl:px-0">
+    <div class="min-w-0 space-y-4 lg:space-y-5">
+
+      <!-- SUMMARY -->
+      <section class="lm-venue-summary lm-card lm-card--spacious" aria-labelledby="venueProfileTitle">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div class="min-w-0 flex-1">
+            <div class="mb-3 flex flex-wrap items-center gap-2">
+              <span class="lm-badge lm-badge--neutral rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-bold text-loomera-primaryText">مجموعه زیبایی</span>
+              {% if salon.neighborhood %}
+                <span class="lm-chip rounded-full bg-loomera-bgSubtle px-3 py-1 text-xs font-semibold text-loomera-textSecondary">{{ salon.neighborhood.name }}</span>
+              {% elif salon.zone %}
+                <span class="lm-chip rounded-full bg-loomera-bgSubtle px-3 py-1 text-xs font-semibold text-loomera-textSecondary">منطقه {{ salon.zone }}</span>
+              {% endif %}
             </div>
-            <div class="lm-venue-summary__actions" aria-label="اقدام‌های سریع مجموعه">
-              <a href="#services"
-                 class="lm-btn lm-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black">
-                <span>مشاهده خدمات</span>
-                <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+
+            <h1 id="venueProfileTitle" class="lm-page-title text-2xl font-black text-loomera-textPrimary lg:text-4xl">
+              {{ salon.salon_name }}
+            </h1>
+
+            <div class="mt-3 flex flex-col gap-2 text-sm text-loomera-textSecondary lg:flex-row lg:flex-wrap lg:items-center lg:gap-4">
+              <div class="inline-flex items-center gap-2">
+                {% include "components/rating_stars.html" with value=average_score show_number=True count=total_reviews size_class="text-[15px]" %}
+              </div>
+              {% if salon.address %}
+                <p class="inline-flex min-w-0 items-start gap-2 leading-6">
+                  <i class="fa-solid fa-location-dot mt-1 text-loomera-primaryText" aria-hidden="true"></i>
+                  <span>{{ salon.address }}</span>
+                </p>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="lm-venue-summary__actions" aria-label="اقدام‌های سریع مجموعه">
+            <a href="#services" class="lm-btn lm-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black">
+              <span>مشاهده خدمات</span>
+              <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+            </a>
+            {% if salon.phone_number %}
+              <a href="tel:{{ salon.phone_number }}" class="lm-btn lm-btn-secondary inline-flex items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold" aria-label="تماس با {{ salon.salon_name }}">
+                <i class="fa-solid fa-phone text-xs" aria-hidden="true"></i>
+                <span>تماس</span>
               </a>
-              {% if salon.phone_number %}
-                <a href="tel:{{ salon.phone_number }}"
-                   class="lm-btn lm-btn-secondary inline-flex items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold"
-                   aria-label="تماس با {{ salon.salon_name }}">
-                  <i class="fa-solid fa-phone text-xs" aria-hidden="true"></i>
-                  <span>تماس</span>
-                </a>
-              {% endif %}
-              {% if salon.location %}
-                <a href="#location"
-                   class="lm-btn lm-btn-secondary inline-flex items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold">
-                  <i class="fa-solid fa-location-arrow text-xs" aria-hidden="true"></i>
-                  <span>مسیر</span>
-                </a>
-              {% endif %}
-            </div>
-          </div>
-        </section>
-        <!-- SECTION NAV -->
-        <nav data-section-nav
-             class="sticky top-[calc(var(--lm-detail-topbar-height,64px)-1.25rem)] z-30 -mx-4 overflow-x-auto border-y border-loomera-borderSoft bg-white/95 px-4 py-2 shadow-lm-soft backdrop-blur-md transition-opacity duration-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:rounded-3xl md:border"
-             aria-label="بخش‌های صفحه مجموعه">
-          <ul class="flex whitespace-nowrap text-sm font-bold" role="list">
-            <li><a href="#services"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">خدمات</a></li>
-            <li><a href="#samples"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">نمونه‌کارها</a></li>
-            {% if has_salon_content %}
-              <li><a href="#salon-content"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">مطالب</a></li>
             {% endif %}
-            {% if stylists %}
-              <li><a href="#team"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">متخصص‌ها</a></li>
-            {% endif %}
-            <li><a href="#reviews"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">نظرات</a></li>
-            <li><a href="#about"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">درباره</a></li>
             {% if salon.location %}
-              <li><a href="#location"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">موقعیت</a></li>
+              <a href="#location" class="lm-btn lm-btn-secondary inline-flex items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold">
+                <i class="fa-solid fa-location-arrow text-xs" aria-hidden="true"></i>
+                <span>مسیر</span>
+              </a>
             {% endif %}
-            {% if supplementary_info %}
-              <li><a href="#extra"
-   class="inline-flex shrink-0 rounded-full border border-transparent px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">اطلاعات</a></li>
-            {% endif %}
-          </ul>
-        </nav>
-        <!-- SERVICES -->
-        <section id="services"
-                 class="lm-venue-section lm-service-selection-section lm-card lm-card--spacious scroll-mt-32 lg:scroll-mt-40"
-                 aria-labelledby="servicesTitle">
-          <div class="lm-venue-section__header lm-service-selection-header">
-            <div>
-              <p class="lm-overline">شروع رزرو</p>
-              <h2 id="servicesTitle" class="lm-section-title">خدمات</h2>
-            </div>
-            <span class="lm-badge lm-badge--neutral hidden shrink-0 rounded-full px-3 py-1 text-xs font-black sm:inline-flex">انتخاب چند خدمت</span>
           </div>
-          <div class="lm-service-selection-guide" aria-label="مراحل رزرو">
-            <div class="lm-service-step">
-              <span>۱</span>
-              <p>خدمت را انتخاب کن</p>
-            </div>
-            <div class="lm-service-step">
-              <span>۲</span>
-              <p>متخصص را ببین</p>
-            </div>
-            <div class="lm-service-step">
-              <span>۳</span>
-              <p>زمان مناسب را رزرو کن</p>
-            </div>
+        </div>
+      </section>
+
+      <!-- SECTION NAV -->
+      <nav
+        data-section-nav
+        class="sticky top-[calc(var(--lm-detail-topbar-height,64px)-1.25rem)] z-30 -mx-4 overflow-x-auto border-y border-loomera-borderSoft bg-white/95 px-4 py-2 shadow-lm-soft backdrop-blur-md transition-opacity duration-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:rounded-3xl md:border"
+        aria-label="بخش‌های صفحه مجموعه"
+      >
+        <ul class="flex whitespace-nowrap text-sm font-bold" role="list">
+          <li><a href="#services" class="inline-flex shrink-0 rounded-full px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">خدمات</a></li>
+          {% if stylists %}<li><a href="#team" class="inline-flex shrink-0 rounded-full px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">متخصص‌ها</a></li>{% endif %}
+          <li><a href="#samples" class="inline-flex shrink-0 rounded-full px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">نمونه‌کارها</a></li>
+          <li><a href="#reviews" class="inline-flex shrink-0 rounded-full px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">نظرات</a></li>
+          <li><a href="#about" class="inline-flex shrink-0 rounded-full px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">اطلاعات مجموعه</a></li>
+        </ul>
+      </nav>
+
+      <!-- SERVICES -->
+      <section id="services" class="lm-venue-section lm-service-selection-section lm-card lm-card--spacious scroll-mt-32 lg:scroll-mt-40" aria-labelledby="servicesTitle">
+        <div class="lm-venue-section__header lm-service-selection-header">
+          <div>
+            <p class="lm-overline">شروع رزرو</p>
+            <h2 id="servicesTitle" class="lm-section-title">خدمات</h2>
+
           </div>
-          {% if service_groups %}
-            <div id="serviceGroups"
-                 class="lm-service-category-rail lm-venue-chip-rail no-scrollbar"
-                 aria-label="دسته‌بندی خدمات">
-              {% for group in service_groups %}
-                <button type="button"
-                        class="service-group-btn lm-chip lm-chip--interactive {% if forloop.first %}lm-chip--selected bg-loomera-primary text-white border-loomera-primary{% else %}bg-white text-gray-700 border-gray-300{% endif %}"
-                        data-group="group-{{ group.id }}"
-                        aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">
-                  {{ group.group_title }}
-                </button>
-              {% endfor %}
-            </div>
-          {% endif %}
-          <div id="servicesList"
-               class="lm-service-selection-list lm-venue-service-list"
-               role="list"
-               aria-label="لیست خدمات {{ salon.salon_name }}">
-            {% for service in services %}
-              {% for group in service.service_group.all %}
-                {% with gid=group.id|stringformat:"s" %}
-                  {% if group.group_parent %}
-                    {% with pgid=group.group_parent.id|stringformat:"s" %}
-                      {% include "components/service_item.html" with service=service group_id="group-"|add:pgid %}
-                    {% endwith %}
-                  {% endif %}
-                  {% include "components/service_item.html" with service=service group_id="group-"|add:gid %}
-                {% endwith %}
-              {% endfor %}
-            {% empty %}
-              <div class="lm-empty-state-card rounded-3xl border border-dashed border-loomera-border bg-white p-5 text-center">
-                <p class="text-sm font-bold text-slate-900">هنوز خدمتی برای این مجموعه ثبت نشده است.</p>
-                <p class="mt-2 text-xs leading-6 text-slate-500">بعداً دوباره سر بزن یا مجموعه دیگری را از جستجو انتخاب کن.</p>
-              </div>
+          <span class="lm-badge lm-badge--neutral hidden shrink-0 rounded-full px-3 py-1 text-xs font-black sm:inline-flex">انتخاب چند خدمت</span>
+        </div>
+
+        <p class="mb-4 text-sm font-medium leading-7 text-loomera-textMuted">یک یا چند خدمت را انتخاب کن؛ بعد متخصص‌های دارای زمان آزاد را می‌بینی.</p>
+
+        {% if service_groups %}
+          <div id="serviceGroups" class="lm-service-category-rail lm-venue-chip-rail no-scrollbar" aria-label="دسته‌بندی خدمات">
+            {% for group in service_groups %}
+              <button type="button"
+                      class="service-group-btn lm-chip lm-chip--interactive {% if forloop.first %}lm-chip--selected bg-loomera-primary text-white border-loomera-primary{% else %}bg-white text-gray-700 border-gray-300{% endif %}"
+                      data-group="group-{{ group.id }}"
+                      aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">
+                {{ group.group_title }}
+              </button>
             {% endfor %}
           </div>
-          {% if services %}
-            <div class="mt-5 flex flex-wrap items-center justify-center gap-3">
-              <button id="showAllServicesBtn"
-                      type="button"
-                      class="lm-btn lm-btn-secondary inline-flex items-center justify-center rounded-full border border-loomera-border px-5 py-2.5 text-sm font-bold text-slate-700">نمایش همه خدمات</button>
-              <a href="#bookingBar"
-                 class="lm-btn lm-btn-ghost inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-bold text-loomera-primaryText lg:hidden">دیدن خلاصه انتخاب</a>
+        {% endif %}
+
+        <div id="servicesList" class="lm-service-selection-list lm-venue-service-list" role="list" aria-label="لیست خدمات {{ salon.salon_name }}">
+          {% for service in services %}
+            {% for group in service.service_group.all %}
+              {% with gid=group.id|stringformat:"s" %}
+                {% if group.group_parent %}
+                  {% with pgid=group.group_parent.id|stringformat:"s" %}
+                    {% include "components/service_item.html" with service=service group_id="group-"|add:pgid %}
+                  {% endwith %}
+                {% endif %}
+                {% include "components/service_item.html" with service=service group_id="group-"|add:gid %}
+              {% endwith %}
+            {% endfor %}
+          {% empty %}
+            <div class="lm-empty-state-card rounded-3xl border border-dashed border-loomera-border bg-white p-5 text-center">
+              <p class="text-sm font-bold text-loomera-textPrimary">هنوز خدمتی برای این مجموعه ثبت نشده است.</p>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">بعداً دوباره سر بزن یا مجموعه دیگری را از جستجو انتخاب کن.</p>
             </div>
-          {% endif %}
-        </section>
-        <!-- WORK SAMPLES -->
-        <section id="samples"
-                 class="lm-venue-section lm-card lm-card--spacious"
-                 data-carousel-scope
-                 aria-labelledby="samplesTitle">
-          <div class="lm-venue-section__header">
-            <div>
-              <p class="lm-overline">نمونه‌کار واقعی</p>
-              <h2 id="samplesTitle" class="lm-section-title">نمونه‌کارها</h2>
-            </div>
-            <div class="native-carousel-controls" aria-label="کنترل نمونه‌کارها">
-              <button type="button"
-                      data-carousel-prev
-                      class="native-carousel-btn"
-                      aria-label="نمونه قبلی">
-                <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
-              </button>
-              <button type="button"
-                      data-carousel-next
-                      class="native-carousel-btn"
-                      aria-label="نمونه بعدی">
-                <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
-              </button>
+          {% endfor %}
+        </div>
+
+        {% if services %}
+          <div class="mt-5 flex flex-wrap items-center justify-center gap-3">
+            <button id="showAllServicesBtn" type="button" class="lm-btn lm-btn-secondary inline-flex items-center justify-center rounded-full border border-loomera-border px-5 py-2.5 text-sm font-bold text-loomera-textSecondary">نمایش همه خدمات</button>
+          </div>
+        {% endif %}
+      </section>
+
+      <!-- WORK SAMPLES -->
+      <section id="samples" class="lm-venue-section lm-card lm-card--spacious" data-carousel-scope aria-labelledby="samplesTitle">
+        <div class="lm-venue-section__header">
+          <div>
+            <p class="lm-overline">نمونه‌کار واقعی</p>
+            <h2 id="samplesTitle" class="lm-section-title">نمونه‌کارها</h2>
+          </div>
+          <div class="native-carousel-controls" aria-label="کنترل نمونه‌کارها">
+            <button type="button" data-carousel-prev class="native-carousel-btn" aria-label="نمونه قبلی"><i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i></button>
+            <button type="button" data-carousel-next class="native-carousel-btn" aria-label="نمونه بعدی"><i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i></button>
+          </div>
+        </div>
+
+        {% if salon_portfolio_count %}
+          <div class="native-carousel" data-carousel="samples">
+            <div class="native-carousel-track" data-carousel-track role="list">
+              {% for stylist in stylists %}
+                {% for sample in stylist.public_work_samples|slice:":6" %}
+                  <div class="native-carousel-item native-carousel-item--compact" role="listitem">
+                    <button type="button"
+                            class="lm-venue-sample-card text-right"
+                            data-sample-image="{{ sample.image_url }}"
+                            data-sample-stylist="{{ stylist.get_fullName }}"
+                            data-sample-service="{% if sample.service %}{{ sample.service.service_name }}{% endif %}"
+                            data-sample-index="{{ forloop.counter0 }}">
+                      <img src="{{ sample.image_url }}" alt="نمونه‌کار {{ stylist.get_fullName }}" class="h-40 w-full object-cover" loading="lazy" decoding="async" />
+                      <span class="block p-3 text-xs text-loomera-textSecondary">
+                        <strong class="block text-sm text-loomera-textPrimary">{{ stylist.get_fullName }}</strong>
+                        {% if sample.service %}<span>{{ sample.service.service_name }}</span>{% endif %}
+                      </span>
+                    </button>
+                  </div>
+                {% endfor %}
+              {% endfor %}
             </div>
           </div>
-          {% if salon_portfolio_count %}
-            <div class="native-carousel" data-carousel="samples">
-              <div class="native-carousel-track" data-carousel-track role="list">
-                {% for stylist in stylists %}
-                  {% for sample in stylist.public_work_samples|slice:":6" %}
-                    <div class="native-carousel-item native-carousel-item--compact"
-                         role="listitem">
-                      <button type="button"
-                              class="lm-venue-sample-card text-right"
-                              data-sample-image="{{ sample.image_url }}"
-                              data-sample-stylist="{{ stylist.get_fullName }}"
-                              data-sample-service="{% if sample.service %}{{ sample.service.service_name }}{% endif %}"
-                              data-sample-index="{{ forloop.counter0 }}">
-                        <img src="{{ sample.image_url }}"
-                             alt="نمونه‌کار {{ stylist.get_fullName }}"
-                             class="h-40 w-full object-cover"
-                             loading="lazy"
-                             decoding="async" />
-                        <span class="block p-3 text-xs text-slate-600">
-                          <strong class="block text-sm text-slate-900">{{ stylist.get_fullName }}</strong>
-                          {% if sample.service %}<span>{{ sample.service.service_name }}</span>{% endif %}
-                        </span>
-                      </button>
-                    </div>
-                  {% endfor %}
-                {% endfor %}
-              </div>
-            </div>
-            <div class="mt-5 flex justify-center">
-              <button data-modal-open="samplesModal"
-                      type="button"
-                      class="lm-btn lm-btn-secondary inline-flex rounded-full border border-loomera-border px-5 py-2.5 text-sm font-bold text-slate-700">
-                نمایش همه نمونه‌کارها
-              </button>
-            </div>
-          {% else %}
-            <div class="rounded-3xl border border-dashed border-loomera-border bg-slate-50 px-5 py-8 text-center text-sm leading-7 text-slate-500">
-              هنوز نمونه‌کاری برای متخصص‌های این سالن منتشر نشده است.
-            </div>
-          {% endif %}
-        </section>
-        <!-- SALON CONTENT / MAGAZINE -->
-        {% if has_salon_content %}
-          {% include "articles/partials/salon_content_section.html" %}
+
+          <div class="mt-5 flex justify-center">
+            <button data-modal-open="samplesModal" type="button" class="lm-btn lm-btn-secondary inline-flex rounded-full border border-loomera-border px-5 py-2.5 text-sm font-bold text-loomera-textSecondary">
+              نمایش همه نمونه‌کارها
+            </button>
+          </div>
+        {% else %}
+          <div class="rounded-3xl border border-dashed border-loomera-border bg-loomera-bgSubtle px-5 py-8 text-center text-sm leading-7 text-loomera-textMuted">
+            هنوز نمونه‌کاری برای متخصص‌های این سالن منتشر نشده است.
+          </div>
         {% endif %}
-        <!-- TEAM -->
-        <section id="team"
-                 class="lm-venue-section lm-card lm-card--spacious"
-                 aria-labelledby="teamTitle">
-          <div class="lm-venue-section__header">
-            <div>
-              <p class="lm-overline">انتخاب با خیال راحت</p>
-              <h2 id="teamTitle" class="lm-section-title">متخصص‌ها</h2>
-            </div>
-            {% if stylists %}
-              <button data-modal-open="stylistsModal"
-                      type="button"
-                      class="lm-btn lm-btn-secondary hidden rounded-full border border-loomera-border px-4 py-2 text-sm font-bold text-slate-700 sm:inline-flex">
-                نمایش همه
-              </button>
-            {% endif %}
+      </section>
+
+      <!-- SALON CONTENT / MAGAZINE -->
+      {% if has_salon_content %}
+        {% include "articles/partials/salon_content_section.html" %}
+      {% endif %}
+
+      <!-- TEAM -->
+      <section id="team" class="lm-venue-section lm-card lm-card--spacious" aria-labelledby="teamTitle">
+        <div class="lm-venue-section__header">
+          <div>
+            <p class="lm-overline">انتخاب با خیال راحت</p>
+            <h2 id="teamTitle" class="lm-section-title">متخصص‌ها</h2>
           </div>
           {% if stylists %}
-            <div class="lm-venue-rail no-scrollbar"
-                 role="list"
-                 aria-label="متخصص‌های {{ salon.salon_name }}">
-              {% for stylist in stylists|slice:":6" %}
-                <div role="listitem">{% include "components/team_member.html" with stylist=stylist %}</div>
-              {% endfor %}
-            </div>
-            <div class="mt-5 flex justify-center sm:hidden">
-              <button data-modal-open="stylistsModal"
-                      type="button"
-                      class="lm-btn lm-btn-secondary inline-flex rounded-full border border-loomera-border px-5 py-2.5 text-sm font-bold text-slate-700">
-                نمایش همه متخصص‌ها
-              </button>
-            </div>
-          {% else %}
-            <div class="rounded-[1.75rem] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle px-5 py-7 text-center">
-              <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-lm-soft">
-                <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
-              </span>
-              <h3 class="mt-4 text-base font-black text-loomera-textPrimary">متخصص‌های این مجموعه در حال تکمیل هستند</h3>
-              <p class="mx-auto mt-2 max-w-md text-sm leading-7 text-loomera-textMuted">
-                خدمات فعال مجموعه همچنان از بخش خدمات قابل بررسی و رزرو است؛ اگر برای خدمتی متخصص فعال وجود داشته باشد، در مسیر رزرو نمایش داده می‌شود.
-              </p>
-            </div>
+            <button data-modal-open="stylistsModal" type="button" class="lm-btn lm-btn-secondary hidden rounded-full border border-loomera-border px-4 py-2 text-sm font-bold text-loomera-textSecondary sm:inline-flex">
+              نمایش همه
+            </button>
           {% endif %}
-        </section>
-        <!-- REVIEWS -->
-        <section id="reviews"
-                 class="lm-venue-section lm-card lm-card--spacious"
-                 aria-labelledby="reviewsTitle">
-          <div class="lm-venue-section__header">
-            <div>
-              <p class="lm-overline">اعتماد مشتری‌ها</p>
-              <h2 id="reviewsTitle" class="lm-section-title">نظرات</h2>
-            </div>
-            {% if review_is_allowed %}
-              <button id="openReviewFormBtn"
-                      type="button"
-                      aria-expanded="false"
-                      aria-controls="reviewFormContainer"
-                      class="lm-btn lm-btn-secondary inline-flex h-11 w-11 items-center justify-center rounded-full border border-loomera-border text-loomera-primaryText"
-                      aria-label="ثبت نظر">
-                <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
-              </button>
-            {% endif %}
-          </div>
-          <div class="lm-venue-review-summary" aria-label="خلاصه امتیازها">
-            {% include "components/rating_stars.html" with value=average_score show_number=True count=total_reviews size_class="text-base" %}
-          </div>
-          <div id="reviewFormContainer" class="hidden mt-4">{% include "components/review_form.html" %}</div>
-          {% if comments_list %}
-            <div class="mt-4 grid gap-3" role="list" aria-label="نظرات مشتریان">
-              {% for c in comments_list|slice:":4" %}
-                <div role="listitem">{% include "components/review_item.html" with comment=c %}</div>
-              {% endfor %}
-            </div>
-            <div class="mt-5 flex justify-center">
-              <button data-modal-open="reviewsModal"
-                      type="button"
-                      class="lm-btn lm-btn-secondary inline-flex rounded-full border border-loomera-border px-5 py-2.5 text-sm font-bold text-slate-700">
-                نمایش همه نظرات
-              </button>
-            </div>
-          {% else %}
-            <div class="lm-empty-state-card mt-4 rounded-3xl border border-dashed border-loomera-border bg-white p-5 text-center">
-              <p class="text-sm font-bold text-slate-900">هنوز نظری ثبت نشده</p>
-              <p class="mt-2 text-xs leading-6 text-slate-500">بعد از دریافت خدمت، تجربه مشتریان اینجا نمایش داده می‌شود.</p>
-            </div>
-          {% endif %}
-        </section>
-        <!-- ABOUT / HOURS -->
-        <section id="about"
-                 class="lm-venue-section lm-card lm-card--spacious"
-                 aria-labelledby="aboutTitle">
-          <div class="lm-venue-section__header">
-            <div>
-              <p class="lm-overline">اطلاعات مجموعه</p>
-              <h2 id="aboutTitle" class="lm-section-title">درباره {{ salon.salon_name }}</h2>
-            </div>
-          </div>
-          {% if salon.description %}
-            <p id="salonDescription"
-               class="text-sm leading-8 text-slate-700 max-h-28 overflow-hidden transition-all duration-300">
-              {{ salon.description }}
-            </p>
-            <button id="toggleDescriptionBtn"
-                    type="button"
-                    class="hidden mt-3 text-sm font-bold text-loomera-primaryText">نمایش بیشتر</button>
-          {% else %}
-            <p class="text-sm leading-7 text-slate-500">توضیحی برای این مجموعه ثبت نشده است.</p>
-          {% endif %}
-          {% if salon.ordered_opening_hours %}
-            <div class="mt-6">
-              <h3 class="mb-3 text-base font-black text-slate-900">ساعات کاری</h3>
-              <ul class="grid gap-2" role="list">
-                {% for oh in salon.ordered_opening_hours %}
-                  <li class="lm-venue-hours-row">
-                    <span class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
-                      <span class="h-2.5 w-2.5 rounded-full {% if oh.is_closed %}bg-gray-400{% else %}bg-emerald-500{% endif %}"
-                            aria-hidden="true"></span>
-                      {{ oh.get_day_of_week_display }}
-                    </span>
-                    {% if oh.is_closed %}
-                      <span class="text-sm text-slate-500">تعطیل</span>
-                    {% elif oh.open_time or oh.close_time %}
-                      <span class="text-sm font-bold text-slate-900">{{ oh.open_time|time:"H:i" }} - {{ oh.close_time|time:"H:i" }}</span>
-                    {% else %}
-                      <span class="text-sm text-slate-500">نامشخص</span>
-                    {% endif %}
-                  </li>
-                {% endfor %}
-              </ul>
-            </div>
-          {% endif %}
-        </section>
-        <!-- SUPPLEMENTARY INFO -->
-        {% if supplementary_info %}
-          <section id="extra"
-                   class="lm-venue-section lm-card lm-card--spacious"
-                   aria-labelledby="extraTitle">
-            <div class="lm-venue-section__header">
-              <div>
-                <p class="lm-overline">جزئیات بیشتر</p>
-                <h2 id="extraTitle" class="lm-section-title">اطلاعات تکمیلی</h2>
-                <p class="mt-2 text-sm leading-7 text-slate-500">برای دیدن توضیح هر مورد، روی علامت سؤال کنار همان گزینه بزنید.</p>
-              </div>
-            </div>
-            <div class="grid gap-3 sm:grid-cols-2">
-              {% for info in supplementary_info %}
-                <article class="rounded-[22px] border border-loomera-borderSoft bg-white px-4 py-4 shadow-sm transition hover:border-loomera-primary/20 hover:shadow-lm-soft">
-                  <div class="flex min-w-0 items-center justify-between gap-3">
-                    <div class="flex min-w-0 items-center gap-3">
-                      <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-lg text-loomera-primaryText">
-                        {% if info.icon_class %}
-                          <i class="{{ info.icon_class }}" aria-hidden="true"></i>
-                        {% else %}
-                          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                        {% endif %}
-                      </span>
-                      <div class="min-w-0">
-                        <h3 class="truncate text-sm font-black text-slate-900">{{ info.title }}</h3>
-                        {% if info.description %}
-                          <p class="mt-1 line-clamp-1 text-xs leading-6 text-slate-500 sm:hidden">{{ info.description }}</p>
-                        {% else %}
-                          <p class="mt-1 text-xs leading-6 text-slate-400 sm:hidden">توضیحی برای این مورد ثبت نشده است.</p>
-                        {% endif %}
-                      </div>
-                    </div>
-                    {% if info.description %}
-                      {% include "components/tooltip.html" with text=info.description position="bottom" label=info.title %}
-                    {% else %}
-                      <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-100 bg-slate-50 text-xs text-slate-300"
-                            aria-hidden="true">
-                        <i class="fa-solid fa-circle-question"></i>
-                      </span>
-                    {% endif %}
-                  </div>
-                </article>
-              {% endfor %}
-            </div>
-          </section>
-        {% endif %}
-        <!-- LOCATION -->
-        <section id="location"
-                 class="mb-40 scroll-mt-36 rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:mb-0 lg:scroll-mt-40"
-                 aria-labelledby="locationTitle">
-          <div class="lm-venue-section__header">
-            <div>
-              <p class="lm-overline">مسیر و دسترسی</p>
-              <h2 id="locationTitle" class="lm-section-title">موقعیت</h2>
-            </div>
-          </div>
-          {% if salon.address %}
-            <p class="mb-4 flex items-start gap-2 text-sm leading-7 text-slate-600">
-              <i class="fa-solid fa-location-dot mt-1 text-loomera-primaryText"
-                 aria-hidden="true"></i>
-              <span>{{ salon.address }}</span>
-            </p>
-          {% endif %}
-          {% if salon.location %}
-            <div class="lm-venue-map-shell">
-              <div id="salonMap"
-                   class="lm-venue-map"
-                   aria-label="نقشه موقعیت {{ salon.salon_name }}"></div>
-            </div>
-            <div class="lm-venue-directions-row">
-              <button id="navigateBtn"
-                      type="button"
-                      class="lm-btn lm-btn-secondary inline-flex items-center gap-2 rounded-full border border-loomera-border px-5 py-2.5 text-sm font-bold text-slate-700">
-                <span>مسیریابی به مجموعه</span>
-                <i class="fa-solid fa-location-arrow" aria-hidden="true"></i>
-              </button>
-            </div>
-          {% else %}
-            <div class="lm-empty-state-card rounded-3xl border border-dashed border-loomera-border bg-white p-5 text-center">
-              <p class="text-sm font-bold text-slate-900">موقعیت جغرافیایی ثبت نشده است</p>
-              {% if salon.address %}
-                <p class="mt-2 text-xs leading-6 text-slate-500">آدرس متنی مجموعه در همین بخش نمایش داده شده است.</p>
-              {% endif %}
-            </div>
-          {% endif %}
-        </section>
-      </div>
-      <!-- DESKTOP BOOKING SIDEBAR -->
-      <aside data-booking-sidebar
-             class="hidden lg:block lg:self-start"
-             aria-label="کارت رزرو {{ salon.salon_name }}">
-        <div data-booking-card
-             class="w-full rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-elevated">
-          <p class="lm-overline">رزرو در <span class="font-semibold text-[#A7C8A1] ">لومرا</span></p>
-          <h2 class="mt-2 text-lg font-black text-slate-950">{{ salon.salon_name }}</h2>
-          <div class="mt-3">
-            {% include "components/rating_stars.html" with value=average_score show_number=True count=total_reviews size_class="text-sm" %}
-          </div>
-          {% if salon.address %}
-            <p class="mt-3 line-clamp-2 text-xs leading-6 text-slate-500">{{ salon.address }}</p>
-          {% endif %}
-          <div class="mt-5 rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4"
-               data-booking-summary="desktop"
-               aria-live="polite">
-            <p id="desktopBookingEmptyState"
-               class="text-sm font-bold text-slate-500">برای شروع، یک خدمت انتخاب کن.</p>
-            <div id="desktopBookingSelectedMeta" class="hidden space-y-2">
-              <div class="flex items-center justify-between gap-3">
-                <span class="text-xs font-bold text-slate-500">خدمات انتخاب‌شده</span>
-                <strong id="desktopBookingCount" class="text-sm font-black text-slate-950">0 خدمت</strong>
-              </div>
-              <div class="flex items-center justify-between gap-3">
-                <span class="text-xs font-bold text-slate-500">جمع قیمت</span>
-                <strong id="desktopBookingPrice" class="text-sm font-black text-slate-950">0 تومان</strong>
-              </div>
-              <div class="flex items-center justify-between gap-3">
-                <span class="text-xs font-bold text-slate-500">مدت تقریبی</span>
-                <strong id="desktopBookingDuration" class="text-sm font-black text-slate-950">0 دقیقه</strong>
-              </div>
-            </div>
-          </div>
-          <button type="button"
-                  data-booking-submit-trigger
-                  data-salon-id="{{ salon.id }}"
-                  data-booking-url="{% url 'orders:select_stylists' %}"
-                  class="lm-btn lm-btn-primary mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black">
-            <span>ادامه رزرو</span>
-            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
-          </button>
-          <p class="mt-3 text-center text-xs leading-6 text-slate-500">بعد از انتخاب خدمت، متخصص و زمان مناسب را می‌بینی.</p>
         </div>
-      </aside>
+
+        {% if stylists %}
+          <div class="lm-venue-rail no-scrollbar" role="list" aria-label="متخصص‌های {{ salon.salon_name }}">
+            {% for stylist in stylists|slice:":6" %}
+              <div role="listitem">{% include "components/team_member.html" with stylist=stylist %}</div>
+            {% endfor %}
+          </div>
+
+          <div class="mt-5 flex justify-center sm:hidden">
+            <button data-modal-open="stylistsModal" type="button" class="lm-btn lm-btn-secondary inline-flex rounded-full border border-loomera-border px-5 py-2.5 text-sm font-bold text-loomera-textSecondary">
+              نمایش همه متخصص‌ها
+            </button>
+          </div>
+        {% else %}
+          <div class="rounded-[1.75rem] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle px-5 py-7 text-center">
+            <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-lm-soft">
+              <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-4 text-base font-black text-loomera-textPrimary">متخصص‌های این مجموعه در حال تکمیل هستند</h3>
+            <p class="mx-auto mt-2 max-w-md text-sm leading-7 text-loomera-textMuted">
+              خدمات فعال مجموعه همچنان از بخش خدمات قابل بررسی و رزرو است؛ اگر برای خدمتی متخصص فعال وجود داشته باشد، در مسیر رزرو نمایش داده می‌شود.
+            </p>
+          </div>
+        {% endif %}
+      </section>
+
+      <!-- REVIEWS -->
+      <section id="reviews" class="lm-venue-section lm-card lm-card--spacious" aria-labelledby="reviewsTitle">
+        <div class="lm-venue-section__header">
+          <div>
+            <p class="lm-overline">اعتماد مشتری‌ها</p>
+            <h2 id="reviewsTitle" class="lm-section-title">نظرات</h2>
+          </div>
+          {% if review_is_allowed %}
+            <button id="openReviewFormBtn" type="button" aria-expanded="false" aria-controls="reviewFormContainer" class="lm-btn lm-btn-secondary inline-flex h-11 w-11 items-center justify-center rounded-full border border-loomera-border text-loomera-primaryText" aria-label="ثبت نظر">
+              <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
+            </button>
+          {% endif %}
+        </div>
+
+        <div class="lm-venue-review-summary" aria-label="خلاصه امتیازها">
+          {% include "components/rating_stars.html" with value=average_score show_number=True count=total_reviews size_class="text-base" %}
+        </div>
+
+        <div id="reviewFormContainer" class="hidden mt-4">
+          {% include "components/review_form.html" %}
+        </div>
+
+        {% if comments_list %}
+          <div class="mt-4 grid gap-3" role="list" aria-label="نظرات مشتریان">
+            {% for c in comments_list|slice:":4" %}
+              <div role="listitem">{% include "components/review_item.html" with comment=c %}</div>
+            {% endfor %}
+          </div>
+          <div class="mt-5 flex justify-center">
+            <button data-modal-open="reviewsModal" type="button" class="lm-btn lm-btn-secondary inline-flex rounded-full border border-loomera-border px-5 py-2.5 text-sm font-bold text-loomera-textSecondary">
+              نمایش همه نظرات
+            </button>
+          </div>
+        {% else %}
+          <div class="lm-empty-state-card mt-4 rounded-3xl border border-dashed border-loomera-border bg-white p-5 text-center">
+            <p class="text-sm font-bold text-loomera-textPrimary">هنوز نظری ثبت نشده</p>
+            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">بعد از دریافت خدمت، تجربه مشتریان اینجا نمایش داده می‌شود.</p>
+          </div>
+        {% endif %}
+      </section>
+
+      <!-- ABOUT / HOURS / AMENITIES -->
+      <section id="about" class="lm-venue-section lm-card lm-card--spacious" aria-labelledby="aboutTitle">
+        <div class="lm-venue-section__header">
+          <div>
+            <p class="lm-overline">قبل از رزرو</p>
+            <h2 id="aboutTitle" class="lm-section-title">اطلاعات {{ salon.salon_name }}</h2>
+            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">معرفی، ساعات کاری و امکانات مجموعه در یک بخش.</p>
+          </div>
+          {% if salon.location %}<a href="#location" class="inline-flex shrink-0 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-primary"><i class="fa-solid fa-location-dot"></i>موقعیت</a>{% endif %}
+        </div>
+
+        {% if salon.description %}
+          <p id="salonDescription" class="max-h-28 overflow-hidden text-sm leading-8 text-loomera-textSecondary transition-all duration-300">{{ salon.description }}</p>
+          <button id="toggleDescriptionBtn" type="button" class="mt-3 hidden text-sm font-black text-loomera-primary">نمایش بیشتر</button>
+        {% else %}
+          <p class="text-sm leading-7 text-loomera-textMuted">توضیحی برای این مجموعه ثبت نشده است.</p>
+        {% endif %}
+
+        {% if salon.ordered_opening_hours %}
+          <details class="mt-5 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle" open>
+            <summary class="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 text-sm font-black"><span>ساعات کاری</span><i class="fa-solid fa-chevron-down text-xs text-loomera-textMuted"></i></summary>
+            <ul class="grid gap-2 border-t border-loomera-borderSoft px-4 py-3 sm:grid-cols-2" role="list">
+              {% for oh in salon.ordered_opening_hours %}
+                <li class="flex items-center justify-between rounded-2xl bg-white px-3 py-2.5">
+                  <span class="inline-flex items-center gap-2 text-xs font-bold text-loomera-textSecondary"><span class="h-2 w-2 rounded-full {% if oh.is_closed %}bg-loomera-borderSoft{% else %}bg-emerald-500{% endif %}"></span>{{ oh.get_day_of_week_display }}</span>
+                  {% if oh.is_closed %}<span class="text-xs text-loomera-textMuted">تعطیل</span>{% elif oh.open_time or oh.close_time %}<span class="text-xs font-black">{{ oh.open_time|time:"H:i" }} - {{ oh.close_time|time:"H:i" }}</span>{% else %}<span class="text-xs text-loomera-textMuted">نامشخص</span>{% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </details>
+        {% endif %}
+
+        {% if supplementary_info %}
+          <details class="mt-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle">
+            <summary class="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 text-sm font-black"><span>امکانات و اطلاعات تکمیلی</span><span class="rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-loomera-primary">{{ supplementary_info|length }} مورد</span></summary>
+            <div class="grid gap-2 border-t border-loomera-borderSoft p-3 sm:grid-cols-2">
+              {% for info in supplementary_info %}
+                <article class="rounded-2xl bg-white p-3"><div class="flex items-start gap-3"><span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primary">{% if info.icon_class %}<i class="{{ info.icon_class }}"></i>{% else %}<i class="fa-solid fa-circle-info"></i>{% endif %}</span><div class="min-w-0"><h3 class="text-xs font-black">{{ info.title }}</h3>{% if info.description %}<p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ info.description }}</p>{% endif %}</div></div></article>
+              {% endfor %}
+            </div>
+          </details>
+        {% endif %}
+      </section>
+
+      <!-- LOCATION -->
+      <section id="location" class="mb-40 scroll-mt-36 rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:mb-0 lg:scroll-mt-40" aria-labelledby="locationTitle">
+        <div class="lm-venue-section__header">
+          <div>
+            <p class="lm-overline">مسیر و دسترسی</p>
+            <h2 id="locationTitle" class="lm-section-title">موقعیت</h2>
+          </div>
+        </div>
+
+        {% if salon.address %}
+          <p class="mb-4 flex items-start gap-2 text-sm leading-7 text-loomera-textSecondary">
+            <i class="fa-solid fa-location-dot mt-1 text-loomera-primaryText" aria-hidden="true"></i>
+            <span>{{ salon.address }}</span>
+          </p>
+        {% endif %}
+
+        {% if salon.location %}
+          <div class="lm-venue-map-shell">
+            <div id="salonMap" class="lm-venue-map" aria-label="نقشه موقعیت {{ salon.salon_name }}"></div>
+          </div>
+
+          <div class="lm-venue-directions-row">
+            <button id="navigateBtn" type="button" class="lm-btn lm-btn-secondary inline-flex items-center gap-2 rounded-full border border-loomera-border px-5 py-2.5 text-sm font-bold text-loomera-textSecondary">
+              <span>مسیریابی به مجموعه</span>
+              <i class="fa-solid fa-location-arrow" aria-hidden="true"></i>
+            </button>
+          </div>
+        {% else %}
+          <div class="lm-empty-state-card rounded-3xl border border-dashed border-loomera-border bg-white p-5 text-center">
+            <p class="text-sm font-bold text-loomera-textPrimary">موقعیت جغرافیایی ثبت نشده است</p>
+            {% if salon.address %}<p class="mt-2 text-xs leading-6 text-loomera-textMuted">آدرس متنی مجموعه در همین بخش نمایش داده شده است.</p>{% endif %}
+          </div>
+        {% endif %}
+      </section>
     </div>
-    <!-- MOBILE STICKY BOOKING BAR -->
-    <div id="bookingBar"
-         class="fixed inset-x-0 bottom-0 z-50 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur-md lg:hidden"
-         aria-live="polite">
-      <div class="mx-auto flex w-full max-w-md flex-col gap-3">
-        <div id="bookingInfo"
-             class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm text-loomera-textSecondary">
-          <p id="bookingEmptyState"
-             class="text-center font-black text-loomera-textMuted">برای شروع، یک خدمت انتخاب کن.</p>
-          <div id="bookingSelectedMeta" class="hidden space-y-2">
+
+    <!-- DESKTOP BOOKING SIDEBAR -->
+    <aside data-booking-sidebar class="hidden lg:block lg:self-start" aria-label="کارت رزرو {{ salon.salon_name }}">
+      <div data-booking-card class="w-full rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-elevated">
+        <p class="lm-overline">رزرو در <span class="font-semibold text-[#A7C8A1] ">لومرا</span></p>
+        <h2 class="mt-2 text-lg font-black text-loomera-textPrimary">{{ salon.salon_name }}</h2>
+        <div class="mt-3">
+          {% include "components/rating_stars.html" with value=average_score show_number=True count=total_reviews size_class="text-sm" %}
+        </div>
+        {% if salon.address %}<p class="mt-3 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ salon.address }}</p>{% endif %}
+
+        <div class="mt-5 rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4" data-booking-summary="desktop" aria-live="polite">
+          <p id="desktopBookingEmptyState" class="text-sm font-bold text-loomera-textMuted">برای شروع، یک خدمت انتخاب کن.</p>
+          <div id="desktopBookingSelectedMeta" class="hidden space-y-2">
             <div class="flex items-center justify-between gap-3">
               <span class="text-xs font-bold text-loomera-textMuted">خدمات انتخاب‌شده</span>
-              <strong id="bookingCount" class="text-sm font-black text-loomera-textPrimary">0 خدمت</strong>
+              <strong id="desktopBookingCount" class="text-sm font-black text-loomera-textPrimary">0 خدمت</strong>
             </div>
             <div class="flex items-center justify-between gap-3">
               <span class="text-xs font-bold text-loomera-textMuted">جمع قیمت</span>
-              <strong id="bookingPrice" class="text-sm font-black text-loomera-textPrimary">0 تومان</strong>
+              <strong id="desktopBookingPrice" class="text-sm font-black text-loomera-textPrimary">0 تومان</strong>
             </div>
             <div class="flex items-center justify-between gap-3">
               <span class="text-xs font-bold text-loomera-textMuted">مدت تقریبی</span>
-              <strong id="bookingDuration"
-                      class="text-sm font-black text-loomera-textPrimary">0 دقیقه</strong>
+              <strong id="desktopBookingDuration" class="text-sm font-black text-loomera-textPrimary">0 دقیقه</strong>
             </div>
           </div>
         </div>
-        <button id="bookingSubmitBtn"
-                type="button"
+
+        <button type="button"
                 data-booking-submit-trigger
                 data-salon-id="{{ salon.id }}"
                 data-booking-url="{% url 'orders:select_stylists' %}"
-                class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-4 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
+                class="lm-btn lm-btn-primary mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black">
           <span>ادامه رزرو</span>
           <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
         </button>
+        <p class="mt-3 text-center text-xs leading-6 text-loomera-textMuted">بعد از انتخاب خدمت، متخصص و زمان مناسب را می‌بینی.</p>
       </div>
-    </div>
-    <!-- MODAL — ALL SAMPLES -->
-    <div id="samplesModal"
-         class="modal-overlay fixed inset-0 hidden bg-black/40 backdrop-blur-sm"
-         style="z-index: 1200"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="samplesModalTitle"
-         aria-hidden="true">
-      <div class="lm-bottom-sheet-surface absolute bottom-0 left-0 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-xl lg:left-1/2 lg:max-w-4xl lg:-translate-x-1/2 lg:rounded-3xl">
-        <div class="flex items-center justify-between border-b border-gray-200 p-4">
-          <h2 id="samplesModalTitle" class="text-lg font-black">همه نمونه‌کارها</h2>
-          <button data-modal-close="samplesModal"
-                  type="button"
-                  class="text-xl text-slate-500"
-                  aria-label="بستن نمونه‌کارها">
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-          </button>
+    </aside>
+  </div>
+
+  <!-- MOBILE STICKY BOOKING BAR -->
+  <div id="bookingBar" class="fixed inset-x-0 bottom-0 z-50 hidden border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur-md lg:hidden" aria-live="polite">
+    <div class="mx-auto flex w-full max-w-md items-center gap-3">
+      <div id="bookingInfo" class="min-w-0 flex-1">
+        <div id="bookingSelectedMeta">
+          <div class="flex min-w-0 items-center gap-2">
+            <strong id="bookingCount" class="shrink-0 text-sm font-black text-loomera-textPrimary">0 خدمت</strong>
+            <span aria-hidden="true" class="text-loomera-textMuted">•</span>
+            <strong id="bookingPrice" class="truncate text-sm font-black text-loomera-textPrimary">0 تومان</strong>
+          </div>
+          <p id="bookingDuration" class="mt-1 text-xs font-bold text-loomera-textMuted">0 دقیقه</p>
         </div>
-        <div class="grid grid-cols-2 gap-3 overflow-y-auto p-4 lg:grid-cols-4"
-             style="overscroll-behavior: contain">
-          {% if salon_portfolio_count %}
-            {% for stylist in stylists %}
-              {% for sample in stylist.public_work_samples %}
-                <button type="button"
-                        class="lm-venue-sample-card text-right"
-                        data-sample-image="{{ sample.image_url }}"
-                        data-sample-stylist="{{ stylist.get_fullName }}"
-                        data-sample-service="{% if sample.service %}{{ sample.service.service_name }}{% endif %}">
-                  <img src="{{ sample.sample_image.url }}"
-                       alt="نمونه‌کار {{ stylist.get_fullName }}"
-                       class="h-32 w-full object-cover" />
-                  <span class="block p-2 text-center text-xs text-slate-600">
-                    <strong class="block text-slate-800">{{ stylist.get_fullName }}</strong>
-                    {% if sample.service %}<span>{{ sample.service.service_name }}</span>{% endif %}
-                  </span>
-                </button>
-              {% endfor %}
-            {% endfor %}
-          {% else %}
-            <div class="col-span-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500 lg:col-span-4">
-              هنوز نمونه‌کاری برای نمایش وجود ندارد.
-            </div>
-          {% endif %}
-        </div>
+        <p id="bookingEmptyState" class="hidden">برای شروع، یک خدمت انتخاب کن.</p>
       </div>
-    </div>
-    <!-- FULLSCREEN SAMPLE -->
-    <div id="sampleFullscreen"
-         class="fixed inset-0 hidden flex-col items-center justify-center bg-black/80 p-4"
-         style="z-index: 1300"
-         aria-hidden="true">
-      <button id="sampleFullscreenClose"
+
+      <button id="bookingSubmitBtn"
               type="button"
-              class="absolute right-4 top-4 text-3xl text-white"
-              aria-label="بستن تصویر">
-        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              data-booking-submit-trigger
+              data-salon-id="{{ salon.id }}"
+              data-booking-url="{% url 'orders:select_stylists' %}"
+              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
+        <span>ادامه</span>
+        <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
       </button>
-      <img id="sampleFullscreenImage"
-           class="max-h-[80vh] max-w-full rounded-xl object-contain shadow-lg"
-           alt="نمونه‌کار بزرگ" />
-      <div id="sampleFullscreenInfo"
-           class="mt-3 text-center text-sm text-white opacity-80"></div>
     </div>
-    <!-- STYLISTS MODAL -->
-    <div id="stylistsModal"
-         class="modal-overlay fixed inset-0 hidden bg-black/40 backdrop-blur-sm"
-         style="z-index: 1200"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="stylistsModalTitle"
-         aria-hidden="true">
-      <div class="lm-bottom-sheet-surface absolute bottom-0 left-0 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-xl lg:left-1/2 lg:max-w-3xl lg:-translate-x-1/2 lg:rounded-3xl">
-        <div class="flex items-center justify-between border-b border-gray-200 p-4">
-          <h2 id="stylistsModalTitle" class="text-lg font-black">متخصص‌ها</h2>
-          <button data-modal-close="stylistsModal"
-                  type="button"
-                  class="text-xl text-slate-500"
-                  aria-label="بستن متخصص‌ها">
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-          </button>
-        </div>
-        <div class="grid grid-cols-2 gap-4 overflow-y-auto p-4 lg:grid-cols-3"
-             style="overscroll-behavior: contain">
+  </div>
+
+  <!-- MODAL — ALL SAMPLES -->
+  <div id="samplesModal" class="modal-overlay fixed inset-0 hidden bg-black/40 backdrop-blur-sm" style="z-index: 1200;" role="dialog" aria-modal="true" aria-labelledby="samplesModalTitle" aria-hidden="true">
+    <div class="lm-bottom-sheet-surface absolute bottom-0 left-0 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-xl lg:left-1/2 lg:max-w-4xl lg:-translate-x-1/2 lg:rounded-3xl">
+      <div class="flex items-center justify-between border-b border-gray-200 p-4">
+        <h2 id="samplesModalTitle" class="text-lg font-black">همه نمونه‌کارها</h2>
+        <button data-modal-close="samplesModal" type="button" class="text-xl text-loomera-textMuted" aria-label="بستن نمونه‌کارها"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+      <div class="grid grid-cols-2 gap-3 overflow-y-auto p-4 lg:grid-cols-4" style="overscroll-behavior: contain;">
+        {% if salon_portfolio_count %}
           {% for stylist in stylists %}
-            {% include "components/team_member.html" with stylist=stylist %}
+            {% for sample in stylist.public_work_samples %}
+              <button type="button" class="lm-venue-sample-card text-right" data-sample-image="{{ sample.image_url }}" data-sample-stylist="{{ stylist.get_fullName }}" data-sample-service="{% if sample.service %}{{ sample.service.service_name }}{% endif %}">                <img src="{{ sample.sample_image.url }}" alt="نمونه‌کار {{ stylist.get_fullName }}" class="h-32 w-full object-cover" />
+                <span class="block p-2 text-center text-xs text-loomera-textSecondary">
+                  <strong class="block text-loomera-textPrimary">{{ stylist.get_fullName }}</strong>
+                  {% if sample.service %}<span>{{ sample.service.service_name }}</span>{% endif %}
+                </span>
+              </button>
+            {% endfor %}
+          {% endfor %}
+        {% else %}
+          <div class="col-span-2 rounded-2xl border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-8 text-center text-sm text-loomera-textMuted lg:col-span-4">
+            هنوز نمونه‌کاری برای نمایش وجود ندارد.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN SAMPLE -->
+  <div id="sampleFullscreen" class="fixed inset-0 hidden flex-col items-center justify-center bg-black/80 p-4" style="z-index: 1300;" aria-hidden="true">
+    <button id="sampleFullscreenClose" type="button" class="absolute right-4 top-4 text-3xl text-white" aria-label="بستن تصویر"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <img id="sampleFullscreenImage" class="max-h-[80vh] max-w-full rounded-xl object-contain shadow-lg" alt="نمونه‌کار بزرگ" />
+    <div id="sampleFullscreenInfo" class="mt-3 text-center text-sm text-white opacity-80"></div>
+  </div>
+
+  <!-- STYLISTS MODAL -->
+  <div id="stylistsModal" class="modal-overlay fixed inset-0 hidden bg-black/40 backdrop-blur-sm" style="z-index: 1200;" role="dialog" aria-modal="true" aria-labelledby="stylistsModalTitle" aria-hidden="true">
+    <div class="lm-bottom-sheet-surface absolute bottom-0 left-0 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-xl lg:left-1/2 lg:max-w-3xl lg:-translate-x-1/2 lg:rounded-3xl">
+      <div class="flex items-center justify-between border-b border-gray-200 p-4">
+        <h2 id="stylistsModalTitle" class="text-lg font-black">متخصص‌ها</h2>
+        <button data-modal-close="stylistsModal" type="button" class="text-xl text-loomera-textMuted" aria-label="بستن متخصص‌ها"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+      <div class="grid grid-cols-2 gap-4 overflow-y-auto p-4 lg:grid-cols-3" style="overscroll-behavior: contain;">
+        {% for stylist in stylists %}
+          {% include "components/team_member.html" with stylist=stylist %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEWS MODAL -->
+  <div id="reviewsModal" class="modal-overlay fixed inset-0 hidden bg-black/40 backdrop-blur-sm" style="z-index: 1200;" role="dialog" aria-modal="true" aria-labelledby="reviewsModalTitle" aria-hidden="true">
+    <div class="lm-bottom-sheet-surface absolute bottom-0 left-0 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-xl lg:left-1/2 lg:max-w-3xl lg:-translate-x-1/2 lg:rounded-3xl">
+      <div class="flex items-center justify-between border-b border-gray-200 p-4">
+        <h2 id="reviewsModalTitle" class="text-lg font-black">همه نظرات</h2>
+        <button data-modal-close="reviewsModal" type="button" class="text-xl text-loomera-textMuted" aria-label="بستن نظرات"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+      <div class="flex flex-col items-center py-3">
+        <div class="mb-1 flex items-center text-xl text-yellow-400">
+          {% for i in 5|make_range %}
+            {% if i <= average_score %}<i class="fa-solid fa-star" aria-hidden="true"></i>{% else %}<i class="fa-regular fa-star text-gray-300" aria-hidden="true"></i>{% endif %}
+          {% endfor %}
+        </div>
+        <p class="text-lg font-black text-loomera-textPrimary">{{ average_score|floatformat:1 }}</p>
+        <p class="text-sm text-loomera-textMuted">{{ total_reviews }} نظر</p>
+      </div>
+      <div class="px-4 mb-3">
+        <p class="mb-2 text-sm font-bold text-loomera-textSecondary">فیلتر بر اساس امتیاز</p>
+        <div class="flex flex-wrap gap-2">
+          {% for star in "54321"|make_list %}
+            <label class="lm-chip inline-flex items-center gap-2 rounded-full border border-loomera-border bg-white px-3 py-2 text-sm">
+              <input type="checkbox" class="review-filter-star accent-loomera-primary" value="{{ star }}" checked>
+              <span>{{ star }} ستاره</span>
+            </label>
           {% endfor %}
         </div>
       </div>
+      <p id="reviewsCountDisplay" class="px-4 mb-2 text-sm font-bold text-loomera-textSecondary">0 نظر</p>
+      <div id="allReviewsContainer" class="flex flex-col gap-3 overflow-y-auto px-4 pb-6" style="overscroll-behavior: contain;"></div>
     </div>
-    <!-- REVIEWS MODAL -->
-    <div id="reviewsModal"
-         class="modal-overlay fixed inset-0 hidden bg-black/40 backdrop-blur-sm"
-         style="z-index: 1200"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="reviewsModalTitle"
-         aria-hidden="true">
-      <div class="lm-bottom-sheet-surface absolute bottom-0 left-0 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-xl lg:left-1/2 lg:max-w-3xl lg:-translate-x-1/2 lg:rounded-3xl">
-        <div class="flex items-center justify-between border-b border-gray-200 p-4">
-          <h2 id="reviewsModalTitle" class="text-lg font-black">همه نظرات</h2>
-          <button data-modal-close="reviewsModal"
-                  type="button"
-                  class="text-xl text-slate-500"
-                  aria-label="بستن نظرات">
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-          </button>
-        </div>
-        <div class="flex flex-col items-center py-3">
-          <div class="mb-1 flex items-center text-xl text-yellow-400">
-            {% for i in 5|make_range %}
-              {% if i <= average_score %}
-                <i class="fa-solid fa-star" aria-hidden="true"></i>
-              {% else %}
-                <i class="fa-regular fa-star text-gray-300" aria-hidden="true"></i>
-              {% endif %}
-            {% endfor %}
-          </div>
-          <p class="text-lg font-black text-slate-800">{{ average_score|floatformat:1 }}</p>
-          <p class="text-sm text-slate-500">{{ total_reviews }} نظر</p>
-        </div>
-        <div class="px-4 mb-3">
-          <p class="mb-2 text-sm font-bold text-slate-700">فیلتر بر اساس امتیاز</p>
-          <div class="flex flex-wrap gap-2">
-            {% for star in "54321"|make_list %}
-              <label class="lm-chip inline-flex items-center gap-2 rounded-full border border-loomera-border bg-white px-3 py-2 text-sm">
-                <input type="checkbox"
-                       class="review-filter-star accent-loomera-primary"
-                       value="{{ star }}"
-                       checked>
-                <span>{{ star }} ستاره</span>
-              </label>
-            {% endfor %}
-          </div>
-        </div>
-        <p id="reviewsCountDisplay"
-           class="px-4 mb-2 text-sm font-bold text-slate-700">0 نظر</p>
-        <div id="allReviewsContainer"
-             class="flex flex-col gap-3 overflow-y-auto px-4 pb-6"
-             style="overscroll-behavior: contain"></div>
-      </div>
-    </div>
-    {% if salon_stories %}
-      {% include "articles/partials/story_viewer.html" with favorite_stories_payload=salon_stories_payload %}
-    {% endif %}
-  </article>
+  </div>
+
+  {% if salon_stories %}
+    {% include "articles/partials/story_viewer.html" with favorite_stories_payload=salon_stories_payload %}
+  {% endif %}
+</article>
 {% endblock %}
+
 {% block js %}
   <script>
     {% if salon.location %}
@@ -861,6 +615,7 @@
       {% endfor %}
     ] || [];
   </script>
+
   {% if salon_stories %}
     <script type="module">
       import { initMagazinePage } from "{% static 'js/pages/magazine.js' %}";

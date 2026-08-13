@@ -229,7 +229,7 @@
         <span class="lm-home-services__eyebrow">دسته‌بندی خدمات</span>
 
         <h2 class="lm-home-services__title">خدمات مورد نظر خود را سریع‌تر انتخاب کنید</h2>
-{% comment %} 
+{% comment %}
         <p class="lm-home-services__text">
           این بخش از گروه‌های فعال بک‌اند خوانده می‌شود؛ تصویر، عنوان و توضیح هر دسته از مدل گروه خدمات مدیریت می‌شود.
         </p> {% endcomment %}
@@ -255,7 +255,7 @@
       <div class="lm-home-salon-grid">
         {% for salon in featured_salons %}
           <article class="lm-home-salon-card">
-            <a href="{% url 'salons:detail_salon' salon.id %}" class="block">
+            <a href="{{ salon.get_absolute_url }}" class="block">
               <div class="lm-home-salon-card__media">
                 {% if salon.banner_image %}
                   <img src="{{ salon.banner_image.url }}" alt="{{ salon.salon_name }}">
