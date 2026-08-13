@@ -1455,12 +1455,17 @@ class StylistContentHubView(LoginRequiredMixin, View):
             )
         )
 
-        submissions = list(
-            StaffContentSubmission.objects.filter(
-                stylist=stylist,
-                salon=salon,
-            ).order_by("-created_at")[:12]
+        submissions_qs = StaffContentSubmission.objects.filter(
+            stylist=stylist,
+            salon=salon,
         )
+        status_counts = {
+            "total": submissions_qs.count(),
+            "pending": submissions_qs.filter(status=StaffContentSubmission.Status.PENDING_REVIEW).count(),
+            "revision": submissions_qs.filter(status__in=[StaffContentSubmission.Status.NEEDS_REVISION, StaffContentSubmission.Status.REJECTED]).count(),
+            "published": submissions_qs.filter(status__in=[StaffContentSubmission.Status.APPROVED, StaffContentSubmission.Status.PUBLISHED]).count(),
+        }
+        submissions = list(submissions_qs.order_by("-created_at")[:24])
 
         submission_edit_forms = [
             (
@@ -1494,6 +1499,7 @@ class StylistContentHubView(LoginRequiredMixin, View):
                 "story_form": story_form,
                 "submissions": submissions,
                 "submission_edit_forms": submission_edit_forms,
+                "stylist_content_summary": status_counts,
                 "stylist_tag_options": ArticleTag.objects.all().order_by("title"),
                 "stylist_article_service_options": article_form.fields[
                     "suggested_services"

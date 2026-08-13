@@ -3,7 +3,7 @@ function parseInitialState() {
   try {
     return JSON.parse(raw);
   } catch (error) {
-    console.warn("[search] invalid initial state");
+    console.warn("[search] invalid initial state", error);
     return {};
   }
 }
@@ -166,7 +166,7 @@ export function setupFiltersUI() {
     filtersSheet.classList.toggle("translate-y-0", open);
     syncMobileResultsIcon();
     window.setTimeout(() => {
-      console.warn("[search] map resize failed");
+      try { window.searchMap?.invalidateSize?.({ pan: false }); } catch (error) { console.warn("[search] map invalidate warning", error); }
     }, open ? 320 : 180);
   }
 
@@ -189,7 +189,7 @@ export function setupFiltersUI() {
         hideAfterChange: true,
       });
     } catch (error) {
-      console.warn("[search] datepicker initialization failed");
+      console.warn("[search] datepicker init warning", error);
     }
 
     window.setTimeout(() => {
@@ -478,7 +478,7 @@ export function setupFiltersUI() {
       const clearButton = salonList.querySelector("[data-clear-search]");
       clearButton?.addEventListener("click", resetFilters);
     } catch (error) {
-      console.error("[search] result update failed");
+      console.error("[search] applySearch error", error);
       setStatus("به‌روزرسانی نتایج انجام نشد. دوباره تلاش کنید.");
     } finally {
       showLoading(false);
@@ -635,7 +635,7 @@ export function setupFiltersUI() {
 
       locationSuggestions.classList.toggle("hidden", locationSuggestions.children.length === 0);
     } catch (error) {
-      console.warn("[search] location suggestions unavailable");
+      console.warn("[search] location suggestions unavailable", error);
       locationSuggestions.classList.add("hidden");
     }
   }
@@ -704,7 +704,7 @@ export function setupFiltersUI() {
       });
       serviceSearchSuggestions.classList.toggle("hidden", serviceSearchSuggestions.children.length === 0);
     } catch (error) {
-      console.warn("[search] service suggestions unavailable");
+      console.warn("[search] service suggestions unavailable", error);
       serviceSearchSuggestions.classList.add("hidden");
     }
   }

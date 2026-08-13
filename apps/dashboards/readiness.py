@@ -368,8 +368,8 @@ def build_salon_readiness_checklist(
             title="سالن برای نمایش و رزرو فعال است",
             description="بعد از تکمیل موارد اصلی، سالن باید فعال باشد تا در مسیر رزرو عمومی استفاده شود.",
             is_done=is_public_active,
-            action_label="تنظیم رزرو آنلاین",
-            action_url=_safe_reverse("dashboards:online_booking"),
+            action_label="مدیریت صفحه عمومی",
+            action_url=f'{_safe_reverse("dashboards:salon_profile")}?tab=public',
             weight=2,
         ),
     ]
@@ -396,6 +396,16 @@ def build_salon_readiness_checklist(
     else:
         summary = "برای شروع رزرو آنلاین، چند بخش اصلی سالن هنوز نیاز به تکمیل دارد."
 
+    # Compatibility contract for dashboard surfaces that still consume the
+    # richer readiness payload. ``items`` remains the canonical checklist.
+    booking_items = list(items)
+    profile_quality_items = [
+        item
+        for item in items
+        if item["key"] in {"gallery", "verification"}
+    ]
+    next_action = missing_items[0] if missing_items else None
+
     return {
         "enabled": True,
         "is_ready": is_ready,
@@ -408,7 +418,10 @@ def build_salon_readiness_checklist(
         "missing_count": len(missing_items),
         "missing_count_label": to_persian_digits(len(missing_items)),
         "items": items,
+        "booking_items": booking_items,
+        "profile_quality_items": profile_quality_items,
         "missing_items": missing_items,
+        "next_action": next_action,
         "has_bookable_path": has_bookable_path,
         "summary": summary,
     }

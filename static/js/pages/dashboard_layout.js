@@ -46,6 +46,35 @@ function setupDashboardLayout() {
   const mobileCreateToggle = document.querySelector("[data-mobile-create-toggle]");
   const mobileCreatePanel = document.querySelector("[data-mobile-create-panel]");
 
+  const mobileManagementRoot = document.querySelector("[data-mobile-management-root]");
+  const mobileManagementToggle = document.querySelector("[data-mobile-management-toggle]");
+  const mobileManagementPanel = document.querySelector("[data-mobile-management-panel]");
+  const mobileManagementClose = document.querySelector("[data-mobile-management-close]");
+
+  let comingSoonToastTimer = null;
+
+  const showComingSoonToast = (message = "به‌زودی فعال می‌شود") => {
+    document.querySelector("[data-dashboard-coming-soon-toast]")?.remove();
+
+    const toast = document.createElement("div");
+    toast.className = "lm-dashboard-coming-soon-toast";
+    toast.dataset.dashboardComingSoonToast = "true";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    window.requestAnimationFrame(() => {
+      toast.classList.add("is-visible");
+    });
+
+    if (comingSoonToastTimer) window.clearTimeout(comingSoonToastTimer);
+    comingSoonToastTimer = window.setTimeout(() => {
+      toast.classList.remove("is-visible");
+      window.setTimeout(() => toast.remove(), 220);
+    }, 2400);
+  };
+
   if (!sidebar || !overlay || !content) return;
 
   const isDesktop = () => window.matchMedia("(min-width: 1024px)").matches;
@@ -141,9 +170,16 @@ function setupDashboardLayout() {
     setExpanded(mobileCreateToggle, false);
   };
 
+  const closeMobileManagementPanel = () => {
+    if (!mobileManagementPanel) return;
+    mobileManagementPanel.classList.add("hidden");
+    setExpanded(mobileManagementToggle, false);
+  };
+
   function closeFloatingPanels() {
     closeNotificationPanel();
     closeMobileCreatePanel();
+    closeMobileManagementPanel();
   }
 
   const openMobileSidebar = () => {
@@ -271,6 +307,7 @@ function setupDashboardLayout() {
     if (!notificationPanel) return;
 
     closeMobileCreatePanel();
+    closeMobileManagementPanel();
 
     notificationPanel.classList.remove("hidden");
     setExpanded(notificationToggle, true);
@@ -282,9 +319,20 @@ function setupDashboardLayout() {
     if (!mobileCreatePanel) return;
 
     closeNotificationPanel();
+    closeMobileManagementPanel();
 
     mobileCreatePanel.classList.remove("hidden");
     setExpanded(mobileCreateToggle, true);
+  };
+
+  const openMobileManagementPanel = () => {
+    if (!mobileManagementPanel) return;
+
+    closeNotificationPanel();
+    closeMobileCreatePanel();
+
+    mobileManagementPanel.classList.remove("hidden");
+    setExpanded(mobileManagementToggle, true);
   };
 
   notificationToggle?.addEventListener("click", (event) => {
@@ -313,12 +361,45 @@ function setupDashboardLayout() {
     }
   });
 
+  mobileManagementToggle?.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!mobileManagementPanel) return;
+
+    if (mobileManagementPanel.classList.contains("hidden")) {
+      openMobileManagementPanel();
+    } else {
+      closeMobileManagementPanel();
+    }
+  });
+
+  mobileManagementClose?.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    closeMobileManagementPanel();
+  });
+
   notificationPanel?.addEventListener("click", (event) => event.stopPropagation());
   mobileCreatePanel?.addEventListener("click", (event) => event.stopPropagation());
+  mobileManagementPanel?.addEventListener("click", (event) => event.stopPropagation());
 
   document.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof Node)) return;
+
+    const comingSoonTrigger = target instanceof Element
+      ? target.closest("[data-dashboard-coming-soon]")
+      : null;
+
+    if (comingSoonTrigger) {
+      event.preventDefault();
+      event.stopPropagation();
+      showComingSoonToast(
+        comingSoonTrigger.dataset.dashboardComingSoonMessage || "به‌زودی فعال می‌شود",
+      );
+      return;
+    }
 
     if (notificationRoot && !notificationRoot.contains(target)) {
       closeNotificationPanel();
@@ -326,6 +407,10 @@ function setupDashboardLayout() {
 
     if (mobileCreateRoot && !mobileCreateRoot.contains(target)) {
       closeMobileCreatePanel();
+    }
+
+    if (mobileManagementRoot && !mobileManagementRoot.contains(target)) {
+      closeMobileManagementPanel();
     }
   });
 
@@ -356,6 +441,7 @@ function setupDashboardLayout() {
       setExpanded(openButton, false);
       setCollapsedState(readCollapsedPreference(), false);
       closeMobileCreatePanel();
+      closeMobileManagementPanel();
 
       return;
     }

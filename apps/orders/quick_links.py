@@ -268,6 +268,31 @@ def _format_quick_link_time(value):
 
 def _serialize_link_for_dashboard(request, quick_link: BookingQuickLink) -> dict:
     summary = quick_link.payload.get("summary") or {}
+
+    # Surface the Production QR/print endpoints through the lightweight dashboard
+    # serializer used by the refactored manager/stylist cards. Permission checks
+    # remain in the dedicated Production views.
+    manager_user_id = getattr(
+        getattr(getattr(quick_link.salon, "salon_manager", None), "user", None),
+        "id",
+        None,
+    )
+    if manager_user_id == getattr(request.user, "id", None):
+        qr_url = reverse(
+            "dashboards:quick_link_qr_download", kwargs={"link_id": quick_link.pk}
+        )
+        print_url = reverse(
+            "dashboards:quick_link_print_templates", kwargs={"link_id": quick_link.pk}
+        )
+    else:
+        qr_url = reverse(
+            "dashboards:stylist_quick_link_qr_download",
+            kwargs={"link_id": quick_link.pk},
+        )
+        print_url = reverse(
+            "dashboards:stylist_quick_link_print_templates",
+            kwargs={"link_id": quick_link.pk},
+        )
     payload_date = quick_link.payload.get("date") or ""
     payload_time = quick_link.payload.get("time") or ""
 
@@ -280,6 +305,8 @@ def _serialize_link_for_dashboard(request, quick_link: BookingQuickLink) -> dict
         "mode": quick_link.mode,
         "mode_label": quick_link.get_mode_display(),
         "url": build_quick_link_url(request, quick_link),
+        "qr_url": qr_url,
+        "print_url": print_url,
         "status_label": quick_link.status_label,
         "status_tone": quick_link.status_tone,
         "is_active": quick_link.is_active,
@@ -309,7 +336,7 @@ def list_booking_quick_links_for_dashboard(
 ):
     qs = (
         BookingQuickLink.objects.select_related(
-            "service", "stylist__user", "salon", "creator"
+            "service", "stylist__user", "salon__salon_manager__user", "creator"
         )
         .filter(salon=salon)
         .order_by("-created_at")

@@ -1,107 +1,31 @@
 {% extends "dashboard_template.html" %}
+{% load static %}
 {% load jalali_extras %}
 
 {% block title %}درخواست دریافت درآمد{% endblock %}
 {% block body_attrs %}data-page="stylist-withdrawals"{% endblock %}
+
+{% block head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/pages/stylist_workspace.css' %}">
+{% endblock %}
 
 {% block content %}
   {% url 'dashboards:stylist_finance' as stylist_finance_url %}
   {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
   {% url 'dashboards:stylist_schedule' as stylist_schedule_url %}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible" data-dashboard-workspace-root data-dashboard-page="stylist-withdrawals">
-    {% include "dashboards/components/page_hero.html" with eyebrow="دریافت درآمد" eyebrow_icon="fa-solid fa-money-bill-transfer" title="درخواست دریافت درآمد" description="مبلغ درخواستی از مانده قابل دریافت شما در مجموعه فعال فعلی رزرو می‌شود و برای بررسی مدیر همان مجموعه ارسال خواهد شد." action_label="بازگشت به مالی من" action_url=stylist_finance_url badges=page_meta.badges %}
+  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-withdrawals">
+    {% include "dashboards/components/page_hero.html" with eyebrow="دریافت درآمد" eyebrow_icon="fa-solid fa-money-bill-transfer" title="درخواست دریافت درآمد" description="درخواست جدید و سابقه نتیجه درخواست‌ها را جدا ببین؛ تغییرات درآمد خدمات در صفحه «درآمد من» باقی می‌ماند." action_label="بازگشت به درآمد من" action_url=stylist_finance_url badges=page_meta.badges %}
 
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش درخواست دریافت درآمد متخصص">
-        <div class="flex min-w-max gap-2">
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-withdrawals-section-actions" aria-selected="true" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5">
-            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
-            <span>اقدام‌ها</span>
-          </button>
 
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-withdrawals-section-summary" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-chart-simple text-[10px]" aria-hidden="true"></i>
-            <span>خلاصه</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ summary_cards|length|fa_digits }}</span>
-          </button>
 
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-withdrawals-section-form" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-paper-plane text-[10px]" aria-hidden="true"></i>
-            <span>ثبت درخواست</span>
-          </button>
 
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-withdrawals-section-requests" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-regular fa-rectangle-list text-[10px]" aria-hidden="true"></i>
-            <span>درخواست‌ها</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ withdrawal_requests|length|fa_digits }}</span>
-          </button>
 
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-withdrawals-section-transactions" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-money-bill-transfer text-[10px]" aria-hidden="true"></i>
-            <span>تراکنش‌ها</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ transactions|length|fa_digits }}</span>
-          </button>
-
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-withdrawals-section-rules" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-shield-halved text-[10px]" aria-hidden="true"></i>
-            <span>قواعد</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <details id="stylist-withdrawals-section-actions"
+    <section id="stylist-withdrawals-section-summary"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             data-dashboard-workspace-open-mobile="true"
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">اقدام‌های دریافت درآمد</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            درخواست دریافت فقط از مانده قابل دریافت همین مجموعه ثبت می‌شود.
-          </p>
-        </div>
-
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="grid gap-3 p-4 sm:grid-cols-3 sm:p-5 lg:p-6">
-        <a href="#stylist-withdrawals-section-form" data-dashboard-workspace-tab data-target="#stylist-withdrawals-section-form" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">ثبت درخواست جدید</h3>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">مبلغ، شبا و اطلاعات حساب را وارد کن.</p>
-        </a>
-
-        <a href="{{ stylist_finance_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="fa-solid fa-wallet" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">مالی من</h3>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">درآمد خدمات و سندهای مالی همین مجموعه را ببین.</p>
-        </a>
-
-        <a href="{{ stylist_appointments_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">نوبت‌های من</h3>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">وضعیت خدمات و نوبت‌های خودت را بررسی کن.</p>
-        </a>
-      </div>
-    </details>
-
-    <details id="stylist-withdrawals-section-summary"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             data-dashboard-workspace-panel data-lm-direct-section>
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">خلاصه دریافت</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مانده و درخواست‌های همین مجموعه</h2>
@@ -109,13 +33,9 @@
             {{ salon.salon_name|default:"مجموعه فعال" }}
           </p>
         </div>
+</header>
 
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-4 sm:p-5 lg:p-6">
+      <div class="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-5 lg:p-6">
         {% for card in summary_cards %}
           <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
             <div class="flex items-start justify-between gap-3">
@@ -130,18 +50,20 @@
             </div>
           </article>
         {% empty %}
-          <div class="sm:col-span-2 xl:col-span-4">
+          <div class="sm:col-span-2 xl:col-span-3">
             {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-wallet" title="خلاصه مالی در دسترس نیست" description="بعد از نهایی‌شدن خدمات، مانده قابل دریافت این بخش تکمیل می‌شود." %}
           </div>
         {% endfor %}
       </div>
-    </details>
+    </section>
 
-    <details id="stylist-withdrawals-section-form"
+    <div data-lm-task-tabs-anchor="stylist-withdrawals" data-lm-task-tabs-label="بخش‌های دریافت درآمد"></div>
+
+    <section id="stylist-withdrawals-section-form"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             data-lm-direct-section data-lm-task-panel="stylist-withdrawals" data-lm-task-key="request" data-lm-task-label="درخواست دریافت" data-lm-task-default data-lm-task-order="1">
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">درخواست جدید</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ثبت درخواست دریافت درآمد</h2>
@@ -150,10 +72,8 @@
           </p>
         </div>
 
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+
+      </header>
 
       <div class="p-4 sm:p-5 lg:p-6">
         <form method="post" class="space-y-5">
@@ -171,7 +91,7 @@
             <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">Amount</p>
+                  <p class="text-[11px] font-black text-loomera-primaryText">مبلغ برداشت</p>
                   <h3 class="mt-1 text-base font-black text-loomera-textPrimary">مبلغ دریافت</h3>
                   <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
                     مبلغ باید کمتر یا مساوی مانده قابل دریافت شما در همین مجموعه باشد.
@@ -215,7 +135,7 @@
             <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">Bank Account</p>
+                  <p class="text-[11px] font-black text-loomera-primaryText">حساب بانکی</p>
                   <h3 class="mt-1 text-base font-black text-loomera-textPrimary">اطلاعات حساب بانکی</h3>
                   <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
                     شماره شبا باید با IR شروع شود و ۲۶ کاراکتر باشد.
@@ -293,7 +213,7 @@
             <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">Note</p>
+                  <p class="text-[11px] font-black text-loomera-primaryText">توضیحات</p>
                   <h3 class="mt-1 text-base font-black text-loomera-textPrimary">یادداشت اختیاری</h3>
                   <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
                     اگر توضیحی برای مدیر مجموعه داری، اینجا وارد کن.
@@ -323,7 +243,7 @@
             </div>
           </section>
 
-          <div class="sticky bottom-4 z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
+          <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p class="text-xs leading-6 text-loomera-textMuted">
                 این درخواست فقط برای درآمد شما در مجموعه فعال فعلی ثبت می‌شود.
@@ -343,13 +263,12 @@
           </div>
         </form>
       </div>
-    </details>
+    </section>
 
-    <details id="stylist-withdrawals-section-requests"
+    <section id="stylist-withdrawals-section-requests"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-withdrawals" data-lm-task-key="requests" data-lm-task-label="درخواست‌های من" data-lm-task-order="2">
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">درخواست‌های من</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت درخواست‌های دریافت درآمد</h2>
@@ -357,11 +276,7 @@
             آخرین درخواست‌های ثبت‌شده برای همین مجموعه.
           </p>
         </div>
-
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+</header>
 
       <div class="grid gap-3 p-4 sm:p-5 lg:grid-cols-2 xl:grid-cols-3 lg:p-6">
         {% for item in withdrawal_requests %}
@@ -431,121 +346,8 @@
           </div>
         {% endfor %}
       </div>
-    </details>
+    </section>
 
-    <details id="stylist-withdrawals-section-transactions"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">تراکنش‌ها</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">رزرو و بازگشت مانده</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            تراکنش‌های مربوط به درخواست دریافت درآمد در همین مجموعه.
-          </p>
-        </div>
 
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="grid gap-3 p-4 sm:p-5 lg:grid-cols-2 xl:grid-cols-3 lg:p-6">
-        {% for tx in transactions %}
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <p class="text-sm font-black text-loomera-textPrimary">
-                  {{ tx.get_transaction_type_display }}
-                </p>
-                <p class="mt-1 text-xs text-loomera-textMuted">
-                  {{ tx.created_at|jalali_datetime }}
-                </p>
-              </div>
-
-              <span class="shrink-0 rounded-full {% if tx.available_delta < 0 or tx.pending_delta < 0 %}bg-rose-50 text-rose-700{% else %}bg-emerald-50 text-emerald-700{% endif %} px-3 py-1 text-xs font-black">
-                {% if tx.available_delta %}
-                  {{ tx.available_delta|floatformat:0|fa_digits }} تومان
-                {% else %}
-                  {{ tx.pending_delta|floatformat:0|fa_digits }} تومان
-                {% endif %}
-              </span>
-            </div>
-
-            {% if tx.description %}
-              <p class="mt-3 text-sm leading-7 text-loomera-textSecondary">{{ tx.description }}</p>
-            {% endif %}
-
-            <div class="mt-3 grid gap-2 text-xs text-loomera-textMuted">
-              <p class="rounded-xl bg-loomera-bgSubtle px-3 py-2">
-                مانده در انتظار بعد از تراکنش:
-                <strong>{{ tx.pending_balance_after|floatformat:0|fa_digits }}</strong>
-                تومان
-              </p>
-
-              <p class="rounded-xl bg-loomera-bgSubtle px-3 py-2">
-                قابل دریافت بعد از تراکنش:
-                <strong>{{ tx.available_balance_after|floatformat:0|fa_digits }}</strong>
-                تومان
-              </p>
-            </div>
-          </article>
-        {% empty %}
-          <div class="lg:col-span-2 xl:col-span-3">
-            {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-money-bill-transfer" title="هنوز تراکنشی ثبت نشده" description="بعد از ثبت درخواست دریافت یا بازگشت درخواست ردشده، تراکنش‌های مرتبط اینجا نمایش داده می‌شود." %}
-          </div>
-        {% endfor %}
-      </div>
-    </details>
-
-    <details id="stylist-withdrawals-section-rules"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">راهنما و قواعد</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">قواعد دریافت درآمد متخصص</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            برای جلوگیری از اختلال مالی بین سالن‌ها، درخواست‌ها سالن‌محور هستند.
-          </p>
-        </div>
-
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="grid gap-4 p-4 sm:p-5 lg:grid-cols-2 lg:p-6">
-        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-            <i class="fa-solid fa-building-user" aria-hidden="true"></i>
-          </span>
-
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">اسکوپ همین مجموعه</h3>
-          <ul class="mt-3 space-y-2 text-sm leading-7 text-loomera-textSecondary">
-            <li>• درخواست دریافت فقط برای مجموعه فعال فعلی ثبت می‌شود.</li>
-            <li>• مبلغ از مانده قابل دریافت همین مجموعه رزرو می‌شود.</li>
-            <li>• مدیر همین مجموعه باید درخواست را بررسی کند.</li>
-            <li>• سالن‌های دیگر متخصص از این درخواست تأثیر نمی‌گیرند.</li>
-          </ul>
-        </article>
-
-        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-            <i class="fa-solid fa-wallet" aria-hidden="true"></i>
-          </span>
-
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">چرخه درخواست</h3>
-          <ul class="mt-3 space-y-2 text-sm leading-7 text-loomera-textSecondary">
-            <li>• ثبت درخواست، مانده قابل دریافت را موقتاً کاهش می‌دهد.</li>
-            <li>• تایید مدیر یعنی پرداخت انجام شده است.</li>
-            <li>• رد یا لغو درخواست، مبلغ را به مانده قابل دریافت برمی‌گرداند.</li>
-            <li>• رسید پرداخت بعد از بررسی مدیر قابل مشاهده می‌شود.</li>
-          </ul>
-        </article>
-      </div>
-    </details>
   </section>
 {% endblock %}

@@ -50,6 +50,9 @@ def _resolve_shell_context(context):
             sidebar_active=context.get("sidebar_active", "overview"),
             page_title=context.get("page_title", "داشبورد"),
             request_path=request.path,
+            role=context.get("dashboard_role"),
+            salon_override=context.get("salon"),
+            stylist_override=context.get("stylist"),
         )
         request = context.get("request")
         dashboard_current_path = ""
@@ -101,6 +104,17 @@ def _resolve_shell_context(context):
                 "stylist_salon": context.get(
                     "stylist_salon",
                     shell.get("stylist_salon"),
+                ),
+                "dashboard_role": context.get(
+                    "dashboard_role", shell.get("dashboard_role")
+                ),
+                "dashboard_workspace_modes": context.get(
+                    "dashboard_workspace_modes",
+                    shell.get("dashboard_workspace_modes", []),
+                ),
+                "dashboard_has_workspace_switch": context.get(
+                    "dashboard_has_workspace_switch",
+                    shell.get("dashboard_has_workspace_switch", False),
                 ),
                 "request": request,
                 "dashboard_current_path": dashboard_current_path,

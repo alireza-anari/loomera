@@ -7,8 +7,7 @@ function openDirectionsIntent(lat, lng, label = "سالن") {
   const iosUrl = `maps://?daddr=${lat},${lng}&dirflg=d`;
   const webUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${lat},${lng}`)}`;
 
-  const isIOS =
-    /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const isAndroid = /Android/i.test(navigator.userAgent);
 
   if (isAndroid) {
@@ -25,25 +24,23 @@ function openDirectionsIntent(lat, lng, label = "سالن") {
 }
 
 function initDirectionsButtons() {
-  document
-    .querySelectorAll('[data-action="open-directions"]')
-    .forEach((button) => {
-      if (button.dataset.bound === "1") return;
-      button.dataset.bound = "1";
+  document.querySelectorAll('[data-action="open-directions"]').forEach((button) => {
+    if (button.dataset.bound === "1") return;
+    button.dataset.bound = "1";
 
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        const lat = Number(button.dataset.lat);
-        const lng = Number(button.dataset.lng);
-        const label = button.dataset.label || "سالن";
-        if (Number.isNaN(lat) || Number.isNaN(lng)) {
-          const fallbackHref = button.getAttribute("href");
-          if (fallbackHref) window.open(fallbackHref, "_blank", "noopener");
-          return;
-        }
-        openDirectionsIntent(lat, lng, label);
-      });
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      const lat = Number(button.dataset.lat);
+      const lng = Number(button.dataset.lng);
+      const label = button.dataset.label || "سالن";
+      if (Number.isNaN(lat) || Number.isNaN(lng)) {
+        const fallbackHref = button.getAttribute("href");
+        if (fallbackHref) window.open(fallbackHref, "_blank", "noopener");
+        return;
+      }
+      openDirectionsIntent(lat, lng, label);
     });
+  });
 }
 
 export default function initOrdersPage() {

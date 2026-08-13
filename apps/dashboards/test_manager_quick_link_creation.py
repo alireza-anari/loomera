@@ -137,9 +137,16 @@ class ManagerQuickLinkCreationTests(TestCase):
             200,
         )
 
+        # The refactored creation card separates the section label
+        # from the form title while preserving the same creation workflow.
         self.assertContains(
             response,
-            "ساخت لینک رزرو جدید",
+            "ساخت لینک",
+        )
+
+        self.assertContains(
+            response,
+            "لینک رزرو جدید",
         )
 
         self.assertContains(

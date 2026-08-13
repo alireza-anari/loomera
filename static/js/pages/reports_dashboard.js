@@ -21,7 +21,7 @@ export default function initReportsDashboard() {
         maxDate: "attr",
       });
     } catch (error) {
-      console.warn("[reports] jalaliDatepicker initialization failed");
+      console.warn("[reports] jalaliDatepicker init error", error);
     }
   };
 
@@ -101,8 +101,98 @@ export default function initReportsDashboard() {
     });
   };
 
+  const initFilterDialog = () => {
+    const modal = document.querySelector("[data-reports-filter-modal]");
+    const taskTabs = document.querySelector('[data-lm-task-tabs-generated="reports"]');
+    if (!modal || !taskTabs) return;
+
+    const dialog = modal.querySelector('[role="dialog"]');
+    const firstFocusable = modal.querySelector('input:not([type="hidden"]), select, button, a[href]');
+    const count = Number.parseInt(document.body.dataset.reportsFilterCount || "0", 10) || 0;
+    let lastFocused = null;
+
+    let trigger = document.querySelector("[data-reports-filter-open]");
+    if (!trigger) {
+      trigger = document.createElement("button");
+      trigger.type = "button";
+      trigger.className = "lm-task-tab lm-reports-filter-tab";
+      trigger.dataset.reportsFilterOpen = "";
+      trigger.setAttribute("aria-haspopup", "dialog");
+      trigger.setAttribute("aria-controls", modal.id || "reportsFilterModal");
+      trigger.setAttribute("aria-label", count ? `فیلتر گزارش‌ها، ${count} فیلتر فعال` : "فیلتر گزارش‌ها");
+      trigger.innerHTML = `
+        <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 6h16M7 12h10M10 18h4"/>
+        </svg>
+        <span>فیلتر</span>
+        ${count ? `<span class="lm-reports-filter-count" aria-hidden="true">${count}</span>` : ""}
+      `;
+
+      const anchor = taskTabs.closest(".lm-task-tabs-anchor");
+      if (anchor) {
+        const shell = document.createElement("div");
+        shell.className = "lm-reports-tabs-shell";
+        shell.dataset.reportsTabsShell = "";
+        anchor.replaceChildren(shell);
+        shell.append(trigger, taskTabs);
+      } else {
+        taskTabs.parentNode?.insertBefore(trigger, taskTabs);
+      }
+    }
+
+    const openModal = () => {
+      lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      modal.setAttribute("aria-hidden", "false");
+      document.documentElement.classList.add("overflow-hidden");
+      window.requestAnimationFrame(() => firstFocusable?.focus({ preventScroll: true }));
+    };
+
+    const closeModal = () => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      modal.setAttribute("aria-hidden", "true");
+      document.documentElement.classList.remove("overflow-hidden");
+      lastFocused?.focus?.({ preventScroll: true });
+    };
+
+    trigger?.addEventListener("click", openModal);
+    modal.querySelectorAll("[data-reports-filter-close]").forEach((button) => {
+      button.addEventListener("click", closeModal);
+    });
+
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeModal();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && modal.getAttribute("aria-hidden") === "false") {
+        event.preventDefault();
+        closeModal();
+        return;
+      }
+
+      if (event.key !== "Tab" || modal.getAttribute("aria-hidden") !== "false" || !dialog) return;
+      const focusable = Array.from(
+        dialog.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')
+      ).filter((node) => node instanceof HTMLElement && !node.hidden && node.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+  };
+
   initJalaliDatePicker();
   initAccordions();
+  initFilterDialog();
 
   if (!window.__reportsDashboardResizeBound) {
     window.__reportsDashboardResizeBound = true;

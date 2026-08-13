@@ -142,6 +142,10 @@ def _serialize_manager_quick_link_row(
             "dashboards:quick_link_qr_download",
             kwargs={"link_id": quick_link.pk},
         ),
+        "print_url": reverse(
+            "dashboards:quick_link_print_templates",
+            kwargs={"link_id": quick_link.pk},
+        ),
     }
 
 

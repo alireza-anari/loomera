@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}اعلان‌ها و ارتباطات{% endblock %}
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-28 text-loomera-textPrimary">
+  <form method="post" class="mx-auto w-full max-w-5xl space-y-4 px-4 py-5 sm:px-6 lg:py-8">
+    {% csrf_token %}
+    <header class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+      <a href="{{ settings_return_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-borderSoft px-3 py-2 text-xs font-black text-loomera-textSecondary"><i class="fa-solid fa-arrow-right text-[10px]"></i>تنظیمات</a>
+      <h1 class="mt-4 text-2xl font-black">اعلان‌ها و ارتباطات</h1>
+      <p class="mt-2 text-sm leading-7 text-loomera-textMuted">مشخص کن چه پیام‌هایی از لومرا دریافت کنی و اتصال بله را از همین صفحه مدیریت کن.</p>
+    </header>
+
+    <section class="grid grid-cols-3 gap-3" aria-label="خلاصه وضعیت">
+      <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card"><p class="text-[11px] font-black text-loomera-textMuted">بله</p><p class="mt-2 text-sm font-black {% if bale_connected %}text-emerald-700{% endif %}">{% if bale_connected %}متصل{% elif bale_ready %}متصل نیست{% else %}در دسترس نیست{% endif %}</p></article>
+      <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card"><p class="text-[11px] font-black text-loomera-textMuted">پیام‌های نوبت</p><p class="mt-2 text-sm font-black">{% if customer.notify_appointment_sms or customer.notify_appointment_email or bale_operational %}روشن{% else %}خاموش{% endif %}</p></article>
+      <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card"><p class="text-[11px] font-black text-loomera-textMuted">تبلیغات</p><p class="mt-2 text-sm font-black">{% if customer.notify_marketing_sms or customer.notify_marketing_email or bale_marketing %}روشن{% else %}خاموش{% endif %}</p></article>
+    </section>
+
+    <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
+      <div class="border-b border-loomera-borderSoft pb-4"><p class="text-xs font-black text-loomera-primary">پیام‌های ضروری حساب</p><h2 class="mt-1 text-lg font-black">نوبت‌ها و رویدادهای کاری</h2><p class="mt-1 text-xs leading-6 text-loomera-textMuted">این انتخاب‌ها برای یادآوری نوبت و رویدادهای عملیاتی‌اند. پیام‌های امنیتی حیاتی ممکن است مستقل از این تنظیمات ارسال شوند.</p></div>
+      <div class="mt-4 grid gap-3 sm:grid-cols-3">
+        <label class="flex cursor-pointer items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4"><span><strong class="block text-sm">پیامک</strong><small class="text-loomera-textMuted">یادآوری و تغییرات نوبت</small></span><input type="checkbox" name="appointment_sms" value="1" class="h-5 w-5 accent-loomera-primary" {% if customer.notify_appointment_sms %}checked{% endif %}></label>
+        <label class="flex cursor-pointer items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4"><span><strong class="block text-sm">ایمیل</strong><small class="text-loomera-textMuted">اگر ایمیل ثبت شده باشد</small></span><input type="checkbox" name="appointment_email" value="1" class="h-5 w-5 accent-loomera-primary" {% if customer.notify_appointment_email %}checked{% endif %}></label>
+        <label class="flex cursor-pointer items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4"><span><strong class="block text-sm">بله</strong><small class="text-loomera-textMuted">پیام‌های کاری در ربات</small></span><input type="checkbox" name="bale_operational" value="1" class="h-5 w-5 accent-loomera-primary" {% if bale_operational %}checked{% endif %}></label>
+      </div>
+    </section>
+
+    <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
+      <div class="border-b border-loomera-borderSoft pb-4"><p class="text-xs font-black text-loomera-primary">اختیاری</p><h2 class="mt-1 text-lg font-black">پیشنهادها و خبرها</h2><p class="mt-1 text-xs leading-6 text-loomera-textMuted">خاموش‌کردن این بخش روی پیام‌های ضروری نوبت اثر ندارد.</p></div>
+      <div class="mt-4 grid gap-3 sm:grid-cols-3">
+        <label class="flex cursor-pointer items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4"><span><strong class="block text-sm">پیامک</strong><small class="text-loomera-textMuted">پیشنهادهای کوتاه</small></span><input type="checkbox" name="marketing_sms" value="1" class="h-5 w-5 accent-loomera-primary" {% if customer.notify_marketing_sms %}checked{% endif %}></label>
+        <label class="flex cursor-pointer items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4"><span><strong class="block text-sm">ایمیل</strong><small class="text-loomera-textMuted">خبرها و پیشنهادها</small></span><input type="checkbox" name="marketing_email" value="1" class="h-5 w-5 accent-loomera-primary" {% if customer.notify_marketing_email %}checked{% endif %}></label>
+        <label class="flex cursor-pointer items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4"><span><strong class="block text-sm">بله</strong><small class="text-loomera-textMuted">پیام‌های تبلیغاتی ربات</small></span><input type="checkbox" name="bale_marketing" value="1" class="h-5 w-5 accent-loomera-primary" {% if bale_marketing %}checked{% endif %}></label>
+      </div>
+    </section>
+
+    <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
+      <div class="flex items-start gap-3"><span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary"><i class="fa-solid fa-paper-plane"></i></span><div><p class="text-xs font-black text-loomera-primary">پیام‌رسان</p><h2 class="mt-1 text-lg font-black">اتصال بله</h2><p class="mt-1 text-xs leading-6 text-loomera-textMuted">فقط کانالی که الان در محصول قابل استفاده است نمایش داده می‌شود.</p></div></div>
+      {% if bale_connected %}
+        <div class="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4"><div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p class="text-sm font-black text-emerald-800">حساب بله متصل است</p><p class="mt-1 text-xs text-emerald-700">{% firstof bale_connection.identity.display_name bale_connection.identity.username "اتصال فعال بله" %}</p></div><button type="submit" formaction="{% url 'messaging:disconnect' bale_connection.identity.id %}" formmethod="post" name="next" value="{{ request.path }}" onclick="return confirm('اتصال بله قطع شود؟')" class="rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-black text-rose-700">قطع اتصال</button></div></div>
+      {% elif bale_ready %}
+        <div class="mt-4 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4"><p class="text-sm font-black">بله هنوز متصل نیست</p><p class="mt-1 text-xs leading-6 text-loomera-textMuted">اتصال را شروع کن و در ربات تأیید کن.</p><a href="{{ bale_connect_url }}" class="mt-3 inline-flex rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white">اتصال به بله</a></div>
+      {% else %}
+        <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-900">اتصال بله فعلاً در این محیط فعال نیست؛ تنظیماتت ذخیره می‌شود و بعداً قابل استفاده خواهد بود.</div>
+      {% endif %}
+    </section>
+
+    <div data-mobile-primary-action class="lm-shell-aware-mobile-action sticky bottom-3 z-30 flex flex-col gap-3 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-lm-elevated backdrop-blur sm:flex-row sm:items-center"><a href="{{ notification_center_url }}" class="inline-flex min-h-11 items-center justify-center rounded-full border border-loomera-borderSoft px-4 text-xs font-black text-loomera-textSecondary">مرکز اعلان‌ها</a><a href="{{ messaging_privacy_url }}" class="hidden text-xs font-black text-loomera-textMuted sm:inline-flex">حریم خصوصی پیام‌رسان‌ها</a><button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-full bg-loomera-primary px-5 text-sm font-black text-white sm:mr-auto">ذخیره تنظیمات</button></div>
+  </form>
+</main>
+{% endblock %}

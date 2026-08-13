@@ -1,138 +1,276 @@
 {% extends "dashboard_template.html" %}
 {% load jalali_extras %}
-{% block title %}درخواست‌های دریافت درآمد متخصصان{% endblock %}
+
+{% block title %}برداشت متخصصان{% endblock %}
+
 {% block content %}
-  <section class="rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-      <div>
-        <span class="inline-flex items-center gap-2 rounded-full border border-violet-100 bg-violet-50 px-3 py-1 text-[11px] font-bold text-violet-700">
-          <i class="fa-solid fa-money-bill-transfer text-[10px]"></i>
-          <span>دریافت درآمد متخصصان</span>
-        </span>
-        <h1 class="mt-4 text-2xl font-black text-slate-950">درخواست‌های دریافت درآمد متخصصان</h1>
-        <p class="mt-2 max-w-4xl text-sm leading-7 text-slate-500">
-          درخواست‌های دریافت درآمد ثبت‌شده توسط متخصصان را بررسی کن؛ اگر پرداخت بانکی بود رسید واریز را پیوست کن، و اگر پرداخت نقدی بود بدون رسید تأیید کن.
-        </p>
+{% url 'dashboards:finance_stylist_wallets' as team_income_url %}
+
+<section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-workspace-root data-dashboard-page="finance-team-withdrawals">
+  <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="team-withdrawals-title">
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.14),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.96),rgba(255,255,255,0))]" aria-hidden="true"></div>
+    <div class="relative min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
+      <div class="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div class="min-w-0">
+          <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+            <span class="h-4 w-4" aria-hidden="true">{% include "partials/dashboard/nav_icon.html" with key="finance_team" %}</span>
+            <span>مالی متخصصان</span>
+          </span>
+          <h1 id="team-withdrawals-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">برداشت متخصصان</h1>
+          <p class="mt-3 max-w-4xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">درخواست‌های باز را پرداخت یا رد کن و نتیجه درخواست‌های قبلی را جداگانه ببین. مبلغ هر درخواست هنگام ثبت از مانده قابل دریافت متخصص کنار گذاشته شده است.</p>
+        </div>
+        <a href="{{ team_income_url }}" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-full border border-loomera-borderSoft bg-white px-4 py-2.5 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft">
+          <span>درآمد متخصصان</span>
+        </a>
       </div>
-      <div class="flex flex-wrap gap-3">
-        <a href="{% url 'dashboards:finance_stylist_wallets' %}"
-           class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700">
-          <i class="fa-solid fa-wallet text-xs"></i>
-          <span>حساب مالی متخصصان</span>
-        </a>
-        <a href="{% url 'dashboards:finance_cost_center' %}"
-           class="inline-flex items-center gap-2 rounded-full bg-loomera-primary px-4 py-3 text-sm font-bold text-white">
-          <i class="fa-solid fa-scale-balanced text-xs"></i>
-          <span>هزینه‌ها و سهم‌ها</span>
-        </a>
+
+      <div class="mt-5 grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4" aria-label="خلاصه برداشت متخصصان">
+        <article class="rounded-[22px] border border-loomera-warning/15 bg-loomera-warningSoft/45 p-3.5 sm:p-4">
+          <p class="text-[10px] font-bold leading-5 text-loomera-textMuted sm:text-xs">در انتظار اقدام</p>
+          <strong class="mt-1.5 block text-sm font-black text-loomera-warning sm:text-lg">{{ withdrawal_summary.pending_count|fa_digits }}</strong>
+          <p class="mt-1 hidden text-[10px] leading-5 text-loomera-textMuted sm:block">درخواست باز</p>
+        </article>
+        <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3.5 sm:p-4">
+          <p class="text-[10px] font-bold leading-5 text-loomera-textMuted sm:text-xs">مبلغ در انتظار پرداخت</p>
+          <strong class="mt-1.5 block break-words text-sm font-black text-loomera-textPrimary sm:text-lg">{{ withdrawal_summary.pending_amount }}</strong>
+          <p class="mt-1 hidden text-[10px] leading-5 text-loomera-textMuted sm:block">برای درخواست‌های باز</p>
+        </article>
+        <article class="rounded-[22px] border border-loomera-success/15 bg-loomera-successSoft/45 p-3.5 sm:p-4">
+          <p class="text-[10px] font-bold leading-5 text-loomera-textMuted sm:text-xs">پرداخت‌شده</p>
+          <strong class="mt-1.5 block break-words text-sm font-black text-loomera-success sm:text-lg">{{ withdrawal_summary.approved_amount }}</strong>
+          <p class="mt-1 hidden text-[10px] leading-5 text-loomera-textMuted sm:block">درخواست‌های تأییدشده</p>
+        </article>
+        <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3.5 sm:p-4">
+          <p class="text-[10px] font-bold leading-5 text-loomera-textMuted sm:text-xs">برگشت به موجودی</p>
+          <strong class="mt-1.5 block break-words text-sm font-black text-loomera-textPrimary sm:text-lg">{{ withdrawal_summary.returned_amount }}</strong>
+          <p class="mt-1 hidden text-[10px] leading-5 text-loomera-textMuted sm:block">درخواست‌های رد یا لغوشده</p>
+        </article>
       </div>
     </div>
   </section>
-  <section class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-    {% for card in summary_cards %}
-      <article class="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
-        <p class="text-xs font-bold text-slate-500">{{ card.label }}</p>
-        <p class="mt-3 text-lg font-black text-slate-950">{{ card.value }}</p>
-      </article>
-    {% endfor %}
-  </section>
-  <section class="mt-6 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-    <h2 class="text-lg font-black text-slate-950">لیست درخواست‌ها</h2>
-    <div class="mt-5 overflow-x-auto">
-      <table class="min-w-full text-right text-sm">
-        <thead>
-          <tr class="border-b border-slate-200 text-xs text-slate-500">
-            <th class="py-3 pl-4">متخصص</th>
-            <th class="py-3 pl-4">مبلغ</th>
-            <th class="py-3 pl-4">تاریخ درخواست</th>
-            <th class="py-3 pl-4">تاریخ بررسی</th>
-            <th class="py-3 pl-4">شبا</th>
-            <th class="py-3 pl-4">صاحب حساب</th>
-            <th class="py-3 pl-4">وضعیت</th>
-            <th class="py-3 pl-4">رسید اختیاری و عملیات</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in withdrawals %}
-            <tr class="border-b border-slate-100 align-top">
-              <td class="py-4 pl-4 font-black text-slate-950">{{ item.wallet.stylist }}</td>
-              <td class="py-4 pl-4 text-slate-700">{{ item.amount|floatformat:0 }} تومان</td>
-              <td class="py-4 pl-4 text-slate-600">
-                <p class="font-bold text-slate-700">{{ item.created_at|jalali_datetime }}</p>
-              </td>
-              <td class="py-4 pl-4 text-slate-600">
-                {% if item.reviewed_at %}
-                  <p class="font-bold text-slate-700">{{ item.reviewed_at|jalali_datetime }}</p>
-                {% else %}
-                  <span class="text-xs text-slate-400">هنوز بررسی نشده</span>
-                {% endif %}
-              </td>
-              <td class="py-4 pl-4 text-slate-600" dir="ltr">{{ item.iban }}</td>
-              <td class="py-4 pl-4 text-slate-600">{{ item.account_holder_name }}</td>
-              <td class="py-4 pl-4">
-                <span class="rounded-full px-3 py-1 text-xs font-bold {% if item.status == 'approved' %}bg-emerald-50 text-emerald-700{% elif item.status == 'rejected' %}bg-rose-50 text-rose-700{% elif item.status == 'cancelled' %}bg-slate-100 text-slate-600{% else %}bg-amber-50 text-amber-700{% endif %}">
-                  {{ item.get_status_display }}
-                </span>
-              </td>
-              <td class="py-4 pl-4">
-                {% if item.status == "pending" %}
-                  <form method="post" enctype="multipart/form-data" class="space-y-2">
-                    {% csrf_token %}
-                    <input type="hidden" name="withdrawal_id" value="{{ item.id }}">
-                    <textarea name="note"
-                              rows="2"
-                              class="w-64 max-w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs"
-                              placeholder="یادداشت اختیاری"></textarea>
-                    <label class="block w-64 max-w-full rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/60 px-3 py-3 text-xs leading-6 text-emerald-800">
-                      <span class="font-black">رسید واریز <span class="font-bold text-emerald-600/70">اختیاری</span></span>
-                      <span class="mt-1 block text-emerald-700/80">اگر پرداخت بانکی انجام شده، تصویر یا فایل رسید را آپلود کن؛ برای پرداخت نقدی می‌توانی بدون رسید تأیید کنی.</span>
-                      <input type="file"
-                             name="payment_receipt"
-                             accept="image/jpeg,image/png,application/pdf"
-                             class="mt-2 block w-full text-[11px] text-emerald-900 file:ml-3 file:rounded-full file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-bold file:text-emerald-700">
-                    </label>
-                    <div class="flex flex-wrap gap-2">
-                      <button name="action"
-                              value="approve"
-                              class="rounded-full bg-emerald-600 px-3 py-2 text-xs font-bold text-white">
-                        تأیید دریافت
-                      </button>
-                      <button name="action"
-                              value="reject"
-                              class="rounded-full bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700">
-                        رد و بازگشت مانده
-                      </button>
-                      <button name="action"
-                              value="cancel"
-                              class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700">لغو</button>
-                    </div>
-                  </form>
-                {% else %}
-                  <div class="space-y-2 text-xs text-slate-500">
-                    <span>بررسی شده</span>
-                    {% if item.payment_receipt %}
-                      <a href="{{ item.payment_receipt.url }}"
-                         target="_blank"
-                         rel="noopener"
-                         class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 font-bold text-emerald-700">
-                        <i class="fa-solid fa-receipt text-[10px]"></i> مشاهده رسید
-                      </a>
-                    {% else %}
-                      <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 font-bold text-slate-600">
-                        <i class="fa-solid fa-money-bill-wave text-[10px]"></i> بدون رسید / پرداخت نقدی
-                      </span>
-                    {% endif %}
-                  </div>
-                {% endif %}
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="8" class="py-8 text-center text-sm text-slate-500">هنوز درخواست دریافت درآمدی ثبت نشده است.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+
+  {% include "dashboards/partials/finance/workspace_nav.html" with active="team" %}
+  {% include "dashboards/partials/finance/team_nav.html" with active_team_finance="withdrawals" %}
+
+  <div class="lm-task-tabs-anchor" data-lm-task-tabs-anchor="team-withdrawals" data-lm-task-tabs-label="بخش‌های برداشت متخصصان"></div>
+
+  <section id="team-withdrawals-pending"
+           class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card"
+           data-dashboard-workspace-panel data-lm-direct-section
+           data-lm-task-panel="team-withdrawals" data-lm-task-key="pending" data-lm-task-label="در انتظار اقدام" data-lm-task-default data-lm-task-order="1"
+           aria-labelledby="pending-withdrawals-title">
+    <header class="flex flex-col gap-3 border-b border-loomera-borderSoft px-4 py-4 sm:flex-row sm:items-end sm:justify-between sm:px-5 lg:px-6">
+      <div class="min-w-0">
+        <p class="text-[11px] font-black text-loomera-primaryText">کارهای امروز</p>
+        <h2 id="pending-withdrawals-title" class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">درخواست‌هایی که منتظر تصمیم تو هستند</h2>
+        <p class="mt-1 max-w-3xl text-xs leading-6 text-loomera-textMuted">قبل از تأیید، مبلغ و حساب مقصد را بررسی کن. رسید واریز اختیاری است و برای پرداخت نقدی یا ثبت دستی می‌توان بدون فایل تأیید کرد.</p>
+      </div>
+      {% if withdrawal_summary.pending_count %}
+        <span class="inline-flex min-h-9 shrink-0 items-center rounded-full bg-loomera-warningSoft px-3 py-2 text-[11px] font-black text-loomera-textSecondary">{{ withdrawal_summary.pending_count|fa_digits }} درخواست باز</span>
+      {% endif %}
+    </header>
+
+    <div class="p-4 sm:p-5 lg:p-6">
+      {% if pending_withdrawals %}
+        <label class="relative block max-w-xl">
+          <span class="sr-only">جستجوی درخواست باز</span>
+          <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-loomera-textMuted"><i class="fa-solid fa-magnifying-glass text-xs" aria-hidden="true"></i></span>
+          <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pr-10 pl-4 text-sm outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10" placeholder="جستجو با نام متخصص" data-withdrawal-search="pending">
+        </label>
+      {% endif %}
+
+      <div class="{% if pending_withdrawals %}mt-4{% endif %} grid gap-3 lg:grid-cols-2" data-withdrawal-list="pending">
+        {% for item in pending_withdrawals %}
+          <details id="withdrawal-{{ item.id }}" class="lm-compact-record" data-lm-compact-record data-withdrawal-card data-withdrawal-group="pending" data-withdrawal-name="{{ item.wallet.stylist }}">
+            <summary class="lm-compact-record-summary">
+              <span class="lm-compact-record-avatar" aria-hidden="true"><i class="fa-solid fa-money-bill-transfer"></i></span>
+              <span class="min-w-0 flex-1 text-right">
+                <span class="flex min-w-0 items-center gap-2"><strong class="min-w-0 flex-1 truncate text-sm font-black text-loomera-textPrimary">{{ item.wallet.stylist }}</strong><span class="shrink-0 rounded-full bg-loomera-warningSoft px-2 py-1 text-[9px] font-black text-loomera-textSecondary">منتظر تصمیم</span></span>
+                <span class="mt-1 block text-xs text-loomera-textMuted"><strong class="text-loomera-textPrimary">{{ item.amount|floatformat:0 }} تومان</strong> · {{ item.created_at|jalali_datetime }}</span>
+              </span>
+              <span class="lm-compact-record-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
+            </summary>
+
+            <div class="lm-compact-record-body space-y-4">
+              <section class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-3.5" aria-label="حساب مقصد">
+                <div class="flex items-center justify-between gap-3">
+                  <div><p class="text-[10px] font-black text-loomera-primaryText">حساب مقصد</p><p class="mt-1 text-xs text-loomera-textMuted">همان اطلاعاتی که متخصص هنگام ثبت درخواست تأیید کرده است.</p></div>
+                  {% if item.bank_name %}<span class="shrink-0 rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-loomera-textSecondary">{{ item.bank_name }}</span>{% endif %}
+                </div>
+                <dl class="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+                  <div class="rounded-2xl bg-white p-3"><dt class="text-loomera-textMuted">صاحب حساب</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ item.account_holder_name }}</dd></div>
+                  <div class="rounded-2xl bg-white p-3"><dt class="text-loomera-textMuted">شماره شبا</dt><dd class="mt-1 overflow-x-auto whitespace-nowrap font-black text-loomera-textPrimary" dir="ltr">{{ item.iban }}</dd></div>
+                </dl>
+              </section>
+
+              <form method="post" enctype="multipart/form-data" class="space-y-3" data-withdrawal-review-form>
+                {% csrf_token %}
+                <input type="hidden" name="withdrawal_id" value="{{ item.id }}">
+
+                <label class="block">
+                  <span class="mb-2 block text-xs font-black text-loomera-textSecondary">یادداشت برای متخصص <span class="font-bold text-loomera-textMuted">(اختیاری برای تأیید)</span></span>
+                  <textarea name="note" rows="2" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3.5 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10" placeholder="مثلاً شماره پیگیری پرداخت یا دلیل رد درخواست"></textarea>
+                </label>
+
+                <label class="block rounded-[20px] border border-dashed border-loomera-success/25 bg-loomera-successSoft/35 p-3.5">
+                  <span class="block text-xs font-black text-loomera-success">رسید واریز <span class="font-bold opacity-70">اختیاری</span></span>
+                  <span class="mt-1 block text-[11px] leading-6 text-loomera-textSecondary">برای پرداخت بانکی می‌توانی تصویر یا PDF رسید را نگه داری. اگر پرداخت نقدی یا خارج از سامانه ثبت شده، فایل لازم نیست.</span>
+                  <input type="file" name="payment_receipt" accept="image/jpeg,image/png,.pdf,application/pdf" class="mt-2 block w-full text-[11px] text-loomera-textSecondary file:ml-3 file:rounded-full file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-black file:text-loomera-success">
+                </label>
+
+                <label class="flex items-start gap-2.5 rounded-[18px] border border-loomera-borderSoft bg-white p-3 text-xs leading-6 text-loomera-textSecondary">
+                  <input type="checkbox" required class="mt-1 h-4 w-4 shrink-0 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-withdrawal-payment-confirmation>
+                  <span>مبلغ و حساب مقصد را بررسی کرده‌ام و پرداخت این درخواست انجام شده است.</span>
+                </label>
+
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <button type="submit" name="action" value="reject" formnovalidate class="inline-flex min-h-11 items-center justify-center rounded-full border border-loomera-danger/15 bg-loomera-dangerSoft px-4 py-2.5 text-xs font-black text-loomera-textSecondary transition hover:opacity-90" data-withdrawal-reject>رد و بازگشت مبلغ</button>
+                  <button type="submit" name="action" value="approve" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-success px-5 py-2.5 text-xs font-black text-white shadow-lm-soft transition hover:opacity-95"><i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i><span>ثبت پرداخت</span></button>
+                </div>
+                <p class="text-[10px] leading-5 text-loomera-textMuted">با رد درخواست، مبلغ کنارگذاشته‌شده دوباره به مانده قابل دریافت متخصص برمی‌گردد.</p>
+              </form>
+            </div>
+          </details>
+        {% empty %}
+          <div class="col-span-full rounded-[24px] border border-dashed border-loomera-success/25 bg-loomera-successSoft/30 p-6 text-center">
+            <span class="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-loomera-success"><i class="fa-solid fa-check"></i></span>
+            <h3 class="mt-3 text-sm font-black text-loomera-textPrimary">درخواست بازی باقی نمانده</h3>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">در حال حاضر هیچ درخواست برداشت متخصصی نیاز به بررسی ندارد.</p>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="mt-4 hidden rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/60 p-5 text-center text-xs text-loomera-textMuted" data-withdrawal-empty="pending">درخواستی با این نام پیدا نشد.</div>
     </div>
   </section>
+
+  <section id="team-withdrawals-history"
+           class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card"
+           data-dashboard-workspace-panel data-lm-direct-section
+           data-lm-task-panel="team-withdrawals" data-lm-task-key="history" data-lm-task-label="سابقه بررسی" data-lm-task-order="2"
+           aria-labelledby="withdrawal-history-title">
+    <header class="flex flex-col gap-2 border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+      <p class="text-[11px] font-black text-loomera-primaryText">تاریخچه تصمیم‌ها</p>
+      <h2 id="withdrawal-history-title" class="text-base font-black text-loomera-textPrimary sm:text-lg">پرداخت‌شده و برگشت‌خورده</h2>
+      <p class="max-w-3xl text-xs leading-6 text-loomera-textMuted">نتیجه درخواست‌های قبلی، زمان بررسی، یادداشت و رسید پرداخت اینجا نگه داشته می‌شود.</p>
+    </header>
+
+    <div class="p-4 sm:p-5 lg:p-6">
+      {% if reviewed_withdrawals %}
+        <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <label class="relative block max-w-xl">
+            <span class="sr-only">جستجوی سابقه برداشت</span>
+            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-loomera-textMuted"><i class="fa-solid fa-magnifying-glass text-xs" aria-hidden="true"></i></span>
+            <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pr-10 pl-4 text-sm outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10" placeholder="جستجو با نام متخصص" data-withdrawal-search="history">
+          </label>
+          <div class="flex min-w-0 gap-2 overflow-x-auto pb-1 lg:justify-end" role="group" aria-label="فیلتر سابقه برداشت متخصصان" data-withdrawal-history-filters>
+            <button type="button" class="shrink-0 rounded-full bg-loomera-primary px-3.5 py-2 text-[11px] font-black text-white" data-withdrawal-history-filter="all">همه</button>
+            <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3.5 py-2 text-[11px] font-black text-loomera-textSecondary" data-withdrawal-history-filter="approved">پرداخت‌شده</button>
+            <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3.5 py-2 text-[11px] font-black text-loomera-textSecondary" data-withdrawal-history-filter="returned">برگشت به موجودی</button>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="{% if reviewed_withdrawals %}mt-4{% endif %} grid gap-3 md:grid-cols-2 xl:grid-cols-3" data-withdrawal-list="history">
+        {% for item in reviewed_withdrawals %}
+          <details class="lm-compact-record" data-lm-compact-record data-withdrawal-card data-withdrawal-group="history" data-withdrawal-name="{{ item.wallet.stylist }}" data-withdrawal-status="{% if item.status == 'approved' %}approved{% else %}returned{% endif %}">
+            <summary class="lm-compact-record-summary">
+              <span class="lm-compact-record-avatar" aria-hidden="true"><i class="fa-solid {% if item.status == 'approved' %}fa-check{% else %}fa-rotate-left{% endif %}"></i></span>
+              <span class="min-w-0 flex-1 text-right">
+                <span class="flex min-w-0 items-center gap-2"><strong class="min-w-0 flex-1 truncate text-sm font-black text-loomera-textPrimary">{{ item.wallet.stylist }}</strong><span class="shrink-0 rounded-full px-2 py-1 text-[9px] font-black {% if item.status == 'approved' %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-bgSubtle text-loomera-textMuted{% endif %}">{{ item.get_status_display }}</span></span>
+                <span class="mt-1 block text-xs text-loomera-textMuted"><strong class="text-loomera-textPrimary">{{ item.amount|floatformat:0 }} تومان</strong>{% if item.reviewed_at %} · {{ item.reviewed_at|jalali_datetime }}{% endif %}</span>
+              </span>
+              <span class="lm-compact-record-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
+            </summary>
+            <div class="lm-compact-record-body space-y-3 text-xs">
+              <dl class="grid grid-cols-2 gap-2">
+                <div class="rounded-2xl bg-loomera-bgSubtle/70 p-3"><dt class="text-loomera-textMuted">تاریخ درخواست</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ item.created_at|jalali_datetime }}</dd></div>
+                <div class="rounded-2xl bg-loomera-bgSubtle/70 p-3"><dt class="text-loomera-textMuted">نتیجه</dt><dd class="mt-1 font-black {% if item.status == 'approved' %}text-loomera-success{% else %}text-loomera-textPrimary{% endif %}">{% if item.status == 'approved' %}مبلغ پرداخت شده{% else %}مبلغ به موجودی برگشته{% endif %}</dd></div>
+              </dl>
+
+              <section class="rounded-2xl border border-loomera-borderSoft bg-white p-3">
+                <p class="text-loomera-textMuted">حساب مقصد</p>
+                <p class="mt-1 font-black text-loomera-textPrimary">{{ item.account_holder_name }}{% if item.bank_name %} · {{ item.bank_name }}{% endif %}</p>
+                <p class="mt-1 overflow-x-auto whitespace-nowrap text-loomera-textSecondary" dir="ltr">{{ item.iban }}</p>
+              </section>
+
+              {% if item.note %}
+                <section class="rounded-2xl bg-loomera-primarySoft/45 p-3"><p class="text-loomera-textMuted">یادداشت بررسی</p><p class="mt-1 leading-6 text-loomera-textSecondary">{{ item.note }}</p></section>
+              {% endif %}
+
+              {% if item.status == 'approved' %}
+                {% if item.payment_receipt %}
+                  <a href="{{ item.payment_receipt.url }}" target="_blank" rel="noopener" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-success/15 bg-loomera-successSoft px-3.5 py-2 text-[11px] font-black text-loomera-success"><i class="fa-solid fa-receipt text-[10px]" aria-hidden="true"></i><span>مشاهده رسید پرداخت</span></a>
+                {% else %}
+                  <span class="inline-flex min-h-9 items-center gap-2 rounded-full bg-loomera-bgSubtle px-3 py-2 text-[10px] font-black text-loomera-textMuted"><i class="fa-solid fa-money-bill-wave text-[10px]" aria-hidden="true"></i><span>بدون فایل رسید</span></span>
+                {% endif %}
+              {% endif %}
+            </div>
+          </details>
+        {% empty %}
+          <div class="col-span-full rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/55 p-6 text-center">
+            <h3 class="text-sm font-black text-loomera-textPrimary">هنوز سابقه‌ای وجود ندارد</h3>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">بعد از تأیید یا رد اولین درخواست، نتیجه آن در این بخش نگه داشته می‌شود.</p>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="mt-4 hidden rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/60 p-5 text-center text-xs text-loomera-textMuted" data-withdrawal-empty="history">سابقه‌ای مطابق جستجو یا فیلتر پیدا نشد.</div>
+    </div>
+  </section>
+</section>
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const normalize = (value) => (value || '').trim().toLowerCase();
+  const inputs = [...document.querySelectorAll('[data-withdrawal-search]')];
+  const cards = [...document.querySelectorAll('[data-withdrawal-card]')];
+  const historyButtons = [...document.querySelectorAll('[data-withdrawal-history-filter]')];
+  let historyFilter = 'all';
+
+  const applyGroup = (group) => {
+    const input = inputs.find((item) => item.dataset.withdrawalSearch === group);
+    const query = normalize(input?.value);
+    let visible = 0;
+    cards.filter((card) => card.dataset.withdrawalGroup === group).forEach((card) => {
+      const matchesName = normalize(card.dataset.withdrawalName).includes(query);
+      const matchesStatus = group !== 'history' || historyFilter === 'all' || card.dataset.withdrawalStatus === historyFilter;
+      const show = matchesName && matchesStatus;
+      card.classList.toggle('hidden', !show);
+      if (show) visible += 1;
+    });
+    document.querySelector(`[data-withdrawal-empty="${group}"]`)?.classList.toggle('hidden', visible !== 0);
+  };
+
+  inputs.forEach((input) => input.addEventListener('input', () => applyGroup(input.dataset.withdrawalSearch)));
+  historyButtons.forEach((button) => button.addEventListener('click', () => {
+    historyFilter = button.dataset.withdrawalHistoryFilter || 'all';
+    historyButtons.forEach((item) => {
+      const active = item === button;
+      item.classList.toggle('bg-loomera-primary', active);
+      item.classList.toggle('text-white', active);
+      item.classList.toggle('border', !active);
+      item.classList.toggle('border-loomera-borderSoft', !active);
+      item.classList.toggle('bg-white', !active);
+      item.classList.toggle('text-loomera-textSecondary', !active);
+    });
+    applyGroup('history');
+  }));
+
+  document.querySelectorAll('[data-withdrawal-reject]').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      const form = button.closest('form');
+      const note = form?.querySelector('textarea[name="note"]');
+      if (!normalize(note?.value)) {
+        event.preventDefault();
+        note?.focus();
+        note?.setCustomValidity('برای رد درخواست، دلیل کوتاهی بنویس.');
+        note?.reportValidity();
+        window.setTimeout(() => note?.setCustomValidity(''), 2500);
+      }
+    });
+  });
+});
+</script>
 {% endblock %}

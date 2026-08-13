@@ -65,7 +65,7 @@
           <div data-favorites-grid class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" role="list" aria-label="مجموعه‌های مورد علاقه">
             {% for salon in salons %}
               <article data-favorite-card data-salon-id="{{ salon.id }}" class="group relative overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-loomera-surface shadow-lm-card transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-elevated" role="listitem">
-                <a href="{% url 'salons:detail_salon' salon.id %}" class="relative block h-44 overflow-hidden bg-loomera-bgSubtle">
+                <a href="{{ salon.get_absolute_url }}" class="relative block h-44 overflow-hidden bg-loomera-bgSubtle">
                   {% if salon.banner_image %}
                     <img src="{{ salon.banner_image.url }}" alt="{{ salon.salon_name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
                   {% else %}
@@ -122,7 +122,7 @@
                   </div>
 
                   <div class="mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2">
-                    <a href="{% url 'salons:detail_salon' salon.id %}"
+                    <a href="{{ salon.get_absolute_url }}"
                        class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
                       <span>مشاهده و رزرو</span>
                       <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>

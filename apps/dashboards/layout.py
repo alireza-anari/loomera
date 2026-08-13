@@ -31,6 +31,7 @@ from .jalali_utils import (
 ONBOARDING_REDIRECT_URL_NAMES = {
     "dashboards:salon_profile",
     "dashboards:team_managment",
+    "dashboards:team_member",
     "dashboards:service_menu",
     "dashboards:online_booking",
     "dashboards:catalog",
@@ -50,26 +51,34 @@ WEEKDAY_TO_OPENING_DAY = {
 }
 
 
+COMING_SOON_SIDEBAR_KEYS = {"membership", "catalog", "products", "stocktakes"}
+
+
 SECTION_DEFINITIONS = [
     {
-        "key": "operations",
-        "label": "عملیات روزانه",
-        "items": ["overview", "appointments", "reports"],
+        "key": "daily",
+        "label": "روزانه",
+        "items": ["overview", "appointments", "clients"],
     },
     {
-        "key": "workspace",
-        "label": "فضای کاری",
-        "items": ["clients", "team", "services"],
+        "key": "management",
+        "label": "مدیریت سالن",
+        "items": ["services", "team", "schedule", "online_booking"],
     },
     {
         "key": "growth",
-        "label": "رشد و رزرو آنلاین",
-        "items": ["online_booking", "catalog", "content", "membership"],
+        "label": "رشد",
+        "items": ["content", "membership", "catalog"],
     },
     {
         "key": "business",
-        "label": "مجموعه و تنظیمات",
-        "items": ["profile", "products", "stocktakes", "finance", "settings"],
+        "label": "کسب‌وکار",
+        "items": ["reports", "finance", "products", "stocktakes"],
+    },
+    {
+        "key": "settings",
+        "label": "تنظیمات",
+        "items": ["profile", "settings"],
     },
 ]
 
@@ -81,7 +90,8 @@ PATH_KEYWORDS = [
     ("/salonscustomers/", "clients"),
     ("/team_member/", "team"),
     ("/team_managment/", "team"),
-    ("/scheduled_shifts/", "team"),
+    ("/scheduled_shifts/", "schedule"),
+    ("/schedule/", "schedule"),
     ("/add_stylist/", "team"),
     ("/edit_stylist/", "team"),
     ("/stylist_overview/", "team"),
@@ -96,9 +106,9 @@ PATH_KEYWORDS = [
     ("/products/", "products"),
     ("/stocktakes/", "stocktakes"),
     ("/salon_profile/", "profile"),
+    ("/settings/finance/", "finance"),
     ("/settings/", "settings"),
     ("/manager_profile/", "settings"),
-    ("/settings/finance/", "finance"),
 ]
 
 
@@ -124,9 +134,14 @@ PAGE_META = {
         "icon": "fa-regular fa-address-book",
     },
     "team": {
-        "title": "تیم و شیفت‌ها",
-        "description": "مدیریت اعضای تیم، برنامه شیفت، مرخصی و ظرفیت کاری در یک محیط کاری واحد.",
+        "title": "تیم",
+        "description": "اعضای تیم، وضعیت همکاری و دسترسی سریع به مدیریت هر متخصص.",
         "icon": "fa-solid fa-users",
+    },
+    "schedule": {
+        "title": "برنامه کاری",
+        "description": "شیفت‌ها، حضور و مرخصی تیم را در یک نمای عملیاتی مدیریت کن.",
+        "icon": "fa-regular fa-clock",
     },
     "services": {
         "title": "خدمات و منو",
@@ -160,7 +175,7 @@ PAGE_META = {
     },
     "profile": {
         "title": "پروفایل مجموعه",
-        "description": "جزئیات اصلی برند، اطلاعات تماس، وضعیت انتشار و دسترسی سریع به بخش‌های پروفایل.",
+        "description": "اطلاعاتی که مشتری در صفحه عمومی مجموعه می‌بیند؛ از تماس و موقعیت تا تصاویر و معرفی.",
         "icon": "fa-solid fa-shop",
     },
     "products": {
@@ -174,13 +189,13 @@ PAGE_META = {
         "icon": "fa-solid fa-clipboard-list",
     },
     "settings": {
-        "title": "تنظیمات محیط کاری",
-        "description": "مرکز تنظیمات مجموعه برای مدیریت اطلاعات کسب‌وکار، رزرو آنلاین، تیم، مالی و حساب مدیر.",
+        "title": "تنظیمات",
+        "description": "پروفایل و رزرو آنلاین مجموعه، حساب مدیر، امنیت و اعلان‌ها.",
         "icon": "fa-solid fa-gear",
     },
     "finance": {
-        "title": "امور مالی",
-        "description": "مرکز مدیریت پرداخت، کیف پول، تسویه‌ها، گزارش مالی، هزینه‌ها، سهم متخصصان و تخفیف‌ها.",
+        "title": "مالی",
+        "description": "موجودی مجموعه، سود و هزینه، پرداخت اعضای تیم و تخفیف‌ها.",
         "icon": "fa-solid fa-coins",
     },
 }
@@ -210,7 +225,7 @@ NAV_DEFINITIONS = [
         "key": "team",
         "label": "تیم",
         "icon": "fa-solid fa-user-group",
-        "url_name": "dashboards:team_managment",
+        "url_name": "dashboards:team_member",
     },
     {
         "key": "services",
@@ -262,10 +277,16 @@ SIDEBAR_DEFINITIONS = {
         "url_name": "dashboards:salons_customers_page",
     },
     "team": {
-        "label": "تیم و شیفت‌ها",
-        "caption": "اعضا، برنامه کاری و مرخصی‌ها",
+        "label": "تیم",
+        "caption": "اعضای تیم، خدمات و وضعیت همکاری",
         "icon": "fa-solid fa-user-group",
-        "url_name": "dashboards:team_managment",
+        "url_name": "dashboards:team_member",
+    },
+    "schedule": {
+        "label": "برنامه کاری",
+        "caption": "شیفت‌ها، حضور و مرخصی تیم",
+        "icon": "fa-regular fa-clock",
+        "url_name": "dashboards:scheduled_shifts",
     },
     "services": {
         "label": "خدمات",
@@ -274,8 +295,8 @@ SIDEBAR_DEFINITIONS = {
         "url_name": "dashboards:service_menu",
     },
     "online_booking": {
-        "label": "رزرو آنلاین",
-        "caption": "نمای عمومی مجموعه و رزرو آنلاین",
+        "label": "صفحه سالن و رزرو آنلاین",
+        "caption": "صفحه عمومی و لینک‌های رزرو",
         "icon": "fa-solid fa-link",
         "url_name": "dashboards:online_booking",
     },
@@ -299,7 +320,7 @@ SIDEBAR_DEFINITIONS = {
     },
     "profile": {
         "label": "پروفایل مجموعه",
-        "caption": "اطلاعات مجموعه، برند و وضعیت انتشار",
+        "caption": "اطلاعات، موقعیت، ساعات کاری و صفحه عمومی",
         "icon": "fa-solid fa-shop",
         "url_name": "dashboards:salon_profile",
     },
@@ -317,13 +338,13 @@ SIDEBAR_DEFINITIONS = {
     },
     "settings": {
         "label": "تنظیمات",
-        "caption": "تنظیمات محیط کاری، حساب مدیر و پیکربندی مجموعه",
+        "caption": "پروفایل، حساب، امنیت و اعلان‌ها",
         "icon": "fa-solid fa-gear",
         "url_name": "dashboards:workspace_settings",
     },
     "finance": {
-        "label": "امور مالی",
-        "caption": "پرداخت، کیف پول، تسویه، هزینه‌ها، سهم متخصصان و تخفیف‌ها",
+        "label": "مالی",
+        "caption": "موجودی، درآمد، پرداخت تیم و تخفیف‌ها",
         "icon": "fa-solid fa-coins",
         "url_name": "dashboards:finance_hub",
     },
@@ -399,7 +420,8 @@ CREATE_ACTIONS = [
     },
 ]
 
-MOBILE_NAV_KEYS = ["overview", "appointments", "clients", "content", "reports"]
+MOBILE_NAV_KEYS = ["overview", "appointments"]
+MANAGER_MOBILE_MANAGEMENT_KEYS = ["services", "team", "schedule", "online_booking", "clients"]
 
 STYLIST_ALLOWED_NAV_KEYS = {
     "overview",
@@ -408,6 +430,8 @@ STYLIST_ALLOWED_NAV_KEYS = {
     "my_schedule",
     "my_content",
     "my_profile",
+    "my_settings",
+    "quick_links",
 }
 STYLIST_LOCKED_NAV_KEYS = {
     "clients",
@@ -435,6 +459,12 @@ STYLIST_NAV_ITEMS = [
         "url_name": "dashboards:stylist_appointments",
     },
     {
+        "key": "my_finance",
+        "label": "درآمد من",
+        "icon": "fa-solid fa-wallet",
+        "url_name": "dashboards:stylist_finance",
+    },
+    {
         "key": "my_schedule",
         "label": "برنامه من",
         "icon": "fa-regular fa-clock",
@@ -451,6 +481,12 @@ STYLIST_NAV_ITEMS = [
         "label": "پروفایل من",
         "icon": "fa-regular fa-user",
         "url_name": "dashboards:stylist_profile",
+    },
+    {
+        "key": "my_settings",
+        "label": "تنظیمات",
+        "icon": "fa-solid fa-gear",
+        "url_name": "dashboards:stylist_settings",
     },
 ]
 STYLIST_LOCKED_ITEMS = [
@@ -485,7 +521,7 @@ STYLIST_LOCKED_ITEMS = [
         "icon": "fa-solid fa-gear",
     },
 ]
-STYLIST_MOBILE_NAV_KEYS = ["overview", "my_appointments", "my_schedule", "my_content"]
+STYLIST_MOBILE_NAV_KEYS = ["overview", "my_appointments", "my_schedule"]
 
 
 PAGE_ACTION_MAP = {
@@ -504,6 +540,7 @@ PAGE_ACTION_MAP = {
         "needs_salon": True,
     },
     "team": {"label": "افزودن عضو تیم", "url_name": "dashboards:add_stylist"},
+    "schedule": {"label": "افزودن برنامه کاری", "url_name": "dashboards:scheduled_shifts"},
     "services": {"label": "افزودن خدمت", "url_name": "dashboards:add_service"},
     "reports": {
         "label": "تقویم مجموعه",
@@ -525,7 +562,7 @@ PAGE_ACTION_MAP = {
     "stocktakes": {"label": "محصولات", "url_name": "dashboards:products"},
     "settings": {"label": "پروفایل مجموعه", "url_name": "dashboards:salon_profile"},
     "finance": {
-        "label": "گزارش سود خالص",
+        "label": "سود خالص",
         "url_name": "dashboards:finance_profit_report",
     },
 }
@@ -560,17 +597,8 @@ def _get_onboarding_resume_url_for_salon(salon):
     if salon.opening_hours.count() < 7:
         return _safe_reverse("dashboards:salon_profile_creator_step3")
 
-    # step6 اختیاری است و نباید resume flow را متوقف کند
-
-    if not salon.supplementary_info.filter(is_active=True).exists():
-        return _safe_reverse("dashboards:salon_profile_creator_step7")
-
-    if len((salon.description or "").strip()) < 200:
-        return _safe_reverse("dashboards:salon_profile_creator_step8")
-
-    if not salon.is_active:
-        return _safe_reverse("dashboards:salon_profile_creator_step10")
-
+    # Beta UX: فقط اطلاعات پایه، موقعیت و ساعات سالن gate ورود به داشبورد هستند.
+    # گالری، امکانات، توضیحات و فعال‌سازی عمومی از readiness داخل داشبورد پیگیری می‌شوند.
     return None
 
 
@@ -830,10 +858,10 @@ def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=
             "dropdown_items": dropdown_items,
             "tabs": _build_notification_tabs(items),
             "unread_count": unread_count,
-            "panel_url": _safe_reverse("dashboards:stylist_appointments"),
-            "title": "اعلان‌های شخصی شما",
-            "subtitle": "نوبت‌ها و مرخصی‌های مرتبط با خودتان در اینجا نمایش داده می‌شود.",
-            "panel_label": "رفتن به نوبت‌های من",
+            "panel_url": _safe_reverse("dashboards:stylist_notifications"),
+            "title": "اعلان‌های کاری من",
+            "subtitle": "نوبت‌ها، مالی و تغییرات مرتبط با خودت را یک‌جا پیگیری کن.",
+            "panel_label": "باز کردن مرکز اعلان‌ها",
         }
 
     items = []
@@ -1190,7 +1218,6 @@ def _build_manager_shell_snapshot(
         "active_team_count": int(salon_metrics["active_team_count"] or 0),
     }
 
-
 def _build_shell_metrics(
     salon,
     *,
@@ -1493,8 +1520,8 @@ def build_dashboard_sidebar_sections(
             },
             {
                 "key": "my_finance",
-                "label": "مالی من",
-                "caption": "مشاهده درآمد خدمات، مانده حساب مالی و تراکنش‌های شما.",
+                "label": "درآمد من",
+                "caption": "مبلغ قابل دریافت، درآمد خدمات و سابقه پرداخت‌ها.",
                 "url": _safe_reverse("dashboards:stylist_finance"),
                 "icon": "fa-solid fa-chart-simple",
                 "is_available": True,
@@ -1531,6 +1558,16 @@ def build_dashboard_sidebar_sections(
                 "is_locked": False,
                 "is_active": active_key == "my_profile",
             },
+            {
+                "key": "my_settings",
+                "label": "تنظیمات",
+                "caption": "حساب، رمز عبور و ارتباطات شخصی خودت را مدیریت کن.",
+                "url": _safe_reverse("dashboards:stylist_settings"),
+                "icon": "fa-solid fa-gear",
+                "is_available": True,
+                "is_locked": False,
+                "is_active": active_key == "my_settings",
+            },
         ]
         sections = [
             {"key": "personal", "label": "فضای کاری من", "items": personal_items},
@@ -1544,15 +1581,18 @@ def build_dashboard_sidebar_sections(
         for item_key in section["items"]:
             definition = SIDEBAR_DEFINITIONS[item_key]
             url, is_available = _resolve_url(definition, salon)
+            is_coming_soon = item_key in COMING_SOON_SIDEBAR_KEYS
             item = {
                 "key": item_key,
                 "label": definition["label"],
                 "caption": definition["caption"],
                 "url": url,
                 "icon": definition["icon"],
-                "is_available": is_available,
-                "is_locked": not is_available,
-                "is_active": item_key == active_key,
+                "is_available": is_available and not is_coming_soon,
+                "is_locked": (not is_available) and not is_coming_soon,
+                "is_coming_soon": is_coming_soon,
+                "lock_reason": "به زودی" if is_coming_soon else "در دسترس نیست",
+                "is_active": item_key == active_key and not is_coming_soon,
             }
             section_items.append(item)
             flat_items.append(item)
@@ -1574,6 +1614,7 @@ def build_dashboard_mobile_nav_items(
             items.append(
                 {
                     "key": key,
+                    "kind": "link",
                     "label": definition["label"],
                     "short_label": definition["label"].split(" و ")[0],
                     "icon": definition["icon"],
@@ -1583,6 +1624,50 @@ def build_dashboard_mobile_nav_items(
                     "is_active": key == active_key,
                 }
             )
+
+        more_definitions = [
+            ("my_finance", "درآمد من", "درآمد، موجودی و دریافت وجه"),
+            ("quick_links", "لینک رزرو", "لینک اختصاصی، QR و قالب چاپ"),
+            ("my_content", "محتوای من", "ارسال و پیگیری محتوای پیشنهادی"),
+            ("my_profile", "پروفایل من", "رزومه، نمونه‌کار و همکاری‌ها"),
+            ("my_settings", "تنظیمات", "حساب، امنیت و ارتباطات"),
+        ]
+        panel_items = []
+        for key, label, caption in more_definitions:
+            if key == "quick_links":
+                url = _safe_reverse("dashboards:stylist_quick_links", fallback="#")
+                icon = "fa-solid fa-link"
+            else:
+                definition = mapping[key]
+                url = _safe_reverse(definition.get("url_name"), fallback="#")
+                icon = definition["icon"]
+            panel_items.append(
+                {
+                    "key": key,
+                    "label": label,
+                    "short_label": label,
+                    "caption": caption,
+                    "icon": icon,
+                    "url": url,
+                    "is_available": url != "#",
+                    "is_locked": url == "#",
+                    "is_active": active_key == key,
+                }
+            )
+        items.append(
+            {
+                "key": "management",
+                "kind": "panel",
+                "label": "بیشتر",
+                "short_label": "بیشتر",
+                "icon": "fa-solid fa-grid-2",
+                "url": "#",
+                "is_available": True,
+                "is_locked": False,
+                "is_active": active_key in {"my_finance", "my_content", "my_profile", "my_settings", "quick_links"},
+                "panel_items": panel_items,
+            }
+        )
         return items
 
     for key in MOBILE_NAV_KEYS:
@@ -1591,6 +1676,7 @@ def build_dashboard_mobile_nav_items(
         items.append(
             {
                 "key": key,
+                "kind": "link",
                 "label": definition["label"],
                 "short_label": definition["label"].split(" و ")[0],
                 "icon": definition["icon"],
@@ -1600,6 +1686,52 @@ def build_dashboard_mobile_nav_items(
                 "is_active": key == active_key,
             }
         )
+
+    management_items = []
+    for key in MANAGER_MOBILE_MANAGEMENT_KEYS:
+        definition = SIDEBAR_DEFINITIONS[key]
+        url, is_available = _resolve_url(definition, salon)
+        management_items.append(
+            {
+                "key": key,
+                "label": definition["label"],
+                "short_label": definition["label"].split(" و ")[0],
+                "caption": definition["caption"],
+                "icon": definition["icon"],
+                "url": url,
+                "is_available": is_available,
+                "is_locked": not is_available,
+                "is_active": key == active_key,
+            }
+        )
+
+    items.append(
+        {
+            "key": "management",
+            "kind": "panel",
+            "label": "مدیریت",
+            "short_label": "مدیریت",
+            "icon": "fa-solid fa-grid-2",
+            "url": "#",
+            "is_available": True,
+            "is_locked": False,
+            "is_active": active_key in MANAGER_MOBILE_MANAGEMENT_KEYS,
+            "panel_items": management_items,
+        }
+    )
+    items.append(
+        {
+            "key": "account",
+            "kind": "link",
+            "label": "حساب",
+            "short_label": "حساب",
+            "icon": "fa-regular fa-user",
+            "url": _safe_reverse("dashboards:manager_profile"),
+            "is_available": True,
+            "is_locked": False,
+            "is_active": active_key in {"profile", "settings"},
+        }
+    )
     return items
 
 
@@ -1675,7 +1807,6 @@ def build_dashboard_context(
         else (get_dashboard_stylist(user) if resolved_role == "stylist" else None)
     )
     manager_snapshot = None
-
     if salon is not None and resolved_role != "stylist":
         manager_snapshot = _build_manager_shell_snapshot(salon)
 
@@ -1843,6 +1974,35 @@ def build_dashboard_context(
         }
         dashboard_profile_label = "پروفایل مجموعه"
 
+    has_manager_workspace = bool(
+        getattr(user, "is_authenticated", False)
+        and hasattr(user, "salon_manager_profile")
+    )
+    has_stylist_workspace = bool(
+        getattr(user, "is_authenticated", False)
+        and hasattr(user, "stylist")
+    )
+    workspace_modes = []
+    if has_manager_workspace and has_stylist_workspace:
+        workspace_modes = [
+            {
+                "key": "manager",
+                "label": "مدیریت سالن",
+                "description": "نوبت‌ها، تیم، خدمات و تنظیمات کل سالن",
+                "icon": "fa-solid fa-store",
+                "url": _safe_reverse("dashboards:salon_manager_dashboard"),
+                "is_active": resolved_role == "manager",
+            },
+            {
+                "key": "stylist",
+                "label": "کارهای من",
+                "description": "نوبت‌ها و برنامه شخصی من به‌عنوان متخصص",
+                "icon": "fa-regular fa-user",
+                "url": _safe_reverse("dashboards:stylist_dashboard"),
+                "is_active": resolved_role == "stylist",
+            },
+        ]
+
     return {
         "page_title": page_title or page_meta["title"],
         "page_meta": page_meta,
@@ -1877,4 +2037,6 @@ def build_dashboard_context(
             stylist_active_memberships if resolved_role == "stylist" else []
         ),
         "stylist_salon": salon if resolved_role == "stylist" else None,
+        "dashboard_workspace_modes": workspace_modes,
+        "dashboard_has_workspace_switch": len(workspace_modes) > 1,
     }

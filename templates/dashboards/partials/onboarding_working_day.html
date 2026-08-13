@@ -1,0 +1,56 @@
+{% load salons_filters %}
+<details name="working-day"
+         data-working-day-row
+         data-day="{{ day_num }}"
+         data-day-name="{{ day_name }}"
+         class="lm-working-day overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white transition"
+         {% if open_by_default %}open{% endif %}>
+  <summary class="lm-working-day-summary flex min-h-[76px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 sm:px-5">
+    <div class="flex min-w-0 items-center gap-3">
+      <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm font-black text-loomera-primaryText">{{ day_initial }}</span>
+      <div class="min-w-0">
+        <h3 class="truncate text-sm font-black text-loomera-textPrimary sm:text-base">{{ day_name }}</h3>
+        <p class="mt-1 truncate text-xs text-loomera-textMuted" data-day-status-help>ساعت این روز را تنظیم کن.</p>
+      </div>
+    </div>
+
+    <div class="flex shrink-0 items-center gap-2" data-day-header-actions>
+      <label class="lm-day-switch-label" title="فعال یا تعطیل کردن {{ day_name }}">
+        {{ active|add_class:"lm-day-switch-input" }}
+        <span class="lm-day-switch-track" aria-hidden="true"><span class="lm-day-switch-thumb"></span></span>
+        <span class="lm-day-switch-status" data-day-status>فعال</span>
+      </label>
+      <span class="lm-working-day-chevron inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textMuted" aria-hidden="true">
+        <i class="fa-solid fa-chevron-down text-[11px]"></i>
+      </span>
+    </div>
+  </summary>
+
+  <div class="border-t border-loomera-borderSoft bg-loomera-bgSubtle/35 p-4 sm:p-5" data-day-fields>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div>
+        <label for="{{ open_time.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت شروع</label>
+        <div class="relative">
+          {{ open_time|add_class:"lm-time-field w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3.5 pl-12 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+          <button type="button" data-time-trigger data-target-input="{{ open_time.id_for_label }}" class="absolute left-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl text-loomera-textMuted transition hover:bg-loomera-primarySoft hover:text-loomera-primaryText" aria-label="انتخاب ساعت شروع {{ day_name }}">
+            <i class="fa-regular fa-clock" aria-hidden="true"></i>
+          </button>
+        </div>
+        {% for error in open_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+      </div>
+
+      <div>
+        <label for="{{ close_time.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textMuted">ساعت پایان</label>
+        <div class="relative">
+          {{ close_time|add_class:"lm-time-field w-full rounded-[20px] border border-loomera-borderSoft bg-white px-4 py-3.5 pl-12 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:bg-loomera-bgSubtle disabled:text-loomera-textMuted" }}
+          <button type="button" data-time-trigger data-target-input="{{ close_time.id_for_label }}" class="absolute left-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl text-loomera-textMuted transition hover:bg-loomera-primarySoft hover:text-loomera-primaryText" aria-label="انتخاب ساعت پایان {{ day_name }}">
+            <i class="fa-regular fa-clock" aria-hidden="true"></i>
+          </button>
+        </div>
+        {% for error in close_time.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+      </div>
+    </div>
+
+    <div class="mt-4 hidden rounded-2xl border border-loomera-danger/20 bg-loomera-dangerSoft px-3 py-2 text-xs font-bold leading-6 text-loomera-danger" data-day-validation></div>
+  </div>
+</details>

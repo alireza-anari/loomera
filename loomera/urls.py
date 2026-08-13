@@ -28,7 +28,6 @@ from apps.main.views import (
     SupportView,
     media_proxy,
 )
-from apps.accounts.views import CustomerNotificationsView
 from apps.articles.sitemaps import (
     ArticleCategorySitemap,
     ArticleSitemap,
@@ -80,11 +79,6 @@ urlpatterns = [
     path("search/", include("apps.search.urls", namespace="search")),
     # path("locations/", include("apps.locations.urls", namespace="locations")),
     path("dashboards/", include("apps.dashboards.urls", namespace="dashboards")),
-    path(
-        "notifications/",
-        CustomerNotificationsView.as_view(),
-        name="customer_notifications_root",
-    ),
     path(
         "notifications/", include("apps.notifications.urls", namespace="notifications")
     ),

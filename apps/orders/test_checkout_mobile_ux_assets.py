@@ -43,7 +43,7 @@ class CheckoutMobileUXAssetsTests(SimpleTestCase):
             self.script,
         )
         self.assertIn("event.preventDefault()", self.script)
-        self.assertIn("ensureConfirmActionProxy(form)", self.script)
+        self.assertIn("ensureActionProxy(form, CONFIRM_ACTION)", self.script)
 
     def test_pageshow_restores_dynamic_checkout_state(self):
         self.assertIn(

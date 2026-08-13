@@ -6,7 +6,12 @@ from django.utils import timezone
 
 from apps.orders.models import OrderDetail
 from apps.services.models import Services
-from apps.stylists.models import StylistSchedule, StylistTimeOff
+from apps.stylists.models import (
+    StaffLeaveRequest,
+    StaffScheduleRequest,
+    StylistSchedule,
+    StylistTimeOff,
+)
 
 from .jalali_utils import (
     format_jalali_day_month,
@@ -134,8 +139,16 @@ def _serialize_appointment(item, today):
     stylist_name = item.stylist.get_fullName() if item.stylist_id else "بدون متخصص"
     status_meta = _status_meta(item)
 
+    detail_url = "#"
+    if getattr(item, "salon_id", None):
+        detail_url = _safe_reverse(
+            "dashboards:appointment_detail",
+            kwargs={"salon_id": item.salon_id, "appointment_id": item.id},
+        )
+
     return {
         "id": item.id,
+        "detail_url": detail_url,
         "customer_name": customer_name,
         "service_name": (
             item.service.service_name if item.service_id else "خدمت ثبت نشده"
@@ -685,6 +698,180 @@ def _build_workspace(salon, metrics):
     }
 
 
+def _build_manager_daily_snapshot(salon, base_qs, today):
+    """Return only the operational facts a manager needs on Dashboard Home."""
+    active_qs = base_qs.exclude(order__status="cancelled")
+    calendar_url = _safe_reverse(
+        "dashboards:appointment_calendar", kwargs={"salon_id": salon.id}
+    )
+    schedule_url = _safe_reverse("dashboards:scheduled_shifts")
+
+    today_qs = active_qs.filter(date=today)
+    appointments_today = today_qs.count()
+    upcoming_7d = active_qs.filter(
+        date__range=(today, today + timedelta(days=6))
+    ).count()
+
+    pending_appointments = active_qs.filter(
+        date__gte=today,
+        order__status="pending",
+    ).count()
+    pending_schedule_requests = StaffScheduleRequest.objects.filter(
+        salon=salon,
+        status=StaffScheduleRequest.Status.PENDING,
+    ).count()
+    pending_leave_requests = StaffLeaveRequest.objects.filter(
+        salon=salon,
+        status=StaffLeaveRequest.Status.PENDING,
+    ).count()
+
+    attention_items = []
+    if pending_appointments:
+        attention_items.append(
+            {
+                "title": "نوبت‌های در انتظار تأیید",
+                "count": pending_appointments,
+                "count_label": to_persian_digits(pending_appointments),
+                "description": "وضعیت این نوبت‌ها را بررسی و مشخص کنید.",
+                "url": calendar_url,
+                "icon": "fa-regular fa-calendar-check",
+            }
+        )
+    if pending_schedule_requests:
+        attention_items.append(
+            {
+                "title": "درخواست برنامه کاری",
+                "count": pending_schedule_requests,
+                "count_label": to_persian_digits(pending_schedule_requests),
+                "description": "درخواست‌های جدید تیم برای برنامه کاری نیاز به بررسی دارند.",
+                "url": schedule_url,
+                "icon": "fa-regular fa-clock",
+            }
+        )
+    if pending_leave_requests:
+        attention_items.append(
+            {
+                "title": "درخواست مرخصی",
+                "count": pending_leave_requests,
+                "count_label": to_persian_digits(pending_leave_requests),
+                "description": "درخواست‌های مرخصی تیم را بررسی کنید.",
+                "url": schedule_url,
+                "icon": "fa-regular fa-calendar-xmark",
+            }
+        )
+
+    attention_count = sum(item["count"] for item in attention_items)
+
+    local_now = timezone.localtime()
+    next_item = (
+        active_qs.filter(
+            Q(date__gt=today) | Q(date=today, time__gte=local_now.time()),
+        )
+        .exclude(order__status="completed")
+        .select_related(
+            "order__customer__user",
+            "stylist__user",
+            "service",
+            "salon",
+        )
+        .order_by("date", "time", "id")
+        .first()
+    )
+
+    today_items = list(
+        today_qs.select_related(
+            "order__customer__user",
+            "stylist__user",
+            "service",
+            "salon",
+        )
+        .order_by("time", "id")[:6]
+    )
+
+    return {
+        "date_label": format_jalali_with_weekday(today),
+        "appointments_today": appointments_today,
+        "appointments_today_label": to_persian_digits(appointments_today),
+        "upcoming_7d": upcoming_7d,
+        "upcoming_7d_label": to_persian_digits(upcoming_7d),
+        "attention_count": attention_count,
+        "attention_count_label": to_persian_digits(attention_count),
+        "attention_items": attention_items,
+        "next_appointment": (
+            _serialize_appointment(next_item, today) if next_item else None
+        ),
+        "today": {
+            "items": [_serialize_appointment(item, today) for item in today_items],
+            "is_empty": not bool(today_items),
+        },
+        "calendar_url": calendar_url,
+        "add_booking_url": _safe_reverse(
+            "dashboards:add_booking", kwargs={"salon_id": salon.id}
+        ),
+    }
+
+def _build_manager_home_payload(salon, base_qs, today, readiness):
+    daily = _build_manager_daily_snapshot(salon, base_qs, today)
+    mode = "operational" if readiness["is_ready"] else "setup"
+    public_page_url = salon.get_absolute_url() if salon.is_active else "#"
+    setup_priority = _build_dashboard_setup_priority(readiness)
+    next_action = setup_priority or readiness.get("next_action")
+
+    return {
+        "mode": mode,
+        "salon_name": salon.salon_name,
+        "daily": daily,
+        "public_page_url": public_page_url,
+        "setup_priority": setup_priority,
+        "setup": {
+            "percent": readiness["percent"],
+            "percent_label": readiness.get(
+                "percent_label",
+                f"{to_persian_digits(readiness.get('percent', 0))}٪",
+            ),
+            "completed_count_label": readiness.get(
+                "completed_count_label",
+                to_persian_digits(readiness.get("completed_count", 0)),
+            ),
+            "total_count_label": readiness.get(
+                "total_count_label",
+                to_persian_digits(readiness.get("total_count", 0)),
+            ),
+            "missing_count_label": readiness.get(
+                "missing_count_label",
+                to_persian_digits(
+                    readiness.get(
+                        "missing_count",
+                        len(readiness.get("missing_items", [])),
+                    )
+                ),
+            ),
+            "next_action": next_action,
+            "items": readiness.get("items", readiness.get("missing_items", [])),
+        },
+        "quick_actions": [
+            {
+                "label": "ثبت نوبت",
+                "url": daily["add_booking_url"],
+                "icon": "fa-solid fa-plus",
+                "style": "primary",
+            },
+            {
+                "label": "همه نوبت‌ها",
+                "url": daily["calendar_url"],
+                "icon": "fa-regular fa-calendar-days",
+                "style": "secondary",
+            },
+            {
+                "label": "صفحه سالن",
+                "url": public_page_url,
+                "icon": "fa-solid fa-arrow-up-right-from-square",
+                "style": "secondary",
+                "is_available": public_page_url != "#",
+            },
+        ],
+    }
+
 def build_dashboard_home_context(
     user,
     role=None,
@@ -1106,66 +1293,17 @@ def build_dashboard_home_context(
     setup_priority = _build_dashboard_setup_priority(readiness)
 
     base_qs = OrderDetail.objects.filter(salon=salon).select_related("order")
-    manager_metrics = _build_manager_metrics(
-        salon,
-        base_qs,
-        today,
-    )
-
+    readiness = build_salon_readiness_checklist(salon)
+    manager_home = _build_manager_home_payload(salon, base_qs, today, readiness)
     return {
         "dashboard_home": {
             "has_salon": True,
+            "mode": manager_home["mode"],
+            "manager": manager_home,
             "readiness": readiness,
-            "setup_priority": setup_priority,
-            "stats": _build_stats(manager_metrics),
-            "actions": _build_actions(salon),
-            "primary_calendar_url": _safe_reverse(
-                "dashboards:appointment_calendar", kwargs={"salon_id": salon.id}
-            ),
-            "reports_url": _safe_reverse(
-                "dashboards:reports_dashboard", kwargs={"salon_id": salon.id}
-            ),
+            "setup_priority": manager_home.get("setup_priority"),
+            "today": manager_home["daily"]["today"],
+            "primary_calendar_url": manager_home["daily"]["calendar_url"],
             "salon_profile_url": _safe_reverse("dashboards:salon_profile"),
-            "sales_activity": _build_sales_activity(base_qs, today),
-            "upcoming": _build_upcoming(base_qs, today),
-            "today": _build_today(base_qs, today),
-            "popular_services": _build_popular_services(base_qs),
-            "top_stylists": _build_top_stylists(base_qs),
-            "workspace": {
-                **_build_workspace(salon, manager_metrics),
-                "hero_description": "محیط کاری اصلی مدیریت مجموعه برای مرور سریع فروش، رزروهای امروز، سلامت عملیات روزانه و حرکت سریع بین بخش‌های کلیدی بازطراحی شده است.",
-                "primary_cta_label": "تقویم نوبت‌ها",
-                "secondary_cta_label": "گزارش‌ها",
-                "tertiary_cta_label": "پروفایل مجموعه",
-                "secondary_cta_url": _safe_reverse(
-                    "dashboards:reports_dashboard", kwargs={"salon_id": salon.id}
-                ),
-                "tertiary_cta_url": _safe_reverse("dashboards:salon_profile"),
-                "focus_title": "فوکوس امروز",
-            },
-            "sections": {
-                "sales_activity_title": "فروش ۷ روز اخیر",
-                "sales_activity_subtitle": "خلاصه فروش و تعداد رزروهای نهایی‌شده در هفته اخیر",
-                "sales_activity_action_label": "گزارش‌ها",
-                "sales_activity_action_url": _safe_reverse(
-                    "dashboards:reports_dashboard", kwargs={"salon_id": salon.id}
-                ),
-                "upcoming_title": "رزروهای پیش‌رو",
-                "upcoming_subtitle": "نوبت‌هایی که از امروز به بعد در صف اجرا هستند",
-                "upcoming_action_label": "تقویم نوبت‌ها",
-                "upcoming_action_url": _safe_reverse(
-                    "dashboards:appointment_calendar", kwargs={"salon_id": salon.id}
-                ),
-                "today_title": "نوبت‌های امروز",
-                "today_subtitle": "نمای سریع برای شروع شیفت امروز",
-                "today_action_label": "تقویم نوبت‌ها",
-                "today_action_url": _safe_reverse(
-                    "dashboards:appointment_calendar", kwargs={"salon_id": salon.id}
-                ),
-                "popular_title": "خدمات محبوب",
-                "popular_subtitle": "بیشترین خدمات رزروشده",
-                "top_title": "اعضای برتر تیم",
-                "top_subtitle": "بیشترین رزرو ثبت‌شده برای اعضای فعال تیم",
-            },
         }
     }

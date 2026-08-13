@@ -200,6 +200,7 @@ class MessagingManagementCommandExceptionScopeTests(
             "bale_final_readiness_check.py": [],
             "bale_webhook_admin.py": [
                 {"NoReverseMatch"},
+                {"NoReverseMatch"},
                 {"BaleBotApiError"},
                 {"BaleBotApiError"},
                 {"BaleBotApiError"},

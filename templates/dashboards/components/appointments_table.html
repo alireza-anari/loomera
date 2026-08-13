@@ -1,106 +1,88 @@
 <form method="post" action="{{ appointment_management.base_url }}" class="space-y-4" data-appointments-bulk-form>
   {% csrf_token %}
-  {% for field in appointment_management.hidden_fields %}
-    <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
-  {% endfor %}
+  {% for field in appointment_management.hidden_fields %}<input type="hidden" name="{{ field.name }}" value="{{ field.value }}">{% endfor %}
 
   {% include "dashboards/components/bulk_action_bar.html" %}
 
   {% if appointment_management.table.is_empty %}
-    {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-xmark" title="در این بازه نوبتی پیدا نشد" description="فیلترها را تغییر بده یا بازه زمانی دیگری انتخاب کن تا رزروهای مربوطه نمایش داده شوند." action_label="پاک‌سازی فیلترها" action_url=appointment_management.clear_filters_url %}
+    {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-check" title="نوبتی برای این نما نیست" description="اگر دنبال نوبت دیگری هستی، روز یا فیلترها را تغییر بده. برای رزرو جدید هم می‌توانی از دکمه ثبت نوبت استفاده کنی." action_label="پاک‌سازی فیلترها" action_url=appointment_management.clear_filters_url %}
   {% else %}
-    <div class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft">
-      <div class="hidden overflow-x-auto lg:block">
-        <table class="min-w-full divide-y divide-loomera-borderSoft">
+    <div class="hidden overflow-hidden rounded-[24px] border border-loomera-borderSoft lg:block">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-loomera-borderSoft bg-white">
           <thead class="bg-loomera-bgSubtle text-right">
-            <tr class="text-xs font-black tracking-wide text-loomera-textMuted">
-              <th class="px-4 py-4">
-                <input type="checkbox" class="h-4 w-4 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-select-all>
-              </th>
+            <tr class="text-xs font-black text-loomera-textMuted">
+              <th class="px-4 py-4"><input type="checkbox" class="h-4 w-4 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-select-all aria-label="انتخاب همه"></th>
+              <th class="px-4 py-4">زمان</th>
               <th class="px-4 py-4">مشتری</th>
               <th class="px-4 py-4">خدمت</th>
               <th class="px-4 py-4">متخصص</th>
-              <th class="px-4 py-4">تاریخ</th>
-              <th class="px-4 py-4">ساعت</th>
-              <th class="px-4 py-4">مبلغ</th>
               <th class="px-4 py-4">وضعیت</th>
-              <th class="px-4 py-4">کد سفارش</th>
-              <th class="px-4 py-4">عملیات</th>
+              <th class="px-4 py-4">مبلغ</th>
+              <th class="px-4 py-4"></th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-loomera-borderSoft bg-white">
+          <tbody class="divide-y divide-loomera-borderSoft">
             {% for row in appointment_management.table.rows %}
-              <tr class="text-sm text-loomera-textSecondary transition hover:bg-loomera-primarySoft/25">
-                <td class="px-4 py-4 align-top">
-                  <input type="checkbox" name="selected_appointments" value="{{ row.id }}" class="appointment-checkbox h-4 w-4 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-appointment-checkbox>
+              <tr class="text-sm text-loomera-textSecondary transition hover:bg-loomera-primarySoft/20">
+                <td class="px-4 py-4"><input type="checkbox" name="selected_appointments" value="{{ row.id }}" class="h-4 w-4 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-appointment-checkbox aria-label="انتخاب نوبت {{ row.customer_name }}"></td>
+                <td class="whitespace-nowrap px-4 py-4">
+                  <p class="font-black text-loomera-textPrimary">{{ row.time_label }}</p>
+                  <p class="mt-1 text-xs text-loomera-textMuted" title="{{ row.date_label }}">{{ row.date_short_label }}</p>
                 </td>
-                <td class="px-4 py-4 align-top">
-                  <div class="font-black text-loomera-textPrimary">{{ row.customer_name }}</div>
-                  {% if row.customer_mobile %}<div class="mt-1 text-xs text-loomera-textMuted">{{ row.customer_mobile }}</div>{% endif %}
-                  {% if row.description %}<div class="mt-1 max-w-[260px] truncate text-xs text-loomera-textMuted">{{ row.description }}</div>{% endif %}
+                <td class="px-4 py-4">
+                  <p class="font-black text-loomera-textPrimary">{{ row.customer_name }}</p>
+                  {% if row.customer_mobile %}<p class="mt-1 text-xs text-loomera-textMuted">{{ row.customer_mobile }}</p>{% endif %}
                 </td>
-                <td class="px-4 py-4 align-top">{{ row.service_name }}</td>
-                <td class="px-4 py-4 align-top">{{ row.stylist_name }}</td>
-                <td class="px-4 py-4 align-top"><span title="{{ row.date_label }}">{{ row.date_short_label }}</span></td>
-                <td class="px-4 py-4 align-top">{{ row.time_label }}</td>
-                <td class="px-4 py-4 align-top">
-                  <div class="font-black text-loomera-textPrimary">{{ row.price_label }}</div>
-                  {% if row.has_discount %}
-                    <div class="mt-1 text-xs font-bold text-emerald-700">تخفیف: {{ row.discount_label }}</div>
-                    <div class="mt-1 text-[11px] text-loomera-textMuted">خام: {{ row.base_price_label }}</div>
-                  {% endif %}
-                </td>
-                <td class="px-4 py-4 align-top"><span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-black {{ row.status.badge_class }}">{{ row.status.label }}</span></td>
-                <td class="px-4 py-4 align-top text-loomera-textMuted">{{ row.order_code }}</td>
-                <td class="px-4 py-4 align-top">
-                  <a href="{{ row.detail_url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary">
-                    <span>جزئیات</span>
-                    <i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
-                  </a>
-                </td>
+                <td class="px-4 py-4">{{ row.service_name }}</td>
+                <td class="px-4 py-4">{{ row.stylist_name }}</td>
+                <td class="px-4 py-4"><span class="inline-flex rounded-full px-3 py-1 text-xs font-black {{ row.status.badge_class }}">{{ row.status.label }}</span></td>
+                <td class="whitespace-nowrap px-4 py-4 font-black text-loomera-textPrimary">{{ row.price_label }}</td>
+                <td class="px-4 py-4"><a href="{{ row.detail_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 text-xs font-black text-loomera-primaryText shadow-sm">مدیریت <i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i></a></td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+    </div>
 
-      <div class="grid gap-4 p-4 lg:hidden">
-        <label class="flex items-center gap-3 rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textSecondary">
+    <div class="space-y-3 lg:hidden">
+      <details class="group rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/55">
+        <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-xs font-black text-loomera-textSecondary">
+          <span>انتخاب و عملیات گروهی</span>
+          <i class="fa-solid fa-chevron-down text-[10px] transition group-open:rotate-180" aria-hidden="true"></i>
+        </summary>
+        <label class="flex items-center gap-3 border-t border-loomera-borderSoft px-4 py-3 text-sm font-black text-loomera-textSecondary">
           <input type="checkbox" class="h-4 w-4 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-select-all>
           <span>انتخاب همه نوبت‌های این صفحه</span>
         </label>
-        {% for row in appointment_management.table.rows %}
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-sm {{ row.card_class }}">
-            <div class="flex min-w-0 items-start justify-between gap-3">
-              <div class="flex min-w-0 items-start gap-3">
-                <input type="checkbox" name="selected_appointments" value="{{ row.id }}" class="appointment-checkbox mt-1 h-4 w-4 shrink-0 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-appointment-checkbox>
+      </details>
+
+      {% for row in appointment_management.table.rows %}
+        <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-sm {{ row.card_class }}">
+          <div class="flex items-start gap-3">
+            <label class="pt-1" aria-label="انتخاب نوبت {{ row.customer_name }}"><input type="checkbox" name="selected_appointments" value="{{ row.id }}" class="h-4 w-4 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" data-appointment-checkbox></label>
+            <a href="{{ row.detail_url }}" class="min-w-0 flex-1">
+              <div class="flex min-w-0 items-start justify-between gap-3">
                 <div class="min-w-0">
-                  <h3 class="truncate text-base font-black text-loomera-textPrimary">{{ row.customer_name }}</h3>
-                  <p class="mt-1 truncate text-sm text-loomera-textMuted">{{ row.service_name }}</p>
-                  {% if row.customer_mobile %}<p class="mt-1 text-xs text-loomera-textMuted">{{ row.customer_mobile }}</p>{% endif %}
+                  <div class="flex items-baseline gap-2">
+                    <span class="shrink-0 text-lg font-black text-loomera-primaryText">{{ row.time_label }}</span>
+                    <h3 class="truncate text-base font-black text-loomera-textPrimary">{{ row.customer_name }}</h3>
+                  </div>
+                  <p class="mt-1 truncate text-sm text-loomera-textSecondary">{{ row.service_name }} • {{ row.stylist_name }}</p>
+                  {% if row.date_short_label %}<p class="mt-1 text-xs text-loomera-textMuted">{{ row.date_short_label }}</p>{% endif %}
                 </div>
+                <span class="inline-flex shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ row.status.badge_class }}">{{ row.status.label }}</span>
               </div>
-              <span class="inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[11px] font-black {{ row.status.badge_class }}">{{ row.status.label }}</span>
-            </div>
-            <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3"><dt class="text-xs font-bold text-loomera-textMuted">متخصص</dt><dd class="mt-1 truncate font-black text-loomera-textPrimary">{{ row.stylist_name }}</dd></div>
-              <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3"><dt class="text-xs font-bold text-loomera-textMuted">زمان</dt><dd class="mt-1 truncate font-black text-loomera-textPrimary" title="{{ row.date_label }}">{{ row.date_short_label }} - {{ row.time_label }}</dd></div>
-              <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3"><dt class="text-xs font-bold text-loomera-textMuted">مبلغ</dt><dd class="mt-1 truncate font-black text-loomera-textPrimary">{{ row.price_label }}</dd>
-              {% if row.has_discount %}
-                <dd class="mt-1 truncate text-xs font-bold text-emerald-700">تخفیف: {{ row.discount_label }}</dd>
-              {% endif %}</div>
-              <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3"><dt class="text-xs font-bold text-loomera-textMuted">کد سفارش</dt><dd class="mt-1 truncate font-black text-loomera-textPrimary">{{ row.order_code }}</dd></div>
-            </dl>
-            {% if row.description %}<p class="mt-4 rounded-2xl bg-loomera-bgSubtle px-3 py-3 text-sm leading-7 text-loomera-textSecondary">{{ row.description }}</p>{% endif %}
-            <div class="mt-4">
-              <a href="{{ row.detail_url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary">
-                <span>مشاهده جزئیات</span>
-                <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
-              </a>
-            </div>
-          </article>
-        {% endfor %}
-      </div>
+
+              <div class="mt-3 flex items-center justify-between gap-3 border-t border-loomera-borderSoft/70 pt-3">
+                <span class="truncate text-xs font-bold text-loomera-textMuted">{{ row.price_label }}</span>
+                <span class="inline-flex shrink-0 items-center gap-1 text-xs font-black text-loomera-primaryText">مدیریت نوبت <i class="fa-solid fa-chevron-left text-[9px]" aria-hidden="true"></i></span>
+              </div>
+            </a>
+          </div>
+        </article>
+      {% endfor %}
     </div>
   {% endif %}
 </form>

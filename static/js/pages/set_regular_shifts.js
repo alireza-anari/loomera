@@ -2,7 +2,6 @@ export default function initSetRegularShifts() {
   const form = document.querySelector("[data-regular-shifts-form]");
   const template = document.getElementById("regularShiftRowTemplate");
   const dayCards = Array.from(document.querySelectorAll("[data-regular-day]"));
-  const mobileDaysQuery = window.matchMedia("(max-width: 767px)");
 
   const startDateInput = document.querySelector("[data-regular-start-date]");
   const endDateInput = document.querySelector("[data-regular-end-date]");
@@ -18,8 +17,12 @@ export default function initSetRegularShifts() {
   const reviewEnd = document.querySelector("[data-regular-review-end]");
   const reviewDays = document.querySelector("[data-regular-review-days]");
   const reviewRanges = document.querySelector("[data-regular-review-ranges]");
-  const openFirstDayButton = document.querySelector("[data-open-first-day]");
-  const openAllDaysButton = document.querySelector("[data-open-all-days]");
+  const weeklyStartSelect = document.querySelector("[data-weekly-start-time]");
+  const weeklyEndSelect = document.querySelector("[data-weekly-end-time]");
+  const applyWeeklyRangeButton = document.querySelector("[data-apply-weekly-range]");
+  const weeklyCommonHoursLabel = document.querySelector("[data-weekly-common-hours-label]");
+  const weeklyRangeFeedback = document.querySelector("[data-weekly-range-feedback]");
+  const weeklyPresetButtons = Array.from(document.querySelectorAll("[data-weekly-preset], [data-weekly-preset-start]"));
 
   const toPersianDigits = (value) =>
     String(value ?? "").replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
@@ -39,7 +42,7 @@ export default function initSetRegularShifts() {
         autoHide: true,
       });
     } catch (error) {
-      console.warn("[set-regular-shifts] jalaliDatepicker initialization failed");
+      console.warn("[set-regular-shifts] jalaliDatepicker init error", error);
     }
   }
 
@@ -72,20 +75,33 @@ export default function initSetRegularShifts() {
     const startMinutes = timeToMinutes(openTime);
     const endMinutes = timeToMinutes(closeTime);
     const selected = normalizeTime(selectedValue);
+    const selectedMinutes = timeToMinutes(selected);
     const placeholder = isEnd ? "انتخاب پایان" : "انتخاب شروع";
-    const options = [`<option value="">${placeholder}</option>`];
+    const values = [];
 
     if (startMinutes !== null && endMinutes !== null && endMinutes > startMinutes) {
-      for (let minute = startMinutes; minute <= endMinutes; minute += 30) {
-        const value = minutesToTime(minute);
-        options.push(`<option value="${value}"${value === selected ? " selected" : ""}>${toPersianDigits(value)}</option>`);
+      values.push(minutesToTime(startMinutes));
+
+      const firstHalfHour = Math.ceil(startMinutes / 30) * 30;
+      for (let minute = firstHalfHour; minute <= endMinutes; minute += 30) {
+        values.push(minutesToTime(minute));
       }
 
-      if ((endMinutes - startMinutes) % 30 !== 0) {
-        const value = minutesToTime(endMinutes);
-        options.push(`<option value="${value}"${value === selected ? " selected" : ""}>${toPersianDigits(value)}</option>`);
+      values.push(minutesToTime(endMinutes));
+
+      if (
+        selectedMinutes !== null &&
+        selectedMinutes >= startMinutes &&
+        selectedMinutes <= endMinutes
+      ) {
+        values.push(selected);
       }
     }
+
+    const uniqueValues = Array.from(new Set(values)).sort((a, b) => timeToMinutes(a) - timeToMinutes(b));
+    const options = [`<option value="">${placeholder}</option>`].concat(
+      uniqueValues.map((value) => `<option value="${value}"${value === selected ? " selected" : ""}>${toPersianDigits(value)}</option>`)
+    );
 
     select.innerHTML = options.join("");
     select.dataset.minTime = normalizeTime(openTime);
@@ -97,7 +113,7 @@ export default function initSetRegularShifts() {
     row.classList.toggle("bg-loomera-errorSoft/35", invalid);
   };
 
-  const createRow = ({ openTime = "", closeTime = "", fillFull = false } = {}) => {
+  const createRow = ({ openTime = "", closeTime = "", fillFull = false, selectedStart = "", selectedEnd = "" } = {}) => {
     const wrapper = document.createElement("div");
     wrapper.innerHTML = template.innerHTML.trim();
     const row = wrapper.firstElementChild;
@@ -105,17 +121,19 @@ export default function initSetRegularShifts() {
     const endSelect = row.querySelector("[data-end-time]");
     const normalizedOpen = normalizeTime(openTime);
     const normalizedClose = normalizeTime(closeTime);
+    const resolvedStart = fillFull ? normalizedOpen : normalizeTime(selectedStart);
+    const resolvedEnd = fillFull ? normalizedClose : normalizeTime(selectedEnd);
 
     buildTimeOptions(startSelect, {
       openTime: normalizedOpen,
       closeTime: normalizedClose,
-      selectedValue: fillFull ? normalizedOpen : "",
+      selectedValue: resolvedStart,
     });
 
     buildTimeOptions(endSelect, {
       openTime: normalizedOpen,
       closeTime: normalizedClose,
-      selectedValue: fillFull ? normalizedClose : "",
+      selectedValue: resolvedEnd,
       isEnd: true,
     });
 
@@ -150,19 +168,8 @@ export default function initSetRegularShifts() {
     return { rows, values, invalidCount };
   };
 
-  const closeOtherDayCards = (activeCard) => {
-    if (!mobileDaysQuery.matches || !activeCard?.open) return;
-    dayCards.forEach((card) => {
-      if (card !== activeCard) card.open = false;
-    });
-  };
-
-  const openFirstAvailableDay = () => {
-    const firstOpenDay = dayCards.find((card) => card.dataset.dayOpen === "1") || dayCards[0];
-    if (!firstOpenDay) return;
-    firstOpenDay.open = true;
-    closeOtherDayCards(firstOpenDay);
-    firstOpenDay.scrollIntoView({ behavior: "smooth", block: "center" });
+  const revealDayCard = (dayCard) => {
+    dayCard?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   };
 
   const updateSummary = () => {
@@ -237,6 +244,179 @@ export default function initSetRegularShifts() {
     updateSummary();
   };
 
+  const openDayCards = dayCards.filter(
+    (dayCard) =>
+      dayCard.dataset.dayOpen === "1" &&
+      timeToMinutes(dayCard.dataset.openTime || "") !== null &&
+      timeToMinutes(dayCard.dataset.closeTime || "") !== null
+  );
+
+  const setWeeklyFeedback = (message, tone = "neutral") => {
+    if (!weeklyRangeFeedback) return;
+    weeklyRangeFeedback.textContent = message;
+    weeklyRangeFeedback.classList.toggle("hidden", !message);
+    weeklyRangeFeedback.classList.toggle("text-loomera-error", tone === "error");
+    weeklyRangeFeedback.classList.toggle("text-loomera-success", tone === "success");
+    weeklyRangeFeedback.classList.toggle("text-loomera-textSecondary", tone === "neutral");
+  };
+
+  const replaceDayWithRange = (dayCard, startValue, endValue) => {
+    const rowsContainer = dayCard.querySelector("[data-day-rows]");
+    if (!rowsContainer || dayCard.dataset.dayOpen !== "1") return false;
+
+    const openMinutes = timeToMinutes(dayCard.dataset.openTime || "");
+    const closeMinutes = timeToMinutes(dayCard.dataset.closeTime || "");
+    const startMinutes = timeToMinutes(startValue);
+    const endMinutes = timeToMinutes(endValue);
+
+    if (
+      openMinutes === null ||
+      closeMinutes === null ||
+      startMinutes === null ||
+      endMinutes === null ||
+      startMinutes < openMinutes ||
+      endMinutes > closeMinutes ||
+      endMinutes <= startMinutes
+    ) {
+      return false;
+    }
+
+    rowsContainer.innerHTML = "";
+    rowsContainer.appendChild(
+      createRow({
+        openTime: dayCard.dataset.openTime || "",
+        closeTime: dayCard.dataset.closeTime || "",
+        selectedStart: startValue,
+        selectedEnd: endValue,
+      })
+    );
+    updateDayState(dayCard);
+    return true;
+  };
+
+  const applyExactRangeToWeek = (startValue, endValue, { announce = true } = {}) => {
+    const normalizedStart = normalizeTime(startValue);
+    const normalizedEnd = normalizeTime(endValue);
+    const incompatibleDay = openDayCards.find(
+      (dayCard) =>
+        timeToMinutes(normalizedStart) < timeToMinutes(dayCard.dataset.openTime || "") ||
+        timeToMinutes(normalizedEnd) > timeToMinutes(dayCard.dataset.closeTime || "")
+    );
+
+    if (!normalizedStart || !normalizedEnd || normalizedEnd <= normalizedStart) {
+      setWeeklyFeedback("ساعت شروع و پایان معتبر انتخاب کن.", "error");
+      return false;
+    }
+
+    if (incompatibleDay) {
+      setWeeklyFeedback(`این بازه داخل ساعت کاری ${incompatibleDay.dataset.dayLabel || "یکی از روزها"} نیست.`, "error");
+      return false;
+    }
+
+    openDayCards.forEach((dayCard) => replaceDayWithRange(dayCard, normalizedStart, normalizedEnd));
+    if (announce) {
+      setWeeklyFeedback(
+        `بازه ${toPersianDigits(normalizedStart)} تا ${toPersianDigits(normalizedEnd)} روی ${toPersianDigits(openDayCards.length)} روز باز اعمال شد.`,
+        "success"
+      );
+    }
+    scheduleWorkspaceRefresh();
+    return true;
+  };
+
+  const applySalonHoursToWeek = () => {
+    openDayCards.forEach((dayCard) => {
+      replaceDayWithRange(dayCard, dayCard.dataset.openTime || "", dayCard.dataset.closeTime || "");
+    });
+    setWeeklyFeedback(
+      `ساعت کاری خود مجموعه روی ${toPersianDigits(openDayCards.length)} روز باز اعمال شد.`,
+      "success"
+    );
+    scheduleWorkspaceRefresh();
+  };
+
+  const initWeeklyHoursTool = () => {
+    if (!weeklyStartSelect || !weeklyEndSelect || !applyWeeklyRangeButton) return;
+
+    if (!openDayCards.length) {
+      weeklyStartSelect.disabled = true;
+      weeklyEndSelect.disabled = true;
+      applyWeeklyRangeButton.disabled = true;
+      if (weeklyCommonHoursLabel) weeklyCommonHoursLabel.textContent = "هیچ روز کاری فعالی برای مجموعه ثبت نشده";
+      weeklyPresetButtons.forEach((button) => {
+        button.disabled = true;
+      });
+      return;
+    }
+
+    const commonOpenMinutes = Math.max(
+      ...openDayCards.map((dayCard) => timeToMinutes(dayCard.dataset.openTime || ""))
+    );
+    const commonCloseMinutes = Math.min(
+      ...openDayCards.map((dayCard) => timeToMinutes(dayCard.dataset.closeTime || ""))
+    );
+
+    if (commonCloseMinutes <= commonOpenMinutes) {
+      weeklyStartSelect.disabled = true;
+      weeklyEndSelect.disabled = true;
+      applyWeeklyRangeButton.disabled = true;
+      if (weeklyCommonHoursLabel) weeklyCommonHoursLabel.textContent = "بازه مشترک بین همه روزها وجود ندارد";
+    } else {
+      const commonOpen = minutesToTime(commonOpenMinutes);
+      const commonClose = minutesToTime(commonCloseMinutes);
+      buildTimeOptions(weeklyStartSelect, {
+        openTime: commonOpen,
+        closeTime: commonClose,
+        selectedValue: commonOpen,
+      });
+      buildTimeOptions(weeklyEndSelect, {
+        openTime: commonOpen,
+        closeTime: commonClose,
+        selectedValue: commonClose,
+        isEnd: true,
+      });
+      if (weeklyCommonHoursLabel) {
+        weeklyCommonHoursLabel.textContent = `بازه مشترک: ${toPersianDigits(commonOpen)} تا ${toPersianDigits(commonClose)}`;
+      }
+    }
+
+    weeklyPresetButtons.forEach((button) => {
+      if (button.matches('[data-weekly-preset="salon"]')) return;
+      const presetStart = timeToMinutes(button.dataset.weeklyPresetStart || "");
+      const presetEnd = timeToMinutes(button.dataset.weeklyPresetEnd || "");
+      const incompatible =
+        presetStart === null ||
+        presetEnd === null ||
+        presetStart < commonOpenMinutes ||
+        presetEnd > commonCloseMinutes ||
+        presetEnd <= presetStart;
+      button.disabled = incompatible;
+      if (incompatible) {
+        button.title = "این بازه با ساعت کاری همه روزهای باز مجموعه سازگار نیست.";
+      }
+    });
+
+    applyWeeklyRangeButton.addEventListener("click", () => {
+      applyExactRangeToWeek(weeklyStartSelect.value, weeklyEndSelect.value);
+    });
+
+    weeklyPresetButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        if (button.disabled) return;
+        if (button.matches('[data-weekly-preset="salon"]')) {
+          applySalonHoursToWeek();
+          return;
+        }
+
+        const startValue = normalizeTime(button.dataset.weeklyPresetStart || "");
+        const endValue = normalizeTime(button.dataset.weeklyPresetEnd || "");
+        if (weeklyStartSelect) weeklyStartSelect.value = startValue;
+        if (weeklyEndSelect) weeklyEndSelect.value = endValue;
+        applyExactRangeToWeek(startValue, endValue);
+      });
+    });
+  };
+
   dayCards.forEach((dayCard) => {
     const rowsContainer = dayCard.querySelector("[data-day-rows]");
     const addRowButton = dayCard.querySelector("[data-add-row]");
@@ -245,15 +425,8 @@ export default function initSetRegularShifts() {
     const openTime = dayCard.dataset.openTime || "";
     const closeTime = dayCard.dataset.closeTime || "";
 
-    dayCard.addEventListener("toggle", () => {
-      closeOtherDayCards(dayCard);
-      scheduleWorkspaceRefresh();
-    });
-
     addRowButton?.addEventListener("click", () => {
       if (!isOpen || !rowsContainer) return;
-      dayCard.open = true;
-      closeOtherDayCards(dayCard);
       rowsContainer.appendChild(createRow({ openTime, closeTime }));
       updateDayState(dayCard);
       scheduleWorkspaceRefresh();
@@ -261,8 +434,6 @@ export default function initSetRegularShifts() {
 
     fillFullButton?.addEventListener("click", () => {
       if (!isOpen || !rowsContainer) return;
-      dayCard.open = true;
-      closeOtherDayCards(dayCard);
       rowsContainer.appendChild(createRow({ openTime, closeTime, fillFull: true }));
       updateDayState(dayCard);
       scheduleWorkspaceRefresh();
@@ -283,13 +454,8 @@ export default function initSetRegularShifts() {
     updateDayState(dayCard);
   });
 
-  openFirstDayButton?.addEventListener("click", openFirstAvailableDay);
-  openAllDaysButton?.addEventListener("click", () => {
-    dayCards.forEach((card) => {
-      card.open = true;
-    });
-    scheduleWorkspaceRefresh();
-  });
+
+  initWeeklyHoursTool();
 
   [startDateInput, endDateInput].forEach((input) => {
     input?.addEventListener("input", updateSummary);
@@ -302,7 +468,7 @@ export default function initSetRegularShifts() {
       updateDayState(dayCard);
       if (getDayValues(dayCard).invalidCount > 0) {
         hasClientError = true;
-        dayCard.open = true;
+        revealDayCard(dayCard);
       }
     });
 
@@ -313,14 +479,7 @@ export default function initSetRegularShifts() {
     }
   });
 
-  window.addEventListener("resize", () => {
-    if (mobileDaysQuery.matches) {
-      closeOtherDayCards(dayCards.find((card) => card.open) || dayCards[0]);
-    }
-    scheduleWorkspaceRefresh();
-  }, { passive: true });
 
-  if (mobileDaysQuery.matches) openFirstAvailableDay();
   updateSummary();
   scheduleWorkspaceRefresh();
 }

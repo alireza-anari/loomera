@@ -321,7 +321,7 @@
             <i class="fa-solid fa-key w-5 text-center" aria-hidden="true"></i>
             <span>تغییر رمز عبور</span>
           </a>
-          <a href="{% url 'accounts:notification_settings' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+          <a href="{% url 'accounts:customer_communication_settings' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
             <i class="fa-regular fa-bell w-5 text-center" aria-hidden="true"></i>
             <span>اعلان‌ها</span>
           </a>
@@ -335,7 +335,7 @@
   </div>
 
   <!-- Mobile CTA -->
-  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur lg:hidden">
+  <div data-mobile-primary-action class="lm-shell-aware-mobile-action fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur lg:hidden">
     <div class="mx-auto flex max-w-md gap-3">
       <a href="{% url 'accounts:customer_settings' %}"
          class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm"

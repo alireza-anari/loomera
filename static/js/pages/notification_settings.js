@@ -121,7 +121,7 @@ export default function initNotificationSettings() {
         await saveNotificationSetting(fieldName, nextChecked);
         setStatus("تنظیمات اعلان ذخیره شد.");
       } catch (error) {
-        console.error("[notification-settings] save failed");
+        console.error("[notification_settings] save failed", error);
 
         this.checked = previousChecked;
         setToggleVisualState(this, previousChecked);

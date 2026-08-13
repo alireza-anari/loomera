@@ -475,7 +475,7 @@ class FilterCustomersView(LoginRequiredMixin, View):
 
             return JsonResponse({"customers": customers_data})
 
-        return redirect("dashboards:salons_customers")
+        return redirect("dashboards:salons_customers_page")
 
 
 # ---------------------------------------------------------------------------

@@ -4,356 +4,41 @@
 {% block content %}
   {% url 'dashboards:products' as products_url %}
   {% url 'dashboards:catalog' as catalog_url %}
-  {% url 'dashboards:online_booking' as online_booking_url %}
-  {% url 'dashboards:service_menu' as service_menu_url %}
 
-  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-workspace-root data-dashboard-page="stocktakes">
-    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="stocktakes-title">
-      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_44%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
+  <section class="mx-auto min-w-0 max-w-4xl space-y-4" data-dashboard-workspace-root data-dashboard-page="stocktakes">
+    <section class="rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6 lg:p-7" aria-labelledby="stocktakes-title">
+      <span class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+        <i class="fa-solid fa-clipboard-check text-[10px]" aria-hidden="true"></i>
+        موجودی و انبار
+      </span>
+      <h1 id="stocktakes-title" class="mt-4 text-xl font-black leading-8 text-loomera-textPrimary sm:text-3xl">موجودی‌گیری</h1>
+      <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textSecondary">
+        موجودی‌گیری عملیاتی هنوز در این نسخه فعال نیست. برای آماده‌سازی داده‌ها، محصولات مجموعه را مدیریت کن.
+      </p>
 
-      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
-        <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
-          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0">
-              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-                <i class="fa-solid fa-clipboard-check text-[10px]" aria-hidden="true"></i>
-                <span class="truncate">فروش و موجودی</span>
-              </span>
-
-              <h1 id="stocktakes-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-                موجودی‌گیری و انبار مجموعه
-              </h1>
-              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-                مسیر انبارگردانی، چرخه شمارش، حوزه‌های آماده‌سازی و قدم‌های بعدی را یک‌جا ببین تا قبل از کامل شدن موتور موجودی، تجربه داشبورد خام و رهاشده نباشد.
-              </p>
-            </div>
-
-            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
-              <i class="fa-solid fa-boxes-stacked text-lg" aria-hidden="true"></i>
-            </span>
-          </div>
-
-          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
-            <a href="{{ products_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-box-open text-xs" aria-hidden="true"></i>
-              <span class="truncate">محصولات</span>
-            </a>
-            <a href="{{ catalog_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-layer-group text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">کاتالوگ</span>
-            </a>
-            <a href="{{ online_booking_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-globe text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">رزرو آنلاین</span>
-            </a>
-          </div>
-        </div>
-
-        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس موجودی‌گیری">
-          <div class="flex min-w-0 items-center justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-white/55">فوکوس فعلی</p>
-              <h2 class="mt-1 truncate text-lg font-black">آماده‌سازی انبارگردانی</h2>
-            </div>
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-              <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-            </span>
-          </div>
-
-          <div class="mt-5 space-y-3">
-            {% for badge in stocktakes_workspace.hero_badges %}
-              <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <div class="flex items-center gap-3">
-                  <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-                    <i class="{{ badge.icon }} text-xs" aria-hidden="true"></i>
-                  </span>
-                  <p class="min-w-0 truncate text-sm font-black text-white">{{ badge.label }}</p>
-                </div>
-              </article>
-            {% empty %}
-              <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <h3 class="text-sm font-black text-white">مسیر آماده‌سازی فعال است</h3>
-                <p class="mt-2 text-xs leading-6 text-white/72">برای انبارگردانی، محصولات و cadence شمارش را کامل کن.</p>
-              </article>
-            {% endfor %}
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های موجودی‌گیری">
-        <div class="flex min-w-max items-center gap-2">
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#stocktakes-section-overview" aria-selected="true">
-            <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
-            <span>نمای کلی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>{{ stocktakes_workspace.status_cards|length }}</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#stocktakes-section-cycle">
-            <i class="fa-solid fa-arrows-spin text-[10px]" aria-hidden="true"></i>
-            <span>چرخه شمارش</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ stocktakes_workspace.steps|length }}</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#stocktakes-section-readiness">
-            <i class="fa-solid fa-shield-halved text-[10px]" aria-hidden="true"></i>
-            <span>آمادگی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ stocktakes_workspace.readiness_items|length }}</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#stocktakes-section-next">
-            <i class="fa-solid fa-seedling text-[10px]" aria-hidden="true"></i>
-            <span>گام بعد</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#stocktakes-section-routes">
-            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
-            <span>مسیرها</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ stocktakes_workspace.actions|length }}</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <section class="rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5 lg:p-6" aria-labelledby="stocktakes-readiness-title">
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">آمادگی عملیات موجودی</p>
-          <h2 id="stocktakes-readiness-title" class="mt-1 text-lg font-black text-loomera-textPrimary">چک‌لیست قبل از انبارگردانی واقعی</h2>
-          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">این صفحه فعلاً لایه تصمیم‌گیری و setup را پوشش می‌دهد؛ engine ثبت محصول و stock ledger بعداً می‌تواند به همین سطح وصل شود.</p>
-        </div>
-        <a href="{{ products_url }}" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-white">
-          <i class="fa-solid fa-box-open text-[11px]" aria-hidden="true"></i>
-          <span>تکمیل محصولات</span>
+      <div class="mt-5 flex flex-col gap-2 sm:flex-row">
+        <a href="{{ products_url }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft">
+          <i class="fa-solid fa-box-open text-xs" aria-hidden="true"></i>
+          مدیریت محصولات
+        </a>
+        <a href="{{ catalog_url }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary">
+          <i class="fa-solid fa-layer-group text-xs text-loomera-primary" aria-hidden="true"></i>
+          مشاهده کاتالوگ
         </a>
       </div>
-
-      <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {% for item in stocktakes_workspace.status_cards %}
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-xs font-bold text-loomera-textMuted">{{ item.title }}</span>
-              <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl {% if item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-white text-loomera-textSecondary shadow-sm{% endif %}">
-                <i class="{{ item.icon }}" aria-hidden="true"></i>
-              </span>
-            </div>
-            <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ item.value }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ item.meta }}</p>
-          </article>
-        {% empty %}
-          <article class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 p-5 text-sm leading-7 text-loomera-textMuted sm:col-span-2 xl:col-span-3">هنوز شاخصی برای موجودی‌گیری تعریف نشده است.</article>
-        {% endfor %}
-      </div>
     </section>
 
-    <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-      <details id="stocktakes-section-overview" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت فعلی موجودی‌گیری</h2>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="rounded-[26px] border border-loomera-primary/15 bg-loomera-primarySoft/40 p-4 sm:p-5">
-            <div class="flex items-start gap-3">
-              <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">موجودی‌گیری فعلاً در حالت setup-oriented است</h3>
-                <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">تا قبل از کامل شدن موتور کالا و stock ledger، این صفحه باید مسیر تصمیم‌گیری، آمادگی تیم و ارتباط با محصولات را روشن کند.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-5 grid gap-3 sm:grid-cols-3">
-            <a href="{{ products_url }}" class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/25">
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span>
-              <h3 class="mt-3 text-sm font-black text-loomera-textPrimary">محصولات</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">اولین سطح برای آماده‌سازی موجودی.</p>
-            </a>
-            <a href="{{ catalog_url }}" class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/25">
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
-              <h3 class="mt-3 text-sm font-black text-loomera-textPrimary">کاتالوگ</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">اتصال خدمات، محصولات و رزروپذیری.</p>
-            </a>
-            <a href="{{ service_menu_url }}" class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/25">
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-scissors" aria-hidden="true"></i></span>
-              <h3 class="mt-3 text-sm font-black text-loomera-textPrimary">خدمات</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">ردیابی مصرف بعداً به خدمات وصل می‌شود.</p>
-            </a>
-          </div>
-        </div>
-      </details>
-
-      <details id="stocktakes-section-cycle" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">چرخه عملیات</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">چرخه موجودی‌گیری</h2>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
-        <div class="p-4 sm:p-5 lg:p-6">
-          <p class="text-xs leading-6 text-loomera-textMuted">این چرخه کمک می‌کند تیم بداند انبارگردانی واقعی از کجا شروع می‌شود، چطور ثبت می‌شود و چه زمانی کامل محسوب می‌شود.</p>
-          <div class="mt-5 grid gap-3 md:grid-cols-3">
-            {% for step in stocktakes_workspace.steps %}
-              <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4" data-stocktake-cycle-card data-stocktake-search-value="{{ step.title }} {{ step.description }}">
-                <div class="flex items-center justify-between gap-3">
-                  <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">{{ forloop.counter }}</span>
-                  <span class="rounded-full bg-loomera-primarySoft px-3 py-1 text-[10px] font-black text-loomera-primaryText">مرحله</span>
-                </div>
-                <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">{{ step.title }}</h3>
-                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ step.description }}</p>
-              </article>
-            {% empty %}
-              <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-3">چرخه‌ای برای موجودی‌گیری تعریف نشده است.</div>
-            {% endfor %}
-          </div>
-        </div>
-      </details>
-    </div>
-
-    <details id="stocktakes-section-readiness" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">حوزه‌های آماده‌سازی</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">آمادگی قبل از stocktake واقعی</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-      </summary>
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <label class="relative block min-w-0 flex-1">
-            <span class="sr-only">جستجوی آمادگی موجودی‌گیری</span>
-            <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
-            <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="جستجو در حوزه‌های آمادگی" data-stocktake-readiness-search>
-          </label>
-
-          <div class="flex gap-2 overflow-x-auto pb-1" aria-label="فیلتر سریع آمادگی">
-            <button type="button" class="shrink-0 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-stocktake-readiness-filter="all">همه</button>
-            <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-stocktake-readiness-filter="warning">نیازمند setup</button>
-            <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-stocktake-readiness-filter="primary">آماده تعریف</button>
-            <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-stocktake-readiness-filter="success">آماده</button>
-          </div>
-        </div>
-
-        <div class="grid gap-3 md:grid-cols-3" data-stocktake-readiness-grid>
-          {% for item in stocktakes_workspace.readiness_items %}
-            <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4" data-stocktake-readiness-card data-stocktake-readiness-tone="{{ item.tone }}" data-stocktake-search-value="{{ item.title }} {{ item.state }} {{ item.description }}">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <h3 class="text-sm font-black text-loomera-textPrimary">{{ item.title }}</h3>
-                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
-                </div>
-                <span class="inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[10px] font-black {% if item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-white text-loomera-textSecondary{% endif %}">{{ item.state }}</span>
-              </div>
+    {% if stocktakes_workspace.status_cards %}
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-soft sm:p-5" aria-label="وضعیت داده‌های موجودی">
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {% for item in stocktakes_workspace.status_cards %}
+            <article class="rounded-2xl bg-loomera-bgSubtle px-4 py-3">
+              <p class="text-xs font-bold text-loomera-textMuted">{{ item.title }}</p>
+              <strong class="mt-1 block text-base font-black text-loomera-textPrimary">{{ item.value }}</strong>
             </article>
-          {% empty %}
-            <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-3">حوزه آماده‌سازی ثبت نشده است.</div>
           {% endfor %}
-          <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-3" data-stocktake-readiness-empty>موردی با این جستجو یا فیلتر پیدا نشد.</div>
         </div>
-      </div>
-    </details>
-
-    <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-      <details id="stocktakes-section-next" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">گام بعدی</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت فعلی stocktake</h2>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="rounded-[26px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 p-5">
-            <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></span>
-            <h3 class="mt-4 text-base font-black text-loomera-textPrimary">{{ stocktakes_workspace.empty_state.title }}</h3>
-            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">{{ stocktakes_workspace.empty_state.description }}</p>
-            <div class="mt-5 flex flex-wrap gap-2">
-              <a href="{{ products_url }}" class="inline-flex items-center gap-2 rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:-translate-y-0.5"><span>شروع از محصولات</span><i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i></a>
-              <a href="{{ catalog_url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2.5 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40"><span>بررسی کاتالوگ</span><i class="fa-solid fa-layer-group text-[10px]" aria-hidden="true"></i></a>
-            </div>
-          </div>
-        </div>
-      </details>
-
-      <details id="stocktakes-section-routes" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">اتصال‌های مرتبط با موجودی</h2>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {% for action in stocktakes_workspace.actions %}
-              <a href="{{ action.url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
-                <div class="flex items-start justify-between gap-3">
-                  <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i></span>
-                  <i class="fa-solid fa-arrow-left text-xs text-loomera-textMuted transition group-hover:-translate-x-1 group-hover:text-loomera-primaryText" aria-hidden="true"></i>
-                </div>
-                <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">{{ action.label }}</h3>
-                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای تکمیل زنجیره محصولات، کاتالوگ و رزروپذیری.</p>
-              </a>
-            {% empty %}
-              <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted sm:col-span-2 xl:col-span-3">مسیر سریعی برای موجودی‌گیری تعریف نشده است.</div>
-            {% endfor %}
-          </div>
-        </div>
-      </details>
-    </div>
+      </section>
+    {% endif %}
   </section>
-{% endblock %}
-
-{% block js %}
-  {{ block.super }}
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const cards = Array.from(document.querySelectorAll("[data-stocktake-readiness-card]"));
-      const buttons = Array.from(document.querySelectorAll("[data-stocktake-readiness-filter]"));
-      const search = document.querySelector("[data-stocktake-readiness-search]");
-      const empty = document.querySelector("[data-stocktake-readiness-empty]");
-      let activeFilter = "all";
-
-      const setButtonState = () => {
-        buttons.forEach((button) => {
-          const active = button.dataset.stocktakeReadinessFilter === activeFilter;
-          button.classList.toggle("border-loomera-primary/20", active);
-          button.classList.toggle("bg-loomera-primarySoft", active);
-          button.classList.toggle("text-loomera-primaryText", active);
-          button.classList.toggle("border-loomera-borderSoft", !active);
-          button.classList.toggle("bg-white", !active);
-          button.classList.toggle("text-loomera-textSecondary", !active);
-          button.setAttribute("aria-pressed", active ? "true" : "false");
-        });
-      };
-
-      const applyFilters = () => {
-        const query = (search?.value || "").trim().toLowerCase();
-        let visibleCount = 0;
-
-        cards.forEach((card) => {
-          const text = (card.dataset.stocktakeSearchValue || card.textContent || "").toLowerCase();
-          const tone = card.dataset.stocktakeReadinessTone || "";
-          const visible = (activeFilter === "all" || tone === activeFilter) && (!query || text.includes(query));
-          card.classList.toggle("hidden", !visible);
-          if (visible) visibleCount += 1;
-        });
-
-        empty?.classList.toggle("hidden", visibleCount !== 0);
-        setButtonState();
-        window.LoomeraDashboardWorkspace?.refreshAll?.();
-      };
-
-      buttons.forEach((button) => {
-        button.addEventListener("click", () => {
-          activeFilter = button.dataset.stocktakeReadinessFilter || "all";
-          applyFilters();
-        });
-      });
-
-      search?.addEventListener("input", applyFilters);
-      applyFilters();
-    });
-  </script>
 {% endblock %}

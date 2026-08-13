@@ -1,0 +1,18 @@
+<div class="grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label="وضعیت تخفیف‌ها">
+  <button type="button" data-discount-filter-button data-filter-value="running" aria-pressed="false" class="rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 text-right transition hover:border-loomera-primary/25 aria-pressed:border-loomera-primary aria-pressed:bg-loomera-primarySoft">
+    <span class="block text-[11px] font-bold text-loomera-textMuted">در حال اجرا</span>
+    <strong class="mt-1 block text-lg font-black text-loomera-textPrimary">{{ discount_stats.running }}</strong>
+  </button>
+  <button type="button" data-discount-filter-button data-filter-value="scheduled" aria-pressed="false" class="rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 text-right transition hover:border-loomera-primary/25 aria-pressed:border-loomera-primary aria-pressed:bg-loomera-primarySoft">
+    <span class="block text-[11px] font-bold text-loomera-textMuted">زمان‌بندی‌شده</span>
+    <strong class="mt-1 block text-lg font-black text-loomera-textPrimary">{{ discount_stats.scheduled }}</strong>
+  </button>
+  <button type="button" data-discount-filter-button data-filter-value="inactive" aria-pressed="false" class="rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 text-right transition hover:border-loomera-primary/25 aria-pressed:border-loomera-primary aria-pressed:bg-loomera-primarySoft">
+    <span class="block text-[11px] font-bold text-loomera-textMuted">غیرفعال</span>
+    <strong class="mt-1 block text-lg font-black text-loomera-textPrimary">{{ discount_stats.inactive }}</strong>
+  </button>
+  <button type="button" data-discount-filter-button data-filter-value="ended" aria-pressed="false" class="rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 text-right transition hover:border-loomera-primary/25 aria-pressed:border-loomera-primary aria-pressed:bg-loomera-primarySoft">
+    <span class="block text-[11px] font-bold text-loomera-textMuted">پایان‌یافته</span>
+    <strong class="mt-1 block text-lg font-black text-loomera-textPrimary">{{ discount_stats.ended }}</strong>
+  </button>
+</div>

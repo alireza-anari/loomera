@@ -24,7 +24,7 @@
   </header>
 
   <div class="mx-auto w-full max-w-7xl px-4 py-5 lg:px-6 lg:py-8 xl:px-0">
-    <header class="relative overflow-hidden rounded-[2.25rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:p-8" aria-labelledby="bookings-page-title">
+    <header class="relative hidden overflow-hidden rounded-[2.25rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:block lg:p-8" aria-labelledby="bookings-page-title">
       <div class="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-loomera-primarySoft blur-3xl" aria-hidden="true"></div>
       <div class="pointer-events-none absolute -bottom-28 right-10 h-72 w-72 rounded-full bg-loomera-accentSoft blur-3xl" aria-hidden="true"></div>
 
@@ -50,7 +50,7 @@
       </div>
     </header>
 
-    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+    <div class="mt-6">
       <main class="min-w-0 space-y-7">
         <section aria-labelledby="upcoming-bookings-title" class="scroll-mt-28">
           <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
@@ -98,43 +98,7 @@
         </section>
       </main>
 
-      <aside class="space-y-4 lg:sticky lg:top-24 lg:self-start" aria-label="اقدام‌ها و راهنمای نوبت‌ها">
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
-          <h2 class="text-sm font-black text-loomera-textPrimary">اقدام‌های سریع</h2>
-          <div class="mt-4 grid gap-2">
-            <a href="{% url 'search:search_page' %}" class="group flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary">
-              <span class="inline-flex items-center gap-2"><i class="fa-solid fa-magnifying-glass text-loomera-primary" aria-hidden="true"></i>رزرو نوبت جدید</span>
-              <i class="fa-solid fa-chevron-left text-xs opacity-50 transition group-hover:opacity-100" aria-hidden="true"></i>
-            </a>
-            <a href="{% url 'csf:favorite_salons' %}" class="group flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary">
-              <span class="inline-flex items-center gap-2"><i class="fa-regular fa-heart text-loomera-primary" aria-hidden="true"></i>علاقه‌مندی‌ها</span>
-              <i class="fa-solid fa-chevron-left text-xs opacity-50 transition group-hover:opacity-100" aria-hidden="true"></i>
-            </a>
-            <a href="{% url 'accounts:customer_panel' %}" class="group flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary">
-              <span class="inline-flex items-center gap-2"><i class="fa-regular fa-user text-loomera-primary" aria-hidden="true"></i>حساب من</span>
-              <i class="fa-solid fa-chevron-left text-xs opacity-50 transition group-hover:opacity-100" aria-hidden="true"></i>
-            </a>
-          </div>
-        </section>
 
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
-          <h2 class="text-sm font-black text-loomera-textPrimary">راهنمای وضعیت‌ها</h2>
-          <div class="mt-4 space-y-3 text-xs leading-6 text-loomera-textSecondary">
-            <p class="flex items-center gap-2"><span class="inline-flex rounded-full bg-emerald-50 px-3 py-1 font-black text-emerald-700 ring-1 ring-emerald-100">ثبت‌شده</span><span>رزرو فعال یا پرداخت‌شده.</span></p>
-            <p class="flex items-center gap-2"><span class="inline-flex rounded-full bg-amber-50 px-3 py-1 font-black text-amber-700 ring-1 ring-amber-100">در انتظار</span><span>نیازمند پرداخت یا پیگیری.</span></p>
-            <p class="flex items-center gap-2"><span class="inline-flex rounded-full bg-rose-50 px-3 py-1 font-black text-rose-700 ring-1 ring-rose-100">لغو شده</span><span>رزرو لغو شده است.</span></p>
-          </div>
-        </section>
-
-        <section class="overflow-hidden rounded-[2rem] border border-loomera-primary/15 bg-loomera-primary text-white shadow-lm-card">
-          <div class="p-5">
-            <p class="text-xs font-black text-white/70">پیشنهاد</p>
-            <h2 class="mt-2 text-lg font-black">زمان بعدی را زودتر رزرو کن</h2>
-            <p class="mt-2 text-sm leading-7 text-white/75">برای ساعت‌های پرتقاضا، بهتر است نوبت بعدی را از همین حالا انتخاب کنی.</p>
-            <a href="{% url 'search:search_page' %}" class="mt-4 inline-flex w-full items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-black text-loomera-primary shadow-sm transition hover:bg-loomera-primarySoft">جستجوی مجموعه‌ها</a>
-          </div>
-        </section>
-      </aside>
     </div>
   </div>
 </section>

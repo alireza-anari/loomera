@@ -54,6 +54,7 @@ from apps.accounts.models import (
     CustomUser,
     WorkSamples,
 )
+from apps.orders.booking_utils import get_available_slots_for_service
 from apps.orders.models import (
     AppointmentMaterialUsage,
     BookingQuickLink,
@@ -1929,49 +1930,54 @@ class CustomerDetailView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, V
 
 
 # ----------------------------------------------------------------------------------------
-class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View):
-    def _quick_link_day_key(self, value):
-        """Map a Gregorian date to SalonOpeningHours.day_of_week.
+class OnlineBookingQuickLinkOptionsView(LoginRequiredMixin, View):
+    """Manager-scoped options for dependent quick-link fields.
 
-        SalonOpeningHours uses 1=Saturday ... 7=Friday, while Python uses
-        Monday=0 ... Sunday=6.
-        """
-        if not value:
-            return None
-        return ((value.weekday() + 2) % 7) + 1
+    The endpoint deliberately reuses the canonical booking availability engine,
+    so the dashboard never advertises a date/time that customer booking would
+    reject later.
+    """
 
-    def _build_working_time_options(self, opening_hours):
-        options = set()
-        for row in opening_hours:
-            if row.is_closed or not row.open_time or not row.close_time:
-                continue
-            current = datetime.combine(date.today(), row.open_time)
-            closes_at = datetime.combine(date.today(), row.close_time)
-            if closes_at <= current:
-                continue
-            while current < closes_at:
-                options.add(current.strftime("%H:%M"))
-                current += timedelta(minutes=60)
-        return sorted(options)
-
-    def _build_working_time_options_by_day(self, salon):
-        rows = list(
-            SalonOpeningHours.objects.filter(salon=salon).order_by(
-                "day_of_week", "open_time"
-            )
+    def get(self, request, *args, **kwargs):
+        salon = get_object_or_404(
+            Salon.objects.select_related("salon_manager__user"),
+            salon_manager__user=request.user,
         )
-        by_day = {str(day): [] for day in range(1, 8)}
-        for day in range(1, 8):
-            by_day[str(day)] = self._build_working_time_options(
-                [row for row in rows if row.day_of_week == day]
+        service_id = (request.GET.get("service_id") or "").strip()
+        stylist_id = (request.GET.get("stylist_id") or "").strip()
+        if not service_id:
+            return JsonResponse({"stylists": [], "availability": []})
+
+        service = salon.services.filter(is_active=True, pk=service_id).first()
+        if not service:
+            return JsonResponse({"error": "خدمت انتخاب‌شده معتبر نیست."}, status=400)
+
+        stylists = _quick_link_stylists_for_service(salon, service)
+        payload = {
+            "stylists": [
+                {"id": stylist.pk, "name": stylist.get_fullName()}
+                for stylist in stylists
+            ],
+            "availability": [],
+        }
+
+        if not stylist_id:
+            return JsonResponse(payload, json_dumps_params={"ensure_ascii": False})
+
+        stylist = next((item for item in stylists if str(item.pk) == stylist_id), None)
+        if stylist is None:
+            return JsonResponse(
+                {"error": "این متخصص خدمت انتخاب‌شده را ارائه نمی‌دهد."},
+                status=400,
             )
-        return by_day
 
-    def _working_time_options_for_date(self, salon, selected_date):
-        by_day = self._build_working_time_options_by_day(salon)
-        day_key = str(self._quick_link_day_key(selected_date))
-        return by_day.get(day_key, [])
+        payload["availability"] = _quick_link_availability_days(
+            salon=salon, service=service, stylist=stylist
+        )
+        return JsonResponse(payload, json_dumps_params={"ensure_ascii": False})
 
+
+class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View):
     def _build_quick_booking_workspace(
         self,
         request,
@@ -1982,7 +1988,9 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
         generator_errors=None,
     ):
         services = list(
-            salon.services.filter(is_active=True).order_by("service_name")[:50]
+            salon.services.filter(
+                is_active=True, duration_minutes__gt=0
+            ).order_by("service_name")[:50]
         )
         stylists = list(
             salon.stylists.filter(is_active=True)
@@ -2002,35 +2010,23 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
             parse_jalali_input(raw_selected_date, fallback=timezone.localdate())
             or timezone.localdate()
         )
-        working_times_by_day = self._build_working_time_options_by_day(salon)
-        selected_day_key = str(self._quick_link_day_key(selected_date_obj))
-        selected_day_times = working_times_by_day.get(selected_day_key, [])
-        all_working_times = sorted(
-            {
-                time_value
-                for values in working_times_by_day.values()
-                for time_value in values
-            }
-        )
-
         return {
             "mode_options": [
                 {"value": "salon", "label": "صفحه اصلی سالن"},
-                {"value": "service", "label": "فقط خدمت"},
-                {"value": "stylist", "label": "فقط متخصص"},
+                {"value": "service", "label": "خدمت"},
+                {"value": "stylist", "label": "متخصص"},
                 {"value": "service_stylist", "label": "خدمت + متخصص"},
-                {"value": "service_stylist_time", "label": "خدمت + متخصص + زمان"},
+                {
+                    "value": "service_stylist_time",
+                    "label": "خدمت + متخصص + زمان مشخص",
+                },
             ],
             "services": services,
             "stylists": stylists,
-            "suggested_times": selected_day_times or all_working_times,
-            "working_times_by_day_json": json.dumps(
-                working_times_by_day, ensure_ascii=False
-            ),
+            "options_url": reverse("dashboards:online_booking_quick_link_options"),
             "generated_link": generated_link,
             "generated_payload": payload,
             "errors": generator_errors or [],
-            "default_date": selected_date_obj.isoformat(),
             "default_date_jalali": format_jalali_numeric(timezone.localdate()),
             "current_mode": (
                 request.POST.get("quick_link_mode")
@@ -2046,9 +2042,10 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
             "selected_stylist": str(
                 request.POST.get("stylist_id") or payload.get("stylist_user_id") or ""
             ).strip(),
-            "selected_date": selected_date_obj.isoformat(),
             "selected_date_jalali": format_jalali_numeric(selected_date_obj),
-            "selected_day_key": selected_day_key,
+            "selected_date_iso": selected_date_obj.isoformat(),
+            "quick_link_title": (request.POST.get("quick_link_title") or "").strip(),
+            "is_permanent": request.POST.get("is_permanent") == "on",
             "selected_time": str(
                 request.POST.get("appointment_time") or payload.get("time") or ""
             ).strip(),
@@ -2061,20 +2058,15 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
         raw_appointment_date = (request.POST.get("appointment_date") or "").strip()
         appointment_time = (request.POST.get("appointment_time") or "").strip()
 
+        # Preserve the tested Production defaults/validation for every ordinary
+        # quick-link mode. The UX refactor only needs different validation for
+        # an explicitly timed link.
         placement = (
             request.POST.get("placement")
             or BookingQuickLink.Placement.DIRECT
         ).strip()
-
-        campaign_name = (
-            request.POST.get("campaign_name")
-            or ""
-        ).strip()
-
-        internal_note = (
-            request.POST.get("internal_note")
-            or ""
-        ).strip()
+        campaign_name = (request.POST.get("campaign_name") or "").strip()
+        internal_note = (request.POST.get("internal_note") or "").strip()
 
         appointment_date_obj = parse_jalali_input(raw_appointment_date)
         appointment_date = (
@@ -2084,59 +2076,45 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
 
         valid_placements = {
             value
-            for value, _label
-            in BookingQuickLink.Placement.choices
+            for value, _label in BookingQuickLink.Placement.choices
         }
-
         if placement not in valid_placements:
             errors.append(
                 "محل استفاده انتخاب‌شده برای لینک معتبر نیست."
             )
 
-        campaign_field = (
-            BookingQuickLink._meta.get_field(
-                "campaign_name"
-            )
-        )
-
-        internal_note_field = (
-            BookingQuickLink._meta.get_field(
-                "internal_note"
-            )
-        )
-
+        campaign_field = BookingQuickLink._meta.get_field("campaign_name")
+        internal_note_field = BookingQuickLink._meta.get_field("internal_note")
         if (
             campaign_field.max_length
-            and len(campaign_name)
-            > campaign_field.max_length
+            and len(campaign_name) > campaign_field.max_length
         ):
-            errors.append(
-                "نام کمپین از طول مجاز بیشتر است."
-            )
-
+            errors.append("نام کمپین از طول مجاز بیشتر است.")
         if (
             internal_note_field.max_length
-            and len(internal_note)
-            > internal_note_field.max_length
+            and len(internal_note) > internal_note_field.max_length
         ):
-            errors.append(
-                "یادداشت داخلی از طول مجاز بیشتر است."
-            )
+            errors.append("یادداشت داخلی از طول مجاز بیشتر است.")
 
         payload = {"mode": mode, "salon_id": salon.id}
         service_obj = None
         stylist_obj = None
+
         if mode in {"service", "service_stylist", "service_stylist_time"}:
             if not service_id:
                 errors.append("برای این نوع لینک باید خدمت انتخاب شود.")
             else:
                 service_obj = salon.services.filter(
-                    is_active=True, pk=service_id
+                    is_active=True,
+                    pk=service_id,
                 ).first()
                 if not service_obj:
-                    errors.append("خدمت انتخاب‌شده برای این مجموعه معتبر نیست.")
+                    errors.append(
+                        "خدمت انتخاب‌شده برای این مجموعه معتبر نیست."
+                    )
                 else:
                     payload["service_ids"] = [service_obj.pk]
+
         if mode in {"stylist", "service_stylist", "service_stylist_time"}:
             if not stylist_id:
                 errors.append("برای این نوع لینک باید متخصص انتخاب شود.")
@@ -2147,40 +2125,67 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
                     .first()
                 )
                 if not stylist_obj:
-                    errors.append("متخصص انتخاب‌شده برای این مجموعه معتبر نیست.")
+                    errors.append(
+                        "متخصص انتخاب‌شده برای این مجموعه معتبر نیست."
+                    )
                 else:
                     payload["stylist_user_id"] = stylist_obj.pk
+
+        pair_is_valid = True
         if (
             service_obj is not None
             and stylist_obj is not None
             and not service_obj.stylists.filter(pk=stylist_obj.pk).exists()
         ):
+            pair_is_valid = False
             errors.append("این خدمت توسط متخصص انتخاب‌شده ارائه نمی‌شود.")
+
         if mode == "service_stylist_time":
             if not appointment_date_obj or not appointment_time:
                 errors.append(
-                    "برای لینک مستقیم preview باید تاریخ شمسی و ساعت هم مشخص شود."
+                    "برای لینک زمان‌دار، تاریخ و ساعت را مشخص کن."
                 )
-            else:
-                valid_times = set(
-                    self._working_time_options_for_date(salon, appointment_date_obj)
+            elif appointment_date_obj < timezone.localdate():
+                errors.append(
+                    "برای لینک زمان‌دار باید تاریخ امروز یا آینده را انتخاب کنی."
                 )
-                if not valid_times:
-                    errors.append(
-                        "برای تاریخ انتخاب‌شده، ساعت کاری فعالی در مجموعه ثبت نشده است."
+            elif (
+                service_obj is not None
+                and stylist_obj is not None
+                and pair_is_valid
+            ):
+                # UX requirement: timed links must be validated against the same
+                # engine as customer booking (schedule, leave, collisions and
+                # service duration), not merely salon opening hours.
+                available_starts = {
+                    start_time.strftime("%H:%M")
+                    for start_time, _ in get_available_slots_for_service(
+                        salon=salon,
+                        stylist=stylist_obj,
+                        service=service_obj,
+                        date_value=appointment_date_obj,
                     )
-                elif appointment_time not in valid_times:
+                }
+                if not available_starts:
                     errors.append(
-                        "ساعت انتخاب‌شده در بازه ساعات کاری همان روز مجموعه نیست."
+                        "برای این خدمت و متخصص در تاریخ انتخاب‌شده زمان آزادی وجود ندارد."
                     )
-                payload["date"] = appointment_date
-                payload["time"] = appointment_time
+                elif appointment_time not in available_starts:
+                    errors.append(
+                        "این ساعت برای خدمت و متخصص انتخاب‌شده آزاد نیست؛ زمان دیگری را انتخاب کن."
+                    )
+
+            payload["date"] = appointment_date
+            payload["time"] = appointment_time
+
         if errors:
             return None, payload, errors
+
         try:
             payload = normalize_booking_payload(payload)
         except Exception as exc:
             return None, payload, [str(exc)]
+
         payload["summary"] = {
             "service": (
                 "صفحه اصلی سالن"
@@ -2209,39 +2214,27 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
                 or "لینک سریع رزرو"
             )
         )
-
-        title = (
-            request.POST.get("quick_link_title")
-            or default_title
-        )
+        title = request.POST.get("quick_link_title") or default_title
 
         try:
-            _quick_link, link = (
-                create_booking_quick_link(
-                    request=request,
-                    creator=request.user,
-                    salon=salon,
-                    payload=payload,
-                    service_obj=service_obj,
-                    stylist_obj=stylist_obj,
-                    title=title,
-                    is_permanent=is_permanent,
-                    placement=placement,
-                    campaign_name=campaign_name,
-                    internal_note=internal_note,
-                )
+            _quick_link, link = create_booking_quick_link(
+                request=request,
+                creator=request.user,
+                salon=salon,
+                payload=payload,
+                service_obj=service_obj,
+                stylist_obj=stylist_obj,
+                title=title,
+                is_permanent=is_permanent,
+                placement=placement,
+                campaign_name=campaign_name,
+                internal_note=internal_note,
             )
         except ValidationError as exc:
             return (
                 None,
                 payload,
-                list(
-                    getattr(
-                        exc,
-                        "messages",
-                        [str(exc)],
-                    )
-                ),
+                list(getattr(exc, "messages", [str(exc)])),
             )
 
         return link, payload, []
@@ -2251,235 +2244,58 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
             Salon.objects.select_related("salon_manager__user", "neighborhood"),
             salon_manager__user=request.user,
         )
-
-        quick_link_result = request.session.pop("dashboard_quick_booking_result", None)
-
-        opening_days_count = SalonOpeningHours.objects.filter(
-            salon=salon,
-            is_closed=False,
-        ).count()
-
-        services_count = salon.services.filter(is_active=True).count()
-        inactive_services_count = salon.services.filter(is_active=False).count()
-        team_count = salon.stylists.filter(is_active=True).count()
-        inactive_team_count = salon.stylists.filter(is_active=False).count()
-        gallery_count = salon.gallery_images.count()
-        supplementary_count = salon.supplementary_info.filter(is_active=True).count()
-        description_length = len((salon.description or "").strip())
-
-        profile_ready = bool(salon.salon_name and salon.address and salon.description)
-        gallery_ready = gallery_count > 0 and supplementary_count > 0
-
-        readiness_items = [
-            {
-                "title": "پروفایل عمومی مجموعه",
-                "description": "نام، آدرس، توضیحات و محتوای صفحه عمومی باید برای مشتری کامل و قابل‌اعتماد باشد.",
-                "is_ready": profile_ready,
-                "cta_label": "ویرایش پروفایل",
-                "cta_url": reverse("dashboards:salon_profile"),
-                "meta": f"{to_persian_digits(description_length)} کاراکتر توضیح",
-            },
-            {
-                "title": "خدمات فعال",
-                "description": "فقط خدمات فعال در رزرو آنلاین و صفحه عمومی نمایش داده می‌شوند.",
-                "is_ready": services_count > 0,
-                "cta_label": "مدیریت خدمات",
-                "cta_url": reverse("dashboards:service_menu"),
-                "meta": f"{to_persian_digits(services_count)} خدمت فعال",
-            },
-            {
-                "title": "اعضای تیم فعال",
-                "description": "برای رزرو آنلاین، حداقل یک عضو تیم فعال و قابل رزرو لازم است.",
-                "is_ready": team_count > 0,
-                "cta_label": "مدیریت تیم",
-                "cta_url": reverse("dashboards:team_member"),
-                "meta": f"{to_persian_digits(team_count)} عضو فعال",
-            },
-            {
-                "title": "ساعات کاری",
-                "description": "ساعات کاری ثبت‌شده، مبنای بازه‌های رزرو و زمان‌های در دسترسِ عمومی هستند.",
-                "is_ready": opening_days_count > 0,
-                "cta_label": "تنظیم شیفت‌ها",
-                "cta_url": reverse("dashboards:scheduled_shifts"),
-                "meta": f"{to_persian_digits(opening_days_count)} روز کاری",
-            },
-            {
-                "title": "گالری و اعتماد صفحه",
-                "description": "عکس‌ها و ویژگی‌های تکمیلی در تصمیم مشتری برای رزرو اثر مستقیم دارند.",
-                "is_ready": gallery_ready,
-                "cta_label": "پروفایل مجموعه",
-                "cta_url": reverse("dashboards:salon_profile"),
-                "meta": f"{to_persian_digits(gallery_count)} تصویر • {to_persian_digits(supplementary_count)} ویژگی",
-            },
+        # Beta UX: Online Booking uses the same canonical readiness payload as
+        # onboarding and Dashboard Home. Do not create a parallel readiness score.
+        readiness = build_salon_readiness_checklist(salon)
+        booking_items_before_activation = [
+            item
+            for item in readiness["booking_items"]
+            if item["key"] != "public_active"
         ]
-
-        ready_count = sum(1 for item in readiness_items if item["is_ready"])
-        readiness_progress = (
-            int((ready_count / len(readiness_items)) * 100) if readiness_items else 0
+        ready_for_activation = all(
+            item["is_done"] for item in booking_items_before_activation
         )
-
-        public_booking_url = reverse("salons:detail_salon", args=[salon.id])
-
-        setup_groups = [
-            {
-                "title": "ورودی‌های رزرو عمومی",
-                "items": [
-                    f"{to_persian_digits(services_count)} خدمت فعال برای نمایش",
-                    f"{to_persian_digits(team_count)} عضو تیم آماده رزرو",
-                    f"{to_persian_digits(opening_days_count)} روز کاری ثبت‌شده",
-                ],
-            },
-            {
-                "title": "اعتماد و محتوای صفحه",
-                "items": [
-                    f"{to_persian_digits(gallery_count)} تصویر در گالری",
-                    f"{to_persian_digits(supplementary_count)} آیتم تکمیلی فعال",
-                    "توضیحات مجموعه، آدرس و محتوای برند برای تصمیم‌گیری مشتری",
-                ],
-            },
+        profile_quality_missing = [
+            item for item in readiness["profile_quality_items"] if not item["is_done"]
         ]
 
-        focus_items = []
-        if services_count == 0:
-            focus_items.append(
-                {
-                    "title": "خدمات فعال هنوز تعریف نشده",
-                    "value": "مهم",
-                    "description": "بدون خدمت فعال، رزرو آنلاین برای مشتری قابل استفاده نخواهد بود.",
-                    "tone": "warning",
-                }
-            )
-        if team_count == 0:
-            focus_items.append(
-                {
-                    "title": "عضو تیم فعال وجود ندارد",
-                    "value": "مهم",
-                    "description": "برای پوشش خدمات و نمایش availability باید حداقل یک عضو تیم فعال داشته باشی.",
-                    "tone": "warning",
-                }
-            )
-        if opening_days_count == 0:
-            focus_items.append(
-                {
-                    "title": "ساعت کاری ثبت نشده",
-                    "value": "نیازمند تکمیل",
-                    "description": "بدون ساعت کاری، ساخت availability و planner رزرو آنلاین کامل نمی‌شود.",
-                    "tone": "warning",
-                }
-            )
-        if not gallery_ready:
-            focus_items.append(
-                {
-                    "title": "اعتماد صفحه عمومی جای بهبود دارد",
-                    "value": "قابل بهبود",
-                    "description": "تصاویر و ویژگی‌های تکمیلی به تصمیم مشتری برای رزرو کمک می‌کنند.",
-                    "tone": "primary",
-                }
-            )
+        public_booking_url = salon.get_absolute_url()
 
-        if not focus_items:
-            focus_items = [
-                {
-                    "title": "رزرو آنلاین در وضعیت خوبی است",
-                    "value": "آماده",
-                    "description": "پایه‌های اصلی رزرو آنلاین تکمیل شده‌اند و صفحه عمومی مجموعه آمادگی مناسبی دارد.",
-                    "tone": "success",
-                }
-            ]
-
-        quick_actions = [
-            {
-                "title": "صفحه عمومی مجموعه",
-                "description": "پروفایل مجموعه را مثل یک مشتری واقعی ببین.",
-                "icon": "fa-solid fa-eye",
-                "url": public_booking_url,
-                "badge": "Preview",
-            },
-            {
-                "title": "منوی خدمات",
-                "description": "خدمات فعال و قیمت‌ها را تکمیل و بازبینی کن.",
-                "icon": "fa-solid fa-scissors",
-                "url": reverse("dashboards:service_menu"),
-                "badge": "خدمات",
-            },
-            {
-                "title": "اعضای تیم",
-                "description": "ظرفیت رزرو، اعضای فعال و پروفایل تیم را مدیریت کن.",
-                "icon": "fa-solid fa-user-group",
-                "url": reverse("dashboards:team_member"),
-                "badge": "تیم",
-            },
-            {
-                "title": "شیفت‌ها",
-                "description": "ساعات کاری و availability را دقیق‌تر تنظیم کن.",
-                "icon": "fa-regular fa-calendar-days",
-                "url": reverse("dashboards:scheduled_shifts"),
-                "badge": " برنامه ریزی",
-            },
-        ]
-
-        dependency_cards = [
-            {
-                "title": "کاتالوگ",
-                "description": "اگر ساختار خدمات و پوشش تیم شفاف نباشد، رزرو آنلاین هم به‌صورت کامل usable نمی‌شود.",
-                "status": "آماده" if services_count > 0 else "نیازمند تکمیل",
-                "status_tone": "success" if services_count > 0 else "warning",
-                "url": reverse("dashboards:catalog"),
-            },
-            {
-                "title": "عضویت و plan context",
-                "description": "membership اینجا نقش توضیح plan و readiness partner-side را دارد، نه billing engine کامل.",
-                "status": "قابل مشاهده",
-                "status_tone": "primary",
-                "url": reverse("dashboards:membership"),
-            },
-            {
-                "title": "پروفایل مجموعه",
-                "description": "بخش مهم اعتمادسازی، محتوای عمومی و کیفیت تصمیم مشتری برای رزرو از همین مسیر مدیریت می‌شود.",
-                "status": "آماده" if profile_ready else "نیازمند تکمیل",
-                "status_tone": "success" if profile_ready else "warning",
-                "url": reverse("dashboards:salon_profile"),
-            },
-        ]
+        if readiness["is_ready"]:
+            status = {
+                "label": "آماده رزرو",
+                "tone": "success",
+                "title": "صفحه عمومی آماده دریافت نوبت است",
+                "description": "صفحه عمومی آماده دریافت نوبت است؛ لینک‌های رزرو، QR و آمار هر مسیر را از بخش «لینک‌های رزرو» مدیریت کن.",
+            }
+        elif ready_for_activation and not salon.is_active:
+            status = {
+                "label": "آماده فعال‌سازی",
+                "tone": "primary",
+                "title": "همه چیز برای انتشار آماده است",
+                "description": "صفحه سالن را فعال کن و یک رزرو آزمایشی انجام بده.",
+            }
+        else:
+            status = {
+                "label": "نیازمند تکمیل",
+                "tone": "warning",
+                "title": "رزرو آنلاین هنوز یک قدم ضروری دارد",
+                "description": readiness["summary"],
+            }
 
         context = {
             "salon": salon,
-            "quick_booking_workspace": {
-                **self._build_quick_booking_workspace(
-                    request,
-                    salon,
-                    generated_link=(quick_link_result or {}).get("generated_link"),
-                    generated_payload=(quick_link_result or {}).get(
-                        "generated_payload"
-                    ),
-                    generator_errors=(quick_link_result or {}).get("errors"),
-                ),
-                "links": list_booking_quick_links_for_dashboard(
-                    request=request,
-                    salon=salon,
-                    creator=request.user,
-                ),
-            },
             "online_booking_workspace": {
-                "page_title": "رزرو آنلاین و صفحه عمومی مجموعه",
-                "services_count": to_persian_digits(services_count),
-                "inactive_services_count": to_persian_digits(inactive_services_count),
-                "team_count": to_persian_digits(team_count),
-                "inactive_team_count": to_persian_digits(inactive_team_count),
-                "opening_days_count": to_persian_digits(opening_days_count),
-                "gallery_count": to_persian_digits(gallery_count),
-                "supplementary_count": to_persian_digits(supplementary_count),
-                "description_length": to_persian_digits(description_length),
-                "readiness_items": readiness_items,
-                "readiness_progress": readiness_progress,
-                "ready_count": to_persian_digits(ready_count),
-                "total_checks": to_persian_digits(len(readiness_items)),
-                "progress_label": f"{to_persian_digits(ready_count)} از {to_persian_digits(len(readiness_items))}",
+                "page_title": "صفحه سالن و رزرو آنلاین",
+                "readiness": readiness,
+                "status": status,
+                "ready_for_activation": ready_for_activation,
                 "public_booking_url": public_booking_url,
-                "setup_groups": setup_groups,
-                "focus_items": focus_items,
-                "quick_actions": quick_actions,
-                "dependency_cards": dependency_cards,
+                "public_is_active": bool(salon.is_active),
+                "profile_quality_items": readiness["profile_quality_items"],
+                "profile_quality_missing_count": to_persian_digits(
+                    len(profile_quality_missing)
+                ),
             },
         }
         return render(request, "dashboards/online_booking.html", context)
@@ -2501,7 +2317,8 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
                 messages.success(request, message)
             except Exception as exc:
                 messages.error(request, str(exc))
-            return redirect("dashboards:online_booking")
+            return redirect("dashboards:quick_links")
+
         generated_link, generated_payload, generator_errors = self._generate_quick_link(
             request, salon
         )
@@ -2513,8 +2330,8 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
         if generated_link:
             messages.success(request, "لینک سریع رزرو ساخته شد.")
         else:
-            messages.error(request, "برای ساخت لینک، خطاهای فرم را بررسی کنید.")
-        return redirect("dashboards:online_booking")
+            messages.error(request, "برای ساخت لینک، موارد مشخص‌شده را اصلاح کن.")
+        return redirect("dashboards:quick_links")
 
 
 # -----------------------------------------------------------------------------------------
@@ -3414,7 +3231,53 @@ def salon_profile_creator_finalStep(request):
 
 
 # ----------------------------------------------------------------------------------------------
+def _activate_salon_public_page(request, salon):
+    """Activate the public page using the canonical booking-readiness checks."""
+    if salon.is_active:
+        messages.info(request, "صفحه عمومی مجموعه قبلاً فعال شده است.")
+        return None
+
+    readiness = build_salon_readiness_checklist(salon)
+    next_prerequisite = next(
+        (
+            item
+            for item in readiness["booking_items"]
+            if item["key"] != "public_active" and not item["is_done"]
+        ),
+        None,
+    )
+    if next_prerequisite:
+        messages.warning(
+            request,
+            f"قبل از فعال‌سازی صفحه عمومی، این مورد را کامل کن: {next_prerequisite['title']}",
+        )
+        return next_prerequisite.get("action_url") or reverse("dashboards:salon_profile")
+
+    salon.is_active = True
+    salon.save(update_fields=["is_active"])
+    messages.success(
+        request,
+        "صفحه عمومی مجموعه فعال شد. حالا مسیر رزرو را یک‌بار از نگاه مشتری بررسی کن.",
+    )
+    return None
+
+
 class SalonProfileView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View):
+
+    def post(self, request):
+        salon = get_object_or_404(
+            Salon.objects.select_related("salon_manager__user", "neighborhood"),
+            salon_manager__user=request.user,
+        )
+        action = (request.POST.get("action") or "").strip()
+        if action == "activate_public_page":
+            target = _activate_salon_public_page(request, salon)
+            if target:
+                return redirect(target)
+            return redirect(f'{reverse("dashboards:salon_profile")}?tab=public')
+
+        messages.error(request, "عملیات پروفایل مجموعه نامعتبر است.")
+        return redirect("dashboards:salon_profile")
 
     def get(self, request):
         salon_with_stats = get_object_or_404(
@@ -3429,16 +3292,6 @@ class SalonProfileView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vie
                     "comments_salon",
                     filter=Q(comments_salon__is_active=True),
                 ),
-                active_services_count=Count(
-                    "services",
-                    filter=Q(services__is_active=True),
-                    distinct=True,
-                ),
-                active_stylists_count=Count(
-                    "stylists",
-                    filter=Q(stylists__is_active=True),
-                    distinct=True,
-                ),
             ),
             salon_manager__user=request.user,
         )
@@ -3447,215 +3300,145 @@ class SalonProfileView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vie
             salon=salon_with_stats,
             is_closed=False,
         ).count()
-
         gallery_count = salon_with_stats.gallery_images.count()
         features_count = salon_with_stats.supplementary_info.filter(
             is_active=True
         ).count()
         description_length = len((salon_with_stats.description or "").strip())
-        customer_preview_url = reverse(
-            "salons:detail_salon", kwargs={"salon_id": salon_with_stats.id}
-        )
 
         avg_score_value = float(salon_with_stats.avg_score or 0)
         avg_score_label = (
-            to_persian_digits(f"{avg_score_value:.1f}") if avg_score_value else "۰"
+            to_persian_digits(f"{avg_score_value:.1f}") if avg_score_value else "—"
         )
+        reviews_count_label = to_persian_digits(salon_with_stats.reviews_count or 0)
 
-        readiness_items = [
+        profile_items = [
             {
-                "title": "اطلاعات پایه مجموعه",
-                "description": "نام، شماره تماس، آدرس و محله باید کامل و قابل اعتماد باشند.",
+                "key": "identity",
+                "title": "نام و شماره تماس",
+                "description": "نام مجموعه و شماره‌ای که مشتری برای تماس می‌بیند.",
+                "meta": salon_with_stats.phone_number or "شماره تماس ثبت نشده",
                 "is_ready": bool(
-                    salon_with_stats.salon_name
-                    and salon_with_stats.phone_number
-                    and salon_with_stats.address
+                    (salon_with_stats.salon_name or "").strip()
+                    and (salon_with_stats.phone_number or "").strip()
                 ),
-                "meta": "نام، تماس و آدرس",
                 "url": reverse("dashboards:salon_profile_creator_step1"),
-                "cta_label": "ویرایش اطلاعات پایه",
+                "cta_label": "ویرایش اطلاعات",
+                "icon": "fa-solid fa-store",
             },
             {
-                "title": "موقعیت و آدرس",
-                "description": "برای تجربه بهتر مشتری، موقعیت و آدرس دقیق باید کامل باشد.",
-                "is_ready": bool(
-                    salon_with_stats.address and salon_with_stats.location
+                "key": "location",
+                "title": "آدرس و موقعیت",
+                "description": "نشانی و نقطه روی نقشه برای مسیریابی دقیق مشتری.",
+                "meta": (
+                    salon_with_stats.neighborhood.name
+                    if salon_with_stats.neighborhood_id
+                    else (f"منطقه {to_persian_digits(salon_with_stats.zone)}" if salon_with_stats.zone else "موقعیت کامل نشده")
                 ),
-                "meta": "آدرس و لوکیشن",
+                "is_ready": bool(
+                    (salon_with_stats.address or "").strip()
+                    and salon_with_stats.location
+                ),
                 "url": reverse("dashboards:salon_profile_creator_step2"),
                 "cta_label": "ویرایش موقعیت",
+                "icon": "fa-solid fa-location-dot",
             },
             {
+                "key": "hours",
                 "title": "ساعات کاری",
-                "description": "ساعات کاری ثبت‌شده، مبنای زمان‌های در دسترس و برنامه‌ریزی رزروها هستند.",
-                "is_ready": open_days_count > 0,
-                "meta": f"{to_persian_digits(open_days_count)} روز کاری",
-                "url": reverse("dashboards:salon_profile_creator_step3"),
-                "cta_label": "ویرایش ساعت کاری",
-            },
-            {
-                "title": "گالری و تصویر کاور",
-                "description": "تصاویر واقعی مجموعه به کیفیت صفحه عمومی و اعتماد مشتری کمک می‌کنند.",
-                "is_ready": gallery_count > 0,
-                "meta": f"{to_persian_digits(gallery_count)} تصویر",
-                "url": reverse("dashboards:salon_profile_creator_step6"),
-                "cta_label": "مدیریت گالری",
-            },
-            {
-                "title": "ویژگی‌ها و امکانات",
-                "description": "ویژگی‌ها، امکانات و تمایزهای مجموعه را برای تصمیم بهتر مشتری مشخص کن.",
-                "is_ready": features_count > 0,
-                "meta": f"{to_persian_digits(features_count)} ویژگی",
-                "url": reverse("dashboards:salon_profile_creator_step7"),
-                "cta_label": "مدیریت ویژگی‌ها",
-            },
-            {
-                "title": "توضیحات مجموعه",
-                "description": "معرفی مجموعه باید برای مشتری واضح، کامل و قابل اتکا باشد.",
-                "is_ready": description_length >= 200,
-                "meta": f"{to_persian_digits(description_length)} کاراکتر",
-                "url": reverse("dashboards:salon_profile_creator_step8"),
-                "cta_label": "ویرایش توضیحات",
-            },
-            {
-                "title": "امور مالی و قوانین لغو",
-                "description": "برای رزروهای دیجیتال، شماره شبا، مسئول امور مالی و قوانین لغو باید کامل باشند.",
-                "is_ready": bool(salon_with_stats.payout_profile_complete),
+                "description": "روزها و ساعت‌هایی که مجموعه برای مشتری باز است.",
                 "meta": (
-                    "آماده"
-                    if salon_with_stats.payout_profile_complete
-                    else "نیازمند تکمیل"
+                    f"{to_persian_digits(open_days_count)} روز کاری"
+                    if open_days_count
+                    else "ساعت کاری ثبت نشده"
                 ),
-                "url": reverse("dashboards:payout_settings"),
-                "cta_label": "تکمیل امور مالی",
+                "is_ready": open_days_count > 0,
+                "url": reverse("dashboards:salon_profile_creator_step3"),
+                "cta_label": "ویرایش ساعات کاری",
+                "icon": "fa-regular fa-clock",
+            },
+            {
+                "key": "gallery",
+                "title": "تصاویر مجموعه",
+                "description": "تصاویر واقعی فضا و نمونه‌کارهایی که در صفحه عمومی دیده می‌شوند.",
+                "meta": f"{to_persian_digits(gallery_count)} تصویر",
+                "is_ready": gallery_count > 0,
+                "url": reverse("dashboards:salon_profile_creator_step6"),
+                "cta_label": "مدیریت تصاویر",
+                "icon": "fa-regular fa-images",
+            },
+            {
+                "key": "features",
+                "title": "ویژگی‌ها و امکانات",
+                "description": "مزیت‌ها و امکاناتی که به تصمیم مشتری کمک می‌کنند.",
+                "meta": f"{to_persian_digits(features_count)} ویژگی",
+                "is_ready": features_count > 0,
+                "url": reverse("dashboards:salon_profile_creator_step7"),
+                "cta_label": "ویرایش ویژگی‌ها",
+                "icon": "fa-solid fa-sparkles",
+            },
+            {
+                "key": "description",
+                "title": "معرفی مجموعه",
+                "description": "متن کوتاهی که سبک، تجربه و فضای مجموعه را معرفی می‌کند.",
+                "meta": f"{to_persian_digits(description_length)} از ۶۰۰ کاراکتر",
+                "is_ready": description_length >= 200,
+                "url": reverse("dashboards:salon_profile_creator_step8"),
+                "cta_label": "ویرایش معرفی",
+                "icon": "fa-regular fa-file-lines",
             },
         ]
 
-        ready_count = sum(1 for item in readiness_items if item["is_ready"])
-        readiness_progress = (
-            int((ready_count / len(readiness_items)) * 100) if readiness_items else 0
+        ready_count = sum(1 for item in profile_items if item["is_ready"])
+        total_count = len(profile_items)
+        profile_progress = int((ready_count / total_count) * 100) if total_count else 0
+        incomplete_items = [item for item in profile_items if not item["is_ready"]]
+        next_incomplete_item = incomplete_items[0] if incomplete_items else None
+
+        if profile_progress == 100:
+            profile_quality_label = "پروفایل کامل"
+        elif profile_progress >= 67:
+            profile_quality_label = "تقریباً کامل"
+        else:
+            profile_quality_label = "نیازمند تکمیل"
+
+        booking_readiness = build_salon_readiness_checklist(salon_with_stats)
+        activation_items = [
+            item for item in booking_readiness["booking_items"]
+            if item["key"] != "public_active"
+        ]
+        activation_prerequisites_met = all(item["is_done"] for item in activation_items)
+        next_activation_item = next(
+            (item for item in activation_items if not item["is_done"]),
+            None,
         )
-
-        salon_profile_links = [
-            {
-                "title": "منوی خدمات",
-                "subtitle": "خدمات، قیمت و ساختار کاتالوگ را مدیریت کن.",
-                "url": reverse("dashboards:service_menu"),
-                "icon": "fa-solid fa-scissors",
-                "badge": "خدمات",
-            },
-            {
-                "title": "اعضای تیم",
-                "subtitle": "ظرفیت، وضعیت و پروفایل اعضای تیم را مرور کن.",
-                "url": reverse("dashboards:team_member"),
-                "icon": "fa-solid fa-user-group",
-                "badge": "تیم",
-            },
-            {
-                "title": "مدیریت نوبت‌ها",
-                "subtitle": "تقویم رزروها و وضعیت‌های عملیاتی را ببین.",
-                "url": reverse(
-                    "dashboards:appointment_calendar",
-                    kwargs={"salon_id": salon_with_stats.id},
-                ),
-                "icon": "fa-regular fa-calendar-days",
-                "badge": "رزروها",
-            },
-            {
-                "title": "رزرو آنلاین",
-                "subtitle": "آمادگی صفحه عمومی و setup رزرو آنلاین را بررسی کن.",
-                "url": reverse("dashboards:online_booking"),
-                "icon": "fa-solid fa-globe",
-                "badge": "Online",
-            },
-            {
-                "title": "مالی و قوانین لغو",
-                "subtitle": "اطلاعات تسویه، سیاست لغو و وضعیت آمادگی مالی مجموعه را مدیریت کن.",
-                "url": reverse("dashboards:payout_settings"),
-                "icon": "fa-solid fa-wallet",
-                "badge": "Finance",
-            },
-        ]
-
-        focus_items = []
-        if salon_with_stats.active_services_count == 0:
-            focus_items.append(
-                {
-                    "title": "خدمت فعال هنوز تعریف نشده",
-                    "value": "مهم",
-                    "description": "بدون خدمت فعال، صفحه عمومی و رزرو آنلاین ناقص می‌ماند.",
-                    "tone": "warning",
-                }
-            )
-        if salon_with_stats.active_stylists_count == 0:
-            focus_items.append(
-                {
-                    "title": "عضو تیم فعال وجود ندارد",
-                    "value": "مهم",
-                    "description": "برای پوشش خدمات و رزرو آنلاین باید حداقل یک عضو فعال داشته باشی.",
-                    "tone": "warning",
-                }
-            )
-        if gallery_count == 0:
-            focus_items.append(
-                {
-                    "title": "گالری مجموعه هنوز خالی است",
-                    "value": "قابل بهبود",
-                    "description": "تصاویر واقعی مجموعه در تصمیم مشتری اثر مستقیم دارند.",
-                    "tone": "primary",
-                }
-            )
-        if description_length < 200:
-            focus_items.append(
-                {
-                    "title": "توضیحات مجموعه هنوز کوتاه است",
-                    "value": "نیازمند تکمیل",
-                    "description": "متن معرفی بهتر، صفحه عمومی را حرفه‌ای‌تر و قابل‌اعتمادتر می‌کند.",
-                    "tone": "primary",
-                }
-            )
-        if not salon_with_stats.payout_profile_complete:
-            focus_items.append(
-                {
-                    "title": "امور مالی مجموعه ناقص است",
-                    "value": "اقدام فوری",
-                    "description": "برای پرداخت دیجیتال پایدار، اطلاعات شبا، مسئول امور مالی و قوانین لغو را کامل کن.",
-                    "tone": "warning",
-                }
-            )
-
-        if not focus_items:
-            focus_items = [
-                {
-                    "title": "پروفایل مجموعه در وضعیت خوبی است",
-                    "value": "آماده",
-                    "description": "پایه‌های اصلی پروفایل تکمیل شده‌اند و صفحه مجموعه آمادگی مناسبی دارد.",
-                    "tone": "success",
-                }
-            ]
 
         context = {
             "salon": salon_with_stats,
-            "open_days_count": open_days_count,
-            "salon_profile_links": salon_profile_links,
+            "profile_items": profile_items,
+            "incomplete_profile_items": incomplete_items,
+            "next_incomplete_item": next_incomplete_item,
             "salon_profile_workspace": {
                 "page_title": salon_with_stats.salon_name,
-                "customer_preview_url": customer_preview_url,
-                "gallery_count": to_persian_digits(gallery_count),
-                "features_count": to_persian_digits(features_count),
-                "description_length": to_persian_digits(description_length),
-                "avg_score_label": avg_score_label,
-                "readiness_items": readiness_items,
+                "customer_preview_url": salon_with_stats.get_absolute_url(),
+                "online_booking_url": reverse("dashboards:online_booking"),
                 "ready_count": to_persian_digits(ready_count),
-                "total_checks": to_persian_digits(len(readiness_items)),
-                "readiness_progress": readiness_progress,
-                "focus_items": focus_items,
+                "total_checks": to_persian_digits(total_count),
+                "profile_progress": profile_progress,
+                "profile_progress_label": to_persian_digits(profile_progress),
+                "profile_quality_label": profile_quality_label,
+                "avg_score_label": avg_score_label,
+                "reviews_count_label": reviews_count_label,
                 "phone_label": salon_with_stats.phone_number or "—",
-                "zone_label": salon_with_stats.zone or "—",
-                "neighborhood_label": salon_with_stats.neighborhood or "—",
+                "neighborhood_label": (
+                    salon_with_stats.neighborhood.name
+                    if salon_with_stats.neighborhood_id
+                    else "—"
+                ),
                 "address_label": salon_with_stats.address or "—",
-                "description_label": salon_with_stats.description
-                or "برای این مجموعه هنوز توضیحی ثبت نشده است.",
+                "booking_readiness": booking_readiness,
+                "activation_prerequisites_met": activation_prerequisites_met,
+                "next_activation_item": next_activation_item,
             },
         }
         return render(request, "dashboards/salon_profile_view.html", context)
@@ -7104,27 +6887,43 @@ class AddStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
                         request=request,
                     )
 
-                    emergency = emergency_form.save(commit=False)
-                    emergency.stylist = stylist
-                    emergency.full_name = (
-                        f"{emergency_form.cleaned_data.get('emergency_contact_name', '')} "
-                        f"{emergency_form.cleaned_data.get('emergency_contact_family', '')}"
-                    ).strip()
-
-                    prefix = (
-                        emergency_form.cleaned_data.get("emergency_phone_prefix", "")
+                    emergency_name = (
+                        emergency_form.cleaned_data.get(
+                            "emergency_contact_name", ""
+                        )
                         or ""
                     ).strip()
-                    phone = (
-                        emergency_form.cleaned_data.get("emergency_phone", "") or ""
-                    ).strip()
-                    relationship = (
-                        emergency_form.cleaned_data.get("relationship", "") or ""
+
+                    emergency_family = (
+                        emergency_form.cleaned_data.get(
+                            "emergency_contact_family", ""
+                        )
+                        or ""
                     ).strip()
 
-                    emergency.emergency_contact = f"{prefix}{phone}" if phone else ""
-                    emergency.relationship = relationship
-                    emergency.save()
+                    phone = (
+                        emergency_form.cleaned_data.get(
+                            "emergency_phone", ""
+                        )
+                        or ""
+                    ).strip()
+
+                    relationship = (
+                        emergency_form.cleaned_data.get(
+                            "relationship", ""
+                        )
+                        or ""
+                    ).strip()
+
+                    if any([emergency_name, emergency_family, phone, relationship]):
+                        emergency = emergency_form.save(commit=False)
+                        emergency.stylist = stylist
+                        emergency.full_name = (
+                            f"{emergency_name} {emergency_family}".strip()
+                        )
+                        emergency.emergency_contact = phone
+                        emergency.relationship = relationship
+                        emergency.save()
 
                 messages.success(
                     request,
@@ -10377,6 +10176,115 @@ def _build_manual_booking_frontend_context(*, salon, form):
     }
 
 
+QUICK_LINK_AVAILABILITY_HORIZON_DAYS = 45
+
+def _quick_link_stylists_for_service(salon, service):
+    return list(
+        service.stylists.filter(is_active=True, stylists_of_salon=salon)
+        .select_related("user")
+        .distinct()
+        .order_by("user__name", "user__family")
+    )
+
+
+def _quick_link_availability_days(
+    *, salon, service, stylist, horizon_days=QUICK_LINK_AVAILABILITY_HORIZON_DAYS
+):
+    days = []
+    start_date = timezone.localdate()
+    for offset in range(max(int(horizon_days or 0), 1)):
+        target_date = start_date + timedelta(days=offset)
+        slots = get_available_slots_for_service(
+            salon=salon,
+            stylist=stylist,
+            service=service,
+            date_value=target_date,
+        )
+        if not slots:
+            continue
+        days.append(
+            {
+                "value": target_date.isoformat(),
+                "label": format_jalali_with_weekday(target_date),
+                "times": [start.strftime("%H:%M") for start, _ in slots],
+            }
+        )
+    return days
+
+class DashboardManualBookingAvailabilityView(LoginRequiredMixin, View):
+    """Return only canonical free dates/times for the selected manager booking pair.
+
+    The response intentionally reuses the same availability engine used by
+    booking validation, so the dashboard never advertises a slot that the
+    submit path will reject because of schedules, leave, existing bookings,
+    or service buffers.
+    """
+
+    horizon_days = QUICK_LINK_AVAILABILITY_HORIZON_DAYS
+
+    def get(self, request, salon_id):
+        salon = get_object_or_404(
+            Salon.objects.select_related("salon_manager__user"),
+            pk=salon_id,
+            salon_manager__user=request.user,
+        )
+        service_id = (request.GET.get("service_id") or "").strip()
+        stylist_id = (request.GET.get("stylist_id") or "").strip()
+
+        if not service_id or not stylist_id:
+            return JsonResponse(
+                {"availability": []},
+                json_dumps_params={"ensure_ascii": False},
+            )
+
+        service = (
+            Services.objects.filter(
+                pk=service_id,
+                services_of_salon=salon,
+                is_active=True,
+            )
+            .distinct()
+            .first()
+        )
+        if service is None:
+            return JsonResponse(
+                {"error": "خدمت انتخاب‌شده معتبر نیست."},
+                status=400,
+                json_dumps_params={"ensure_ascii": False},
+            )
+
+        stylist = (
+            Stylist.objects.filter(
+                pk=stylist_id,
+                stylists_of_salon=salon,
+                services_of_stylist=service,
+                is_active=True,
+            )
+            .select_related("user")
+            .distinct()
+            .first()
+        )
+        if stylist is None:
+            return JsonResponse(
+                {"error": "این متخصص خدمت انتخاب‌شده را در این مجموعه ارائه نمی‌دهد."},
+                status=400,
+                json_dumps_params={"ensure_ascii": False},
+            )
+
+        availability = _quick_link_availability_days(
+            salon=salon,
+            service=service,
+            stylist=stylist,
+            horizon_days=self.horizon_days,
+        )
+        return JsonResponse(
+            {
+                "availability": availability,
+                "horizon_days": self.horizon_days,
+            },
+            json_dumps_params={"ensure_ascii": False},
+        )
+
 class DashboardManualBookingView(
     SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
 ):
@@ -13085,18 +12993,6 @@ class StylistDashboardView(StylistDashboardGuardMixin, View):
         return render(request, "dashboards/stylist_dashboard.html", context)
 
 
-def _dashboard_time_options(start_hour=6, end_hour=23, step_minutes=15):
-    options = []
-    current = datetime.combine(timezone.localdate(), dt_time(start_hour, 0))
-    end = datetime.combine(timezone.localdate(), dt_time(end_hour, 59))
-    while current <= end:
-        options.append(current.strftime("%H:%M"))
-        current += timedelta(minutes=step_minutes)
-    if options and options[-1] != "23:59":
-        options.append("23:59")
-    return options
-
-
 STYLIST_QUICK_LINK_PERIOD_OPTIONS = (
     ("7", "۷ روز اخیر"),
     ("30", "۳۰ روز اخیر"),
@@ -13177,13 +13073,16 @@ def _build_stylist_quick_link_workspace(
         or payload.get("date")
         or timezone.localdate()
     )
-    selected_date_obj = (
-        parse_jalali_input(
-            raw_selected_date,
-            fallback=timezone.localdate(),
-        )
-        or timezone.localdate()
-    )
+    if isinstance(raw_selected_date, date):
+        selected_date_obj = raw_selected_date
+    else:
+        try:
+            selected_date_obj = date.fromisoformat(str(raw_selected_date))
+        except (TypeError, ValueError):
+            selected_date_obj = (
+                parse_jalali_input(raw_selected_date, fallback=timezone.localdate())
+                or timezone.localdate()
+            )
 
     current_mode = (
         request.POST.get("quick_link_mode")
@@ -13262,7 +13161,8 @@ def _build_stylist_quick_link_workspace(
         "default_date": format_jalali_numeric(timezone.localdate()),
         "current_mode": current_mode,
         "selected_service": selected_service,
-        "selected_date": format_jalali_numeric(selected_date_obj),
+        "selected_date": selected_date_obj.isoformat(),
+        "selected_date_label": format_jalali_numeric(selected_date_obj),
         "selected_time": selected_time,
         "selected_title": str(
             request.POST.get("quick_link_title") or ""
@@ -13279,7 +13179,7 @@ def _build_stylist_quick_link_workspace(
         "title_max_length": title_field.max_length,
         "campaign_name_max_length": campaign_field.max_length,
         "internal_note_max_length": note_field.max_length,
-        "time_options": _dashboard_time_options(),
+        "options_url": reverse("dashboards:stylist_quick_link_options"),
         "stylist_name": stylist.get_fullName(),
         "salon_name": getattr(salon, "salon_name", ""),
         "expires_in_days": max(1, MAX_AGE_SECONDS // 86400),
@@ -13356,23 +13256,35 @@ def _generate_stylist_quick_link(request, salon, stylist):
                 payload["service_ids"] = [service_obj.pk]
 
     parsed_date = None
-    valid_time_options = _dashboard_time_options()
-
     if mode == "service_stylist_time":
         if not appointment_date or not appointment_time:
             errors.append(
                 "برای لینک مستقیم preview باید تاریخ و ساعت هم مشخص شود."
             )
         else:
-            parsed_date = parse_jalali_input(appointment_date)
+            try:
+                parsed_date = date.fromisoformat(appointment_date)
+            except (TypeError, ValueError):
+                parsed_date = parse_jalali_input(appointment_date)
 
             if not parsed_date:
                 errors.append("تاریخ انتخاب‌شده معتبر نیست.")
 
-            if appointment_time not in valid_time_options:
-                errors.append("ساعت انتخاب‌شده معتبر نیست.")
+            available_times = []
+            if parsed_date and service_obj is not None:
+                available_times = [
+                    start.strftime("%H:%M")
+                    for start, _ in get_available_slots_for_service(
+                        salon=salon,
+                        stylist=stylist,
+                        service=service_obj,
+                        date_value=parsed_date,
+                    )
+                ]
 
-            if parsed_date and appointment_time in valid_time_options:
+            if parsed_date and appointment_time not in available_times:
+                errors.append("این زمان دیگر برای رزرو در دسترس نیست. یک زمان آزاد دیگر انتخاب کن.")
+            elif parsed_date:
                 payload["date"] = parsed_date.isoformat()
                 payload["time"] = appointment_time
 
@@ -13898,6 +13810,33 @@ class StylistBookingQuickLinkQRView(
         )
 
 
+class StylistQuickLinkOptionsView(StylistDashboardGuardMixin, View):
+    """Availability options for the signed-in stylist using canonical booking slots."""
+
+    def get(self, request, *args, **kwargs):
+        ctx = _get_stylist_dashboard_context(request)
+        stylist, salon = ctx.stylist, ctx.salon
+        service_id = (request.GET.get("service_id") or "").strip()
+        if not service_id:
+            return JsonResponse({"availability": []})
+        service = (
+            Services.objects.filter(
+                pk=service_id,
+                services_of_salon=salon,
+                stylists=stylist,
+                is_active=True,
+            )
+            .distinct()
+            .first()
+        )
+        if service is None:
+            return JsonResponse({"error": "این خدمت برای شما در مجموعه فعال نیست."}, status=400)
+        return JsonResponse(
+            {"availability": _quick_link_availability_days(salon=salon, service=service, stylist=stylist)},
+            json_dumps_params={"ensure_ascii": False},
+        )
+
+
 class StylistQuickLinksView(StylistDashboardGuardMixin, View):
     template_name = "dashboards/stylist_quick_links.html"
 
@@ -13921,8 +13860,8 @@ class StylistQuickLinksView(StylistDashboardGuardMixin, View):
         )
         context = build_dashboard_context(
             request.user,
-            sidebar_active="my_appointments",
-            page_title="لینک‌های رزرو من",
+            sidebar_active="quick_links",
+            page_title="لینک رزرو من",
             request_path=request.path,
             role="stylist",
             salon_override=salon,
@@ -14435,70 +14374,34 @@ class StylistFinanceView(StylistDashboardGuardMixin, View):
             return redirect("dashboards:stylist_dashboard")
 
         wallet, _ = StylistWallet.objects.get_or_create(stylist=stylist)
-
         if salon:
             release_eligible_stylist_wallet_funds_for_salon(salon)
-
             snapshots = (
                 OrderDetailFinancialSnapshot.objects.filter(
                     stylist=stylist,
                     salon=salon,
+                    status=OrderDetailFinancialSnapshot.Status.FINALIZED,
                 )
                 .select_related("order", "service", "salon", "order_detail")
                 .order_by("-finalized_at", "-created_at", "-id")
             )
-
             transactions_qs = (
                 wallet.transactions.select_related(
                     "order", "order_detail", "financial_snapshot"
                 )
-                .filter(
-                    Q(order_detail__salon=salon)
-                    | Q(financial_snapshot__salon=salon)
-                    | Q(order__salon=salon)
-                )
+                .filter(salon=salon)
+                .exclude(transaction_type__in=["withdraw_request", "withdraw_restore"])
                 .order_by("-created_at", "-id")
             )
         else:
-            # متخصص بدون مجموعه فعال نباید آمار مالی کل مجموعه‌ها را به‌عنوان داشبورد یک مجموعه ببیند.
             snapshots = OrderDetailFinancialSnapshot.objects.none()
             transactions_qs = wallet.transactions.none()
-            messages.warning(
-                request,
-                "برای مشاهده مالی مجموعه، ابتدا یک مجموعه فعال انتخاب کنید.",
-            )
+            messages.warning(request, "برای مشاهده درآمد، ابتدا یک مجموعه فعال انتخاب کنید.")
 
-        summary = snapshots.aggregate(
-            count=Count("id"),
-            gross=Sum("gross_amount"),
-            discount=Sum("discount_allocated"),
-            paid=Sum("paid_amount_allocated"),
-            materials=Sum("material_cost_total"),
-            stylist_share=Sum("stylist_net_share"),
-        )
-
-        finalized_summary = snapshots.filter(
-            status=OrderDetailFinancialSnapshot.Status.FINALIZED
-        ).aggregate(
+        finalized_summary = snapshots.aggregate(
             count=Count("id"),
             stylist_share=Sum("stylist_net_share"),
         )
-
-        reversed_summary = snapshots.filter(
-            status=OrderDetailFinancialSnapshot.Status.REVERSED
-        ).aggregate(
-            count=Count("id"),
-            stylist_share=Sum("stylist_net_share"),
-        )
-
-        transaction_summary = transactions_qs.aggregate(
-            pending_delta=Sum("pending_delta"),
-            available_delta=Sum("available_delta"),
-        )
-
-        salon_pending_balance = int(transaction_summary.get("pending_delta") or 0)
-        salon_available_flow = int(transaction_summary.get("available_delta") or 0)
-        salon_total_wallet_flow = salon_pending_balance + salon_available_flow
 
         context = build_dashboard_context(
             request.user,
@@ -14509,114 +14412,38 @@ class StylistFinanceView(StylistDashboardGuardMixin, View):
             salon_override=salon,
             stylist_override=stylist,
         )
-
-        if salon:
-            finance_payload = build_stylist_finance_payload(stylist, salon=salon)
-        else:
-            finance_payload = {
-                "staff_earnings": [],
-                "staff_earning_summary": {
-                    "count": 0,
-                    "gross": 0,
-                    "deductions": 0,
-                    "net": 0,
-                },
-                "staff_payable_amount": 0,
-                "staff_payout_requests": [],
-                "staff_payable_earnings_count": 0,
-            }
-
         context.update(
             {
                 "wallet": wallet,
-                # همه این‌ها فقط مربوط به مجموعه فعال هستند.
                 "snapshots": snapshots[:100],
                 "transactions": transactions_qs[:50],
                 "active_finance_salon": salon,
-                "finance_scope_label": (
-                    f"مجموعه {salon.salon_name}" if salon else "بدون مجموعه فعال"
-                ),
-                # برای template بعدی: مانده‌های بعد از تراکنش در مدل wallet کلی هستند،
-                # پس بهتر است در UI با عنوان «کل کیف پول» نمایش داده شوند یا مخفی شوند.
-                "wallet_scope_notice": (
-                    "اعداد اصلی این صفحه فقط مربوط به مجموعه فعال هستند. "
-                    "مانده کیف پول کلی ممکن است شامل درآمد سایر مجموعه‌ها هم باشد."
-                ),
-                "show_wallet_global_notice": True,
+                "finance_scope_label": f"مجموعه {salon.salon_name}" if salon else "بدون مجموعه فعال",
                 "summary_cards": [
                     {
-                        "label": "در انتظار همین مجموعه",
-                        "value": _dashboard_currency(salon_pending_balance),
+                        "label": "قابل دریافت",
+                        "value": _dashboard_currency(wallet.available_balance_for_salon(salon)),
+                        "icon": "fa-solid fa-building-columns",
+                    },
+                    {
+                        "label": "در انتظار آزادشدن",
+                        "value": _dashboard_currency(wallet.pending_balance_for_salon(salon)),
                         "icon": "fa-regular fa-clock",
                     },
                     {
-                        "label": "آزادشده از همین مجموعه",
-                        "value": _dashboard_currency(salon_available_flow),
-                        "icon": "fa-solid fa-wallet",
-                    },
-                    {
-                        "label": "کل جریان کیف پول همین مجموعه",
-                        "value": _dashboard_currency(salon_total_wallet_flow),
-                        "icon": "fa-solid fa-coins",
-                    },
-                    {
-                        "label": "تعداد خدمات مالی‌شده همین مجموعه",
-                        "value": summary.get("count") or 0,
-                        "icon": "fa-solid fa-receipt",
-                    },
-                    {
-                        "label": "جمع فروش خام همین مجموعه",
-                        "value": _dashboard_currency(summary.get("gross") or 0),
-                        "icon": "fa-solid fa-cash-register",
-                    },
-                    {
-                        "label": "جمع تخفیف خدمات همین مجموعه",
-                        "value": _dashboard_currency(summary.get("discount") or 0),
-                        "icon": "fa-solid fa-tags",
-                    },
-                    {
-                        "label": "مبلغ بعد از تخفیف همین مجموعه",
-                        "value": _dashboard_currency(summary.get("paid") or 0),
-                        "icon": "fa-solid fa-receipt",
-                    },
-                    {
-                        "label": "جمع سهم محاسبه‌شده همین مجموعه",
-                        "value": _dashboard_currency(summary.get("stylist_share") or 0),
+                        "label": "درآمد قطعی",
+                        "value": _dashboard_currency(finalized_summary.get("stylist_share") or 0),
                         "icon": "fa-solid fa-chart-line",
                     },
                     {
-                        "label": "سهم نهایی‌شده همین مجموعه",
-                        "value": _dashboard_currency(
-                            finalized_summary.get("stylist_share") or 0
-                        ),
-                        "icon": "fa-solid fa-circle-check",
-                    },
-                    {
-                        "label": "اسناد برگشت‌خورده همین مجموعه",
-                        "value": _dashboard_currency(
-                            reversed_summary.get("stylist_share") or 0
-                        ),
-                        "icon": "fa-solid fa-rotate-left",
-                    },
-                    {
-                        "label": "هزینه مواد همین مجموعه",
-                        "value": _dashboard_currency(summary.get("materials") or 0),
-                        "icon": "fa-solid fa-flask-vial",
-                    },
-                    {
-                        "label": "قابل برداشت کل کیف پول",
-                        "value": _dashboard_currency(
-                            wallet.available_balance_for_salon(salon)
-                        ),
-                        "icon": "fa-solid fa-building-columns",
+                        "label": "خدمات نهایی‌شده",
+                        "value": to_persian_digits(finalized_summary.get("count") or 0),
+                        "icon": "fa-solid fa-receipt",
                     },
                 ],
             }
         )
-
         context.update(_stylist_context_payload(ctx))
-        context.update(finance_payload)
-
         return render(request, self.template_name, context)
 
 
@@ -14824,7 +14651,7 @@ class StylistProfileView(StylistDashboardGuardMixin, View):
     def get(self, request, *args, **kwargs):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
-        user_form = StylistUserForm(instance=request.user)
+        user_form = StylistUserForm(instance=request.user, allow_mobile_edit=False)
         profile_form = StylistProfileForm(instance=stylist)
         emergency_info = _get_stylist_emergency_info(stylist)
         emergency_form = EmergencyInfoForm(instance=emergency_info)
@@ -14906,7 +14733,7 @@ class StylistProfileView(StylistDashboardGuardMixin, View):
             )
             context.update(
                 {
-                    "user_form": StylistUserForm(instance=request.user),
+                    "user_form": StylistUserForm(instance=request.user, allow_mobile_edit=False),
                     "profile_form": StylistProfileForm(instance=stylist),
                     "emergency_form": EmergencyInfoForm(instance=emergency_info),
                     "stylist_profile_summary": _build_stylist_profile_summary(
@@ -14956,7 +14783,7 @@ class StylistProfileView(StylistDashboardGuardMixin, View):
 
         emergency_info = _get_stylist_emergency_info(stylist)
 
-        user_form = StylistUserForm(request.POST, instance=request.user)
+        user_form = StylistUserForm(request.POST, instance=request.user, allow_mobile_edit=False)
         profile_form = StylistProfileForm(request.POST, request.FILES, instance=stylist)
         emergency_form = EmergencyInfoForm(request.POST, instance=emergency_info)
 
@@ -15087,6 +14914,106 @@ class ManagerProfileView(LoginRequiredMixin, View):
 
 
 # -------------------------------------------------------------------------------
+class StylistNotificationCenterView(StylistDashboardGuardMixin, View):
+    template_name = "dashboards/notifications_center.html"
+
+    def get(self, request, *args, **kwargs):
+        ctx = _get_stylist_dashboard_context(request)
+        stylist, salon = ctx.stylist, ctx.salon
+        context = build_dashboard_context(
+            request.user,
+            sidebar_active="overview",
+            page_title="اعلان‌های من",
+            request_path=request.path,
+            role="stylist",
+            salon_override=salon,
+            stylist_override=stylist,
+        )
+        notifications = context.get("dashboard_notifications", {})
+        context.update(
+            {
+                "salon": salon,
+                "notification_center_title": "مرکز اعلان‌های من",
+                "notification_center_description": "نوبت‌ها، مالی و تغییرات کاری مرتبط با خودت را یک‌جا ببین و از همان اعلان وارد صفحه مرتبط شو.",
+                "notification_center_empty_label": "هنوز اعلان کاری برای شما ثبت نشده است.",
+                "notification_center": {
+                    "tabs": notifications.get("tabs", []),
+                    "items": notifications.get("items", []),
+                    "active_category": "all",
+                    "is_empty": not notifications.get("items"),
+                },
+            }
+        )
+        context.update(_stylist_context_payload(ctx))
+        return render(request, self.template_name, context)
+
+
+class StylistSettingsHubView(StylistDashboardGuardMixin, View):
+    template_name = "dashboards/stylist_settings.html"
+
+    def get(self, request, *args, **kwargs):
+        ctx = _get_stylist_dashboard_context(request)
+        stylist, salon = ctx.stylist, ctx.salon
+        context = build_dashboard_context(
+            request.user,
+            sidebar_active="my_settings",
+            page_title="تنظیمات من",
+            request_path=request.path,
+            role="stylist",
+            salon_override=salon,
+            stylist_override=stylist,
+        )
+        context.update(
+            {
+                "stylist_settings_groups": [
+                    {
+                        "key": "account",
+                        "eyebrow": "حساب",
+                        "title": "حساب و امنیت",
+                        "description": "اطلاعات حرفه‌ای و امنیت حساب خودت را مدیریت کن.",
+                        "icon": "fa-regular fa-user",
+                        "items": [
+                            {
+                                "title": "پروفایل من",
+                                "description": "نام، رزومه، تصویر، نمونه‌کار و اطلاعات حرفه‌ای",
+                                "icon": "fa-regular fa-id-card",
+                                "url": reverse("dashboards:stylist_profile"),
+                            },
+                            {
+                                "title": "تغییر رمز عبور",
+                                "description": "رمز ورود حساب لومرا را تغییر بده",
+                                "icon": "fa-solid fa-key",
+                                "url": reverse("accounts:change_password"),
+                            },
+                        ],
+                    },
+                    {
+                        "key": "communications",
+                        "eyebrow": "ارتباطات",
+                        "title": "اعلان‌ها و پیام‌رسان",
+                        "description": "وضعیت اتصال بله و ترجیح دریافت اعلان‌ها را مدیریت کن.",
+                        "icon": "fa-regular fa-bell",
+                        "items": [
+                            {
+                                "title": "اعلان‌ها و ارتباطات",
+                                "description": "تنظیم پیام‌های کاری/تبلیغاتی و اتصال حساب بله",
+                                "icon": "fa-regular fa-bell",
+                                "url": reverse("dashboards:stylist_communication_settings"),
+                            },
+                            {
+                                "title": "مرکز اعلان‌های من",
+                                "description": "همه اعلان‌های کاری خودت را یک‌جا مرور کن",
+                                "icon": "fa-regular fa-bell",
+                                "url": reverse("dashboards:stylist_notifications"),
+                            },
+                        ],
+                    },
+                ]
+            }
+        )
+        context.update(_stylist_context_payload(ctx))
+        return render(request, self.template_name, context)
+
 class WorkspaceSettingsHubView(LoginRequiredMixin, View):
     template_name = "dashboards/workspace_settings.html"
 
@@ -15095,182 +15022,62 @@ class WorkspaceSettingsHubView(LoginRequiredMixin, View):
             return redirect("dashboards:salon_manager_dashboard")
         return super().dispatch(request, *args, **kwargs)
 
-    def _safe_reverse(self, name, kwargs=None):
-        try:
-            if kwargs:
-                return reverse(name, kwargs=kwargs)
-            return reverse(name)
-        except Exception:
-            return "#"
-
-    def _build_sections(self, request, salon):
-        salon_id_kwargs = {"salon_id": salon.id} if salon else None
-
+    def _settings_groups(self):
         return [
             {
-                "title": "راه‌اندازی کسب‌وکار",
-                "description": "اطلاعات اصلی مجموعه، هویت برند، وضعیت انتشار و جزئیات عمومی کسب‌وکار را از اینجا مدیریت کن.",
-                "icon": "fa-solid fa-store",
-                "badge": "راه‌اندازی کسب‌وکار",
-                "primary_label": "ویرایش پروفایل مجموعه",
-                "primary_url": self._safe_reverse("dashboards:salon_profile"),
-                "links": [
+                "key": "business",
+                "eyebrow": "مجموعه و رزرو",
+                "title": "چیزی که مشتری می‌بیند",
+                "description": "اطلاعات عمومی مجموعه و مسیر رزرو آنلاین را از همین دو بخش تنظیم کن.",
+                "icon": "fa-solid fa-shop",
+                "items": [
                     {
-                        "label": "پروفایل مجموعه",
-                        "meta": "نام مجموعه، توضیحات، اطلاعات تماس و انتشار",
-                        "url": self._safe_reverse("dashboards:salon_profile"),
+                        "title": "پروفایل مجموعه",
+                        "description": "نام و تماس، موقعیت، ساعات کاری، تصاویر، امکانات و معرفی مجموعه",
+                        "url": reverse("dashboards:salon_profile"),
+                        "icon": "fa-solid fa-store",
                     },
                     {
-                        "label": "رزرو آنلاین",
-                        "meta": "تنظیمات نمایش عمومی و تجربه رزرو",
-                        "url": self._safe_reverse("dashboards:online_booking"),
-                    },
-                    {
-                        "label": "کاتالوگ",
-                        "meta": "ساختار ارائه خدمات و معرفی بهتر مجموعه",
-                        "url": self._safe_reverse("dashboards:catalog"),
+                        "title": "رزرو آنلاین و لینک‌ها",
+                        "description": "صفحه رزرو، Quick Linkها، QR و قالب‌های چاپی",
+                        "url": reverse("dashboards:online_booking"),
+                        "icon": "fa-solid fa-link",
                     },
                 ],
             },
             {
-                "title": "زمان‌بندی و تقویم",
-                "description": "مدیریت تقویم، نوبت‌ها، برنامه کاری تیم و عملیات روزانه مجموعه در این بخش قرار می‌گیرد.",
-                "icon": "fa-regular fa-calendar-days",
-                "badge": "زمان‌بندی",
-                "primary_label": "باز کردن تقویم مجموعه",
-                "primary_url": self._safe_reverse(
-                    "dashboards:appointment_calendar",
-                    kwargs=salon_id_kwargs,
-                ),
-                "links": [
+                "key": "account",
+                "eyebrow": "حساب و امنیت",
+                "title": "حساب مدیر مجموعه",
+                "description": "اطلاعات شخصی مدیر و امنیت ورود را مستقل از اطلاعات عمومی مجموعه مدیریت کن.",
+                "icon": "fa-solid fa-shield-halved",
+                "items": [
                     {
-                        "label": "تقویم و نوبت‌ها",
-                        "meta": "بررسی رزروها، وضعیت‌ها و جابه‌جایی زمان",
-                        "url": self._safe_reverse(
-                            "dashboards:appointment_calendar",
-                            kwargs=salon_id_kwargs,
-                        ),
+                        "title": "پروفایل مدیر",
+                        "description": "نام، تصویر، ایمیل و اطلاعات تماس حساب مدیر",
+                        "url": reverse("dashboards:manager_profile"),
+                        "icon": "fa-regular fa-user",
                     },
                     {
-                        "label": "تیم و شیفت‌ها",
-                        "meta": "برنامه کاری اعضای تیم و ظرفیت روزانه",
-                        "url": self._safe_reverse("dashboards:team_managment"),
-                    },
-                    {
-                        "label": "گزارش‌های عملیاتی",
-                        "meta": "مرور سریع وضعیت نوبت‌ها و بهره‌وری",
-                        "url": self._safe_reverse(
-                            "dashboards:reports_dashboard",
-                            kwargs=salon_id_kwargs,
-                        ),
+                        "title": "تغییر رمز عبور",
+                        "description": "رمز ورود حساب را تغییر بده و امنیت ورود را حفظ کن",
+                        "url": reverse("accounts:change_password"),
+                        "icon": "fa-solid fa-key",
                     },
                 ],
             },
             {
-                "title": "خدمات و تجربه رزرو",
-                "description": "منوی خدمات، قیمت‌گذاری، ساختار ارائه و مسیر قابل رزرو برای مشتری را از اینجا کنترل کن.",
-                "icon": "fa-solid fa-scissors",
-                "badge": "Services",
-                "primary_label": "مدیریت منوی خدمات",
-                "primary_url": self._safe_reverse("dashboards:service_menu"),
-                "links": [
+                "key": "notifications",
+                "eyebrow": "اعلان‌ها و ارتباطات",
+                "title": "پیام‌هایی که دریافت می‌کنی",
+                "description": "اعلان‌های عملیاتی و تبلیغاتی مدیر را جدا کنترل کن و اتصال پیام‌رسان را ببین.",
+                "icon": "fa-regular fa-bell",
+                "items": [
                     {
-                        "label": "منوی خدمات",
-                        "meta": "ساختار خدمات، قیمت و مدت‌زمان",
-                        "url": self._safe_reverse("dashboards:service_menu"),
-                    },
-                    {
-                        "label": "رزرو آنلاین",
-                        "meta": "تنظیمات قابل مشاهده برای مشتری",
-                        "url": self._safe_reverse("dashboards:online_booking"),
-                    },
-                    {
-                        "label": "عضویت و پلن‌ها",
-                        "meta": "امکانات محصول و توسعه آتی",
-                        "url": self._safe_reverse("dashboards:membership"),
-                    },
-                ],
-            },
-            {
-                "title": "فروش، پرداخت و انبار",
-                "description": "محصولات، موجودی، زیرساخت فروش و مسیرهای مالی کسب‌وکار را در یک فضای متمرکز ببین.",
-                "icon": "fa-solid fa-wallet",
-                "badge": "Sales",
-                "primary_label": "مدیریت محصولات",
-                "primary_url": self._safe_reverse("dashboards:products"),
-                "links": [
-                    {
-                        "label": "محصولات",
-                        "meta": "فهرست کالاها و اقلام قابل فروش",
-                        "url": self._safe_reverse("dashboards:products"),
-                    },
-                    {
-                        "label": "موجودی‌گیری",
-                        "meta": "شمارش موجودی و اختلاف انبار",
-                        "url": self._safe_reverse("dashboards:stocktakes"),
-                    },
-                    {
-                        "label": "گزارش‌ها",
-                        "meta": "مرور خلاصه فروش و عملکرد",
-                        "url": self._safe_reverse(
-                            "dashboards:reports_dashboard",
-                            kwargs=salon_id_kwargs,
-                        ),
-                    },
-                    {
-                        "label": "امور مالی",
-                        "meta": "کیف پول مجموعه، شبا، برداشت و سیاست لغو",
-                        "url": self._safe_reverse("dashboards:payout_settings"),
-                    },
-                ],
-            },
-            {
-                "title": "تیم و دسترسی‌ها",
-                "description": "اعضای تیم، نقش‌ها، آمادگی رزرو و تنظیمات مربوط به اجرای خدمات را از اینجا مدیریت کن.",
-                "icon": "fa-solid fa-user-group",
-                "badge": "Team",
-                "primary_label": "مدیریت تیم",
-                "primary_url": self._safe_reverse("dashboards:team_managment"),
-                "links": [
-                    {
-                        "label": "اعضای تیم",
-                        "meta": "لیست اعضا، وضعیت فعالیت و ویرایش",
-                        "url": self._safe_reverse("dashboards:team_managment"),
-                    },
-                    {
-                        "label": "نمونه‌کار و پروفایل حرفه‌ای",
-                        "meta": "نمایش بهتر اعضای تیم در رزرو آنلاین",
-                        "url": self._safe_reverse("dashboards:team_managment"),
-                    },
-                    {
-                        "label": "شیفت و ظرفیت",
-                        "meta": "هماهنگی دسترسی تیم با تقویم",
-                        "url": self._safe_reverse("dashboards:team_managment"),
-                    },
-                ],
-            },
-            {
-                "title": "حساب مدیر و حقوقی",
-                "description": "اطلاعات مدیر، تغییرات حساب، حریم خصوصی و شرایط استفاده را از اینجا دنبال کن.",
-                "icon": "fa-regular fa-user",
-                "badge": "Account",
-                "primary_label": "پروفایل مدیر مجموعه",
-                "primary_url": self._safe_reverse("dashboards:manager_profile"),
-                "links": [
-                    {
-                        "label": "پروفایل مدیر",
-                        "meta": "نام، تصویر، ایمیل و اطلاعات تماس",
-                        "url": self._safe_reverse("dashboards:manager_profile"),
-                    },
-                    {
-                        "label": "حریم خصوصی",
-                        "meta": "متن سیاست حفظ اطلاعات کاربر",
-                        "url": self._safe_reverse("accounts:privacy_policy"),
-                    },
-                    {
-                        "label": "شرایط استفاده",
-                        "meta": "قواعد استفاده از پلتفرم",
-                        "url": self._safe_reverse("accounts:terms_of_use"),
+                        "title": "اعلان‌ها و ارتباطات",
+                        "description": "اعلان‌های مدیر و اتصال بله را از یک صفحه مدیریت کن",
+                        "url": reverse("dashboards:manager_communication_settings"),
+                        "icon": "fa-regular fa-bell",
                     },
                 ],
             },
@@ -15281,20 +15088,17 @@ class WorkspaceSettingsHubView(LoginRequiredMixin, View):
             request.user,
             nav_active="home",
             sidebar_active="settings",
-            page_title="تنظیمات محیط کاری",
+            page_title="تنظیمات",
             request_path=request.path,
         )
-
-        salon = context.get("salon")
-        sections = self._build_sections(request, salon)
 
         context.update(
             {
                 "hide_dashboard_header": True,
                 "hide_dashboard_top_nav": True,
                 "page_meta": {
-                    "title": "تنظیمات محیط کاری",
-                    "description": "ساختار تنظیمات مجموعه با الگویی شبیه به محیط کاری تنظیمات طراحی شده است؛ دسته‌بندی‌شده، آرام و متمرکز برای مدیریت بهتر کسب‌وکار.",
+                    "title": "تنظیمات",
+                    "description": "پروفایل و رزرو آنلاین مجموعه، حساب مدیر، امنیت و اعلان‌ها را از یک مسیر ساده مدیریت کن.",
                     "icon": "fa-solid fa-gear",
                     "badges": [],
                     "primary_action": {
@@ -15302,23 +15106,19 @@ class WorkspaceSettingsHubView(LoginRequiredMixin, View):
                         "url": reverse("dashboards:home"),
                     },
                 },
-                "workspace_settings_sections": sections,
-                "workspace_settings_summary": [
+                "workspace_settings_groups": self._settings_groups(),
+                "workspace_settings_legal_links": [
                     {
-                        "label": "نام مجموعه",
-                        "value": context["dashboard_header"]["salon_name"],
+                        "label": "حریم خصوصی",
+                        "url": reverse("accounts:privacy_policy"),
                     },
                     {
-                        "label": "تعداد دسته‌ها",
-                        "value": to_persian_digits(len(sections)),
+                        "label": "شرایط استفاده",
+                        "url": reverse("accounts:terms_of_use"),
                     },
                     {
-                        "label": "وضعیت مجموعه",
-                        "value": (
-                            "فعال"
-                            if context["dashboard_header"]["is_active"]
-                            else "غیرفعال"
-                        ),
+                        "label": "حریم خصوصی پیام‌رسان‌ها",
+                        "url": reverse("messaging:privacy"),
                     },
                 ],
             }

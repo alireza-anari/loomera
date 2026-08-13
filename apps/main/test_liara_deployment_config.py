@@ -48,21 +48,70 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
         config = self._load_config()
         cron = config["cron"]
 
-        self.assertIn(
-            (
+        primary_matches = [
+            entry
+            for entry in cron
+            if entry.startswith(
                 "* * * * * cd $ROOT && python manage.py "
                 "process_notification_deliveries --limit 100"
-            ),
-            cron,
+            )
+            and "--include-failed" not in entry
+        ]
+
+        self.assertEqual(
+            len(primary_matches),
+            1,
+        )
+
+        primary = primary_matches[0]
+
+        self.assertIn(
+            "BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL",
+            primary,
+        )
+
+        self.assertIn(
+            "&& if [ -n "
+            '"$BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL"'
+            " ]; then",
+            primary,
         )
 
         self.assertIn(
             (
+                "curl --fail --silent --show-error --max-time 10 "
+                '"$BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL"'
+            ),
+            primary,
+        )
+
+        # Never commit the real heartbeat endpoint/token to source.
+        self.assertNotIn(
+            "uptime.betterstack.com/api/v1/heartbeat/",
+            primary,
+        )
+
+        retry_matches = [
+            entry
+            for entry in cron
+            if entry.startswith(
                 "*/15 * * * * cd $ROOT && python manage.py "
                 "process_notification_deliveries "
                 "--limit 100 --include-failed"
-            ),
-            cron,
+            )
+        ]
+
+        self.assertEqual(
+            len(retry_matches),
+            1,
+        )
+
+        retry = retry_matches[0]
+
+        # Retry must never ping the primary delivery heartbeat.
+        self.assertNotIn(
+            "BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL",
+            retry,
         )
 
         self.assertNotIn(
@@ -71,6 +120,157 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
                 "process_notification_deliveries --limit 25"
             ),
             cron,
+        )
+
+    def test_notification_retry_cron_heartbeat_policy(self):
+        config = self._load_config()
+        cron = config["cron"]
+
+        retry_matches = [
+            entry
+            for entry in cron
+            if entry.startswith(
+                "*/15 * * * * cd $ROOT && python manage.py "
+                "process_notification_deliveries "
+                "--limit 100 --include-failed"
+            )
+        ]
+
+        self.assertEqual(
+            len(retry_matches),
+            1,
+        )
+
+        retry = retry_matches[0]
+
+        self.assertIn(
+            "BETTERSTACK_NOTIFICATION_RETRY_HEARTBEAT_URL",
+            retry,
+        )
+
+        self.assertIn(
+            (
+                "curl --fail --silent --show-error --max-time 10 "
+                '"$BETTERSTACK_NOTIFICATION_RETRY_HEARTBEAT_URL"'
+            ),
+            retry,
+        )
+
+        # The retry cron must never ping the primary heartbeat.
+        self.assertNotIn(
+            "BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL",
+            retry,
+        )
+
+        # Never commit a real Better Stack heartbeat URL.
+        self.assertNotIn(
+            "uptime.betterstack.com/api/v1/heartbeat/",
+            retry,
+        )
+
+    def test_appointment_notifications_cron_heartbeat_policy(self):
+        config = self._load_config()
+        cron = config["cron"]
+
+        matches = [
+            entry
+            for entry in cron
+            if entry.startswith(
+                "*/5 * * * * cd $ROOT && python manage.py "
+                "dispatch_appointment_notifications --limit 25"
+            )
+        ]
+
+        self.assertEqual(
+            len(matches),
+            1,
+        )
+
+        command = matches[0]
+
+        self.assertIn(
+            "BETTERSTACK_APPOINTMENT_NOTIFICATIONS_HEARTBEAT_URL",
+            command,
+        )
+
+        self.assertIn(
+            (
+                "curl --fail --silent --show-error --max-time 10 "
+                '"$BETTERSTACK_APPOINTMENT_NOTIFICATIONS_HEARTBEAT_URL"'
+            ),
+            command,
+        )
+
+        # This cron must never ping notification delivery/retry heartbeats.
+        self.assertNotIn(
+            "BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL",
+            command,
+        )
+
+        self.assertNotIn(
+            "BETTERSTACK_NOTIFICATION_RETRY_HEARTBEAT_URL",
+            command,
+        )
+
+        # Never commit the real Better Stack heartbeat URL.
+        self.assertNotIn(
+            "uptime.betterstack.com/api/v1/heartbeat/",
+            command,
+        )
+
+    def test_no_show_confirmation_cron_heartbeat_policy(self):
+        config = self._load_config()
+        cron = config["cron"]
+
+        matches = [
+            entry
+            for entry in cron
+            if entry.startswith(
+                "*/5 * * * * cd $ROOT && python manage.py "
+                "confirm_no_show_after_window --limit 25"
+            )
+        ]
+
+        self.assertEqual(
+            len(matches),
+            1,
+        )
+
+        command = matches[0]
+
+        self.assertIn(
+            "BETTERSTACK_NO_SHOW_CONFIRMATION_HEARTBEAT_URL",
+            command,
+        )
+
+        self.assertIn(
+            (
+                "curl --fail --silent --show-error --max-time 10 "
+                '"$BETTERSTACK_NO_SHOW_CONFIRMATION_HEARTBEAT_URL"'
+            ),
+            command,
+        )
+
+        # This cron must not ping another operational heartbeat.
+        self.assertNotIn(
+            "BETTERSTACK_NOTIFICATION_DELIVERY_HEARTBEAT_URL",
+            command,
+        )
+
+        self.assertNotIn(
+            "BETTERSTACK_NOTIFICATION_RETRY_HEARTBEAT_URL",
+            command,
+        )
+
+        self.assertNotIn(
+            "BETTERSTACK_APPOINTMENT_NOTIFICATIONS_HEARTBEAT_URL",
+            command,
+        )
+
+        # Never commit the real Better Stack heartbeat endpoint/token.
+        self.assertNotIn(
+            "uptime.betterstack.com/api/v1/heartbeat/",
+            command,
         )
 
     def test_ci_workflow_checks_staging_and_main(self):

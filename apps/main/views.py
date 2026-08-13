@@ -303,21 +303,15 @@ class SupportView(View):
 
     def get(self, request, *args, **kwargs):
         initial = {}
-        tickets = []
         if request.GET.get("topic"):
             initial["support_reason"] = request.GET.get("topic")
 
         if request.user.is_authenticated:
-            initial = {
+            initial.update({
                 "email": request.user.email,
                 "full_name": request.user.get_fullName(),
                 "mobile": request.user.mobile_number,
-            }
-            tickets = _decorate_support_tickets(
-                SupportTicket.objects.filter(user=request.user).order_by("-updated_at")[
-                    :10
-                ]
-            )
+            })
 
         form = SupportForm(initial=initial)
         return render(
@@ -326,7 +320,6 @@ class SupportView(View):
             {
                 "form": form,
                 "hide_navbar": True,
-                "support_tickets": tickets,
             },
         )
 
@@ -345,16 +338,6 @@ class SupportView(View):
             return redirect("main:contact")
 
         form = SupportForm(request.POST, request.FILES)
-        tickets = (
-            _decorate_support_tickets(
-                SupportTicket.objects.filter(user=request.user).order_by("-updated_at")[
-                    :10
-                ]
-            )
-            if request.user.is_authenticated
-            else []
-        )
-
         if form.is_valid():
             attachment = form.cleaned_data.get("attachment")
             ticket = SupportTicket.objects.create(
@@ -387,11 +370,17 @@ class SupportView(View):
                 )
             )
 
+            if request.user.is_authenticated:
+                messages.success(
+                    request,
+                    f"درخواست شما با شماره #{ticket.id} ثبت شد و از همین بخش قابل پیگیری است.",
+                )
+                return redirect("main:support_ticket_detail", pk=ticket.pk)
             messages.success(
                 request,
-                f"درخواست شما با شماره #{ticket.id} ثبت شد و از همین بخش قابل پیگیری است.",
+                f"درخواست شما با شماره #{ticket.id} ثبت شد. پاسخ از راه اطلاعات تماس ثبت‌شده ارسال می‌شود.",
             )
-            return redirect("main:contact")
+            return redirect("main:success")
 
         messages.error(request, "لطفاً خطاهای فرم را بررسی و دوباره تلاش کنید.")
         return render(
@@ -400,7 +389,6 @@ class SupportView(View):
             {
                 "form": form,
                 "hide_navbar": True,
-                "support_tickets": tickets,
             },
         )
 

@@ -24,6 +24,7 @@ SECURITY_SUITE = (
     "apps.messaging.tests_security",
     "apps.search.test_mapir_proxy_security",
     "apps.orders.test_public_booking_api_security",
+    "apps.main.test_sentry_privacy",
 )
 
 QUICK_LINK_RELEASE_TESTS = (

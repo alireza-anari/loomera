@@ -1,33 +1,9 @@
 {% extends "base.html" %}
-{% load jalali_filters %}
-{% block title %}تیکت‌های پشتیبانی | Loomera{% endblock %}
-{% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
+{% block title %}درخواست‌های پشتیبانی من{% endblock %}
 {% block content %}
-<main class="min-h-screen bg-loomera-bg pb-24">
-  <section class="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:py-10">
-    <div class="mb-5 flex items-center justify-between gap-3">
-      <div>
-        <p class="text-xs font-black uppercase tracking-[.24em] text-loomera-primary">Support</p>
-        <h1 class="mt-2 text-2xl font-black text-loomera-textPrimary">پیام‌های پشتیبانی من</h1>
-      </div>
-      <a href="{% url 'main:contact' %}" class="rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft">درخواست جدید</a>
-    </div>
-    <div class="space-y-3">
-      {% for ticket in tickets %}
-        <a href="{% url 'main:support_ticket_detail' ticket.pk %}" class="block rounded-[1.5rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card transition hover:border-loomera-primary/30">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <p class="text-sm font-black text-loomera-textPrimary">#{{ ticket.id }} — {{ ticket.subject|default:ticket.support_reason|default:ticket.get_issue_type_display }}</p>
-              <p class="mt-1 text-xs font-bold text-loomera-textMuted">{{ ticket.created_at_label }}</p>
-              <p class="mt-3 line-clamp-2 text-sm leading-7 text-loomera-textSecondary">{{ ticket.description }}</p>
-            </div>
-            <span class="shrink-0 rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primary">{{ ticket.get_status_display }}</span>
-          </div>
-        </a>
-      {% empty %}
-        <div class="rounded-[2rem] border border-loomera-borderSoft bg-white p-8 text-center text-sm font-bold text-loomera-textMuted">هنوز تیکتی ثبت نشده است.</div>
-      {% endfor %}
-    </div>
-  </section>
-</main>
+<main class="min-h-dvh bg-loomera-bg pb-28 text-loomera-textPrimary"><div class="mx-auto w-full max-w-5xl space-y-4 px-4 py-5 sm:px-6 lg:py-8">
+<header class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card"><a href="{% url 'accounts:customer_panel' %}" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-borderSoft px-3 py-2 text-xs font-black text-loomera-textSecondary"><i class="fa-solid fa-arrow-right text-[10px]"></i>حساب من</a><p class="mt-4 text-xs font-black text-loomera-primary">پشتیبانی</p><h1 class="mt-1 text-2xl font-black">درخواست‌های من</h1><p class="mt-2 text-sm text-loomera-textMuted">وضعیت و پاسخ هر درخواست را از همین لیست پیگیری کن.</p></header>
+<nav class="flex rounded-[20px] border border-loomera-borderSoft bg-white p-1 shadow-lm-soft"><a href="{% url 'main:support_ticket_list' %}" class="flex-1 rounded-2xl bg-loomera-primary px-4 py-2.5 text-center text-xs font-black text-white">درخواست‌های من</a><a href="{% url 'main:contact' %}" class="flex-1 rounded-2xl px-4 py-2.5 text-center text-xs font-black text-loomera-textSecondary">درخواست جدید</a></nav>
+<section class="space-y-3">{% for ticket in tickets %}<a href="{% url 'main:support_ticket_detail' ticket.pk %}" class="block rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card transition hover:border-loomera-primary/30"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="text-xs font-black text-loomera-primary">درخواست #{{ ticket.id }}</p><h2 class="mt-1 truncate text-sm font-black">{{ ticket.subject|default:ticket.support_reason|default:ticket.get_issue_type_display }}</h2><p class="mt-2 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ ticket.description }}</p><p class="mt-2 text-[11px] text-loomera-textMuted">آخرین تغییر: {{ ticket.updated_at_label }}</p></div><span class="shrink-0 rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primary">{{ ticket.get_status_display }}</span></div></a>{% empty %}<div class="rounded-[28px] border border-dashed border-loomera-borderSoft bg-white p-9 text-center shadow-lm-soft"><i class="fa-regular fa-message text-2xl text-loomera-primary"></i><h2 class="mt-4 text-base font-black">درخواستی ثبت نشده</h2><p class="mt-2 text-sm text-loomera-textMuted">اگر مسئله‌ای داری یک درخواست جدید بساز.</p><a href="{% url 'main:contact' %}" class="mt-4 inline-flex rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white">درخواست جدید</a></div>{% endfor %}</section>
+</div></main>
 {% endblock %}

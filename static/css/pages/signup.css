@@ -1,0 +1,376 @@
+/* Loomera signup family — customer, specialist, and business manager.
+   Mirrors the full-viewport Login glass composition while preserving each flow's form contract. */
+
+body[data-page="auth"][data-auth-flow="customer-signup"],
+body[data-page="auth"][data-auth-flow="stylist-signup"],
+body[data-page="auth"][data-auth-flow="partner-signup"] {
+  width: 100%;
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--lm-bg);
+}
+
+body[data-page="auth"][data-auth-flow="customer-signup"] #main-content,
+body[data-page="auth"][data-auth-flow="stylist-signup"] #main-content,
+body[data-page="auth"][data-auth-flow="partner-signup"] #main-content,
+.lm-signup-main {
+  width: 100vw !important;
+  max-width: none !important;
+  min-height: 100dvh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.lm-signup-shell {
+  position: relative;
+  width: 100vw;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--lm-bg);
+  color: var(--lm-text-primary);
+}
+
+.lm-signup-background,
+.lm-signup-mobile-surface {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.lm-signup-background { display: none; }
+
+.lm-signup-background-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center;
+}
+
+.lm-signup-background-softener {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 53%;
+  background: linear-gradient(270deg, rgba(255,255,255,.05), rgba(255,255,255,.015) 62%, transparent 100%);
+}
+
+.lm-signup-mobile-surface {
+  background:
+    radial-gradient(circle at 82% 8%, rgba(115,92,190,.15), transparent 34%),
+    radial-gradient(circle at 12% 34%, rgba(167,200,161,.20), transparent 32%),
+    linear-gradient(180deg, #fcfbfe 0%, #f7f3fe 100%);
+}
+
+.lm-signup-frame {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.lm-signup-panel {
+  width: min(100%, 38rem);
+  margin-inline: auto;
+}
+
+.lm-signup-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: .75rem;
+}
+
+.lm-signup-brand-pill {
+  display: inline-flex;
+  min-height: 3.1rem;
+  align-items: center;
+  gap: .58rem;
+  padding: .55rem .95rem;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 999px;
+  background: rgba(255,255,255,.72);
+  color: var(--lm-primary);
+  font-size: .88rem;
+  font-weight: 900;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 14px 34px rgba(46,42,60,.09);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  backdrop-filter: blur(18px) saturate(120%);
+}
+
+.lm-signup-brand-logo {
+  width: 1.7rem;
+  height: 1.7rem;
+  flex: 0 0 1.7rem;
+  object-fit: contain;
+}
+
+.lm-signup-card {
+  width: 100%;
+  padding: 1.35rem;
+  border: 1px solid rgba(255,255,255,.68);
+  border-radius: 1.9rem;
+  background: linear-gradient(145deg, rgba(255,255,255,.64), rgba(255,255,255,.48));
+  box-shadow: 0 30px 84px rgba(46,42,60,.12), inset 0 1px 0 rgba(255,255,255,.74);
+  -webkit-backdrop-filter: blur(26px) saturate(118%);
+  backdrop-filter: blur(26px) saturate(118%);
+}
+
+.lm-signup-title {
+  margin: 0;
+  color: var(--lm-text-primary);
+  font-size: clamp(1.5rem, 3.6vw, 1.95rem);
+  font-weight: 900;
+  line-height: 1.4;
+  letter-spacing: -.012em;
+}
+
+.lm-signup-title-brand { color: var(--lm-success); }
+
+.lm-signup-subtitle {
+  margin: .35rem 0 0;
+  color: #514b63;
+  font-size: .79rem;
+  font-weight: 750;
+  line-height: 1.85;
+}
+
+.lm-signup-form {
+  display: grid;
+  gap: .72rem;
+  margin-top: .9rem;
+}
+
+.lm-signup-grid-2 {
+  display: grid;
+  gap: .68rem;
+  grid-template-columns: minmax(0,1fr);
+}
+
+.lm-signup-field { display: block; }
+
+.lm-signup-label {
+  display: block;
+  margin-bottom: .32rem;
+  color: #2f2a3c;
+  font-size: .77rem;
+  font-weight: 900;
+  line-height: 1.55;
+}
+
+.lm-signup-control,
+.lm-signup-input-solo {
+  min-height: 2.85rem;
+  border: 1px solid color-mix(in srgb, var(--lm-primary) 20%, var(--lm-border-soft));
+  border-radius: .92rem;
+  background: rgba(255,255,255,.76);
+  color: var(--lm-text-primary);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.78);
+  transition: border-color var(--lm-duration-fast) var(--lm-ease-standard), background-color var(--lm-duration-fast) var(--lm-ease-standard), box-shadow var(--lm-duration-fast) var(--lm-ease-standard);
+}
+
+.lm-signup-control {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.lm-signup-control:focus-within,
+.lm-signup-input-solo:focus {
+  border-color: var(--lm-primary);
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 0 0 4px rgba(115,92,190,.12);
+  outline: 0;
+}
+
+.lm-signup-input-solo {
+  display: block;
+  width: 100%;
+  padding: .64rem .82rem;
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 800;
+  outline: 0;
+}
+
+.lm-signup-input,
+.lm-signup-input-solo {
+  color: #302b3f;
+}
+
+.lm-signup-input {
+  min-width: 0;
+  flex: 1 1 auto;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: .64rem .22rem;
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.lm-signup-input::placeholder,
+.lm-signup-input-solo::placeholder {
+  color: #6e687e;
+  opacity: .84;
+  font-weight: 700;
+}
+
+.lm-signup-control-icon,
+.lm-signup-password-toggle {
+  display: flex;
+  width: 3rem;
+  min-width: 3rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.lm-signup-control-icon {
+  color: var(--lm-primary);
+  font-size: .88rem;
+}
+
+.lm-signup-password-toggle {
+  border: 0;
+  border-inline-end: 1px solid rgba(115,92,190,.08);
+  background: rgba(247,246,250,.52);
+  color: #615b72;
+  cursor: pointer;
+}
+
+.lm-signup-password-toggle:hover { color: var(--lm-primary); }
+
+.lm-signup-hint {
+  margin: .35rem 0 0;
+  color: #5f586f;
+  font-size: .68rem;
+  font-weight: 750;
+  line-height: 1.65;
+}
+
+.lm-signup-strength {
+  display: flex;
+  gap: .25rem;
+  margin-top: .38rem;
+}
+
+.lm-signup-strength > span {
+  height: .28rem;
+  flex: 1;
+  border-radius: 999px;
+}
+
+.lm-signup-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  padding: .62rem .72rem;
+  border: 1px solid rgba(115,92,190,.12);
+  border-radius: .92rem;
+  background: rgba(255,255,255,.58);
+  color: #514b63;
+  font-size: .68rem;
+  font-weight: 750;
+  line-height: 1.75;
+}
+
+.lm-signup-terms input {
+  width: .98rem;
+  height: .98rem;
+  flex: 0 0 .98rem;
+  margin-top: .15rem;
+  accent-color: var(--lm-primary);
+}
+
+.lm-signup-terms a,
+.lm-signup-footer a {
+  color: var(--lm-primary-active);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.lm-signup-submit {
+  display: inline-flex;
+  width: 100%;
+  min-height: 3.1rem;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  border: 1px solid var(--lm-primary);
+  border-radius: 999px;
+  background: var(--lm-primary);
+  color: #fff;
+  padding: .72rem 1.15rem;
+  font-family: inherit;
+  font-size: .88rem;
+  font-weight: 900;
+  line-height: 1.35;
+  box-shadow: 0 14px 30px rgba(115,92,190,.22);
+  cursor: pointer;
+}
+
+.lm-signup-submit:hover { background: var(--lm-primary-hover); border-color: var(--lm-primary-hover); }
+
+.lm-signup-footer {
+  margin-top: .85rem;
+  padding-top: .75rem;
+  border-top: 1px solid rgba(87,82,110,.17);
+  color: #5d566e;
+  text-align: center;
+  font-size: .76rem;
+  font-weight: 800;
+  line-height: 1.7;
+}
+
+.lm-signup-error {
+  margin-top: .35rem;
+  display: block;
+  color: #a73f51;
+  font-size: .68rem;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+@media (min-width: 640px) {
+  .lm-signup-grid-2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .lm-signup-card { padding: 1.55rem; }
+}
+
+@media (min-width: 1024px) {
+  .lm-signup-mobile-surface { display: none; }
+  .lm-signup-background { display: block; }
+  .lm-signup-frame {
+    justify-content: flex-end;
+    padding: 1rem clamp(1.8rem,3vw,3.4rem);
+  }
+  .lm-signup-panel {
+    width: clamp(31rem, 37vw, 38.5rem);
+    max-width: 38.5rem;
+    margin-left: auto;
+    margin-right: clamp(1.75rem,4.5vw,5rem);
+  }
+  .lm-signup-card { padding: 1.45rem 1.55rem; }
+}
+
+@media (min-width: 1440px) {
+  .lm-signup-panel { margin-right: clamp(3rem,6vw,6.5rem); }
+}
+
+@media (max-height: 780px) and (min-width: 1024px) {
+  .lm-signup-frame { align-items: flex-start; padding-block: .6rem; overflow-y: auto; }
+  .lm-signup-toolbar { margin-bottom: .55rem; }
+  .lm-signup-brand-pill { min-height: 2.7rem; padding-block: .5rem; }
+  .lm-signup-brand-logo { width: 1.7rem; height: 1.7rem; flex-basis: 1.7rem; }
+  .lm-signup-card { padding-block: 1.1rem; }
+  .lm-signup-form { gap: .62rem; margin-top: .75rem; }
+  .lm-signup-control, .lm-signup-input-solo { min-height: 2.7rem; }
+  .lm-signup-submit { min-height: 2.85rem; }
+}

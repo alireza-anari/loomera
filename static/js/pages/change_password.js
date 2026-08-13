@@ -8,28 +8,28 @@
  */
 
 export default function initChangePassword() {
-  const toggleButtons = document.querySelectorAll(".toggle-password");
-  const form = document.getElementById("changePasswordForm");
+  const toggleButtons = document.querySelectorAll('.toggle-password');
+  const form = document.getElementById('changePasswordForm');
 
   // ==========================================
   // Password Visibility Toggle
   // ==========================================
-  toggleButtons.forEach((button) => {
-    button.addEventListener("click", function (e) {
+  toggleButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
       e.preventDefault();
 
-      const targetId = this.getAttribute("data-target");
+      const targetId = this.getAttribute('data-target');
       const input = document.getElementById(targetId);
-      const icon = this.querySelector("i");
+      const icon = this.querySelector('i');
 
-      if (input.type === "password") {
-        input.type = "text";
-        icon.classList.remove("fa-eye");
-        icon.classList.add("fa-eye-slash");
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
       } else {
-        input.type = "password";
-        icon.classList.remove("fa-eye-slash");
-        icon.classList.add("fa-eye");
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
       }
     });
   });
@@ -38,38 +38,39 @@ export default function initChangePassword() {
   // Form Validation
   // ==========================================
   if (form) {
-    form.addEventListener("submit", function (e) {
-      const newPassword = document.getElementById("newPassword");
-      const confirmPassword = document.getElementById("confirmPassword");
-      const currentPassword = document.getElementById("currentPassword");
+    form.addEventListener('submit', function(e) {
+      const newPassword = document.getElementById('newPassword');
+      const confirmPassword = document.getElementById('confirmPassword');
+      const currentPassword = document.getElementById('currentPassword');
 
       // Check if passwords match
       if (newPassword.value !== confirmPassword.value) {
         e.preventDefault();
-        alert("رمز عبور و تکرار آن مطابقت ندارند");
+        alert('رمز عبور و تکرار آن مطابقت ندارند');
         return false;
       }
 
       // Check minimum length
       if (newPassword.value.length < 6) {
         e.preventDefault();
-        alert("رمز عبور باید حداقل ۶ کاراکتر باشد");
+        alert('رمز عبور باید حداقل ۶ کاراکتر باشد');
         return false;
       }
 
       // If current password field exists, check it's not empty
       if (currentPassword && !currentPassword.value) {
         e.preventDefault();
-        alert("لطفاً رمز عبور فعلی را وارد کنید");
+        alert('لطفاً رمز عبور فعلی را وارد کنید');
         return false;
       }
 
       // Check that new password is different from current
       if (currentPassword && newPassword.value === currentPassword.value) {
         e.preventDefault();
-        alert("رمز عبور جدید نباید برابر با رمز عبور فعلی باشد");
+        alert('رمز عبور جدید نباید برابر با رمز عبور فعلی باشد');
         return false;
       }
     });
   }
+
 }

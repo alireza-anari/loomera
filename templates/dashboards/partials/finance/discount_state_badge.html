@@ -1,0 +1,9 @@
+{% if not item.is_active %}
+  <span class="inline-flex rounded-full bg-loomera-bgSubtle px-2.5 py-1 text-[11px] font-black text-loomera-textMuted">غیرفعال</span>
+{% elif item.start_date and item.start_date > discount_now %}
+  <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-black text-amber-700">زمان‌بندی‌شده</span>
+{% elif item.end_date and item.end_date < discount_now %}
+  <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-black text-slate-600">پایان‌یافته</span>
+{% else %}
+  <span class="inline-flex rounded-full bg-loomera-successSoft px-2.5 py-1 text-[11px] font-black text-loomera-success">در حال اجرا</span>
+{% endif %}

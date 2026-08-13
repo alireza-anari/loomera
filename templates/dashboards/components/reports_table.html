@@ -2,7 +2,7 @@
   {% include "dashboards/components/section_header.html" with title=reports_dashboard.table.title subtitle=reports_dashboard.table.subtitle %}
 
   {% if reports_dashboard.table.is_empty %}
-    {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-chart-column" title="جدول این بخش خالی است" description="در بازه و فیلترهای فعال، داده‌ای برای این tab پیدا نشد." %}
+    {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-chart-column" title="جدول این بخش خالی است" description="در بازه و فیلترهای فعال، داده‌ای برای این بخش پیدا نشد." %}
   {% elif reports_dashboard.table.kind == 'sales' %}
     <div class="mt-5 overflow-hidden rounded-[28px] border border-slate-200">
       <div class="lm-table-responsive hidden overflow-x-auto lg:block">

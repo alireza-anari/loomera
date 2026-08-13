@@ -1,49 +1,29 @@
 {% extends "dashboard_template.html" %}
+{% load static %}
 {% load jalali_extras %}
 
 {% block title %}ثبت نوبت برای خودم{% endblock %}
 {% block body_attrs %}data-page="stylist-add-booking"{% endblock %}
+
+{% block head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/pages/stylist_workspace.css' %}">
+{% endblock %}
 
 {% block content %}
   {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
   {% url 'dashboards:stylist_schedule' as stylist_schedule_url %}
   {% url 'dashboards:stylist_quick_links' as stylist_quick_links_url %}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible" data-dashboard-workspace-root data-dashboard-page="stylist-add-booking">
+  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-add-booking">
     {% include "dashboards/components/page_hero.html" with eyebrow="رزرو شخصی" eyebrow_icon="fa-regular fa-calendar-plus" title="ثبت نوبت برای خودم" description="این فرم فقط برای ثبت رزروهای مربوط به خودت در مجموعه فعال فعلی است و از نظر مالی مثل رزرو دستی داخلی عمل می‌کند." action_label="نوبت‌های من" action_url=stylist_appointments_url badges=page_meta.badges %}
 
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش ثبت نوبت متخصص">
-        <div class="flex min-w-max gap-2">
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-add-booking-section-form" aria-selected="true" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5">
-            <i class="fa-regular fa-calendar-plus text-[10px]" aria-hidden="true"></i>
-            <span>ثبت نوبت</span>
-          </button>
 
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-add-booking-section-stats" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-chart-simple text-[10px]" aria-hidden="true"></i>
-            <span>خلاصه</span>
-          </button>
 
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-add-booking-section-rules" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-shield-halved text-[10px]" aria-hidden="true"></i>
-            <span>قواعد</span>
-          </button>
-
-          <button type="button" data-dashboard-workspace-tab data-target="#stylist-add-booking-section-actions" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
-            <span>مسیرها</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <details id="stylist-add-booking-section-form"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             data-dashboard-workspace-open-mobile="true"
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+    <section id="stylist-add-booking-section-form"
+             class="group scroll-mt-28 overflow-visible rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36 lm-stylist-form-shell"
+             data-dashboard-workspace-panel data-lm-direct-section>
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 rounded-t-[28px] border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">رزرو داخلی متخصص</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">اطلاعات نوبت</h2>
@@ -51,11 +31,7 @@
             مشتری، خدمت، تاریخ شمسی و ساعت ۲۴ ساعته را انتخاب کن.
           </p>
         </div>
-
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+</header>
 
       <div class="p-4 sm:p-5 lg:p-6">
         <form method="post" class="space-y-5">
@@ -69,11 +45,13 @@
             </div>
           {% endif %}
 
-          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+          <div data-lm-task-tabs-anchor="stylist-add-booking-form" data-lm-task-tabs-label="بخش‌های ثبت نوبت"></div>
+
+          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft" data-lm-task-panel="stylist-add-booking-form" data-lm-task-key="customer" data-lm-task-label="مشتری و خدمت" data-lm-task-default data-lm-task-order="1">
             <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">Customer & Service</p>
+                  <p class="text-[11px] font-black text-loomera-primaryText">مشتری و خدمت</p>
                   <h3 class="mt-1 text-base font-black text-loomera-textPrimary">مشتری و خدمت</h3>
                   <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
                     فقط مشتری‌های مجموعه فعال و خدمات فعال خودت نمایش داده می‌شوند.
@@ -135,11 +113,11 @@
             </div>
           </section>
 
-          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft" data-lm-task-panel="stylist-add-booking-form" data-lm-task-key="time" data-lm-task-label="زمان نوبت" data-lm-task-order="2">
             <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">Date & Time</p>
+                  <p class="text-[11px] font-black text-loomera-primaryText">تاریخ و ساعت</p>
                   <h3 class="mt-1 text-base font-black text-loomera-textPrimary">زمان نوبت</h3>
                   <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
                     تاریخ با تقویم شمسی و ساعت بدون AM/PM انتخاب می‌شود.
@@ -210,17 +188,13 @@
             </div>
           </section>
 
-          <div class="sticky bottom-4 z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
+          <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p class="text-xs leading-6 text-loomera-textMuted">
                 نوبت فقط برای خودت در مجموعه فعال فعلی ثبت می‌شود و پرداخت آن «در مجموعه» است.
               </p>
 
-              <div class="flex flex-col gap-2 sm:flex-row">
-                <a href="{{ stylist_appointments_url }}" class="inline-flex items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
-                  بازگشت
-                </a>
-
+              <div class="flex justify-end">
                 <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
                   <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
                   ثبت نوبت برای خودم
@@ -230,13 +204,12 @@
           </div>
         </form>
       </div>
-    </details>
+    </section>
 
-    <details id="stylist-add-booking-section-stats"
+    <section id="stylist-add-booking-section-stats"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             data-dashboard-workspace-panel data-lm-direct-section>
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">خلاصه ثبت نوبت</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت داده‌های قابل انتخاب</h2>
@@ -244,11 +217,7 @@
             این آمار فقط مربوط به مجموعه فعال فعلی است.
           </p>
         </div>
-
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+</header>
 
       <div class="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-4 sm:p-5 lg:p-6">
         <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
@@ -303,98 +272,10 @@
           <p class="mt-3 text-xs leading-6 text-loomera-textMuted">امکان ثبت برای سایر متخصص‌ها ندارد.</p>
         </article>
       </div>
-    </details>
+    </section>
 
-    <details id="stylist-add-booking-section-rules"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">قواعد عملیاتی</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">قانون ثبت نوبت توسط متخصص</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            این قوانین برای حفظ اسکوپ چندسالنی رعایت می‌شوند.
-          </p>
-        </div>
 
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
 
-      <div class="grid gap-4 p-4 sm:p-5 lg:grid-cols-2 lg:p-6">
-        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">محدودیت‌های چندسالنی</h3>
-          <ul class="mt-3 space-y-2 text-sm leading-7 text-loomera-textSecondary">
-            <li>• متخصص و مجموعه در این رزرو از قبل قفل شده‌اند.</li>
-            <li>• فقط مشتری‌های همان مجموعه در انتخاب‌گر دیده می‌شوند.</li>
-            <li>• فقط خدمات فعال همین متخصص در همین مجموعه انتخاب می‌شوند.</li>
-            <li>• ثبت نوبت روی سالن‌های دیگر متخصص اثری ندارد.</li>
-          </ul>
-        </article>
 
-        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-            <i class="fa-solid fa-wallet" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">قواعد مالی</h3>
-          <ul class="mt-3 space-y-2 text-sm leading-7 text-loomera-textSecondary">
-            <li>• این رزروها با روش «پرداخت در مجموعه» ثبت می‌شوند.</li>
-            <li>• در بتای اولیه، پرداخت آنلاین از این مسیر فعال نیست.</li>
-            <li>• بعد از ثبت، نوبت در لیست نوبت‌های خودت دیده می‌شود.</li>
-            <li>• محاسبات مالی نهایی بعد از پایان خدمت انجام می‌شود.</li>
-          </ul>
-        </article>
-      </div>
-    </details>
-
-    <details id="stylist-add-booking-section-actions"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای مرتبط</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">بعد از ثبت نوبت</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            مسیرهای پرتکرار بعد از ساخت رزرو داخلی.
-          </p>
-        </div>
-
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="grid gap-3 p-4 sm:grid-cols-3 sm:p-5 lg:p-6">
-        <a href="{{ stylist_appointments_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">نوبت‌های من</h3>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">بعد از ثبت، نوبت جدید را اینجا پیگیری کن.</p>
-        </a>
-
-        <a href="{{ stylist_schedule_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="fa-regular fa-clock" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">برنامه من</h3>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برنامه کاری و مرخصی‌های خودت را بررسی کن.</p>
-        </a>
-
-        <a href="{{ stylist_quick_links_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="fa-solid fa-link" aria-hidden="true"></i>
-          </span>
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">لینک رزرو من</h3>
-          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای رزروهای بعدی، لینک مستقیم بساز.</p>
-        </a>
-      </div>
-    </details>
   </section>
 {% endblock %}

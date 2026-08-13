@@ -24,7 +24,7 @@
     </div>
   </header>
 
-  <div class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 pt-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-6 lg:pt-8 xl:px-0">
+  <div class="mx-auto w-full max-w-3xl px-4 pt-5 lg:px-6 lg:pt-8 xl:px-0">
     <div class="min-w-0 space-y-5">
       <!-- Hero -->
       <section class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-card">
@@ -53,22 +53,7 @@
             </a>
           </div>
 
-          <div class="mt-5 grid gap-3 sm:grid-cols-3">
-            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
-              <p class="text-xs font-black text-loomera-textMuted">مرحله</p>
-              <strong class="mt-2 block text-sm font-black text-loomera-textPrimary">ثبت اطلاعات آدرس</strong>
-            </div>
-            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
-              <p class="text-xs font-black text-loomera-textMuted">کاربرد</p>
-              <strong class="mt-2 block text-sm font-black text-loomera-textPrimary">رزرو و هماهنگی سریع‌تر</strong>
-            </div>
-            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
-              <p class="text-xs font-black text-loomera-textMuted">وضعیت</p>
-              <strong class="mt-2 block text-sm font-black text-loomera-textPrimary">
-                {% if mode == 'edit' %}در حال ویرایش{% else %}آدرس جدید{% endif %}
-              </strong>
-            </div>
-          </div>
+
         </div>
       </section>
 
@@ -178,53 +163,11 @@
     </div>
 
     <!-- Desktop side card -->
-    <aside class="hidden lg:block">
-      <div class="sticky top-24 space-y-4">
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
-          <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-            <i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i>
-          </div>
-          <h2 class="mt-4 text-lg font-black text-loomera-textPrimary">راهنمای ثبت آدرس</h2>
-          <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-            عنوان کوتاه و نشانی کامل باعث می‌شود بعداً بین آدرس‌ها سریع‌تر انتخاب کنی.
-          </p>
 
-          <div class="mt-4 space-y-3 rounded-3xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-            <div class="flex gap-3">
-              <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-loomera-primary shadow-sm">۱</span>
-              <p class="text-xs font-bold leading-6 text-loomera-textMuted">عنوان آدرس مثل خانه یا محل کار را وارد کن.</p>
-            </div>
-            <div class="flex gap-3">
-              <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-loomera-primary shadow-sm">۲</span>
-              <p class="text-xs font-bold leading-6 text-loomera-textMuted">شماره تماس و آدرس کامل را دقیق بنویس.</p>
-            </div>
-            <div class="flex gap-3">
-              <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-loomera-primary shadow-sm">۳</span>
-              <p class="text-xs font-bold leading-6 text-loomera-textMuted">در صورت نیاز، آن را به‌عنوان آدرس پیش‌فرض تنظیم کن.</p>
-            </div>
-          </div>
-        </section>
-
-        <nav class="rounded-[2rem] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft" aria-label="لینک‌های حساب کاربری">
-          <a href="{% url 'accounts:customer_addresses' %}" class="flex items-center gap-3 rounded-2xl bg-loomera-primarySoft/60 px-3 py-3 text-sm font-black text-loomera-primary">
-            <i class="fa-solid fa-map-location-dot text-sm" aria-hidden="true"></i>
-            <span>آدرس‌های من</span>
-          </a>
-          <a href="{% url 'accounts:customerProfile' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/50 hover:text-loomera-primary">
-            <i class="fa-solid fa-user text-sm" aria-hidden="true"></i>
-            <span>پروفایل من</span>
-          </a>
-          <a href="{% url 'accounts:customer_panel' %}" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/50 hover:text-loomera-primary">
-            <i class="fa-solid fa-grid-2 text-sm" aria-hidden="true"></i>
-            <span>حساب من</span>
-          </a>
-        </nav>
-      </div>
-    </aside>
   </div>
 
   <!-- Mobile CTA -->
-  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.10)] backdrop-blur lg:hidden">
+  <div data-mobile-primary-action class="lm-shell-aware-mobile-action fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.10)] backdrop-blur lg:hidden">
     <div class="mx-auto flex w-full max-w-md gap-2">
       <button type="submit"
               form="customerAddressForm"

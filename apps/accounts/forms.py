@@ -532,7 +532,7 @@ class CustomerUpdateProfileForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ["name", "family", "email", "mobile_number"]
+        fields = ["name", "family", "email"]
         widgets = {
             "name": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "نام خود را بنویسید"}
@@ -545,13 +545,6 @@ class CustomerUpdateProfileForm(forms.ModelForm):
             ),
             "email": forms.EmailInput(
                 attrs={"class": "form-control", "placeholder": "ایمیل خود را وارد کنید"}
-            ),
-            "mobile_number": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "placeholder": "موبایل خود را وارد کنید",
-                    "readonly": "readonly",
-                }
             ),
         }
 
@@ -650,51 +643,27 @@ class CustomerUpdateProfileForm(forms.ModelForm):
 
 
 class SalonManagerUpdateProfileForm(forms.ModelForm):
+    """Edit only the manager account identity owned by this profile page.
+
+    Salon contact/location data belongs to the salon profile, while the mobile
+    number is the authentication identifier and must not be writable through a
+    cosmetic profile form.
+    """
+
     image = forms.ImageField(label="تصویر پروفایل", required=False)
-    address = forms.CharField(
-        label="آدرس",
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                "class": "form-control",
-                "rows": 3,
-                "placeholder": "آدرس مدیر یا آدرس تماس را وارد کنید",
-            }
-        ),
-    )
-    salon_number = forms.CharField(
-        label="شماره تماس مجموعه",
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "class": "form-control",
-                "placeholder": "مثلاً 021xxxxxxx",
-            }
-        ),
-    )
 
     class Meta:
         model = CustomUser
-        fields = ["name", "family", "email", "mobile_number"]
+        fields = ["name", "family", "email"]
         widgets = {
             "name": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "نام مدیر مجموعه"}
+                attrs={"class": "form-control", "placeholder": "نام"}
             ),
             "family": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "placeholder": "نام خانوادگی مدیر مجموعه",
-                }
+                attrs={"class": "form-control", "placeholder": "نام خانوادگی"}
             ),
             "email": forms.EmailInput(
-                attrs={"class": "form-control", "placeholder": "ایمیل"}
-            ),
-            "mobile_number": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "placeholder": "شماره موبایل",
-                    "readonly": "readonly",
-                }
+                attrs={"class": "form-control", "placeholder": "ایمیل (اختیاری)"}
             ),
         }
 
@@ -704,7 +673,6 @@ class SalonManagerUpdateProfileForm(forms.ModelForm):
         files = kwargs.get("files")
         if files is None and len(args) > 1:
             files = args[1]
-
         raw_image = files.get("image") if files else None
         self._raw_profile_image_content_type = (
             getattr(raw_image, "content_type", "") or ""
@@ -712,15 +680,12 @@ class SalonManagerUpdateProfileForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
         self.manager_instance = manager_instance
-
         self.fields["image"].widget.attrs.update(
             {"accept": "image/jpeg,image/png,image/webp"}
         )
 
         if manager_instance:
             self.fields["image"].initial = manager_instance.profile_image
-            self.fields["address"].initial = manager_instance.address
-            self.fields["salon_number"].initial = manager_instance.salon_number
 
     def clean_image(self):
         image = self.cleaned_data.get("image")
@@ -729,34 +694,20 @@ class SalonManagerUpdateProfileForm(forms.ModelForm):
             declared_content_type=self._raw_profile_image_content_type or None,
         )
 
-    def clean_salon_number(self):
-        value = (self.cleaned_data.get("salon_number") or "").strip()
-        if not value:
-            return ""
-        digits = "".join(ch for ch in value if ch.isdigit())
-        if not digits:
-            raise ValidationError("شماره تماس مجموعه معتبر نیست.")
-        return digits
-
     def save(self, commit=True):
         user_instance = super().save(commit=False)
         manager_instance = self.manager_instance or SalonManager.objects.get(
             user=user_instance
         )
 
-        if self.cleaned_data.get("image"):
-            manager_instance.profile_image = self.cleaned_data["image"]
-
-        manager_instance.address = (
-            self.cleaned_data.get("address") or ""
-        ).strip() or None
-
-        salon_number = self.cleaned_data.get("salon_number")
-        manager_instance.salon_number = int(salon_number) if salon_number else None
+        image = self.cleaned_data.get("image")
+        if image:
+            manager_instance.profile_image = image
 
         if commit:
             user_instance.save()
-            manager_instance.save()
+            if image:
+                manager_instance.save(update_fields=["profile_image"])
 
         return user_instance
 

@@ -3,9 +3,10 @@
 {% block title %}درخواست خدمت جدید{% endblock %}
 
 {% block content %}
-<section class="min-w-0 max-w-4xl space-y-5">
+<section class="min-w-0 max-w-4xl space-y-5" data-dashboard-page="request-service">
   <section class="overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6 lg:p-7">
-    <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+    <a href="{{ service_menu_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText"><i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i><span>بازگشت به خدمات</span></a>
+    <span class="mt-4 inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
       <i class="fa-solid fa-lightbulb text-[10px]"></i>
       پیشنهاد خدمت جدید
     </span>
@@ -24,7 +25,10 @@
     </div>
   {% endif %}
 
-  <section class="overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card">
+
+  <div data-lm-task-tabs-anchor="request-service" data-lm-task-tabs-label="بخش‌های درخواست خدمت"></div>
+
+  <section class="overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" data-lm-task-panel="request-service" data-lm-task-key="history" data-lm-task-label="درخواست‌های قبلی" {% if not errors %}data-lm-task-default{% endif %} data-lm-task-order="1">
     <div class="flex flex-col gap-3 border-b border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4 sm:flex-row sm:items-center sm:justify-between lg:p-5">
       <div>
         <p class="text-[11px] font-black text-loomera-primaryText">پیگیری درخواست‌ها</p>
@@ -82,7 +86,7 @@
     </div>
   </section>
 
-  <form method="post" class="overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" novalidate>
+  <form method="post" class="overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" novalidate data-lm-task-panel="request-service" data-lm-task-key="new" data-lm-task-label="درخواست جدید" {% if errors %}data-lm-task-default{% endif %} data-lm-task-order="2">
     {% csrf_token %}
     <div class="grid gap-4 p-4 md:grid-cols-2 lg:p-6">
       <label class="block">
@@ -103,9 +107,11 @@
         <textarea name="description" rows="6" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm leading-7 text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="این خدمت برای چه کاری است و معمولاً چه چیزهایی شامل آن می‌شود؟">{{ form_data.description|default:'' }}</textarea>
       </label>
     </div>
-    <div class="flex flex-col-reverse gap-3 border-t border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4 sm:flex-row sm:justify-end lg:p-6">
-      <a href="{{ service_menu_url }}" class="inline-flex min-h-12 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-bold text-loomera-textSecondary">بازگشت</a>
-      <button type="submit" class="inline-flex min-h-12 items-center justify-center rounded-2xl bg-loomera-primary px-6 py-3 text-sm font-black text-white shadow-lm-soft">ثبت درخواست</button>
+    <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-30 border-t border-loomera-borderSoft bg-white/95 p-4 backdrop-blur lg:p-5">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-xs leading-6 text-loomera-textMuted">بعد از ثبت، وضعیت بررسی در تب «درخواست‌های قبلی» نمایش داده می‌شود.</p>
+        <button type="submit" class="inline-flex min-h-12 items-center justify-center rounded-full bg-loomera-primary px-6 py-3 text-sm font-black text-white shadow-lm-soft">ثبت درخواست</button>
+      </div>
     </div>
   </form>
 </section>

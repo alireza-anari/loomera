@@ -71,20 +71,22 @@
       </a>
     {% endif %}
 
-    {% if quick_link_workspace %}
-      <a
-        href="{% url 'dashboards:stylist_quick_link_print_templates' link.id %}"
-        class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText"
-      >
-        قالب‌های چاپی
-      </a>
-    {% else %}
-      <a
-        href="{% url 'dashboards:quick_link_print_templates' link.id %}"
-        class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText"
-      >
-        قالب‌های چاپی
-      </a>
+    {% if not hide_print_action %}
+      {% if quick_link_workspace %}
+        <a
+          href="{% url 'dashboards:stylist_quick_link_print_templates' link.id %}"
+          class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText"
+        >
+          قالب‌های چاپی
+        </a>
+      {% else %}
+        <a
+          href="{% url 'dashboards:quick_link_print_templates' link.id %}"
+          class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText"
+        >
+          قالب‌های چاپی
+        </a>
+      {% endif %}
     {% endif %}
 
     <form method="post">

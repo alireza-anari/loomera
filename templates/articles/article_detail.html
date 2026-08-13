@@ -201,7 +201,7 @@
             <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
               این مقاله توسط مجموعه {{ article.author_salon.salon_name }} منتشر شده است.
             </p>
-            <a href="{% url 'salons:detail_salon' article.author_salon.id %}" class="mt-4 inline-flex w-full items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft">
+            <a href="{{ article.author_salon.get_absolute_url }}" class="mt-4 inline-flex w-full items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft">
               مشاهده مجموعه
             </a>
           {% else %}

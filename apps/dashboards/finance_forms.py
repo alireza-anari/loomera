@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from apps.dashboards.jalali_utils import format_jalali_numeric, parse_jalali_input
 
@@ -61,6 +62,13 @@ class MaterialItemForm(forms.ModelForm):
     def __init__(self, *args, salon=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.salon = salon
+        self.fields["name"].label = "نام ماده"
+        self.fields["unit"].label = "واحد مصرف"
+        self.fields["default_unit_cost"].label = "هزینه هر واحد"
+        self.fields["default_unit_cost"].help_text = "مبلغ معمول خرید یا مصرف هر واحد به تومان."
+        self.fields["sku"].label = "کد داخلی (اختیاری)"
+        self.fields["description"].label = "یادداشت (اختیاری)"
+        self.fields["is_active"].label = "فعال باشد"
 
     def clean_name(self):
         name = (self.cleaned_data.get("name") or "").strip()
@@ -118,15 +126,37 @@ class ServiceMaterialTemplateForm(forms.ModelForm):
     def __init__(self, *args, salon=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.salon = salon
+        self.fields["service"].label = "خدمت"
+        self.fields["material"].label = "ماده مصرفی"
+        self.fields["default_quantity"].label = "مقدار مصرف معمول"
+        self.fields["default_quantity"].help_text = "مقداری که معمولاً برای یک نوبت از این خدمت مصرف می‌شود."
+        self.fields["unit_cost"].label = "هزینه هر واحد در این خدمت"
+        self.fields["unit_cost"].help_text = "اگر خالی یا صفر باشد، هزینه پیش‌فرض همان ماده استفاده می‌شود."
+        self.fields["paid_by"].label = "اگر قانون سهمی نباشد، هزینه مواد با چه کسی است؟"
+        self.fields["paid_by"].choices = [
+            ("salon", "مجموعه می‌پردازد"),
+            ("stylist", "متخصص می‌پردازد"),
+            ("shared", "بین مجموعه و متخصص نصف می‌شود"),
+        ]
+        self.fields["is_active"].label = "فعال باشد"
 
         if salon:
+            service_filter = Q(is_active=True)
+            material_filter = Q(is_active=True)
+            if self.instance and self.instance.pk:
+                if self.instance.service_id:
+                    service_filter |= Q(pk=self.instance.service_id)
+                if self.instance.material_id:
+                    material_filter |= Q(pk=self.instance.material_id)
+
             self.fields["service"].queryset = (
-                Services.objects.filter(services_of_salon=salon, is_active=True)
+                Services.objects.filter(services_of_salon=salon)
+                .filter(service_filter)
                 .distinct()
                 .order_by("service_name")
             )
             self.fields["material"].queryset = MaterialItem.objects.filter(
-                salon=salon, is_active=True
+                Q(salon=salon) & material_filter
             ).order_by("name")
         else:
             self.fields["service"].queryset = Services.objects.none()
@@ -222,6 +252,33 @@ class StylistCommissionRuleForm(forms.ModelForm):
     def __init__(self, *args, salon=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.salon = salon
+        self.fields["stylist"].label = "متخصص"
+        self.fields["service"].label = "خدمت"
+        self.fields["commission_type"].label = "روش محاسبه سهم"
+        self.fields["commission_type"].choices = [
+            ("percent", "درصد از مبلغ"),
+            ("fixed", "مبلغ ثابت"),
+        ]
+        self.fields["percent"].label = "درصد سهم متخصص"
+        self.fields["fixed_amount"].label = "مبلغ ثابت سهم متخصص"
+        self.fields["share_base"].label = "سهم از چه مبلغی محاسبه شود؟"
+        self.fields["share_base"].choices = [
+            ("gross_after_discount", "مبلغ خدمت بعد از تخفیف"),
+            ("after_platform_commission", "بعد از کسر کارمزد لومرا"),
+            ("net_after_materials", "بعد از کسر هزینه مواد"),
+        ]
+        self.fields["material_cost_policy"].label = "هزینه مواد این متخصص چگونه تقسیم شود؟"
+        self.fields["material_cost_policy"].choices = [
+            ("salon_pays", "تمام هزینه مواد با مجموعه"),
+            ("stylist_pays", "تمام هزینه مواد با متخصص"),
+            ("split", "هزینه مواد بین مجموعه و متخصص تقسیم شود"),
+        ]
+        self.fields["stylist_material_cost_percent"].label = "درصد هزینه مواد با متخصص"
+        self.fields["stylist_material_cost_percent"].help_text = "فقط وقتی هزینه مواد مشترک است استفاده می‌شود."
+        self.fields["effective_from"].label = "شروع اعتبار (اختیاری)"
+        self.fields["effective_to"].label = "پایان اعتبار (اختیاری)"
+        self.fields["note"].label = "یادداشت (اختیاری)"
+        self.fields["is_active"].label = "فعال باشد"
 
         for field_name in ("effective_from", "effective_to"):
             current_value = getattr(self.instance, field_name, None)
@@ -229,13 +286,22 @@ class StylistCommissionRuleForm(forms.ModelForm):
                 self.initial[field_name] = format_jalali_numeric(current_value)
 
         if salon:
+            stylist_filter = Q(is_active=True)
+            service_filter = Q(is_active=True)
+            if self.instance and self.instance.pk:
+                if self.instance.stylist_id:
+                    stylist_filter |= Q(pk=self.instance.stylist_id)
+                if self.instance.service_id:
+                    service_filter |= Q(pk=self.instance.service_id)
+
             self.fields["stylist"].queryset = (
-                salon.stylists.filter(is_active=True)
+                salon.stylists.filter(stylist_filter)
                 .select_related("user")
                 .order_by("user__name", "user__family")
             )
             self.fields["service"].queryset = (
-                Services.objects.filter(services_of_salon=salon, is_active=True)
+                Services.objects.filter(services_of_salon=salon)
+                .filter(service_filter)
                 .distinct()
                 .order_by("service_name")
             )
@@ -275,7 +341,7 @@ class StylistCommissionRuleForm(forms.ModelForm):
             and percent <= 0
         ):
             raise ValidationError(
-                "برای سهم درصدی، درصد سهم آرایشگر باید بیشتر از صفر باشد."
+                "برای سهم درصدی، درصد سهم متخصص باید بیشتر از صفر باشد."
             )
 
         if (
@@ -283,11 +349,11 @@ class StylistCommissionRuleForm(forms.ModelForm):
             and fixed_amount <= 0
         ):
             raise ValidationError(
-                "برای سهم ثابت، مبلغ سهم آرایشگر باید بیشتر از صفر باشد."
+                "برای سهم ثابت، مبلغ سهم متخصص باید بیشتر از صفر باشد."
             )
 
         if stylist and service and not service.stylists.filter(pk=stylist.pk).exists():
-            raise ValidationError("این آرایشگر ارائه‌دهنده این خدمت نیست.")
+            raise ValidationError("این متخصص ارائه‌دهنده این خدمت نیست.")
 
         return cleaned_data
 

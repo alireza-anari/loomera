@@ -1,0 +1,15 @@
+{% if form.errors %}
+  <div class="lm-form-error" role="alert" data-form-error>
+    <p class="text-sm font-black">لطفاً موارد زیر را بررسی و اصلاح کنید:</p>
+    <ul class="mt-2 space-y-1 text-xs font-bold leading-6">
+      {% for field in form.visible_fields %}
+        {% for error in field.errors %}
+          <li><span class="font-black">{{ field.label }}:</span> {{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}

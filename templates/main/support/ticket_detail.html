@@ -3,11 +3,12 @@
 {% block title %}درخواست پشتیبانی #{{ ticket.id }} | Loomera{% endblock %}
 {% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
 {% block content %}
-<main class="min-h-screen bg-loomera-bg pb-24">
+<main class="min-h-dvh bg-loomera-bg pb-28">
   <section class="mx-auto grid w-full max-w-6xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:py-10">
+    <div class="lg:col-span-2"><a href="{% url 'main:support_ticket_list' %}" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary shadow-lm-soft"><i class="fa-solid fa-arrow-right text-[10px]"></i>درخواست‌های من</a></div>
     <div class="space-y-5">
       <div class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
-        <p class="text-xs font-black uppercase tracking-[.24em] text-loomera-primary">Ticket #{{ ticket.id }}</p>
+        <p class="text-xs font-black uppercase tracking-[.24em] text-loomera-primary">درخواست #{{ ticket.id }}</p>
         <h1 class="mt-2 text-2xl font-black text-loomera-textPrimary">{{ ticket.subject|default:ticket.support_reason|default:ticket.get_issue_type_display }}</h1>
         <p class="mt-2 text-sm font-bold text-loomera-textMuted">{{ ticket.get_status_display }} • {{ ticket.get_priority_display }}</p>
       </div>
