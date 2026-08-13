@@ -300,7 +300,6 @@ def build_salon_stylist_profile_context(
         "completed_in_salon": completed_in_salon,
         "completed_overall": completed_overall,
         "resume_snapshot": build_resume_snapshot(stylist, salon=salon),
-        "book_with_stylist_url": reverse("salons:detail_salon", args=[salon.id])
-        + "#services",
+        "book_with_stylist_url": salon.get_absolute_url() + "#services",
         "hide_navbar": True,
     }

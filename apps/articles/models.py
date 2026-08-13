@@ -638,10 +638,10 @@ class SalonStory(models.Model):
         if self.cta_type == self.CTAType.ARTICLE and self.related_article_id:
             return self.related_article.get_absolute_url()
         if self.cta_type == self.CTAType.SALON and self.salon_id:
-            return reverse("salons:detail_salon", kwargs={"salon_id": self.salon_id})
+            return self.salon.get_absolute_url()
         if self.cta_type == self.CTAType.BOOKING and self.salon_id:
             return (
-                reverse("salons:detail_salon", kwargs={"salon_id": self.salon_id})
+                self.salon.get_absolute_url()
                 + "#services"
             )
         if self.cta_type == self.CTAType.SERVICE and self.related_service_id:

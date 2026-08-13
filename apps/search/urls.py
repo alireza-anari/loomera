@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from .views import (
     salon_search,
     SearchPageView,
@@ -22,7 +23,15 @@ app_name = "search"
 urlpatterns = [
     path("salon_search/", salon_search, name="salon_search"),
     path("", SearchPageView.as_view(), name="search_page"),
-    path("search/", SearchPageView.as_view(), name="search_page_legacy"),
+    path(
+        "search/",
+        RedirectView.as_view(
+            pattern_name="search:search_page",
+            permanent=False,
+            query_string=True,
+        ),
+        name="search_page_legacy",
+    ),
     path("results/", search_results_api, name="search_results_api"),
     path("salon_list", salon_list, name="salon_list"),
     path("filter_salon/", FilterSalonView.as_view(), name="filter_salon"),

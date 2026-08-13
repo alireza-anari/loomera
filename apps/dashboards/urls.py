@@ -95,6 +95,7 @@ from .views import (
     ManagerProfileView,
     ManagerNotificationCenterView,
     StylistSettingsHubView,
+    StylistNotificationCenterView,
     WorkspaceSettingsHubView,
     toggle_service_status,
     toggle_stylist_status,
@@ -138,6 +139,8 @@ from .quick_link_print_views import (
 )
 
 # ----------------------------------------------------------------
+from .manager_settings_views import ManagerCommunicationSettingsView, StylistCommunicationSettingsView
+
 app_name = "dashboards"
 urlpatterns = [
     path(
@@ -152,7 +155,13 @@ urlpatterns = [
     ),
     path("content/", ManagerContentHubView.as_view(), name="content_hub"),
     path("stylist/content/", StylistContentHubView.as_view(), name="stylist_content"),
+    path("stylist/notifications/", StylistNotificationCenterView.as_view(), name="stylist_notifications"),
     path("stylist/settings/", StylistSettingsHubView.as_view(), name="stylist_settings"),
+    path(
+        "stylist/settings/communications/",
+        StylistCommunicationSettingsView.as_view(),
+        name="stylist_communication_settings",
+    ),
     path("stylist/", StylistDashboardView.as_view(), name="stylist_dashboard"),
     path(
         "stylist/set-active-salon/",
@@ -498,6 +507,11 @@ urlpatterns = [
     ),
     path("manager_profile/", ManagerProfileView.as_view(), name="manager_profile"),
     path("settings/", WorkspaceSettingsHubView.as_view(), name="workspace_settings"),
+    path(
+        "settings/communications/",
+        ManagerCommunicationSettingsView.as_view(),
+        name="manager_communication_settings",
+    ),
     path("settings/finance/", SalonFinanceHubView.as_view(), name="finance_hub"),
     path("settings/payout/", SalonPayoutSettingsView.as_view(), name="payout_settings"),
     path(

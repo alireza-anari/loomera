@@ -15076,6 +15076,40 @@ class ManagerProfileView(LoginRequiredMixin, View):
 
 
 # -------------------------------------------------------------------------------
+class StylistNotificationCenterView(StylistDashboardGuardMixin, View):
+    template_name = "dashboards/notifications_center.html"
+
+    def get(self, request, *args, **kwargs):
+        ctx = _get_stylist_dashboard_context(request)
+        stylist, salon = ctx.stylist, ctx.salon
+        context = build_dashboard_context(
+            request.user,
+            sidebar_active="overview",
+            page_title="اعلان‌های من",
+            request_path=request.path,
+            role="stylist",
+            salon_override=salon,
+            stylist_override=stylist,
+        )
+        notifications = context.get("dashboard_notifications", {})
+        context.update(
+            {
+                "salon": salon,
+                "notification_center_title": "مرکز اعلان‌های من",
+                "notification_center_description": "نوبت‌ها، مالی و تغییرات کاری مرتبط با خودت را یک‌جا ببین و از همان اعلان وارد صفحه مرتبط شو.",
+                "notification_center_empty_label": "هنوز اعلان کاری برای شما ثبت نشده است.",
+                "notification_center": {
+                    "tabs": notifications.get("tabs", []),
+                    "items": notifications.get("items", []),
+                    "active_category": "all",
+                    "is_empty": not notifications.get("items"),
+                },
+            }
+        )
+        context.update(_stylist_context_payload(ctx))
+        return render(request, self.template_name, context)
+
+
 class StylistSettingsHubView(StylistDashboardGuardMixin, View):
     template_name = "dashboards/stylist_settings.html"
 
@@ -15150,182 +15184,62 @@ class WorkspaceSettingsHubView(LoginRequiredMixin, View):
             return redirect("dashboards:salon_manager_dashboard")
         return super().dispatch(request, *args, **kwargs)
 
-    def _safe_reverse(self, name, kwargs=None):
-        try:
-            if kwargs:
-                return reverse(name, kwargs=kwargs)
-            return reverse(name)
-        except Exception:
-            return "#"
-
-    def _build_sections(self, request, salon):
-        salon_id_kwargs = {"salon_id": salon.id} if salon else None
-
+    def _settings_groups(self):
         return [
             {
-                "title": "راه‌اندازی کسب‌وکار",
-                "description": "اطلاعات اصلی مجموعه، هویت برند، وضعیت انتشار و جزئیات عمومی کسب‌وکار را از اینجا مدیریت کن.",
-                "icon": "fa-solid fa-store",
-                "badge": "راه‌اندازی کسب‌وکار",
-                "primary_label": "ویرایش پروفایل مجموعه",
-                "primary_url": self._safe_reverse("dashboards:salon_profile"),
-                "links": [
+                "key": "business",
+                "eyebrow": "مجموعه و رزرو",
+                "title": "چیزی که مشتری می‌بیند",
+                "description": "اطلاعات عمومی مجموعه و مسیر رزرو آنلاین را از همین دو بخش تنظیم کن.",
+                "icon": "fa-solid fa-shop",
+                "items": [
                     {
-                        "label": "پروفایل مجموعه",
-                        "meta": "نام مجموعه، توضیحات، اطلاعات تماس و انتشار",
-                        "url": self._safe_reverse("dashboards:salon_profile"),
+                        "title": "پروفایل مجموعه",
+                        "description": "نام و تماس، موقعیت، ساعات کاری، تصاویر، امکانات و معرفی مجموعه",
+                        "url": reverse("dashboards:salon_profile"),
+                        "icon": "fa-solid fa-store",
                     },
                     {
-                        "label": "رزرو آنلاین",
-                        "meta": "تنظیمات نمایش عمومی و تجربه رزرو",
-                        "url": self._safe_reverse("dashboards:online_booking"),
-                    },
-                    {
-                        "label": "کاتالوگ",
-                        "meta": "ساختار ارائه خدمات و معرفی بهتر مجموعه",
-                        "url": self._safe_reverse("dashboards:catalog"),
+                        "title": "رزرو آنلاین و لینک‌ها",
+                        "description": "صفحه رزرو، Quick Linkها، QR و قالب‌های چاپی",
+                        "url": reverse("dashboards:online_booking"),
+                        "icon": "fa-solid fa-link",
                     },
                 ],
             },
             {
-                "title": "زمان‌بندی و تقویم",
-                "description": "مدیریت تقویم، نوبت‌ها، برنامه کاری تیم و عملیات روزانه مجموعه در این بخش قرار می‌گیرد.",
-                "icon": "fa-regular fa-calendar-days",
-                "badge": "زمان‌بندی",
-                "primary_label": "باز کردن تقویم مجموعه",
-                "primary_url": self._safe_reverse(
-                    "dashboards:appointment_calendar",
-                    kwargs=salon_id_kwargs,
-                ),
-                "links": [
+                "key": "account",
+                "eyebrow": "حساب و امنیت",
+                "title": "حساب مدیر مجموعه",
+                "description": "اطلاعات شخصی مدیر و امنیت ورود را مستقل از اطلاعات عمومی مجموعه مدیریت کن.",
+                "icon": "fa-solid fa-shield-halved",
+                "items": [
                     {
-                        "label": "تقویم و نوبت‌ها",
-                        "meta": "بررسی رزروها، وضعیت‌ها و جابه‌جایی زمان",
-                        "url": self._safe_reverse(
-                            "dashboards:appointment_calendar",
-                            kwargs=salon_id_kwargs,
-                        ),
+                        "title": "پروفایل مدیر",
+                        "description": "نام، تصویر، ایمیل و اطلاعات تماس حساب مدیر",
+                        "url": reverse("dashboards:manager_profile"),
+                        "icon": "fa-regular fa-user",
                     },
                     {
-                        "label": "تیم و شیفت‌ها",
-                        "meta": "برنامه کاری اعضای تیم و ظرفیت روزانه",
-                        "url": self._safe_reverse("dashboards:team_managment"),
-                    },
-                    {
-                        "label": "گزارش‌های عملیاتی",
-                        "meta": "مرور سریع وضعیت نوبت‌ها و بهره‌وری",
-                        "url": self._safe_reverse(
-                            "dashboards:reports_dashboard",
-                            kwargs=salon_id_kwargs,
-                        ),
+                        "title": "تغییر رمز عبور",
+                        "description": "رمز ورود حساب را تغییر بده و امنیت ورود را حفظ کن",
+                        "url": reverse("accounts:change_password"),
+                        "icon": "fa-solid fa-key",
                     },
                 ],
             },
             {
-                "title": "خدمات و تجربه رزرو",
-                "description": "منوی خدمات، قیمت‌گذاری، ساختار ارائه و مسیر قابل رزرو برای مشتری را از اینجا کنترل کن.",
-                "icon": "fa-solid fa-scissors",
-                "badge": "Services",
-                "primary_label": "مدیریت منوی خدمات",
-                "primary_url": self._safe_reverse("dashboards:service_menu"),
-                "links": [
+                "key": "notifications",
+                "eyebrow": "اعلان‌ها و ارتباطات",
+                "title": "پیام‌هایی که دریافت می‌کنی",
+                "description": "اعلان‌های عملیاتی و تبلیغاتی مدیر را جدا کنترل کن و اتصال پیام‌رسان را ببین.",
+                "icon": "fa-regular fa-bell",
+                "items": [
                     {
-                        "label": "منوی خدمات",
-                        "meta": "ساختار خدمات، قیمت و مدت‌زمان",
-                        "url": self._safe_reverse("dashboards:service_menu"),
-                    },
-                    {
-                        "label": "رزرو آنلاین",
-                        "meta": "تنظیمات قابل مشاهده برای مشتری",
-                        "url": self._safe_reverse("dashboards:online_booking"),
-                    },
-                    {
-                        "label": "عضویت و پلن‌ها",
-                        "meta": "امکانات محصول و توسعه آتی",
-                        "url": self._safe_reverse("dashboards:membership"),
-                    },
-                ],
-            },
-            {
-                "title": "فروش، پرداخت و انبار",
-                "description": "محصولات، موجودی، زیرساخت فروش و مسیرهای مالی کسب‌وکار را در یک فضای متمرکز ببین.",
-                "icon": "fa-solid fa-wallet",
-                "badge": "Sales",
-                "primary_label": "مدیریت محصولات",
-                "primary_url": self._safe_reverse("dashboards:products"),
-                "links": [
-                    {
-                        "label": "محصولات",
-                        "meta": "فهرست کالاها و اقلام قابل فروش",
-                        "url": self._safe_reverse("dashboards:products"),
-                    },
-                    {
-                        "label": "موجودی‌گیری",
-                        "meta": "شمارش موجودی و اختلاف انبار",
-                        "url": self._safe_reverse("dashboards:stocktakes"),
-                    },
-                    {
-                        "label": "گزارش‌ها",
-                        "meta": "مرور خلاصه فروش و عملکرد",
-                        "url": self._safe_reverse(
-                            "dashboards:reports_dashboard",
-                            kwargs=salon_id_kwargs,
-                        ),
-                    },
-                    {
-                        "label": "امور مالی",
-                        "meta": "کیف پول مجموعه، شبا، برداشت و سیاست لغو",
-                        "url": self._safe_reverse("dashboards:payout_settings"),
-                    },
-                ],
-            },
-            {
-                "title": "تیم و دسترسی‌ها",
-                "description": "اعضای تیم، نقش‌ها، آمادگی رزرو و تنظیمات مربوط به اجرای خدمات را از اینجا مدیریت کن.",
-                "icon": "fa-solid fa-user-group",
-                "badge": "Team",
-                "primary_label": "مدیریت تیم",
-                "primary_url": self._safe_reverse("dashboards:team_managment"),
-                "links": [
-                    {
-                        "label": "اعضای تیم",
-                        "meta": "لیست اعضا، وضعیت فعالیت و ویرایش",
-                        "url": self._safe_reverse("dashboards:team_managment"),
-                    },
-                    {
-                        "label": "نمونه‌کار و پروفایل حرفه‌ای",
-                        "meta": "نمایش بهتر اعضای تیم در رزرو آنلاین",
-                        "url": self._safe_reverse("dashboards:team_managment"),
-                    },
-                    {
-                        "label": "شیفت و ظرفیت",
-                        "meta": "هماهنگی دسترسی تیم با تقویم",
-                        "url": self._safe_reverse("dashboards:team_managment"),
-                    },
-                ],
-            },
-            {
-                "title": "حساب مدیر و حقوقی",
-                "description": "اطلاعات مدیر، تغییرات حساب، حریم خصوصی و شرایط استفاده را از اینجا دنبال کن.",
-                "icon": "fa-regular fa-user",
-                "badge": "Account",
-                "primary_label": "پروفایل مدیر مجموعه",
-                "primary_url": self._safe_reverse("dashboards:manager_profile"),
-                "links": [
-                    {
-                        "label": "پروفایل مدیر",
-                        "meta": "نام، تصویر، ایمیل و اطلاعات تماس",
-                        "url": self._safe_reverse("dashboards:manager_profile"),
-                    },
-                    {
-                        "label": "حریم خصوصی",
-                        "meta": "متن سیاست حفظ اطلاعات کاربر",
-                        "url": self._safe_reverse("accounts:privacy_policy"),
-                    },
-                    {
-                        "label": "شرایط استفاده",
-                        "meta": "قواعد استفاده از پلتفرم",
-                        "url": self._safe_reverse("accounts:terms_of_use"),
+                        "title": "اعلان‌ها و ارتباطات",
+                        "description": "اعلان‌های مدیر و اتصال بله را از یک صفحه مدیریت کن",
+                        "url": reverse("dashboards:manager_communication_settings"),
+                        "icon": "fa-regular fa-bell",
                     },
                 ],
             },
@@ -15336,20 +15250,17 @@ class WorkspaceSettingsHubView(LoginRequiredMixin, View):
             request.user,
             nav_active="home",
             sidebar_active="settings",
-            page_title="تنظیمات محیط کاری",
+            page_title="تنظیمات",
             request_path=request.path,
         )
-
-        salon = context.get("salon")
-        sections = self._build_sections(request, salon)
 
         context.update(
             {
                 "hide_dashboard_header": True,
                 "hide_dashboard_top_nav": True,
                 "page_meta": {
-                    "title": "تنظیمات محیط کاری",
-                    "description": "ساختار تنظیمات مجموعه با الگویی شبیه به محیط کاری تنظیمات طراحی شده است؛ دسته‌بندی‌شده، آرام و متمرکز برای مدیریت بهتر کسب‌وکار.",
+                    "title": "تنظیمات",
+                    "description": "پروفایل و رزرو آنلاین مجموعه، حساب مدیر، امنیت و اعلان‌ها را از یک مسیر ساده مدیریت کن.",
                     "icon": "fa-solid fa-gear",
                     "badges": [],
                     "primary_action": {
@@ -15357,23 +15268,19 @@ class WorkspaceSettingsHubView(LoginRequiredMixin, View):
                         "url": reverse("dashboards:home"),
                     },
                 },
-                "workspace_settings_sections": sections,
-                "workspace_settings_summary": [
+                "workspace_settings_groups": self._settings_groups(),
+                "workspace_settings_legal_links": [
                     {
-                        "label": "نام مجموعه",
-                        "value": context["dashboard_header"]["salon_name"],
+                        "label": "حریم خصوصی",
+                        "url": reverse("accounts:privacy_policy"),
                     },
                     {
-                        "label": "تعداد دسته‌ها",
-                        "value": to_persian_digits(len(sections)),
+                        "label": "شرایط استفاده",
+                        "url": reverse("accounts:terms_of_use"),
                     },
                     {
-                        "label": "وضعیت مجموعه",
-                        "value": (
-                            "فعال"
-                            if context["dashboard_header"]["is_active"]
-                            else "غیرفعال"
-                        ),
+                        "label": "حریم خصوصی پیام‌رسان‌ها",
+                        "url": reverse("messaging:privacy"),
                     },
                 ],
             }

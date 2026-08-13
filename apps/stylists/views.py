@@ -106,7 +106,7 @@ class SubmitProfessionalResumeView(LoginRequiredMixin, View):
         if membership and membership.status == SalonMembershipStatus.ACTIVE:
             messages.info(request, "شما هم‌اکنون عضو فعال این مجموعه هستید.")
             return redirect(
-                request.POST.get("next") or reverse("salons:detail_salon", args=[salon.id])
+                request.POST.get("next") or salon.get_absolute_url()
             )
 
         membership_metadata = {
@@ -187,7 +187,7 @@ class SubmitProfessionalResumeView(LoginRequiredMixin, View):
 
         messages.success(request, "درخواست همکاری شما برای مدیر مجموعه ارسال شد.")
         return redirect(
-            request.POST.get("next") or reverse("salons:detail_salon", args=[salon.id])
+            request.POST.get("next") or salon.get_absolute_url()
         )
 
 

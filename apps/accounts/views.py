@@ -1189,6 +1189,15 @@ def _get_valid_password_reset_session(request):
 
 
 class ChangePasswordView(View):
+    def _return_url(self, request):
+        if request.user.is_authenticated and hasattr(request.user, "salon_manager_profile"):
+            return reverse("dashboards:workspace_settings")
+        if request.user.is_authenticated and hasattr(request.user, "stylist"):
+            return reverse("dashboards:stylist_settings")
+        if request.user.is_authenticated:
+            return reverse("accounts:customer_settings")
+        return reverse("accounts:login")
+
     def get(self, request, *args, **kwargs):
         requires_current_password = request.user.is_authenticated
         form = ChangePasswordForm(require_current_password=requires_current_password)
@@ -1196,6 +1205,7 @@ class ChangePasswordView(View):
             "form": form,
             "user_mobile": None,
             "requires_current_password": requires_current_password,
+            "password_return_url": self._return_url(request),
         }
 
         if request.user.is_authenticated:
@@ -1216,7 +1226,7 @@ class ChangePasswordView(View):
                 context["user_mobile"] = user.mobile_number
             except CustomUser.DoesNotExist:
                 request.session.pop(USER_SESSION_KEY, None)
-                messages.error(request, "کاربر یافت نشد", "danger")
+                messages.error(request, "حساب کاربری پیدا نشد.", "danger")
                 return redirect("accounts:login")
 
         return render(request, "accounts/change_password.html", context)
@@ -1249,7 +1259,7 @@ class ChangePasswordView(View):
                 user_mobile = user.mobile_number
             except CustomUser.DoesNotExist:
                 request.session.pop(USER_SESSION_KEY, None)
-                messages.error(request, "کاربر یافت نشد", "danger")
+                messages.error(request, "حساب کاربری پیدا نشد.", "danger")
                 return redirect("accounts:login")
 
         if form.is_valid():
@@ -1257,7 +1267,7 @@ class ChangePasswordView(View):
 
             if request.user.is_authenticated:
                 if not user.check_password(data["current_password"]):
-                    messages.error(request, "رمز عبور فعلی اشتباه است", "danger")
+                    messages.error(request, "رمز عبور فعلی صحیح نیست.", "danger")
                     return render(
                         request,
                         "accounts/change_password.html",
@@ -1265,6 +1275,7 @@ class ChangePasswordView(View):
                             "form": form,
                             "user_mobile": user_mobile,
                             "requires_current_password": requires_current_password,
+                            "password_return_url": self._return_url(request),
                         },
                     )
 
@@ -1273,14 +1284,14 @@ class ChangePasswordView(View):
             user.save(update_fields=["password", "active_code"])
             request.session.pop(USER_SESSION_KEY, None)
 
-            messages.success(request, "رمز عبور شما با موفقیت تغییر کرد", "success")
+            messages.success(request, "رمز عبور با موفقیت تغییر کرد.", "success")
 
             if request.user.is_authenticated:
                 logout(request)
 
             return redirect("accounts:login")
 
-        messages.error(request, "اطلاعات وارد شده اشتباه است", "danger")
+        messages.error(request, "لطفاً فیلدهای مشخص‌شده را بررسی و اصلاح کنید.", "danger")
         return render(
             request,
             "accounts/change_password.html",
@@ -1288,6 +1299,7 @@ class ChangePasswordView(View):
                 "form": form,
                 "user_mobile": user_mobile,
                 "requires_current_password": requires_current_password,
+                "password_return_url": self._return_url(request),
             },
         )
 
@@ -1451,15 +1463,11 @@ class CustomerProfilePageView(LoginRequiredMixin, View):
         if redirect_response:
             return redirect_response
         customer = _get_customer_profile(request.user)
-        _bootstrap_customer_addresses(customer)
-        addresses = customer.addresses.all()
-        context = {
-            "customer": customer,
-            "addresses": addresses,
-            "primary_address": addresses.filter(is_default=True).first()
-            or addresses.first(),
-        }
-        return render(request, "accounts/customer_profile.html", context)
+        return render(
+            request,
+            "accounts/customer_profile.html",
+            {"customer": customer},
+        )
 
 
 class CustomerAddressListView(LoginRequiredMixin, View):

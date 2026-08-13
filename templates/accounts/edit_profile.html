@@ -123,12 +123,16 @@
             </div>
           </div>
 
-          <div class="mt-4 grid gap-4 sm:grid-cols-2">
-            <div>
-              <label for="profileMobile" class="mb-2 block text-sm font-black text-loomera-textPrimary">شماره موبایل</label>
-              <input id="profileMobile" type="text" name="mobile_number" value="{{ form.mobile_number.value|default:'' }}" readonly dir="ltr" class="ltr w-full cursor-not-allowed rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textMuted outline-none">
-              <p class="mt-2 text-xs font-bold leading-6 text-loomera-textMuted">شماره موبایل از این بخش قابل ویرایش نیست.</p>
-              {% if form.mobile_number.errors %}<p class="mt-2 text-xs font-bold text-red-600">{{ form.mobile_number.errors.0 }}</p>{% endif %}
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">            <div>
+              <span class="mb-2 block text-sm font-black text-loomera-textPrimary">
+                شماره موبایل — شناسه ورود
+              </span>
+              <div dir="ltr" class="ltr w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textMuted">
+                {{ user.mobile_number|default:"ثبت نشده" }}
+              </div>
+              <p class="mt-2 text-xs font-bold leading-6 text-loomera-textMuted">
+                این شماره شناسه ورود حساب است و از این صفحه قابل تغییر نیست.
+              </p>
             </div>
 
             <div>

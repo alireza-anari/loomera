@@ -127,15 +127,8 @@ class WalletDetailView(LoginRequiredMixin, View):
             wallet, created = Wallet.objects.get_or_create(user=request.user)
 
             transactions = list(
-                WalletTransaction.objects.filter(wallet=wallet).order_by("-created_at")[
-                    :10
-                ]
+                WalletTransaction.objects.filter(wallet=wallet).order_by("-created_at")[:5]
             )
-
-            points_total = 0
-            for tx in transactions:
-                tx.points_earned = max(int(abs(tx.amount or 0) // 10000), 0)
-                points_total += tx.points_earned
 
             try:
                 withdrawal_requests = list(wallet.withdrawal_requests.all()[:5])
@@ -146,7 +139,7 @@ class WalletDetailView(LoginRequiredMixin, View):
                 "transactions": transactions,
                 "withdrawal_requests": withdrawal_requests,
                 "created": created,
-                "points_total": points_total,
+                "wallet_operations_enabled": _wallet_operations_enabled(),
             }
 
             return render(request, "payments/wallet_detail.html", context)
@@ -500,39 +493,66 @@ class WalletChargeVerifyView(View):
 class WalletWithdrawView(LoginRequiredMixin, View):
     template_name = "payments/wallet_withdraw.html"
 
+    @staticmethod
+    def _saved_destination(wallet):
+        return (
+            wallet.withdrawal_requests.exclude(iban="")
+            .exclude(account_holder_name="")
+            .order_by("-created_at", "-id")
+            .first()
+        )
+
+    def _context(self, wallet, form, recent_requests):
+        saved_destination = self._saved_destination(wallet)
+        return {
+            "wallet": wallet,
+            "form": form,
+            "recent_requests": recent_requests,
+            "saved_destination": saved_destination,
+            "min_amount": int(getattr(settings, "WALLET_WITHDRAW_MIN_AMOUNT", 50000) or 50000),
+            "max_amount": int(getattr(settings, "WALLET_WITHDRAW_MAX_AMOUNT", 50000000) or 50000000),
+        }
+
     def get(self, request):
         if not _wallet_operations_enabled():
             return _redirect_wallet_operation_disabled(request)
         wallet, _ = Wallet.objects.get_or_create(user=request.user)
-        form = WalletWithdrawalRequestForm()
-
         try:
             recent_requests = wallet.withdrawal_requests.all()[:10]
         except Exception:
             recent_requests = []
+        saved_destination = self._saved_destination(wallet)
+        initial = {}
+        if saved_destination:
+            initial = {
+                "iban": saved_destination.iban,
+                "account_holder_name": saved_destination.account_holder_name,
+                "bank_name": saved_destination.bank_name,
+            }
         return render(
             request,
             self.template_name,
-            {
-                "wallet": wallet,
-                "form": form,
-                "recent_requests": recent_requests,
-                "min_amount": int(
-                    getattr(settings, "WALLET_WITHDRAW_MIN_AMOUNT", 50000) or 50000
-                ),
-                "max_amount": int(
-                    getattr(settings, "WALLET_WITHDRAW_MAX_AMOUNT", 50000000)
-                    or 50000000
-                ),
-            },
+            self._context(
+                wallet,
+                WalletWithdrawalRequestForm(initial=initial),
+                recent_requests,
+            ),
         )
 
     def post(self, request):
         if not _wallet_operations_enabled():
             return _redirect_wallet_operation_disabled(request)
         wallet, _ = Wallet.objects.get_or_create(user=request.user)
-        form = WalletWithdrawalRequestForm(request.POST)
+        saved_destination = self._saved_destination(wallet)
 
+        post_data = request.POST.copy()
+        use_saved_destination = post_data.get("destination_mode") == "saved"
+        if use_saved_destination and saved_destination:
+            post_data["iban"] = saved_destination.iban
+            post_data["account_holder_name"] = saved_destination.account_holder_name
+            post_data["bank_name"] = saved_destination.bank_name
+
+        form = WalletWithdrawalRequestForm(post_data)
         try:
             recent_requests = wallet.withdrawal_requests.all()[:10]
         except Exception:
@@ -541,18 +561,7 @@ class WalletWithdrawView(LoginRequiredMixin, View):
             return render(
                 request,
                 self.template_name,
-                {
-                    "wallet": wallet,
-                    "form": form,
-                    "recent_requests": recent_requests,
-                    "min_amount": int(
-                        getattr(settings, "WALLET_WITHDRAW_MIN_AMOUNT", 50000) or 50000
-                    ),
-                    "max_amount": int(
-                        getattr(settings, "WALLET_WITHDRAW_MAX_AMOUNT", 50000000)
-                        or 50000000
-                    ),
-                },
+                self._context(wallet, form, recent_requests),
             )
 
         amount = int(form.cleaned_data["amount"])
@@ -570,18 +579,14 @@ class WalletWithdrawView(LoginRequiredMixin, View):
                     iban=form.cleaned_data["iban"],
                     legacy_destination_iban=form.cleaned_data["iban"],
                     account_holder_name=form.cleaned_data["account_holder_name"],
-                    legacy_destination_account_holder_name=form.cleaned_data[
-                        "account_holder_name"
-                    ],
+                    legacy_destination_account_holder_name=form.cleaned_data["account_holder_name"],
                     bank_name=form.cleaned_data.get("bank_name", ""),
                     legacy_destination_bank_name=form.cleaned_data.get("bank_name", ""),
                     note="در انتظار بررسی تیم مالی",
                 )
                 transaction.on_commit(
                     lambda withdrawal=withdrawal_request, amount=amount, user=request.user: notify_wallet_withdraw_requested(
-                        user=user,
-                        withdrawal=withdrawal,
-                        amount=amount,
+                        user=user, withdrawal=withdrawal, amount=amount
                     )
                 )
         except ValidationError as exc:
@@ -589,30 +594,15 @@ class WalletWithdrawView(LoginRequiredMixin, View):
             return render(
                 request,
                 self.template_name,
-                {
-                    "wallet": wallet,
-                    "form": form,
-                    "recent_requests": recent_requests,
-                    "min_amount": int(
-                        getattr(settings, "WALLET_WITHDRAW_MIN_AMOUNT", 50000) or 50000
-                    ),
-                    "max_amount": int(
-                        getattr(settings, "WALLET_WITHDRAW_MAX_AMOUNT", 50000000)
-                        or 50000000
-                    ),
-                },
+                self._context(wallet, form, recent_requests),
             )
 
         logger.info(
             "Wallet withdrawal requested | user=%s | wallet=%s | amount=%s",
-            request.user.pk,
-            wallet.pk,
-            amount,
+            request.user.pk, wallet.pk, amount,
         )
-        messages.success(
-            request, "درخواست برداشت شما ثبت شد و پس از بررسی مالی پیگیری می‌شود."
-        )
-        return redirect("payments:detail")
+        messages.success(request, "درخواست برداشت ثبت شد و از بخش برداشت‌ها قابل پیگیری است.")
+        return redirect("payments:withdraw")
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -680,6 +670,7 @@ class WalletTransactionsView(LoginRequiredMixin, ListView):
             context["wallet"] = wallet
         except Exception as e:
             logger.error(f"Error getting wallet in transactions view: {e}")
+        context["wallet_operations_enabled"] = _wallet_operations_enabled()
         return context
 
 

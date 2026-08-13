@@ -903,6 +903,29 @@ class ShowSalonsView(View):
 
         review_appointment_id = (request.GET.get("appointment_id") or "").strip()
 
+        def _merge_unique_salons(*groups, limit=12):
+            merged = []
+            seen = set()
+            for group in groups:
+                for salon_item in list(group or []):
+                    salon_id = getattr(salon_item, "pk", None)
+                    if not salon_id or salon_id in seen:
+                        continue
+                    seen.add(salon_id)
+                    merged.append(salon_item)
+                    if len(merged) >= limit:
+                        return merged
+            return merged
+
+        # Customer discovery intentionally exposes a few clear buckets rather
+        # than repeating the same salons across discount/top/new/popular rails.
+        for_you_salons = _merge_unique_salons(
+            favorits_salons, last_visited_salons, limit=8
+        )
+        discover_salons = _merge_unique_salons(
+            best_discount_salons, top_salons, popular_salons, recent_salons, limit=12
+        )
+
         context = {
             "user": user,
             # بخش بالای صفحه
@@ -916,6 +939,8 @@ class ShowSalonsView(View):
             "popular_salons": popular_salons,
             "favorits_salons": favorits_salons,
             "last_visited_salons": last_visited_salons,
+            "for_you_salons": for_you_salons,
+            "discover_salons": discover_salons,
             # موارد جانبی
             "review_appointment_id": review_appointment_id,
         }

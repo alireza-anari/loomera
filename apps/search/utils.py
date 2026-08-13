@@ -1507,7 +1507,7 @@ def serialize_salon_for_map(salon: Salon) -> dict:
         "salon_name": salon.salon_name,
         "address": salon.address or "",
         "neighborhood": salon.neighborhood.name if salon.neighborhood else "",
-        "detail_url": reverse("salons:detail_salon", args=[salon.id]),
+        "detail_url": salon.get_absolute_url(),
         "image_url": (
             salon.banner_image.url if getattr(salon, "banner_image", None) else ""
         ),

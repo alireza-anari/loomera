@@ -59,27 +59,27 @@ class SalonCommentScoreView(View):
 
         if not request.user.is_authenticated:
             messages.error(request, "برای نوشتن نظر و امتیاز ابتدا وارد شوید.")
-            return redirect("salons:detail_salon", salon_id=salon_id)
+            return redirect(salon.get_absolute_url())
 
         try:
             customer = Customer.objects.get(user=request.user)
         except Customer.DoesNotExist:
             messages.error(request, "شما به عنوان مشتری شناسایی نشده‌اید.")
-            return redirect("salons:detail_salon", salon_id=salon_id)
+            return redirect(salon.get_absolute_url())
 
         form = CommentScoringForm(salon=salon, customer=customer)
-        return redirect("salons:detail_salon", salon_id=salon_id)
+        return redirect(salon.get_absolute_url())
 
-    def _get_customer_or_redirect(self, request, salon_id):
+    def _get_customer_or_redirect(self, request, salon):
         if not request.user.is_authenticated:
             messages.error(request, "برای نوشتن نظر و امتیاز ابتدا وارد شوید.")
-            return None, redirect("salons:detail_salon", salon_id=salon_id)
+            return None, redirect(salon.get_absolute_url())
 
         try:
             customer = Customer.objects.get(user=request.user)
         except Customer.DoesNotExist:
             messages.error(request, "شما به عنوان مشتری شناسایی نشده‌اید.")
-            return None, redirect("salons:detail_salon", salon_id=salon_id)
+            return None, redirect(salon.get_absolute_url())
 
         return customer, None
 
@@ -173,7 +173,7 @@ class SalonCommentScoreView(View):
         salon_id = _validated_salon_id(request.GET.get("salon_id"))
         salon = get_object_or_404(Salon, id=salon_id, is_active=True)
 
-        customer, redirect_response = self._get_customer_or_redirect(request, salon_id)
+        customer, redirect_response = self._get_customer_or_redirect(request, salon)
         if redirect_response is not None:
             return redirect_response
 
@@ -187,7 +187,7 @@ class SalonCommentScoreView(View):
                 request,
                 error_text or "مشکلی در ثبت نظر پیش آمد. لطفاً دوباره تلاش کنید.",
             )
-            return redirect("salons:detail_salon", salon_id=salon_id)
+            return redirect(salon.get_absolute_url())
 
         comment_text = (form.cleaned_data.get("comment_text") or "").strip()
         score = form.cleaned_data.get("score")
@@ -197,18 +197,18 @@ class SalonCommentScoreView(View):
                 request,
                 "متن نظر بیش از حد مجاز است.",
             )
-            return redirect("salons:detail_salon", salon_id=salon_id)
+            return redirect(salon.get_absolute_url())
 
         if score not in {1, 2, 3, 4, 5}:
             messages.error(
                 request,
                 "امتیاز واردشده معتبر نیست.",
             )
-            return redirect("salons:detail_salon", salon_id=salon_id)
+            return redirect(salon.get_absolute_url())
 
         if not comment_text:
             messages.error(request, "متن نظر الزامی است.")
-            return redirect("salons:detail_salon", salon_id=salon_id)
+            return redirect(salon.get_absolute_url())
 
         linked_order = None
 
@@ -224,7 +224,7 @@ class SalonCommentScoreView(View):
                     request,
                     "ثبت دیدگاه فقط پس از پایان خدمت امکان‌پذیر است.",
                 )
-                return redirect("salons:detail_salon", salon_id=salon_id)
+                return redirect(salon.get_absolute_url())
 
             # وقتی appointment_id داریم، به stylist/service ارسالی از POST اعتماد نمی‌کنیم.
             stylist = appointment.stylist
@@ -248,11 +248,11 @@ class SalonCommentScoreView(View):
                     request,
                     "ثبت دیدگاه فقط پس از پایان خدمت امکان‌پذیر است.",
                 )
-                return redirect("salons:detail_salon", salon_id=salon_id)
+                return redirect(salon.get_absolute_url())
 
         if stylist is None or service is None:
             messages.error(request, "برای ثبت دیدگاه، خدمت و متخصص معتبر نیست.")
-            return redirect("salons:detail_salon", salon_id=salon_id)
+            return redirect(salon.get_absolute_url())
 
         self._upsert_comment_and_score(
             salon=salon,
@@ -270,7 +270,7 @@ class SalonCommentScoreView(View):
             request,
             "نظر و امتیاز شما با موفقیت ثبت شد. نظر شما پس از تایید نمایش داده خواهد شد.",
         )
-        return redirect("salons:detail_salon", salon_id=salon_id)
+        return redirect(salon.get_absolute_url())
 
 
 # -----------------------------------------------------------------------------------------------
