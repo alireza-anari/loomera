@@ -119,6 +119,308 @@ NON_ACTIVE_OPERATIONAL_STATUSES = (
 )
 
 
+CALENDAR_FALLBACK_COLORS = [
+    "#735CBE",  # Loomera purple
+    "#2F8DE4",  # blue
+    "#4AA84A",  # green
+    "#F28A2E",  # orange
+    "#D85A9D",  # pink
+    "#1D9A8A",  # teal
+    "#A56B35",  # warm brown
+    "#5F6FC4",  # indigo
+]
+
+PERSIAN_WEEKDAY_LABELS = {
+    5: "شنبه",
+    6: "یکشنبه",
+    0: "دوشنبه",
+    1: "سه‌شنبه",
+    2: "چهارشنبه",
+    3: "پنج‌شنبه",
+    4: "جمعه",
+}
+
+CALENDAR_HALF_HOUR_PX = 32
+
+def _calendar_week_start(value):
+    """Return Saturday for the week containing ``value``."""
+    return value - timedelta(days=(value.weekday() + 2) % 7)
+
+def _normalize_hex_color(value):
+    raw = str(value or "").strip()
+    if len(raw) == 7 and raw.startswith("#"):
+        try:
+            int(raw[1:], 16)
+            return raw.upper()
+        except ValueError:
+            return ""
+    return ""
+
+def _build_calendar_stylists(salon):
+    stylists = list(
+        salon.stylists.filter(is_active=True)
+        .select_related("user")
+        .order_by("user__name", "user__family", "pk")
+    )
+    used_colors = set()
+    items = []
+
+    for index, stylist in enumerate(stylists):
+        configured = _normalize_hex_color(getattr(stylist, "calendar_color", ""))
+        color = configured
+        if not color or color in used_colors:
+            for offset in range(len(CALENDAR_FALLBACK_COLORS)):
+                candidate = CALENDAR_FALLBACK_COLORS[(index + offset) % len(CALENDAR_FALLBACK_COLORS)]
+                if candidate.upper() not in used_colors:
+                    color = candidate
+                    break
+        if not color:
+            color = CALENDAR_FALLBACK_COLORS[index % len(CALENDAR_FALLBACK_COLORS)]
+        color = color.upper()
+        used_colors.add(color)
+
+        avatar_url = ""
+        try:
+            if stylist.profile_image:
+                avatar_url = stylist.profile_image.url
+        except Exception:
+            avatar_url = ""
+
+        initials = (stylist.user.name[:1] if stylist.user.name else "?") + (
+            stylist.user.family[:1] if stylist.user.family else ""
+        )
+        items.append(
+            {
+                "object": stylist,
+                "id": stylist.pk,
+                "name": stylist.get_fullName(),
+                "expertise": stylist.expert or "عضو تیم",
+                "color": color,
+                "avatar_url": avatar_url,
+                "initials": initials,
+            }
+        )
+
+    return items
+
+def _appointment_minutes(item):
+    if not item.time:
+        return None, None
+    start = item.time.hour * 60 + item.time.minute
+    duration = int(
+        getattr(item, "scheduled_duration_minutes", 0)
+        or getattr(getattr(item, "service", None), "duration_minutes", 0)
+        or 30
+    )
+    if getattr(item, "end_time", None):
+        end = item.end_time.hour * 60 + item.end_time.minute
+        if end > start:
+            duration = end - start
+    return start, max(15, duration)
+
+def _assign_calendar_lanes(events):
+    """Assign simple overlap lanes so simultaneous bookings stay readable."""
+    if not events:
+        return events
+
+    lane_ends = []
+    for event in events:
+        lane = None
+        for lane_index, lane_end in enumerate(lane_ends):
+            if lane_end <= event["start_minutes"]:
+                lane = lane_index
+                lane_ends[lane_index] = event["end_minutes"]
+                break
+        if lane is None:
+            lane = len(lane_ends)
+            lane_ends.append(event["end_minutes"])
+        event["lane"] = lane
+
+    for event in events:
+        overlapping = [
+            other
+            for other in events
+            if other["start_minutes"] < event["end_minutes"]
+            and other["end_minutes"] > event["start_minutes"]
+        ]
+        lane_count = max([other.get("lane", 0) for other in overlapping] or [0]) + 1
+        event["lane_count"] = lane_count
+        event["lane_width"] = 100 / lane_count
+        event["lane_offset"] = event["lane"] * event["lane_width"]
+    return events
+
+def _build_week_calendar(
+    salon,
+    queryset,
+    focus_date,
+    calendar_stylists,
+    *,
+    base_url,
+    current_params,
+    selected_stylist_id=None,
+    count_queryset=None,
+    calendar_view="",
+):
+    week_start = _calendar_week_start(focus_date)
+    week_end = week_start + timedelta(days=6)
+    color_map = {item["id"]: item["color"] for item in calendar_stylists}
+
+    week_items = list(
+        queryset.filter(date__range=(week_start, week_end))
+        .select_related("order__customer__user", "stylist__user", "service", "order")
+        .order_by("date", "time", "id")
+    )
+
+    start_candidates = []
+    end_candidates = []
+    serialized_by_day = {week_start + timedelta(days=offset): [] for offset in range(7)}
+
+    for item in week_items:
+        start_minutes, duration = _appointment_minutes(item)
+        if start_minutes is None:
+            continue
+        end_minutes = start_minutes + duration
+        start_candidates.append(start_minutes)
+        end_candidates.append(end_minutes)
+        serialized = _serialize_appointment(item, stylist_color=color_map.get(item.stylist_id))
+        serialized.update(
+            {
+                "start_minutes": start_minutes,
+                "end_minutes": end_minutes,
+                "duration_minutes": duration,
+            }
+        )
+        serialized_by_day.setdefault(item.date, []).append(serialized)
+
+    calendar_start = min([8 * 60] + start_candidates)
+    calendar_start = max(0, (calendar_start // 60) * 60)
+    calendar_end = max([21 * 60] + end_candidates)
+    calendar_end = min(24 * 60, ((calendar_end + 59) // 60) * 60)
+    if calendar_end <= calendar_start:
+        calendar_end = calendar_start + 8 * 60
+
+    total_minutes = calendar_end - calendar_start
+    total_half_hours = max(1, total_minutes // 30)
+    height_px = total_half_hours * CALENDAR_HALF_HOUR_PX
+
+    time_labels = []
+    for minute in range(calendar_start, calendar_end + 1, 60):
+        hour = minute // 60
+        minute_part = minute % 60
+        time_labels.append(
+            {
+                "label": to_persian_digits(f"{hour:02d}:{minute_part:02d}"),
+                "top_px": int(((minute - calendar_start) / 30) * CALENDAR_HALF_HOUR_PX),
+            }
+        )
+
+    days = []
+    focus_day = None
+    for offset in range(7):
+        day = week_start + timedelta(days=offset)
+        events = _assign_calendar_lanes(serialized_by_day.get(day, []))
+        for event in events:
+            event["top_px"] = int(((event["start_minutes"] - calendar_start) / 30) * CALENDAR_HALF_HOUR_PX)
+            event["height_px"] = max(
+                46,
+                int((event["duration_minutes"] / 30) * CALENDAR_HALF_HOUR_PX) - 4,
+            )
+
+        day_item = {
+            "date": day,
+            "weekday_label": PERSIAN_WEEKDAY_LABELS.get(day.weekday(), ""),
+            "date_label": format_jalali_numeric(day),
+            "full_label": format_jalali_with_weekday(day),
+            "is_focus": day == focus_date,
+            "is_today": day == timezone.localdate(),
+            "appointments": events,
+            "count": len(events),
+            "count_label": to_persian_digits(len(events)),
+            "url": _build_query_url(
+                base_url,
+                current_params,
+                start=format_jalali_numeric(day),
+                end=format_jalali_numeric(day),
+            ),
+        }
+        days.append(day_item)
+        if day == focus_date:
+            focus_day = day_item
+
+    if focus_day is None:
+        focus_day = days[0]
+
+    count_items = list(
+        (count_queryset if count_queryset is not None else queryset)
+        .select_related("stylist")
+        .order_by("date", "time", "id")
+    )
+    stylist_week_counts = {}
+    for item in count_items:
+        stylist_week_counts[item.stylist_id] = stylist_week_counts.get(item.stylist_id, 0) + 1
+
+    stylist_chips = [
+        {
+            "id": None,
+            "name": "همه متخصصان",
+            "color": "#735CBE",
+            "is_active": not selected_stylist_id,
+            "count": len(count_items),
+            "count_label": to_persian_digits(len(count_items)),
+            "url": _build_query_url(base_url, current_params, stylist=None),
+        }
+    ]
+    for stylist in calendar_stylists:
+        count = stylist_week_counts.get(stylist["id"], 0)
+        stylist_chips.append(
+            {
+                **{key: stylist[key] for key in ("id", "name", "color", "avatar_url", "initials")},
+                "is_active": stylist["id"] == selected_stylist_id,
+                "count": count,
+                "count_label": to_persian_digits(count),
+                "url": _build_query_url(base_url, current_params, stylist=stylist["id"]),
+            }
+        )
+
+    previous_week_focus = focus_date - timedelta(days=7)
+    next_week_focus = focus_date + timedelta(days=7)
+
+    return {
+        "week_start": week_start,
+        "week_end": week_end,
+        "range_label": format_jalali_range(week_start, week_end),
+        "days": days,
+        "focus_day": focus_day,
+        "stylists": stylist_chips,
+        "time_labels": time_labels,
+        "calendar_height_px": height_px,
+        "calendar_start_minutes": calendar_start,
+        "calendar_end_minutes": calendar_end,
+        "appointment_count": len(week_items),
+        "appointment_count_label": to_persian_digits(len(week_items)),
+        "previous_week_url": _build_query_url(
+            base_url,
+            current_params,
+            start=format_jalali_numeric(previous_week_focus),
+            end=format_jalali_numeric(previous_week_focus),
+        ),
+        "next_week_url": _build_query_url(
+            base_url,
+            current_params,
+            start=format_jalali_numeric(next_week_focus),
+            end=format_jalali_numeric(next_week_focus),
+        ),
+        "today_url": _build_query_url(
+            base_url,
+            current_params,
+            start=format_jalali_numeric(timezone.localdate()),
+            end=format_jalali_numeric(timezone.localdate()),
+        ),
+        "view_mode": calendar_view if calendar_view in {"day", "week"} else "",
+        "day_view_url": _build_query_url(base_url, current_params, calendar_view="day"),
+        "week_view_url": _build_query_url(base_url, current_params, calendar_view="week"),
+    }
+
 def _safe_reverse(name, fallback="#", kwargs=None):
     try:
         return reverse(name, kwargs=kwargs)
@@ -430,7 +732,7 @@ def _build_chart(filtered_qs, start_date, end_date):
     }
 
 
-def _serialize_appointment(item):
+def _serialize_appointment(item, stylist_color=None):
     customer_name = "مشتری ثبت نشده"
     customer_mobile = ""
     customer_avatar_url = ""
@@ -450,7 +752,7 @@ def _serialize_appointment(item):
     status_meta = get_order_status_meta(item.order)
     stylist_name = item.stylist.get_fullName() if item.stylist_id else "بدون متخصص"
     service_name = item.service.service_name if item.service_id else "خدمت ثبت نشده"
-    stylist_color = getattr(item.stylist, "calendar_color", "") or "#6d5ef7"
+    stylist_color = stylist_color or getattr(item.stylist, "calendar_color", "") or "#6d5ef7"
     lifecycle_stage = status_meta["key"]
 
     pricing = _appointment_item_pricing_meta(item)
@@ -492,12 +794,10 @@ def _serialize_appointment(item):
     }
 
 
-def _build_schedule_board(salon, filtered_qs, focus_date):
-    stylists = list(
-        salon.stylists.filter(is_active=True)
-        .select_related("user")
-        .order_by("user__name", "user__family")
-    )
+def _build_schedule_board(salon, filtered_qs, focus_date, calendar_stylists=None):
+    calendar_stylists = calendar_stylists or _build_calendar_stylists(salon)
+    stylists = [item["object"] for item in calendar_stylists]
+    color_map = {item["id"]: item["color"] for item in calendar_stylists}
     day_items = list(
         filtered_qs.filter(date=focus_date)
         .select_related("order__customer__user", "stylist__user", "service", "order")
@@ -507,7 +807,7 @@ def _build_schedule_board(salon, filtered_qs, focus_date):
     appointments_by_stylist = {}
     time_slots = []
     for item in day_items:
-        serialized = _serialize_appointment(item)
+        serialized = _serialize_appointment(item, stylist_color=color_map.get(item.stylist_id))
         appointments_by_stylist.setdefault(item.stylist_id, []).append(serialized)
         if item.time:
             slot_label = format_time_fa(item.time)
@@ -556,7 +856,7 @@ def _build_schedule_board(salon, filtered_qs, focus_date):
                 "dashboards:stylist_overview",
                 kwargs={"stylist_id": stylist.user.id},
             ),
-            "color": stylist.calendar_color or "#6d5ef7",
+            "color": color_map.get(stylist.pk) or stylist.calendar_color or "#6d5ef7",
             "stage_counts": {
                 "arrived": to_persian_digits(stage_counts.get("arrived", 0)),
                 "in_service": to_persian_digits(stage_counts.get("in_service", 0)),
@@ -1557,7 +1857,14 @@ def build_manager_appointment_detail_context(salon, appointment):
 def build_appointment_management_context(request, salon):
     today = timezone.localdate()
     default_start = today
-    default_end = today + timedelta(days=6)
+    # Beta UX: a normal navigation opens on today. Contextual links (for example
+    # customer search) keep the previous short multi-day window unless they pass
+    # an explicit date range.
+    has_context_filter = any(
+        request.GET.get(key)
+        for key in ("q", "stylist", "service", "status", "tab")
+    )
+    default_end = today + timedelta(days=6) if has_context_filter else today
 
     start_input = request.GET.get("start")
     end_input = request.GET.get("end")
@@ -1572,6 +1879,9 @@ def build_appointment_management_context(request, salon):
     tab = request.GET.get("tab") or "all"
     if tab not in {item[0] for item in TAB_DEFINITIONS}:
         tab = "all"
+    calendar_view = request.GET.get("calendar_view") or ""
+    if calendar_view not in {"day", "week"}:
+        calendar_view = ""
     q = (request.GET.get("q") or "").strip()
 
     base_url = _safe_reverse(
@@ -1590,6 +1900,8 @@ def build_appointment_management_context(request, salon):
         current_params["status"] = status
     if q:
         current_params["q"] = q
+    if calendar_view:
+        current_params["calendar_view"] = calendar_view
 
     base_qs = OrderDetail.objects.filter(salon=salon)
     filtered_base = _apply_basic_filters(
@@ -1602,30 +1914,38 @@ def build_appointment_management_context(request, salon):
         end_date=end_date,
     )
     filtered_qs = _apply_tab_filter(filtered_base, tab, today)
-    tab_counts = _build_appointment_tab_counts(
-        filtered_base,
-        today,
-    )
 
-    appointment_metrics = _build_appointment_summary_metrics(
-        filtered_qs,
-        today,
+    focus_date = (
+        start_date
+        if start_date == end_date
+        else today if start_date <= today <= end_date else start_date
     )
+    calendar_week_start = _calendar_week_start(focus_date)
+    calendar_week_end = calendar_week_start + timedelta(days=6)
 
+    # Calendar quick-filter counts must describe the same visible week as the
+    # scheduler, not the narrower list range (which is often only today).
+    calendar_tab_base = _apply_basic_filters(
+        base_qs,
+        q=q,
+        stylist_id=stylist_id,
+        service_id=service_id,
+        status=status or None,
+        start_date=calendar_week_start,
+        end_date=calendar_week_end,
+    )
+    tab_counts = _build_appointment_tab_counts(calendar_tab_base, today)
     tabs = []
-
     for tab_key, tab_label in TAB_DEFINITIONS:
+        count = tab_counts[tab_key]
         tabs.append(
             {
                 "key": tab_key,
                 "label": tab_label,
-                "count": tab_counts[tab_key],
+                "count": count,
+                "count_label": to_persian_digits(count),
                 "is_active": tab_key == tab,
-                "url": _build_query_url(
-                    base_url,
-                    current_params,
-                    tab=tab_key,
-                ),
+                "url": _build_query_url(base_url, current_params, tab=tab_key),
             }
         )
 
@@ -1679,12 +1999,6 @@ def build_appointment_management_context(request, salon):
             {"label": "بازه", "value": format_jalali_range(start_date, end_date)}
         )
 
-    focus_date = (
-        start_date
-        if start_date == end_date
-        else today if start_date <= today <= end_date else start_date
-    )
-
     previous_focus_date = focus_date - timedelta(days=1)
     next_focus_date = focus_date + timedelta(days=1)
 
@@ -1709,20 +2023,21 @@ def build_appointment_management_context(request, salon):
         ),
     }
 
-    rows_count = appointment_metrics["rows_count"]
-    unpaid_count = appointment_metrics["unpaid_count"]
-    paid_count = appointment_metrics["paid_count"]
-    cancelled_count = appointment_metrics["cancelled_count"]
-    completed_count = appointment_metrics["completed_count"]
-    awaiting_confirm_count = appointment_metrics["awaiting_confirm_count"]
-    arrived_count = appointment_metrics["arrived_count"]
-    in_service_count = appointment_metrics["in_service_count"]
-    pay_in_salon_pending_count = appointment_metrics["pay_in_salon_pending_count"]
-    upcoming_count = appointment_metrics["upcoming_count"]
-    unique_customers_count = appointment_metrics["unique_customers_count"]
-    unique_team_count = appointment_metrics["unique_team_count"]
-    total_value = appointment_metrics["total_value"]
-    last_date = appointment_metrics["last_date"]
+    summary_metrics = _build_appointment_summary_metrics(filtered_qs, today)
+    rows_count = summary_metrics["rows_count"]
+    unpaid_count = summary_metrics["unpaid_count"]
+    paid_count = summary_metrics["paid_count"]
+    cancelled_count = summary_metrics["cancelled_count"]
+    completed_count = summary_metrics["completed_count"]
+    awaiting_confirm_count = summary_metrics["awaiting_confirm_count"]
+    arrived_count = summary_metrics["arrived_count"]
+    in_service_count = summary_metrics["in_service_count"]
+    pay_in_salon_pending_count = summary_metrics["pay_in_salon_pending_count"]
+    upcoming_count = summary_metrics["upcoming_count"]
+    unique_customers_count = summary_metrics["unique_customers_count"]
+    unique_team_count = summary_metrics["unique_team_count"]
+    total_value = summary_metrics["total_value"]
+    last_date = summary_metrics["last_date"]
 
     focus_items = []
     if rows_count == 0:
@@ -1805,15 +2120,53 @@ def build_appointment_management_context(request, salon):
         },
     ]
 
+    calendar_stylists = _build_calendar_stylists(salon)
+    week_filtered_base = _apply_basic_filters(
+        base_qs,
+        q=q,
+        stylist_id=stylist_id,
+        service_id=service_id,
+        status=status or None,
+        start_date=calendar_week_start,
+        end_date=calendar_week_end,
+    )
+    week_filtered_qs = _apply_tab_filter(week_filtered_base, tab, today)
+
+    # Specialist chip counts intentionally ignore only the stylist filter, so
+    # selecting one specialist does not zero every other chip. All other active
+    # filters (service/status/tab/search/week) still apply.
+    week_count_base = _apply_basic_filters(
+        base_qs,
+        q=q,
+        stylist_id=None,
+        service_id=service_id,
+        status=status or None,
+        start_date=calendar_week_start,
+        end_date=calendar_week_end,
+    )
+    week_count_qs = _apply_tab_filter(week_count_base, tab, today)
+    week_calendar = _build_week_calendar(
+        salon,
+        week_filtered_qs,
+        focus_date,
+        calendar_stylists,
+        base_url=base_url,
+        current_params=current_params,
+        selected_stylist_id=stylist_id,
+        count_queryset=week_count_qs,
+        calendar_view=calendar_view,
+    )
+    schedule_board = _build_schedule_board(
+        salon, filtered_qs, focus_date, calendar_stylists=calendar_stylists
+    )
+
     return {
         "appointment_management": {
             "has_salon": True,
             "base_url": base_url,
             "title": "مدیریت نوبت‌ها",
             "subtitle": "نمای عملیاتی رزروها با تمرکز روی تقویم، وضعیت مالی و اقدام سریع تیم.",
-            "stats": _build_summary_cards(
-                appointment_metrics,
-            ),
+            "stats": _build_summary_cards(summary_metrics),
             "tabs": tabs,
             "filter_options": filter_options,
             "filters": {
@@ -1824,6 +2177,7 @@ def build_appointment_management_context(request, salon):
                 "service": str(service_id) if service_id else "",
                 "status": status,
                 "tab": tab,
+                "calendar_view": calendar_view,
             },
             "has_filters": active_filter_count > 0,
             "clear_filters_url": base_url,
@@ -1831,7 +2185,8 @@ def build_appointment_management_context(request, salon):
             "active_filter_chips": active_filter_chips,
             "active_range_label": format_jalali_range(start_date, end_date),
             "chart": _build_chart(filtered_qs, start_date, end_date),
-            "schedule_board": _build_schedule_board(salon, filtered_qs, focus_date),
+            "schedule_board": schedule_board,
+            "week_calendar": week_calendar,
             "focus_navigation": focus_navigation,
             "table": _build_table(filtered_qs),
             "bulk_actions": [
@@ -1852,6 +2207,7 @@ def build_appointment_management_context(request, salon):
                 "page_title": f"تقویم ونمای نوبت‌های {salon.salon_name}",
                 "dashboard_url": _safe_reverse("dashboards:salon_manager_dashboard"),
                 "rows_count_label": to_persian_digits(rows_count),
+                "calendar_rows_count_label": week_calendar["appointment_count_label"],
                 "unpaid_count_label": to_persian_digits(unpaid_count),
                 "paid_count_label": to_persian_digits(paid_count),
                 "cancelled_count_label": to_persian_digits(cancelled_count),
@@ -1872,6 +2228,9 @@ def build_appointment_management_context(request, salon):
                 "focus_items": focus_items,
                 "quick_actions": quick_actions,
             },
+            "add_booking_url": _safe_reverse(
+                "dashboards:add_booking", kwargs={"salon_id": salon.id}
+            ),
             "export_url": _build_query_url(base_url, current_params),
         }
     }

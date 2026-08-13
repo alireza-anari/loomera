@@ -32,6 +32,7 @@ from .finance_cost_views import (
     SalonStylistWalletsView,
 )
 from django.urls import path
+from django.views.generic import RedirectView
 from .finance_settings_views import SalonFinanceMaterialSettingsView
 from .views import (
     SalonManagerDashboardView,
@@ -45,6 +46,7 @@ from .views import (
     SalonsCustomersPageView,
     CustomerDetailView,
     OnlineBookingView,
+    OnlineBookingQuickLinkOptionsView,
     salon_profile_creator,
     SalonProfileCreatorStep1View,
     SalonProfileCreatorStep2View,
@@ -108,6 +110,7 @@ from .views import (
     StylistAddCustomerView,
     StylistAddBookingView,
     StylistQuickLinksView,
+    StylistQuickLinkOptionsView,
     ManagerBookingQuickLinkQRView,
     StylistBookingQuickLinkQRView,
     StylistProfileView,
@@ -211,6 +214,11 @@ urlpatterns = [
         name="stylist_quick_links",
     ),
     path(
+        "stylist/quick-links/options/",
+        StylistQuickLinkOptionsView.as_view(),
+        name="stylist_quick_link_options",
+    ),
+    path(
         "stylist/quick-links/<int:link_id>/",
         StylistQuickLinkDetailView.as_view(),
         name="stylist_quick_link_detail",
@@ -262,7 +270,7 @@ urlpatterns = [
     ),
     path("stylist/profile/", StylistProfileView.as_view(), name="stylist_profile"),
     path("salonManagerHeader/", salonManagerHeader, name="salon_manager_header"),
-    path("home/", DashboardHomeView.as_view(), name="home"),
+    path("home/", RedirectView.as_view(pattern_name="dashboards:salon_manager_dashboard", permanent=False), name="home"),
     path("recently-sales/", recently_sales, name="recentlySales"),
     path(
         "upcoming-appointments/",
@@ -285,10 +293,11 @@ urlpatterns = [
     ),
     path("online_booking/", OnlineBookingView.as_view(), name="online_booking"),
     path(
-        "quick-links/",
-        ManagerQuickLinksView.as_view(),
-        name="quick_links",
+        "online_booking/quick-link-options/",
+        OnlineBookingQuickLinkOptionsView.as_view(),
+        name="online_booking_quick_link_options",
     ),
+    path("quick-links/", ManagerQuickLinksView.as_view(), name="quick_links"),
     path(
         "quick-links/<int:link_id>/",
         ManagerQuickLinkDetailView.as_view(),

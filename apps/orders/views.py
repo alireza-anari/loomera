@@ -1751,7 +1751,7 @@ class BookingQuickLinkStylistServicesView(View):
 
         if not services:
             messages.error(request, "برای این متخصص در این مجموعه خدمت فعالی پیدا نشد.")
-            return redirect("salons:detail_salon", pk=salon.id)
+            return redirect(salon.get_absolute_url())
 
         return render(
             request,
