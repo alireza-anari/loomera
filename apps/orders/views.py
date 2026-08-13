@@ -22,6 +22,7 @@ from .booking_utils import (
     BLOCKING_STATUSES,
     build_cancellation_policy,
     get_service_buffer_minutes,
+    get_blocking_order_details_queryset,
     get_upcoming_available_stylists_for_service,
     resolve_best_available_stylist_for_service,
     resolve_booking_sequence,
@@ -1480,20 +1481,16 @@ class StylistAvailabilityAPI(View):
             .order_by("date", "start_time")
         )
 
+        # Keep this payload in lock-step with the final slot validator.
+        # Any finalized/paid booking occupies the stylist's time regardless of
+        # whether that historical service is still active/public/catalog-backed.
         booked_items = (
-            OrderDetail.objects.filter(
+            get_blocking_order_details_queryset(
                 salon=salon,
-                date__range=[start_date, end_date],
-                order__status__in=BLOCKING_STATUSES,
-                stylist__is_active=True,
-                stylist__public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
-                service__is_active=True,
-                service__services_of_salon=salon,
+                start_date=start_date,
+                end_date=end_date,
             )
-            .filter(
-                Q(service__is_platform_catalog=True)
-                | Q(service__catalog_source__isnull=False)
-            )
+            .filter(stylist__isnull=False)
             .select_related("stylist", "service")
             .order_by("date", "time")
         )
@@ -1574,7 +1571,7 @@ class StylistAvailabilityAPI(View):
                     "reason": item.reason or "مرخصی تاییدشده",
                 }
             )
-        return JsonResponse(
+        response = JsonResponse(
             {
                 "schedules": schedules_payload,
                 "booked_times": booked_payload,
@@ -1582,6 +1579,10 @@ class StylistAvailabilityAPI(View):
             },
             json_dumps_params={"ensure_ascii": False},
         )
+        # Availability is volatile; a browser/proxy cache must not resurrect a
+        # slot that has already been taken.
+        response["Cache-Control"] = "no-store, private"
+        return response
 
 
 class StylistsForServiceAPI(View):
