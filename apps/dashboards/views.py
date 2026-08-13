@@ -54,6 +54,7 @@ from apps.accounts.models import (
     CustomUser,
     WorkSamples,
 )
+from apps.orders.booking_utils import get_available_slots_for_service
 from apps.orders.models import (
     AppointmentMaterialUsage,
     BookingQuickLink,
@@ -10377,6 +10378,106 @@ def _build_manual_booking_frontend_context(*, salon, form):
     }
 
 
+QUICK_LINK_AVAILABILITY_HORIZON_DAYS = 45
+
+def _quick_link_availability_days(
+    *, salon, service, stylist, horizon_days=QUICK_LINK_AVAILABILITY_HORIZON_DAYS
+):
+    days = []
+    start_date = timezone.localdate()
+    for offset in range(max(int(horizon_days or 0), 1)):
+        target_date = start_date + timedelta(days=offset)
+        slots = get_available_slots_for_service(
+            salon=salon,
+            stylist=stylist,
+            service=service,
+            date_value=target_date,
+        )
+        if not slots:
+            continue
+        days.append(
+            {
+                "value": target_date.isoformat(),
+                "label": format_jalali_with_weekday(target_date),
+                "times": [start.strftime("%H:%M") for start, _ in slots],
+            }
+        )
+    return days
+
+class DashboardManualBookingAvailabilityView(LoginRequiredMixin, View):
+    """Return only canonical free dates/times for the selected manager booking pair.
+
+    The response intentionally reuses the same availability engine used by
+    booking validation, so the dashboard never advertises a slot that the
+    submit path will reject because of schedules, leave, existing bookings,
+    or service buffers.
+    """
+
+    horizon_days = QUICK_LINK_AVAILABILITY_HORIZON_DAYS
+
+    def get(self, request, salon_id):
+        salon = get_object_or_404(
+            Salon.objects.select_related("salon_manager__user"),
+            pk=salon_id,
+            salon_manager__user=request.user,
+        )
+        service_id = (request.GET.get("service_id") or "").strip()
+        stylist_id = (request.GET.get("stylist_id") or "").strip()
+
+        if not service_id or not stylist_id:
+            return JsonResponse(
+                {"availability": []},
+                json_dumps_params={"ensure_ascii": False},
+            )
+
+        service = (
+            Services.objects.filter(
+                pk=service_id,
+                services_of_salon=salon,
+                is_active=True,
+            )
+            .distinct()
+            .first()
+        )
+        if service is None:
+            return JsonResponse(
+                {"error": "خدمت انتخاب‌شده معتبر نیست."},
+                status=400,
+                json_dumps_params={"ensure_ascii": False},
+            )
+
+        stylist = (
+            Stylist.objects.filter(
+                pk=stylist_id,
+                stylists_of_salon=salon,
+                services_of_stylist=service,
+                is_active=True,
+            )
+            .select_related("user")
+            .distinct()
+            .first()
+        )
+        if stylist is None:
+            return JsonResponse(
+                {"error": "این متخصص خدمت انتخاب‌شده را در این مجموعه ارائه نمی‌دهد."},
+                status=400,
+                json_dumps_params={"ensure_ascii": False},
+            )
+
+        availability = _quick_link_availability_days(
+            salon=salon,
+            service=service,
+            stylist=stylist,
+            horizon_days=self.horizon_days,
+        )
+        return JsonResponse(
+            {
+                "availability": availability,
+                "horizon_days": self.horizon_days,
+            },
+            json_dumps_params={"ensure_ascii": False},
+        )
+
 class DashboardManualBookingView(
     SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
 ):
@@ -15087,6 +15188,72 @@ class ManagerProfileView(LoginRequiredMixin, View):
 
 
 # -------------------------------------------------------------------------------
+class StylistSettingsHubView(StylistDashboardGuardMixin, View):
+    template_name = "dashboards/stylist_settings.html"
+
+    def get(self, request, *args, **kwargs):
+        ctx = _get_stylist_dashboard_context(request)
+        stylist, salon = ctx.stylist, ctx.salon
+        context = build_dashboard_context(
+            request.user,
+            sidebar_active="my_settings",
+            page_title="تنظیمات من",
+            request_path=request.path,
+            role="stylist",
+            salon_override=salon,
+            stylist_override=stylist,
+        )
+        context.update(
+            {
+                "stylist_settings_groups": [
+                    {
+                        "key": "account",
+                        "eyebrow": "حساب",
+                        "title": "حساب و امنیت",
+                        "description": "اطلاعات حرفه‌ای و امنیت حساب خودت را مدیریت کن.",
+                        "icon": "fa-regular fa-user",
+                        "items": [
+                            {
+                                "title": "پروفایل من",
+                                "description": "نام، رزومه، تصویر، نمونه‌کار و اطلاعات حرفه‌ای",
+                                "icon": "fa-regular fa-id-card",
+                                "url": reverse("dashboards:stylist_profile"),
+                            },
+                            {
+                                "title": "تغییر رمز عبور",
+                                "description": "رمز ورود حساب لومرا را تغییر بده",
+                                "icon": "fa-solid fa-key",
+                                "url": reverse("accounts:change_password"),
+                            },
+                        ],
+                    },
+                    {
+                        "key": "communications",
+                        "eyebrow": "ارتباطات",
+                        "title": "اعلان‌ها و پیام‌رسان",
+                        "description": "وضعیت اتصال بله و ترجیح دریافت اعلان‌ها را مدیریت کن.",
+                        "icon": "fa-regular fa-bell",
+                        "items": [
+                            {
+                                "title": "اعلان‌ها و ارتباطات",
+                                "description": "تنظیم پیام‌های کاری/تبلیغاتی و اتصال حساب بله",
+                                "icon": "fa-regular fa-bell",
+                                "url": reverse("dashboards:stylist_communication_settings"),
+                            },
+                            {
+                                "title": "مرکز اعلان‌های من",
+                                "description": "همه اعلان‌های کاری خودت را یک‌جا مرور کن",
+                                "icon": "fa-regular fa-bell",
+                                "url": reverse("dashboards:stylist_notifications"),
+                            },
+                        ],
+                    },
+                ]
+            }
+        )
+        context.update(_stylist_context_payload(ctx))
+        return render(request, self.template_name, context)
+
 class WorkspaceSettingsHubView(LoginRequiredMixin, View):
     template_name = "dashboards/workspace_settings.html"
 

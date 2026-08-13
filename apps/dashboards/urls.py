@@ -86,6 +86,7 @@ from .views import (
     get_popular_stylists,
     calendar_view,
     DashboardManualBookingView,
+    DashboardManualBookingAvailabilityView,
     reports_view,
     get_calendar_data,
     AppointmentDetailView,
@@ -93,6 +94,7 @@ from .views import (
     ManagerAppointmentActionView,
     ManagerProfileView,
     ManagerNotificationCenterView,
+    StylistSettingsHubView,
     WorkspaceSettingsHubView,
     toggle_service_status,
     toggle_stylist_status,
@@ -150,6 +152,7 @@ urlpatterns = [
     ),
     path("content/", ManagerContentHubView.as_view(), name="content_hub"),
     path("stylist/content/", StylistContentHubView.as_view(), name="stylist_content"),
+    path("stylist/settings/", StylistSettingsHubView.as_view(), name="stylist_settings"),
     path("stylist/", StylistDashboardView.as_view(), name="stylist_dashboard"),
     path(
         "stylist/set-active-salon/",
@@ -466,6 +469,11 @@ urlpatterns = [
         "calendar/salon/<int:salon_id>/add-booking/",
         DashboardManualBookingView.as_view(),
         name="add_booking",
+    ),
+    path(
+        "calendar/salon/<int:salon_id>/add-booking/availability/",
+        DashboardManualBookingAvailabilityView.as_view(),
+        name="manual_booking_availability",
     ),
     path(
         "calendar/salon/<int:salon_id>/appointment/<int:appointment_id>/",
