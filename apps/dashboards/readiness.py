@@ -59,7 +59,6 @@ def _has_bookable_service_schedule_path(
 
     bookable_service_ids = set(
         services_qs.filter(
-            base_price__gt=0,
             duration_minutes__gt=0,
         ).values_list("pk", flat=True)
     )
@@ -174,7 +173,6 @@ def build_salon_readiness_checklist(
             "priced_services_count",
             lambda: _safe_count(
                 active_services_qs,
-                base_price__gt=0,
                 duration_minutes__gt=0,
             ),
         )
@@ -247,11 +245,15 @@ def build_salon_readiness_checklist(
         )
     )
 
+    explicit_contacts_ok = bool(
+        str(getattr(salon, "mobile_phone", "") or "").strip()
+        and str(getattr(salon, "landline_phone", "") or "").strip()
+    )
     profile_is_complete = bool(
         str(getattr(salon, "salon_name", "") or "").strip()
         and str(getattr(salon, "description", "") or "").strip()
         and str(getattr(salon, "address", "") or "").strip()
-        and getattr(salon, "phone_number", None)
+        and (explicit_contacts_ok or getattr(salon, "phone_number", None))
     )
 
     payout_is_complete = bool(getattr(salon, "payout_profile_complete", False))
@@ -264,7 +266,7 @@ def build_salon_readiness_checklist(
         _build_item(
             key="profile",
             title="اطلاعات اصلی سالن کامل است",
-            description="نام، توضیحات، شماره تماس و آدرس سالن باید تکمیل شده باشد.",
+            description="نام، توضیحات، شماره‌های تماس و آدرس مجموعه باید تکمیل شده باشد.",
             is_done=profile_is_complete,
             action_label="تکمیل پروفایل",
             action_url=_safe_reverse("dashboards:salon_profile"),
@@ -290,8 +292,8 @@ def build_salon_readiness_checklist(
         ),
         _build_item(
             key="services",
-            title="حداقل ۳ خدمت فعال با قیمت و مدت‌زمان وجود دارد",
-            description="برای شروع رزرو آنلاین، بهتر است حداقل سه خدمت قابل انتخاب فعال باشد.",
+            title="حداقل ۳ خدمت فعال با مدت‌زمان معتبر وجود دارد",
+            description="برای شروع رزرو آنلاین، بهتر است حداقل سه خدمت با مدت‌زمان معتبر فعال باشد.",
             is_done=active_services_count >= 3 and priced_services_count >= 3,
             action_label="مدیریت خدمات",
             action_url=_safe_reverse("dashboards:service_menu"),
@@ -397,7 +399,9 @@ def build_salon_readiness_checklist(
         summary = "برای شروع رزرو آنلاین، چند بخش اصلی سالن هنوز نیاز به تکمیل دارد."
 
     # Compatibility contract for dashboard surfaces that still consume the
-    # richer readiness payload. ``items`` remains the canonical checklist.
+    # richer readiness payload.  ``items`` remains the canonical checklist,
+    # while these derived keys keep Online Booking, onboarding final-step,
+    # salon-profile activation, and dashboard setup prompts in sync.
     booking_items = list(items)
     profile_quality_items = [
         item

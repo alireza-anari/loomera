@@ -583,7 +583,14 @@ def _get_onboarding_resume_url_for_salon(salon):
     if salon is None:
         return _safe_reverse("dashboards:salon_profile_creator_step1")
 
-    if not ((salon.salon_name or "").strip() and salon.phone_number):
+    explicit_contacts_ok = bool(
+        (getattr(salon, "mobile_phone", "") or "").strip()
+        and (getattr(salon, "landline_phone", "") or "").strip()
+    )
+    if not (
+        (salon.salon_name or "").strip()
+        and (explicit_contacts_ok or salon.phone_number)
+    ):
         return _safe_reverse("dashboards:salon_profile_creator_step1")
 
     if not (
