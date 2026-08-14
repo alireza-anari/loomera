@@ -185,26 +185,64 @@ def is_valid_iban_checksum(value):
 class SalonProfileStep1Form(forms.ModelForm):
     class Meta:
         model = Salon
-        fields = ["salon_name", "phone_number"]
+        fields = ["salon_name", "mobile_phone", "landline_phone"]
         widgets = {
-            "salon_name": forms.TextInput(attrs={"class": "form-control"}),
-            "phone_number": forms.TextInput(attrs={"class": "form-control"}),
+            "salon_name": forms.TextInput(attrs={"class": "form-control", "autocomplete": "organization"}),
+            "mobile_phone": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "inputmode": "numeric",
+                    "autocomplete": "tel",
+                    "placeholder": "مثال: 09123456789",
+                }
+            ),
+            "landline_phone": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "inputmode": "numeric",
+                    "autocomplete": "tel",
+                    "placeholder": "مثال: 02112345678",
+                }
+            ),
+        }
+        labels = {
+            "salon_name": "نام مجموعه",
+            "mobile_phone": "شماره همراه مجموعه",
+            "landline_phone": "شماره ثابت با کد شهر",
         }
 
-    def clean_phone_number(self):
-        value = (self.cleaned_data.get("phone_number") or "").strip()
-        if not value:
-            return ""
-
-        digits = re.sub(r"\D+", "", value)
-        if digits.startswith("98") and len(digits) >= 10:
+    @staticmethod
+    def _normalize_iran_phone(value):
+        digits = re.sub(r"\D+", "", (value or "").strip())
+        if digits.startswith("0098"):
+            digits = "0" + digits[4:]
+        elif digits.startswith("98"):
             digits = "0" + digits[2:]
-        if digits and not digits.startswith("0") and len(digits) == 10:
-            digits = "0" + digits
-
-        if len(digits) < 8 or len(digits) > 15:
-            raise forms.ValidationError("شماره تماس مجموعه را به‌صورت معتبر وارد کنید.")
         return digits
+
+    def clean_mobile_phone(self):
+        digits = self._normalize_iran_phone(self.cleaned_data.get("mobile_phone"))
+        if len(digits) == 10 and digits.startswith("9"):
+            digits = "0" + digits
+        if not re.fullmatch(r"09\d{9}", digits):
+            raise forms.ValidationError("شماره همراه را به‌صورت معتبر وارد کنید؛ مثال 09123456789.")
+        return digits
+
+    def clean_landline_phone(self):
+        digits = self._normalize_iran_phone(self.cleaned_data.get("landline_phone"))
+        if not re.fullmatch(r"0(?!9)\d{10}", digits):
+            raise forms.ValidationError("شماره ثابت را همراه با کد شهر وارد کنید؛ مثال 02112345678.")
+        return digits
+
+    def save(self, commit=True):
+        salon = super().save(commit=False)
+        # Keep the legacy public contact field populated while old consumers
+        # are migrated gradually to the explicit mobile/landline fields.
+        salon.phone_number = self.cleaned_data.get("mobile_phone") or self.cleaned_data.get("landline_phone")
+        if commit:
+            salon.save()
+            self.save_m2m()
+        return salon
 
 
 # -----------------------------------------------------------------
@@ -216,7 +254,15 @@ class SalonProfileStep2Form(forms.ModelForm):
 
     class Meta:
         model = Salon
-        fields = ["zone", "neighborhood", "address", "latitude", "longitude"]
+        fields = [
+            "zone",
+            "neighborhood",
+            "address",
+            "address_plaque",
+            "address_unit",
+            "latitude",
+            "longitude",
+        ]
         widgets = {
             "zone": forms.HiddenInput(),
             "neighborhood": forms.HiddenInput(),
@@ -224,17 +270,25 @@ class SalonProfileStep2Form(forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "rows": 3,
-                    "placeholder": "آدرس دقیق مجموعه را وارد کنید",
+                    "placeholder": "آدرس خیابان و کوچه را وارد کنید",
                 }
+            ),
+            "address_plaque": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "پلاک", "autocomplete": "off"}
+            ),
+            "address_unit": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "واحد", "autocomplete": "off"}
             ),
         }
         labels = {
             "zone": "منطقه",
             "neighborhood": "محله",
             "address": "آدرس دقیق",
+            "address_plaque": "پلاک",
+            "address_unit": "واحد",
         }
         help_texts = {
-            "address": "نشانی قابل نمایش را با پلاک، طبقه و واحد کامل کنید.",
+            "address": "آدرس خیابان و کوچه را بررسی کنید؛ پلاک و واحد جداگانه ثبت می‌شوند.",
         }
 
     def __init__(self, *args, **kwargs):
@@ -243,7 +297,8 @@ class SalonProfileStep2Form(forms.ModelForm):
         self.fields["zone"].required = False
         self.fields["neighborhood"].required = False
         self.fields["address"].required = True
-
+        self.fields["address_plaque"].required = True
+        self.fields["address_unit"].required = True
         self.fields["latitude"].required = False
         self.fields["longitude"].required = False
 
@@ -254,15 +309,21 @@ class SalonProfileStep2Form(forms.ModelForm):
             if getattr(instance, "zone", None):
                 self.fields["zone_label"].initial = f"منطقه {instance.zone}"
 
-        self.fields["address"].error_messages.update(
-            {"required": "وارد کردن آدرس دقیق الزامی است."}
-        )
+        self.fields["address"].error_messages.update({"required": "وارد کردن آدرس دقیق الزامی است."})
+        self.fields["address_plaque"].error_messages.update({"required": "وارد کردن پلاک الزامی است."})
+        self.fields["address_unit"].error_messages.update({"required": "وارد کردن واحد الزامی است."})
 
     def clean_neighborhood_name(self):
         return (self.cleaned_data.get("neighborhood_name") or "").strip()
 
     def clean_zone_label(self):
         return (self.cleaned_data.get("zone_label") or "").strip()
+
+    def clean_address_plaque(self):
+        return (self.cleaned_data.get("address_plaque") or "").strip()
+
+    def clean_address_unit(self):
+        return (self.cleaned_data.get("address_unit") or "").strip()
 
     def clean(self):
         cleaned_data = super().clean()
@@ -506,7 +567,6 @@ class SalonDescriptionForm(forms.ModelForm):
             }
         ),
         required=True,
-        min_length=200,
         max_length=600,
     )
 
@@ -515,10 +575,7 @@ class SalonDescriptionForm(forms.ModelForm):
         fields = ["description"]
 
     def clean_description(self):
-        description = self.cleaned_data.get("description", "")
-        if not description or len(description) < 200:
-            raise forms.ValidationError("توضیحات باید حداقل ۲۰۰ کاراکتر باشد")
-        return description
+        return (self.cleaned_data.get("description") or "").strip()
 
 
 class SalonPayoutSettingsForm(forms.ModelForm):

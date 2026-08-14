@@ -85,6 +85,8 @@ class Salon(models.Model):
         related_name="salon_neighborhood",
     )
     address = models.TextField(verbose_name="آدرس", blank=True, null=True)
+    address_plaque = models.CharField(max_length=32, blank=True, default="", verbose_name="پلاک")
+    address_unit = models.CharField(max_length=32, blank=True, default="", verbose_name="واحد")
     linkedin_link = models.CharField(
         max_length=200, null=True, blank=True, verbose_name="لینک لینکدین"
     )
@@ -116,6 +118,8 @@ class Salon(models.Model):
     )
     registere_date = models.DateTimeField(auto_now_add=True, verbose_name="زمان ثبت")
     phone_number = models.CharField(max_length=32, verbose_name="شماره تلفن ", null=True, blank=True)
+    mobile_phone = models.CharField(max_length=11, blank=True, default="", verbose_name="شماره همراه مجموعه")
+    landline_phone = models.CharField(max_length=11, blank=True, default="", verbose_name="شماره ثابت مجموعه با کد شهر")
     payout_iban = models.CharField(
         max_length=26,
         blank=True,

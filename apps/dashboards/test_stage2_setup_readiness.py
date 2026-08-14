@@ -65,16 +65,36 @@ class Stage2SalonSetupTests(TestCase):
 
     def _complete_step1(self):
         self.salon.salon_name = "Salon Alpha"
-        self.salon.phone_number = 2118877665
-        self.salon.save(update_fields=["salon_name", "phone_number"])
+        self.salon.mobile_phone = "09121112222"
+        self.salon.landline_phone = "02118877665"
+        self.salon.phone_number = self.salon.mobile_phone
+        self.salon.save(
+            update_fields=[
+                "salon_name",
+                "mobile_phone",
+                "landline_phone",
+                "phone_number",
+            ]
+        )
 
     def _complete_step2(self):
         self._complete_step1()
         self.salon.zone = 1
         self.salon.neighborhood = self.neighborhood
-        self.salon.address = "تهران، زعفرانیه، پلاک ۱۰"
+        self.salon.address = "تهران، زعفرانیه"
+        self.salon.address_plaque = "10"
+        self.salon.address_unit = "2"
         self.salon.location = Point(51.305, 35.805)
-        self.salon.save(update_fields=["zone", "neighborhood", "address", "location"])
+        self.salon.save(
+            update_fields=[
+                "zone",
+                "neighborhood",
+                "address",
+                "address_plaque",
+                "address_unit",
+                "location",
+            ]
+        )
 
     def _complete_step3(self):
         self._complete_step2()
@@ -142,13 +162,16 @@ class Stage2SalonSetupTests(TestCase):
             reverse("dashboards:salon_profile_creator_step1"),
             data={
                 "salon_name": "Salon Beta",
-                "phone_number": "02112345678",
+                "mobile_phone": "09123456789",
+                "landline_phone": "02112345678",
             },
         )
         self.salon.refresh_from_db()
         self.assertNotEqual(response.status_code, 500)
         self.assertEqual(self.salon.salon_name, "Salon Beta")
-        self.assertEqual(int(self.salon.phone_number), 2112345678)
+        self.assertEqual(self.salon.mobile_phone, "09123456789")
+        self.assertEqual(self.salon.landline_phone, "02112345678")
+        self.assertEqual(self.salon.phone_number, "09123456789")
         self.assertNotEqual(response.url, reverse("dashboards:online_booking"))
 
     def test_step2_post_should_save_address_and_map_location(self):
@@ -158,7 +181,9 @@ class Stage2SalonSetupTests(TestCase):
             data={
                 "zone": 1,
                 "neighborhood": self.neighborhood.pk,
-                "address": "تهران، زعفرانیه، پلاک ۱۲",
+                "address": "تهران، زعفرانیه",
+                "address_plaque": "12",
+                "address_unit": "3",
                 "latitude": "35.805",
                 "longitude": "51.305",
             },
@@ -167,7 +192,9 @@ class Stage2SalonSetupTests(TestCase):
         self.assertNotEqual(response.status_code, 500)
         self.assertEqual(self.salon.zone, 1)
         self.assertEqual(self.salon.neighborhood_id, self.neighborhood.pk)
-        self.assertEqual(self.salon.address, "تهران، زعفرانیه، پلاک ۱۲")
+        self.assertEqual(self.salon.address, "تهران، زعفرانیه")
+        self.assertEqual(self.salon.address_plaque, "12")
+        self.assertEqual(self.salon.address_unit, "3")
         self.assertIsNotNone(self.salon.location)
         self.assertNotEqual(response.url, reverse("dashboards:online_booking"))
 

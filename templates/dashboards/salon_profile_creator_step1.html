@@ -13,8 +13,8 @@
         <i class="fa-solid fa-store text-[10px]" aria-hidden="true"></i>
         {% if profile_edit_mode %}پروفایل مجموعه / اطلاعات اصلی{% else %}مرحله ۱ از ۳{% endif %}
       </span>
-      <h1 class="mt-4 text-xl font-black leading-8 text-loomera-textPrimary sm:text-3xl">نام و شماره تماس مجموعه</h1>
-      <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">{% if profile_edit_mode %}نام و شماره‌ای را مدیریت کن که مشتری در صفحه عمومی مجموعه می‌بیند.{% else %}همین دو مورد برای شروع کافی است؛ بقیه اطلاعات را بعداً هم می‌توانی ویرایش کنی.{% endif %}</p>
+      <h1 class="mt-4 text-xl font-black leading-8 text-loomera-textPrimary sm:text-3xl">نام و شماره‌های تماس مجموعه</h1>
+      <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">{% if profile_edit_mode %}نام و شماره‌های تماس مجموعه را مدیریت کن؛ شماره ثابت باید همراه کد شهر باشد.{% else %}نام مجموعه و هر دو شماره تماس را ثبت کن؛ شماره ثابت را همراه کد شهر وارد کن.{% endif %}</p>
     </header>
 
     <form method="post" class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6" data-step-one-form>
@@ -34,9 +34,16 @@
         </div>
 
         <div>
-          <label for="{{ form.phone_number.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textSecondary">شماره تماس اصلی</label>
-          {{ form.phone_number|add_class:"w-full rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3.5 text-left text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}
-          {% for error in form.phone_number.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+          <label for="{{ form.mobile_phone.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textSecondary">شماره همراه مجموعه</label>
+          {{ form.mobile_phone|add_class:"w-full rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3.5 text-left text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}
+          {% for error in form.mobile_phone.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
+        </div>
+
+        <div class="lg:col-start-2">
+          <label for="{{ form.landline_phone.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textSecondary">شماره ثابت با کد شهر</label>
+          {{ form.landline_phone|add_class:"w-full rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3.5 text-left text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">کد شهر الزامی است؛ مثال: ۰۲۱۱۲۳۴۵۶۷۸</p>
+          {% for error in form.landline_phone.errors %}<span class="mt-2 block text-xs font-bold text-loomera-danger">{{ error }}</span>{% endfor %}
         </div>
       </div>
 

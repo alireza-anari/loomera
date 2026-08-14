@@ -29,6 +29,7 @@ from apps.dashboards.appointment_management import (
     build_manager_appointment_detail_context,
 )
 from apps.dashboards.home_components import build_dashboard_home_context
+from apps.dashboards.readiness import build_salon_readiness_checklist
 from apps.dashboards.forms import (
     DashboardManualBookingForm,
     StylistSelfBookingForm,
@@ -71,7 +72,6 @@ from apps.orders.quick_links import (
     MAX_AGE_SECONDS,
     build_quick_link_url,
     create_booking_quick_link,
-    list_booking_quick_links_for_dashboard,
     normalize_booking_payload,
     update_booking_quick_link_status,
 )
@@ -702,7 +702,14 @@ def _ensure_active_staff_membership_for_salon(
 def _is_step1_complete(salon):
     if salon is None:
         return False
-    return bool((salon.salon_name or "").strip() and salon.phone_number)
+    name_ok = bool((salon.salon_name or "").strip())
+    explicit_contacts_ok = bool(
+        (getattr(salon, "mobile_phone", "") or "").strip()
+        and (getattr(salon, "landline_phone", "") or "").strip()
+    )
+    # Existing production salons may only have the legacy contact field.
+    legacy_contact_ok = bool(getattr(salon, "phone_number", None))
+    return bool(name_ok and (explicit_contacts_ok or legacy_contact_ok))
 
 
 def _is_step2_complete(salon):
@@ -737,7 +744,7 @@ def _is_step7_complete(salon):
 def _is_step8_complete(salon):
     if salon is None:
         return False
-    return len((salon.description or "").strip()) >= 200
+    return bool((salon.description or "").strip())
 
 
 def _is_step10_complete(salon):
@@ -758,7 +765,7 @@ def _get_required_onboarding_view_name(user):
     if not _is_step3_complete(salon):
         return "dashboards:salon_profile_creator_step3"
 
-    # step6 (گالری) اختیاری است و نباید مسیر onboarding را block کند
+    # Gallery is optional and never blocks dashboard access.
 
     if not _is_step7_complete(salon):
         return "dashboards:salon_profile_creator_step7"
@@ -766,9 +773,7 @@ def _get_required_onboarding_view_name(user):
     if not _is_step8_complete(salon):
         return "dashboards:salon_profile_creator_step8"
 
-    if not _is_step10_complete(salon):
-        return "dashboards:salon_profile_creator_step10"
-
+    # Public activation is a post-onboarding readiness action.
     return None
 
 
@@ -1835,22 +1840,6 @@ class CustomerDetailView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, V
                     "icon": "fa-solid fa-phone",
                 }
             )
-        quick_actions.append(
-            {
-                "label": "رزروهای مشتری",
-                "url": f"{reverse('dashboards:appointment_calendar', kwargs={'salon_id': salon.id})}?q={customer.user.mobile_number or customer.get_fullName()}",
-                "tone": "border",
-                "icon": "fa-regular fa-calendar-days",
-            }
-        )
-        quick_actions.append(
-            {
-                "label": "بازگشت به محیط کاری مشتریان",
-                "url": reverse("dashboards:salons_customers_page"),
-                "tone": "primary",
-                "icon": "fa-solid fa-arrow-left",
-            }
-        )
 
         focus_items = []
         if appointments_count == 0:
@@ -1930,6 +1919,43 @@ class CustomerDetailView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, V
 
 
 # ----------------------------------------------------------------------------------------
+QUICK_LINK_AVAILABILITY_HORIZON_DAYS = 45
+
+
+def _quick_link_stylists_for_service(salon, service):
+    return list(
+        service.stylists.filter(is_active=True, stylists_of_salon=salon)
+        .select_related("user")
+        .distinct()
+        .order_by("user__name", "user__family")
+    )
+
+
+def _quick_link_availability_days(
+    *, salon, service, stylist, horizon_days=QUICK_LINK_AVAILABILITY_HORIZON_DAYS
+):
+    days = []
+    start_date = timezone.localdate()
+    for offset in range(max(int(horizon_days or 0), 1)):
+        target_date = start_date + timedelta(days=offset)
+        slots = get_available_slots_for_service(
+            salon=salon,
+            stylist=stylist,
+            service=service,
+            date_value=target_date,
+        )
+        if not slots:
+            continue
+        days.append(
+            {
+                "value": target_date.isoformat(),
+                "label": format_jalali_with_weekday(target_date),
+                "times": [start.strftime("%H:%M") for start, _ in slots],
+            }
+        )
+    return days
+
+
 class OnlineBookingQuickLinkOptionsView(LoginRequiredMixin, View):
     """Manager-scoped options for dependent quick-link fields.
 
@@ -2409,8 +2435,16 @@ class SalonProfileCreatorStep1View(
         if salon is None:
             raise Http404("No salon manager profile found.")
         form = SalonProfileStep1Form(instance=salon)
+        profile_edit_mode = _is_manager_profile_edit_mode(request.user)
+        if (
+            not profile_edit_mode
+            and salon.salon_name == _manager_placeholder_salon_name(request.user)
+        ):
+            form.initial["salon_name"] = ""
         context = {
-            "hide_dashboardNavbar": True,
+            "hide_dashboardNavbar": not profile_edit_mode,
+            "profile_edit_mode": profile_edit_mode,
+            "salon_profile_url": reverse("dashboards:salon_profile"),
             "form": form,
             "salon": salon,
         }
@@ -2429,8 +2463,11 @@ class SalonProfileCreatorStep1View(
                 or "dashboards:salon_profile"
             )
 
+        profile_edit_mode = _is_manager_profile_edit_mode(request.user)
         context = {
-            "hide_dashboardNavbar": True,
+            "hide_dashboardNavbar": not profile_edit_mode,
+            "profile_edit_mode": profile_edit_mode,
+            "salon_profile_url": reverse("dashboards:salon_profile"),
             "form": form,
             "salon": salon,
         }
@@ -2459,8 +2496,11 @@ class SalonProfileCreatorStep2View(
                 pass
 
         form = SalonProfileStep2Form(instance=salon, initial=initial)
+        profile_edit_mode = _is_manager_profile_edit_mode(request.user)
         context = {
-            "hide_dashboardNavbar": True,
+            "hide_dashboardNavbar": not profile_edit_mode,
+            "profile_edit_mode": profile_edit_mode,
+            "salon_profile_url": reverse("dashboards:salon_profile"),
             "form": form,
             "salon": salon,
             "map_provider_enabled": getattr(settings, "MAP_PROVIDER_ENABLED", False),
@@ -2501,8 +2541,11 @@ class SalonProfileCreatorStep2View(
                 or "dashboards:salon_profile"
             )
 
+        profile_edit_mode = _is_manager_profile_edit_mode(request.user)
         context = {
-            "hide_dashboardNavbar": True,
+            "hide_dashboardNavbar": not profile_edit_mode,
+            "profile_edit_mode": profile_edit_mode,
+            "salon_profile_url": reverse("dashboards:salon_profile"),
             "form": form,
             "salon": salon,
             "map_provider_enabled": getattr(settings, "MAP_PROVIDER_ENABLED", False),
@@ -2535,8 +2578,11 @@ class SalonProfileCreatorStep3View(
 
         form = self.form_class(initial=initial_data)
 
+        profile_edit_mode = _is_manager_profile_edit_mode(request.user)
         context = {
-            "hide_dashboardNavbar": True,
+            "hide_dashboardNavbar": not profile_edit_mode,
+            "profile_edit_mode": profile_edit_mode,
+            "salon_profile_url": reverse("dashboards:salon_profile"),
             "form": form,
             "salon": salon,
         }
@@ -2563,11 +2609,21 @@ class SalonProfileCreatorStep3View(
                             "close_time": close_time if is_active else None,
                         },
                     )
-            messages.success(request, "ساعت کاری مجموعه ذخیره شد.")
-            return redirect("dashboards:salon_profile_creator_step6")
+            if _is_manager_profile_edit_mode(request.user):
+                messages.success(request, "ساعات کاری مجموعه ذخیره شد.")
+                return redirect("dashboards:salon_profile")
 
+            messages.success(
+                request,
+                "اطلاعات اولیه مجموعه آماده شد. حالا می‌توانی از داشبورد ادامه بدهی.",
+            )
+            return redirect("dashboards:salon_manager_dashboard")
+
+        profile_edit_mode = _is_manager_profile_edit_mode(request.user)
         context = {
-            "hide_dashboardNavbar": True,
+            "hide_dashboardNavbar": not profile_edit_mode,
+            "profile_edit_mode": profile_edit_mode,
+            "salon_profile_url": reverse("dashboards:salon_profile"),
             "form": form,
             "salon": salon,
         }
@@ -2617,8 +2673,11 @@ class SalonProfileCreatorStep6View(
         gallery_count = gallery_images.count()
         gallery_limit_reached = gallery_count >= MAX_SALON_GALLERY_IMAGES
 
+        profile_edit_mode = _is_manager_profile_edit_mode(request.user)
         context = {
-            "hide_dashboardNavbar": True,
+            "hide_dashboardNavbar": not profile_edit_mode,
+            "profile_edit_mode": profile_edit_mode,
+            "salon_profile_url": reverse("dashboards:salon_profile"),
             "salon": salon,
             "gallery_images": gallery_images,
             "form": form,
@@ -2647,8 +2706,11 @@ class SalonProfileCreatorStep6View(
             gallery_images = SalonsGallery.objects.filter(salon=salon).order_by(
                 "-is_cover", "order"
             )
+            profile_edit_mode = _is_manager_profile_edit_mode(request.user)
             context = {
-                "hide_dashboardNavbar": True,
+                "hide_dashboardNavbar": not profile_edit_mode,
+                "profile_edit_mode": profile_edit_mode,
+                "salon_profile_url": reverse("dashboards:salon_profile"),
                 "salon": salon,
                 "gallery_images": gallery_images,
                 "form": form,
@@ -2926,8 +2988,11 @@ class SalonProfileCreatorStep7View(
         if selected_item_values is None or custom_items is None:
             selected_item_values, custom_items = self._get_existing_state(salon)
 
+        profile_edit_mode = _is_manager_profile_edit_mode(self.request.user)
         return {
-            "hide_dashboardNavbar": True,
+            "hide_dashboardNavbar": not profile_edit_mode,
+            "profile_edit_mode": profile_edit_mode,
+            "salon_profile_url": reverse("dashboards:salon_profile"),
             "salon": salon,
             "category_sections": self._build_category_sections(),
             "custom_icon_choices": self.custom_icon_choices,
@@ -3027,8 +3092,11 @@ class SalonProfileCreatorStep7View(
         else:
             messages.warning(
                 request,
-                "هیچ ویژگی‌ای انتخاب نشد. می‌توانی بعداً از همین بخش ویژگی‌ها را تکمیل کنی.",
+                "هیچ ویژگی‌ای انتخاب نشد. می‌توانی هر زمان از پروفایل مجموعه آن‌ها را اضافه کنی.",
             )
+
+        if _is_manager_profile_edit_mode(request.user):
+            return redirect("dashboards:salon_profile")
 
         if submit_action == "save":
             selected_item_values, custom_items = self._get_existing_state(salon)
@@ -3058,8 +3126,11 @@ class SalonProfileCreatorStep8View(
         return self.request._cached_salon
 
     def get_context_data(self, **kwargs):
+        profile_edit_mode = _is_manager_profile_edit_mode(self.request.user)
         context = {
-            "hide_dashboardNavbar": True,
+            "hide_dashboardNavbar": not profile_edit_mode,
+            "profile_edit_mode": profile_edit_mode,
+            "salon_profile_url": reverse("dashboards:salon_profile"),
             "salon": self.get_salon(),
         }
         context.update(kwargs)
@@ -3077,10 +3148,10 @@ class SalonProfileCreatorStep8View(
         if form.is_valid():
             form.save()
             messages.success(request, "توضیحات مجموعه ذخیره شد.")
-            return redirect(
-                _get_required_onboarding_view_name(request.user)
-                or "dashboards:salon_profile"
-            )
+            if _is_manager_profile_edit_mode(request.user):
+                return redirect("dashboards:salon_profile")
+
+            return redirect("dashboards:salon_manager_dashboard")
 
         context = self.get_context_data(form=form)
         messages.error(request, "لطفاً توضیحات مجموعه را تکمیل کنید.")
@@ -3096,172 +3167,52 @@ def salon_profile_creator_step9(request):
 
 # ---------------------------------------------------------------------------------------------
 class SalonProfileCreatorStep10View(
-    SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
+    SalonManagerOnboardingGuardMixin,
+    LoginRequiredMixin,
+    View,
 ):
-    template_name = "dashboards/salon_profile_creator_step10.html"
-
-    def get_salon(self):
-        """متد کمکی برای واکشی بهینه مجموعه و کش کردن آن در request."""
-        if not hasattr(self.request, "_cached_salon"):
-            self.request._cached_salon = get_object_or_404(
-                Salon.objects.select_related("salon_manager__user"),
-                salon_manager__user=self.request.user,
-            )
-        return self.request._cached_salon
+    """Compatibility endpoint for the legacy public-activation step."""
 
     def get(self, request, *args, **kwargs):
-        salon = self.get_salon()
-        context = {
-            "hide_dashboardNavbar": True,
-            "salon": salon,
-        }
-        return render(request, self.template_name, context)
+        return redirect(
+            f'{reverse("dashboards:salon_profile")}?tab=public'
+        )
 
     def post(self, request, *args, **kwargs):
         salon = get_object_or_404(
-            Salon.objects.select_related("salon_manager__user", "neighborhood"),
+            Salon.objects.select_related(
+                "salon_manager__user",
+                "neighborhood",
+            ),
             salon_manager__user=request.user,
         )
-        update_fields = []
-        if not salon.is_active:
-            salon.is_active = True
-            update_fields.append("is_active")
-        if update_fields:
-            salon.save(update_fields=update_fields)
-            messages.success(
-                request,
-                "پروفایل مجموعه فعال شد. حالا می‌توانید مدیریت خدمات، تیم و رزرو آنلاین را ادامه دهید.",
-            )
-        else:
-            messages.info(request, "پروفایل مجموعه قبلاً فعال شده است.")
-        return redirect("dashboards:salon_profile_creator_finalStep")
+
+        target = _activate_salon_public_page(
+            request,
+            salon,
+        )
+
+        if target:
+            return redirect(target)
+
+        return redirect(
+            f'{reverse("dashboards:salon_profile")}?tab=public'
+        )
 
 
 # ---------------------------------------------------------------------------------------------
 @login_required
 @manager_required
+@login_required
+@manager_required
 def salon_profile_creator_finalStep(request):
-    salon = get_object_or_404(
-        Salon.objects.select_related("salon_manager__user", "neighborhood"),
-        salon_manager__user=request.user,
+    """Compatibility route for legacy onboarding links."""
+    return redirect(
+        f'{reverse("dashboards:salon_profile")}?tab=public'
     )
-
-    services_count = salon.services.count()
-    stylists_count = salon.stylists.count()
-    gallery_count = salon.gallery_images.count()
-    features_count = salon.supplementary_info.filter(is_active=True).count()
-    open_days_count = salon.opening_hours.filter(is_closed=False).count()
-
-    customer_profile_preview_url = reverse(
-        "salons:detail_salon",
-        kwargs={"salon_id": salon.id},
-    )
-
-    final_step_badges = [
-        {"icon": "fa-solid fa-circle-check", "label": "پروفایل مجموعه فعال شد"},
-        {"icon": "fa-solid fa-scissors", "label": f"{services_count} خدمت"},
-        {"icon": "fa-solid fa-user-group", "label": f"{stylists_count} متخصص"},
-        {"icon": "fa-regular fa-images", "label": f"{gallery_count} تصویر"},
-    ]
-
-    next_step_cards = [
-        {
-            "title": "افزودن خدمت",
-            "description": "منوی خدمات، قیمت و مدت‌زمان هر خدمت را کامل کن تا صفحه مجموعه و رزرو آنلاین کاربردی‌تر شود.",
-            "icon": "fa-solid fa-scissors",
-            "badge": "مهم" if services_count == 0 else "قابل توسعه",
-            "url": reverse("dashboards:service_menu"),
-            "is_available": True,
-        },
-        {
-            "title": "افزودن متخصص",
-            "description": "اعضای تیم و متخصصها را اضافه کن تا ظرفیت ارائه خدمات و نوبت‌دهی دقیق‌تر شود.",
-            "icon": "fa-solid fa-user-group",
-            "badge": "مهم" if stylists_count == 0 else "قابل توسعه",
-            "url": reverse("dashboards:team_member"),
-            "is_available": True,
-        },
-        {
-            "title": "تنظیم تایم کاری تیم",
-            "description": "بعد از افزودن اعضای تیم، شیفت‌ها و زمان‌بندی کاری آن‌ها را مشخص کن.",
-            "icon": "fa-regular fa-clock",
-            "badge": "مرحله بعد",
-            "url": reverse("dashboards:scheduled_shifts"),
-            "is_available": True,
-        },
-        {
-            "title": "تکمیل گالری مجموعه",
-            "description": "اگر هنوز تصاویر کافی نداری، بعداً گالری و تصویر کاور را کامل‌تر کن.",
-            "icon": "fa-regular fa-images",
-            "badge": "قابل بهبود" if gallery_count < 3 else "وضعیت خوب",
-            "url": reverse("dashboards:salon_profile_creator_step6"),
-            "is_available": True,
-        },
-        {
-            "title": "تکمیل امکانات و ویژگی‌ها",
-            "description": "ویژگی‌ها و امکانات مجموعه را بازبینی کن تا معرفی مجموعه کامل‌تر شود.",
-            "icon": "fa-solid fa-stars",
-            "badge": "بازبینی",
-            "url": reverse("dashboards:salon_profile_creator_step7"),
-            "is_available": True,
-        },
-        {
-            "title": "آماده‌سازی رزرو آنلاین",
-            "description": "تنظیمات رزرو آنلاین و نمایش عمومی مجموعه را بررسی و نهایی کن.",
-            "icon": "fa-solid fa-globe",
-            "badge": "آماده‌سازی",
-            "url": reverse("dashboards:online_booking"),
-            "is_available": True,
-        },
-    ]
-
-    context = {
-        "hide_dashboardNavbar": True,
-        "salon": salon,
-        "customer_profile_preview_url": customer_profile_preview_url,
-        "final_step_badges": final_step_badges,
-        "next_step_cards": next_step_cards,
-        "services_count": services_count,
-        "stylists_count": stylists_count,
-        "gallery_count": gallery_count,
-        "features_count": features_count,
-        "open_days_count": open_days_count,
-    }
-    return render(request, "dashboards/salon_profile_creator_finalStep.html", context)
 
 
 # ----------------------------------------------------------------------------------------------
-def _activate_salon_public_page(request, salon):
-    """Activate the public page using the canonical booking-readiness checks."""
-    if salon.is_active:
-        messages.info(request, "صفحه عمومی مجموعه قبلاً فعال شده است.")
-        return None
-
-    readiness = build_salon_readiness_checklist(salon)
-    next_prerequisite = next(
-        (
-            item
-            for item in readiness["booking_items"]
-            if item["key"] != "public_active" and not item["is_done"]
-        ),
-        None,
-    )
-    if next_prerequisite:
-        messages.warning(
-            request,
-            f"قبل از فعال‌سازی صفحه عمومی، این مورد را کامل کن: {next_prerequisite['title']}",
-        )
-        return next_prerequisite.get("action_url") or reverse("dashboards:salon_profile")
-
-    salon.is_active = True
-    salon.save(update_fields=["is_active"])
-    messages.success(
-        request,
-        "صفحه عمومی مجموعه فعال شد. حالا مسیر رزرو را یک‌بار از نگاه مشتری بررسی کن.",
-    )
-    return None
-
-
 class SalonProfileView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View):
 
     def post(self, request):
@@ -5240,345 +5191,8 @@ def stocktakes(request):
 @login_required
 @manager_required
 def team_managment(request):
-    salon = Salon.objects.filter(salon_manager__user=request.user).first()
-
-    if not salon:
-        context = {
-            "salon": None,
-            "team_stats": {
-                "team_count": "۰",
-                "active_count": "۰",
-                "inactive_count": "۰",
-                "busy_count": "۰",
-                "time_off_count": "۰",
-            },
-            "team_workspace": {
-                "top_stylists": [],
-                "upcoming_time_offs": [],
-                "service_coverage": [],
-                "total_upcoming": "۰",
-                "focus_items": [
-                    {
-                        "title": "هنوز مجموعهی برای این حساب فعال نیست",
-                        "value": "نیازمند اقدام",
-                        "description": "بعد از تکمیل پروفایل مجموعه، محیط کاری تیم هم با داده واقعی قابل استفاده می‌شود.",
-                        "tone": "warning",
-                    }
-                ],
-                "quick_actions": [],
-            },
-        }
-        return render(request, "dashboards/team_management.html", context)
-
-    today = timezone.localdate()
-
-    stylists_qs = (
-        salon.stylists.select_related("user")
-        .prefetch_related("services_of_stylist")
-        .annotate(
-            upcoming_count=Count(
-                "order_details_stylist",
-                filter=(
-                    Q(order_details_stylist__salon=salon)
-                    & Q(order_details_stylist__date__gte=today)
-                    & ~Q(
-                        order_details_stylist__order__status__in=[
-                            "cancelled",
-                            "completed",
-                            "no_show",
-                        ]
-                    )
-                ),
-                distinct=True,
-            ),
-            services_count=Count(
-                "services_of_stylist",
-                filter=Q(services_of_stylist__services_of_salon=salon),
-                distinct=True,
-            ),
-            avg_score_annotation=Coalesce(Avg("scoring_stylist__score"), Value(0.0)),
-            upcoming_time_off_count=Count(
-                "time_offs",
-                filter=Q(time_offs__date__gte=today),
-                distinct=True,
-            ),
-        )
-        .order_by(
-            "-upcoming_count",
-            "-services_count",
-            "-avg_score_annotation",
-            "user__family",
-        )
-    )
-
-    membership_status_map = _ensure_memberships_for_legacy_salon_staff(
-        salon,
-        actor=request.user,
-        request=request,
-    )
-
-    top_stylists_raw = list(stylists_qs[:4])
-
-    top_stylists = []
-    for stylist in top_stylists_raw:
-        service_names = [
-            service.service_name
-            for service in stylist.services_of_stylist.filter(
-                services_of_salon=salon,
-                is_active=True,
-            ).distinct()[:3]
-            if service.service_name
-        ]
-        extra_services = max((stylist.services_count or 0) - len(service_names), 0)
-        membership_status = membership_status_map.get(
-            stylist.pk,
-            (
-                SalonMembershipStatus.ACTIVE
-                if stylist.is_active
-                else SalonMembershipStatus.PAUSED
-            ),
-        )
-
-        if membership_status != SalonMembershipStatus.ACTIVE or not stylist.is_active:
-            status_label = (
-                "غیرفعال در این مجموعه"
-                if membership_status != SalonMembershipStatus.ACTIVE
-                else "غیرفعال"
-            )
-            status_badge_class = "bg-slate-200 text-slate-600"
-        elif (stylist.upcoming_count or 0) > 0:
-            status_label = "دارای نوبت آینده"
-            status_badge_class = "bg-loomera-primarySoft text-loomera-primaryText"
-        else:
-            status_label = "فعال"
-            status_badge_class = "bg-emerald-100 text-emerald-700"
-
-        avg_score_value = float(stylist.avg_score_annotation or 0)
-        avg_score_label = (
-            to_persian_digits(f"{avg_score_value:.1f}") if avg_score_value else "۰"
-        )
-
-        top_stylists.append(
-            {
-                "id": stylist.pk,
-                "user_id": stylist.user.id,
-                "full_name": stylist.get_fullName(),
-                "expert": stylist.expert or "عضو تیم",
-                "profile_image_url": (
-                    stylist.profile_image.url if stylist.profile_image else None
-                ),
-                "status_label": status_label,
-                "status_badge_class": status_badge_class,
-                "upcoming_count_label": to_persian_digits(stylist.upcoming_count or 0),
-                "services_count_label": to_persian_digits(stylist.services_count or 0),
-                "avg_score_label": avg_score_label,
-                "time_off_count_label": to_persian_digits(
-                    stylist.upcoming_time_off_count or 0
-                ),
-                "service_names": service_names,
-                "has_more_services": extra_services > 0,
-                "extra_services_label": to_persian_digits(extra_services),
-                "profile_url": reverse(
-                    "dashboards:stylist_overview",
-                    kwargs={"stylist_id": stylist.user.id},
-                ),
-                "regular_shift_url": reverse(
-                    "dashboards:set_regular_shifts",
-                    kwargs={"stylist_id": stylist.pk, "salon_id": salon.id},
-                ),
-            }
-        )
-
-    upcoming_time_offs_raw = list(
-        StylistTimeOff.objects.filter(stylist__stylists_of_salon=salon, date__gte=today)
-        .select_related("stylist__user")
-        .order_by("date", "start_time")[:6]
-    )
-
-    upcoming_time_offs = []
-    for item in upcoming_time_offs_raw:
-        if item.start_time and item.end_time:
-            time_label = (
-                f"{format_time_fa(item.start_time)} تا {format_time_fa(item.end_time)}"
-            )
-        elif item.start_time:
-            time_label = format_time_fa(item.start_time)
-        else:
-            time_label = "تمام روز"
-
-        upcoming_time_offs.append(
-            {
-                "stylist_name": item.stylist.get_fullName(),
-                "date_label": _safe_jalali_label(
-                    item.date, formatter=format_jalali_with_weekday
-                ),
-                "time_label": time_label,
-                "reason": item.reason or "بدون توضیح",
-                "profile_url": reverse(
-                    "dashboards:stylist_overview",
-                    kwargs={"stylist_id": item.stylist.user.id},
-                ),
-            }
-        )
-
-    service_coverage_raw = list(
-        GroupServices.objects.filter(services_of_group__services_of_salon=salon)
-        .annotate(
-            services_count=Count(
-                "services_of_group",
-                filter=Q(services_of_group__services_of_salon=salon),
-                distinct=True,
-            ),
-            stylists_count=Count(
-                "services_of_group__stylists",
-                filter=Q(
-                    services_of_group__stylists__stylists_of_salon=salon,
-                    services_of_group__stylists__is_active=True,
-                ),
-                distinct=True,
-            ),
-        )
-        .order_by("group_title")
-        .distinct()
-    )
-
-    service_coverage = []
-    for group in service_coverage_raw:
-        if (group.stylists_count or 0) > 0:
-            coverage_label = "پوشش دارد"
-            coverage_badge_class = "bg-emerald-100 text-emerald-700"
-        else:
-            coverage_label = "بدون پوشش"
-            coverage_badge_class = "bg-amber-100 text-amber-700"
-
-        service_coverage.append(
-            {
-                "group_title": group.group_title,
-                "services_count_label": to_persian_digits(group.services_count or 0),
-                "stylists_count_label": to_persian_digits(group.stylists_count or 0),
-                "coverage_label": coverage_label,
-                "coverage_badge_class": coverage_badge_class,
-            }
-        )
-
-    team_count = stylists_qs.count()
-    active_count = sum(
-        1
-        for stylist in stylists_qs
-        if stylist.is_active
-        and membership_status_map.get(stylist.pk, SalonMembershipStatus.ACTIVE)
-        == SalonMembershipStatus.ACTIVE
-    )
-    inactive_count = max(team_count - active_count, 0)
-    busy_count = sum(
-        1
-        for stylist in stylists_qs
-        if stylist.is_active
-        and membership_status_map.get(stylist.pk, SalonMembershipStatus.ACTIVE)
-        == SalonMembershipStatus.ACTIVE
-        and (stylist.upcoming_count or 0) > 0
-    )
-    time_off_count = len(upcoming_time_offs_raw)
-    total_upcoming = sum(item.upcoming_count or 0 for item in top_stylists_raw)
-
-    focus_items = []
-    if active_count == 0:
-        focus_items.append(
-            {
-                "title": "عضو فعال برای پوشش رزروها وجود ندارد",
-                "value": "مهم",
-                "description": "برای  برنامه ریزی واقعی تیم و پشتیبانی از خدمات، حداقل یک عضو فعال لازم است.",
-                "tone": "warning",
-            }
-        )
-    if busy_count == 0 and active_count > 0:
-        focus_items.append(
-            {
-                "title": "در حال حاضر نوبت آینده‌ای برای تیم ثبت نشده",
-                "value": " برنامه ریزی",
-                "description": "ممکن است ظرفیت تیم خالی باشد یا هنوز رزروهای آینده به اعضا تخصیص داده نشده باشند.",
-                "tone": "neutral",
-            }
-        )
-    if any((group.stylists_count or 0) == 0 for group in service_coverage_raw):
-        focus_items.append(
-            {
-                "title": "بعضی گروه‌های خدمات هنوز پوشش تیم ندارند",
-                "value": "قابل بهبود",
-                "description": "برای جلوگیری از dead-end در رزرو، بهتر است گروه‌های بدون پوشش بررسی شوند.",
-                "tone": "primary",
-            }
-        )
-    if time_off_count > 0:
-        focus_items.append(
-            {
-                "title": "مرخصی‌های آینده روی ظرفیت اثر می‌گذارند",
-                "value": to_persian_digits(time_off_count),
-                "description": "time offهای ثبت‌شده را در  برنامه ریزی رزروها و توزیع کار تیم در نظر بگیر.",
-                "tone": "primary",
-            }
-        )
-
-    if not focus_items:
-        focus_items = [
-            {
-                "title": "محیط کاری تیم در وضعیت خوبی است",
-                "value": "آماده",
-                "description": "اعضا، پوشش خدمات و وضعیت آینده تیم برای مدیریت روزانه تصویر مناسبی ارائه می‌کنند.",
-                "tone": "success",
-            }
-        ]
-
-    quick_actions = [
-        {
-            "title": "فهرست اعضای تیم",
-            "description": "مرور کامل اعضا، فیلترها و وضعیت هر عضو.",
-            "icon": "fa-solid fa-user-group",
-            "url": reverse("dashboards:team_member"),
-            "badge": "اعضا",
-        },
-        {
-            "title": "شیفت‌ها و مرخصی",
-            "description": "planner هفتگی، برنامه روزانه و time off اعضای تیم.",
-            "icon": "fa-regular fa-calendar-days",
-            "url": reverse("dashboards:scheduled_shifts"),
-            "badge": " برنامه ریزی",
-        },
-        {
-            "title": "افزودن عضو جدید",
-            "description": "عضو تازه به تیم اضافه کن و پوشش خدمات را گسترش بده.",
-            "icon": "fa-solid fa-user-plus",
-            "url": reverse("dashboards:add_stylist"),
-            "badge": "جدید",
-        },
-        {
-            "title": "منوی خدمات",
-            "description": "برای بررسی پوشش خدمات و هماهنگی با تیم.",
-            "icon": "fa-solid fa-scissors",
-            "url": reverse("dashboards:service_menu"),
-            "badge": "خدمات",
-        },
-    ]
-
-    context = {
-        "salon": salon,
-        "team_stats": {
-            "team_count": to_persian_digits(team_count),
-            "active_count": to_persian_digits(active_count),
-            "inactive_count": to_persian_digits(inactive_count),
-            "busy_count": to_persian_digits(busy_count),
-            "time_off_count": to_persian_digits(time_off_count),
-        },
-        "team_workspace": {
-            "top_stylists": top_stylists,
-            "upcoming_time_offs": upcoming_time_offs,
-            "service_coverage": service_coverage,
-            "total_upcoming": to_persian_digits(total_upcoming),
-            "focus_items": focus_items,
-            "quick_actions": quick_actions,
-        },
-    }
-    return render(request, "dashboards/team_management.html", context)
+    """Legacy route kept for backwards compatibility; team management now lives on one page."""
+    return redirect("dashboards:team_member")
 
 
 # --------------------------------------------------------------------------------------------
@@ -5938,9 +5552,7 @@ class TeamMemberView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
         applied_status = request.GET.get("status_filter", "all")
         query = (request.GET.get("q") or "").strip()
 
-        stylists_qs = _build_team_member_stylists_queryset(
-            salon
-        )
+        stylists_qs = _build_team_member_stylists_queryset(salon)
 
         if query:
             stylists_qs = stylists_qs.filter(
@@ -6029,6 +5641,87 @@ class TeamMemberView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
 
         sent_invite_cards = _build_manager_sent_invites(salon)
 
+        today = timezone.localdate()
+        upcoming_time_offs_raw = list(
+            StylistTimeOff.objects.filter(
+                stylist__stylists_of_salon=salon,
+                date__gte=today,
+            )
+            .select_related("stylist__user")
+            .order_by("date", "start_time")[:12]
+        )
+        upcoming_time_offs = []
+        for item in upcoming_time_offs_raw:
+            if item.start_time and item.end_time:
+                time_label = (
+                    f"{format_time_fa(item.start_time)} تا {format_time_fa(item.end_time)}"
+                )
+            elif item.start_time:
+                time_label = format_time_fa(item.start_time)
+            else:
+                time_label = "تمام روز"
+
+            upcoming_time_offs.append(
+                {
+                    "stylist_name": item.stylist.get_fullName(),
+                    "date_label": _safe_jalali_label(
+                        item.date, formatter=format_jalali_with_weekday
+                    ),
+                    "time_label": time_label,
+                    "reason": item.reason or "بدون توضیح",
+                    "profile_url": reverse(
+                        "dashboards:stylist_overview",
+                        kwargs={"stylist_id": item.stylist.user.id},
+                    ),
+                }
+            )
+
+        service_coverage_raw = list(
+            GroupServices.objects.filter(services_of_group__services_of_salon=salon)
+            .annotate(
+                services_count=Count(
+                    "services_of_group",
+                    filter=Q(services_of_group__services_of_salon=salon),
+                    distinct=True,
+                ),
+                stylists_count=Count(
+                    "services_of_group__stylists",
+                    filter=Q(
+                        services_of_group__stylists__stylists_of_salon=salon,
+                        services_of_group__stylists__is_active=True,
+                    ),
+                    distinct=True,
+                ),
+            )
+            .order_by("group_title")
+            .distinct()
+        )
+        service_coverage = []
+        for group in service_coverage_raw:
+            has_coverage = (group.stylists_count or 0) > 0
+            service_coverage.append(
+                {
+                    "group_title": group.group_title,
+                    "services_count_label": to_persian_digits(
+                        group.services_count or 0
+                    ),
+                    "stylists_count_label": to_persian_digits(
+                        group.stylists_count or 0
+                    ),
+                    "coverage_label": (
+                        "پوشش دارد" if has_coverage else "بدون پوشش"
+                    ),
+                    "coverage_badge_class": (
+                        "bg-emerald-100 text-emerald-700"
+                        if has_coverage
+                        else "bg-amber-100 text-amber-700"
+                    ),
+                }
+            )
+        coverage_gap_count = sum(
+            1 for group in service_coverage_raw if (group.stylists_count or 0) == 0
+        )
+
         sort_labels = {
             "name_asc": "نام (الف تا ی)",
             "name_desc": "نام (ی تا الف)",
@@ -6086,8 +5779,8 @@ class TeamMemberView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
 
         context = {
             "salon": salon,
-            "stylists": stylist_list,
             "stylist_setup_handoff": stylist_setup_handoff,
+            "stylists": stylist_list,
             "membership_request_cards": membership_request_cards,
             "stylist_cards": stylist_cards,
             "all_group_services": all_group_services,
@@ -6103,6 +5796,14 @@ class TeamMemberView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
                 ),
                 "sent_invites": len(sent_invite_cards),
                 "sent_invites_label": to_persian_digits(len(sent_invite_cards)),
+                "upcoming_time_offs": upcoming_time_offs,
+                "upcoming_time_off_count": len(upcoming_time_offs_raw),
+                "upcoming_time_off_count_label": to_persian_digits(
+                    len(upcoming_time_offs_raw)
+                ),
+                "service_coverage": service_coverage,
+                "coverage_gap_count": coverage_gap_count,
+                "coverage_gap_count_label": to_persian_digits(coverage_gap_count),
                 "query": query,
                 "result_count_label": f"{to_persian_digits(total_count)} عضو",
                 "sort_label": sort_labels.get(applied_sort_by, "نام (الف تا ی)"),
@@ -6721,7 +6422,7 @@ class AddStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
         return _build_salon_service_group_cards(
             salon=salon,
         )
-    
+
     def _extract_selected_service_ids(self, request):
         selected_ids = []
         raw_json = (request.POST.get("selected_services_input") or "").strip()
@@ -6888,49 +6589,40 @@ class AddStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
                     )
 
                     emergency_name = (
-                        emergency_form.cleaned_data.get(
-                            "emergency_contact_name", ""
-                        )
-                        or ""
+                        emergency_form.cleaned_data.get("emergency_contact_name", "") or ""
                     ).strip()
-
                     emergency_family = (
-                        emergency_form.cleaned_data.get(
-                            "emergency_contact_family", ""
-                        )
-                        or ""
+                        emergency_form.cleaned_data.get("emergency_contact_family", "") or ""
                     ).strip()
-
                     phone = (
-                        emergency_form.cleaned_data.get(
-                            "emergency_phone", ""
-                        )
-                        or ""
+                        emergency_form.cleaned_data.get("emergency_phone", "") or ""
                     ).strip()
-
                     relationship = (
-                        emergency_form.cleaned_data.get(
-                            "relationship", ""
-                        )
-                        or ""
+                        emergency_form.cleaned_data.get("relationship", "") or ""
                     ).strip()
 
                     if any([emergency_name, emergency_family, phone, relationship]):
                         emergency = emergency_form.save(commit=False)
                         emergency.stylist = stylist
-                        emergency.full_name = (
-                            f"{emergency_name} {emergency_family}".strip()
-                        )
+                        emergency.full_name = f"{emergency_name} {emergency_family}".strip()
                         emergency.emergency_contact = phone
                         emergency.relationship = relationship
                         emergency.save()
 
-                messages.success(
-                    request,
-                    "عضو تیم با موفقیت اضافه شد.",
-                )
+                if selected_services:
+                    messages.success(
+                        request,
+                        "عضو تیم و خدمات او با موفقیت ثبت شد.",
+                    )
+                else:
+                    messages.success(
+                        request,
+                        "عضو تیم با موفقیت ثبت شد.",
+                    )
                 team_member_url = reverse("dashboards:team_member")
-                return redirect(f"{team_member_url}?created_stylist={stylist.user_id}")
+                return redirect(
+                    f"{team_member_url}?created_stylist={stylist.user_id}"
+                )
 
             except IntegrityError:
                 messages.error(
@@ -8366,11 +8058,20 @@ class ScheduledShiftsView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, 
 
         leave_request_workspace = _build_manager_leave_requests(salon)
         schedule_request_workspace = _build_manager_schedule_requests(salon)
+
+        # Keep the setup journey moving after the first real schedule is created.
+        setup_readiness = build_salon_readiness_checklist(salon)
+        setup_next_action = (
+            setup_readiness.get("next_action") if not salon.is_active else None
+        )
+
         context = {
             "salon": salon,
             "stylists_with_hours": stylists_data,
             "schedule_by_day": schedule_by_day,
             "team_capacity_setup": team_capacity_setup,
+            "setup_readiness": setup_readiness,
+            "setup_next_action": setup_next_action,
             "date_range_display": date_range_display,
             "prev_week_start_iso": prev_week_start_iso,
             "next_week_start_iso": next_week_start_iso,
@@ -8791,22 +8492,6 @@ class EditStylistDayScheduleView(
             "initial_shift_rows": initial_shift_rows,
             "can_schedule": can_schedule,
             "back_url": reverse("dashboards:scheduled_shifts"),
-            "profile_url": reverse(
-                "dashboards:stylist_overview",
-                kwargs={"stylist_id": stylist.user.id},
-            ),
-            "regular_shift_url": reverse(
-                "dashboards:set_regular_shifts",
-                kwargs={"stylist_id": stylist.pk, "salon_id": salon.id},
-            ),
-            "time_off_url": reverse(
-                "dashboards:add_time_off",
-                kwargs={
-                    "stylist_id": stylist.pk,
-                    "date_iso": date_obj.isoformat(),
-                    "salon_id": salon.id,
-                },
-            ),
             "edit_day_workspace": {
                 "day_label": page_title_date,
                 "salon_hours_label": salon_hours_label,
@@ -9644,18 +9329,6 @@ class AddTimeOffView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
             "stylist": stylist,
             "jalali_date_display": jalali_date_display,
             "back_url": reverse("dashboards:scheduled_shifts"),
-            "profile_url": reverse(
-                "dashboards:stylist_overview",
-                kwargs={"stylist_id": stylist.user.id},
-            ),
-            "day_schedule_url": reverse(
-                "dashboards:edit_day_schedule",
-                kwargs={
-                    "stylist_pk": stylist.pk,
-                    "salon_pk": salon.id,
-                    "date_iso": date_obj.isoformat(),
-                },
-            ),
             "existing_shifts": [
                 self._serialize_shift(item) for item in existing_shifts
             ],
@@ -10176,41 +9849,6 @@ def _build_manual_booking_frontend_context(*, salon, form):
     }
 
 
-QUICK_LINK_AVAILABILITY_HORIZON_DAYS = 45
-
-def _quick_link_stylists_for_service(salon, service):
-    return list(
-        service.stylists.filter(is_active=True, stylists_of_salon=salon)
-        .select_related("user")
-        .distinct()
-        .order_by("user__name", "user__family")
-    )
-
-
-def _quick_link_availability_days(
-    *, salon, service, stylist, horizon_days=QUICK_LINK_AVAILABILITY_HORIZON_DAYS
-):
-    days = []
-    start_date = timezone.localdate()
-    for offset in range(max(int(horizon_days or 0), 1)):
-        target_date = start_date + timedelta(days=offset)
-        slots = get_available_slots_for_service(
-            salon=salon,
-            stylist=stylist,
-            service=service,
-            date_value=target_date,
-        )
-        if not slots:
-            continue
-        days.append(
-            {
-                "value": target_date.isoformat(),
-                "label": format_jalali_with_weekday(target_date),
-                "times": [start.strftime("%H:%M") for start, _ in slots],
-            }
-        )
-    return days
-
 class DashboardManualBookingAvailabilityView(LoginRequiredMixin, View):
     """Return only canonical free dates/times for the selected manager booking pair.
 
@@ -10284,6 +9922,7 @@ class DashboardManualBookingAvailabilityView(LoginRequiredMixin, View):
             },
             json_dumps_params={"ensure_ascii": False},
         )
+
 
 class DashboardManualBookingView(
     SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
@@ -10657,6 +10296,9 @@ class ManagerNotificationCenterView(
         context.update(
             {
                 "salon": salon,
+                "notification_center_title": "مرکز اعلان‌های مدیر مجموعه",
+                "notification_center_description": "اعلان‌های رزرو، مالی، مشتری و تیم را یک‌جا ببین و مستقیم وارد صفحه مرتبط شو.",
+                "notification_center_empty_label": "هنوز اعلانی برای این مجموعه ثبت نشده است.",
                 "notification_center": {
                     "tabs": tabs,
                     "items": items,
@@ -12919,15 +12561,11 @@ def _build_stylist_home_payload(*, stylist, salon, can_view_client_phone=False):
         row["time_label"] = f"{row['start_label']} تا {row['end_label']}"
         schedule_rows.append(row)
 
-    services = list(
-        Services.objects.filter(
-            stylists=stylist,
-            services_of_salon=salon,
-            is_active=True,
-        )
-        .distinct()
-        .order_by("service_name")[:12]
-    )
+    service_count = Services.objects.filter(
+        stylists=stylist,
+        services_of_salon=salon,
+        is_active=True,
+    ).distinct().count()
 
     approved_leave_qs = StaffLeaveRequest.objects.filter(
         stylist=stylist,
@@ -12939,16 +12577,22 @@ def _build_stylist_home_payload(*, stylist, salon, can_view_client_phone=False):
     time_off_rows = [
         _serialize_stylist_time_off_row(item) for item in approved_leave_qs
     ]
+    time_off_count = StaffLeaveRequest.objects.filter(
+        stylist=stylist,
+        salon=salon,
+        status=StaffLeaveRequest.Status.APPROVED,
+        date__gte=today,
+    ).count()
 
     return {
         "today_count_label": to_persian_digits(today_qs.count()),
         "upcoming_count_label": to_persian_digits(upcoming_qs.count()),
-        "service_count_label": to_persian_digits(len(services)),
-        "time_off_count_label": to_persian_digits(len(time_off_rows)),
+        "service_count_label": to_persian_digits(service_count),
+        "time_off_count_label": to_persian_digits(time_off_count),
         "today_items": today_items,
         "schedule_rows": schedule_rows,
-        "services": services,
-        "time_off_rows": time_off_rows,
+        "services": [],
+        "time_off_rows": [],
     }
 
 
@@ -12991,6 +12635,8 @@ class StylistDashboardView(StylistDashboardGuardMixin, View):
         context.update(_stylist_context_payload(ctx))
 
         return render(request, "dashboards/stylist_dashboard.html", context)
+
+
 
 
 STYLIST_QUICK_LINK_PERIOD_OPTIONS = (
@@ -13810,33 +13456,6 @@ class StylistBookingQuickLinkQRView(
         )
 
 
-class StylistQuickLinkOptionsView(StylistDashboardGuardMixin, View):
-    """Availability options for the signed-in stylist using canonical booking slots."""
-
-    def get(self, request, *args, **kwargs):
-        ctx = _get_stylist_dashboard_context(request)
-        stylist, salon = ctx.stylist, ctx.salon
-        service_id = (request.GET.get("service_id") or "").strip()
-        if not service_id:
-            return JsonResponse({"availability": []})
-        service = (
-            Services.objects.filter(
-                pk=service_id,
-                services_of_salon=salon,
-                stylists=stylist,
-                is_active=True,
-            )
-            .distinct()
-            .first()
-        )
-        if service is None:
-            return JsonResponse({"error": "این خدمت برای شما در مجموعه فعال نیست."}, status=400)
-        return JsonResponse(
-            {"availability": _quick_link_availability_days(salon=salon, service=service, stylist=stylist)},
-            json_dumps_params={"ensure_ascii": False},
-        )
-
-
 class StylistQuickLinksView(StylistDashboardGuardMixin, View):
     template_name = "dashboards/stylist_quick_links.html"
 
@@ -13974,6 +13593,9 @@ class StylistAppointmentsView(StylistDashboardGuardMixin, View):
         today_qs = base_qs.filter(date=today)
         upcoming_qs = base_qs.filter(date__gt=today)
         past_qs = base_qs.filter(date__lt=today).order_by("-date", "-time", "-id")
+        # Keep the complete scoped list in the response context for runtime
+        # contracts/operational acceptance. The simplified UX intentionally
+        # does not render a separate "all" tab.
         all_qs = base_qs.order_by("-date", "-time", "-id")
 
         can_view_phone = ctx.can("can_view_client_phone", False)
@@ -14021,6 +13643,8 @@ class StylistAppointmentsView(StylistDashboardGuardMixin, View):
                 "today_appointment_cards": today_cards,
                 "upcoming_appointment_cards": upcoming_cards,
                 "past_appointment_cards": past_cards,
+                # Compatibility/runtime scope contract; not rendered as a
+                # duplicate task in the specialist appointments UI.
                 "all_appointment_cards": all_cards,
                 "today_count_label": to_persian_digits(len(today_cards)),
                 "upcoming_count_label": to_persian_digits(len(upcoming_cards)),
@@ -14517,14 +14141,6 @@ class StylistScheduleView(StylistDashboardGuardMixin, View):
             legacy_time_off_rows + approved_leave_rows,
             key=lambda item: item.get("sort_key") or "",
         )[:20]
-        service_coverage = [
-            _serialize_stylist_service_coverage(service, stylist)
-            for service in Services.objects.filter(
-                stylists=stylist, services_of_salon=salon, is_active=True
-            )
-            .distinct()
-            .order_by("service_name")[:8]
-        ]
         leave_requests = (
             StaffLeaveRequest.objects.filter(
                 stylist=stylist,
@@ -14555,7 +14171,6 @@ class StylistScheduleView(StylistDashboardGuardMixin, View):
                 "schedule_rows": schedules,
                 "time_off_rows": time_offs,
                 "leave_requests": leave_requests,
-                "service_coverage_rows": service_coverage,
                 "schedule_requests": schedule_requests,
             }
         )
@@ -14859,7 +14474,7 @@ class ManagerProfileView(LoginRequiredMixin, View):
             request.user,
             nav_active="home",
             sidebar_active="settings",
-            page_title="پروفایل مدیر مجموعه",
+            page_title="پروفایل مدیر",
             request_path=request.path,
         )
         context.update(
@@ -14867,13 +14482,10 @@ class ManagerProfileView(LoginRequiredMixin, View):
                 "hide_dashboard_header": True,
                 "hide_dashboard_top_nav": True,
                 "page_meta": {
-                    "title": "پروفایل مدیر مجموعه",
-                    "description": "اطلاعات حساب مدیر مجموعه، تصویر پروفایل و اطلاعات تماس را از اینجا مدیریت کن.",
+                    "title": "پروفایل مدیر",
+                    "description": "نام، ایمیل و تصویر حساب مدیر را مدیریت کن؛ اطلاعات مجموعه در پروفایل مجموعه نگهداری می‌شود.",
                     "icon": "fa-regular fa-user",
-                    "badges": [
-                        {"icon": "fa-solid fa-circle-check", "label": "قابل ویرایش"},
-                        {"icon": "fa-regular fa-image", "label": "تصویر پروفایل"},
-                    ],
+                    "badges": [],
                     "primary_action": {
                         "label": "بازگشت به تنظیمات",
                         "url": reverse("dashboards:workspace_settings"),
@@ -14905,7 +14517,7 @@ class ManagerProfileView(LoginRequiredMixin, View):
 
         if form.is_valid():
             form.save()
-            messages.success(request, "اطلاعات پروفایل مدیر مجموعه با موفقیت ذخیره شد.")
+            messages.success(request, "پروفایل مدیر با موفقیت ذخیره شد.")
             return redirect("dashboards:manager_profile")
 
         messages.error(request, "لطفاً خطاهای فرم را بررسی کنید.", "danger")
@@ -14914,106 +14526,6 @@ class ManagerProfileView(LoginRequiredMixin, View):
 
 
 # -------------------------------------------------------------------------------
-class StylistNotificationCenterView(StylistDashboardGuardMixin, View):
-    template_name = "dashboards/notifications_center.html"
-
-    def get(self, request, *args, **kwargs):
-        ctx = _get_stylist_dashboard_context(request)
-        stylist, salon = ctx.stylist, ctx.salon
-        context = build_dashboard_context(
-            request.user,
-            sidebar_active="overview",
-            page_title="اعلان‌های من",
-            request_path=request.path,
-            role="stylist",
-            salon_override=salon,
-            stylist_override=stylist,
-        )
-        notifications = context.get("dashboard_notifications", {})
-        context.update(
-            {
-                "salon": salon,
-                "notification_center_title": "مرکز اعلان‌های من",
-                "notification_center_description": "نوبت‌ها، مالی و تغییرات کاری مرتبط با خودت را یک‌جا ببین و از همان اعلان وارد صفحه مرتبط شو.",
-                "notification_center_empty_label": "هنوز اعلان کاری برای شما ثبت نشده است.",
-                "notification_center": {
-                    "tabs": notifications.get("tabs", []),
-                    "items": notifications.get("items", []),
-                    "active_category": "all",
-                    "is_empty": not notifications.get("items"),
-                },
-            }
-        )
-        context.update(_stylist_context_payload(ctx))
-        return render(request, self.template_name, context)
-
-
-class StylistSettingsHubView(StylistDashboardGuardMixin, View):
-    template_name = "dashboards/stylist_settings.html"
-
-    def get(self, request, *args, **kwargs):
-        ctx = _get_stylist_dashboard_context(request)
-        stylist, salon = ctx.stylist, ctx.salon
-        context = build_dashboard_context(
-            request.user,
-            sidebar_active="my_settings",
-            page_title="تنظیمات من",
-            request_path=request.path,
-            role="stylist",
-            salon_override=salon,
-            stylist_override=stylist,
-        )
-        context.update(
-            {
-                "stylist_settings_groups": [
-                    {
-                        "key": "account",
-                        "eyebrow": "حساب",
-                        "title": "حساب و امنیت",
-                        "description": "اطلاعات حرفه‌ای و امنیت حساب خودت را مدیریت کن.",
-                        "icon": "fa-regular fa-user",
-                        "items": [
-                            {
-                                "title": "پروفایل من",
-                                "description": "نام، رزومه، تصویر، نمونه‌کار و اطلاعات حرفه‌ای",
-                                "icon": "fa-regular fa-id-card",
-                                "url": reverse("dashboards:stylist_profile"),
-                            },
-                            {
-                                "title": "تغییر رمز عبور",
-                                "description": "رمز ورود حساب لومرا را تغییر بده",
-                                "icon": "fa-solid fa-key",
-                                "url": reverse("accounts:change_password"),
-                            },
-                        ],
-                    },
-                    {
-                        "key": "communications",
-                        "eyebrow": "ارتباطات",
-                        "title": "اعلان‌ها و پیام‌رسان",
-                        "description": "وضعیت اتصال بله و ترجیح دریافت اعلان‌ها را مدیریت کن.",
-                        "icon": "fa-regular fa-bell",
-                        "items": [
-                            {
-                                "title": "اعلان‌ها و ارتباطات",
-                                "description": "تنظیم پیام‌های کاری/تبلیغاتی و اتصال حساب بله",
-                                "icon": "fa-regular fa-bell",
-                                "url": reverse("dashboards:stylist_communication_settings"),
-                            },
-                            {
-                                "title": "مرکز اعلان‌های من",
-                                "description": "همه اعلان‌های کاری خودت را یک‌جا مرور کن",
-                                "icon": "fa-regular fa-bell",
-                                "url": reverse("dashboards:stylist_notifications"),
-                            },
-                        ],
-                    },
-                ]
-            }
-        )
-        context.update(_stylist_context_payload(ctx))
-        return render(request, self.template_name, context)
-
 class WorkspaceSettingsHubView(LoginRequiredMixin, View):
     template_name = "dashboards/workspace_settings.html"
 
@@ -15124,3 +14636,261 @@ class WorkspaceSettingsHubView(LoginRequiredMixin, View):
             }
         )
         return render(request, self.template_name, context)
+
+class StylistSettingsHubView(StylistDashboardGuardMixin, View):
+    template_name = "dashboards/stylist_settings.html"
+
+    def get(self, request, *args, **kwargs):
+        ctx = _get_stylist_dashboard_context(request)
+        stylist, salon = ctx.stylist, ctx.salon
+        context = build_dashboard_context(
+            request.user,
+            sidebar_active="my_settings",
+            page_title="تنظیمات من",
+            request_path=request.path,
+            role="stylist",
+            salon_override=salon,
+            stylist_override=stylist,
+        )
+        context.update(
+            {
+                "stylist_settings_groups": [
+                    {
+                        "key": "account",
+                        "eyebrow": "حساب",
+                        "title": "حساب و امنیت",
+                        "description": "اطلاعات حرفه‌ای و امنیت حساب خودت را مدیریت کن.",
+                        "icon": "fa-regular fa-user",
+                        "items": [
+                            {
+                                "title": "پروفایل من",
+                                "description": "نام، رزومه، تصویر، نمونه‌کار و اطلاعات حرفه‌ای",
+                                "icon": "fa-regular fa-id-card",
+                                "url": reverse("dashboards:stylist_profile"),
+                            },
+                            {
+                                "title": "تغییر رمز عبور",
+                                "description": "رمز ورود حساب لومرا را تغییر بده",
+                                "icon": "fa-solid fa-key",
+                                "url": reverse("accounts:change_password"),
+                            },
+                        ],
+                    },
+                    {
+                        "key": "communications",
+                        "eyebrow": "ارتباطات",
+                        "title": "اعلان‌ها و پیام‌رسان",
+                        "description": "وضعیت اتصال بله و ترجیح دریافت اعلان‌ها را مدیریت کن.",
+                        "icon": "fa-regular fa-bell",
+                        "items": [
+                            {
+                                "title": "اعلان‌ها و ارتباطات",
+                                "description": "تنظیم پیام‌های کاری/تبلیغاتی و اتصال حساب بله",
+                                "icon": "fa-regular fa-bell",
+                                "url": reverse("dashboards:stylist_communication_settings"),
+                            },
+                            {
+                                "title": "مرکز اعلان‌های من",
+                                "description": "همه اعلان‌های کاری خودت را یک‌جا مرور کن",
+                                "icon": "fa-regular fa-bell",
+                                "url": reverse("dashboards:stylist_notifications"),
+                            },
+                        ],
+                    },
+                ]
+            }
+        )
+        context.update(_stylist_context_payload(ctx))
+        return render(request, self.template_name, context)
+
+
+class StylistQuickLinkOptionsView(StylistDashboardGuardMixin, View):
+    """Availability options for the signed-in stylist using canonical booking slots."""
+
+    def get(self, request, *args, **kwargs):
+        ctx = _get_stylist_dashboard_context(request)
+        stylist, salon = ctx.stylist, ctx.salon
+        service_id = (request.GET.get("service_id") or "").strip()
+        if not service_id:
+            return JsonResponse({"availability": []})
+        service = (
+            Services.objects.filter(
+                pk=service_id,
+                services_of_salon=salon,
+                stylists=stylist,
+                is_active=True,
+            )
+            .distinct()
+            .first()
+        )
+        if service is None:
+            return JsonResponse({"error": "این خدمت برای شما در مجموعه فعال نیست."}, status=400)
+        return JsonResponse(
+            {"availability": _quick_link_availability_days(salon=salon, service=service, stylist=stylist)},
+            json_dumps_params={"ensure_ascii": False},
+        )
+
+
+class StylistNotificationCenterView(StylistDashboardGuardMixin, View):
+    template_name = "dashboards/notifications_center.html"
+
+    def get(self, request, *args, **kwargs):
+        ctx = _get_stylist_dashboard_context(request)
+        stylist, salon = ctx.stylist, ctx.salon
+        context = build_dashboard_context(
+            request.user,
+            sidebar_active="overview",
+            page_title="اعلان‌های من",
+            request_path=request.path,
+            role="stylist",
+            salon_override=salon,
+            stylist_override=stylist,
+        )
+        notifications = context.get("dashboard_notifications", {})
+        context.update(
+            {
+                "salon": salon,
+                "notification_center_title": "مرکز اعلان‌های من",
+                "notification_center_description": "نوبت‌ها، مالی و تغییرات کاری مرتبط با خودت را یک‌جا ببین و از همان اعلان وارد صفحه مرتبط شو.",
+                "notification_center_empty_label": "هنوز اعلان کاری برای شما ثبت نشده است.",
+                "notification_center": {
+                    "tabs": notifications.get("tabs", []),
+                    "items": notifications.get("items", []),
+                    "active_category": "all",
+                    "is_empty": not notifications.get("items"),
+                },
+            }
+        )
+        context.update(_stylist_context_payload(ctx))
+        return render(request, self.template_name, context)
+
+
+def _activate_salon_public_page(request, salon):
+    """Activate the public page using the canonical booking-readiness checks."""
+    if salon.is_active:
+        messages.info(request, "صفحه عمومی مجموعه قبلاً فعال شده است.")
+        return None
+
+    readiness = build_salon_readiness_checklist(salon)
+    next_prerequisite = next(
+        (
+            item
+            for item in readiness["booking_items"]
+            if item["key"] != "public_active" and not item["is_done"]
+        ),
+        None,
+    )
+    if next_prerequisite:
+        messages.warning(
+            request,
+            f"قبل از فعال‌سازی صفحه عمومی، این مورد را کامل کن: {next_prerequisite['title']}",
+        )
+        return next_prerequisite.get("action_url") or reverse("dashboards:salon_profile")
+
+    salon.is_active = True
+    salon.save(update_fields=["is_active"])
+    messages.success(
+        request,
+        "صفحه عمومی مجموعه فعال شد. حالا مسیر رزرو را یک‌بار از نگاه مشتری بررسی کن.",
+    )
+    return None
+
+
+@login_required
+@manager_required
+def legacy_quick_links_redirect(request):
+    """Keep the old manager quick-links reverse name pointed at Online Booking."""
+    return redirect(f'{reverse("dashboards:online_booking")}?tab=list')
+
+
+def _is_manager_profile_edit_mode(user):
+    """Return True after the required three-step onboarding is complete."""
+    return _get_required_onboarding_view_name(user) is None
+
+
+
+class CustomerAppointmentsPopupView(
+    SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
+):
+    """Read-only appointment history used by the customer-list modal."""
+
+    def get(self, request, customer_id):
+        salon = get_object_or_404(
+            Salon.objects.select_related("salon_manager__user"),
+            salon_manager__user=request.user,
+        )
+
+        customer = get_object_or_404(
+            Customer.objects.select_related("user")
+            .filter(pk=customer_id)
+            .filter(
+                Q(added_by_salon=salon)
+                | Q(orders__order_details1__salon=salon)
+            )
+            .distinct()
+        )
+
+        appointments = (
+            OrderDetail.objects.filter(salon=salon, order__customer=customer)
+            .select_related("order", "service", "stylist__user")
+            .order_by("-date", "-time", "-pk")
+        )
+
+        status_classes = {
+            "pending": "bg-amber-100 text-amber-700",
+            "confirmed": "bg-loomera-primarySoft text-loomera-primaryText",
+            "paid": "bg-emerald-100 text-emerald-700",
+            "completed": "bg-sky-100 text-sky-700",
+            "cancelled": "bg-rose-100 text-rose-700",
+        }
+
+        items = []
+        for appointment in appointments:
+            items.append(
+                {
+                    "id": appointment.pk,
+                    "detail_url": reverse(
+                        "dashboards:appointment_detail",
+                        kwargs={
+                            "salon_id": salon.pk,
+                            "appointment_id": appointment.pk,
+                        },
+                    ),
+                    "date_label": (
+                        format_jalali_with_weekday(appointment.date)
+                        if appointment.date
+                        else "بدون تاریخ"
+                    ),
+                    "time_label": (
+                        format_time_fa(appointment.time)
+                        if appointment.time
+                        else "--:--"
+                    ),
+                    "service_name": (
+                        appointment.service.service_name
+                        if appointment.service_id
+                        else "خدمت ثبت نشده"
+                    ),
+                    "stylist_name": (
+                        appointment.stylist.get_fullName()
+                        if appointment.stylist_id
+                        else "بدون متخصص"
+                    ),
+                    "status_label": appointment.get_status_display_fa(),
+                    "status_badge_class": status_classes.get(
+                        appointment.order.status,
+                        "bg-slate-100 text-slate-700",
+                    ),
+                    "price_label": _dashboard_currency(appointment.price or 0),
+                }
+            )
+
+        return JsonResponse(
+            {
+                "customer_name": customer.get_fullName()
+                or customer.user.get_fullName()
+                or "مشتری",
+                "count": len(items),
+                "appointments": items,
+            }
+        )
