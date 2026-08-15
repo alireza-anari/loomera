@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.db.models import Count, Q, Sum
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
@@ -478,7 +479,7 @@ def _build_snapshot(salon, base_qs, today):
             "title": "توضیحات مجموعه",
             "description": "معرفی مجموعه را کامل کن تا صفحه عمومی حرفه‌ای‌تر شود.",
             "count_label": f"{to_persian_digits(description_length)} کاراکتر",
-            "is_done": description_length >= 200,
+            "is_done": description_length > 0,
             "url": _safe_reverse("dashboards:salon_profile_creator_step8"),
             "icon": "fa-regular fa-pen-to-square",
         },
@@ -486,21 +487,25 @@ def _build_snapshot(salon, base_qs, today):
             "title": "ساعت‌های کاری",
             "description": "برای روزهای کاری اصلی، زمان شروع و پایان را ثبت کن.",
             "count_label": f"{to_persian_digits(open_days_count)} روز فعال",
-            "is_done": open_days_count >= 3,
+            "is_done": open_days_count > 0,
             "url": _safe_reverse("dashboards:salon_profile_creator_step3"),
             "icon": "fa-regular fa-clock",
         },
-        {
-            "title": "مالی و قوانین لغو",
-            "description": "شبا، مسئول تسویه و سیاست لغو مجموعه را کامل کن تا پرداخت‌های دیجیتال بدون ریسک عملیاتی اجرا شوند.",
-            "count_label": (
-                "آماده" if salon.payout_profile_complete else "نیازمند تکمیل"
-            ),
-            "is_done": salon.payout_profile_complete,
-            "url": _safe_reverse("dashboards:payout_settings"),
-            "icon": "fa-solid fa-wallet",
-        },
     ]
+
+    if bool(getattr(settings, "ONLINE_PAYMENT_ENABLED", False)):
+        completion_items.append(
+            {
+                "title": "مالی و قوانین لغو",
+                "description": "برای دریافت و تسویه پرداخت آنلاین، اطلاعات مالی و قوانین لغو را کامل کن.",
+                "count_label": (
+                    "آماده" if salon.payout_profile_complete else "نیازمند تکمیل"
+                ),
+                "is_done": salon.payout_profile_complete,
+                "url": _safe_reverse("dashboards:payout_settings"),
+                "icon": "fa-solid fa-wallet",
+            }
+        )
 
     completed_count = sum(1 for item in completion_items if item["is_done"])
     completion_percentage = (
