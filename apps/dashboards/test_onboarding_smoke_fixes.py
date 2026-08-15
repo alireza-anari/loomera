@@ -62,8 +62,10 @@ class OnboardingSmokeFixStaticTests(TestCase):
         self.assertNotIn("descriptionPreviewText", js)
         self.assertNotIn("data-description-chip", js)
 
-    def test_public_activation_no_longer_blocks_dashboard(self):
+    def test_finishing_onboarding_publishes_salon_and_opens_profile_setup(self):
         views = self.read("apps/dashboards/views.py")
         guard = views.split("def _get_required_onboarding_view_name", 1)[1].split("\ndef ", 1)[0]
         self.assertNotIn("_is_step10_complete", guard)
-        self.assertIn('return redirect("dashboards:salon_manager_dashboard")', views)
+        self.assertIn("salon.is_active = True", views)
+        self.assertIn('?setup=booking', views)
+        self.assertIn('"یک خدمت، عضو تیم و برنامه کاری اضافه کن."', views)
