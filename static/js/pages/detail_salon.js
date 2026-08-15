@@ -1,18 +1,7 @@
 import { initFadeSlider, initCarousel } from "../components/unified_sliders.js";
 import initTooltips from "../components/tooltip.js";
-import { STORAGE_KEYS, writeStorageValue } from "../storage_keys.js";
+import { STORAGE_KEYS, readStorageValue, writeStorageValue } from "../storage_keys.js";
 import { initAboutSection } from "../components/about.js";
-
-function getCsrfToken() {
-  const input = document.querySelector("input[name='csrfmiddlewaretoken']");
-  if (input?.value) return input.value;
-
-  const cookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("csrftoken="));
-
-  return cookie ? decodeURIComponent(cookie.split("=")[1]) : "";
-}
 
 function formatPrice(num) {
   if (!num || isNaN(num)) return "0 تومان";
@@ -31,8 +20,7 @@ function lockPageScroll() {
   if (openOverlayCount !== 1) return;
 
   document.body.dataset.prevOverflow = document.body.style.overflow || "";
-  document.documentElement.dataset.prevOverflow =
-    document.documentElement.style.overflow || "";
+  document.documentElement.dataset.prevOverflow = document.documentElement.style.overflow || "";
   document.body.style.overflow = "hidden";
   document.documentElement.style.overflow = "hidden";
 }
@@ -42,8 +30,7 @@ function unlockPageScroll() {
   if (openOverlayCount !== 0) return;
 
   document.body.style.overflow = document.body.dataset.prevOverflow || "";
-  document.documentElement.style.overflow =
-    document.documentElement.dataset.prevOverflow || "";
+  document.documentElement.style.overflow = document.documentElement.dataset.prevOverflow || "";
   delete document.body.dataset.prevOverflow;
   delete document.documentElement.dataset.prevOverflow;
 }
@@ -107,8 +94,7 @@ function openDirectionsIntent(lat, lng, label = "سالن") {
   const iosUrl = `maps://?daddr=${lat},${lng}&dirflg=d`;
   const webUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${lat},${lng}`)}`;
 
-  const isIOS =
-    /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const isAndroid = /Android/i.test(navigator.userAgent);
 
   if (isAndroid) {
@@ -135,10 +121,7 @@ function initFavoriteButton() {
   if (!button || button.dataset.bound === "1") return;
 
   button.dataset.bound = "1";
-  syncFavoriteButtonState(
-    button,
-    button.querySelector("i")?.classList.contains("fa-solid"),
-  );
+  syncFavoriteButtonState(button, button.querySelector("i")?.classList.contains("fa-solid"));
 
   button.addEventListener("click", async (event) => {
     event.preventDefault();
@@ -149,17 +132,9 @@ function initFavoriteButton() {
     button.dataset.loading = "1";
 
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
+      const response = await fetch(`${endpoint}?salonId=${encodeURIComponent(salonId)}`, {
         credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-Requested-With": "XMLHttpRequest",
-          "X-CSRFToken": getCsrfToken(),
-        },
-        body: new URLSearchParams({
-          salonId,
-        }),
+        headers: { "X-Requested-With": "XMLHttpRequest" },
       });
       const raw = (await response.text()).trim();
       let payload = null;
@@ -176,20 +151,17 @@ function initFavoriteButton() {
       }
 
       if (!response.ok) {
-        window.alert(
-          payload?.message || raw || "ثبت علاقه‌مندی با خطا مواجه شد.",
-        );
+        window.alert(payload?.message || raw || "ثبت علاقه‌مندی با خطا مواجه شد.");
         return;
       }
 
-      const isFavorite =
-        typeof payload?.is_favorite === "boolean"
-          ? payload.is_favorite
-          : raw.includes("اضافه");
+      const isFavorite = typeof payload?.is_favorite === "boolean"
+        ? payload.is_favorite
+        : raw.includes("اضافه");
 
       syncFavoriteButtonState(button, isFavorite);
     } catch (error) {
-      console.error("[detail-salon] favorite update failed");
+      console.error("[detail_salon] favorite toggle failed", error);
       window.alert("در ثبت علاقه‌مندی مشکلی پیش آمد.");
     } finally {
       delete button.dataset.loading;
@@ -201,17 +173,13 @@ function initTopbarAndTabs() {
   const topbar = document.getElementById("detail_topbar");
   const scrolledTitle = document.getElementById("detail_scrolledTitle");
   const contentTabsNav = document.querySelector("[data-section-nav]");
-  const floatingTabsNav = document.querySelector("[data-section-nav-floating]");
   const backBtn = document.querySelector('[data-action="go-back"]');
   const shareBtn = document.querySelector('[data-action="share-page"]');
 
   const contentTabLinks = contentTabsNav
     ? Array.from(contentTabsNav.querySelectorAll('a[href^="#"]'))
     : [];
-  const floatingTabLinks = floatingTabsNav
-    ? Array.from(floatingTabsNav.querySelectorAll('a[href^="#"]'))
-    : [];
-  const tabLinks = [...contentTabLinks, ...floatingTabLinks];
+  const tabLinks = contentTabLinks;
 
   if (backBtn && backBtn.dataset.bound !== "1") {
     backBtn.dataset.bound = "1";
@@ -270,7 +238,7 @@ function initTopbarAndTabs() {
   const syncTopbarCssVar = () => {
     document.documentElement.style.setProperty(
       "--lm-detail-topbar-height",
-      `${getTopbarHeight()}px`,
+      `${getTopbarHeight()}px`
     );
   };
 
@@ -289,93 +257,17 @@ function initTopbarAndTabs() {
     .filter(Boolean);
 
   const contentActiveClasses = ["is-active"];
-  const floatingActiveClasses = [
-    "border-white/30",
-    "bg-white/20",
-    "text-white",
-    "shadow-sm",
-  ];
-  const floatingInactiveClasses = [
-    "border-transparent",
-    "text-white/80",
-    "hover:bg-white/10",
-    "hover:text-white",
-  ];
 
   const setActiveHref = (activeHref) => {
     contentTabLinks.forEach((link) => {
       const isActive = link.getAttribute("href") === activeHref;
-      contentActiveClasses.forEach((className) =>
-        link.classList.toggle(className, isActive),
-      );
+      contentActiveClasses.forEach((className) => link.classList.toggle(className, isActive));
       if (isActive) link.setAttribute("aria-current", "true");
       else link.removeAttribute("aria-current");
     });
-
-    floatingTabLinks.forEach((link) => {
-      const isActive = link.getAttribute("href") === activeHref;
-
-      link.classList.toggle("is-active", isActive);
-
-      floatingActiveClasses.forEach((className) => {
-        link.classList.toggle(className, isActive);
-      });
-
-      floatingInactiveClasses.forEach((className) => {
-        link.classList.toggle(className, !isActive);
-      });
-
-      if (isActive) {
-        link.setAttribute("aria-current", "true");
-      } else {
-        link.removeAttribute("aria-current");
-      }
-    });
   };
 
-  const getTabsHeight = () => contentTabsNav.offsetHeight || 56;
   const getScrollOffset = () => getTopbarHeight() + 18;
-
-  const shouldMoveTabsToHeader = () => {
-    if (!contentTabsNav) return false;
-
-    const topbarBottom = getTopbarHeight();
-    const navTop = contentTabsNav.getBoundingClientRect().top;
-
-    /*
-      Real trigger:
-      وقتی تب‌های اصلی به خط هدر برسند، نسخه شناور فعال می‌شود.
-      این حالت هم دسکتاپ را پوشش می‌دهد هم موبایل.
-    */
-    return navTop <= topbarBottom + 8;
-  };
-
-  const updateTabsTransfer = () => {
-    const moved = shouldMoveTabsToHeader();
-
-    if (floatingTabsNav) {
-      floatingTabsNav.classList.toggle("is-visible", moved);
-
-      floatingTabsNav.classList.toggle("opacity-100", moved);
-      floatingTabsNav.classList.toggle("scale-100", moved);
-      floatingTabsNav.classList.toggle("translate-y-0", moved);
-      floatingTabsNav.classList.toggle("pointer-events-auto", moved);
-
-      floatingTabsNav.classList.toggle("opacity-0", !moved);
-      floatingTabsNav.classList.toggle("scale-[0.98]", !moved);
-      floatingTabsNav.classList.toggle("translate-y-[-0.5rem]", !moved);
-      floatingTabsNav.classList.toggle("pointer-events-none", !moved);
-
-      floatingTabsNav.setAttribute("aria-hidden", moved ? "false" : "true");
-    }
-
-    /*
-      جای تب‌های اصلی حفظ می‌شود تا صفحه نپرد،
-      اما وقتی نسخه هدر فعال است خود تب‌های اصلی دیده نمی‌شوند.
-    */
-    contentTabsNav.style.opacity = moved ? "0" : "";
-    contentTabsNav.style.pointerEvents = moved ? "none" : "";
-  };
 
   const updateTopbar = () => {
     if (!topbar || !scrolledTitle) return;
@@ -386,19 +278,11 @@ function initTopbarAndTabs() {
     if (isScrolled) {
       scrolledTitle.style.opacity = "1";
       scrolledTitle.style.transform = "translateY(0)";
-      topbar.classList.add(
-        "bg-slate-950/72",
-        "backdrop-blur-xl",
-        "shadow-lm-card",
-      );
+      topbar.classList.add("bg-slate-950/72", "backdrop-blur-xl", "shadow-lm-card");
     } else {
       scrolledTitle.style.opacity = "0";
       scrolledTitle.style.transform = "translateY(0.5rem)";
-      topbar.classList.remove(
-        "bg-slate-950/72",
-        "backdrop-blur-xl",
-        "shadow-lm-card",
-      );
+      topbar.classList.remove("bg-slate-950/72", "backdrop-blur-xl", "shadow-lm-card");
     }
   };
 
@@ -432,10 +316,7 @@ function initTopbarAndTabs() {
       const section = id ? document.getElementById(id) : null;
       if (!section) return;
 
-      const top =
-        section.getBoundingClientRect().top +
-        window.scrollY -
-        getScrollOffset();
+      const top = section.getBoundingClientRect().top + window.scrollY - getScrollOffset();
       setActiveHref(href);
 
       window.scrollTo({
@@ -448,7 +329,6 @@ function initTopbarAndTabs() {
   const updateAll = () => {
     syncTopbarCssVar();
     updateTopbar();
-    updateTabsTransfer();
     updateActiveTab();
   };
 
@@ -503,9 +383,7 @@ function initSamplesSection() {
 }
 
 function initServicesAndBookingBar() {
-  const groupButtons = Array.from(
-    document.querySelectorAll(".service-group-btn"),
-  );
+  const groupButtons = Array.from(document.querySelectorAll(".service-group-btn"));
   const serviceItems = Array.from(document.querySelectorAll(".service-item"));
   const showAllBtn = document.getElementById("showAllServicesBtn");
 
@@ -519,16 +397,10 @@ function initServicesAndBookingBar() {
   const desktopCountEl = document.getElementById("desktopBookingCount");
   const desktopPriceEl = document.getElementById("desktopBookingPrice");
   const desktopDurationEl = document.getElementById("desktopBookingDuration");
-  const desktopEmptyStateEl = document.getElementById(
-    "desktopBookingEmptyState",
-  );
-  const desktopSelectedMetaEl = document.getElementById(
-    "desktopBookingSelectedMeta",
-  );
+  const desktopEmptyStateEl = document.getElementById("desktopBookingEmptyState");
+  const desktopSelectedMetaEl = document.getElementById("desktopBookingSelectedMeta");
 
-  const bookingSubmitTriggers = Array.from(
-    document.querySelectorAll("[data-booking-submit-trigger]"),
-  );
+  const bookingSubmitTriggers = Array.from(document.querySelectorAll("[data-booking-submit-trigger]"));
   const selectedServices = new Map();
 
   function setGroupButtonState(activeButton = null) {
@@ -554,12 +426,7 @@ function initServicesAndBookingBar() {
   }
 
   if (groupButtons.length) {
-    const activeBtn =
-      groupButtons.find(
-        (btn) =>
-          btn.classList.contains("bg-loomera-primary") ||
-          btn.classList.contains("lm-chip--selected"),
-      ) || groupButtons[0];
+    const activeBtn = groupButtons.find((btn) => btn.classList.contains("bg-loomera-primary") || btn.classList.contains("lm-chip--selected")) || groupButtons[0];
     setGroupButtonState(activeBtn);
     applyGroupFilter(activeBtn.dataset.group);
   }
@@ -600,22 +467,17 @@ function initServicesAndBookingBar() {
 
     if (bookingCountEl) bookingCountEl.textContent = `${count} خدمت`;
     if (bookingPriceEl) bookingPriceEl.textContent = formatPrice(totalPrice);
-    if (bookingDurationEl)
-      bookingDurationEl.textContent = formatMinutes(totalDuration);
-    if (bookingEmptyStateEl)
-      bookingEmptyStateEl.classList.toggle("hidden", hasSelection);
-    if (bookingSelectedMetaEl)
-      bookingSelectedMetaEl.classList.toggle("hidden", !hasSelection);
+    if (bookingDurationEl) bookingDurationEl.textContent = formatMinutes(totalDuration);
+    if (bookingEmptyStateEl) bookingEmptyStateEl.classList.toggle("hidden", hasSelection);
+    if (bookingSelectedMetaEl) bookingSelectedMetaEl.classList.toggle("hidden", !hasSelection);
 
     if (desktopCountEl) desktopCountEl.textContent = `${count} خدمت`;
     if (desktopPriceEl) desktopPriceEl.textContent = formatPrice(totalPrice);
-    if (desktopDurationEl)
-      desktopDurationEl.textContent = formatMinutes(totalDuration);
-    if (desktopEmptyStateEl)
-      desktopEmptyStateEl.classList.toggle("hidden", hasSelection);
-    if (desktopSelectedMetaEl)
-      desktopSelectedMetaEl.classList.toggle("hidden", !hasSelection);
+    if (desktopDurationEl) desktopDurationEl.textContent = formatMinutes(totalDuration);
+    if (desktopEmptyStateEl) desktopEmptyStateEl.classList.toggle("hidden", hasSelection);
+    if (desktopSelectedMetaEl) desktopSelectedMetaEl.classList.toggle("hidden", !hasSelection);
 
+    bookingBar?.classList.toggle("hidden", !hasSelection);
     bookingBar?.classList.toggle("is-active", hasSelection);
     bookingSubmitTriggers.forEach((trigger) => {
       trigger.classList.toggle("opacity-90", !hasSelection);
@@ -636,9 +498,7 @@ function initServicesAndBookingBar() {
       btn.setAttribute("aria-pressed", isSelected ? "true" : "false");
       btn.setAttribute(
         "aria-label",
-        isSelected
-          ? `حذف ${serviceName} از رزرو`
-          : `افزودن ${serviceName} به رزرو`,
+        isSelected ? `حذف ${serviceName} از رزرو` : `افزودن ${serviceName} به رزرو`
       );
 
       btn.classList.toggle("is-selected", isSelected);
@@ -659,8 +519,7 @@ function initServicesAndBookingBar() {
     if (!id) return;
 
     const serviceName = item.dataset.serviceName || "";
-    const price =
-      Number(String(item.dataset.servicePrice || "0").replace(/,/g, "")) || 0;
+    const price = Number(String(item.dataset.servicePrice || "0").replace(/,/g, "")) || 0;
     const duration = Number(item.dataset.serviceDuration || 0) || 0;
     const alreadySelected = selectedServices.has(id);
 
@@ -673,6 +532,15 @@ function initServicesAndBookingBar() {
     serviceItems
       .filter((candidate) => candidate.dataset.serviceId === id)
       .forEach((candidate) => setServiceCardState(candidate, !alreadySelected));
+
+    writeStorageValue(
+      STORAGE_KEYS.bookingSelectionDraft,
+      JSON.stringify({
+        salon_id: bookingSubmitTriggers[0]?.dataset?.salonId || null,
+        services: [...selectedServices.keys()],
+      }),
+      { writeLegacy: true }
+    );
 
     updateBookingSummary();
   }
@@ -688,6 +556,31 @@ function initServicesAndBookingBar() {
       toggleServiceSelection(item);
     });
   });
+
+  // Beta UX: returning from later booking steps should not erase the customer's service choices.
+  try {
+    const rawDraft = readStorageValue(STORAGE_KEYS.bookingSelectionDraft);
+    const draft = rawDraft ? JSON.parse(rawDraft) : null;
+    const currentSalonId = String(bookingSubmitTriggers[0]?.dataset?.salonId || "");
+    const serviceIds = Array.isArray(draft?.services) ? draft.services.map(String) : [];
+    if (String(draft?.salon_id || "") === currentSalonId && serviceIds.length) {
+      serviceIds.forEach((serviceId) => {
+        const item = serviceItems.find((candidate) => String(candidate.dataset.serviceId) === serviceId);
+        if (!item || selectedServices.has(serviceId)) return;
+        selectedServices.set(serviceId, {
+          id: serviceId,
+          name: item.dataset.serviceName || "",
+          price: Number(String(item.dataset.servicePrice || "0").replace(/,/g, "")) || 0,
+          duration: Number(item.dataset.serviceDuration || 0) || 0,
+        });
+        serviceItems
+          .filter((candidate) => String(candidate.dataset.serviceId) === serviceId)
+          .forEach((candidate) => setServiceCardState(candidate, true));
+      });
+    }
+  } catch (error) {
+    // A stale draft should never block the booking page.
+  }
 
   function submitSelectedServices(trigger) {
     if (selectedServices.size === 0) {
@@ -708,7 +601,7 @@ function initServicesAndBookingBar() {
         salon_id: salonId,
         services: serviceIds,
       }),
-      { writeLegacy: true },
+      { writeLegacy: true }
     );
 
     window.location.href = `${url}?salon_id=${salonId}&selected_services=${serviceIds.join(",")}`;
@@ -765,41 +658,30 @@ function initReviews() {
     reviewFormContainer.classList.remove("hidden");
     syncReviewToggleState();
     setTimeout(() => {
-      document
-        .getElementById("reviews")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 120);
   }
 
   const reviewsModal = document.getElementById("reviewsModal");
-  const openModalBtns = document.querySelectorAll(
-    "[data-modal-open='reviewsModal']",
-  );
+  const openModalBtns = document.querySelectorAll("[data-modal-open='reviewsModal']");
   const allReviewsContainer = document.getElementById("allReviewsContainer");
   const reviewsCountDisplay = document.getElementById("reviewsCountDisplay");
-  const starFilters = Array.from(
-    document.querySelectorAll(".review-filter-star"),
-  );
+  const starFilters = Array.from(document.querySelectorAll(".review-filter-star"));
 
   const allReviews = Array.isArray(window.allReviews) ? window.allReviews : [];
 
   function renderReviews() {
     if (!allReviewsContainer || !reviewsCountDisplay) return;
 
-    const activeStars = starFilters
-      .filter((f) => f.checked)
-      .map((f) => Number(f.value));
-    const filtered = allReviews.filter((rev) =>
-      activeStars.includes(Number(rev.score || 0)),
-    );
+    const activeStars = starFilters.filter((f) => f.checked).map((f) => Number(f.value));
+    const filtered = allReviews.filter((rev) => activeStars.includes(Number(rev.score || 0)));
 
     reviewsCountDisplay.textContent = `${filtered.length} دیدگاه`;
     allReviewsContainer.innerHTML = "";
 
     filtered.forEach((rev) => {
       const div = document.createElement("div");
-      div.className =
-        "bg-white border border-gray-200 rounded-xl p-4 shadow-sm text-sm text-gray-800";
+      div.className = "bg-white border border-gray-200 rounded-xl p-4 shadow-sm text-sm text-gray-800";
 
       const starsHtml = Array.from({ length: 5 }, (_, i) => {
         const starIndex = i + 1;
@@ -819,11 +701,9 @@ function initReviews() {
         </div>
         <div class="flex items-center gap-1 mb-2 text-sm">${starsHtml}</div>
         <p class="leading-relaxed mb-2">${rev.comment_text || ""}</p>
-        ${
-          rev.stylist_name || rev.service_name
-            ? `<p class="text-xs text-gray-500">${rev.stylist_name ? `<strong>متخصص:</strong> ${rev.stylist_name}` : ""}${rev.service_name ? ` | <strong>خدمت:</strong> ${rev.service_name}` : ""}</p>`
-            : ""
-        }
+        ${rev.stylist_name || rev.service_name
+          ? `<p class="text-xs text-gray-500">${rev.stylist_name ? `<strong>متخصص:</strong> ${rev.stylist_name}` : ""}${rev.service_name ? ` | <strong>خدمت:</strong> ${rev.service_name}` : ""}</p>`
+          : ""}
       `;
       allReviewsContainer.appendChild(div);
     });
@@ -900,14 +780,11 @@ function patchDefaultLeafletMarker() {
 function buildTileTemplates() {
   const templates = [];
   const rawTemplate = document.body?.dataset?.mapTileUrlTemplate || "";
-  const mapEnabled =
-    String(document.body?.dataset?.mapEnabled || "").toLowerCase() === "true";
+  const mapEnabled = String(document.body?.dataset?.mapEnabled || "").toLowerCase() === "true";
 
   if (mapEnabled && rawTemplate) {
     templates.push({
-      url: rawTemplate
-        .replace(/0\/0\/0\/?$/, "{z}/{x}/{y}/")
-        .replace(/0\/0\/0$/, "{z}/{x}/{y}"),
+      url: rawTemplate.replace(/0\/0\/0\/?$/, "{z}/{x}/{y}/").replace(/0\/0\/0$/, "{z}/{x}/{y}"),
       attribution: "© Map.ir",
       internal: true,
     });
@@ -930,7 +807,7 @@ function scheduleMapResize(map) {
       try {
         map.invalidateSize();
       } catch (error) {
-        console.warn("[detail-salon] map resize failed");
+        console.warn("[detail_salon] invalidateSize warning", error);
       }
     }, delay);
   });
@@ -961,7 +838,7 @@ function createSalonMap(mapContainer, lat, lng) {
     let tileErrors = 0;
     layer.on("tileerror", (event) => {
       tileErrors += 1;
-      console.warn("[detail-salon] map tile load failed");
+      console.warn("[detail_salon] tile load failed", event);
 
       if (tileErrors < 2) return;
 
@@ -971,7 +848,7 @@ function createSalonMap(mapContainer, lat, lng) {
       try {
         map.removeLayer(layer);
       } catch (error) {
-        console.warn("[detail-salon] map tile layer removal failed");
+        console.warn("[detail_salon] tile layer removal warning", error);
       }
 
       activeTileIndex += 1;
@@ -1018,38 +895,30 @@ function initMap() {
     try {
       mapInstance = createSalonMap(mapContainer, lat, lng);
     } catch (error) {
-      console.error("[detail-salon] map initialization failed");
-      mapContainer.innerHTML =
-        '<div class="h-full w-full flex items-center justify-center text-sm text-gray-600">نمایش نقشه در حال حاضر ممکن نیست.</div>';
+      console.error("[detail_salon] map boot failed", error);
+      mapContainer.innerHTML = '<div class="h-full w-full flex items-center justify-center text-sm text-gray-600">نمایش نقشه در حال حاضر ممکن نیست.</div>';
       return;
     }
 
     const navigateBtn = document.getElementById("navigateBtn");
     if (navigateBtn && navigateBtn.dataset.bound !== "1") {
       navigateBtn.dataset.bound = "1";
-      navigateBtn.addEventListener("click", () =>
-        openDirectionsIntent(lat, lng, document.title || "سالن"),
-      );
+      navigateBtn.addEventListener("click", () => openDirectionsIntent(lat, lng, document.title || "سالن"));
     }
   };
 
   window.setTimeout(bootMap, 0);
-  window.addEventListener("load", () => window.setTimeout(bootMap, 120), {
-    once: true,
-  });
+  window.addEventListener("load", () => window.setTimeout(bootMap, 120), { once: true });
 
   if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            bootMap();
-            if (mapInstance) scheduleMapResize(mapInstance);
-          }
-        });
-      },
-      { threshold: 0.15 },
-    );
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          bootMap();
+          if (mapInstance) scheduleMapResize(mapInstance);
+        }
+      });
+    }, { threshold: 0.15 });
 
     observer.observe(mapContainer);
   }
@@ -1192,9 +1061,8 @@ function initGenericModals() {
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
 
-    const activeOverlays = Array.from(
-      document.querySelectorAll(".modal-overlay, #sampleFullscreen"),
-    ).filter((element) => !element.classList.contains("hidden"));
+    const activeOverlays = Array.from(document.querySelectorAll(".modal-overlay, #sampleFullscreen"))
+      .filter((element) => !element.classList.contains("hidden"));
     const lastOverlay = activeOverlays[activeOverlays.length - 1];
     if (lastOverlay) toggleOverlay(lastOverlay, false);
   });

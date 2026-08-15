@@ -30,7 +30,7 @@ export default function initAddStylist() {
         autoHide: true,
       });
     } catch (error) {
-      console.warn("[add-stylist] jalaliDatepicker initialization failed");
+      console.warn("[add-stylist] jalaliDatepicker init error", error);
     }
   }
 

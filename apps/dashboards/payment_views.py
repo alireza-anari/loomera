@@ -399,22 +399,29 @@ class SalonFinanceHubView(_SalonFinanceMixin, View):
             status=StylistWalletWithdrawalRequest.Status.PENDING
         ).count()
 
+        discount_now = timezone.now()
         active_coupons = Coupon.objects.filter(
             salon=salon,
             is_active=True,
             is_archived=False,
+            start_date__lte=discount_now,
+            end_date__gte=discount_now,
         ).count()
 
         active_baskets = DiscountBasket.objects.filter(
             salon=salon,
             is_active=True,
             is_archived=False,
+            start_date__lte=discount_now,
+            end_date__gte=discount_now,
         ).count()
 
         active_campaigns = DiscountCampaign.objects.filter(
             salon=salon,
             is_active=True,
             is_archived=False,
+            start_date__lte=discount_now,
+            end_date__gte=discount_now,
         ).count()
 
         finance_alerts = []
@@ -463,147 +470,139 @@ class SalonFinanceHubView(_SalonFinanceMixin, View):
                 }
             )
 
-        finance_sections = [
+        active_discount_count = active_coupons + active_baskets + active_campaigns
+
+        finance_groups = [
             {
-                "title": "تنظیمات پرداخت و کیف پول سالن",
-                "description": "شماره شبا، قوانین لغو، موجودی قابل برداشت، موجودی در انتظار تسویه و برداشت‌های سالن.",
-                "url": reverse("dashboards:payout_settings"),
-                "icon": "fa-solid fa-wallet",
-                "badge": "پرداخت",
-                "primary": True,
+                "key": "money",
+                "title": "پول مجموعه",
+                "description": "ببین چه مبلغی قابل برداشت است، حساب بانکی را مدیریت کن و درخواست برداشت بده.",
+                "icon": "finance_wallet",
+                "meta": (
+                    f"{pending_salon_withdrawals} برداشت در انتظار"
+                    if pending_salon_withdrawals
+                    else "آماده برداشت"
+                ),
+                "actions": [
+                    {
+                        "label": "موجودی و برداشت",
+                        "description": "موجودی فعلی، حساب بانکی و درخواست برداشت",
+                        "url": reverse("dashboards:payout_settings"),
+                    },
+                    {
+                        "label": "سابقه پول",
+                        "description": "ورود و خروج پول و مواردی که نیاز به بررسی دارند",
+                        "url": reverse("dashboards:finance_reports"),
+                    },
+                ],
             },
             {
-                "title": "گزارش مالی و تطبیق",
-                "description": "پرداخت‌ها، بازگشت وجه، تخفیف‌ها، کارمزدها، گردش کیف پول و اختلاف‌های مالی.",
-                "url": reverse("dashboards:finance_reports"),
-                "icon": "fa-solid fa-chart-line",
-                "badge": "گزارش",
+                "key": "profit",
+                "title": "سود و هزینه",
+                "description": "هزینه مواد و سهم متخصصان را تنظیم کن و نتیجه نهایی را در سود خالص ببین.",
+                "icon": "finance_cost",
+                "meta": f"{snapshot_summary.get('count') or 0} خدمت حساب‌شده",
+                "actions": [
+                    {
+                        "label": "هزینه و سهم",
+                        "description": "مواد هر خدمت و سهم هر متخصص را تنظیم کن",
+                        "url": reverse("dashboards:finance_cost_center"),
+                    },
+                    {
+                        "label": "سود خالص",
+                        "description": "نتیجه هزینه‌ها و سهم‌ها را روی سود نهایی ببین",
+                        "url": reverse("dashboards:finance_profit_report"),
+                    },
+                ],
             },
             {
-                "title": "هزینه‌ها و سهم‌ها",
-                "description": "مواد مصرفی، قالب مصرف هر خدمت و قوانین سهم متخصصان را مدیریت کن.",
-                "url": reverse("dashboards:finance_cost_center"),
-                "icon": "fa-solid fa-scale-balanced",
-                "badge": "هزینه",
+                "key": "team",
+                "title": "مالی متخصصان",
+                "description": "درآمد و مانده هر متخصص را ببین و درخواست‌های برداشت را جداگانه بررسی کن.",
+                "icon": "finance_team",
+                "meta": (
+                    f"{pending_stylist_withdrawals} برداشت در انتظار"
+                    if pending_stylist_withdrawals
+                    else f"{stylist_wallets.count()} عضو تیم"
+                ),
+                "actions": [
+                    {
+                        "label": "درآمد متخصصان",
+                        "description": "درآمد قطعی، قابل دریافت و در انتظار هر متخصص",
+                        "url": reverse("dashboards:finance_stylist_wallets"),
+                    },
+                    {
+                        "label": "برداشت متخصصان",
+                        "description": "درخواست‌های دریافت وجه را تأیید، رد یا پیگیری کن",
+                        "url": reverse("dashboards:finance_stylist_withdrawals"),
+                    },
+                ],
             },
             {
-                "title": "گزارش سود خالص",
-                "description": "فروش خام، تخفیف، هزینه مواد، سهم متخصص، سهم سالن و سود خالص را ببین.",
-                "url": reverse("dashboards:finance_profit_report"),
-                "icon": "fa-solid fa-chart-pie",
-                "badge": "سود",
-            },
-            {
-                "title": "کیف پول متخصصان",
-                "description": "موجودی، سهم آزادشده، سهم در انتظار آزادسازی و اسناد مالی هر متخصص.",
-                "url": reverse("dashboards:finance_stylist_wallets"),
-                "icon": "fa-solid fa-user-tie",
-                "badge": "متخصصان",
-            },
-            {
-                "title": "برداشت متخصصان",
-                "description": "درخواست‌های دریافت درآمد متخصصان را تایید، رد یا پیگیری کن.",
-                "url": reverse("dashboards:finance_stylist_withdrawals"),
-                "icon": "fa-solid fa-money-bill-transfer",
-                "badge": "برداشت",
-            },
-            {
-                "title": "کدهای تخفیف",
-                "description": "کدهای تخفیف اختصاصی سالن را بساز، ویرایش و فعال یا غیرفعال کن.",
-                "url": reverse("dashboards:finance_coupons"),
-                "icon": "fa-solid fa-ticket",
-                "badge": "کد",
-            },
-            {
-                "title": "سبدهای تخفیف",
-                "description": "برای چند خدمت یک سبد تخفیف بساز و کمپین‌های فروش را منظم‌تر کن.",
-                "url": reverse("dashboards:finance_baskets"),
-                "icon": "fa-solid fa-gift",
-                "badge": "سبد",
-            },
-            {
-                "title": "کمپین‌های تخفیف",
-                "description": "کمپین‌های مناسبتی یا دوره‌ای را برای خدمات و سبدها مدیریت کن.",
-                "url": reverse("dashboards:finance_campaigns"),
-                "icon": "fa-solid fa-bullhorn",
-                "badge": "کمپین",
+                "key": "discounts",
+                "title": "تخفیف‌ها",
+                "description": "همه ابزارهای تخفیف را از یک جا پیدا کن؛ از کد ساده تا پیشنهاد دوره‌ای.",
+                "icon": "finance_discount",
+                "meta": f"{active_discount_count} مورد فعال",
+                "actions": [
+                    {
+                        "label": "کدهای تخفیف",
+                        "description": "کد تخفیف اختصاصی برای رزروهای مجموعه",
+                        "url": reverse("dashboards:finance_coupons"),
+                    },
+                    {
+                        "label": "پیشنهاد خدمات",
+                        "description": "یک تخفیف مشترک را روی چند خدمت فعال کن",
+                        "url": reverse("dashboards:finance_baskets"),
+                    },
+                    {
+                        "label": "کمپین‌های تخفیف",
+                        "description": "تخفیف‌های مناسبتی و دوره‌ای را مدیریت کن",
+                        "url": reverse("dashboards:finance_campaigns"),
+                    },
+                ],
             },
         ]
 
         context = self._base_context(
             request,
-            title="امور مالی",
-            description="مرکز مدیریت مالی سالن، گزارش‌ها، کیف پول، تسویه‌ها، هزینه‌ها و تخفیف‌ها.",
+            title="مالی",
+            description="موجودی مجموعه، سود و هزینه، پرداخت تیم و تخفیف‌ها.",
         )
 
         context.update(
             {
                 "salon": salon,
                 "wallet": wallet,
-                "finance_sections": finance_sections,
-                "finance_alerts": finance_alerts,
+                "finance_groups": finance_groups,
                 "finance_summary_cards": [
                     {
-                        "label": "موجودی قابل برداشت سالن",
+                        "label": "موجودی قابل برداشت",
                         "value": _money(wallet.available_balance),
-                        "icon": "fa-solid fa-wallet",
+                        "icon": "finance_wallet",
+                        "url": reverse("dashboards:payout_settings"),
+                        "hint": "آماده برداشت",
                     },
                     {
-                        "label": "در انتظار تسویه سالن",
+                        "label": "در انتظار آزادشدن",
                         "value": _money(wallet.pending_balance),
-                        "icon": "fa-solid fa-hourglass-half",
+                        "icon": "schedule",
+                        "url": reverse("dashboards:payout_settings"),
+                        "hint": "پس از مهلت نگه‌داری آزاد می‌شود",
                     },
                     {
-                        "label": "جمع فروش ثبت‌شده",
+                        "label": "فروش ثبت‌شده",
                         "value": _money(settlement_summary.get("gross")),
-                        "icon": "fa-solid fa-cash-register",
+                        "icon": "reports",
+                        "url": reverse("dashboards:finance_reports"),
+                        "hint": f"{settlement_summary.get('count') or 0} نوبت ثبت‌شده",
                     },
                     {
-                        "label": "خالص قابل تسویه سالن",
-                        "value": _money(settlement_summary.get("net_due")),
-                        "icon": "fa-solid fa-building-columns",
-                    },
-                    {
-                        "label": "سود خالص محاسبه‌شده",
+                        "label": "سود مجموعه",
                         "value": _money(snapshot_summary.get("profit")),
-                        "icon": "fa-solid fa-chart-pie",
-                    },
-                    {
-                        "label": "سهم متخصصان",
-                        "value": _money(snapshot_summary.get("stylist_share")),
-                        "icon": "fa-solid fa-user-tie",
-                    },
-                ],
-                "finance_status_cards": [
-                    {
-                        "label": "اسناد تسویه",
-                        "value": settlement_summary.get("count") or 0,
-                        "meta": "سند",
-                    },
-                    {
-                        "label": "اسناد سود خالص",
-                        "value": snapshot_summary.get("count") or 0,
-                        "meta": "سند",
-                    },
-                    {
-                        "label": "کیف پول متخصصان",
-                        "value": stylist_wallets.count(),
-                        "meta": "کیف پول",
-                    },
-                    {
-                        "label": "برداشت‌های سالن",
-                        "value": pending_salon_withdrawals,
-                        "meta": "در انتظار",
-                    },
-                    {
-                        "label": "برداشت متخصصان",
-                        "value": pending_stylist_withdrawals,
-                        "meta": "در انتظار",
-                    },
-                    {
-                        "label": "تخفیف‌های فعال",
-                        "value": active_coupons + active_baskets + active_campaigns,
-                        "meta": "فعال",
+                        "icon": "finance_cost",
+                        "url": reverse("dashboards:finance_profit_report"),
+                        "hint": f"{snapshot_summary.get('count') or 0} خدمت حساب‌شده",
                     },
                 ],
             }
@@ -638,27 +637,6 @@ class SalonPayoutSettingsView(_SalonFinanceMixin, View):
         release_eligible_salon_wallet_funds_for_salon(salon)
         wallet, _ = SalonWallet.objects.get_or_create(salon=salon)
         settlement_qs = SalonSettlement.objects.filter(salon=salon)
-        summary = settlement_qs.aggregate(
-            total_orders=Count("id"),
-            gross=Sum("gross_services_amount"),
-            net_due=Sum("net_amount_due_to_salon"),
-            refunds=Sum("refund_amount"),
-        )
-        payout_cards = [
-            {"label": "کل سفارش‌های مالی", "value": summary.get("total_orders") or 0},
-            {
-                "label": "جمع خدمات ثبت‌شده",
-                "value": f"{int(summary.get('gross') or 0):,} تومان",
-            },
-            {
-                "label": "سهم خالص مجموعه",
-                "value": f"{int(summary.get('net_due') or 0):,} تومان",
-            },
-            {
-                "label": "بازگشت وجه به مشتریان",
-                "value": f"{int(summary.get('refunds') or 0):,} تومان",
-            },
-        ]
         recent_settlements = list(
             settlement_qs.select_related("order", "customer__user").order_by(
                 "-created_at"
@@ -667,20 +645,19 @@ class SalonPayoutSettingsView(_SalonFinanceMixin, View):
         recent_wallet_transactions = list(
             wallet.transactions.select_related("order").order_by("-created_at")[:8]
         )
-        recent_withdrawals = list(
-            wallet.withdrawal_requests.order_by("-created_at")[:5]
-        )
+        withdrawal_qs = wallet.withdrawal_requests.all()
+        recent_withdrawals = list(withdrawal_qs.order_by("-created_at")[:5])
+        pending_withdrawal_count = withdrawal_qs.filter(status="pending").count()
 
         context = self._base_context(
             request,
-            title="امور مالی مجموعه",
-            description="امور مالی، کیف پول مجموعه، سیاست لغو، تخفیف‌ها و برداشت وجه را یک‌جا مدیریت کن.",
+            title="پول مجموعه",
+            description="موجودی، حساب مقصد برداشت و قوانین مالی مجموعه را از یک مسیر مدیریت کن.",
         )
         context.update(
             {
                 "salon": salon,
                 "form": form,
-                "display_form": SalonPayoutSettingsForm(instance=salon),
                 "withdraw_form": withdraw_form
                 or SalonWalletWithdrawalRequestForm(
                     initial={
@@ -690,87 +667,21 @@ class SalonPayoutSettingsView(_SalonFinanceMixin, View):
                     }
                 ),
                 "page_meta": {
-                    "title": "امور مالی مجموعه",
-                    "description": "برای کاهش خطای عملیاتی، این بخش همه اطلاعات حساس مالی را با توضیح روشن، وضعیت آمادگی و مسیرهای اقدام سریع کنار هم می‌آورد.",
+                    "title": "پول مجموعه",
+                    "description": "موجودی قابل برداشت، حساب مقصد و قواعد آزادشدن یا بازگشت پول را مدیریت کن.",
                     "icon": "fa-solid fa-wallet",
-                    "primary_action": {
-                        "label": "بازگشت به پروفایل مجموعه",
-                        "url": reverse("dashboards:salon_profile"),
-                    },
-                    "badges": ["کیف پول مجموعه", "قوانین لغو", "کد تخفیف", "برداشت"],
+                    "primary_action": None,
+                    "badges": ["موجودی", "برداشت", "حساب پرداخت"],
                 },
-                "payout_cards": payout_cards,
                 "wallet": wallet,
                 "recent_wallet_transactions": recent_wallet_transactions,
                 "recent_withdrawals": recent_withdrawals,
                 "recent_settlements": recent_settlements,
-                "payout_readiness": [
-                    {"label": "شماره شبا", "value": salon.payout_iban or "ثبت نشده"},
-                    {
-                        "label": "نام صاحب حساب",
-                        "value": salon.payout_account_holder_name or "ثبت نشده",
-                    },
-                    {
-                        "label": "موبایل مسئول امور مالی",
-                        "value": salon.payout_contact_mobile or "ثبت نشده",
-                    },
-                    {
-                        "label": "مهلت لغو آنلاین",
-                        "value": f"{salon.cancellation_window_hours} ساعت قبل از نوبت",
-                    },
-                    {
-                        "label": "بازگشت وجه",
-                        "value": f"{salon.cancellation_refund_percent}٪ به کیف پول مشتری",
-                    },
-                    {
-                        "label": "تاخیر انتقال به موجودی قابل برداشت",
-                        "value": f"{salon.payout_delay_days} روز",
-                    },
-                    {
-                        "label": "آمادگی امور مالی",
-                        "value": (
-                            "آماده"
-                            if salon.payout_profile_complete
-                            else "نیازمند تکمیل"
-                        ),
-                    },
-                ],
-                "finance_quick_links": [
-                    {
-                        "title": "کدهای تخفیف",
-                        "description": "کدهای تخفیف اختصاصی همین مجموعه را بساز، فعال/غیرفعال کن و برای کمپین‌ها نگه‌داری کن.",
-                        "url": reverse("dashboards:finance_coupons"),
-                        "badge": "Coupon",
-                        "icon": "fa-solid fa-ticket",
-                    },
-                    {
-                        "title": "سبدهای تخفیف",
-                        "description": "برای چند خدمت یک سبد تخفیف بساز تا کمپین‌های تکرارشونده را منظم‌تر مدیریت کنی.",
-                        "url": reverse("dashboards:finance_baskets"),
-                        "badge": "Basket",
-                        "icon": "fa-solid fa-gift",
-                    },
-                    {
-                        "title": "گزارش مالی و تطبیق",
-                        "description": "پرداخت‌ها، بازگشت وجه، گردش کیف پول، برداشت‌ها و اختلاف‌های سندی را در یک صفحه ببین.",
-                        "url": reverse("dashboards:finance_reports"),
-                        "badge": "Reports",
-                        "icon": "fa-solid fa-chart-line",
-                    },
-                ],
-                "finance_mobile_sections": [
-                    {"id": "finance-overview", "label": "مرور مالی"},
-                    {"id": "finance-settings", "label": "تنظیمات و قوانین لغو"},
-                    {"id": "finance-wallet", "label": "کیف پول و برداشت"},
-                    {"id": "finance-readiness", "label": "آمادگی و وضعیت"},
-                    {"id": "finance-history", "label": "گردش و اسناد"},
-                ],
-                "finance_docs": [
-                    "برای رزروهای آنلاین یا کیف پول، سهم مجموعه اول به موجودی در انتظار تسویه می‌رود و بعد از پایان مهلت نگه‌داری به موجودی قابل برداشت منتقل می‌شود.",
-                    "اگر رزرو دیجیتال طبق قانون لغو شود، مبلغ بازگشتی مشتری از سهم مجموعه هم کسر و در گزارش‌های همین صفحه منعکس می‌شود.",
-                    "درخواست برداشت فقط از موجودی قابل برداشت ممکن است و برای پیگیری مالی به شماره شبا و نام صاحب حساب کامل نیاز دارد.",
-                    "کدهای تخفیف اختصاصی مجموعه فقط روی رزروهای همین مجموعه اثر می‌گذارند و در جزئیات نوبت ثبت می‌شوند.",
-                ],
+                "pending_withdrawal_count": pending_withdrawal_count,
+                "payout_destination_ready": bool(
+                    (salon.payout_iban or "").strip()
+                    and (salon.payout_account_holder_name or "").strip()
+                ),
                 "min_amount": int(
                     getattr(settings, "SALON_WALLET_WITHDRAW_MIN_AMOUNT", 100000)
                     or 100000
@@ -808,7 +719,11 @@ class SalonFinanceWithdrawView(_SalonFinanceMixin, View):
         salon = self._get_salon(request)
         release_eligible_salon_wallet_funds_for_salon(salon)
         wallet, _ = SalonWallet.objects.get_or_create(salon=salon)
-        form = SalonWalletWithdrawalRequestForm(request.POST)
+        withdraw_data = request.POST.copy()
+        withdraw_data["iban"] = salon.payout_iban or ""
+        withdraw_data["account_holder_name"] = salon.payout_account_holder_name or ""
+        withdraw_data["bank_name"] = salon.payout_bank_name or ""
+        form = SalonWalletWithdrawalRequestForm(withdraw_data)
         payout_form = SalonPayoutSettingsForm(instance=salon)
         if not form.is_valid():
             messages.error(request, "لطفاً خطاهای فرم برداشت را بررسی کنید.")
@@ -1242,25 +1157,49 @@ class SalonFinanceReportsView(_SalonFinanceMixin, View):
                 "در این بازه اختلاف مهمی دیده نشد و گردش کیف پول با اسناد تسویه هم‌راستا است."
             )
 
+        reconciliation_attention_rows = [
+            row for row in reconciliation_rows if row["status"] != "ok"
+        ]
+
+        default_start = timezone.localdate() - timedelta(days=29)
+        default_end = timezone.localdate()
+        active_filter_count = sum(
+            [
+                bool(filters["payment_method"]),
+                bool(filters["payout_state"]),
+                filters["start_date"] != default_start,
+                filters["end_date"] != default_end,
+            ]
+        )
+        if filters["start_date"] == default_start and filters["end_date"] == default_end:
+            report_period_label = "۳۰ روز اخیر"
+        elif filters["start_date"] and filters["end_date"]:
+            report_period_label = (
+                f"{format_jalali_numeric(filters['start_date'])} تا "
+                f"{format_jalali_numeric(filters['end_date'])}"
+            )
+        else:
+            report_period_label = "بازه انتخاب‌شده"
+
         export_query = request.GET.copy()
         export_url = reverse("dashboards:finance_reports_export")
         if export_query:
             export_url = f"{export_url}?{export_query.urlencode()}"
 
-        context = self._base_context(request, title="گزارش مالی و تطبیق")
+        context = self._base_context(request, title="گزارش تراکنش‌ها")
         context.update(
             {
                 "salon": salon,
                 "wallet": wallet,
                 "page_meta": {
-                    "title": "گزارش مالی و Reconciliation",
-                    "description": "ورود و خروج پول، سهم مجموعه، بازگشت وجه، برداشت‌ها و میزان هم‌خوانی سندهای مالی با کیف پول مجموعه را در یک صفحه ببین.",
+                    "title": "گزارش تراکنش‌ها",
+                    "description": "ورود و خروج پول، روش‌های دریافت و سندهایی که نیاز به بررسی دارند را در یک صفحه ببین.",
                     "icon": "fa-solid fa-chart-line",
                     "primary_action": {
-                        "label": "بازگشت به امور مالی",
+                        "label": "بازگشت به پول مجموعه",
                         "url": reverse("dashboards:payout_settings"),
                     },
-                    "badges": ["گزارش مالی", "Reconciliation", "Settlement", "Wallet"],
+                    "badges": ["تراکنش‌ها", "روش پرداخت", "بررسی اختلاف"],
                 },
                 "filters": {
                     "start_date": format_jalali_numeric(filters["start_date"]),
@@ -1284,6 +1223,36 @@ class SalonFinanceReportsView(_SalonFinanceMixin, View):
                     ("cancelled", "لغوشده"),
                 ],
                 "export_url": export_url,
+                "clear_filters_url": reverse("dashboards:finance_reports"),
+                "active_filter_count": active_filter_count,
+                "report_period_label": report_period_label,
+                "transaction_summary_cards": [
+                    {
+                        "label": "دریافتی ثبت‌شده",
+                        "value": _money(summary.get("paid")),
+                        "hint": "پرداخت‌های ثبت‌شده در این بازه",
+                        "tone": "primary",
+                    },
+                    {
+                        "label": "بازپرداخت",
+                        "value": _money(summary.get("refunds")),
+                        "hint": "مبالغ برگشتی به مشتری",
+                        "tone": "danger",
+                    },
+                    {
+                        "label": "سهم مجموعه",
+                        "value": _money(summary.get("net_due")),
+                        "hint": "سهم مجموعه از اسناد این بازه",
+                        "tone": "success",
+                    },
+                    {
+                        "label": "نیازمند بررسی",
+                        "value": f"{len(reconciliation_attention_rows)} مورد",
+                        "hint": "اختلاف یا سند نگه‌داری‌شده",
+                        "tone": "warning" if reconciliation_attention_rows else "success",
+                    },
+                ],
+                "reconciliation_attention_rows": reconciliation_attention_rows,
                 "summary_cards": [
                     {
                         "label": "جمع پرداخت دیجیتال",
@@ -1957,6 +1926,24 @@ class PlatformFinanceAdminReportExportCsvView(_PlatformFinanceAdminMixin, View):
         return response
 
 
+def _discount_state_counts(queryset, *, now=None):
+    """Return mutually-exclusive user-facing state counts for timed discounts."""
+    now = now or timezone.now()
+    return {
+        "total": queryset.count(),
+        "running": queryset.filter(
+            is_active=True, start_date__lte=now, end_date__gte=now
+        ).count(),
+        "scheduled": queryset.filter(
+            is_active=True, start_date__gt=now
+        ).count(),
+        "ended": queryset.filter(end_date__lt=now).count(),
+        "inactive": queryset.filter(
+            is_active=False, end_date__gte=now
+        ).count(),
+    }
+
+
 class SalonCouponManagementView(_SalonFinanceMixin, View):
     template_name = "dashboards/finance_coupons.html"
 
@@ -1972,20 +1959,18 @@ class SalonCouponManagementView(_SalonFinanceMixin, View):
         return get_object_or_404(Coupon, pk=parsed_coupon_id, salon=salon)
 
     def _context(self, request, form, salon, editing_coupon=None):
-        context = self._base_context(request, title="کدهای تخفیف مجموعه")
+        coupons = salon.coupons.filter(is_archived=False).order_by(
+            "-is_active", "-start_date", "-id"
+        )
+        discount_now = timezone.now()
+        context = self._base_context(request, title="کدهای تخفیف")
         context.update(
             {
                 "salon": salon,
                 "form": form,
-                "coupons": salon.coupons.order_by("-is_active", "-start_date", "-id"),
-                "coupon_stats": {
-                    "total": salon.coupons.count(),
-                    "active": salon.coupons.filter(is_active=True).count(),
-                    "best_percent": salon.coupons.aggregate(best=Max("discount"))[
-                        "best"
-                    ]
-                    or 0,
-                },
+                "coupons": coupons,
+                "discount_now": discount_now,
+                "discount_stats": _discount_state_counts(coupons, now=discount_now),
                 "editing_coupon": editing_coupon,
                 "form_action_url": (
                     reverse(
@@ -1996,14 +1981,9 @@ class SalonCouponManagementView(_SalonFinanceMixin, View):
                     else reverse("dashboards:finance_coupons")
                 ),
                 "page_meta": {
-                    "title": "کدهای تخفیف مجموعه",
-                    "description": "برای همین مجموعه کد تخفیف اختصاصی بساز و کمپین‌ها را با زمان شروع/پایان روشن مدیریت کن.",
+                    "title": "کدهای تخفیف",
+                    "description": "کدی بساز که مشتری هنگام رزرو وارد کند؛ درصد، سقف و بازه اعتبار را یک‌جا مدیریت کن.",
                     "icon": "fa-solid fa-ticket",
-                    "primary_action": {
-                        "label": "بازگشت به امور مالی",
-                        "url": reverse("dashboards:payout_settings"),
-                    },
-                    "badges": ["کد تخفیف", "کمپین", "مجموعه"],
                 },
             }
         )
@@ -2154,22 +2134,20 @@ class SalonDiscountBasketManagementView(_SalonFinanceMixin, View):
         return get_object_or_404(DiscountBasket, pk=basket_id, salon=salon)
 
     def _context(self, request, form, salon, editing_basket=None):
-        context = self._base_context(request, title="سبدهای تخفیف مجموعه")
+        baskets = (
+            salon.discount_baskets.filter(is_archived=False)
+            .prefetch_related("discount_basket_details1__service")
+            .order_by("-is_active", "-start_date", "-id")
+        )
+        discount_now = timezone.now()
+        context = self._base_context(request, title="پیشنهاد خدمات")
         context.update(
             {
                 "salon": salon,
                 "form": form,
-                "baskets": salon.discount_baskets.prefetch_related(
-                    "discount_basket_details1__service"
-                ).order_by("-is_active", "-start_date", "-id"),
-                "basket_stats": {
-                    "total": salon.discount_baskets.count(),
-                    "active": salon.discount_baskets.filter(is_active=True).count(),
-                    "best_percent": salon.discount_baskets.aggregate(
-                        best=Max("discount")
-                    )["best"]
-                    or 0,
-                },
+                "baskets": baskets,
+                "discount_now": discount_now,
+                "discount_stats": _discount_state_counts(baskets, now=discount_now),
                 "editing_basket": editing_basket,
                 "form_action_url": (
                     reverse(
@@ -2180,14 +2158,9 @@ class SalonDiscountBasketManagementView(_SalonFinanceMixin, View):
                     else reverse("dashboards:finance_baskets")
                 ),
                 "page_meta": {
-                    "title": "سبدهای تخفیف مجموعه",
-                    "description": "سبدهای تخفیف را برای چند خدمت تعریف کن تا کمپین‌های مجموعه در یک ساختار منظم نگه‌داری شوند.",
+                    "title": "پیشنهاد خدمات",
+                    "description": "یک تخفیف مشترک را روی چند خدمت قرار بده؛ هر خدمت جداگانه می‌تواند از این پیشنهاد استفاده کند.",
                     "icon": "fa-solid fa-gift",
-                    "primary_action": {
-                        "label": "بازگشت به امور مالی",
-                        "url": reverse("dashboards:payout_settings"),
-                    },
-                    "badges": ["Discount Basket", "Services", "Campaign"],
                 },
             }
         )
@@ -2243,15 +2216,15 @@ class SalonDiscountBasketManagementView(_SalonFinanceMixin, View):
                 basket.save(update_fields=["is_active"])
                 messages.warning(
                     request,
-                    "سبد تخفیف ذخیره شد، اما فعال نشد. "
+                    "پیشنهاد خدمات ذخیره شد، اما فعال نشد. "
                     + basket_conflict_message(conflicts),
                 )
             else:
-                messages.success(request, "سبد تخفیف مجموعه ذخیره شد.")
+                messages.success(request, "پیشنهاد خدمات ذخیره شد.")
 
             return redirect("dashboards:finance_baskets")
 
-        messages.error(request, "ذخیره سبد تخفیف ممکن نشد. خطاهای فرم را بررسی کن.")
+        messages.error(request, "ذخیره پیشنهاد خدمات ممکن نشد. خطاهای فرم را بررسی کن.")
         return render(request, self.template_name, self._context(request, form, salon))
 
 
@@ -2296,15 +2269,15 @@ class SalonDiscountBasketUpdateView(_SalonFinanceMixin, View):
                 updated_basket.save(update_fields=["is_active"])
                 messages.warning(
                     request,
-                    "سبد تخفیف ویرایش شد، اما فعال نشد. "
+                    "پیشنهاد خدمات ویرایش شد، اما فعال نشد. "
                     + basket_conflict_message(conflicts),
                 )
             else:
-                messages.success(request, "سبد تخفیف ویرایش شد.")
+                messages.success(request, "پیشنهاد خدمات ویرایش شد.")
 
             return redirect("dashboards:finance_baskets")
 
-        messages.error(request, "ویرایش سبد تخفیف ممکن نشد.")
+        messages.error(request, "ویرایش پیشنهاد خدمات ممکن نشد.")
         return render(
             request,
             management_view.template_name,
@@ -2375,18 +2348,15 @@ class SalonDiscountCampaignManagementView(_SalonFinanceMixin, View):
             .filter(is_archived=False)
             .order_by("-is_active", "-start_date", "-id")
         )
-        context = self._base_context(request, title="کمپین‌های تخفیف مجموعه")
+        discount_now = timezone.now()
+        context = self._base_context(request, title="کمپین‌های تخفیف")
         context.update(
             {
                 "salon": salon,
                 "form": form,
                 "campaigns": campaigns,
-                "campaign_stats": {
-                    "total": campaigns.count(),
-                    "active": campaigns.filter(is_active=True).count(),
-                    "coupon_count": salon.coupons.count(),
-                    "basket_count": salon.discount_baskets.count(),
-                },
+                "discount_now": discount_now,
+                "discount_stats": _discount_state_counts(campaigns, now=discount_now),
                 "editing_campaign": editing_campaign,
                 "form_action_url": (
                     reverse(
@@ -2397,14 +2367,9 @@ class SalonDiscountCampaignManagementView(_SalonFinanceMixin, View):
                     else reverse("dashboards:finance_campaigns")
                 ),
                 "page_meta": {
-                    "title": "کمپین‌های تخفیف مجموعه",
-                    "description": "کدها و سبدهای تخفیف را در قالب کمپین‌های قابل مدیریت گروه‌بندی کن.",
+                    "title": "کمپین‌های تخفیف",
+                    "description": "کدها و پیشنهادهای موجود را برای یک مناسبت یا بازه تبلیغاتی زیر یک کمپین مدیریت کن.",
                     "icon": "fa-solid fa-bullhorn",
-                    "primary_action": {
-                        "label": "بازگشت به امور مالی",
-                        "url": reverse("dashboards:payout_settings"),
-                    },
-                    "badges": ["Campaign", "Coupons", "Baskets"],
                 },
             }
         )

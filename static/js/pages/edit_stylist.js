@@ -34,7 +34,7 @@ export default function initEditStylist() {
         autoHide: true,
       });
     } catch (error) {
-      console.warn("[edit-stylist] jalaliDatepicker initialization failed");
+      console.warn("[edit-stylist] jalaliDatepicker init error", error);
     }
   }
 

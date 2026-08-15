@@ -1,16 +1,5 @@
 // static/js/pages/profile.js
 
-function getCsrfToken() {
-  const input = document.querySelector("input[name='csrfmiddlewaretoken']");
-  if (input?.value) return input.value;
-
-  const cookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("csrftoken="));
-
-  return cookie ? decodeURIComponent(cookie.split("=")[1]) : "";
-}
-
 function buildLoginRedirectUrl() {
   return `/accounts/login/?next=${encodeURIComponent(window.location.pathname + window.location.search)}`;
 }
@@ -36,8 +25,7 @@ function syncFavoritesEmptyState() {
   const grid = document.querySelector("[data-favorites-grid]");
   const listSection = document.querySelector("[data-favorites-list-section]");
   const emptySection = document.querySelector("[data-favorites-empty-section]");
-  const remainingCount =
-    grid?.querySelectorAll("[data-favorite-card]").length || 0;
+  const remainingCount = grid?.querySelectorAll("[data-favorite-card]").length || 0;
 
   updateFavoriteCounts(remainingCount);
   listSection?.classList.toggle("hidden", remainingCount === 0);
@@ -61,17 +49,9 @@ function initFavoriteButtons() {
       button.classList.add("opacity-70", "pointer-events-none");
 
       try {
-        const response = await fetch(endpoint, {
-          method: "POST",
+        const response = await fetch(`${endpoint}?salonId=${encodeURIComponent(salonId)}`, {
           credentials: "same-origin",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-Requested-With": "XMLHttpRequest",
-            "X-CSRFToken": getCsrfToken(),
-          },
-          body: new URLSearchParams({
-            salonId,
-          }),
+          headers: { "X-Requested-With": "XMLHttpRequest" },
         });
 
         const raw = (await response.text()).trim();
@@ -89,16 +69,13 @@ function initFavoriteButtons() {
         }
 
         if (!response.ok) {
-          window.alert(
-            payload?.message || raw || "ثبت علاقه‌مندی با خطا مواجه شد.",
-          );
+          window.alert(payload?.message || raw || "ثبت علاقه‌مندی با خطا مواجه شد.");
           return;
         }
 
-        const isFavorite =
-          typeof payload?.is_favorite === "boolean"
-            ? payload.is_favorite
-            : raw.includes("اضافه");
+        const isFavorite = typeof payload?.is_favorite === "boolean"
+          ? payload.is_favorite
+          : raw.includes("اضافه");
 
         syncFavoriteButtonState(button, isFavorite);
 
@@ -111,7 +88,7 @@ function initFavoriteButtons() {
           }, 180);
         }
       } catch (error) {
-        console.error("[profile] favorite update failed");
+        console.error("[profile] favorite toggle failed", error);
         window.alert("در ثبت علاقه‌مندی مشکلی پیش آمد.");
       } finally {
         delete button.dataset.loading;
@@ -122,9 +99,7 @@ function initFavoriteButtons() {
 }
 
 export default function initProfilePage() {
-  const searchButtons = document.querySelectorAll(
-    "[data-action='start-search']",
-  );
+  const searchButtons = document.querySelectorAll("[data-action='start-search']");
   searchButtons.forEach((btn) => {
     if (btn.dataset.bound === "1") return;
     btn.dataset.bound = "1";

@@ -1,0 +1,24 @@
+{% url 'dashboards:finance_hub' as finance_hub_url %}
+{% url 'dashboards:payout_settings' as finance_money_url %}
+{% url 'dashboards:finance_cost_center' as finance_cost_url %}
+{% url 'dashboards:finance_stylist_wallets' as finance_team_url %}
+{% url 'dashboards:finance_coupons' as finance_discounts_url %}
+<nav class="sticky z-20 overflow-x-auto rounded-[24px] border border-loomera-borderSoft bg-white/95 p-1.5 shadow-lm-soft backdrop-blur" style="top: calc(var(--lm-dashboard-topbar-height, 4.5rem) + .5rem);" aria-label="بخش‌های مالی">
+  <div class="flex min-w-max items-center gap-1.5">
+    <a href="{{ finance_hub_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-[18px] px-3.5 py-2 text-xs font-black transition {% if active == 'overview' %}bg-loomera-primary text-white shadow-sm{% else %}text-loomera-textSecondary hover:bg-loomera-primarySoft hover:text-loomera-primaryText{% endif %}">
+      <span class="h-4 w-4" aria-hidden="true">{% include 'partials/dashboard/nav_icon.html' with key='finance' %}</span><span>مرور مالی</span>
+    </a>
+    <a href="{{ finance_money_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-[18px] px-3.5 py-2 text-xs font-black transition {% if active == 'money' %}bg-loomera-primary text-white shadow-sm{% else %}text-loomera-textSecondary hover:bg-loomera-primarySoft hover:text-loomera-primaryText{% endif %}">
+      <span class="h-4 w-4" aria-hidden="true">{% include 'partials/dashboard/nav_icon.html' with key='finance_wallet' %}</span><span>پول مجموعه</span>
+    </a>
+    <a href="{{ finance_cost_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-[18px] px-3.5 py-2 text-xs font-black transition {% if active == 'cost' %}bg-loomera-primary text-white shadow-sm{% else %}text-loomera-textSecondary hover:bg-loomera-primarySoft hover:text-loomera-primaryText{% endif %}">
+      <span class="h-4 w-4" aria-hidden="true">{% include 'partials/dashboard/nav_icon.html' with key='finance_cost' %}</span><span>سود و هزینه</span>
+    </a>
+    <a href="{{ finance_team_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-[18px] px-3.5 py-2 text-xs font-black transition {% if active == 'team' %}bg-loomera-primary text-white shadow-sm{% else %}text-loomera-textSecondary hover:bg-loomera-primarySoft hover:text-loomera-primaryText{% endif %}">
+      <span class="h-4 w-4" aria-hidden="true">{% include 'partials/dashboard/nav_icon.html' with key='finance_team' %}</span><span>مالی متخصصان</span>
+    </a>
+    <a href="{{ finance_discounts_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-[18px] px-3.5 py-2 text-xs font-black transition {% if active == 'discounts' %}bg-loomera-primary text-white shadow-sm{% else %}text-loomera-textSecondary hover:bg-loomera-primarySoft hover:text-loomera-primaryText{% endif %}">
+      <span class="h-4 w-4" aria-hidden="true">{% include 'partials/dashboard/nav_icon.html' with key='finance_discount' %}</span><span>تخفیف‌ها</span>
+    </a>
+  </div>
+</nav>

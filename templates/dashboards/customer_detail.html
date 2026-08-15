@@ -8,7 +8,7 @@
     <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="customer-detail-title">
       <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_44%),linear-gradient(180deg,rgba(245,240,255,0.92),rgba(255,255,255,0))]" aria-hidden="true"></div>
 
-      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.28fr)_minmax(320px,0.72fr)] xl:items-stretch">
+      <div class="relative min-w-0">
         <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
           <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div class="flex min-w-0 items-start gap-4">
@@ -24,7 +24,7 @@
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
                     <i class="fa-solid fa-address-book text-[10px]" aria-hidden="true"></i>
-                    <span class="truncate">محیط کاری مشتری</span>
+                    <span class="truncate">مشتری</span>
                   </span>
                   <span class="inline-flex max-w-full items-center rounded-full px-3 py-1.5 text-[11px] font-black {{ customer_workspace.segment_badge_class }}">
                     {{ customer_workspace.segment_label }}
@@ -34,18 +34,8 @@
                 <h1 id="customer-detail-title" class="mt-4 truncate text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
                   {{ customer.get_fullName }}
                 </h1>
-                <div class="mt-3 flex flex-col gap-1 text-sm leading-6 text-loomera-textSecondary sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4">
-                  <span class="inline-flex min-w-0 items-center gap-2">
-                    <i class="fa-solid fa-phone text-[11px] text-loomera-primaryText" aria-hidden="true"></i>
-                    <span class="truncate">{{ customer.user.mobile_number|default:"شماره موبایل ثبت نشده" }}</span>
-                  </span>
-                  <span class="inline-flex min-w-0 items-center gap-2">
-                    <i class="fa-regular fa-envelope text-[11px] text-loomera-primaryText" aria-hidden="true"></i>
-                    <span class="truncate">{{ customer.user.email|default:"ایمیل ثبت نشده" }}</span>
-                  </span>
-                </div>
-                <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-                  ارزش مالی، تاریخچه مراجعه، یادداشت‌های تیم و مسیرهای پیگیری این مشتری را در یک workspace فشرده مدیریت کن.
+                <p class="mt-3 max-w-2xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+                  سابقه مراجعه، اطلاعات تماس و یادداشت‌های این مشتری را از بخش‌های پایین مدیریت کن.
                 </p>
               </div>
             </div>
@@ -58,19 +48,16 @@
 
           <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
             <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-              <p class="text-[11px] font-bold text-loomera-textMuted">ارزش کل مشتری</p>
+              <p class="text-[11px] font-bold text-loomera-textMuted">مجموع پرداخت</p>
               <strong class="mt-2 block text-lg font-black text-loomera-textPrimary">{{ customer_workspace.total_spent_label }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">جمع رزروهای معتبر این مجموعه</p>
             </article>
             <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-              <p class="text-[11px] font-bold text-loomera-textMuted">رزروهای ثبت‌شده</p>
+              <p class="text-[11px] font-bold text-loomera-textMuted">کل رزروها</p>
               <strong class="mt-2 block text-lg font-black text-loomera-textPrimary">{{ customer_workspace.appointments_count }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای تحلیل رفتار مراجعه</p>
             </article>
             <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
               <p class="text-[11px] font-bold text-loomera-textMuted">آخرین مراجعه</p>
               <strong class="mt-2 block text-lg font-black text-loomera-textPrimary">{{ customer_workspace.last_visit_short_label }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">شاخص بازگشت مشتری</p>
             </article>
           </div>
 
@@ -84,169 +71,54 @@
           </div>
         </div>
 
-        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس مشتری">
-          <div class="flex min-w-0 items-center justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-white/55">فوکوس ارتباط</p>
-              <h2 class="mt-1 truncate text-lg font-black">وضعیت پیگیری مشتری</h2>
-            </div>
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-              <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-            </span>
-          </div>
 
-          <div class="mt-5 space-y-3">
-            {% for item in customer_workspace.focus_items %}
-              <article class="min-w-0 rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <div class="flex min-w-0 items-start justify-between gap-3">
-                  <h3 class="min-w-0 flex-1 text-sm font-black leading-6 text-white">{{ item.title }}</h3>
-                  <span class="max-w-[44%] shrink-0 truncate rounded-full px-3 py-1 text-[10px] font-black {% if item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-white/10 text-white{% endif %}">
-                    {{ item.value }}
-                  </span>
-                </div>
-                <p class="mt-2 text-xs leading-6 text-white/72">{{ item.description }}</p>
-              </article>
-            {% empty %}
-              <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <h3 class="text-sm font-black text-white">پروفایل آماده است</h3>
-                <p class="mt-2 text-xs leading-6 text-white/72">وضعیت ویژه‌ای برای پیگیری فوری وجود ندارد.</p>
-              </article>
-            {% endfor %}
-          </div>
-        </aside>
+
       </div>
     </section>
 
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های پروفایل مشتری">
-        <div class="flex min-w-max items-center gap-2">
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#customer-section-overview">
-            <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
-            <span>نمای کلی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>۵</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#customer-section-profile">
-            <i class="fa-solid fa-id-card text-[10px]" aria-hidden="true"></i>
-            <span>پروفایل</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#customer-section-history">
-            <i class="fa-regular fa-calendar-check text-[10px]" aria-hidden="true"></i>
-            <span>تاریخچه رزرو</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ customer_workspace.appointments|length }}</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#customer-section-services">
-            <i class="fa-solid fa-wand-magic-sparkles text-[10px]" aria-hidden="true"></i>
-            <span>خدمات محبوب</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ customer_workspace.favorite_services|length }}</span>
-          </button>
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#customer-section-notes">
-            <i class="fa-regular fa-note-sticky text-[10px]" aria-hidden="true"></i>
-            <span>یادداشت‌ها</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ customer_workspace.notes|length }}</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <details id="customer-section-overview" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت و شاخص‌های مشتری</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="p-3 sm:p-5 lg:p-6">
-        <section class="mb-5 rounded-[26px] border border-loomera-primary/15 bg-loomera-primarySoft/45 p-4 sm:p-5" aria-labelledby="customer-readiness-title">
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-loomera-primaryText">آمادگی ارتباط با مشتری</p>
-              <h3 id="customer-readiness-title" class="mt-1 text-lg font-black text-loomera-textPrimary">چک‌لیست عملیاتی CRM</h3>
-              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">این کارت کمک می‌کند سریع ببینی آیا مشتری برای پیگیری، بازگشت یا پیشنهاد خدمت آماده است یا نه.</p>
-            </div>
-            <a href="#customer-section-notes" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-primary/15 bg-white px-4 py-2 text-xs font-black text-loomera-primaryText transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft" data-dashboard-workspace-tab data-target="#customer-section-notes">
-              <i class="fa-solid fa-pen-to-square text-[11px]" aria-hidden="true"></i>
-              <span>ثبت یادداشت پیگیری</span>
-            </a>
-          </div>
-        </section>
-
-        <div class="grid min-w-0 grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-5">
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0"><p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">ارزش کل</p><strong class="mt-2 block text-lg font-black text-loomera-textPrimary sm:text-2xl">{{ customer_workspace.total_spent_label }}</strong></div>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm text-loomera-primaryText"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
-            </div>
-            <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted sm:text-xs sm:leading-6">جمع رزروهای معتبر</p>
-          </article>
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0"><p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">کل رزروها</p><strong class="mt-2 block text-lg font-black text-loomera-textPrimary sm:text-2xl">{{ customer_workspace.appointments_count }}</strong></div>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-successSoft text-sm text-loomera-success"><i class="fa-regular fa-calendar-check" aria-hidden="true"></i></span>
-            </div>
-            <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted sm:text-xs sm:leading-6">همه نوبت‌های مجموعه</p>
-          </article>
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0"><p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">رزرو آینده</p><strong class="mt-2 block text-lg font-black text-loomera-textPrimary sm:text-2xl">{{ customer_workspace.upcoming_count }}</strong></div>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm text-loomera-primaryText"><i class="fa-regular fa-clock" aria-hidden="true"></i></span>
-            </div>
-            <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted sm:text-xs sm:leading-6">برای پیگیری بازگشت</p>
-          </article>
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0"><p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">تکمیل‌شده</p><strong class="mt-2 block text-lg font-black text-loomera-textPrimary sm:text-2xl">{{ customer_workspace.completed_count }}</strong></div>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-successSoft text-sm text-loomera-success"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
-            </div>
-            <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted sm:text-xs sm:leading-6">تعامل کامل با مجموعه</p>
-          </article>
-          <article class="col-span-2 rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:col-span-1 sm:rounded-[26px] sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0"><p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">یادداشت‌ها</p><strong class="mt-2 block text-lg font-black text-loomera-textPrimary sm:text-2xl">{{ customer_workspace.note_count }}</strong></div>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-warningSoft text-sm text-loomera-warning"><i class="fa-regular fa-note-sticky" aria-hidden="true"></i></span>
-            </div>
-            <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted sm:text-xs sm:leading-6">برای مراجعه بعدی</p>
-          </article>
-        </div>
-      </div>
-    </details>
+    <div class="lm-task-tabs-anchor"
+         data-lm-task-tabs-anchor="customer-detail"
+         data-lm-task-tabs-label="بخش‌های پروفایل مشتری"
+         aria-label="بخش‌های پروفایل مشتری"></div>
 
     <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-      <details id="customer-section-profile" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+      <section id="customer-section-profile" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="customer-detail" data-lm-task-key="profile" data-lm-task-label="اطلاعات مشتری" data-lm-task-default data-lm-task-order="1">
+        <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
           <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">پروفایل</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">اطلاعات تماس و هویت مشتری</h2></div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
+</header>
         <div class="p-4 sm:p-5 lg:p-6">
           <div class="grid gap-4 md:grid-cols-2">
             <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-              <h3 class="text-sm font-black text-loomera-textPrimary">خلاصه مشتری</h3>
-              <dl class="mt-4 space-y-3 text-sm">
-                <div class="flex items-center justify-between gap-3"><dt class="text-loomera-textMuted">بخش‌بندی</dt><dd class="font-black text-loomera-textPrimary">{{ customer_workspace.segment_label }}</dd></div>
-                <div class="flex items-center justify-between gap-3"><dt class="text-loomera-textMuted">رزروهای انجام‌شده</dt><dd class="font-black text-loomera-textPrimary">{{ customer_workspace.completed_count }}</dd></div>
-                <div class="flex items-center justify-between gap-3"><dt class="text-loomera-textMuted">آدرس اصلی</dt><dd class="max-w-[60%] truncate font-black text-loomera-textPrimary">{{ customer_workspace.address_title }}</dd></div>
-              </dl>
+              <div class="flex items-center gap-3">
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm"><i class="fa-solid fa-phone text-xs" aria-hidden="true"></i></span>
+                <div><p class="text-[11px] font-bold text-loomera-textMuted">شماره تماس</p><p class="mt-1 truncate text-sm font-black text-loomera-textPrimary">{{ customer.user.mobile_number|default:"ثبت نشده" }}</p></div>
+              </div>
+              <div class="mt-4 flex items-center gap-3 border-t border-loomera-borderSoft pt-4">
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm"><i class="fa-regular fa-envelope text-xs" aria-hidden="true"></i></span>
+                <div class="min-w-0"><p class="text-[11px] font-bold text-loomera-textMuted">ایمیل</p><p class="mt-1 truncate text-sm font-black text-loomera-textPrimary">{{ customer.user.email|default:"ثبت نشده" }}</p></div>
+              </div>
             </article>
             <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-              <h3 class="text-sm font-black text-loomera-textPrimary">اطلاعات تماس</h3>
-              <dl class="mt-4 space-y-3 text-sm">
-                <div class="min-w-0"><dt class="text-loomera-textMuted">شماره تماس</dt><dd class="mt-1 truncate font-black text-loomera-textPrimary">{{ customer.user.mobile_number|default:"ثبت نشده" }}</dd></div>
-                <div class="min-w-0"><dt class="text-loomera-textMuted">ایمیل</dt><dd class="mt-1 truncate font-black text-loomera-textPrimary">{{ customer.user.email|default:"ثبت نشده" }}</dd></div>
-                <div class="min-w-0"><dt class="text-loomera-textMuted">آدرس پیش‌فرض</dt><dd class="mt-1 leading-7 font-bold text-loomera-textPrimary">{{ customer_workspace.address_label }}</dd></div>
-              </dl>
+              <div class="flex items-start gap-3">
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm"><i class="fa-solid fa-location-dot text-xs" aria-hidden="true"></i></span>
+                <div class="min-w-0">
+                  <p class="text-[11px] font-bold text-loomera-textMuted">{{ customer_workspace.address_title }}</p>
+                  <p class="mt-1 text-sm font-bold leading-7 text-loomera-textPrimary">{{ customer_workspace.address_label }}</p>
+                </div>
+              </div>
+              <div class="mt-4 border-t border-loomera-borderSoft pt-4">
+                <p class="text-[11px] font-bold text-loomera-textMuted">رزروهای انجام‌شده</p>
+                <p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ customer_workspace.completed_count }} رزرو تکمیل‌شده</p>
+              </div>
             </article>
           </div>
         </div>
-      </details>
+      </section>
 
-      <details id="customer-section-services" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+      <section id="customer-section-services" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="customer-detail" data-lm-task-key="services" data-lm-task-label="خدمات محبوب" data-lm-task-order="2">
+        <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
           <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">ترجیحات</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">خدمات محبوب این مشتری</h2></div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
+</header>
         <div class="p-4 sm:p-5 lg:p-6">
           <p class="mb-4 text-xs leading-6 text-loomera-textMuted">برای پیشنهاد خدمت بعدی، خدمات مکمل یا آماده‌سازی تیم قبل از مراجعه بعدی.</p>
           <div class="space-y-3">
@@ -267,10 +139,10 @@
             {% endfor %}
           </div>
         </div>
-      </details>
+      </section>
     </div>
 
-    <details id="customer-section-history" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
+    <details id="customer-section-history" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-task-panel="customer-detail" data-lm-task-key="history" data-lm-task-label="رزروها" data-lm-task-order="3">
       <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">تاریخچه</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">رزروها و تجربه‌های مشتری</h2></div>
         <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
@@ -300,7 +172,7 @@
                   <div class="flex flex-wrap items-center gap-2">
                     <span class="inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-black text-loomera-textSecondary shadow-sm">{{ item.service_name }}</span>
                     <span class="inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-black text-loomera-textSecondary shadow-sm">{{ item.stylist_name }}</span>
-                    <span class="inline-flex rounded-full px-3 py-1 text-[11px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
+                    <span class="lm-status-chip inline-flex rounded-full px-3 py-1 text-[11px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
                   </div>
                   <p class="mt-3 text-sm font-black text-loomera-textPrimary">{{ item.date_label }} • {{ item.time_label }}</p>
                   {% if item.description %}
@@ -332,11 +204,10 @@
     </details>
 
     <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
-      <details id="customer-section-notes" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">یادداشت‌های تیم</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">نکته‌های عملیاتی مشتری</h2></div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-        </summary>
+      <section id="customer-section-notes" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="customer-detail" data-lm-task-key="notes" data-lm-task-label="یادداشت‌ها" data-lm-task-order="4">
+        <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+          <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">یادداشت‌ها</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">یادداشت‌های مشتری</h2></div>
+</header>
         <div class="p-4 sm:p-5 lg:p-6">
           <form method="post" class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
             {% csrf_token %}
@@ -366,7 +237,7 @@
             {% endfor %}
           </div>
         </div>
-      </details>
+      </section>
     </div>
   </section>
 {% endblock %}

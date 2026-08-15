@@ -1,0 +1,42 @@
+{% extends "dashboard_template.html" %}
+{% load static %}
+{% block title %}تنظیمات من{% endblock %}
+{% block body_attrs %}data-page="stylist-settings"{% endblock %}
+
+{% block head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/pages/stylist_workspace.css' %}">
+{% endblock %}
+
+{% block content %}
+  {% url 'dashboards:stylist_dashboard' as stylist_home_url %}
+  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-settings">
+    {% include "dashboards/components/page_hero.html" with eyebrow="تنظیمات شخصی" eyebrow_icon="fa-solid fa-gear" title="تنظیمات من" description="فقط تنظیمات مربوط به حساب و ارتباطات شخصی تو اینجا هستند؛ نوبت، برنامه، درآمد و محتوا از منوی اصلی مدیریت می‌شوند." action_label="بازگشت به خانه" action_url=stylist_home_url badges=page_meta.badges %}
+
+    <section class="grid gap-4 lg:grid-cols-2" aria-label="دسته‌های تنظیمات متخصص" data-lm-direct-section>
+      {% for group in stylist_settings_groups %}
+        <article class="flex min-w-0 flex-col rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" data-settings-group="{{ group.key }}" data-lm-stylist-surface>
+          <div class="flex items-start gap-3">
+            <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="{{ group.icon }}" aria-hidden="true"></i></span>
+            <div class="min-w-0">
+              <p class="text-[11px] font-black text-loomera-primaryText">{{ group.eyebrow }}</p>
+              <h2 class="mt-1 text-base font-black text-loomera-textPrimary">{{ group.title }}</h2>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ group.description }}</p>
+            </div>
+          </div>
+          <div class="mt-5 space-y-2 border-t border-loomera-borderSoft pt-4">
+            {% for item in group.items %}
+              <a href="{{ item.url }}" class="group/item flex min-w-0 items-center gap-3 rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 px-3.5 py-3.5 transition hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-soft">
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary group-hover/item:text-loomera-primaryText"><i class="{{ item.icon }} text-sm" aria-hidden="true"></i></span>
+                <span class="min-w-0 flex-1"><span class="block text-sm font-black text-loomera-textPrimary">{{ item.title }}</span><span class="mt-1 block text-xs leading-6 text-loomera-textMuted">{{ item.description }}</span></span>
+                <i class="fa-solid fa-arrow-left shrink-0 text-[10px] text-loomera-textMuted" aria-hidden="true"></i>
+              </a>
+            {% endfor %}
+          </div>
+        </article>
+      {% endfor %}
+    </section>
+
+
+  </section>
+{% endblock %}

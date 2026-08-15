@@ -14,83 +14,31 @@
         <div class="min-w-0">
           <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
             <i class="fa-regular fa-images text-[10px]" aria-hidden="true"></i>
-            <span class="truncate">ساخت پروفایل مجموعه / مرحله تصاویر</span>
+            <span class="truncate">پروفایل مجموعه / تصاویر</span>
           </span>
 
           <h1 id="gallery-step-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl">
             تصاویر مجموعه
           </h1>
 
-          <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary">
-            یک یا چند تصویر واقعی از فضای مجموعه اضافه کن. این مرحله اختیاری است و بعداً هم از پروفایل مجموعه قابل ویرایش است.
-          </p>
+
         </div>
 
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <a href="{{ step3_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
-            <span>بازگشت</span>
-          </a>
 
-          <a href="{{ step7_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_16px_34px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5 hover:opacity-95">
-            <span>{% if gallery_images %}ادامه{% else %}رد کردن و ادامه{% endif %}</span>
-            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
-          </a>
-        </div>
       </div>
 
-      <div class="relative mt-5 grid gap-3 sm:grid-cols-3">
-        <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3">
-          <p class="text-[11px] font-black text-loomera-textMuted">تصاویر فعلی</p>
-          <strong class="mt-1 block text-base font-black text-loomera-textPrimary">{{ gallery_count }} از {{ max_gallery_images }}</strong>
-        </div>
 
-        <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3">
-          <p class="text-[11px] font-black text-loomera-textMuted">وضعیت</p>
-          <strong class="mt-1 block text-base font-black text-loomera-textPrimary">
-            {% if gallery_images %}تصویر ثبت شده{% else %}اختیاری{% endif %}
-          </strong>
-        </div>
-
-        <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3">
-          <p class="text-[11px] font-black text-loomera-textMuted">قابل ویرایش</p>
-          <strong class="mt-1 block text-base font-black text-loomera-textPrimary">بعداً از پروفایل</strong>
-        </div>
-      </div>
     </section>
 
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش تصاویر مجموعه">
-        <div class="flex min-w-max items-center gap-2">
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#gallery-step-upload" aria-selected="true">
-            <i class="fa-solid fa-cloud-arrow-up text-[10px]" aria-hidden="true"></i>
-            <span>افزودن تصویر</span>
-          </button>
 
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#gallery-step-list">
-            <i class="fa-regular fa-images text-[10px]" aria-hidden="true"></i>
-            <span>تصاویر فعلی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ gallery_count }}</span>
-          </button>
 
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#gallery-step-next">
-            <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-            <span>ادامه</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <details id="gallery-step-upload" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+    <section id="gallery-step-upload" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section>
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">تصویر جدید</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">افزودن تصویر مجموعه</h2>
         </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+</header>
 
       <div class="p-4 sm:p-5 lg:p-6">
         {% if gallery_limit_reached %}
@@ -153,18 +101,15 @@
           </form>
         {% endif %}
       </div>
-    </details>
+    </section>
 
-    <details id="gallery-step-list" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+    <section id="gallery-step-list" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section>
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">گالری</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">تصاویر فعلی مجموعه</h2>
         </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+</header>
 
       <div class="p-4 sm:p-5 lg:p-6">
         {% if gallery_images %}
@@ -221,58 +166,18 @@
               <i class="fa-regular fa-image text-xl" aria-hidden="true"></i>
             </span>
             <h3 class="mt-5 text-lg font-black text-loomera-textPrimary">هنوز تصویری ثبت نشده است</h3>
-            <p class="mx-auto mt-2 max-w-md text-sm leading-7 text-loomera-textMuted">می‌توانی بدون آپلود تصویر ادامه بدهی و بعداً از پروفایل مجموعه تصاویر را اضافه کنی.</p>
+            <p class="mx-auto mt-2 max-w-md text-sm leading-7 text-loomera-textMuted">هنوز تصویری برای صفحه عمومی ثبت نشده است. هر زمان آماده بودی می‌توانی تا {{ max_gallery_images }} تصویر اضافه کنی.</p>
           </div>
         {% endif %}
       </div>
-    </details>
+    </section>
 
-    <details id="gallery-step-next" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">ادامه مسیر</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">رفتن به مرحله بعد</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 sm:p-5">
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div class="min-w-0">
-              <h3 class="text-base font-black text-loomera-textPrimary">
-                {% if gallery_images %}
-                  تصاویر مجموعه ثبت شده‌اند
-                {% else %}
-                  این مرحله اختیاری است
-                {% endif %}
-              </h3>
-              <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
-                {% if gallery_images %}
-                  می‌توانی به مرحله بعد بروی. تصاویر و کاور بعداً هم از پروفایل مجموعه قابل ویرایش هستند.
-                {% else %}
-                  اگر فعلاً عکس مناسب نداری، این مرحله را رد کن و بعداً از پروفایل مجموعه تکمیلش کن.
-                {% endif %}
-              </p>
-            </div>
-
-            <div class="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center">
-              <a href="{{ step3_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
-                <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
-                <span>بازگشت</span>
-              </a>
-
-              <a href="{{ step7_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_16px_36px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5 hover:opacity-95">
-                <span>{% if gallery_images %}ادامه مرحله بعد{% else %}رد کردن و ادامه{% endif %}</span>
-                <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </details>
+    <div class="flex justify-start rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-lm-card">
+      <a href="{{ salon_profile_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35">
+        <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+        بازگشت به پروفایل مجموعه
+      </a>
+    </div>
   </section>
 {% endblock %}
 

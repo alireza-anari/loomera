@@ -86,6 +86,7 @@ export default function initSalonLocationStep() {
   const body = document.body;
   const mapEnabled = String(body.dataset.mapEnabled || "").toLowerCase() === "true";
   const reverseGeocodeUrl = body.dataset.reverseGeocodeUrl || "";
+  const mapTileUrlTemplate = body.dataset.mapTileUrlTemplate || "";
   const markerIconUrl = body.dataset.markerIconUrl || "";
   const markerIcon = createMarkerIcon(markerIconUrl);
 
@@ -106,8 +107,10 @@ export default function initSalonLocationStep() {
   const zoneDisplayInput = document.getElementById("id_zone_display");
   const neighborhoodDisplayInput = document.getElementById("id_neighborhood_display");
   const addressInput = document.getElementById("id_address");
+  const plaqueInput = document.getElementById("id_address_plaque");
+  const unitInput = document.getElementById("id_address_unit");
 
-  if (!mapRoot || !form || !submitBtn || !latitudeInput || !longitudeInput || !addressInput) {
+  if (!mapRoot || !form || !submitBtn || !latitudeInput || !longitudeInput || !addressInput || !plaqueInput || !unitInput) {
     return;
   }
 
@@ -115,8 +118,21 @@ export default function initSalonLocationStep() {
   let marker = null;
   let reverseLookupCounter = 0;
 
-  const tileSeedUrl = "/search/map-tiles/0/0/0/";
-  const tileUrl = tileSeedUrl.replace(/0\/0\/0\/?$/, "{z}/{x}/{y}/");
+  const tileSeedUrl = body.dataset.mapTileSeedUrl || "/search/map-tiles/0/0/0/";
+  const tileUrl = mapTileUrlTemplate
+    ? mapTileUrlTemplate
+        .replace("987654", "{z}")
+        .replace("876543", "{x}")
+        .replace("765432", "{y}")
+    : tileSeedUrl.replace(/0\/0\/0\/?$/, "{z}/{x}/{y}/");
+
+  function ensureMapDimensions() {
+    if (!mapRoot) return;
+    const computed = window.getComputedStyle(mapRoot);
+    if (parseFloat(computed.height || "0") <= 0) {
+      mapRoot.style.height = window.matchMedia("(min-width: 640px)").matches ? "400px" : "320px";
+    }
+  }
 
   function showMapWarning(message) {
     if (!warningBox) return;
@@ -135,7 +151,12 @@ export default function initSalonLocationStep() {
   }
 
   function syncSubmitState() {
-    submitBtn.disabled = !hasSelectedLocation();
+    submitBtn.disabled = !(
+      hasSelectedLocation() &&
+      addressInput.value.trim() &&
+      plaqueInput.value.trim() &&
+      unitInput.value.trim()
+    );
   }
 
   function normalizeText(value) {
@@ -191,6 +212,9 @@ export default function initSalonLocationStep() {
         if (data.address) {
           addressInput.value = data.address;
         }
+        if (data.plaque) {
+          plaqueInput.value = data.plaque;
+        }
         applyReverseArea(data);
         const missingArea = !normalizeText(data.neighborhood) || !normalizeText(data.zone);
         setMessageState(
@@ -198,7 +222,7 @@ export default function initSalonLocationStep() {
             missingArea ? "warning" : "success",
             missingArea
               ? '<i class="fa-solid fa-triangle-exclamation ml-1"></i> آدرس دریافت شد، اما منطقه یا محله کامل نبود. پین را کمی جابه‌جا کن یا دوباره تلاش کن.'
-              : '<i class="fa-solid fa-check ml-1"></i> آدرس، منطقه و محله بر اساس لوکیشن انتخاب شده وارد شدند. فقط پلاک، طبقه یا واحد را در آدرس کامل کن.'
+              : '<i class="fa-solid fa-check ml-1"></i> آدرس، منطقه و محله بر اساس لوکیشن انتخاب شده وارد شدند. پلاک را بررسی کن و واحد را در فیلد جداگانه وارد کن.'
             );
         clearMapWarning();
       } else {
@@ -280,6 +304,7 @@ export default function initSalonLocationStep() {
     try {
       await waitForLeaflet();
       patchLeafletMarkerIcon(markerIconUrl);
+      ensureMapDimensions();
 
       mapInstance = window.L.map(mapRoot, {
         zoomControl: true,
@@ -323,8 +348,15 @@ export default function initSalonLocationStep() {
         }
       }
 
+      window.requestAnimationFrame(() => {
+        try {
+          ensureMapDimensions();
+          mapInstance.invalidateSize();
+        } catch (error) {}
+      });
       window.setTimeout(() => {
         try {
+          ensureMapDimensions();
           mapInstance.invalidateSize();
         } catch (error) {}
       }, 250);
@@ -361,6 +393,11 @@ export default function initSalonLocationStep() {
     clearLocation();
   });
 
+  [addressInput, plaqueInput, unitInput].forEach((input) => {
+    input.addEventListener("input", syncSubmitState);
+    input.addEventListener("change", syncSubmitState);
+  });
+
   form.addEventListener("submit", (event) => {
     if (!hasSelectedLocation()) {
       event.preventDefault();
@@ -372,8 +409,22 @@ export default function initSalonLocationStep() {
 
     if (!addressInput.value.trim()) {
       event.preventDefault();
-      showMapWarning("آدرس سالن خالی است. لوکیشن را دوباره انتخاب کن یا آدرس را دستی وارد کن.");
+      showMapWarning("آدرس مجموعه خالی است. لوکیشن را دوباره انتخاب کن یا آدرس را دستی وارد کن.");
       addressInput.focus();
+      return;
+    }
+
+    if (!plaqueInput.value.trim()) {
+      event.preventDefault();
+      showMapWarning("وارد کردن پلاک الزامی است.");
+      plaqueInput.focus();
+      return;
+    }
+
+    if (!unitInput.value.trim()) {
+      event.preventDefault();
+      showMapWarning("وارد کردن واحد الزامی است.");
+      unitInput.focus();
     }
   });
 

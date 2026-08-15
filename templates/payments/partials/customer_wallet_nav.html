@@ -1,0 +1,5 @@
+<nav class="flex overflow-x-auto rounded-[20px] border border-loomera-borderSoft bg-white p-1 shadow-lm-soft [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="بخش‌های کیف پول">
+  <a href="{% url 'payments:detail' %}" class="shrink-0 rounded-2xl px-4 py-2.5 text-xs font-black {% if wallet_tab == 'overview' %}bg-loomera-primary text-white{% else %}text-loomera-textSecondary hover:bg-loomera-primarySoft/40{% endif %}">موجودی</a>
+  <a href="{% url 'payments:transactions' %}" class="shrink-0 rounded-2xl px-4 py-2.5 text-xs font-black {% if wallet_tab == 'transactions' %}bg-loomera-primary text-white{% else %}text-loomera-textSecondary hover:bg-loomera-primarySoft/40{% endif %}">گردش حساب</a>
+  {% if wallet_operations_enabled %}<a href="{% url 'payments:withdraw' %}" class="shrink-0 rounded-2xl px-4 py-2.5 text-xs font-black {% if wallet_tab == 'withdrawals' %}bg-loomera-primary text-white{% else %}text-loomera-textSecondary hover:bg-loomera-primarySoft/40{% endif %}">برداشت‌ها</a>{% endif %}
+</nav>

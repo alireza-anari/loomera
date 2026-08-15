@@ -1,581 +1,242 @@
 {% extends "dashboard_template.html" %}
 {% load jalali_extras %}
 
-{% block title %}هزینه‌ها و سهم متخصصان{% endblock %}
+{% block title %}هزینه و سهم{% endblock %}
 
 {% block content %}
-{% url 'dashboards:payout_settings' as payout_settings_url %}
-{% url 'dashboards:finance_reports' as finance_reports_url %}
 {% url 'dashboards:finance_profit_report' as finance_profit_report_url %}
-{% url 'dashboards:finance_stylist_wallets' as finance_stylist_wallets_url %}
-{% url 'dashboards:finance_coupons' as finance_coupons_url %}
-{% url 'dashboards:finance_baskets' as finance_baskets_url %}
 
 <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-workspace-root data-dashboard-page="finance-cost-center">
   <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="cost-center-title">
     <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.14),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.96),rgba(255,255,255,0))]" aria-hidden="true"></div>
 
-    <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
-      <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
-        <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div class="min-w-0">
-            <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-              <i class="fa-solid fa-scale-balanced text-[10px]" aria-hidden="true"></i>
-              <span class="truncate">مواد، قالب مصرف و قانون سهم</span>
-            </span>
-
-            <h1 id="cost-center-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-              مرکز هزینه‌ها و سهم‌ها
-            </h1>
-            <p class="mt-3 max-w-4xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-              مواد پایه مجموعه، قالب مصرف پیش‌فرض هر خدمت و قانون سهم هر متخصص را اینجا مدیریت کن. مصرف واقعی مواد برای هر نوبت بعداً در مسیر عملیاتی نوبت/متخصص ثبت می‌شود؛ این صفحه فقط قوانین و داده‌های پایه را آماده می‌کند.
-            </p>
-          </div>
-
-          <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
-            <i class="fa-solid fa-coins text-lg" aria-hidden="true"></i>
+    <div class="relative min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
+      <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0">
+          <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+            <i class="fa-solid fa-scale-balanced text-[10px]" aria-hidden="true"></i>
+            <span>سود و هزینه</span>
           </span>
+          <h1 id="cost-center-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">هزینه و سهم</h1>
+          <p class="mt-3 max-w-4xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+            قواعد محاسبه را اینجا تنظیم کن: اول مواد مصرفی، بعد هزینه مواد هر خدمت و در آخر سهم هر متخصص. نتیجه این تنظیمات در سود خالص و درآمد متخصصان استفاده می‌شود.
+          </p>
         </div>
 
-        <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
-          <a href="{{ finance_profit_report_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-            <i class="fa-solid fa-chart-pie text-xs" aria-hidden="true"></i>
-            <span class="truncate">گزارش سود خالص</span>
-          </a>
-          <a href="{{ payout_settings_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-            <i class="fa-solid fa-wallet text-xs text-loomera-primaryText" aria-hidden="true"></i>
-            <span class="truncate">امور مالی مجموعه</span>
-          </a>
-          <a href="{{ finance_stylist_wallets_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-            <i class="fa-solid fa-user-tie text-xs text-loomera-primaryText" aria-hidden="true"></i>
-            <span class="truncate">کیف پول متخصصان</span>
-          </a>
-        </div>
+        <a href="{{ finance_profit_report_url }}" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-full border border-loomera-borderSoft bg-white px-4 py-2.5 text-xs font-black text-loomera-primaryText transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+          <span>دیدن سود خالص</span><i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+        </a>
       </div>
 
-      <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس مالی">
-        <div class="flex min-w-0 items-center justify-between gap-3">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-white/55">فوکوس این صفحه</p>
-            <h2 class="mt-1 truncate text-lg font-black">آماده‌سازی محاسبه سود</h2>
-          </div>
-          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-          </span>
-        </div>
-
-        <div class="mt-5 space-y-3">
-          <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-white">داده‌های پایه</h3>
-                <p class="mt-2 text-xs leading-6 text-white/72">اول ماده و قالب مصرف را کامل کن تا هزینه مواد در گزارش سود قابل اتکا باشد.</p>
-              </div>
-              <span class="shrink-0 rounded-full bg-white/10 px-3 py-1 text-[10px] font-black text-white">{{ materials|length }} ماده</span>
-            </div>
-          </article>
-          <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-white">قوانین سهم</h3>
-                <p class="mt-2 text-xs leading-6 text-white/72">برای جلوگیری از تسویه دستی، سهم متخصص را برای خدمت‌های پرتکرار تعریف کن.</p>
-              </div>
-              <span class="shrink-0 rounded-full bg-white/10 px-3 py-1 text-[10px] font-black text-white">{{ rules|length }} قانون</span>
-            </div>
-          </article>
-        </div>
-      </aside>
-    </div>
-  </section>
-
-  <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-    <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های مرکز هزینه">
-      <div class="flex min-w-max items-center gap-2">
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#cost-section-overview">
-          <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
-          <span>نمای کلی</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>{{ summary_cards|length }}</span>
-        </button>
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#cost-section-forms">
-          <i class="fa-solid fa-pen-to-square text-[10px]" aria-hidden="true"></i>
-          <span>فرم‌ها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۳</span>
-        </button>
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#cost-section-materials">
-          <i class="fa-solid fa-flask-vial text-[10px]" aria-hidden="true"></i>
-          <span>مواد</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ materials|length }}</span>
-        </button>
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#cost-section-templates">
-          <i class="fa-solid fa-layer-group text-[10px]" aria-hidden="true"></i>
-          <span>قالب‌ها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ templates|length }}</span>
-        </button>
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#cost-section-rules">
-          <i class="fa-solid fa-percent text-[10px]" aria-hidden="true"></i>
-          <span>قوانین سهم</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ rules|length }}</span>
-        </button>
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#cost-section-actions">
-          <i class="fa-solid fa-triangle-exclamation text-[10px]" aria-hidden="true"></i>
-          <span>نیازمند اقدام</span>
-        </button>
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#cost-section-paths">
-          <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
-          <span>مسیرها</span>
-        </button>
-      </div>
-    </nav>
-  </div>
-
-  <details id="cost-section-overview" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
-        <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">آمادگی مرکز هزینه</h2>
-      </div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
-
-    <div class="space-y-4 p-4 sm:p-5 lg:p-6">
-      <section class="rounded-[26px] border border-loomera-primary/15 bg-loomera-primarySoft/45 p-4 sm:p-5">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">چک‌لیست عملیاتی</p>
-            <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">آیا محاسبه سود خالص آماده است؟</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای هر خدمت مهم، حداقل یک قالب مصرف و یک قانون سهم داشته باش تا تسویه متخصص و سود خالص قابل اتکا شود.</p>
-          </div>
-          <a href="{{ finance_profit_report_url }}" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5 hover:shadow-lm-card">
-            <i class="fa-solid fa-chart-line text-[11px]" aria-hidden="true"></i>
-            <span>مشاهده اثر در گزارش سود</span>
-          </a>
-        </div>
-      </section>
-
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {% for card in summary_cards %}
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 shadow-lm-soft">
-            <p class="text-xs font-bold text-loomera-textMuted">{{ card.label }}</p>
-            <strong class="mt-3 block text-xl font-black text-loomera-textPrimary">{{ card.value }}</strong>
-          </article>
-        {% empty %}
-          <article class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 p-5 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3">
-            هنوز خلاصه‌ای برای مرکز هزینه ساخته نشده است.
+      <div class="mt-5 grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="وضعیت تنظیمات هزینه و سهم">
+        {% for card in setup_cards %}
+          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3.5 sm:p-4">
+            <p class="text-[10px] font-bold leading-5 text-loomera-textMuted sm:text-xs">{{ card.label }}</p>
+            <strong class="mt-1.5 block text-sm font-black text-loomera-textPrimary sm:text-lg">{{ card.value|fa_digits }}</strong>
+            <p class="mt-1 text-[10px] leading-5 text-loomera-textMuted sm:text-[11px]">{{ card.hint }}</p>
           </article>
         {% endfor %}
       </div>
-    </div>
-  </details>
 
-  <details id="cost-section-forms" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">تعریف داده‌های پایه</p>
-        <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">فرم‌های ثبت ماده، قالب و قانون سهم</h2>
+      <div class="mt-4 flex flex-wrap items-center gap-2 rounded-[20px] bg-loomera-bgSubtle/70 px-3.5 py-3 text-xs leading-6 text-loomera-textSecondary">
+        <span class="font-black text-loomera-primaryText">ترتیب پیشنهادی:</span>
+        <span>۱. ماده را تعریف کن</span><i class="fa-solid fa-arrow-left text-[9px] text-loomera-textMuted" aria-hidden="true"></i>
+        <span>۲. به خدمت وصل کن</span><i class="fa-solid fa-arrow-left text-[9px] text-loomera-textMuted" aria-hidden="true"></i>
+        <span>۳. سهم متخصص را مشخص کن</span>
       </div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
-
-    <div class="grid gap-4 p-4 sm:p-5 lg:p-6 xl:grid-cols-3">
-      <article class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-        <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <h3 class="text-base font-black text-loomera-textPrimary">ثبت ماده مصرفی</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">مثل رنگ مو، مواد کراتین، روغن ماساژ، شامپو یا هر هزینه مصرفی قابل ردیابی.</p>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-flask" aria-hidden="true"></i></span>
-        </div>
-
-        <form method="post" class="mt-5 space-y-4">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="create_material">
-
-          {% if material_form.non_field_errors %}
-            <div class="rounded-2xl border border-loomera-error/20 bg-loomera-errorSoft px-4 py-3 text-sm leading-7 text-loomera-error">{{ material_form.non_field_errors }}</div>
-          {% endif %}
-
-          {% for field in material_form %}
-            <div>
-              <label class="mb-2 block text-sm font-black text-loomera-textPrimary" for="{{ field.id_for_label }}">{{ field.label }}</label>
-              {{ field }}
-              {% if field.help_text %}<p class="mt-1 text-xs leading-5 text-loomera-textMuted">{{ field.help_text }}</p>{% endif %}
-              {% if field.errors %}<p class="mt-2 text-xs leading-5 text-loomera-error">{{ field.errors|join:'، ' }}</p>{% endif %}
-            </div>
-          {% endfor %}
-
-          <button class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-sm transition hover:opacity-95">
-            <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
-            <span>ثبت ماده</span>
-          </button>
-        </form>
-      </article>
-
-      <article class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-        <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <h3 class="text-base font-black text-loomera-textPrimary">قالب مواد مصرفی خدمت</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای هر خدمت مشخص کن چه موادی معمولاً مصرف می‌شود و هزینه آن با مجموعه است یا متخصص.</p>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
-        </div>
-
-        <form method="post" class="mt-5 space-y-4">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="create_template">
-
-          {% if template_form.non_field_errors %}
-            <div class="rounded-2xl border border-loomera-error/20 bg-loomera-errorSoft px-4 py-3 text-sm leading-7 text-loomera-error">{{ template_form.non_field_errors }}</div>
-          {% endif %}
-
-          {% for field in template_form %}
-            <div>
-              <label class="mb-2 block text-sm font-black text-loomera-textPrimary" for="{{ field.id_for_label }}">{{ field.label }}</label>
-              {{ field }}
-              {% if field.help_text %}<p class="mt-1 text-xs leading-5 text-loomera-textMuted">{{ field.help_text }}</p>{% endif %}
-              {% if field.errors %}<p class="mt-2 text-xs leading-5 text-loomera-error">{{ field.errors|join:'، ' }}</p>{% endif %}
-            </div>
-          {% endfor %}
-
-          <button class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-sm transition hover:opacity-95">
-            <i class="fa-solid fa-flask-vial text-xs" aria-hidden="true"></i>
-            <span>ثبت قالب</span>
-          </button>
-        </form>
-      </article>
-
-      <article class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-        <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <h3 class="text-base font-black text-loomera-textPrimary">قانون سهم متخصص</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای هر خدمت و متخصص، درصد یا مبلغ ثابت سهم را تعریف کن.</p>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-percent" aria-hidden="true"></i></span>
-        </div>
-
-        <form method="post" class="mt-5 space-y-4">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="create_rule">
-
-          {% if rule_form.non_field_errors %}
-            <div class="rounded-2xl border border-loomera-error/20 bg-loomera-errorSoft px-4 py-3 text-sm leading-7 text-loomera-error">{{ rule_form.non_field_errors }}</div>
-          {% endif %}
-
-          {% for field in rule_form %}
-            <div>
-              <label class="mb-2 block text-sm font-black text-loomera-textPrimary" for="{{ field.id_for_label }}">{{ field.label }}</label>
-              {{ field }}
-              {% if field.help_text %}<p class="mt-1 text-xs leading-5 text-loomera-textMuted">{{ field.help_text }}</p>{% endif %}
-              {% if field.errors %}<p class="mt-2 text-xs leading-5 text-loomera-error">{{ field.errors|join:'، ' }}</p>{% endif %}
-            </div>
-          {% endfor %}
-
-          <button class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-sm transition hover:opacity-95">
-            <i class="fa-solid fa-percent text-xs" aria-hidden="true"></i>
-            <span>ثبت قانون سهم</span>
-          </button>
-        </form>
-      </article>
     </div>
-  </details>
+  </section>
 
-  <details id="cost-section-materials" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">مواد پایه</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مواد مصرفی ثبت‌شده</h2></div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
+  {% include "dashboards/partials/finance/workspace_nav.html" with active="cost" %}
+
+  <div class="lm-task-tabs-anchor" data-lm-task-tabs-anchor="cost-center" data-lm-task-tabs-label="بخش‌های هزینه و سهم" aria-label="بخش‌های هزینه و سهم"></div>
+
+  <section id="cost-section-materials" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="cost-center" data-lm-task-key="materials" data-lm-task-label="مواد مصرفی" {% if not template_form.errors and not rule_form.errors %}data-lm-task-default{% endif %} data-lm-task-order="1">
+    <header data-lm-direct-section-header class="border-b border-loomera-borderSoft bg-white/95 px-4 py-4 sm:px-5 lg:px-6">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">مرحله ۱</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">مواد مصرفی</h2>
+          <p class="mt-1 max-w-3xl text-xs leading-6 text-loomera-textMuted">هر ماده را یک‌بار با واحد و هزینه معمولش تعریف کن؛ مثل رنگ مو، کراتین یا روغن ماساژ.</p>
+        </div>
+        <span class="shrink-0 rounded-full bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">{{ finance_counts.materials_active|fa_digits }} فعال</span>
+      </div>
+    </header>
+
     <div class="space-y-4 p-4 sm:p-5 lg:p-6">
-      <div class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3">
-        <label class="relative block">
-          <span class="sr-only">جستجوی مواد</span>
-          <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
+      <details class="group rounded-[24px] border {% if material_form.errors %}border-loomera-error/30 bg-loomera-errorSoft/30{% else %}border-loomera-primary/15 bg-loomera-primarySoft/30{% endif %}" {% if material_form.errors %}open{% endif %}>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 text-sm font-black text-loomera-primaryText sm:px-5">
+          <span class="inline-flex items-center gap-2"><i class="fa-solid fa-plus text-[10px]" aria-hidden="true"></i>افزودن ماده مصرفی</span>
+          <i class="fa-solid fa-chevron-down text-[10px] transition group-open:rotate-180" aria-hidden="true"></i>
+        </summary>
+        <form method="post" class="grid gap-4 border-t border-loomera-borderSoft/80 p-4 sm:grid-cols-2 sm:p-5" data-cost-create-form="materials">
+          {% csrf_token %}<input type="hidden" name="action" value="create_material">
+          {% if material_form.non_field_errors %}<div class="rounded-2xl border border-loomera-error/20 bg-loomera-errorSoft px-4 py-3 text-sm leading-7 text-loomera-error sm:col-span-2">{{ material_form.non_field_errors }}</div>{% endif %}
+          {% for field in material_form %}
+            <div class="{% if field.name == 'description' %}sm:col-span-2{% endif %}" data-cost-form-field="{{ field.name }}">
+              {% if field.name == 'is_active' %}
+                <label class="flex min-h-11 items-center gap-3 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary">{{ field }}<span>{{ field.label }}</span></label>
+              {% else %}
+                <label class="mb-2 block text-sm font-black text-loomera-textPrimary" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+              {% endif %}
+              {% if field.help_text %}<p class="mt-1 text-xs leading-5 text-loomera-textMuted">{{ field.help_text }}</p>{% endif %}
+              {% if field.errors %}<p class="mt-2 text-xs leading-5 text-loomera-error">{{ field.errors|join:'، ' }}</p>{% endif %}
+            </div>
+          {% endfor %}
+          <div class="sm:col-span-2 flex justify-end"><button class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-sm transition hover:opacity-95">ثبت ماده</button></div>
+        </form>
+      </details>
+
+      <div class="flex flex-col gap-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3 sm:flex-row sm:items-center">
+        <label class="relative block min-w-0 flex-1">
+          <span class="sr-only">جستجوی مواد</span><i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
           <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="جستجو در مواد مصرفی" data-cost-search="materials">
         </label>
+        <div class="flex gap-2 overflow-x-auto" aria-label="وضعیت مواد مصرفی">
+          <button type="button" class="shrink-0 rounded-full px-3 py-2 text-xs font-black" data-cost-filter-list="materials" data-cost-filter="all">همه</button>
+          <button type="button" class="shrink-0 rounded-full px-3 py-2 text-xs font-black" data-cost-filter-list="materials" data-cost-filter="active">فعال</button>
+          <button type="button" class="shrink-0 rounded-full px-3 py-2 text-xs font-black" data-cost-filter-list="materials" data-cost-filter="inactive">غیرفعال</button>
+        </div>
       </div>
 
       <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3" data-cost-list="materials">
         {% for item in materials %}
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-lm-card" data-cost-card data-cost-kind="material" data-cost-status="{% if item.is_active %}active{% else %}inactive{% endif %}" data-cost-search-value="{{ item.name }} {{ item.get_unit_display }} {{ item.default_unit_cost }}">
+          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft" data-cost-card data-cost-status="{% if item.is_active %}active{% else %}inactive{% endif %}" data-cost-search-value="{{ item.name }} {{ item.get_unit_display }} {{ item.default_unit_cost }} {{ item.sku }} {{ item.description }}">
             <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ item.name }}</h3>
-                <p class="mt-1 text-xs leading-5 text-loomera-textMuted">{{ item.get_unit_display }} • {{ item.default_unit_cost }} تومان</p>
-              </div>
-              <form method="post" class="shrink-0">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="toggle_material">
-                <input type="hidden" name="material_id" value="{{ item.id }}">
-                <button class="rounded-full px-3 py-1 text-[11px] font-black {% if item.is_active %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-bgSubtle text-loomera-textMuted{% endif %}">
-                  {% if item.is_active %}فعال{% else %}غیرفعال{% endif %}
-                </button>
-              </form>
-            </div>
-          </article>
-        {% empty %}
-          <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3">هنوز ماده مصرفی ثبت نشده است.</div>
-        {% endfor %}
-        <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3" data-cost-empty="materials">ماده‌ای با این جستجو پیدا نشد.</div>
-      </div>
-    </div>
-  </details>
-
-  <details id="cost-section-templates" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">قالب مصرف</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">قالب‌های مواد خدمت</h2></div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
-    <div class="space-y-4 p-4 sm:p-5 lg:p-6">
-      <div class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3">
-        <label class="relative block">
-          <span class="sr-only">جستجوی قالب‌ها</span>
-          <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
-          <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="جستجو با نام خدمت یا ماده" data-cost-search="templates">
-        </label>
-      </div>
-
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3" data-cost-list="templates">
-        {% for item in templates %}
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-lm-card" data-cost-card data-cost-kind="template" data-cost-status="{% if item.is_active %}active{% else %}inactive{% endif %}" data-cost-search-value="{{ item.service.service_name }} {{ item.material.name }} {{ item.get_paid_by_display }} {{ item.default_quantity }}">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service.service_name }}</h3>
-                <p class="mt-1 text-xs leading-5 text-loomera-textMuted">{{ item.material.name }} • مقدار {{ item.default_quantity }} • {{ item.estimated_total_cost }} تومان</p>
-                <p class="mt-1 text-xs leading-5 text-loomera-primaryText">{{ item.get_paid_by_display }}</p>
-              </div>
-              <form method="post" class="shrink-0">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="toggle_template">
-                <input type="hidden" name="template_id" value="{{ item.id }}">
-                <button class="rounded-full px-3 py-1 text-[11px] font-black {% if item.is_active %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-bgSubtle text-loomera-textMuted{% endif %}">
-                  {% if item.is_active %}فعال{% else %}غیرفعال{% endif %}
-                </button>
-              </form>
-            </div>
-          </article>
-        {% empty %}
-          <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3">هنوز قالب مواد برای خدمات ثبت نشده است.</div>
-        {% endfor %}
-        <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3" data-cost-empty="templates">قالبی با این جستجو پیدا نشد.</div>
-      </div>
-    </div>
-  </details>
-
-  <details id="cost-section-rules" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">تسویه متخصص</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">قوانین سهم متخصص</h2></div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
-    <div class="space-y-4 p-4 sm:p-5 lg:p-6">
-      <div class="flex flex-col gap-3 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3 lg:flex-row lg:items-center">
-        <label class="relative block min-w-0 flex-1">
-          <span class="sr-only">جستجوی قوانین سهم</span>
-          <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
-          <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="جستجو با نام خدمت، متخصص یا نوع سهم" data-cost-search="rules">
-        </label>
-        <div class="flex gap-2 overflow-x-auto pb-1" aria-label="فیلتر سریع قوانین سهم">
-          <button type="button" class="shrink-0 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-cost-filter="all">همه</button>
-          <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-cost-filter="active">فعال</button>
-          <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-cost-filter="inactive">غیرفعال</button>
-          <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-cost-filter="percent">درصدی</button>
-          <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-cost-filter="fixed">مبلغ ثابت</button>
-        </div>
-      </div>
-
-      <div class="grid gap-3 xl:grid-cols-2" data-cost-list="rules">
-        {% for item in rules %}
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-lm-card" data-cost-card data-cost-kind="rule" data-cost-status="{% if item.is_active %}active{% else %}inactive{% endif %}" data-cost-type="{{ item.commission_type }}" data-cost-search-value="{{ item.service.service_name }} {{ item.stylist }} {{ item.get_commission_type_display }} {{ item.get_share_base_display }}">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service.service_name }}</h3>
-                <p class="mt-1 text-xs leading-5 text-loomera-textMuted">{{ item.stylist }} • {{ item.get_commission_type_display }}</p>
-                <p class="mt-1 text-xs leading-5 text-loomera-primaryText">
-                  {% if item.commission_type == "percent" %}{{ item.percent }}٪{% else %}{{ item.fixed_amount }} تومان{% endif %}
-                  • {{ item.get_share_base_display }}
-                </p>
-              </div>
-
-              <form method="post" class="shrink-0">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="toggle_rule">
-                <input type="hidden" name="rule_id" value="{{ item.id }}">
-                <button class="rounded-full px-3 py-1 text-[11px] font-black {% if item.is_active %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-bgSubtle text-loomera-textMuted{% endif %}">
-                  {% if item.is_active %}فعال{% else %}غیرفعال{% endif %}
-                </button>
-              </form>
+              <div class="min-w-0"><h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ item.name }}</h3><p class="mt-1 text-xs leading-5 text-loomera-textMuted">{{ item.get_unit_display }} • {{ item.default_unit_cost|fa_digits }} تومان برای هر واحد</p>{% if item.sku %}<p class="mt-1 text-[11px] text-loomera-textMuted">کد داخلی: {{ item.sku }}</p>{% endif %}</div>
+              <span class="shrink-0 rounded-full px-3 py-1 text-[10px] font-black {% if item.is_active %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-bgSubtle text-loomera-textMuted{% endif %}">{% if item.is_active %}فعال{% else %}غیرفعال{% endif %}</span>
             </div>
 
-            <details class="mt-4 rounded-[20px] border border-loomera-borderSoft bg-white/90 p-3">
-              <summary class="cursor-pointer text-xs font-black text-loomera-primaryText">ویرایش قانون سهم</summary>
+            <div class="mt-4 flex items-center gap-2">
+              <form method="post">{% csrf_token %}<input type="hidden" name="action" value="toggle_material"><input type="hidden" name="material_id" value="{{ item.id }}"><button class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">{% if item.is_active %}غیرفعال کن{% else %}فعال کن{% endif %}</button></form>
+            </div>
 
-              <form method="post" class="mt-4 grid gap-3">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="update_rule">
-                <input type="hidden" name="rule_id" value="{{ item.id }}">
-
-                <div class="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <label class="mb-1 block text-xs font-black text-loomera-textMuted">متخصص</label>
-                    <select name="stylist" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                      {% for stylist in rule_form.fields.stylist.queryset %}
-                        <option value="{{ stylist.id }}" {% if stylist.id == item.stylist_id %}selected{% endif %}>{{ stylist }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="mb-1 block text-xs font-black text-loomera-textMuted">خدمت</label>
-                    <select name="service" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                      {% for service in rule_form.fields.service.queryset %}
-                        <option value="{{ service.id }}" {% if service.id == item.service_id %}selected{% endif %}>{{ service.service_name }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>
-
-                <div class="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <label class="mb-1 block text-xs font-black text-loomera-textMuted">نوع سهم</label>
-                    <select name="commission_type" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                      <option value="percent" {% if item.commission_type == "percent" %}selected{% endif %}>درصدی</option>
-                      <option value="fixed" {% if item.commission_type == "fixed" %}selected{% endif %}>مبلغ ثابت</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="mb-1 block text-xs font-black text-loomera-textMuted">مبنای محاسبه</label>
-                    <select name="share_base" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                      <option value="gross_after_discount" {% if item.share_base == "gross_after_discount" %}selected{% endif %}>بعد از تخفیف</option>
-                      <option value="after_platform_commission" {% if item.share_base == "after_platform_commission" %}selected{% endif %}>بعد از کارمزد پلتفرم</option>
-                      <option value="net_after_materials" {% if item.share_base == "net_after_materials" %}selected{% endif %}>سود خالص بعد از مواد</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <label class="mb-1 block text-xs font-black text-loomera-textMuted">درصد سهم</label>
-                    <input name="percent" value="{{ item.percent }}" type="number" min="0" max="100" step="0.01" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                  </div>
-
-                  <div>
-                    <label class="mb-1 block text-xs font-black text-loomera-textMuted">مبلغ ثابت</label>
-                    <input name="fixed_amount" value="{{ item.fixed_amount }}" type="number" min="0" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                  </div>
-                </div>
-
-                <div class="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <label class="mb-1 block text-xs font-black text-loomera-textMuted">سیاست هزینه مواد</label>
-                    <select name="material_cost_policy" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                      <option value="salon_pays" {% if item.material_cost_policy == "salon_pays" %}selected{% endif %}>هزینه مواد با مجموعه</option>
-                      <option value="stylist_pays" {% if item.material_cost_policy == "stylist_pays" %}selected{% endif %}>هزینه مواد با متخصص</option>
-                      <option value="split" {% if item.material_cost_policy == "split" %}selected{% endif %}>هزینه مواد مشترک</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="mb-1 block text-xs font-black text-loomera-textMuted">درصد هزینه مواد با متخصص</label>
-                    <input name="stylist_material_cost_percent" value="{{ item.stylist_material_cost_percent }}" type="number" min="0" max="100" step="0.01" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                  </div>
-                </div>
-
-                <div class="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <label class="mb-1 block text-xs font-black text-loomera-textMuted">شروع اعتبار</label>
-                    <input name="effective_from" value="{{ item.effective_from|jalali_short }}" type="text" data-jdp data-jalali-date data-jdp-only-date="true" autocomplete="off" inputmode="numeric" placeholder="۱۴۰۵/۰۱/۰۱" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                  </div>
-
-                  <div>
-                    <label class="mb-1 block text-xs font-black text-loomera-textMuted">پایان اعتبار</label>
-                    <input name="effective_to" value="{{ item.effective_to|jalali_short }}" type="text" data-jdp data-jalali-date data-jdp-only-date="true" autocomplete="off" inputmode="numeric" placeholder="۱۴۰۵/۰۱/۳۱" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                  </div>
-                </div>
-
-                <input type="hidden" name="is_active" value="on">
-
-                <div class="flex flex-wrap gap-2">
-                  <button class="rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">ذخیره تغییرات</button>
-                  <button name="action" value="delete_rule" class="rounded-full bg-loomera-errorSoft px-4 py-2 text-xs font-black text-loomera-error">غیرفعال‌سازی</button>
-                </div>
+            <details class="mt-3 rounded-[18px] border border-loomera-borderSoft bg-loomera-bgSubtle/50 px-3.5 py-3">
+              <summary class="cursor-pointer list-none text-xs font-black text-loomera-primaryText">ویرایش ماده</summary>
+              <form method="post" class="mt-4 grid gap-3 sm:grid-cols-2">
+                {% csrf_token %}<input type="hidden" name="action" value="update_material"><input type="hidden" name="material_id" value="{{ item.id }}">{% if item.is_active %}<input type="hidden" name="is_active" value="on">{% endif %}
+                <label><span class="mb-1 block text-xs font-black text-loomera-textMuted">نام ماده</span><input name="name" value="{{ item.name }}" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm outline-none focus:border-loomera-primary/40"></label>
+                <label><span class="mb-1 block text-xs font-black text-loomera-textMuted">واحد مصرف</span><select name="unit" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm outline-none focus:border-loomera-primary/40">{% for value,label in material_form.fields.unit.choices %}<option value="{{ value }}" {% if value == item.unit %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+                <label><span class="mb-1 block text-xs font-black text-loomera-textMuted">هزینه هر واحد</span><input name="default_unit_cost" value="{{ item.default_unit_cost }}" type="number" min="0" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm outline-none focus:border-loomera-primary/40"></label>
+                <label><span class="mb-1 block text-xs font-black text-loomera-textMuted">کد داخلی</span><input name="sku" value="{{ item.sku }}" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm outline-none focus:border-loomera-primary/40"></label>
+                <label class="sm:col-span-2"><span class="mb-1 block text-xs font-black text-loomera-textMuted">یادداشت</span><textarea name="description" rows="2" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm outline-none focus:border-loomera-primary/40">{{ item.description }}</textarea></label>
+                <div class="sm:col-span-2 flex justify-end"><button class="rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">ذخیره تغییرات</button></div>
               </form>
             </details>
           </article>
         {% empty %}
-          <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted xl:col-span-2">هنوز قانون سهم ثبت نشده است.</div>
+          <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-7 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3">هنوز ماده‌ای ثبت نشده. از «افزودن ماده مصرفی» شروع کن.</div>
         {% endfor %}
-        <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted xl:col-span-2" data-cost-empty="rules">قانونی با این جستجو یا فیلتر پیدا نشد.</div>
+        <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-7 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3" data-cost-empty="materials">ماده‌ای با این جستجو یا فیلتر پیدا نشد.</div>
       </div>
     </div>
-  </details>
+  </section>
 
-  <details id="cost-section-actions" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">ریسک‌های محاسبه</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">موارد نیازمند اقدام</h2></div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
+  <section id="cost-section-templates" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="cost-center" data-lm-task-key="templates" data-lm-task-label="هزینه هر خدمت" {% if template_form.errors %}data-lm-task-default{% endif %} data-lm-task-order="2">
+    <header data-lm-direct-section-header class="border-b border-loomera-borderSoft bg-white/95 px-4 py-4 sm:px-5 lg:px-6">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">مرحله ۲ • الگوی مصرف</p><h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">هزینه مواد هر خدمت</h2><p class="mt-1 max-w-3xl text-xs leading-6 text-loomera-textMuted">مشخص کن در یک نوبت از هر خدمت معمولاً چه مقدار ماده مصرف می‌شود و اگر قانون سهمی وجود نداشته باشد هزینه با چه کسی است.</p></div>
+        <span class="shrink-0 rounded-full bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">{{ finance_counts.templates_active|fa_digits }} فعال</span>
+      </div>
+    </header>
 
-    <div class="grid gap-3 p-4 sm:p-5 lg:p-6 md:grid-cols-2 xl:grid-cols-3" data-cost-issues>
-      {% for item in materials %}
-        {% if not item.is_active %}
-          <article class="rounded-[24px] border border-loomera-warning/20 bg-loomera-warningSoft p-4" data-cost-issue>
-            <p class="text-xs font-black text-loomera-warning">ماده غیرفعال</p>
-            <h3 class="mt-2 text-sm font-black text-loomera-textPrimary">{{ item.name }}</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textSecondary">اگر این ماده هنوز در خدمات استفاده می‌شود، وضعیت آن را بازبینی کن.</p>
+    <div class="space-y-4 p-4 sm:p-5 lg:p-6">
+      {% if finance_counts.materials_active %}
+        <details class="group rounded-[24px] border {% if template_form.errors %}border-loomera-error/30 bg-loomera-errorSoft/30{% else %}border-loomera-primary/15 bg-loomera-primarySoft/30{% endif %}" {% if template_form.errors %}open{% endif %}>
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 text-sm font-black text-loomera-primaryText sm:px-5"><span class="inline-flex items-center gap-2"><i class="fa-solid fa-plus text-[10px]" aria-hidden="true"></i>افزودن هزینه به خدمت</span><i class="fa-solid fa-chevron-down text-[10px] transition group-open:rotate-180" aria-hidden="true"></i></summary>
+          <form method="post" class="grid gap-4 border-t border-loomera-borderSoft/80 p-4 sm:grid-cols-2 sm:p-5" data-cost-create-form="templates">
+            {% csrf_token %}<input type="hidden" name="action" value="create_template">
+            {% if template_form.non_field_errors %}<div class="rounded-2xl border border-loomera-error/20 bg-loomera-errorSoft px-4 py-3 text-sm leading-7 text-loomera-error sm:col-span-2">{{ template_form.non_field_errors }}</div>{% endif %}
+            {% for field in template_form %}
+              <div data-cost-form-field="{{ field.name }}">
+                {% if field.name == 'is_active' %}<label class="flex min-h-11 items-center gap-3 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary">{{ field }}<span>{{ field.label }}</span></label>{% else %}<label class="mb-2 block text-sm font-black text-loomera-textPrimary" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endif %}
+                {% if field.help_text %}<p class="mt-1 text-xs leading-5 text-loomera-textMuted">{{ field.help_text }}</p>{% endif %}{% if field.errors %}<p class="mt-2 text-xs leading-5 text-loomera-error">{{ field.errors|join:'، ' }}</p>{% endif %}
+              </div>
+            {% endfor %}
+            <div class="sm:col-span-2 flex justify-end"><button class="inline-flex min-h-11 items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white">ثبت هزینه خدمت</button></div>
+          </form>
+        </details>
+      {% else %}
+        <div class="rounded-[22px] border border-loomera-warning/20 bg-loomera-warningSoft px-4 py-4 text-sm leading-7 text-loomera-textSecondary"><strong class="text-loomera-textPrimary">اول یک ماده فعال تعریف کن.</strong> برای وصل‌کردن هزینه به خدمت باید حداقل یک ماده مصرفی فعال داشته باشی.</div>
+      {% endif %}
+
+      <div class="rounded-[20px] border border-loomera-primary/10 bg-loomera-primarySoft/40 px-4 py-3 text-xs leading-6 text-loomera-textSecondary"><strong class="text-loomera-primaryText">نکته:</strong> پرداخت‌کننده‌ای که اینجا انتخاب می‌کنی حالت پیش‌فرض است. اگر برای متخصص و خدمت «قانون سهم» داشته باشی، نحوه تقسیم هزینه مواد در آن قانون اولویت دارد.</div>
+
+      <div class="flex flex-col gap-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3 sm:flex-row sm:items-center">
+        <label class="relative block min-w-0 flex-1"><span class="sr-only">جستجوی هزینه خدمات</span><i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i><input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary/40" placeholder="جستجو با نام خدمت یا ماده" data-cost-search="templates"></label>
+        <div class="flex gap-2 overflow-x-auto"><button type="button" class="shrink-0 rounded-full px-3 py-2 text-xs font-black" data-cost-filter-list="templates" data-cost-filter="all">همه</button><button type="button" class="shrink-0 rounded-full px-3 py-2 text-xs font-black" data-cost-filter-list="templates" data-cost-filter="active">فعال</button><button type="button" class="shrink-0 rounded-full px-3 py-2 text-xs font-black" data-cost-filter-list="templates" data-cost-filter="inactive">غیرفعال</button></div>
+      </div>
+
+      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3" data-cost-list="templates">
+        {% for item in templates %}
+          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft" data-cost-card data-cost-status="{% if item.is_active %}active{% else %}inactive{% endif %}" data-cost-search-value="{{ item.service.service_name }} {{ item.material.name }} {{ item.default_quantity }} {{ item.estimated_total_cost }}">
+            <div class="flex items-start justify-between gap-3"><div class="min-w-0"><h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service.service_name }}</h3><p class="mt-1 text-xs leading-5 text-loomera-textMuted">{{ item.material.name }} • مقدار {{ item.default_quantity|fa_digits }} {{ item.material.get_unit_display }}</p><strong class="mt-2 block text-sm font-black text-loomera-textPrimary">حدود {{ item.estimated_total_cost|fa_digits }} تومان</strong><p class="mt-1 text-[11px] text-loomera-primaryText">{% if item.paid_by == 'stylist' %}پیش‌فرض: هزینه با متخصص{% elif item.paid_by == 'shared' %}پیش‌فرض: هزینه مشترک ۵۰/۵۰{% else %}پیش‌فرض: هزینه با مجموعه{% endif %}</p></div><span class="shrink-0 rounded-full px-3 py-1 text-[10px] font-black {% if item.is_active %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-bgSubtle text-loomera-textMuted{% endif %}">{% if item.is_active %}فعال{% else %}غیرفعال{% endif %}</span></div>
+            <div class="mt-4"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="toggle_template"><input type="hidden" name="template_id" value="{{ item.id }}"><button class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary">{% if item.is_active %}غیرفعال کن{% else %}فعال کن{% endif %}</button></form></div>
+            <details class="mt-3 rounded-[18px] border border-loomera-borderSoft bg-loomera-bgSubtle/50 px-3.5 py-3"><summary class="cursor-pointer list-none text-xs font-black text-loomera-primaryText">ویرایش هزینه خدمت</summary>
+              <form method="post" class="mt-4 grid gap-3 sm:grid-cols-2">{% csrf_token %}<input type="hidden" name="action" value="update_template"><input type="hidden" name="template_id" value="{{ item.id }}"><input type="hidden" name="service" value="{{ item.service_id }}"><input type="hidden" name="material" value="{{ item.material_id }}">{% if item.is_active %}<input type="hidden" name="is_active" value="on">{% endif %}
+                <div class="sm:col-span-2 rounded-2xl bg-white px-3 py-2 text-xs leading-6 text-loomera-textSecondary"><strong class="text-loomera-textPrimary">{{ item.service.service_name }}</strong> • {{ item.material.name }}</div>
+                <label><span class="mb-1 block text-xs font-black text-loomera-textMuted">مقدار مصرف معمول</span><input name="default_quantity" value="{{ item.default_quantity }}" type="number" min="0" step="0.01" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm outline-none"></label>
+                <label><span class="mb-1 block text-xs font-black text-loomera-textMuted">هزینه هر واحد</span><input name="unit_cost" value="{{ item.unit_cost }}" type="number" min="0" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm outline-none"></label>
+                <label class="sm:col-span-2"><span class="mb-1 block text-xs font-black text-loomera-textMuted">پرداخت‌کننده پیش‌فرض</span><select name="paid_by" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm outline-none"><option value="salon" {% if item.paid_by == 'salon' %}selected{% endif %}>مجموعه می‌پردازد</option><option value="stylist" {% if item.paid_by == 'stylist' %}selected{% endif %}>متخصص می‌پردازد</option><option value="shared" {% if item.paid_by == 'shared' %}selected{% endif %}>بین مجموعه و متخصص نصف می‌شود</option></select></label>
+                <div class="sm:col-span-2 flex justify-end"><button class="rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">ذخیره تغییرات</button></div>
+              </form>
+            </details>
           </article>
-        {% endif %}
-      {% endfor %}
-      {% for item in templates %}
-        {% if not item.is_active %}
-          <article class="rounded-[24px] border border-loomera-warning/20 bg-loomera-warningSoft p-4" data-cost-issue>
-            <p class="text-xs font-black text-loomera-warning">قالب غیرفعال</p>
-            <h3 class="mt-2 text-sm font-black text-loomera-textPrimary">{{ item.service.service_name }}</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textSecondary">قالب مصرف این خدمت در محاسبه خودکار هزینه مواد اثر نمی‌گذارد.</p>
-          </article>
-        {% endif %}
-      {% endfor %}
-      {% for item in rules %}
-        {% if not item.is_active %}
-          <article class="rounded-[24px] border border-loomera-warning/20 bg-loomera-warningSoft p-4" data-cost-issue>
-            <p class="text-xs font-black text-loomera-warning">قانون سهم غیرفعال</p>
-            <h3 class="mt-2 text-sm font-black text-loomera-textPrimary">{{ item.service.service_name }}</h3>
-            <p class="mt-2 text-xs leading-6 text-loomera-textSecondary">برای {{ item.stylist }} قانون سهم فعال نیست و ممکن است تسویه دستی شود.</p>
-          </article>
-        {% endif %}
-      {% endfor %}
-      <article class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 p-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3" data-cost-issues-empty>
-        مورد فوری برای پیگیری دیده نمی‌شود.
-      </article>
+        {% empty %}<div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-7 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3">هنوز هزینه‌ای برای خدمات تعریف نشده است.</div>{% endfor %}
+        <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-7 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2 xl:col-span-3" data-cost-empty="templates">موردی با این جستجو یا فیلتر پیدا نشد.</div>
+      </div>
     </div>
-  </details>
+  </section>
 
-  <details id="cost-section-paths" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ادامه عملیات مالی</h2></div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
+  <section id="cost-section-rules" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="cost-center" data-lm-task-key="rules" data-lm-task-label="سهم متخصصان" {% if rule_form.errors %}data-lm-task-default{% endif %} data-lm-task-order="3">
+    <header data-lm-direct-section-header class="border-b border-loomera-borderSoft bg-white/95 px-4 py-4 sm:px-5 lg:px-6"><div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">مرحله ۳</p><h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">سهم متخصصان</h2><p class="mt-1 max-w-3xl text-xs leading-6 text-loomera-textMuted">برای هر متخصص و خدمت مشخص کن سهم او درصدی است یا مبلغ ثابت و هزینه مواد چطور بین او و مجموعه تقسیم می‌شود.</p></div><span class="shrink-0 rounded-full bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">{{ finance_counts.rules_active|fa_digits }} فعال</span></div></header>
 
-    <div class="grid gap-3 p-4 sm:p-5 lg:p-6 sm:grid-cols-2 xl:grid-cols-4">
-      <a href="{{ finance_profit_report_url }}" class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></span>
-        <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">گزارش سود خالص</h3>
-        <p class="mt-2 text-xs leading-6 text-loomera-textMuted">اثر مواد و قوانین سهم را روی سود نهایی ببین.</p>
-      </a>
-      <a href="{{ finance_stylist_wallets_url }}" class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
-        <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">کیف پول متخصصان</h3>
-        <p class="mt-2 text-xs leading-6 text-loomera-textMuted">مانده و درخواست‌های مرتبط با سهم متخصص را کنترل کن.</p>
-      </a>
-      <a href="{{ finance_reports_url }}" class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i></span>
-        <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">گزارش مالی و تطبیق</h3>
-        <p class="mt-2 text-xs leading-6 text-loomera-textMuted">تراکنش‌ها و اسناد مالی مجموعه را بررسی کن.</p>
-      </a>
-      <a href="{{ finance_coupons_url }}" class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-ticket" aria-hidden="true"></i></span>
-        <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">تخفیف‌ها</h3>
-        <p class="mt-2 text-xs leading-6 text-loomera-textMuted">کد و سبد تخفیف را با اثر مالی‌شان مدیریت کن.</p>
-      </a>
+    <div class="space-y-4 p-4 sm:p-5 lg:p-6">
+      <div class="rounded-[20px] border border-loomera-warning/15 bg-loomera-warningSoft/70 px-4 py-3 text-xs leading-6 text-loomera-textSecondary"><strong class="text-loomera-textPrimary">این قانون اولویت دارد:</strong> وقتی برای یک متخصص و خدمت قانون سهم فعال باشد، نحوه تقسیم هزینه مواد همین قانون استفاده می‌شود و پرداخت‌کننده پیش‌فرض مرحله قبل نادیده گرفته می‌شود.</div>
+
+      <details class="group rounded-[24px] border {% if rule_form.errors %}border-loomera-error/30 bg-loomera-errorSoft/30{% else %}border-loomera-primary/15 bg-loomera-primarySoft/30{% endif %}" {% if rule_form.errors %}open{% endif %}>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 text-sm font-black text-loomera-primaryText sm:px-5"><span class="inline-flex items-center gap-2"><i class="fa-solid fa-plus text-[10px]" aria-hidden="true"></i>افزودن قانون سهم</span><i class="fa-solid fa-chevron-down text-[10px] transition group-open:rotate-180" aria-hidden="true"></i></summary>
+        <form method="post" class="grid gap-4 border-t border-loomera-borderSoft/80 p-4 sm:grid-cols-2 sm:p-5" data-rule-editor>
+          {% csrf_token %}<input type="hidden" name="action" value="create_rule">
+          {% if rule_form.non_field_errors %}<div class="rounded-2xl border border-loomera-error/20 bg-loomera-errorSoft px-4 py-3 text-sm leading-7 text-loomera-error sm:col-span-2">{{ rule_form.non_field_errors }}</div>{% endif %}
+          {% for field in rule_form %}
+            <div class="{% if field.name == 'note' %}sm:col-span-2{% endif %}" data-rule-field="{{ field.name }}">
+              {% if field.name == 'is_active' %}<label class="flex min-h-11 items-center gap-3 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary">{{ field }}<span>{{ field.label }}</span></label>{% else %}<label class="mb-2 block text-sm font-black text-loomera-textPrimary" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endif %}
+              {% if field.help_text %}<p class="mt-1 text-xs leading-5 text-loomera-textMuted">{{ field.help_text }}</p>{% endif %}{% if field.errors %}<p class="mt-2 text-xs leading-5 text-loomera-error">{{ field.errors|join:'، ' }}</p>{% endif %}
+            </div>
+          {% endfor %}
+          <div class="sm:col-span-2 flex justify-end"><button class="inline-flex min-h-11 items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white">ثبت قانون سهم</button></div>
+        </form>
+      </details>
+
+      <div class="flex flex-col gap-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3 lg:flex-row lg:items-center"><label class="relative block min-w-0 flex-1"><span class="sr-only">جستجوی سهم متخصصان</span><i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i><input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary/40" placeholder="جستجو با نام متخصص یا خدمت" data-cost-search="rules"></label><div class="flex gap-2 overflow-x-auto"><button type="button" class="shrink-0 rounded-full px-3 py-2 text-xs font-black" data-cost-filter-list="rules" data-cost-filter="all">همه</button><button type="button" class="shrink-0 rounded-full px-3 py-2 text-xs font-black" data-cost-filter-list="rules" data-cost-filter="active">فعال</button><button type="button" class="shrink-0 rounded-full px-3 py-2 text-xs font-black" data-cost-filter-list="rules" data-cost-filter="inactive">غیرفعال</button><button type="button" class="shrink-0 rounded-full px-3 py-2 text-xs font-black" data-cost-filter-list="rules" data-cost-filter="percent">درصدی</button><button type="button" class="shrink-0 rounded-full px-3 py-2 text-xs font-black" data-cost-filter-list="rules" data-cost-filter="fixed">مبلغ ثابت</button></div></div>
+
+      <div class="grid gap-3 xl:grid-cols-2" data-cost-list="rules">
+        {% for item in rules %}
+          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft" data-cost-card data-cost-status="{% if item.is_active %}active{% else %}inactive{% endif %}" data-cost-type="{{ item.commission_type }}" data-cost-search-value="{{ item.service.service_name }} {{ item.stylist }} {{ item.get_commission_type_display }}">
+            <div class="flex items-start justify-between gap-3"><div class="min-w-0"><h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service.service_name }}</h3><p class="mt-1 text-xs text-loomera-textMuted">{{ item.stylist }}</p><strong class="mt-2 block text-sm font-black text-loomera-primaryText">{% if item.commission_type == 'percent' %}{{ item.percent|fa_digits }}٪ از {% if item.share_base == 'gross_after_discount' %}مبلغ بعد از تخفیف{% elif item.share_base == 'after_platform_commission' %}مبلغ بعد از کارمزد لومرا{% else %}مبلغ بعد از هزینه مواد{% endif %}{% else %}{{ item.fixed_amount|fa_digits }} تومان ثابت{% endif %}</strong><p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">{% if item.material_cost_policy == 'stylist_pays' %}هزینه مواد: با متخصص{% elif item.material_cost_policy == 'split' %}هزینه مواد: {{ item.stylist_material_cost_percent|fa_digits }}٪ با متخصص{% else %}هزینه مواد: با مجموعه{% endif %}</p></div><span class="shrink-0 rounded-full px-3 py-1 text-[10px] font-black {% if item.is_active %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-bgSubtle text-loomera-textMuted{% endif %}">{% if item.is_active %}فعال{% else %}غیرفعال{% endif %}</span></div>
+            <div class="mt-4"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="toggle_rule"><input type="hidden" name="rule_id" value="{{ item.id }}"><button class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary">{% if item.is_active %}غیرفعال کن{% else %}فعال کن{% endif %}</button></form></div>
+            <details class="mt-3 rounded-[18px] border border-loomera-borderSoft bg-loomera-bgSubtle/50 px-3.5 py-3"><summary class="cursor-pointer list-none text-xs font-black text-loomera-primaryText">ویرایش قانون سهم</summary>
+              <form method="post" class="mt-4 grid gap-3 sm:grid-cols-2" data-rule-editor>{% csrf_token %}<input type="hidden" name="action" value="update_rule"><input type="hidden" name="rule_id" value="{{ item.id }}"><input type="hidden" name="stylist" value="{{ item.stylist_id }}"><input type="hidden" name="service" value="{{ item.service_id }}">{% if item.is_active %}<input type="hidden" name="is_active" value="on">{% endif %}
+                <div class="sm:col-span-2 rounded-2xl bg-white px-3 py-2 text-xs leading-6 text-loomera-textSecondary"><strong class="text-loomera-textPrimary">{{ item.stylist }}</strong> • {{ item.service.service_name }}<br><span class="text-[11px] text-loomera-textMuted">برای تغییر متخصص یا خدمت، قانون قبلی را غیرفعال و قانون جدید بساز.</span></div>
+                <label data-rule-field="commission_type"><span class="mb-1 block text-xs font-black text-loomera-textMuted">روش محاسبه سهم</span><select name="commission_type" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm"><option value="percent" {% if item.commission_type == 'percent' %}selected{% endif %}>درصد از مبلغ</option><option value="fixed" {% if item.commission_type == 'fixed' %}selected{% endif %}>مبلغ ثابت</option></select></label>
+                <label data-rule-field="share_base"><span class="mb-1 block text-xs font-black text-loomera-textMuted">سهم از چه مبلغی محاسبه شود؟</span><select name="share_base" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm"><option value="gross_after_discount" {% if item.share_base == 'gross_after_discount' %}selected{% endif %}>مبلغ خدمت بعد از تخفیف</option><option value="after_platform_commission" {% if item.share_base == 'after_platform_commission' %}selected{% endif %}>بعد از کسر کارمزد لومرا</option><option value="net_after_materials" {% if item.share_base == 'net_after_materials' %}selected{% endif %}>بعد از کسر هزینه مواد</option></select></label>
+                <label data-rule-field="percent"><span class="mb-1 block text-xs font-black text-loomera-textMuted">درصد سهم متخصص</span><input name="percent" value="{{ item.percent }}" type="number" min="0" max="100" step="0.01" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm"></label>
+                <label data-rule-field="fixed_amount"><span class="mb-1 block text-xs font-black text-loomera-textMuted">مبلغ ثابت سهم متخصص</span><input name="fixed_amount" value="{{ item.fixed_amount }}" type="number" min="0" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm"></label>
+                <label data-rule-field="material_cost_policy"><span class="mb-1 block text-xs font-black text-loomera-textMuted">هزینه مواد چگونه تقسیم شود؟</span><select name="material_cost_policy" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm"><option value="salon_pays" {% if item.material_cost_policy == 'salon_pays' %}selected{% endif %}>تمام هزینه با مجموعه</option><option value="stylist_pays" {% if item.material_cost_policy == 'stylist_pays' %}selected{% endif %}>تمام هزینه با متخصص</option><option value="split" {% if item.material_cost_policy == 'split' %}selected{% endif %}>تقسیم بین مجموعه و متخصص</option></select></label>
+                <label data-rule-field="stylist_material_cost_percent"><span class="mb-1 block text-xs font-black text-loomera-textMuted">درصد هزینه مواد با متخصص</span><input name="stylist_material_cost_percent" value="{{ item.stylist_material_cost_percent }}" type="number" min="0" max="100" step="0.01" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm"></label>
+                <label><span class="mb-1 block text-xs font-black text-loomera-textMuted">شروع اعتبار (اختیاری)</span><input name="effective_from" value="{{ item.effective_from|jalali_short }}" type="text" data-jdp data-jalali-date autocomplete="off" inputmode="numeric" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm"></label>
+                <label><span class="mb-1 block text-xs font-black text-loomera-textMuted">پایان اعتبار (اختیاری)</span><input name="effective_to" value="{{ item.effective_to|jalali_short }}" type="text" data-jdp data-jalali-date autocomplete="off" inputmode="numeric" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm"></label>
+                <label class="sm:col-span-2"><span class="mb-1 block text-xs font-black text-loomera-textMuted">یادداشت (اختیاری)</span><textarea name="note" rows="2" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm">{{ item.note }}</textarea></label>
+                <div class="sm:col-span-2 flex justify-end"><button class="rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">ذخیره تغییرات</button></div>
+              </form>
+            </details>
+          </article>
+        {% empty %}<div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-7 text-center text-sm leading-7 text-loomera-textMuted xl:col-span-2">هنوز قانون سهمی ثبت نشده است.</div>{% endfor %}
+        <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-7 text-center text-sm leading-7 text-loomera-textMuted xl:col-span-2" data-cost-empty="rules">قانونی با این جستجو یا فیلتر پیدا نشد.</div>
+      </div>
     </div>
-  </details>
+  </section>
 </section>
 {% endblock %}
 
@@ -584,44 +245,12 @@
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const normalize = (value) => String(value || "").trim().toLowerCase();
+      const activeFilters = { materials: "all", templates: "all", rules: "all" };
 
-      const updateEmptyState = (listKey) => {
-        const list = document.querySelector(`[data-cost-list="${listKey}"]`);
-        const empty = document.querySelector(`[data-cost-empty="${listKey}"]`);
-        if (!list || !empty) return;
-
-        const visibleCards = Array.from(list.querySelectorAll("[data-cost-card]")).filter((card) => !card.classList.contains("hidden"));
-        empty.classList.toggle("hidden", visibleCards.length !== 0);
-      };
-
-      const applySearch = (listKey) => {
-        const input = document.querySelector(`[data-cost-search="${listKey}"]`);
-        const list = document.querySelector(`[data-cost-list="${listKey}"]`);
-        if (!input || !list) return;
-
-        const query = normalize(input.value);
-        list.querySelectorAll("[data-cost-card]").forEach((card) => {
-          const haystack = normalize(card.dataset.costSearchValue || card.textContent);
-          card.classList.toggle("hidden", query && !haystack.includes(query));
-        });
-
-        updateEmptyState(listKey);
-        window.LoomeraDashboardWorkspace?.refresh?.(document.querySelector("[data-dashboard-workspace-root]") || document);
-      };
-
-      ["materials", "templates", "rules"].forEach((listKey) => {
-        const input = document.querySelector(`[data-cost-search="${listKey}"]`);
-        input?.addEventListener("input", () => applySearch(listKey));
-        applySearch(listKey);
-      });
-
-      const ruleFilterButtons = Array.from(document.querySelectorAll("[data-cost-filter]"));
-      const rulesList = document.querySelector('[data-cost-list="rules"]');
-      let activeRuleFilter = "all";
-
-      const setRuleFilterButtonState = () => {
-        ruleFilterButtons.forEach((button) => {
-          const active = button.dataset.costFilter === activeRuleFilter;
+      const paintFilterButtons = (listKey) => {
+        document.querySelectorAll(`[data-cost-filter-list="${listKey}"]`).forEach((button) => {
+          const active = button.dataset.costFilter === activeFilters[listKey];
+          button.classList.toggle("border", true);
           button.classList.toggle("border-loomera-primary/20", active);
           button.classList.toggle("bg-loomera-primarySoft", active);
           button.classList.toggle("text-loomera-primaryText", active);
@@ -632,38 +261,50 @@
         });
       };
 
-      const applyRuleFilters = () => {
-        if (!rulesList) return;
-        const query = normalize(document.querySelector('[data-cost-search="rules"]')?.value);
+      const applyListFilters = (listKey) => {
+        const list = document.querySelector(`[data-cost-list="${listKey}"]`);
+        if (!list) return;
+        const query = normalize(document.querySelector(`[data-cost-search="${listKey}"]`)?.value);
+        const filter = activeFilters[listKey] || "all";
+        let visible = 0;
 
-        rulesList.querySelectorAll('[data-cost-kind="rule"]').forEach((card) => {
+        list.querySelectorAll("[data-cost-card]").forEach((card) => {
           const haystack = normalize(card.dataset.costSearchValue || card.textContent);
           const matchesQuery = !query || haystack.includes(query);
-          const matchesFilter = activeRuleFilter === "all" || card.dataset.costStatus === activeRuleFilter || card.dataset.costType === activeRuleFilter;
-          card.classList.toggle("hidden", !(matchesQuery && matchesFilter));
+          const matchesFilter = filter === "all" || card.dataset.costStatus === filter || card.dataset.costType === filter;
+          const show = matchesQuery && matchesFilter;
+          card.classList.toggle("hidden", !show);
+          if (show) visible += 1;
         });
 
-        setRuleFilterButtonState();
-        updateEmptyState("rules");
+        list.querySelector(`[data-cost-empty="${listKey}"]`)?.classList.toggle("hidden", visible !== 0);
+        paintFilterButtons(listKey);
         window.LoomeraDashboardWorkspace?.refresh?.(document.querySelector("[data-dashboard-workspace-root]") || document);
       };
 
-      ruleFilterButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          activeRuleFilter = button.dataset.costFilter || "all";
-          applyRuleFilters();
-        });
+      ["materials", "templates", "rules"].forEach((listKey) => {
+        document.querySelector(`[data-cost-search="${listKey}"]`)?.addEventListener("input", () => applyListFilters(listKey));
+        document.querySelectorAll(`[data-cost-filter-list="${listKey}"]`).forEach((button) => button.addEventListener("click", () => {
+          activeFilters[listKey] = button.dataset.costFilter || "all";
+          applyListFilters(listKey);
+        }));
+        applyListFilters(listKey);
       });
 
-      document.querySelector('[data-cost-search="rules"]')?.addEventListener("input", applyRuleFilters);
-      applyRuleFilters();
+      const syncRuleEditor = (form) => {
+        const type = form.querySelector('[name="commission_type"]')?.value || "percent";
+        const policy = form.querySelector('[name="material_cost_policy"]')?.value || "salon_pays";
+        form.querySelector('[data-rule-field="percent"]')?.classList.toggle("hidden", type !== "percent");
+        form.querySelector('[data-rule-field="fixed_amount"]')?.classList.toggle("hidden", type !== "fixed");
+        form.querySelector('[data-rule-field="share_base"]')?.classList.toggle("hidden", type === "fixed");
+        form.querySelector('[data-rule-field="stylist_material_cost_percent"]')?.classList.toggle("hidden", policy !== "split");
+      };
 
-      const issuesRoot = document.querySelector("[data-cost-issues]");
-      const issuesEmpty = document.querySelector("[data-cost-issues-empty]");
-      if (issuesRoot && issuesEmpty) {
-        const issues = issuesRoot.querySelectorAll("[data-cost-issue]");
-        issuesEmpty.classList.toggle("hidden", issues.length !== 0);
-      }
+      document.querySelectorAll("[data-rule-editor]").forEach((form) => {
+        form.querySelector('[name="commission_type"]')?.addEventListener("change", () => syncRuleEditor(form));
+        form.querySelector('[name="material_cost_policy"]')?.addEventListener("change", () => syncRuleEditor(form));
+        syncRuleEditor(form);
+      });
     });
   </script>
 {% endblock %}

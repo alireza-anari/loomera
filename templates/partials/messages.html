@@ -1,24 +1,32 @@
+{% load ui_message_extras %}
 {% if messages %}
-  <div class="fixed top-4 left-1/2 z-[100] w-full max-w-md -translate-x-1/2 px-4 space-y-3" aria-live="polite" aria-atomic="true">
+  <div class="fixed top-4 left-1/2 z-[100] w-full max-w-md -translate-x-1/2 space-y-3 px-4" aria-live="polite" aria-atomic="true">
     {% for message in messages %}
       <div
         data-flash-message
         data-dismiss-after="5000"
         role="alert"
-        class="rounded-2xl border px-4 py-3 shadow-lg transition duration-300 ease-out {% if 'error' in message.tags %}border-rose-200 bg-rose-50 text-rose-800{% elif 'success' in message.tags %}border-emerald-200 bg-emerald-50 text-emerald-800{% elif 'warning' in message.tags %}border-amber-200 bg-amber-50 text-amber-800{% elif 'info' in message.tags %}border-sky-200 bg-sky-50 text-sky-800{% else %}border-slate-200 bg-white text-slate-700{% endif %}"
+        class="lm-flash transition duration-300 ease-out {% if 'error' in message.tags or 'danger' in message.tags %}lm-flash--error{% elif 'success' in message.tags %}lm-flash--success{% elif 'warning' in message.tags %}lm-flash--warning{% elif 'info' in message.tags %}lm-flash--info{% else %}lm-flash--neutral{% endif %}"
       >
         <div class="flex items-start justify-between gap-3">
-          <div class="flex items-start gap-2 text-sm font-bold leading-6">
-            {% if 'error' in message.tags %}
-              <i class="fa-solid fa-circle-exclamation mt-1 shrink-0" aria-hidden="true"></i>
-            {% elif 'success' in message.tags %}
-              <i class="fa-solid fa-circle-check mt-1 shrink-0" aria-hidden="true"></i>
-            {% elif 'warning' in message.tags %}
-              <i class="fa-solid fa-triangle-exclamation mt-1 shrink-0" aria-hidden="true"></i>
-            {% elif 'info' in message.tags %}
-              <i class="fa-solid fa-circle-info mt-1 shrink-0" aria-hidden="true"></i>
-            {% endif %}
-            <span>{{ message }}</span>
+          <div class="flex min-w-0 items-start gap-3">
+            <span class="lm-flash__icon mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full" aria-hidden="true">
+              {% if 'error' in message.tags or 'danger' in message.tags %}
+                <i class="fa-solid fa-circle-exclamation"></i>
+              {% elif 'success' in message.tags %}
+                <i class="fa-solid fa-circle-check"></i>
+              {% elif 'warning' in message.tags %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              {% else %}
+                <i class="fa-solid fa-circle-info"></i>
+              {% endif %}
+            </span>
+            <div class="min-w-0">
+              <p class="text-xs font-black leading-5">
+                {% if 'error' in message.tags or 'danger' in message.tags %}انجام نشد{% elif 'success' in message.tags %}انجام شد{% elif 'warning' in message.tags %}نیاز به بررسی{% else %}اطلاع{% endif %}
+              </p>
+              <p class="mt-0.5 text-sm font-bold leading-6">{{ message|clean_ui_message }}</p>
+            </div>
           </div>
 
           <button

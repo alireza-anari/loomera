@@ -51,9 +51,7 @@ function getCustomCount() {
 
 function updateSelectedCount() {
   const countTarget = document.getElementById("selectedFeaturesCount");
-  const selectedLabels = document.querySelectorAll(
-    "[data-selected-features-label]",
-  );
+  const selectedLabels = document.querySelectorAll("[data-selected-features-label]");
   const count = getSelectedCount();
   const formatted = toFaNumber(count);
 
@@ -96,8 +94,7 @@ function updateReadiness() {
     review = "آماده ثبت";
   } else if (selectedCount > 0) {
     title = "شروع خوبی است";
-    text =
-      "حداقل یک ویژگی انتخاب شده؛ برای معرفی کامل‌تر سالن، چند مورد واقعی دیگر را هم بررسی کن.";
+    text = "حداقل یک ویژگی انتخاب شده؛ برای معرفی کامل‌تر سالن، چند مورد واقعی دیگر را هم بررسی کن.";
     review = "قابل ذخیره";
   }
 
@@ -217,9 +214,7 @@ function attachRemoveHandlers(root) {
 function setupFeatureSearch() {
   const searchInput = document.querySelector("[data-feature-search]");
   const cards = Array.from(document.querySelectorAll("[data-feature-card]"));
-  const categories = Array.from(
-    document.querySelectorAll("[data-feature-category]"),
-  );
+  const categories = Array.from(document.querySelectorAll("[data-feature-category]"));
   const emptyState = document.querySelector("[data-feature-empty]");
 
   if (!searchInput || !cards.length) return;
@@ -229,20 +224,14 @@ function setupFeatureSearch() {
     let visibleCount = 0;
 
     cards.forEach((card) => {
-      const value = (
-        card.dataset.featureSearchValue ||
-        card.textContent ||
-        ""
-      ).toLowerCase();
+      const value = (card.dataset.featureSearchValue || card.textContent || "").toLowerCase();
       const visible = !query || value.includes(query);
       card.classList.toggle("hidden", !visible);
       if (visible) visibleCount += 1;
     });
 
     categories.forEach((category) => {
-      const hasVisibleCard = Boolean(
-        category.querySelector("[data-feature-card]:not(.hidden)"),
-      );
+      const hasVisibleCard = Boolean(category.querySelector("[data-feature-card]:not(.hidden)"));
       category.classList.toggle("hidden", !hasVisibleCard);
     });
 
@@ -260,22 +249,13 @@ export default function initSalonFeaturesStep() {
 
   const form = getForm();
   const input = document.getElementById("customFeatureInput");
-  const descriptionInput = document.getElementById(
-    "customFeatureDescriptionInput",
-  );
+  const descriptionInput = document.getElementById("customFeatureDescriptionInput");
   const addBtn = document.getElementById("addCustomFeatureBtn");
   const list = document.getElementById("customFeaturesList");
   const selectedIconInput = document.getElementById("selectedCustomIconInput");
   const iconButtons = document.querySelectorAll("[data-custom-icon-choice]");
 
-  if (
-    !form ||
-    !input ||
-    !descriptionInput ||
-    !addBtn ||
-    !list ||
-    !selectedIconInput
-  ) {
+  if (!form || !input || !descriptionInput || !addBtn || !list || !selectedIconInput) {
     console.warn("[salon_features_step] required DOM not found");
     return;
   }
@@ -298,15 +278,11 @@ export default function initSalonFeaturesStep() {
     }
 
     const existingTitles = Array.from(
-      document.querySelectorAll("[data-custom-title]"),
-    ).map((el) =>
-      normalizeTitle(el.getAttribute("data-custom-title")).toLowerCase(),
-    );
+      document.querySelectorAll("[data-custom-title]")
+    ).map((el) => normalizeTitle(el.getAttribute("data-custom-title")).toLowerCase());
 
     const builtinTitles = Array.from(
-      document.querySelectorAll(
-        'input[name="selected_items"][value^="builtin::"]',
-      ),
+      document.querySelectorAll('input[name="selected_items"][value^="builtin::"]')
     ).map((el) => {
       const raw = el.value.replace("builtin::", "");
       const title = raw.split("|", 1)[0];
@@ -320,11 +296,7 @@ export default function initSalonFeaturesStep() {
       return;
     }
 
-    const item = buildCustomFeatureItem(
-      normalized,
-      selectedIconClass,
-      description,
-    );
+    const item = buildCustomFeatureItem(normalized, selectedIconClass, description);
     list.appendChild(item);
     attachRemoveHandlers(item);
 
@@ -345,8 +317,7 @@ export default function initSalonFeaturesStep() {
 
   iconButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      selectedIconInput.value =
-        button.dataset.iconClass || "fa-solid fa-sparkles";
+      selectedIconInput.value = button.dataset.iconClass || "fa-solid fa-sparkles";
       syncSelectedIconUI();
     });
   });
@@ -362,4 +333,5 @@ export default function initSalonFeaturesStep() {
   toggleEmptyState();
   syncSelectedIconUI();
   syncAll();
+
 }

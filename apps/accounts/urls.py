@@ -1,5 +1,7 @@
 from django.urls import path
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
+
+from .customer_communication_views import CustomerCommunicationSettingsView
 
 from .views import (
     CustomerSignupView,
@@ -94,8 +96,13 @@ urlpatterns = [
     ),
     path(
         "notification_settings/",
-        NotificationSettingsView.as_view(),
+        RedirectView.as_view(pattern_name="accounts:customer_communication_settings", permanent=False),
         name="notification_settings",
+    ),
+    path(
+        "communications/",
+        CustomerCommunicationSettingsView.as_view(),
+        name="customer_communication_settings",
     ),
     path(
         "api/update-notification-settings/",

@@ -32,6 +32,7 @@ from .finance_cost_views import (
     SalonStylistWalletsView,
 )
 from django.urls import path
+from django.views.generic import RedirectView
 from .finance_settings_views import SalonFinanceMaterialSettingsView
 from .views import (
     SalonManagerDashboardView,
@@ -45,6 +46,7 @@ from .views import (
     SalonsCustomersPageView,
     CustomerDetailView,
     OnlineBookingView,
+    OnlineBookingQuickLinkOptionsView,
     salon_profile_creator,
     SalonProfileCreatorStep1View,
     SalonProfileCreatorStep2View,
@@ -86,6 +88,7 @@ from .views import (
     get_popular_stylists,
     calendar_view,
     DashboardManualBookingView,
+    DashboardManualBookingAvailabilityView,
     reports_view,
     get_calendar_data,
     AppointmentDetailView,
@@ -93,6 +96,8 @@ from .views import (
     ManagerAppointmentActionView,
     ManagerProfileView,
     ManagerNotificationCenterView,
+    StylistSettingsHubView,
+    StylistNotificationCenterView,
     WorkspaceSettingsHubView,
     toggle_service_status,
     toggle_stylist_status,
@@ -105,6 +110,7 @@ from .views import (
     StylistAddCustomerView,
     StylistAddBookingView,
     StylistQuickLinksView,
+    StylistQuickLinkOptionsView,
     ManagerBookingQuickLinkQRView,
     StylistBookingQuickLinkQRView,
     StylistProfileView,
@@ -136,6 +142,8 @@ from .quick_link_print_views import (
 )
 
 # ----------------------------------------------------------------
+from .manager_settings_views import ManagerCommunicationSettingsView, StylistCommunicationSettingsView
+
 app_name = "dashboards"
 urlpatterns = [
     path(
@@ -150,6 +158,13 @@ urlpatterns = [
     ),
     path("content/", ManagerContentHubView.as_view(), name="content_hub"),
     path("stylist/content/", StylistContentHubView.as_view(), name="stylist_content"),
+    path("stylist/notifications/", StylistNotificationCenterView.as_view(), name="stylist_notifications"),
+    path("stylist/settings/", StylistSettingsHubView.as_view(), name="stylist_settings"),
+    path(
+        "stylist/settings/communications/",
+        StylistCommunicationSettingsView.as_view(),
+        name="stylist_communication_settings",
+    ),
     path("stylist/", StylistDashboardView.as_view(), name="stylist_dashboard"),
     path(
         "stylist/set-active-salon/",
@@ -197,6 +212,11 @@ urlpatterns = [
         "stylist/quick-links/",
         StylistQuickLinksView.as_view(),
         name="stylist_quick_links",
+    ),
+    path(
+        "stylist/quick-links/options/",
+        StylistQuickLinkOptionsView.as_view(),
+        name="stylist_quick_link_options",
     ),
     path(
         "stylist/quick-links/<int:link_id>/",
@@ -250,7 +270,7 @@ urlpatterns = [
     ),
     path("stylist/profile/", StylistProfileView.as_view(), name="stylist_profile"),
     path("salonManagerHeader/", salonManagerHeader, name="salon_manager_header"),
-    path("home/", DashboardHomeView.as_view(), name="home"),
+    path("home/", RedirectView.as_view(pattern_name="dashboards:salon_manager_dashboard", permanent=False), name="home"),
     path("recently-sales/", recently_sales, name="recentlySales"),
     path(
         "upcoming-appointments/",
@@ -273,10 +293,11 @@ urlpatterns = [
     ),
     path("online_booking/", OnlineBookingView.as_view(), name="online_booking"),
     path(
-        "quick-links/",
-        ManagerQuickLinksView.as_view(),
-        name="quick_links",
+        "online_booking/quick-link-options/",
+        OnlineBookingQuickLinkOptionsView.as_view(),
+        name="online_booking_quick_link_options",
     ),
+    path("quick-links/", ManagerQuickLinksView.as_view(), name="quick_links"),
     path(
         "quick-links/<int:link_id>/",
         ManagerQuickLinkDetailView.as_view(),
@@ -468,6 +489,11 @@ urlpatterns = [
         name="add_booking",
     ),
     path(
+        "calendar/salon/<int:salon_id>/add-booking/availability/",
+        DashboardManualBookingAvailabilityView.as_view(),
+        name="manual_booking_availability",
+    ),
+    path(
         "calendar/salon/<int:salon_id>/appointment/<int:appointment_id>/",
         ManagerAppointmentDetailView.as_view(),
         name="appointment_detail",
@@ -490,6 +516,11 @@ urlpatterns = [
     ),
     path("manager_profile/", ManagerProfileView.as_view(), name="manager_profile"),
     path("settings/", WorkspaceSettingsHubView.as_view(), name="workspace_settings"),
+    path(
+        "settings/communications/",
+        ManagerCommunicationSettingsView.as_view(),
+        name="manager_communication_settings",
+    ),
     path("settings/finance/", SalonFinanceHubView.as_view(), name="finance_hub"),
     path("settings/payout/", SalonPayoutSettingsView.as_view(), name="payout_settings"),
     path(
@@ -613,24 +644,9 @@ urlpatterns = [
         name="appointment_material_usage",
     ),
     path(
-        "settings/finance/cost-center/",
-        SalonCostCenterView.as_view(),
-        name="finance_cost_center",
-    ),
-    path(
-        "settings/finance/profit-report/",
-        SalonProfitReportView.as_view(),
-        name="finance_profit_report",
-    ),
-    path(
         "settings/finance/stylist-wallets/",
         SalonStylistWalletsView.as_view(),
         name="finance_stylist_wallets",
-    ),
-    path(
-        "calendar/salon/<int:salon_id>/appointment/<int:appointment_id>/materials/",
-        AppointmentMaterialUsageView.as_view(),
-        name="appointment_material_usage",
     ),
     path(
         "calendar/salon/<int:salon_id>/appointment/<int:appointment_id>/finance/finalize/",

@@ -29,7 +29,7 @@ export default function initLoomeraDatepickers(root = document) {
     });
     setTimeout(normalizePickerLayer, 0);
   } catch (error) {
-    console.warn("[loomera-datepickers] initialization failed");
+    console.warn("[loomera-datepickers] init warning", error);
   }
 
   inputs.forEach((input) => {

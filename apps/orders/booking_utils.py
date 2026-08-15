@@ -465,20 +465,54 @@ def _get_time_off_windows(
     return windows
 
 
+def get_blocking_order_details_queryset(
+    *,
+    salon: Salon,
+    start_date: date,
+    end_date: date | None = None,
+    stylist: Stylist | None = None,
+    exclude_order_detail_ids: Iterable[int] | None = None,
+):
+    """Return the canonical queryset of bookings that occupy calendar capacity.
+
+    Public availability APIs and final booking validation must use the same
+    definition. A booking blocks capacity because of its order lifecycle, not
+    because the booked service is still public/active/in the platform catalog.
+    """
+
+    date_filter = (
+        {"date__range": [start_date, end_date]}
+        if end_date is not None
+        else {"date": start_date}
+    )
+    filters = {
+        "salon": salon,
+        "order__status__in": BLOCKING_STATUSES,
+        **date_filter,
+    }
+    if stylist is not None:
+        filters["stylist"] = stylist
+
+    qs = OrderDetail.objects.filter(**filters).filter(
+        Q(order__is_finally=True) | Q(order__is_paid=True)
+    )
+    if exclude_order_detail_ids:
+        qs = qs.exclude(id__in=list(exclude_order_detail_ids))
+    return qs
+
+
 def _get_booking_windows(
     salon: Salon,
     stylist: Stylist,
     date_value: date,
     exclude_order_detail_ids: Iterable[int] | None = None,
 ) -> list[tuple[time, time]]:
-    qs = OrderDetail.objects.filter(
+    qs = get_blocking_order_details_queryset(
         salon=salon,
         stylist=stylist,
-        date=date_value,
-        order__status__in=BLOCKING_STATUSES,
-    ).filter(Q(order__is_finally=True) | Q(order__is_paid=True))
-    if exclude_order_detail_ids:
-        qs = qs.exclude(id__in=list(exclude_order_detail_ids))
+        start_date=date_value,
+        exclude_order_detail_ids=exclude_order_detail_ids,
+    )
 
     windows: list[tuple[time, time]] = []
     for booking in qs.only("time", "end_time", "occupied_until"):

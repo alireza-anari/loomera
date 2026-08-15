@@ -478,50 +478,51 @@ class ManagerStylistWithdrawalRequestsView(_SalonFinanceOperationMixin, View):
 
     def get(self, request):
         salon = self.get_salon(request)
-
         withdrawals = StylistWalletWithdrawalRequest.objects.filter(
             salon=salon,
+        ).select_related(
+            "wallet__stylist__user"
+        ).order_by("-created_at", "-id")
+
+        pending = withdrawals.filter(
+            status=StylistWalletWithdrawalRequest.Status.PENDING
         )
-        withdrawals = (
-            withdrawals.select_related("wallet__stylist__user")
-            .distinct()
-            .order_by("-created_at", "-id")
+        reviewed = withdrawals.exclude(
+            status=StylistWalletWithdrawalRequest.Status.PENDING
+        )
+        approved = withdrawals.filter(
+            status=StylistWalletWithdrawalRequest.Status.APPROVED
+        )
+        returned = withdrawals.filter(
+            status__in=[
+                StylistWalletWithdrawalRequest.Status.REJECTED,
+                StylistWalletWithdrawalRequest.Status.CANCELLED,
+            ]
         )
 
-        summary = withdrawals.aggregate(
-            count=Count("id"),
-            total=Sum("amount"),
-        )
-
-        pending_summary = withdrawals.filter(status="pending").aggregate(
-            count=Count("id"),
-            total=Sum("amount"),
-        )
+        pending_amount = pending.aggregate(total=Sum("amount")).get("total") or 0
+        approved_amount = approved.aggregate(total=Sum("amount")).get("total") or 0
+        returned_amount = returned.aggregate(total=Sum("amount")).get("total") or 0
 
         context = self.base_context(
             request,
-            title="درخواست‌های دریافت درآمد متخصصان",
+            title="برداشت متخصصان",
             sidebar_active="finance",
         )
         context.update(
             {
                 "salon": salon,
+                "pending_withdrawals": pending[:100],
+                "reviewed_withdrawals": reviewed[:100],
+                # Kept for compatibility with any downstream dashboard extension
+                # that still reads the previous all-in-one collection.
                 "withdrawals": withdrawals[:100],
-                "summary_cards": [
-                    {"label": "کل درخواست‌ها", "value": summary.get("count") or 0},
-                    {
-                        "label": "مجموع درخواست‌ها",
-                        "value": _money(summary.get("total")),
-                    },
-                    {
-                        "label": "در انتظار بررسی",
-                        "value": pending_summary.get("count") or 0,
-                    },
-                    {
-                        "label": "مبلغ در انتظار",
-                        "value": _money(pending_summary.get("total")),
-                    },
-                ],
+                "withdrawal_summary": {
+                    "pending_count": pending.count(),
+                    "pending_amount": _money(pending_amount),
+                    "approved_amount": _money(approved_amount),
+                    "returned_amount": _money(returned_amount),
+                },
             }
         )
         return render(request, self.template_name, context)

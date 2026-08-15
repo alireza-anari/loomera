@@ -1,26 +1,26 @@
 {% extends "platform_admin/base.html" %}
 {% load humanize jalali_extras %}
 {% block platform_content %}
-  <section class="space-y-6">
-    <header class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
-      <div class="bg-gradient-to-l from-loomera-primarySoft/70 via-white to-white p-5 lg:p-6">
-        <a class="inline-flex items-center gap-2 text-sm font-black text-loomera-primary transition hover:text-loomera-primary/80"
-           href="{% url 'platform_admin:salons' %}">
-          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-          بازگشت به مجموعه‌ها
-        </a>
-        <div class="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div class="min-w-0">
-            <h2 class="text-2xl font-black text-loomera-textPrimary lg:text-3xl">{{ salon.salon_name }}</h2>
-            <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-loomera-textMuted">{{ salon.address|default:"بدون آدرس ثبت‌شده" }}</p>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <span class="inline-flex rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">{{ salon.get_verification_status_display }}</span>
-            <span class="inline-flex rounded-full px-4 py-2 text-xs font-black {% if salon.is_active %}bg-emerald-50 text-emerald-700{% else %}bg-rose-50 text-rose-700{% endif %}">{{ salon.is_active|yesno:"فعال,غیرفعال" }}</span>
-          </div>
+<section class="space-y-6">
+  <header class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-sm">
+    <div class="bg-gradient-to-l from-loomera-primarySoft/70 via-white to-white p-5 lg:p-6">
+      <a class="inline-flex items-center gap-2 text-sm font-black text-loomera-primary transition hover:text-loomera-primary/80" href="{% url 'platform_admin:salons' %}">
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        بازگشت به مجموعه‌ها
+      </a>
+      <div class="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div class="min-w-0">
+          <h2 class="text-2xl font-black text-loomera-textPrimary lg:text-3xl">{{ salon.salon_name }}</h2>
+          <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-loomera-textMuted">{{ salon.address|default:"بدون آدرس ثبت‌شده" }}</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="inline-flex rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">{{ salon.get_verification_status_display }}</span>
+          <span class="inline-flex rounded-full px-4 py-2 text-xs font-black {% if salon.is_active %}bg-emerald-50 text-emerald-700{% else %}bg-rose-50 text-rose-700{% endif %}">{{ salon.is_active|yesno:"فعال,غیرفعال" }}</span>
         </div>
       </div>
-    </header>
+    </div>
+  </header>
+
     <section class="overflow-hidden rounded-[2rem] border {% if beta_readiness.beta_ready %} border-emerald-200 bg-emerald-50/50 {% else %} border-amber-200 bg-amber-50/40 {% endif %} shadow-sm"
              data-platform-salon-beta-readiness>
       <div class="flex flex-col gap-5 border-b p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6 {% if beta_readiness.beta_ready %} border-emerald-100 {% else %} border-amber-100 {% endif %}">
@@ -112,111 +112,105 @@
         </div>
       {% endif %}
     </section>
-    <div class="grid gap-6 xl:grid-cols-3">
-      <div class="space-y-6 xl:col-span-2">
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <p class="text-xs font-black text-loomera-primary">Operational</p>
-              <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">اطلاعات عملیاتی</h3>
-            </div>
-            <span class="rounded-full bg-loomera-surface px-3 py-1 text-xs font-black text-loomera-textMuted">#{{ salon.pk }}</span>
+  <div class="grid gap-6 xl:grid-cols-3">
+    <div class="space-y-6 xl:col-span-2">
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-black text-loomera-primary">Operational</p>
+            <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">اطلاعات عملیاتی</h3>
           </div>
-          <div class="mt-4 grid gap-3 md:grid-cols-2">
-            <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
-              <p class="text-xs font-black text-loomera-textMuted">مدیر</p>
-              <strong class="mt-2 block text-loomera-textPrimary">{{ salon.salon_manager.user.get_fullName|default:salon.salon_manager.user.mobile_number }}</strong>
-              <span dir="ltr" class="mt-1 block text-xs font-bold text-loomera-textMuted">{{ salon.salon_manager.user.mobile_number }}</span>
-            </div>
-            <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
-              <p class="text-xs font-black text-loomera-textMuted">احراز</p>
-              <strong class="mt-2 block text-loomera-textPrimary">{{ salon.get_verification_status_display }}</strong>
-            </div>
-            <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
-              <p class="text-xs font-black text-loomera-textMuted">وضعیت فعالیت</p>
-              <strong class="mt-2 block text-loomera-textPrimary">{{ salon.is_active|yesno:"فعال,غیرفعال" }}</strong>
-            </div>
-            <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
-              <p class="text-xs font-black text-loomera-textMuted">Ledger مرتبط</p>
-              <strong class="mt-2 block text-loomera-textPrimary">{{ ledger_total|intcomma }}</strong>
-            </div>
+          <span class="rounded-full bg-loomera-surface px-3 py-1 text-xs font-black text-loomera-textMuted">#{{ salon.pk }}</span>
+        </div>
+        <div class="mt-4 grid gap-3 md:grid-cols-2">
+          <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
+            <p class="text-xs font-black text-loomera-textMuted">مدیر</p>
+            <strong class="mt-2 block text-loomera-textPrimary">{{ salon.salon_manager.user.get_fullName|default:salon.salon_manager.user.mobile_number }}</strong>
+            <span dir="ltr" class="mt-1 block text-xs font-bold text-loomera-textMuted">{{ salon.salon_manager.user.mobile_number }}</span>
           </div>
-        </section>
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <p class="text-xs font-black text-loomera-primary">Appointments</p>
-              <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">نوبت‌های اخیر</h3>
-            </div>
-            <span class="rounded-full bg-loomera-surface px-3 py-1 text-xs font-black text-loomera-textMuted">{{ recent_orders|length }} مورد</span>
+          <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
+            <p class="text-xs font-black text-loomera-textMuted">احراز</p>
+            <strong class="mt-2 block text-loomera-textPrimary">{{ salon.get_verification_status_display }}</strong>
           </div>
-          <div class="mt-4 overflow-x-auto rounded-3xl border border-loomera-borderSoft">
-            <table class="min-w-[760px] w-full text-sm">
-              <thead class="bg-loomera-surface text-xs text-loomera-textMuted">
-                <tr>
-                  <th class="p-3 text-right">زمان</th>
-                  <th class="p-3 text-right">خدمت</th>
-                  <th class="p-3 text-right">متخصص</th>
-                  <th class="p-3 text-right">وضعیت</th>
+          <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
+            <p class="text-xs font-black text-loomera-textMuted">وضعیت فعالیت</p>
+            <strong class="mt-2 block text-loomera-textPrimary">{{ salon.is_active|yesno:"فعال,غیرفعال" }}</strong>
+          </div>
+          <div class="rounded-[1.5rem] bg-loomera-surface p-4 text-sm">
+            <p class="text-xs font-black text-loomera-textMuted">Ledger مرتبط</p>
+            <strong class="mt-2 block text-loomera-textPrimary">{{ ledger_total|intcomma }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-black text-loomera-primary">Appointments</p>
+            <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">نوبت‌های اخیر</h3>
+          </div>
+          <span class="rounded-full bg-loomera-surface px-3 py-1 text-xs font-black text-loomera-textMuted">{{ recent_orders|length }} مورد</span>
+        </div>
+        <div class="mt-4 overflow-x-auto rounded-3xl border border-loomera-borderSoft">
+          <table class="min-w-[760px] w-full text-sm">
+            <thead class="bg-loomera-surface text-xs text-loomera-textMuted">
+              <tr><th class="p-3 text-right">زمان</th><th class="p-3 text-right">خدمت</th><th class="p-3 text-right">متخصص</th><th class="p-3 text-right">وضعیت</th></tr>
+            </thead>
+            <tbody class="divide-y divide-loomera-borderSoft">
+              {% for item in recent_orders %}
+                <tr class="transition hover:bg-loomera-surface/60">
+                  <td class="p-3 font-bold text-loomera-textPrimary"><span class="block">{{ item.date|jalali_date:"short" }}</span><span class="text-xs text-loomera-textMuted">{{ item.time|fa_time }}</span></td>
+                  <td class="p-3 text-loomera-textMuted">{{ item.service }}</td>
+                  <td class="p-3 text-loomera-textMuted">{{ item.stylist.user.get_fullName|default:item.stylist }}</td>
+                  <td class="p-3"><span class="rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary">{{ item.get_lifecycle_status_display }}</span></td>
                 </tr>
-              </thead>
-              <tbody class="divide-y divide-loomera-borderSoft">
-                {% for item in recent_orders %}
-                  <tr class="transition hover:bg-loomera-surface/60">
-                    <td class="p-3 font-bold text-loomera-textPrimary"><span class="block">{{ item.date|jalali_date:"short" }}</span><span class="text-xs text-loomera-textMuted">{{ item.time|fa_time }}</span></td>
-                    <td class="p-3 text-loomera-textMuted">{{ item.service }}</td>
-                    <td class="p-3 text-loomera-textMuted">{{ item.stylist.user.get_fullName|default:item.stylist }}</td>
-                    <td class="p-3"><span class="rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary">{{ item.get_lifecycle_status_display }}</span></td>
-                  </tr>
-                {% empty %}
-                  <tr>
-                    <td colspan="4" class="p-8 text-center text-loomera-textMuted">نوبتی وجود ندارد.</td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-      <aside class="space-y-6">
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
-          <div class="flex items-start gap-3">
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-              <i class="fa-solid fa-badge-check" aria-hidden="true"></i>
-            </span>
-            <div>
-              <h3 class="text-lg font-black text-loomera-textPrimary">تغییر وضعیت احراز</h3>
-              <p class="mt-1 text-xs font-semibold leading-6 text-loomera-textMuted">عملیات در audit ثبت می‌شود.</p>
-            </div>
-          </div>
-          <form method="post"
-                action="{% url 'platform_admin:salon_verification_action' salon.pk %}"
-                class="mt-4 space-y-3">
-            {% csrf_token %}
-            {% for field in verification_form %}
-              <label class="block">
-                <span class="mb-2 block text-xs font-black text-loomera-textMuted">{{ field.label }}</span>
-                {{ field }}
-                {% if field.errors %}<small class="mt-1 block text-xs font-bold text-rose-600">{{ field.errors.0 }}</small>{% endif %}
-              </label>
-            {% endfor %}
-            <button class="w-full rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-loomera-primary/90">ثبت وضعیت</button>
-          </form>
-        </section>
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
-          <div class="flex items-center justify-between gap-3">
-            <h3 class="text-lg font-black text-loomera-textPrimary">تیم مجموعه</h3>
-            <span class="rounded-full bg-loomera-surface px-3 py-1 text-xs font-black text-loomera-textMuted">{{ staff_memberships|length }}</span>
-          </div>
-          <div class="mt-4 space-y-2 text-sm">
-            {% for m in staff_memberships %}
-              <p class="rounded-2xl bg-loomera-bgSubtle px-4 py-3"><span class="font-black text-loomera-textPrimary">{{ m.stylist }}</span><span class="mt-1 block text-xs text-loomera-textMuted">{{ m.get_status_display }}</span></p>
-            {% empty %}
-              <p class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-loomera-textMuted">عضویتی ثبت نشده است.</p>
-            {% endfor %}
-          </div>
-        </section>
-      </aside>
+              {% empty %}
+                <tr><td colspan="4" class="p-8 text-center text-loomera-textMuted">نوبتی وجود ندارد.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
-  </section>
+
+    <aside class="space-y-6">
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <div class="flex items-start gap-3">
+          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+            <i class="fa-solid fa-badge-check" aria-hidden="true"></i>
+          </span>
+          <div>
+            <h3 class="text-lg font-black text-loomera-textPrimary">تغییر وضعیت احراز</h3>
+            <p class="mt-1 text-xs font-semibold leading-6 text-loomera-textMuted">عملیات در audit ثبت می‌شود.</p>
+          </div>
+        </div>
+        <form method="post" action="{% url 'platform_admin:salon_verification_action' salon.pk %}" class="mt-4 space-y-3">
+          {% csrf_token %}
+          {% for field in verification_form %}
+            <label class="block">
+              <span class="mb-2 block text-xs font-black text-loomera-textMuted">{{ field.label }}</span>
+              {{ field }}
+              {% if field.errors %}<small class="mt-1 block text-xs font-bold text-rose-600">{{ field.errors.0 }}</small>{% endif %}
+            </label>
+          {% endfor %}
+          <button class="w-full rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-loomera-primary/90">ثبت وضعیت</button>
+        </form>
+      </section>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+          <h3 class="text-lg font-black text-loomera-textPrimary">تیم مجموعه</h3>
+          <span class="rounded-full bg-loomera-surface px-3 py-1 text-xs font-black text-loomera-textMuted">{{ staff_memberships|length }}</span>
+        </div>
+        <div class="mt-4 space-y-2 text-sm">
+          {% for m in staff_memberships %}
+            <p class="rounded-2xl bg-loomera-bgSubtle px-4 py-3"><span class="font-black text-loomera-textPrimary">{{ m.stylist }}</span><span class="mt-1 block text-xs text-loomera-textMuted">{{ m.get_status_display }}</span></p>
+          {% empty %}
+            <p class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-loomera-textMuted">عضویتی ثبت نشده است.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </aside>
+  </div>
+</section>
 {% endblock %}

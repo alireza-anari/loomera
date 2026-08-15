@@ -9,12 +9,15 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 
+from apps.accounts.models import Stylist
+
 from apps.dashboards.finance_forms import (
     AppointmentMaterialUsageForm,
     MaterialItemForm,
     ServiceMaterialTemplateForm,
     StylistCommissionRuleForm,
 )
+from apps.dashboards.jalali_utils import format_jalali_numeric, parse_jalali_input
 from apps.dashboards.layout import build_dashboard_context
 from apps.orders.models import AppointmentMaterialUsage, OrderDetail
 from apps.payments.finance import (
@@ -23,7 +26,12 @@ from apps.payments.finance import (
     release_eligible_salon_wallet_funds_for_salon,
     release_eligible_stylist_wallet_funds_for_salon,
 )
-from apps.payments.models import OrderDetailFinancialSnapshot, StylistWallet
+from apps.payments.models import (
+    OrderDetailFinancialSnapshot,
+    StylistWallet,
+    StylistWalletTransaction,
+    StylistWalletWithdrawalRequest,
+)
 from apps.salons.models import Salon
 from apps.services.models import (
     MaterialItem,
@@ -139,21 +147,24 @@ class SalonCostCenterView(_SalonFinanceOperationMixin, View):
             .order_by("-is_active", "service__service_name", "stylist__user__name")
         )
 
-        snapshots = OrderDetailFinancialSnapshot.objects.filter(salon=salon)
-        summary = snapshots.aggregate(
-            finalized_count=Count("id"),
-            gross=Sum("gross_amount"),
-            materials=Sum("material_cost_total"),
-            materials_salon=Sum("material_cost_paid_by_salon"),
-            materials_stylist=Sum("material_cost_paid_by_stylist"),
-            stylist=Sum("stylist_net_share"),
-            salon=Sum("salon_net_share"),
-            profit=Sum("salon_net_profit"),
+        material_total = materials.count()
+        material_active = materials.filter(is_active=True).count()
+        template_total = templates.count()
+        template_active = templates.filter(is_active=True).count()
+        rule_total = rules.count()
+        rule_active = rules.filter(is_active=True).count()
+        inactive_total = (
+            material_total
+            - material_active
+            + template_total
+            - template_active
+            + rule_total
+            - rule_active
         )
 
         context = self.base_context(
             request,
-            title="هزینه‌ها و سهم متخصصان",
+            title="هزینه و سهم",
         )
         context.update(
             {
@@ -165,26 +176,35 @@ class SalonCostCenterView(_SalonFinanceOperationMixin, View):
                 "materials": materials,
                 "templates": templates,
                 "rules": rules,
-                "summary_cards": [
+                "finance_counts": {
+                    "materials": material_total,
+                    "materials_active": material_active,
+                    "templates": template_total,
+                    "templates_active": template_active,
+                    "rules": rule_total,
+                    "rules_active": rule_active,
+                    "inactive": inactive_total,
+                },
+                "setup_cards": [
                     {
-                        "label": "سند مالی نهایی‌شده",
-                        "value": summary.get("finalized_count") or 0,
+                        "label": "مواد فعال",
+                        "value": f"{material_active} از {material_total}",
+                        "hint": "مواد پایه برای ثبت مصرف",
                     },
-                    {"label": "فروش خام خدمات", "value": _money(summary.get("gross"))},
-                    {"label": "هزینه مواد", "value": _money(summary.get("materials"))},
                     {
-                        "label": "مواد با مجموعه",
-                        "value": _money(summary.get("materials_salon")),
+                        "label": "هزینه‌های خدمت فعال",
+                        "value": f"{template_active} از {template_total}",
+                        "hint": "مواد متصل به خدمات",
                     },
                     {
-                        "label": "مواد با متخصص",
-                        "value": _money(summary.get("materials_stylist")),
+                        "label": "قوانین سهم فعال",
+                        "value": f"{rule_active} از {rule_total}",
+                        "hint": "سهم متخصص برای خدمات",
                     },
-                    {"label": "سهم متخصصان", "value": _money(summary.get("stylist"))},
-                    {"label": "سهم خالص مجموعه", "value": _money(summary.get("salon"))},
                     {
-                        "label": "سود خالص مجموعه",
-                        "value": _money(summary.get("profit")),
+                        "label": "موارد غیرفعال",
+                        "value": inactive_total,
+                        "hint": "برای سابقه نگه داشته شده‌اند",
                     },
                 ],
             }
@@ -501,13 +521,46 @@ class AppointmentMaterialUsageView(_SalonFinanceOperationMixin, View):
 class SalonProfitReportView(_SalonFinanceOperationMixin, View):
     template_name = "dashboards/finance_profit_report.html"
 
+    UI_STATUS_LABELS = {
+        OrderDetailFinancialSnapshot.Status.DRAFT: "در حال تکمیل",
+        OrderDetailFinancialSnapshot.Status.FINALIZED: "قطعی",
+        OrderDetailFinancialSnapshot.Status.REVERSED: "برگشت‌خورده",
+    }
+
+    def _enrich_snapshot(self, snapshot, service_ids_with_templates):
+        material_status = _snapshot_material_status(snapshot, service_ids_with_templates)
+        snapshot.material_status_label = material_status["label"]
+        snapshot.material_status_tone = material_status["tone"]
+        snapshot.material_status_hint = material_status["hint"]
+        snapshot.material_requires_review = (
+            material_status["tone"] == "warning"
+            and snapshot.status == OrderDetailFinancialSnapshot.Status.FINALIZED
+        )
+        snapshot.status_ui_label = self.UI_STATUS_LABELS.get(
+            snapshot.status,
+            snapshot.get_status_display(),
+        )
+        snapshot.needs_finance_action = (
+            snapshot.status == OrderDetailFinancialSnapshot.Status.DRAFT
+            or snapshot.material_requires_review
+        )
+        if snapshot.status == OrderDetailFinancialSnapshot.Status.DRAFT:
+            snapshot.finance_action_reason = "محاسبه مالی این خدمت هنوز قطعی نشده است."
+        elif snapshot.material_requires_review:
+            snapshot.finance_action_reason = (
+                "برای این خدمت الگوی مواد داری، اما در سند قطعی ماده‌ای ثبت نشده است."
+            )
+        else:
+            snapshot.finance_action_reason = ""
+        return snapshot
+
     def get(self, request):
         salon = self.get_salon(request)
 
         release_eligible_salon_wallet_funds_for_salon(salon)
         release_eligible_stylist_wallet_funds_for_salon(salon)
 
-        snapshots = (
+        base_snapshots = (
             OrderDetailFinancialSnapshot.objects.filter(salon=salon)
             .select_related(
                 "order",
@@ -519,18 +572,50 @@ class SalonProfitReportView(_SalonFinanceOperationMixin, View):
             .order_by("-finalized_at", "-created_at")
         )
 
-        status = request.GET.get("status") or ""
+        raw_status = request.GET.get("status")
+        status = (
+            OrderDetailFinancialSnapshot.Status.FINALIZED
+            if raw_status is None or raw_status == ""
+            else raw_status
+        )
+        valid_statuses = {
+            "all",
+            OrderDetailFinancialSnapshot.Status.DRAFT,
+            OrderDetailFinancialSnapshot.Status.FINALIZED,
+            OrderDetailFinancialSnapshot.Status.REVERSED,
+        }
+        if status not in valid_statuses:
+            status = OrderDetailFinancialSnapshot.Status.FINALIZED
         service_id = request.GET.get("service") or ""
         stylist_id = request.GET.get("stylist") or ""
-
-        if status:
-            snapshots = snapshots.filter(status=status)
+        start_date = parse_jalali_input(request.GET.get("start"))
+        end_date = parse_jalali_input(request.GET.get("end"))
+        if start_date and end_date and start_date > end_date:
+            start_date, end_date = end_date, start_date
 
         if service_id:
-            snapshots = snapshots.filter(service_id=service_id)
-
+            base_snapshots = base_snapshots.filter(service_id=service_id)
         if stylist_id:
-            snapshots = snapshots.filter(stylist_id=stylist_id)
+            base_snapshots = base_snapshots.filter(stylist_id=stylist_id)
+        if start_date:
+            base_snapshots = base_snapshots.filter(order_detail__date__gte=start_date)
+        if end_date:
+            base_snapshots = base_snapshots.filter(order_detail__date__lte=end_date)
+
+        finalized_count = base_snapshots.filter(
+            status=OrderDetailFinancialSnapshot.Status.FINALIZED
+        ).count()
+        draft_count = base_snapshots.filter(
+            status=OrderDetailFinancialSnapshot.Status.DRAFT
+        ).count()
+        reversed_count = base_snapshots.filter(
+            status=OrderDetailFinancialSnapshot.Status.REVERSED
+        ).count()
+        scope_total_count = finalized_count + draft_count + reversed_count
+
+        snapshots = base_snapshots
+        if status != "all":
+            snapshots = snapshots.filter(status=status)
 
         summary = snapshots.aggregate(
             count=Count("id"),
@@ -546,133 +631,107 @@ class SalonProfitReportView(_SalonFinanceOperationMixin, View):
             profit=Sum("salon_net_profit"),
         )
 
-        finalized_count = snapshots.filter(
-            status=OrderDetailFinancialSnapshot.Status.FINALIZED
-        ).count()
-        draft_count = snapshots.filter(
-            status=OrderDetailFinancialSnapshot.Status.DRAFT
-        ).count()
-        reversed_count = snapshots.filter(
-            status=OrderDetailFinancialSnapshot.Status.REVERSED
-        ).count()
-
-        service_ids_for_rows = list(
-            snapshots.exclude(service_id__isnull=True)
+        service_ids_for_scope = list(
+            base_snapshots.exclude(service_id__isnull=True)
             .values_list("service_id", flat=True)
             .distinct()
         )
         service_ids_with_templates = set(
             ServiceMaterialTemplate.objects.filter(
                 salon=salon,
-                service_id__in=service_ids_for_rows,
+                service_id__in=service_ids_for_scope,
                 is_active=True,
             ).values_list("service_id", flat=True)
         )
 
-        snapshot_rows = list(snapshots[:100])
-        missing_material_review_count = 0
-        for snapshot in snapshot_rows:
-            material_status = _snapshot_material_status(
-                snapshot, service_ids_with_templates
-            )
-            snapshot.material_status_label = material_status["label"]
-            snapshot.material_status_tone = material_status["tone"]
-            snapshot.material_status_hint = material_status["hint"]
-            snapshot.material_requires_review = (
-                material_status["tone"] == "warning"
-                and snapshot.status == OrderDetailFinancialSnapshot.Status.FINALIZED
-            )
-            if snapshot.material_requires_review:
-                missing_material_review_count += 1
+        snapshot_rows = [
+            self._enrich_snapshot(snapshot, service_ids_with_templates)
+            for snapshot in list(snapshots[:100])
+        ]
 
-        total_count = _safe_int(summary.get("count"))
-        finalized_percent = _percent(finalized_count, total_count)
+        draft_review_rows = [
+            self._enrich_snapshot(snapshot, service_ids_with_templates)
+            for snapshot in list(
+                base_snapshots.filter(
+                    status=OrderDetailFinancialSnapshot.Status.DRAFT
+                )[:30]
+            )
+        ]
+        recent_finalized_rows = [
+            self._enrich_snapshot(snapshot, service_ids_with_templates)
+            for snapshot in list(
+                base_snapshots.filter(
+                    status=OrderDetailFinancialSnapshot.Status.FINALIZED
+                )[:100]
+            )
+        ]
+        material_review_rows = [
+            snapshot
+            for snapshot in recent_finalized_rows
+            if snapshot.material_requires_review
+        ][:30]
+        missing_material_review_count = len(
+            [snapshot for snapshot in recent_finalized_rows if snapshot.material_requires_review]
+        )
 
-        finance_quality_cards = [
+        selected_count = _safe_int(summary.get("count"))
+        finalized_percent = _percent(finalized_count, scope_total_count)
+        active_filter_count = sum(
+            bool(value)
+            for value in (
+                service_id,
+                stylist_id,
+                start_date,
+                end_date,
+                status not in (OrderDetailFinancialSnapshot.Status.FINALIZED, ""),
+            )
+        )
+
+        finance_status_cards = [
             {
-                "label": "اسناد نهایی‌شده",
-                "value": f"{finalized_count} از {total_count}",
-                "hint": f"{finalized_percent}٪ اسناد این فیلتر نهایی شده‌اند.",
-                "tone": "success" if draft_count == 0 else "warning",
+                "label": "قطعی",
+                "value": finalized_count,
+                "hint": f"{finalized_percent}٪ خدمات این محدوده محاسبه قطعی دارند.",
+                "tone": "success",
             },
             {
-                "label": "پیش‌نویس‌های مالی",
+                "label": "در حال تکمیل",
                 "value": draft_count,
-                "hint": "تا وقتی سند پیش‌نویس است، کیف پول و گزارش سود قطعی نیست.",
-                "tone": "warning" if draft_count else "success",
+                "hint": "این خدمات هنوز نباید جزو سود قطعی حساب شوند.",
+                "tone": "warning" if draft_count else "muted",
             },
             {
                 "label": "برگشت‌خورده",
                 "value": reversed_count,
-                "hint": "اسناد برگشت‌خورده در تصمیم مالی باید جداگانه بررسی شوند.",
+                "hint": "این اسناد از سود قطعی کنار گذاشته شده‌اند.",
                 "tone": "danger" if reversed_count else "muted",
             },
             {
-                "label": "نیازمند بررسی مواد",
+                "label": "بررسی مواد",
                 "value": missing_material_review_count,
-                "hint": "برای بعضی خدمات قالب مواد وجود دارد اما در سند نهایی ماده‌ای ثبت نشده است.",
+                "hint": "در ۱۰۰ خدمت قطعی اخیر، الگوی مواد وجود دارد ولی مصرفی ثبت نشده است.",
                 "tone": "warning" if missing_material_review_count else "success",
             },
         ]
 
-        formula_cards = [
-            {
-                "label": "مبنای فروش",
-                "value": "قیمت خام - تخفیف + هزینه اضافه",
-            },
-            {
-                "label": "خالص بعد کارمزد",
-                "value": "دریافتی بعد تخفیف - کارمزد پلتفرم",
-            },
-            {
-                "label": "هزینه مواد",
-                "value": "براساس سیاست قانون سهم یا paid_by مواد",
-            },
-            {
-                "label": "سود مجموعه",
-                "value": "سهم مجموعه بعد از کسر مواد مربوط به مجموعه",
-            },
-        ]
-
-        stylist_wallet_rows = []
-
-        active_stylists = (
-            salon.stylists.filter(is_active=True)
-            .select_related("user")
-            .order_by("user__name", "user__family")
-        )
-
-        wallets = (
-            StylistWallet.objects.filter(stylist__in=active_stylists)
-            .select_related("stylist__user")
-        )
-        wallet_map = {wallet.stylist_id: wallet for wallet in wallets}
-
-        for stylist in active_stylists:
-            wallet = wallet_map.get(stylist.user_id)
-
-            stylist_wallet_rows.append(
-                {
-                    "stylist": stylist,
-                    "pending_balance": wallet.pending_balance_for_salon(salon) if wallet else 0,
-                    "available_balance": wallet.available_balance_for_salon(salon) if wallet else 0,
-                    "total_balance": wallet.total_balance_for_salon(salon) if wallet else 0,
-                }
-            )
-
-        services = (
-            salon.services.filter(is_active=True).distinct().order_by("service_name")
-        )
-
+        # Historical reports must remain filterable even when a service or team
+        # member is currently inactive. Creating/editing rules still uses active
+        # records; this list is read-only reporting scope.
+        services = salon.services.all().distinct().order_by("service_name")
         stylists = (
-            salon.stylists.filter(is_active=True)
+            salon.stylists.all()
             .select_related("user")
             .order_by("user__name", "user__family")
         )
+
+        if status == "all":
+            selected_status_label = "همه وضعیت‌ها"
+        else:
+            selected_status_label = self.UI_STATUS_LABELS.get(status, "وضعیت انتخاب‌شده")
 
         context = self.base_context(
             request,
-            title="گزارش سود خالص",
+            title="سود خالص",
         )
         context.update(
             {
@@ -680,42 +739,32 @@ class SalonProfitReportView(_SalonFinanceOperationMixin, View):
                 "snapshots": snapshot_rows,
                 "services": services,
                 "stylists": stylists,
-                "stylist_wallet_rows": stylist_wallet_rows,
+                "draft_review_rows": draft_review_rows,
+                "material_review_rows": material_review_rows,
                 "filters": {
                     "status": status,
                     "service": str(service_id),
                     "stylist": str(stylist_id),
+                    "start": format_jalali_numeric(start_date) if start_date else "",
+                    "end": format_jalali_numeric(end_date) if end_date else "",
                 },
-                "finance_quality_cards": finance_quality_cards,
-                "formula_cards": formula_cards,
-                "summary_cards": [
-                    {"label": "تعداد اسناد", "value": summary.get("count") or 0},
-                    {"label": "فروش خام", "value": _money(summary.get("gross"))},
-                    {"label": "تخفیف", "value": _money(summary.get("discount"))},
-                    {
-                        "label": "دریافتی بعد تخفیف",
-                        "value": _money(summary.get("paid")),
-                    },
-                    {
-                        "label": "کارمزد پلتفرم",
-                        "value": _money(summary.get("platform")),
-                    },
-                    {"label": "هزینه مواد", "value": _money(summary.get("materials"))},
-                    {
-                        "label": "مواد با مجموعه",
-                        "value": _money(summary.get("materials_salon")),
-                    },
-                    {
-                        "label": "مواد با متخصص",
-                        "value": _money(summary.get("materials_stylist")),
-                    },
-                    {"label": "سهم متخصصان", "value": _money(summary.get("stylist"))},
-                    {"label": "سهم مجموعه", "value": _money(summary.get("salon"))},
-                    {
-                        "label": "سود خالص مجموعه",
-                        "value": _money(summary.get("profit")),
-                    },
-                ],
+                "active_filter_count": active_filter_count,
+                "finance_status_cards": finance_status_cards,
+                "profit_scope": {
+                    "selected_count": selected_count,
+                    "status_label": selected_status_label,
+                    "total_count": scope_total_count,
+                },
+                "profit_overview": {
+                    "received": _money(summary.get("paid")),
+                    "platform": _money(summary.get("platform")),
+                    "materials": _money(summary.get("materials")),
+                    "salon_materials": _money(summary.get("materials_salon")),
+                    "team_materials": _money(summary.get("materials_stylist")),
+                    "team_share": _money(summary.get("stylist")),
+                    "profit": _money(summary.get("profit")),
+                    "discount": _money(summary.get("discount")),
+                },
             }
         )
         return render(request, self.template_name, context)
@@ -729,114 +778,121 @@ class SalonStylistWalletsView(_SalonFinanceOperationMixin, View):
 
         release_eligible_stylist_wallet_funds_for_salon(salon)
 
-        stylists = (
-            salon.stylists.filter(is_active=True)
+        # Finance history must remain visible even if a specialist is later
+        # deactivated or removed from the current team. Operational pages may hide
+        # former members; finance must preserve their historical money trail.
+        current_stylist_ids = set(salon.stylists.values_list("pk", flat=True))
+
+        finalized_snapshots = OrderDetailFinancialSnapshot.objects.filter(
+            salon=salon,
+            status=OrderDetailFinancialSnapshot.Status.FINALIZED,
+        )
+        transaction_stylist_ids = set(
+            StylistWalletTransaction.objects.filter(salon=salon).values_list(
+                "wallet__stylist_id", flat=True
+            )
+        )
+        pending_withdrawals = StylistWalletWithdrawalRequest.objects.filter(
+            salon=salon,
+            status=StylistWalletWithdrawalRequest.Status.PENDING,
+        )
+        financial_stylist_ids = (
+            current_stylist_ids
+            | set(finalized_snapshots.values_list("stylist_id", flat=True))
+            | transaction_stylist_ids
+            | set(pending_withdrawals.values_list("wallet__stylist_id", flat=True))
+        )
+        stylists = list(
+            Stylist.objects.filter(pk__in=financial_stylist_ids)
             .select_related("user")
             .order_by("user__name", "user__family")
         )
+        stylist_ids = [stylist.pk for stylist in stylists]
+        earnings_map = {
+            row["stylist_id"]: row
+            for row in finalized_snapshots.values("stylist_id").annotate(
+                services_count=Count("id"),
+                stylist_share=Sum("stylist_net_share"),
+            )
+        }
 
-        wallets = (
-            StylistWallet.objects.filter(stylist__in=stylists)
-            .select_related("stylist__user")
-            .order_by("stylist__user__name", "stylist__user__family")
-        )
+        balance_map = {
+            row["wallet__stylist_id"]: row
+            for row in StylistWalletTransaction.objects.filter(
+                salon=salon,
+                wallet__stylist_id__in=stylist_ids,
+            )
+            .values("wallet__stylist_id")
+            .annotate(
+                pending_balance=Sum("pending_delta"),
+                available_balance=Sum("available_delta"),
+            )
+        }
 
-        wallet_map = {wallet.stylist_id: wallet for wallet in wallets}
+        withdrawal_map = {
+            row["wallet__stylist_id"]: row
+            for row in pending_withdrawals.values("wallet__stylist_id").annotate(
+                pending_withdrawal_count=Count("id"),
+                pending_withdrawal_amount=Sum("amount"),
+            )
+        }
 
         rows = []
-
         for stylist in stylists:
-            wallet = wallet_map.get(stylist.user.id)
+            earnings = earnings_map.get(stylist.pk, {})
+            balances = balance_map.get(stylist.pk, {})
+            withdrawal = withdrawal_map.get(stylist.pk, {})
 
-            snapshots = OrderDetailFinancialSnapshot.objects.filter(
-                salon=salon,
-                stylist=stylist,
-            )
-
-            totals = snapshots.aggregate(
-                services_count=Count("id"),
-                gross=Sum("gross_amount"),
-                material_cost=Sum("material_cost_total"),
-                stylist_share=Sum("stylist_net_share"),
-                salon_share=Sum("salon_net_share"),
+            available_balance = int(balances.get("available_balance") or 0)
+            pending_balance = int(balances.get("pending_balance") or 0)
+            pending_withdrawal_amount = int(
+                withdrawal.get("pending_withdrawal_amount") or 0
             )
 
             rows.append(
                 {
                     "stylist": stylist,
-                    "wallet": wallet,
-                    "services_count": totals.get("services_count") or 0,
-                    "gross": totals.get("gross") or 0,
-                    "material_cost": totals.get("material_cost") or 0,
-                    "stylist_share": totals.get("stylist_share") or 0,
-                    "salon_share": totals.get("salon_share") or 0,
-                    "pending_balance": (
-                        wallet.pending_balance_for_salon(salon) if wallet else 0
-                    ),
-                    "available_balance": (
-                        wallet.available_balance_for_salon(salon) if wallet else 0
-                    ),
-                    "total_balance": (
-                        wallet.total_balance_for_salon(salon) if wallet else 0
-                    ),
+                    "is_active": stylist.is_active,
+                    "is_current_member": stylist.pk in current_stylist_ids,
+                    "services_count": earnings.get("services_count") or 0,
+                    "stylist_share": earnings.get("stylist_share") or 0,
+                    "pending_balance": pending_balance,
+                    "available_balance": available_balance,
+                    "current_balance": available_balance + pending_balance,
+                    "pending_withdrawal_count": withdrawal.get(
+                        "pending_withdrawal_count"
+                    )
+                    or 0,
+                    "pending_withdrawal_amount": pending_withdrawal_amount,
                 }
             )
 
-        snapshots = (
-            OrderDetailFinancialSnapshot.objects.filter(salon=salon)
-            .select_related("stylist__user", "service", "order", "order_detail")
-            .order_by("-finalized_at", "-created_at")[:100]
+        total_available = sum(row["available_balance"] for row in rows)
+        total_pending = sum(row["pending_balance"] for row in rows)
+        total_earned = sum(int(row["stylist_share"] or 0) for row in rows)
+        pending_withdrawal_amount = sum(
+            row["pending_withdrawal_amount"] for row in rows
         )
-
-        summary = OrderDetailFinancialSnapshot.objects.filter(salon=salon).aggregate(
-            count=Count("id"),
-            gross=Sum("gross_amount"),
-            material_cost=Sum("material_cost_total"),
-            material_cost_salon=Sum("material_cost_paid_by_salon"),
-            material_cost_stylist=Sum("material_cost_paid_by_stylist"),
-            stylist_share=Sum("stylist_net_share"),
-            salon_share=Sum("salon_net_share"),
-            profit=Sum("salon_net_profit"),
+        pending_withdrawal_count = sum(
+            row["pending_withdrawal_count"] for row in rows
         )
 
         context = self.base_context(
             request,
-            title="کیف پول و درآمد متخصصان",
+            title="درآمد متخصصان",
             sidebar_active="finance",
         )
         context.update(
             {
                 "salon": salon,
                 "rows": rows,
-                "snapshots": snapshots,
-                "summary_cards": [
-                    {"label": "تعداد سند مالی", "value": summary.get("count") or 0},
-                    {"label": "فروش خام", "value": _money(summary.get("gross"))},
-                    {
-                        "label": "هزینه مواد",
-                        "value": _money(summary.get("material_cost")),
-                    },
-                    {
-                        "label": "مواد با مجموعه",
-                        "value": _money(summary.get("material_cost_salon")),
-                    },
-                    {
-                        "label": "مواد با متخصص",
-                        "value": _money(summary.get("material_cost_stylist")),
-                    },
-                    {
-                        "label": "سهم متخصصان",
-                        "value": _money(summary.get("stylist_share")),
-                    },
-                    {
-                        "label": "سهم مجموعه",
-                        "value": _money(summary.get("salon_share")),
-                    },
-                    {
-                        "label": "سود خالص مجموعه",
-                        "value": _money(summary.get("profit")),
-                    },
-                ],
+                "team_finance_summary": {
+                    "earned": _money(total_earned),
+                    "available": _money(total_available),
+                    "pending": _money(total_pending),
+                    "withdrawal_amount": _money(pending_withdrawal_amount),
+                    "withdrawal_count": pending_withdrawal_count,
+                },
             }
         )
         return render(request, self.template_name, context)

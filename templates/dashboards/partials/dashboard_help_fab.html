@@ -10,7 +10,7 @@
 
       {% url "dashboards:salon_manager_dashboard" as manager_home_url %}
       {% url "dashboards:service_menu" as services_url %}
-      {% url "dashboards:team_managment" as team_url %}
+      {% url "dashboards:team_member" as team_url %}
       {% url "dashboards:online_booking" as online_booking_url %}
       {% url "dashboards:salon_profile" as salon_profile_url %}
       {% url "dashboards:workspace_settings" as workspace_settings_url %}
@@ -130,7 +130,7 @@
 
                 {% else %}
                   {% if dashboard_active_key == "overview" %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اول چک‌لیست آمادگی مجموعه را کامل کن.</span></li>
+                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر راه‌اندازی کامل نیست، از «قدم بعدی» خانه داشبورد ادامه بده.</span></li>
                     <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بعد نوبت‌های امروز و موارد در انتظار را بررسی کن.</span></li>
                     <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر مجموعه تازه ساخته شده، خدمات، تیم و شیفت‌ها اولویت دارند.</span></li>
                   {% elif dashboard_active_key == "services" or "/service" in current_path %}

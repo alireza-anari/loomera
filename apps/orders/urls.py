@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from .views import (
     # OrderCartView,
     # add_to_order_cart,
@@ -51,7 +52,11 @@ urlpatterns = [
     # سازگاری با لینک‌های قدیمی/ fallback که در بعضی بخش‌های ربات ساخته می‌شوند.
     path(
         "quick-booking/<str:token>/",
-        QuickBookingEntryView.as_view(),
+        RedirectView.as_view(
+            pattern_name="orders:quick_booking_entry",
+            permanent=False,
+            query_string=True,
+        ),
         name="quick_booking_entry_legacy",
     ),
     # path("order_cart/", OrderCartView.as_view(), name="order_cart"),
@@ -116,7 +121,11 @@ urlpatterns = [
     ),
     path(
         "appointments/<int:pk>/",
-        AppointmentDetailView.as_view(),
+        RedirectView.as_view(
+            pattern_name="orders:appointment_detail",
+            permanent=False,
+            query_string=True,
+        ),
         name="appointment_detail_legacy",
     ),
     path(

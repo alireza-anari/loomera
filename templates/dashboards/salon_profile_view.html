@@ -2,574 +2,318 @@
 {% block title %}پروفایل مجموعه{% endblock %}
 
 {% block content %}
-  {% url 'dashboards:service_menu' as service_menu_url %}
-  {% url 'dashboards:team_member' as team_member_url %}
-  {% url 'dashboards:salon_profile_creator_step1' as step1_url %}
-  {% url 'dashboards:salon_profile_creator_step6' as step6_url %}
-  {% url 'dashboards:salon_profile_creator_step7' as step7_url %}
-  {% url 'dashboards:salon_profile_creator_step8' as step8_url %}
-  {% url 'dashboards:payout_settings' as payout_settings_url %}
+<section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5"
+         data-dashboard-workspace-root
+         data-dashboard-page="salon-profile-view">
 
-  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-workspace-root data-dashboard-page="salon-profile-view">
+  <section class="relative overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="salon-profile-title">
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
 
-    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="salon-profile-title">
-      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
-
-      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
-        <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
-          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0">
-              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-                <i class="fa-solid fa-store text-[10px]" aria-hidden="true"></i>
-                <span class="truncate">پروفایل عمومی مجموعه</span>
-              </span>
-
-              <h1 id="salon-profile-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-                {{ salon_profile_workspace.page_title|default:"مرکز مدیریت پروفایل مجموعه" }}
-              </h1>
-
-              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-                کیفیت حضور مجموعه در صفحه عمومی، گالری، خدمات، ویژگی‌ها، اطلاعات تماس و مسیرهای ویرایش را یک‌جا ببین تا قبل از جذب مشتری از کامل بودن پروفایل مطمئن شوی.
-              </p>
-            </div>
-
-            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
-              <i class="fa-solid fa-id-card text-lg" aria-hidden="true"></i>
-            </span>
-          </div>
-
-          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <a href="{{ salon_profile_workspace.customer_preview_url }}" target="_blank" rel="noopener"
-               class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-eye text-xs" aria-hidden="true"></i>
-              <span class="truncate">مشاهده صفحه عمومی</span>
-            </a>
-
-            <a href="{{ step1_url }}"
-               class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
-              <i class="fa-solid fa-pen text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">اطلاعات پایه</span>
-            </a>
-
-            <a href="{{ step6_url }}"
-               class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
-              <i class="fa-regular fa-images text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">گالری</span>
-            </a>
-
-            <a href="{{ service_menu_url }}"
-               class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
-              <i class="fa-solid fa-scissors text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">منوی خدمات</span>
-            </a>
-          </div>
-        </div>
-
-        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس پروفایل مجموعه">
-          <div class="flex min-w-0 items-center justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-white/55">فوکوس فعلی</p>
-              <h2 class="mt-1 truncate text-lg font-black">کیفیت صفحه عمومی</h2>
-            </div>
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-              <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-            </span>
-          </div>
-
-          <div class="mt-5 space-y-3">
-            {% for item in salon_profile_workspace.focus_items %}
-              <article class="min-w-0 rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <div class="flex min-w-0 items-start justify-between gap-3">
-                  <h3 class="min-w-0 flex-1 text-sm font-black leading-6 text-white">{{ item.title }}</h3>
-                  <span class="max-w-[42%] shrink-0 truncate rounded-full px-3 py-1 text-[10px] font-black {% if item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-white/10 text-white{% endif %}">
-                    {{ item.value }}
-                  </span>
-                </div>
-                <p class="mt-2 text-xs leading-6 text-white/72">{{ item.description }}</p>
-              </article>
-            {% empty %}
-              <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <h3 class="text-sm font-black text-white">پروفایل در وضعیت خوبی است</h3>
-                <p class="mt-2 text-xs leading-6 text-white/72">در حال حاضر مورد فوری برای تکمیل صفحه عمومی دیده نمی‌شود.</p>
-              </article>
-            {% endfor %}
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های پروفایل مجموعه">
-        <div class="flex min-w-max items-center gap-2">
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#salon-profile-section-overview" aria-selected="true">
-            <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
-            <span>نمای کلی</span>
-          </button>
-
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#salon-profile-section-readiness">
-            <i class="fa-solid fa-list-check text-[10px]" aria-hidden="true"></i>
-            <span>چک‌لیست</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ salon_profile_workspace.ready_count|default:"0" }}/{{ salon_profile_workspace.total_checks|default:"0" }}</span>
-          </button>
-
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#salon-profile-section-details">
-            <i class="fa-solid fa-id-card text-[10px]" aria-hidden="true"></i>
-            <span>اطلاعات مجموعه</span>
-          </button>
-
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#salon-profile-section-trust">
-            <i class="fa-solid fa-star text-[10px]" aria-hidden="true"></i>
-            <span>اعتماد و محتوا</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ salon.reviews_count|default:"0" }}</span>
-          </button>
-
-          <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#salon-profile-section-actions">
-            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
-            <span>مسیرها</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <section class="rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5 lg:p-6" aria-labelledby="salon-profile-readiness-title">
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div class="relative">
+      <div class="flex min-w-0 flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">آمادگی پروفایل عمومی</p>
-          <h2 id="salon-profile-readiness-title" class="mt-1 text-lg font-black text-loomera-textPrimary">کیفیت حضور مجموعه در مارکت‌پلیس</h2>
-          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">این کارت نشان می‌دهد صفحه عمومی مجموعه چقدر برای اعتمادسازی، رزرو آنلاین و نمایش خدمات آماده است.</p>
-        </div>
-
-        <a href="{{ salon_profile_workspace.customer_preview_url }}" target="_blank" rel="noopener" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-white">
-          <i class="fa-solid fa-arrow-up-right-from-square text-[11px]" aria-hidden="true"></i>
-          <span>مشاهده از نگاه مشتری</span>
-        </a>
-      </div>
-
-      <div class="mt-5 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <article class="rounded-[26px] border border-loomera-primary/15 bg-loomera-primarySoft/60 p-4 sm:p-5">
-          <div class="flex items-center justify-between gap-3 text-xs font-black text-loomera-primaryText">
-            <span>پیشرفت تکمیل</span>
-            <span>{{ salon_profile_workspace.readiness_progress|default:"0" }}٪</span>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+              <i class="fa-solid fa-store text-[10px]" aria-hidden="true"></i>
+              پروفایل عمومی مجموعه
+            </span>
+            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-black {% if salon.is_active %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
+              <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>
+              {% if salon.is_active %}صفحه عمومی فعال{% else %}صفحه عمومی غیرفعال{% endif %}
+            </span>
           </div>
-          <div class="mt-4 h-3 overflow-hidden rounded-full bg-white/85">
-            <div class="h-full rounded-full bg-loomera-primary transition-all" style="width: {{ salon_profile_workspace.readiness_progress|default:'0' }}%"></div>
-          </div>
-          <p class="mt-4 text-xs font-bold leading-6 text-loomera-textSecondary">
-            {{ salon_profile_workspace.ready_count|default:"0" }} از {{ salon_profile_workspace.total_checks|default:"0" }} بخش اصلی آماده است.
+
+          <h1 id="salon-profile-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+            {{ salon_profile_workspace.page_title }}
+          </h1>
+          <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+            صفحه مجموعه بعد از تکمیل اطلاعات اولیه منتشر می‌شود؛ ویرایش پروفایل و مسیر آماده‌سازی دریافت نوبت را از همین صفحه مدیریت کن.
           </p>
-        </article>
+        </div>
 
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <span class="text-xs font-bold text-loomera-textMuted">خدمات فعال</span>
-            <strong class="mt-3 block text-xl font-black text-loomera-textPrimary">{{ salon.active_services_count|default:"0" }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">پایه رزرو عمومی</p>
-          </article>
-
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <span class="text-xs font-bold text-loomera-textMuted">اعضای فعال</span>
-            <strong class="mt-3 block text-xl font-black text-loomera-textPrimary">{{ salon.active_stylists_count|default:"0" }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">پوشش تیم</p>
-          </article>
-
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <span class="text-xs font-bold text-loomera-textMuted">گالری</span>
-            <strong class="mt-3 block text-xl font-black text-loomera-textPrimary">{{ salon_profile_workspace.gallery_count|default:"0" }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">تصویر واقعی</p>
-          </article>
-
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <span class="text-xs font-bold text-loomera-textMuted">بازخورد</span>
-            <strong class="mt-3 block text-xl font-black text-loomera-textPrimary">{{ salon_profile_workspace.avg_score_label|default:"—" }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">از {{ salon.reviews_count|default:"0" }} نظر</p>
-          </article>
+        <div class="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col">
+          {% if salon.is_active %}
+            <a href="{{ salon_profile_workspace.customer_preview_url }}" target="_blank" rel="noopener"
+               class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5">
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
+              مشاهده صفحه مجموعه
+            </a>
+          {% else %}
+            <a href="#salon-profile-public-page"
+               class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5">
+              <i class="fa-solid fa-globe text-xs" aria-hidden="true"></i>
+              انتشار صفحه مجموعه
+            </a>
+          {% endif %}
+          {% if next_incomplete_item %}
+            <a href="{{ next_incomplete_item.url }}"
+               class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText">
+              <i class="fa-solid fa-wand-magic-sparkles text-xs" aria-hidden="true"></i>
+              تکمیل بعدی: {{ next_incomplete_item.title }}
+            </a>
+          {% endif %}
         </div>
       </div>
-    </section>
 
-    <details id="salon-profile-section-overview" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" open data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true">
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">شاخص‌های پروفایل مجموعه</h2>
+      <div class="mt-6 rounded-[24px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-soft sm:p-5">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-xs font-black text-loomera-textMuted">تکمیل پروفایل عمومی</p>
+            <div class="mt-1 flex items-baseline gap-2">
+              <strong class="text-lg font-black text-loomera-textPrimary">{{ salon_profile_workspace.profile_quality_label }}</strong>
+              <span class="text-xs font-bold text-loomera-textMuted">{{ salon_profile_workspace.ready_count }} از {{ salon_profile_workspace.total_checks }} بخش</span>
+            </div>
+          </div>
+          <strong class="text-2xl font-black text-loomera-primaryText">{{ salon_profile_workspace.profile_progress_label }}٪</strong>
         </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="p-3 sm:p-5 lg:p-6">
-        <div class="grid min-w-0 grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-6">
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">خدمات فعال</p>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm text-loomera-primaryText">
-                <i class="fa-solid fa-scissors" aria-hidden="true"></i>
-              </span>
-            </div>
-            <strong class="mt-3 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ salon.active_services_count|default:"0" }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:text-xs sm:leading-6">برای نمایش و رزرو</p>
-          </article>
-
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">تیم فعال</p>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-successSoft text-sm text-loomera-success">
-                <i class="fa-solid fa-user-group" aria-hidden="true"></i>
-              </span>
-            </div>
-            <strong class="mt-3 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ salon.active_stylists_count|default:"0" }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:text-xs sm:leading-6">برای پوشش رزروها</p>
-          </article>
-
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">روزهای کاری</p>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white text-sm text-loomera-primaryText shadow-sm">
-                <i class="fa-regular fa-clock" aria-hidden="true"></i>
-              </span>
-            </div>
-            <strong class="mt-3 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ open_days_count|default:"0" }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:text-xs sm:leading-6">دسترسی رزرو</p>
-          </article>
-
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">تصاویر</p>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm text-loomera-primaryText">
-                <i class="fa-regular fa-images" aria-hidden="true"></i>
-              </span>
-            </div>
-            <strong class="mt-3 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ salon_profile_workspace.gallery_count|default:"0" }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:text-xs sm:leading-6">اعتماد بصری</p>
-          </article>
-
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">ویژگی‌ها</p>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm text-loomera-primaryText">
-                <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-              </span>
-            </div>
-            <strong class="mt-3 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ salon_profile_workspace.features_count|default:"0" }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:text-xs sm:leading-6">مزیت‌های مجموعه</p>
-          </article>
-
-          <article class="col-span-2 rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:col-span-1 sm:rounded-[26px] sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">نظرات</p>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-warningSoft text-sm text-loomera-warning">
-                <i class="fa-solid fa-star" aria-hidden="true"></i>
-              </span>
-            </div>
-            <strong class="mt-3 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ salon.reviews_count|default:"0" }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted sm:text-xs sm:leading-6">امتیاز {{ salon_profile_workspace.avg_score_label|default:"—" }}</p>
-          </article>
+        <div class="mt-3 h-2 overflow-hidden rounded-full bg-loomera-bgSubtle" aria-label="درصد تکمیل پروفایل">
+          <div class="h-full rounded-full bg-loomera-primary transition-all" style="width: {{ salon_profile_workspace.profile_progress }}%"></div>
         </div>
       </div>
-    </details>
-
-    <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-      <details id="salon-profile-section-readiness" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" open data-dashboard-workspace-panel>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">چک‌لیست عملیاتی</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">آمادگی پروفایل عمومی</h2>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-          </span>
-        </summary>
-
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <p class="text-xs leading-6 text-loomera-textMuted">موارد ناقص را سریع پیدا کن و مستقیم به همان بخش ویرایش برو.</p>
-            <div class="flex gap-2 overflow-x-auto pb-1" aria-label="فیلتر چک‌لیست پروفایل">
-              <button type="button" class="shrink-0 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-profile-readiness-filter="all">همه</button>
-              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-profile-readiness-filter="ready">آماده</button>
-              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-profile-readiness-filter="todo">نیازمند تکمیل</button>
-            </div>
-          </div>
-
-          <div class="grid gap-3 md:grid-cols-2" data-profile-readiness-list>
-            {% for item in salon_profile_workspace.readiness_items %}
-              <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card" data-profile-readiness-card data-profile-readiness-status="{% if item.is_ready %}ready{% else %}todo{% endif %}">
-                <div class="flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <h3 class="text-sm font-black text-loomera-textPrimary">{{ item.title }}</h3>
-                    <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
-                  </div>
-                  <span class="shrink-0 rounded-full px-3 py-1 text-[11px] font-black {% if item.is_ready %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
-                    {% if item.is_ready %}آماده{% else %}نیازمند تکمیل{% endif %}
-                  </span>
-                </div>
-                <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
-                  <span class="rounded-full bg-white px-3 py-2 text-[11px] font-bold text-loomera-textMuted">{{ item.meta }}</span>
-                  <a href="{{ item.url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40">
-                    <span>{{ item.cta_label }}</span>
-                    <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                  </a>
-                </div>
-              </article>
-            {% empty %}
-              <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2">
-                چک‌لیستی برای پروفایل مجموعه ثبت نشده است.
-              </div>
-            {% endfor %}
-            <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2" data-profile-readiness-empty>
-              موردی با این فیلتر پیدا نشد.
-            </div>
-          </div>
-        </div>
-      </details>
-
-      <details id="salon-profile-section-details" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" open data-dashboard-workspace-panel>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات پایه</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">جزئیات مجموعه</h2>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-          </span>
-        </summary>
-
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="mb-4 flex items-start justify-between gap-3">
-            <p class="text-xs leading-6 text-loomera-textMuted">اطلاعاتی که مشتری در صفحه عمومی برای اعتماد، تماس و تصمیم رزرو می‌بیند.</p>
-            <span class="shrink-0 rounded-full px-3 py-1 text-[11px] font-black {% if salon.is_active %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
-              {% if salon.is_active %}فعال{% else %}غیرفعال{% endif %}
-            </span>
-          </div>
-
-          <dl class="grid gap-3">
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-4">
-              <dt class="text-xs font-bold text-loomera-textMuted">تلفن</dt>
-              <dd class="mt-2 text-sm font-black text-loomera-textPrimary">{{ salon_profile_workspace.phone_label }}</dd>
-            </div>
-
-            <div class="grid gap-3 sm:grid-cols-2">
-              <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-4">
-                <dt class="text-xs font-bold text-loomera-textMuted">منطقه</dt>
-                <dd class="mt-2 text-sm font-black text-loomera-textPrimary">{{ salon_profile_workspace.zone_label }}</dd>
-              </div>
-
-              <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-4">
-                <dt class="text-xs font-bold text-loomera-textMuted">محله</dt>
-                <dd class="mt-2 text-sm font-black text-loomera-textPrimary">{{ salon_profile_workspace.neighborhood_label }}</dd>
-              </div>
-            </div>
-
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-4">
-              <dt class="text-xs font-bold text-loomera-textMuted">آدرس</dt>
-              <dd class="mt-2 text-sm font-black leading-7 text-loomera-textPrimary">{{ salon_profile_workspace.address_label }}</dd>
-            </div>
-
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-4">
-              <div class="flex items-center justify-between gap-3">
-                <dt class="text-xs font-bold text-loomera-textMuted">توضیحات مجموعه</dt>
-                <span class="rounded-full border border-loomera-borderSoft bg-white px-3 py-1 text-[11px] font-black text-loomera-textMuted">{{ salon_profile_workspace.description_length }} کاراکتر</span>
-              </div>
-              <dd class="mt-2 text-sm leading-7 text-loomera-textSecondary">{{ salon_profile_workspace.description_label }}</dd>
-            </div>
-          </dl>
-        </div>
-      </details>
-    </div>
-
-    <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-      <details id="salon-profile-section-trust" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" open data-dashboard-workspace-panel>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">اعتماد مشتری</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">نظرات، تصاویر و ویژگی‌ها</h2>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-          </span>
-        </summary>
-
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="grid gap-3 sm:grid-cols-3">
-            <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-              <span class="text-xs font-bold text-loomera-textMuted">میانگین امتیاز</span>
-              <strong class="mt-3 block text-xl font-black text-loomera-textPrimary">{{ salon_profile_workspace.avg_score_label|default:"—" }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">از {{ salon.reviews_count|default:"0" }} نظر</p>
-            </article>
-
-            <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-              <span class="text-xs font-bold text-loomera-textMuted">تصاویر گالری</span>
-              <strong class="mt-3 block text-xl font-black text-loomera-textPrimary">{{ salon_profile_workspace.gallery_count|default:"0" }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">فضا و نمونه کار واقعی</p>
-            </article>
-
-            <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-              <span class="text-xs font-bold text-loomera-textMuted">ویژگی‌ها</span>
-              <strong class="mt-3 block text-xl font-black text-loomera-textPrimary">{{ salon_profile_workspace.features_count|default:"0" }}</strong>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">مزیت‌های قابل نمایش</p>
-            </article>
-          </div>
-
-          <div class="mt-4 rounded-[24px] border border-loomera-primary/15 bg-loomera-primarySoft/45 p-4">
-            <div class="flex items-start gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">پیشنهاد عملیاتی</h3>
-                <p class="mt-2 text-xs leading-6 text-loomera-textSecondary">اگر گالری یا ویژگی‌ها کم هستند، قبل از تبلیغ صفحه عمومی چند تصویر واقعی، امکانات مجموعه و توضیح کوتاه قابل اعتماد اضافه کن.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </details>
-
-      <details id="salon-profile-section-actions" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" open data-dashboard-workspace-panel>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">میان‌برهای ویرایش</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مسیرهای اصلی پروفایل</h2>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-          </span>
-        </summary>
-
-        <div class="p-4 sm:p-5 lg:p-6">
-
-          <div class="grid gap-3 sm:grid-cols-2" data-profile-action-list>
-            <a href="{{ step1_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card" data-profile-action-card data-profile-action-search-value="اطلاعات پایه نام آدرس تلفن منطقه محله">
-              <div class="flex items-start justify-between gap-3">
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-pen" aria-hidden="true"></i></span>
-                <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">پایه</span>
-              </div>
-              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">اطلاعات پایه مجموعه</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">نام، تلفن، محدوده و آدرس صفحه عمومی را اصلاح کن.</p>
-            </a>
-
-            <a href="{{ step6_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card" data-profile-action-card data-profile-action-search-value="گالری تصویر عکس نمونه کار">
-              <div class="flex items-start justify-between gap-3">
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-regular fa-images" aria-hidden="true"></i></span>
-                <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">محتوا</span>
-              </div>
-              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">گالری و تصاویر</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">تصاویر فضا، نمونه کار و اعتماد بصری صفحه را کامل کن.</p>
-            </a>
-
-            <a href="{{ step7_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card" data-profile-action-card data-profile-action-search-value="ویژگی امکانات مزیت مجموعه">
-              <div class="flex items-start justify-between gap-3">
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></span>
-                <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">اعتماد</span>
-              </div>
-              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">ویژگی‌های مجموعه</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">امکانات، مزیت‌ها و تفاوت‌های مجموعه را در صفحه عمومی نمایش بده.</p>
-            </a>
-
-            <a href="{{ step8_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card" data-profile-action-card data-profile-action-search-value="توضیحات درباره مجموعه متن معرفی">
-              <div class="flex items-start justify-between gap-3">
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></span>
-                <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">معرفی</span>
-              </div>
-              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">توضیحات و معرفی</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">متن معرفی مجموعه را کوتاه، قابل اعتماد و مشتری‌پسند نگه دار.</p>
-            </a>
-
-            <a href="{{ service_menu_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card" data-profile-action-card data-profile-action-search-value="خدمات منوی خدمات قیمت مدت زمان">
-              <div class="flex items-start justify-between gap-3">
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-scissors" aria-hidden="true"></i></span>
-                <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">کاتالوگ</span>
-              </div>
-              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">منوی خدمات</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">خدمات فعال، قیمت و مدت زمان را برای رزرو عمومی آماده کن.</p>
-            </a>
-
-            <a href="{{ team_member_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card" data-profile-action-card data-profile-action-search-value="تیم متخصصان اعضا متخصص">
-              <div class="flex items-start justify-between gap-3">
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-user-group" aria-hidden="true"></i></span>
-                <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">تیم</span>
-              </div>
-              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">اعضای تیم</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">پوشش خدمات توسط متخصصان را برای رزرو آنلاین کنترل کن.</p>
-            </a>
-
-            <a href="{{ payout_settings_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card" data-profile-action-card data-profile-action-search-value="مالی قوانین لغو پرداخت کیف پول تسویه">
-              <div class="flex items-start justify-between gap-3">
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
-                <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">مالی</span>
-              </div>
-              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">مالی و قوانین لغو</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">تنظیمات مالی، تسویه و سیاست‌های مربوط به رزرو را بررسی کن.</p>
-            </a>
-          </div>
-
-          <div class="mt-4 hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted" data-profile-action-empty>
-            مسیری با این جستجو پیدا نشد.
-          </div>
-        </div>
-      </details>
     </div>
   </section>
-{% endblock %}
 
-{% block js %}
-  {{ block.super }}
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const setButtonState = (buttons, activeButton) => {
-        buttons.forEach((button) => {
-          const active = button === activeButton;
-          button.classList.toggle("border-loomera-primary/20", active);
-          button.classList.toggle("bg-loomera-primarySoft", active);
-          button.classList.toggle("text-loomera-primaryText", active);
-          button.classList.toggle("border-loomera-borderSoft", !active);
-          button.classList.toggle("bg-white", !active);
-          button.classList.toggle("text-loomera-textSecondary", !active);
-          button.setAttribute("aria-pressed", active ? "true" : "false");
-        });
-      };
+  <div class="lm-task-tabs-anchor"
+       data-lm-task-tabs-anchor="salon-profile"
+       data-lm-task-tabs-label="بخش‌های پروفایل مجموعه"
+       aria-label="بخش‌های پروفایل مجموعه"></div>
 
-      const readinessCards = Array.from(document.querySelectorAll("[data-profile-readiness-card]"));
-      const readinessButtons = Array.from(document.querySelectorAll("[data-profile-readiness-filter]"));
-      const readinessEmpty = document.querySelector("[data-profile-readiness-empty]");
+  <section id="salon-booking-setup"
+           class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+           data-dashboard-workspace-panel
+           data-lm-direct-section
+           data-lm-task-panel="salon-profile"
+           data-lm-task-key="booking-setup"
+           data-lm-task-label="شروع دریافت نوبت"
+           data-lm-task-default
+           data-lm-task-order="1">
+    <header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p class="text-[11px] font-black text-loomera-primaryText">راه‌اندازی رزرو</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">
+            {% if salon_profile_workspace.booking_setup_complete %}
+              مجموعه آماده دریافت نوبت است
+            {% else %}
+              سه قدم تا دریافت اولین نوبت
+            {% endif %}
+          </h2>
+          <p class="mt-2 max-w-3xl text-xs leading-6 text-loomera-textMuted">
+            صفحه مجموعه {% if salon.is_active %}همین حالا فعال است{% else %}بعد از انتشار قابل مشاهده است{% endif %}.
+            برای اینکه مشتری بتواند زمان رزرو انتخاب کند، فقط یک خدمت، یک عضو متصل به خدمت و برنامه کاری همان عضو لازم است.
+          </p>
+        </div>
+        <span class="inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-black {% if salon_profile_workspace.booking_setup_complete %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">
+          <i class="fa-solid {% if salon_profile_workspace.booking_setup_complete %}fa-circle-check{% else %}fa-list-check{% endif %} text-[10px]" aria-hidden="true"></i>
+          {{ salon_profile_workspace.booking_setup_completed_count_label }} از {{ salon_profile_workspace.booking_setup_total_count_label }} انجام شده
+        </span>
+      </div>
+    </header>
 
-      readinessButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          const filter = button.dataset.profileReadinessFilter || "all";
-          let visibleCount = 0;
+    <div class="grid gap-3 p-4 sm:p-5 lg:grid-cols-3 lg:p-6">
+      {% for item in salon_profile_workspace.booking_setup_items %}
+        <article class="flex min-w-0 flex-col rounded-[24px] border {% if item.is_done %}border-loomera-success/20 bg-loomera-successSoft/20{% else %}border-loomera-borderSoft bg-white{% endif %} p-4 sm:p-5">
+          <div class="flex items-start justify-between gap-3">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl {% if item.is_done %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">
+              <i class="{{ item.icon }}" aria-hidden="true"></i>
+            </span>
+            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-black {% if item.is_done %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
+              <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>
+              {% if item.is_done %}انجام شده{% else %}مرحله بعد{% endif %}
+            </span>
+          </div>
 
-          readinessCards.forEach((card) => {
-            const visible = filter === "all" || card.dataset.profileReadinessStatus === filter;
-            card.classList.toggle("hidden", !visible);
-            if (visible) visibleCount += 1;
-          });
+          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary sm:text-base">{{ item.title }}</h3>
+          <p class="mt-2 flex-1 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
 
-          readinessEmpty?.classList.toggle("hidden", visibleCount !== 0);
-          setButtonState(readinessButtons, button);
-          window.LoomeraDashboardWorkspace?.refreshAll?.();
-        });
-      });
+          {% if item.is_done %}
+            <a href="{{ item.url }}"
+               class="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:text-loomera-primaryText">
+              مدیریت
+              <i class="fa-solid fa-arrow-left-long text-[10px]" aria-hidden="true"></i>
+            </a>
+          {% else %}
+            <a href="{{ item.url }}"
+               class="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-3 py-2 text-xs font-black text-white">
+              {{ item.action_label }}
+              <i class="fa-solid fa-arrow-left-long text-[10px]" aria-hidden="true"></i>
+            </a>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
 
-      const actionSearch = document.querySelector("[data-profile-action-search]");
-      const actionCards = Array.from(document.querySelectorAll("[data-profile-action-card]"));
-      const actionEmpty = document.querySelector("[data-profile-action-empty]");
+    {% if salon_profile_workspace.booking_setup_complete %}
+      <div class="border-t border-loomera-borderSoft bg-loomera-successSoft/25 px-4 py-4 sm:px-5 lg:px-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <strong class="text-sm font-black text-loomera-success">مسیر دریافت نوبت آماده است</strong>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">حالا صفحه مجموعه را از نگاه مشتری باز کن و یک رزرو آزمایشی انجام بده.</p>
+          </div>
+          {% if salon.is_active %}
+            <a href="{{ salon_profile_workspace.customer_preview_url }}" target="_blank" rel="noopener"
+               class="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2 text-xs font-black text-white">
+              مشاهده صفحه مجموعه
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]" aria-hidden="true"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </section>
 
-      const applyActionSearch = () => {
-        const query = (actionSearch?.value || "").trim().toLowerCase();
-        let visibleCount = 0;
+  <section id="salon-profile-manage"
+           class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+           data-dashboard-workspace-panel
+           data-lm-direct-section
+           data-lm-task-panel="salon-profile"
+           data-lm-task-key="manage"
+           data-lm-task-label="ویرایش پروفایل"
+           data-lm-task-order="2">
+    <header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+      <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات قابل ویرایش</p>
+      <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">هر بخش از صفحه عمومی را از همین‌جا پیدا کن</h2>
+      <p class="mt-2 max-w-3xl text-xs leading-6 text-loomera-textMuted">اطلاعات عمومی مجموعه را اینجا ویرایش کن؛ مسیر خدمت، عضو تیم و برنامه کاری در بخش «شروع دریافت نوبت» همین صفحه همیشه جلوی دسترس است.</p>
+    </header>
 
-        actionCards.forEach((card) => {
-          const haystack = (card.dataset.profileActionSearchValue || card.textContent || "").toLowerCase();
-          const visible = !query || haystack.includes(query);
-          card.classList.toggle("hidden", !visible);
-          if (visible) visibleCount += 1;
-        });
+    <div class="grid gap-3 p-4 sm:grid-cols-2 sm:p-5 lg:p-6 xl:grid-cols-3">
+      {% for item in profile_items %}
+        <article class="flex min-w-0 flex-col rounded-[24px] border border-loomera-borderSoft bg-white p-4 transition hover:border-loomera-primary/20 hover:shadow-lm-soft sm:p-5">
+          <div class="flex items-start justify-between gap-3">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="{{ item.icon }}" aria-hidden="true"></i>
+            </span>
+            <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-black {% if item.is_ready %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
+              <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>
+              {% if item.is_ready %}تکمیل شده{% else %}نیازمند تکمیل{% endif %}
+            </span>
+          </div>
 
-        actionEmpty?.classList.toggle("hidden", visibleCount !== 0);
-        window.LoomeraDashboardWorkspace?.refreshAll?.();
-      };
+          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary sm:text-base">{{ item.title }}</h3>
+          <p class="mt-2 min-h-12 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
+          <p class="mt-3 truncate rounded-2xl bg-loomera-bgSubtle/75 px-3 py-2.5 text-xs font-black text-loomera-textSecondary" title="{{ item.meta }}">{{ item.meta }}</p>
 
-      actionSearch?.addEventListener("input", applyActionSearch);
-      applyActionSearch();
-    });
-  </script>
+          <a href="{{ item.url }}"
+             class="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/40">
+            {{ item.cta_label }}
+            <i class="fa-solid fa-arrow-left-long text-[10px]" aria-hidden="true"></i>
+          </a>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section id="salon-profile-public-page"
+           class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+           data-dashboard-workspace-panel
+           data-lm-direct-section
+           data-lm-task-panel="salon-profile"
+           data-lm-task-key="public"
+           data-lm-task-label="صفحه عمومی"
+           data-lm-task-order="3">
+    <header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+      <p class="text-[11px] font-black text-loomera-primaryText">از نگاه مشتری</p>
+      <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت صفحه عمومی مجموعه</h2>
+      <p class="mt-2 text-xs leading-6 text-loomera-textMuted">اینجا فقط وضعیت انتشار، بازخورد مشتری و موارد باقی‌مانده برای بهتر شدن صفحه را می‌بینی.</p>
+    </header>
+
+    <div class="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:p-6">
+      <div class="space-y-4">
+        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4 sm:p-5">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-black {% if salon.is_active %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
+                <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+                {% if salon.is_active %}منتشر شده{% else %}منتشر نشده{% endif %}
+              </span>
+              <h3 class="mt-3 text-base font-black text-loomera-textPrimary">صفحه مشتری {{ salon_profile_workspace.page_title }}</h3>
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">
+                {% if salon.is_active %}
+                  صفحه مجموعه منتشر شده است. آماده‌سازی خدمت، عضو و برنامه کاری فقط قابلیت دریافت نوبت را تکمیل می‌کند و انتشار صفحه را محدود نمی‌کند.
+                {% elif salon_profile_workspace.activation_prerequisites_met %}
+                  اطلاعات اولیه کامل است؛ صفحه مجموعه را منتشر کن. برای دریافت نوبت می‌توانی بعداً خدمت، عضو و برنامه کاری را تکمیل کنی.
+                {% else %}
+                  اطلاعات اولیه پروفایل را کامل کن تا صفحه مجموعه قابل انتشار شود.
+                {% endif %}
+              </p>
+            </div>
+            <div class="flex shrink-0 flex-col gap-2 sm:w-auto">
+              {% if salon.is_active %}
+                <a href="{{ salon_profile_workspace.customer_preview_url }}" target="_blank" rel="noopener"
+                   class="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2 text-xs font-black text-white">
+                  مشاهده صفحه
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[10px]" aria-hidden="true"></i>
+                </a>
+              {% elif salon_profile_workspace.activation_prerequisites_met %}
+                <form method="post" data-salon-public-activation-form>
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="activate_public_page">
+                  <button type="submit" class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2 text-xs font-black text-white">
+                    انتشار صفحه مجموعه
+                    <i class="fa-solid fa-circle-check text-[10px]" aria-hidden="true"></i>
+                  </button>
+                </form>
+              {% elif salon_profile_workspace.next_activation_item %}
+                <a href="{{ salon_profile_workspace.next_activation_item.action_url }}"
+                   class="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2 text-xs font-black text-white">
+                  تکمیل {{ salon_profile_workspace.next_activation_item.title }}
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+              {% endif %}
+              <a href="{{ salon_profile_workspace.online_booking_url }}"
+                 class="inline-flex min-h-10 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText">رزرو آنلاین و لینک‌ها</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 sm:p-5">
+          <p class="text-xs font-black text-loomera-textMuted">بازخورد مشتریان</p>
+          <div class="mt-3 flex items-center gap-4">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-500">
+              <i class="fa-solid fa-star" aria-hidden="true"></i>
+            </span>
+            <div>
+              <strong class="text-2xl font-black text-loomera-textPrimary">{{ salon_profile_workspace.avg_score_label }}</strong>
+              <p class="mt-1 text-xs font-bold text-loomera-textMuted">از {{ salon_profile_workspace.reviews_count_label }} نظر تأییدشده</p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 sm:p-5">
+        {% if incomplete_profile_items %}
+          <div class="flex items-start gap-3">
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-warningSoft text-loomera-warning">
+              <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+            </span>
+            <div>
+              <h3 class="text-sm font-black text-loomera-textPrimary">برای بهتر شدن صفحه</h3>
+              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فقط بخش‌هایی که هنوز کامل نشده‌اند اینجا نمایش داده می‌شوند.</p>
+            </div>
+          </div>
+
+          <div class="mt-4 space-y-2">
+            {% for item in incomplete_profile_items %}
+              <a href="{{ item.url }}" class="flex items-center justify-between gap-3 rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 px-3 py-3 transition hover:border-loomera-primary/20 hover:bg-loomera-primarySoft/25">
+                <div class="min-w-0">
+                  <strong class="block truncate text-xs font-black text-loomera-textPrimary">{{ item.title }}</strong>
+                  <span class="mt-1 block truncate text-[11px] font-bold text-loomera-textMuted">{{ item.meta }}</span>
+                </div>
+                <i class="fa-solid fa-arrow-left text-[10px] text-loomera-primaryText" aria-hidden="true"></i>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="flex h-full min-h-52 flex-col items-center justify-center text-center">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-successSoft text-loomera-success">
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">پروفایل عمومی کامل است</h3>
+            <p class="mt-2 max-w-sm text-xs leading-6 text-loomera-textMuted">همه بخش‌های اصلی صفحه عمومی تکمیل شده‌اند. برای بررسی نهایی صفحه را از نگاه مشتری باز کن.</p>
+          </div>
+        {% endif %}
+      </article>
+    </div>
+  </section>
+</section>
 {% endblock %}

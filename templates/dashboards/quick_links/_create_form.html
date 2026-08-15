@@ -1,45 +1,43 @@
 <section
   id="create-quick-link"
-  class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-primary/15 bg-white shadow-lm-card lg:scroll-mt-36"
+  class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
   data-manager-quick-link-create
 >
-  <div class="border-b border-loomera-borderSoft bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_48%),linear-gradient(180deg,rgba(250,248,255,0.98),rgba(255,255,255,0.96))] px-4 py-5 sm:px-6">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-      <div>
-        <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[11px] font-black text-loomera-primaryText shadow-lm-soft">
-          <i class="fa-solid fa-wand-magic-sparkles text-[10px]" aria-hidden="true"></i>
-          سازنده لینک
+  <header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div class="flex min-w-0 items-start gap-3">
+        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
         </span>
-
-        <h2 class="mt-4 text-xl font-black text-loomera-textPrimary">
-          ساخت لینک رزرو جدید
-        </h2>
-
-        <p class="mt-2 max-w-3xl text-sm leading-7 text-loomera-textSecondary">
-          مسیر ورود مشتری، خدمت و متخصص را مشخص کن و برای هر لیبل، استند یا کمپین یک لینک قابل‌اندازه‌گیری مستقل بساز.
-        </p>
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">ساخت لینک</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">لینک رزرو جدید</h2>
+          <p class="mt-2 max-w-3xl text-xs leading-6 text-loomera-textMuted sm:text-sm sm:leading-7">
+            نوع مسیر و محل استفاده را مشخص کن؛ در لینک‌های زمان‌دار فقط زمان‌های واقعاً آزاد متخصص نمایش داده می‌شود.
+          </p>
+        </div>
       </div>
 
       <span
-        class="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-white px-4 py-2 text-xs font-black text-loomera-primaryText shadow-lm-soft"
+        class="inline-flex min-h-9 shrink-0 items-center justify-center rounded-full bg-loomera-bgSubtle px-3 py-2 text-[11px] font-black text-loomera-textSecondary"
         data-quick-link-readiness-badge
       >
         در حال تکمیل
       </span>
     </div>
 
-    <div class="mt-5 overflow-hidden rounded-full bg-white shadow-inner">
+    <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-loomera-bgSubtle">
       <div
-        class="h-2.5 rounded-full bg-loomera-primary transition-all"
+        class="h-full rounded-full bg-loomera-primary transition-all"
         style="width: 20%"
         data-quick-link-readiness-bar
       ></div>
     </div>
-  </div>
+  </header>
 
   <div class="space-y-5 p-4 sm:p-5 lg:p-6">
     {% if quick_link_create_workspace.errors %}
-      <div class="rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-7 text-rose-700">
+      <div class="rounded-[22px] border border-loomera-danger/20 bg-loomera-dangerSoft px-4 py-3 text-sm leading-7 text-loomera-danger">
         {% for error in quick_link_create_workspace.errors %}
           <p>{{ error }}</p>
         {% endfor %}
@@ -47,13 +45,13 @@
     {% endif %}
 
     {% if quick_link_create_workspace.generated_link %}
-      <section class="rounded-[24px] border border-emerald-200 bg-emerald-50/70 p-4 sm:p-5">
-        <p class="text-xs font-black text-emerald-700">
+      <section class="rounded-[24px] border border-loomera-success/20 bg-loomera-successSoft/55 p-4 sm:p-5">
+        <p class="text-xs font-black text-loomera-success">
           لینک با موفقیت ساخته شد
         </p>
 
         <div
-          class="mt-3 break-all rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-left text-xs leading-6 text-loomera-textSecondary"
+          class="mt-3 break-all rounded-2xl border border-loomera-success/20 bg-white px-4 py-3 text-left text-xs leading-6 text-loomera-textSecondary"
           dir="ltr"
           data-created-quick-link-value
         >{{ quick_link_create_workspace.generated_link }}</div>
@@ -72,7 +70,7 @@
             href="{{ quick_link_create_workspace.generated_link }}"
             target="_blank"
             rel="noopener"
-            class="rounded-full border border-emerald-200 bg-white px-4 py-2.5 text-xs font-black text-emerald-700"
+            class="rounded-full border border-loomera-success/20 bg-white px-4 py-2.5 text-xs font-black text-loomera-success"
           >
             بازکردن لینک
           </a>
@@ -85,6 +83,11 @@
       action="{% url 'dashboards:quick_links' %}"
       class="grid min-w-0 gap-4 lg:grid-cols-2"
       data-quick-link-form
+      data-options-url="{{ quick_link_create_workspace.options_url }}"
+      data-selected-service="{{ quick_link_create_workspace.selected_service }}"
+      data-selected-stylist="{{ quick_link_create_workspace.selected_stylist }}"
+      data-selected-date="{{ quick_link_create_workspace.selected_date_iso }}"
+      data-selected-time="{{ quick_link_create_workspace.selected_time }}"
     >
       {% csrf_token %}
 
@@ -183,55 +186,43 @@
 
       <div data-quick-link-date-wrap>
         <label for="quick-link-date" class="mb-2 block text-sm font-black text-loomera-textPrimary">
-          تاریخ
+          تاریخ آزاد
         </label>
 
-        <input
+        <select
           id="quick-link-date"
-          type="text"
           name="appointment_date"
-          value="{{ quick_link_create_workspace.selected_date_jalali|default:quick_link_create_workspace.default_date_jalali }}"
-          data-jdp
-          data-jdp-only-date="true"
           data-quick-link-date
-          inputmode="numeric"
-          autocomplete="off"
-          placeholder="مثلاً ۱۴۰۵/۰۵/۱۰"
-          class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
+          disabled
+          class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
         >
+          <option value="">ابتدا خدمت و متخصص را انتخاب کن</option>
+        </select>
       </div>
 
       <div data-quick-link-time-wrap>
         <label for="quick-link-time" class="mb-2 block text-sm font-black text-loomera-textPrimary">
-          ساعت
+          ساعت آزاد
         </label>
 
         <select
           id="quick-link-time"
           name="appointment_time"
           data-quick-link-time
-          data-selected-time="{{ quick_link_create_workspace.selected_time }}"
-          data-selected-day-key="{{ quick_link_create_workspace.selected_day_key }}"
-          data-working-times="{{ quick_link_create_workspace.working_times_by_day_json|escape }}"
-          class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
+          disabled
+          class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <option value="">انتخاب ساعت</option>
-
-          {% for item in quick_link_create_workspace.suggested_times %}
-            <option
-              value="{{ item }}"
-              {% if quick_link_create_workspace.selected_time == item %}selected{% endif %}
-            >
-              {{ item }}
-            </option>
-          {% endfor %}
+          <option value="">ابتدا یک تاریخ آزاد را انتخاب کن</option>
         </select>
 
-        <p
-          class="mt-2 hidden text-xs leading-6 text-amber-700"
-          data-quick-link-time-empty
-        >
-          برای تاریخ انتخاب‌شده ساعت کاری فعالی ثبت نشده است.
+        <p class="mt-2 text-xs leading-6 text-loomera-textMuted">
+          فقط روزها و ساعت‌هایی نمایش داده می‌شوند که همین متخصص برای همین خدمت واقعاً قابل رزرو است.
+        </p>
+        <p class="mt-2 hidden text-xs leading-6 text-amber-700" data-quick-link-time-empty>
+          در ۴۵ روز آینده برای این ترکیب زمان آزادی پیدا نشد.
+        </p>
+        <p class="mt-2 hidden text-xs leading-6 text-loomera-textMuted" data-quick-link-loading>
+          در حال بررسی برنامه و نوبت‌های ثبت‌شده…
         </p>
       </div>
 
@@ -282,29 +273,22 @@
         >{{ quick_link_create_workspace.internal_note }}</textarea>
       </div>
 
-      <label class="lg:col-span-2 flex items-start gap-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 px-4 py-4">
-        <input
-          type="checkbox"
-          name="is_permanent"
-          class="mt-0.5 h-5 w-5 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary"
-          {% if quick_link_create_workspace.is_permanent %}checked{% endif %}
-        >
-
-        <span>
-          <span class="block text-sm font-black text-loomera-textPrimary">
-            لینک دائمی
-          </span>
-
-          <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">
-            برای لیبل آینه، استند، کارت نوبت و لینک‌های ثابت شبکه‌های اجتماعی فعال شود.
-          </span>
+      <label class="lm-provider-switch-row lg:col-span-2 flex cursor-pointer items-center justify-between gap-4 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 px-4 py-4">
+        <span class="min-w-0">
+          <span class="block text-sm font-black text-loomera-textPrimary">لینک دائمی</span>
+          <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">برای لیبل آینه، استند، کارت نوبت و لینک‌های ثابت شبکه‌های اجتماعی فعال کن.</span>
+        </span>
+        <span class="flex shrink-0 items-center gap-2">
+          <input type="checkbox" name="is_permanent" class="lm-provider-switch-input sr-only" role="switch" {% if quick_link_create_workspace.is_permanent %}checked{% endif %}>
+          <span class="lm-provider-switch-track" aria-hidden="true"><span class="lm-provider-switch-thumb"></span></span>
+          <span class="lm-provider-switch-state text-xs font-black text-loomera-textMuted"><span class="lm-provider-switch-state-off">موقت</span><span class="lm-provider-switch-state-on text-loomera-primaryText">دائمی</span></span>
         </span>
       </label>
 
       <div class="lg:col-span-2 flex flex-wrap items-center gap-3 border-t border-loomera-borderSoft pt-4">
         <button
           type="submit"
-          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-6 py-3 text-sm font-black text-white shadow-[0_16px_34px_rgba(115,92,190,0.22)] transition hover:-translate-y-0.5"
+          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-2.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover"
         >
           <i class="fa-solid fa-wand-magic-sparkles text-xs" aria-hidden="true"></i>
           ساخت لینک رزرو
@@ -326,222 +310,173 @@
     const form = document.querySelector("[data-quick-link-form]");
     if (!form) return;
 
-    if (typeof jalaliDatepicker !== "undefined") {
-      jalaliDatepicker.startWatch({
-        selector: "[data-jdp]",
-        autoHide: true
-      });
-    }
-
     const modeInput = form.querySelector("[data-quick-link-mode]");
     const serviceInput = form.querySelector("[data-quick-link-service]");
     const stylistInput = form.querySelector("[data-quick-link-stylist]");
     const dateInput = form.querySelector("[data-quick-link-date]");
     const timeInput = form.querySelector("[data-quick-link-time]");
-
     const serviceWrap = form.querySelector("[data-quick-link-service-wrap]");
     const stylistWrap = form.querySelector("[data-quick-link-stylist-wrap]");
     const dateWrap = form.querySelector("[data-quick-link-date-wrap]");
     const timeWrap = form.querySelector("[data-quick-link-time-wrap]");
-
     const timeEmpty = form.querySelector("[data-quick-link-time-empty]");
+    const loadingLabel = form.querySelector("[data-quick-link-loading]");
     const badge = document.querySelector("[data-quick-link-readiness-badge]");
     const bar = document.querySelector("[data-quick-link-readiness-bar]");
     const description = document.querySelector("[data-quick-link-readiness-description]");
 
-    let workingTimesByDay = {};
+    const optionsUrl = form.dataset.optionsUrl || "";
+    const initialSelectedStylist = form.dataset.selectedStylist || "";
+    const initialSelectedDate = form.dataset.selectedDate || "";
+    const initialSelectedTime = form.dataset.selectedTime || "";
+    const allStylists = Array.from(stylistInput?.options || []).slice(1).map((option) => ({
+      id: option.value,
+      name: option.textContent
+    }));
 
-    try {
-      workingTimesByDay = JSON.parse(
-        timeInput?.dataset.workingTimes || "{}"
-      );
-    } catch (_error) {
-      workingTimesByDay = {};
-    }
-
-    const toEnglishDigits = (value) => String(value || "")
-      .replace(/[۰-۹]/g, (character) => "۰۱۲۳۴۵۶۷۸۹".indexOf(character))
-      .replace(/[٠-٩]/g, (character) => "٠١٢٣٤٥٦٧٨٩".indexOf(character))
-      .replace(/-/g, "/");
-
-    const getDayKeyFromJalali = (value) => {
-      const normalized = toEnglishDigits(value).trim();
-      const match = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-
-      if (
-        !match
-        || !window.JalaliDate
-        || typeof window.JalaliDate.jalaliToGregorian !== "function"
-      ) {
-        return timeInput?.dataset.selectedDayKey || "";
-      }
-
-      const year = Number(match[1]);
-      const month = Number(match[2]);
-      const day = Number(match[3]);
-
-      const gregorian = window.JalaliDate.jalaliToGregorian(
-        year,
-        month,
-        day
-      );
-
-      const jsDate = new Date(
-        gregorian[0],
-        gregorian[1] - 1,
-        gregorian[2]
-      );
-
-      return String(
-        ((jsDate.getDay() + 1) % 7) + 1
-      );
-    };
-
-    const renderTimeOptions = () => {
-      if (!timeInput) return;
-
-      const dayKey = getDayKeyFromJalali(
-        dateInput?.value
-      );
-
-      const options = workingTimesByDay[dayKey] || [];
-
-      const selected = (
-        timeInput.value
-        || timeInput.dataset.selectedTime
-        || ""
-      );
-
-      timeInput.innerHTML =
-        '<option value="">انتخاب ساعت</option>';
-
-      options.forEach((timeValue) => {
-        const option = document.createElement("option");
-
-        option.value = timeValue;
-        option.textContent = timeValue;
-        option.selected = timeValue === selected;
-
-        timeInput.appendChild(option);
-      });
-
-      timeEmpty?.classList.toggle(
-        "hidden",
-        options.length !== 0
-      );
-    };
+    let availabilityByDate = new Map();
+    let requestSerial = 0;
 
     const modeRequirements = {
-      salon: {
-        service: false,
-        stylist: false,
-        datetime: false
-      },
-      service: {
-        service: true,
-        stylist: false,
-        datetime: false
-      },
-      stylist: {
-        service: false,
-        stylist: true,
-        datetime: false
-      },
-      service_stylist: {
-        service: true,
-        stylist: true,
-        datetime: false
-      },
-      service_stylist_time: {
-        service: true,
-        stylist: true,
-        datetime: true
+      salon: { service: false, stylist: false, datetime: false },
+      service: { service: true, stylist: false, datetime: false },
+      stylist: { service: false, stylist: true, datetime: false },
+      service_stylist: { service: true, stylist: true, datetime: false },
+      service_stylist_time: { service: true, stylist: true, datetime: true }
+    };
+
+    const setSelectPlaceholder = (select, label, disabled = true) => {
+      if (!select) return;
+      select.innerHTML = "";
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = label;
+      select.appendChild(option);
+      select.disabled = disabled;
+    };
+
+    const populateStylists = (items, selectedValue = "") => {
+      if (!stylistInput) return;
+      setSelectPlaceholder(
+        stylistInput,
+        items.length ? "انتخاب متخصص" : "متخصصی برای این خدمت ثبت نشده",
+        false
+      );
+      items.forEach((item) => {
+        const option = document.createElement("option");
+        option.value = String(item.id);
+        option.textContent = item.name;
+        if (String(item.id) === String(selectedValue)) option.selected = true;
+        stylistInput.appendChild(option);
+      });
+    };
+
+    const renderTimes = (selectedValue = "") => {
+      const dateValue = dateInput?.value || "";
+      const times = availabilityByDate.get(dateValue) || [];
+      setSelectPlaceholder(
+        timeInput,
+        dateValue
+          ? (times.length ? "انتخاب ساعت آزاد" : "برای این روز ساعت آزادی نیست")
+          : "ابتدا یک تاریخ آزاد را انتخاب کن",
+        !dateValue || !times.length
+      );
+      times.forEach((timeValue) => {
+        const option = document.createElement("option");
+        option.value = timeValue;
+        option.textContent = timeValue;
+        if (timeValue === selectedValue) option.selected = true;
+        timeInput.appendChild(option);
+      });
+    };
+
+    const renderAvailability = (days, selectedDate = "", selectedTime = "", showEmpty = true) => {
+      availabilityByDate = new Map();
+      setSelectPlaceholder(
+        dateInput,
+        days.length ? "انتخاب تاریخ آزاد" : "در ۴۵ روز آینده زمان آزادی نیست",
+        !days.length
+      );
+      days.forEach((day) => {
+        availabilityByDate.set(day.value, Array.isArray(day.times) ? day.times : []);
+        const option = document.createElement("option");
+        option.value = day.value;
+        option.textContent = day.label;
+        if (day.value === selectedDate) option.selected = true;
+        dateInput.appendChild(option);
+      });
+      if (selectedDate && availabilityByDate.has(selectedDate)) {
+        dateInput.value = selectedDate;
+      }
+      timeEmpty?.classList.toggle("hidden", !showEmpty || days.length !== 0);
+      renderTimes(selectedTime);
+    };
+
+    const fetchOptions = async ({ includeAvailability = false, preserveInitial = false } = {}) => {
+      const serviceId = serviceInput?.value || "";
+      const stylistId = stylistInput?.value || "";
+
+      if (!optionsUrl || !serviceId) {
+        renderAvailability([], "", "", false);
+        return;
+      }
+
+      const serial = ++requestSerial;
+      loadingLabel?.classList.remove("hidden");
+
+      try {
+        const url = new URL(optionsUrl, window.location.origin);
+        url.searchParams.set("service_id", serviceId);
+        if (includeAvailability && stylistId) {
+          url.searchParams.set("stylist_id", stylistId);
+        }
+
+        const response = await fetch(url.toString(), {
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+          credentials: "same-origin"
+        });
+        const data = await response.json();
+        if (serial !== requestSerial) return;
+        if (!response.ok) throw new Error(data.error || "دریافت گزینه‌های رزرو ممکن نشد.");
+
+        const wantedStylist = preserveInitial ? initialSelectedStylist : stylistId;
+        populateStylists(data.stylists || [], wantedStylist);
+
+        if (includeAvailability) {
+          renderAvailability(
+            data.availability || [],
+            preserveInitial ? initialSelectedDate : "",
+            preserveInitial ? initialSelectedTime : ""
+          );
+        } else {
+          renderAvailability([], "", "", false);
+        }
+      } catch (error) {
+        if (serial !== requestSerial) return;
+        renderAvailability([], "", "", false);
+        timeEmpty?.classList.remove("hidden");
+        if (timeEmpty) {
+          timeEmpty.textContent = error.message || "بررسی زمان‌های آزاد ممکن نشد.";
+        }
+      } finally {
+        if (serial === requestSerial) loadingLabel?.classList.add("hidden");
       }
     };
 
-    const updateForm = () => {
-      const mode = modeInput?.value || "service";
-
-      const requirements = (
-        modeRequirements[mode]
-        || modeRequirements.service
-      );
-
-      serviceWrap?.classList.toggle(
-        "hidden",
-        !requirements.service
-      );
-
-      stylistWrap?.classList.toggle(
-        "hidden",
-        !requirements.stylist
-      );
-
-      dateWrap?.classList.toggle(
-        "hidden",
-        !requirements.datetime
-      );
-
-      timeWrap?.classList.toggle(
-        "hidden",
-        !requirements.datetime
-      );
-
-      if (serviceInput) {
-        serviceInput.required = requirements.service;
-      }
-
-      if (stylistInput) {
-        stylistInput.required = requirements.stylist;
-      }
-
-      if (dateInput) {
-        dateInput.required = requirements.datetime;
-      }
-
-      if (timeInput) {
-        timeInput.required = requirements.datetime;
-      }
-
+    const updateProgress = () => {
+      const requirements = modeRequirements[modeInput?.value || "service"] || modeRequirements.service;
       const requiredInputs = [];
+      if (requirements.service) requiredInputs.push(serviceInput);
+      if (requirements.stylist) requiredInputs.push(stylistInput);
+      if (requirements.datetime) requiredInputs.push(dateInput, timeInput);
 
-      if (requirements.service) {
-        requiredInputs.push(serviceInput);
-      }
-
-      if (requirements.stylist) {
-        requiredInputs.push(stylistInput);
-      }
-
-      if (requirements.datetime) {
-        requiredInputs.push(dateInput, timeInput);
-      }
-
-      const completeCount = requiredInputs.filter(
-        (input) => Boolean(input?.value)
-      ).length;
-
+      const completeCount = requiredInputs.filter((input) => Boolean(input?.value)).length;
       const totalCount = requiredInputs.length;
-
-      const percentage = totalCount === 0
-        ? 100
-        : Math.round(
-            (completeCount / totalCount) * 100
-          );
-
+      const percentage = totalCount === 0 ? 100 : Math.round((completeCount / totalCount) * 100);
       const ready = percentage >= 100;
 
-      if (badge) {
-        badge.textContent = ready
-          ? "آماده ساخت"
-          : `${completeCount} از ${totalCount}`;
-      }
-
-      if (bar) {
-        bar.style.width =
-          `${Math.max(percentage, 12)}%`;
-      }
-
+      if (badge) badge.textContent = ready ? "آماده ساخت" : `${completeCount} از ${totalCount}`;
+      if (bar) bar.style.width = `${Math.max(percentage, 12)}%`;
       if (description) {
         description.textContent = ready
           ? "اطلاعات لازم کامل است و لینک قابل ساخت است."
@@ -549,37 +484,61 @@
       }
     };
 
-    modeInput?.addEventListener(
-      "change",
-      updateForm
-    );
+    const updateMode = async ({ preserveInitial = false } = {}) => {
+      const mode = modeInput?.value || "service";
+      const requirements = modeRequirements[mode] || modeRequirements.service;
 
-    [
-      serviceInput,
-      stylistInput,
-      dateInput,
-      timeInput
-    ].forEach((input) => {
-      input?.addEventListener(
-        "change",
-        updateForm
-      );
+      serviceWrap?.classList.toggle("hidden", !requirements.service);
+      stylistWrap?.classList.toggle("hidden", !requirements.stylist);
+      dateWrap?.classList.toggle("hidden", !requirements.datetime);
+      timeWrap?.classList.toggle("hidden", !requirements.datetime);
 
-      input?.addEventListener(
-        "input",
-        updateForm
-      );
+      if (serviceInput) serviceInput.required = requirements.service;
+      if (stylistInput) stylistInput.required = requirements.stylist;
+      if (dateInput) dateInput.required = requirements.datetime;
+      if (timeInput) timeInput.required = requirements.datetime;
+
+      if (mode === "stylist") {
+        populateStylists(allStylists, preserveInitial ? initialSelectedStylist : stylistInput?.value || "");
+        renderAvailability([], "", "", false);
+      } else if (mode === "service_stylist" || mode === "service_stylist_time") {
+        await fetchOptions({
+          includeAvailability: mode === "service_stylist_time" && Boolean(stylistInput?.value),
+          preserveInitial
+        });
+        if (mode === "service_stylist_time" && stylistInput?.value && !availabilityByDate.size) {
+          await fetchOptions({ includeAvailability: true, preserveInitial });
+        }
+      } else {
+        renderAvailability([], "", "", false);
+      }
+
+      updateProgress();
+    };
+
+    modeInput?.addEventListener("change", () => updateMode());
+
+    serviceInput?.addEventListener("change", async () => {
+      if (["service_stylist", "service_stylist_time"].includes(modeInput?.value || "")) {
+        populateStylists([], "");
+        await fetchOptions({ includeAvailability: false });
+      }
+      updateProgress();
     });
 
-    dateInput?.addEventListener(
-      "change",
-      function () {
-        renderTimeOptions();
-        updateForm();
+    stylistInput?.addEventListener("change", async () => {
+      if ((modeInput?.value || "") === "service_stylist_time") {
+        await fetchOptions({ includeAvailability: Boolean(stylistInput.value) });
       }
-    );
+      updateProgress();
+    });
 
-    renderTimeOptions();
-    updateForm();
+    dateInput?.addEventListener("change", () => {
+      renderTimes();
+      updateProgress();
+    });
+    timeInput?.addEventListener("change", updateProgress);
+
+    updateMode({ preserveInitial: true });
   });
 </script>

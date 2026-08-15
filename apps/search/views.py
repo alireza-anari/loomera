@@ -475,7 +475,7 @@ class FilterCustomersView(LoginRequiredMixin, View):
 
             return JsonResponse({"customers": customers_data})
 
-        return redirect("dashboards:salons_customers")
+        return redirect("dashboards:salons_customers_page")
 
 
 # ---------------------------------------------------------------------------
@@ -770,6 +770,9 @@ def _extract_reverse_geocode_address(payload):
         extra_blocked_values.extend([str(zone_number), f"منطقه {zone_number}"])
     if zone_label:
         extra_blocked_values.append(zone_label)
+    plaque = _extract_reverse_geocode_plaque(payload)
+    if plaque:
+        extra_blocked_values.append(plaque)
 
     if isinstance(compound, dict):
         detail_parts = []
@@ -781,8 +784,6 @@ def _extract_reverse_geocode_address(payload):
             "secondary",
             "last",
             "alley",
-            "plaque",
-            "house_number",
         ]:
             value = compound.get(key)
             if isinstance(value, str) and value.strip():
@@ -857,6 +858,18 @@ def _walk_reverse_payload_values(payload, wanted_keys):
                 yield from walk(item)
 
     yield from walk(payload)
+
+
+
+def _extract_reverse_geocode_plaque(payload):
+    if not isinstance(payload, dict):
+        return ""
+    for value in _walk_reverse_payload_values(
+        payload,
+        ["plaque", "house_number", "houseNumber", "building_number"],
+    ):
+        return value
+    return ""
 
 
 def _extract_reverse_geocode_neighborhood(payload):
@@ -956,6 +969,7 @@ def reverse_geocode_proxy(request):
         address = _extract_reverse_geocode_address(payload)
         zone, zone_label = _extract_reverse_geocode_zone(payload)
         neighborhood = _extract_reverse_geocode_neighborhood(payload)
+        plaque = _extract_reverse_geocode_plaque(payload)
 
         return JsonResponse(
             {
@@ -964,6 +978,7 @@ def reverse_geocode_proxy(request):
                 "zone": zone,
                 "zone_label": zone_label,
                 "neighborhood": neighborhood,
+                "plaque": plaque,
             },
             json_dumps_params={"ensure_ascii": False},
         )

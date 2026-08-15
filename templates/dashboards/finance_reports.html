@@ -1,641 +1,181 @@
 {% extends "dashboard_template.html" %}
-{% load jalali_filters jalali_extras %}
 
-{% block title %}گزارش مالی و تطبیق{% endblock %}
+{% block title %}گزارش تراکنش‌ها{% endblock %}
 
 {% block content %}
-<section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-page="finance-reports" data-dashboard-workspace-root>
-  <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="finance-reports-title">
-    <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.94),rgba(255,255,255,0))]" aria-hidden="true"></div>
-
-    <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
-      <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
-        <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div class="min-w-0">
-            <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-              <i class="fa-solid fa-chart-line text-[10px]" aria-hidden="true"></i>
-              <span class="truncate">فروش، کیف پول و تطبیق مالی</span>
-            </span>
-
-            <h1 id="finance-reports-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-              گزارش مالی و تطبیق اسناد
-            </h1>
-            <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-              فروش دیجیتال، پرداخت در مجموعه، تخفیف‌ها، بازگشت وجه، گردش کیف پول و اختلاف اسناد تسویه را در یک نمای عملیاتی بررسی کن.
-            </p>
-          </div>
-
-          <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
-            <i class="fa-solid fa-file-invoice-dollar text-lg" aria-hidden="true"></i>
-          </span>
-        </div>
-
-        <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-3">
-          <a href="{% url 'dashboards:payout_settings' %}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-            <i class="fa-solid fa-wallet text-xs" aria-hidden="true"></i>
-            <span class="truncate">کیف پول و برداشت</span>
-          </a>
-          <a href="{{ export_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-            <i class="fa-solid fa-file-csv text-xs text-loomera-primaryText" aria-hidden="true"></i>
-            <span class="truncate">خروجی CSV</span>
-          </a>
-          <a href="{% url 'dashboards:finance_reports' %}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-            <i class="fa-solid fa-rotate-left text-xs text-loomera-primaryText" aria-hidden="true"></i>
-            <span class="truncate">بازنشانی گزارش</span>
-          </a>
+<section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-workspace-root data-dashboard-page="finance-transactions">
+  <section class="relative overflow-hidden rounded-[32px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6 lg:p-7">
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.14),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
+    <div class="relative flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div class="min-w-0">
+        <span class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">پول مجموعه</span>
+        <h1 class="mt-4 text-2xl font-black text-loomera-textPrimary sm:text-3xl lg:text-4xl">گزارش تراکنش‌ها</h1>
+        <p class="mt-2 max-w-3xl text-sm leading-7 text-loomera-textSecondary">اگر می‌خواهی ببینی پول از کجا وارد یا خارج شده، با چه روشی پرداخت شده یا کدام سند نیاز به بررسی دارد، از این صفحه استفاده کن.</p>
+        <div class="mt-3 flex flex-wrap items-center gap-2 text-xs font-bold text-loomera-textMuted">
+          <span class="rounded-full border border-loomera-borderSoft bg-white px-3 py-1.5">{{ report_period_label }}</span>
+          {% if active_filter_count %}<span class="rounded-full bg-loomera-primarySoft px-3 py-1.5 text-loomera-primaryText">{{ active_filter_count }} فیلتر فعال</span>{% endif %}
         </div>
       </div>
-
-      <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس مالی">
-        <div class="flex min-w-0 items-center justify-between gap-3">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-white/55">فوکوس فعلی</p>
-            <h2 class="mt-1 truncate text-lg font-black">سلامت گزارش مالی</h2>
-          </div>
-          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-            <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
-          </span>
-        </div>
-
-        <div class="mt-5 grid gap-3">
-          <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-            <p class="text-xs font-bold text-white/65">کل سفارش‌های بازه</p>
-            <strong class="mt-2 block text-2xl font-black text-white">{{ kpis.total_orders }}</strong>
-            <p class="mt-2 text-xs leading-6 text-white/72">{{ kpis.digital_orders }} دیجیتال، {{ kpis.manual_orders }} پرداخت در مجموعه</p>
-          </article>
-          <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-            <p class="text-xs font-bold text-white/65">موجودی قابل برداشت</p>
-            <strong class="mt-2 block text-xl font-black text-white">{{ kpis.wallet_available }}</strong>
-            <p class="mt-2 text-xs leading-6 text-white/72">برای برداشت مستقیم از کیف پول مجموعه</p>
-          </article>
-          <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-            <p class="text-xs font-bold text-white/65">هشدارهای فعال</p>
-            <strong class="mt-2 block text-xl font-black text-white">{{ finance_alerts|length }}</strong>
-            <p class="mt-2 text-xs leading-6 text-white/72">موارد نیازمند بررسی قبل از تسویه</p>
-          </article>
-        </div>
-      </aside>
+      <div class="flex shrink-0 flex-wrap gap-2">
+        <button type="button" class="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2.5 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft" data-finance-filter-open>
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+          فیلتر
+          {% if active_filter_count %}<span class="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-loomera-primary px-1.5 text-[9px] text-white">{{ active_filter_count }}</span>{% endif %}
+        </button>
+        <a href="{{ export_url }}" class="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2.5 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          خروجی Excel
+        </a>
+      </div>
     </div>
   </section>
 
-  <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-    <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های گزارش مالی">
-      <div class="flex min-w-max items-center gap-2">
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="#finance-section-overview">
-          <i class="fa-solid fa-gauge-high text-[10px]" aria-hidden="true"></i>
-          <span>نمای کلی</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>{{ summary_cards|length }}</span>
-        </button>
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#finance-section-filters">
-          <i class="fa-solid fa-filter text-[10px]" aria-hidden="true"></i>
-          <span>فیلترها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۴</span>
-        </button>
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#finance-section-wallet">
-          <i class="fa-solid fa-wallet text-[10px]" aria-hidden="true"></i>
-          <span>کیف پول</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ wallet_transactions|length }}</span>
-        </button>
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#finance-section-campaigns">
-          <i class="fa-solid fa-ticket text-[10px]" aria-hidden="true"></i>
-          <span>تخفیف‌ها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ campaign_cards|length }}</span>
-        </button>
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#finance-section-reconciliation">
-          <i class="fa-solid fa-scale-balanced text-[10px]" aria-hidden="true"></i>
-          <span>تطبیق</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ reconciliation_rows|length }}</span>
-        </button>
-        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="#finance-section-paths">
-          <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
-          <span>مسیرها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>۴</span>
-        </button>
-      </div>
-    </nav>
-  </div>
+  {% include "dashboards/partials/finance/workspace_nav.html" with active="money" %}
 
-  <details id="finance-section-overview" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع مالی</p>
-        <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">شاخص‌ها، خلاصه بازه و هشدارها</h2>
-      </div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
+  <section class="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3" aria-label="خلاصه گزارش تراکنش‌ها">
+    {% for card in transaction_summary_cards %}
+      <article class="min-w-0 rounded-[22px] border border-loomera-borderSoft bg-white/95 p-3.5 shadow-lm-soft sm:p-4">
+        <p class="truncate text-[10px] font-black text-loomera-textMuted sm:text-[11px]">{{ card.label }}</p>
+        <p class="mt-2 text-sm font-black sm:text-lg {% if card.tone == 'danger' %}text-rose-700{% elif card.tone == 'success' %}text-loomera-success{% elif card.tone == 'warning' %}text-loomera-warning{% else %}text-loomera-textPrimary{% endif %}">{{ card.value }}</p>
+        <p class="mt-1 hidden text-[10px] leading-5 text-loomera-textMuted sm:block">{{ card.hint }}</p>
+      </article>
+    {% endfor %}
+  </section>
 
-    <div class="min-w-0 max-w-full space-y-5 p-4 sm:p-5 lg:p-6">
-      <section class="rounded-[30px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 sm:p-5" aria-labelledby="finance-readiness-title">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">آمادگی گزارش برای تصمیم‌گیری</p>
-            <h3 id="finance-readiness-title" class="mt-1 text-lg font-black text-loomera-textPrimary">چک‌لیست عملیاتی مالی</h3>
-            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">اگر هشدارهای تطبیق یا برداشت‌های معلق زیاد است، قبل از تسویه جزئیات را بررسی کن.</p>
-          </div>
-          <a href="{{ export_url }}" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-primary/15 bg-white px-4 py-2 text-xs font-black text-loomera-primaryText transition hover:-translate-y-0.5 hover:bg-loomera-primarySoft">
-            <i class="fa-solid fa-download text-[11px]" aria-hidden="true"></i>
-            <span>دریافت خروجی همین بازه</span>
-          </a>
-        </div>
+  <div data-lm-task-tabs-anchor="finance-reports" data-lm-task-tabs-label="بخش‌های گزارش تراکنش‌ها"></div>
 
-        <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-            <div class="flex items-center justify-between gap-3"><span class="text-xs font-bold text-loomera-textMuted">سفارش‌های دیجیتال</span><span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-credit-card" aria-hidden="true"></i></span></div>
-            <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ kpis.digital_orders }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">منبع اصلی گردش کیف پول آنلاین</p>
-          </article>
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-            <div class="flex items-center justify-between gap-3"><span class="text-xs font-bold text-loomera-textMuted">پرداخت در مجموعه</span><span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-bgSubtle text-loomera-textSecondary"><i class="fa-solid fa-cash-register" aria-hidden="true"></i></span></div>
-            <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ kpis.manual_orders }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای کنترل بدهی کمیسیون پلتفرم مهم است</p>
-          </article>
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-            <div class="flex items-center justify-between gap-3"><span class="text-xs font-bold text-loomera-textMuted">در انتظار تسویه</span><span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-warningSoft text-loomera-warning"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span></div>
-            <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ kpis.wallet_pending }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">مبلغی که هنوز قابل برداشت نشده است</p>
-          </article>
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-            <div class="flex items-center justify-between gap-3"><span class="text-xs font-bold text-loomera-textMuted">هشدار تطبیق</span><span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span></div>
-            <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ finance_alerts|length }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">موارد نیازمند بازبینی مالی</p>
-          </article>
-        </div>
-      </section>
-
-      <div class="grid min-w-0 grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-3">
-        {% for card in summary_cards %}
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:shadow-lm-card sm:rounded-[26px] sm:p-4">
-            <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">{{ card.label }}</p>
-            <strong class="mt-2 block text-base font-black {% if card.tone == 'danger' %}text-rose-700{% elif card.tone == 'success' %}text-loomera-success{% else %}text-loomera-textPrimary{% endif %} sm:mt-3 sm:text-lg">{{ card.value }}</strong>
-          </article>
-        {% empty %}
-          <div class="col-span-2 rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted xl:col-span-3">برای این بازه کارت خلاصه‌ای ثبت نشده است.</div>
-        {% endfor %}
+  <section id="finance-section-wallet" class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="finance-reports" data-lm-task-key="wallet" data-lm-task-label="گردش موجودی" data-lm-task-default data-lm-task-order="1">
+    <header data-lm-direct-section-header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+      <p class="text-[11px] font-black text-loomera-primaryText">ورود و خروج پول</p>
+      <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">چه چیزی موجودی مجموعه را تغییر داده؟</h2>
+      <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فروش، آزادشدن درآمد، بازپرداخت و درخواست برداشت را به ترتیب زمان مرور کن.</p>
+    </header>
+    <div class="grid gap-5 p-4 sm:p-5 lg:grid-cols-[minmax(0,.62fr)_minmax(0,1.38fr)] lg:p-6">
+      <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-3 lg:grid-cols-1">
+        <article class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-3.5"><p class="text-[10px] font-bold text-loomera-textMuted">وارد انتظار تسویه</p><p class="mt-1.5 text-sm font-black text-loomera-textPrimary">{{ wallet_summary.sales_pending|floatformat:0 }} تومان</p></article>
+        <article class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-3.5"><p class="text-[10px] font-bold text-loomera-textMuted">آزادشده برای برداشت</p><p class="mt-1.5 text-sm font-black text-loomera-success">{{ wallet_summary.released_to_available|floatformat:0 }} تومان</p></article>
+        <article class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-3.5"><p class="text-[10px] font-bold text-loomera-textMuted">برداشت در انتظار</p><p class="mt-1.5 text-sm font-black text-loomera-textPrimary">{{ withdrawal_summary.pending_amount|floatformat:0 }} تومان</p></article>
       </div>
 
-      <div class="grid gap-4 xl:grid-cols-[1.05fr,0.95fr]">
-        <article class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-          <div class="flex items-center justify-between gap-3">
-            <div class="min-w-0">
-              <h3 class="text-base font-black text-loomera-textPrimary">خلاصه بازه</h3>
-              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">تعداد سفارش‌ها و وضعیت فعلی کیف پول مجموعه</p>
-            </div>
-            <span class="rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText">نمای کلی</span>
-          </div>
-          <div class="mt-4 grid gap-3 sm:grid-cols-2">
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">کل سفارش‌ها</p><p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ kpis.total_orders }}</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">سفارش دیجیتال</p><p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ kpis.digital_orders }}</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">پرداخت در مجموعه</p><p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ kpis.manual_orders }}</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">در انتظار تسویه</p><p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ kpis.wallet_pending }}</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 sm:col-span-2"><p class="text-xs font-semibold text-loomera-textMuted">موجودی قابل برداشت فعلی</p><p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ kpis.wallet_available }}</p></div>
-          </div>
-        </article>
-
-        <article class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-          <div class="flex items-center justify-between gap-3">
-            <div class="min-w-0">
-              <h3 class="text-base font-black text-loomera-textPrimary">هشدارهای تطبیق مالی</h3>
-              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">مواردی که باید قبل از تسویه بررسی شوند</p>
-            </div>
-            <span class="rounded-full bg-loomera-warningSoft px-3 py-1 text-[11px] font-black text-loomera-warning">هشدارها</span>
-          </div>
-          <div class="mt-4 space-y-3">
-            {% for item in finance_alerts %}
-              <div class="rounded-[22px] border border-loomera-warning/20 bg-loomera-warningSoft p-4 text-sm leading-7 text-loomera-warning">{{ item }}</div>
-            {% empty %}
-              <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 p-5 text-center text-sm leading-7 text-loomera-textMuted">در این بازه هشدار فوری برای تطبیق مالی وجود ندارد.</div>
-            {% endfor %}
-          </div>
-        </article>
-      </div>
-    </div>
-  </details>
-
-  <details id="finance-section-filters" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">فیلتر گزارش</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">بازه زمانی، روش پرداخت و وضعیت تسویه</h2></div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
-    <div class="p-4 sm:p-5 lg:p-6">
-      <form method="get" class="grid gap-4 md:grid-cols-2 xl:grid-cols-5 xl:items-end" role="search" aria-label="فیلتر گزارش مالی">
-        <label class="block min-w-0">
-          <span class="mb-2 block text-sm font-black text-loomera-textPrimary">از تاریخ</span>
-          <input type="text" name="start_date" value="{{ filters.start_date }}" data-jdp inputmode="numeric" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-        </label>
-        <label class="block min-w-0">
-          <span class="mb-2 block text-sm font-black text-loomera-textPrimary">تا تاریخ</span>
-          <input type="text" name="end_date" value="{{ filters.end_date }}" data-jdp inputmode="numeric" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-        </label>
-        <label class="block min-w-0">
-          <span class="mb-2 block text-sm font-black text-loomera-textPrimary">روش پرداخت</span>
-          <select name="payment_method" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-            {% for value, label in payment_method_options %}
-              <option value="{{ value }}" {% if filters.payment_method == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-        </label>
-        <label class="block min-w-0">
-          <span class="mb-2 block text-sm font-black text-loomera-textPrimary">وضعیت تسویه</span>
-          <select name="payout_state" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-            {% for value, label in payout_state_options %}
-              <option value="{{ value }}" {% if filters.payout_state == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-        </label>
-        <div class="flex flex-wrap gap-3">
-          <button type="submit" class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:opacity-95 sm:flex-none">
-            <i class="fa-solid fa-filter text-xs" aria-hidden="true"></i><span>اعمال فیلتر</span>
-          </button>
-          <a href="{% url 'dashboards:finance_reports' %}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/35">
-            <i class="fa-solid fa-rotate-left text-xs" aria-hidden="true"></i><span>بازنشانی</span>
-          </a>
-        </div>
-      </form>
-    </div>
-  </details>
-
-  <details id="finance-section-wallet" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">کیف پول و برداشت</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">گردش کیف پول، برداشت‌ها و تراکنش‌های اخیر</h2></div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
-    <div class="space-y-5 p-4 sm:p-5 lg:p-6">
-      <div class="grid gap-4 xl:grid-cols-[1fr,1fr]">
-        <article class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-          <div class="flex items-center justify-between gap-3"><div><h3 class="text-base font-black text-loomera-textPrimary">گردش کیف پول مالی</h3><p class="mt-1 text-xs leading-6 text-loomera-textMuted">جمع تغییرات مهم کیف پول مجموعه در همین بازه</p></div><span class="rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText">جریان کیف پول</span></div>
-          <div class="mt-4 grid gap-3 sm:grid-cols-2">
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">ورود فروش آنلاین</p><p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ wallet_summary.sales_pending|floatformat:0 }} تومان</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">آزادشده برای برداشت</p><p class="mt-2 text-lg font-black text-loomera-success">{{ wallet_summary.released_to_available|floatformat:0 }} تومان</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">کسر بابت بازپرداخت</p><p class="mt-2 text-lg font-black text-rose-700">{{ wallet_summary.refund_debits|floatformat:0 }} تومان</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">درخواست برداشت ثبت‌شده</p><p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ wallet_summary.withdraw_requests|floatformat:0 }} تومان</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 sm:col-span-2"><p class="text-xs font-semibold text-loomera-textMuted">برگشت از برداشت‌های ردشده</p><p class="mt-2 text-lg font-black text-loomera-primaryText">{{ wallet_summary.withdraw_restores|floatformat:0 }} تومان</p></div>
-          </div>
-        </article>
-
-        <article class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-          <div class="flex items-center justify-between gap-3"><div><h3 class="text-base font-black text-loomera-textPrimary">خلاصه برداشت‌ها</h3><p class="mt-1 text-xs leading-6 text-loomera-textMuted">وضعیت درخواست‌های برداشت مجموعه در بازه انتخاب‌شده</p></div><span class="rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText">برداشت‌ها</span></div>
-          <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">تعداد کل</p><p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ withdrawal_summary.total }}</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">در انتظار بررسی</p><p class="mt-2 text-lg font-black text-loomera-warning">{{ withdrawal_summary.pending }}</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">رد/لغو شده</p><p class="mt-2 text-lg font-black text-rose-700">{{ withdrawal_summary.rejected }}</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">مبلغ در انتظار</p><p class="mt-2 text-lg font-black text-loomera-textPrimary">{{ withdrawal_summary.pending_amount|floatformat:0 }} تومان</p></div>
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4"><p class="text-xs font-semibold text-loomera-textMuted">مبلغ تأییدشده</p><p class="mt-2 text-lg font-black text-loomera-success">{{ withdrawal_summary.approved_amount|floatformat:0 }} تومان</p></div>
-          </div>
-        </article>
-      </div>
-
-      <article class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-        <div class="flex items-center justify-between gap-3"><div><h3 class="text-base font-black text-loomera-textPrimary">آخرین تراکنش‌های کیف پول</h3><p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای بررسی سریع رخدادهای مالی مرتبط با مجموعه</p></div><span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[11px] font-black text-loomera-textMuted">{{ wallet_transactions|length }} مورد</span></div>
-        <div class="mt-4 grid gap-3 lg:grid-cols-2">
-          {% for tx in wallet_transactions|slice:":8" %}
-            <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0"><p class="text-sm font-black text-loomera-textPrimary">{{ tx.get_transaction_type_display }}</p><p class="mt-1 text-xs text-loomera-textMuted">{{ tx.created_at|jalali }}، ساعت {{ tx.created_at|time:"H:i" }}{% if tx.order %} • {{ tx.order.order_number }}{% endif %}</p></div>
-                <div class="shrink-0 text-left text-xs leading-6 text-loomera-textMuted"><p>در انتظار: {% if tx.pending_delta > 0 %}+{% endif %}{{ tx.pending_delta }}</p><p>قابل برداشت: {% if tx.available_delta > 0 %}+{% endif %}{{ tx.available_delta }}</p></div>
+      <div class="space-y-2.5">
+        {% for row in wallet_transaction_rows %}
+          <article class="rounded-[20px] border border-loomera-borderSoft bg-white p-3.5 transition hover:border-loomera-primary/20 hover:shadow-lm-soft">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <strong class="block truncate text-xs font-black text-loomera-textPrimary">{{ row.transaction_type_label }}</strong>
+                <span class="mt-1 block text-[10px] text-loomera-textMuted">{{ row.created_label }}{% if row.order_number %} • سفارش {{ row.order_number }}{% endif %}</span>
               </div>
-              {% if tx.description %}<p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ tx.description }}</p>{% endif %}
-            </article>
-          {% empty %}
-            <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 p-6 text-center text-sm text-loomera-textMuted lg:col-span-2">در این بازه تراکنشی ثبت نشده است.</div>
-          {% endfor %}
-        </div>
-      </article>
-    </div>
-  </details>
-
-  <details id="finance-section-campaigns" class="group min-w-0 max-w-full scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">کمپین‌ها و تخفیف‌ها</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">عملکرد کدهای تخفیف و سبدهای تخفیف</h2></div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
-    <div class="space-y-5 p-4 sm:p-5 lg:p-6">
-      <div class="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {% for card in campaign_cards %}
-          <article class="min-w-0 overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white p-5 shadow-lm-soft">
-            <p class="text-xs font-semibold text-loomera-textMuted">{{ card.label }}</p>
-            <p class="mt-3 text-lg font-black {% if card.tone == 'success' %}text-loomera-success{% else %}text-loomera-textPrimary{% endif %}">{{ card.value }}</p>
+              <div class="shrink-0 text-left text-[10px] leading-5">
+                {% if row.pending_delta %}<div class="text-loomera-textSecondary">در انتظار: <strong>{{ row.pending_delta|floatformat:0 }}</strong></div>{% endif %}
+                {% if row.available_delta %}<div class="text-loomera-textSecondary">قابل برداشت: <strong>{{ row.available_delta|floatformat:0 }}</strong></div>{% endif %}
+              </div>
+            </div>
+            {% if row.description %}<p class="mt-2 border-t border-loomera-borderSoft pt-2 text-[11px] leading-5 text-loomera-textMuted">{{ row.description }}</p>{% endif %}
           </article>
         {% empty %}
-          <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted sm:col-span-2 xl:col-span-4">در این بازه داده‌ای از کمپین‌ها ثبت نشده است.</div>
+          <div class="rounded-[20px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/40 p-6 text-center"><p class="text-sm font-black text-loomera-textPrimary">تغییری در موجودی ثبت نشده</p><p class="mt-1 text-xs leading-6 text-loomera-textMuted">در بازه انتخاب‌شده هیچ تراکنش کیف پولی وجود ندارد.</p></div>
         {% endfor %}
       </div>
-
-      <div class="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <article class="min-w-0 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-          <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div class="min-w-0">
-              <h3 class="text-base font-black text-loomera-textPrimary">عملکرد کدهای تخفیف</h3>
-              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">اثر هر کد روی رزروها، مبلغ تخفیف و نرخ موفقیت</p>
-            </div>
-            <a href="{% url 'dashboards:finance_coupons' %}" class="inline-flex w-full justify-center rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/40 sm:w-auto">مدیریت کدها</a>
-          </div>
-
-          <div class="mt-4 space-y-3 md:hidden">
-            {% for row in coupon_performance %}
-              <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-                <div class="flex min-w-0 items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <p class="truncate text-sm font-black text-loomera-textPrimary" dir="ltr">{{ row.coupon_code }}</p>
-                    <p class="mt-1 text-xs text-loomera-textMuted">استفاده: {{ row.uses }} • لغو: {{ row.cancelled }}</p>
-                  </div>
-                  <span class="shrink-0 rounded-full px-3 py-1 text-xs font-black {% if row.success_rate >= 70 %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
-                    {{ row.success_rate }}٪
-                  </span>
-                </div>
-
-                <dl class="mt-4 grid grid-cols-2 gap-3 text-xs">
-                  <div class="rounded-2xl bg-white p-3">
-                    <dt class="font-bold text-loomera-textMuted">تخفیف</dt>
-                    <dd class="mt-1 break-words font-black text-rose-700">{{ row.discount_total|floatformat:0 }} تومان</dd>
-                  </div>
-                  <div class="rounded-2xl bg-white p-3">
-                    <dt class="font-bold text-loomera-textMuted">فروش</dt>
-                    <dd class="mt-1 break-words font-black text-loomera-textPrimary">{{ row.sales|floatformat:0 }} تومان</dd>
-                  </div>
-                </dl>
-              </article>
-            {% empty %}
-              <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted">در این بازه استفاده‌ای از کدهای تخفیف ثبت نشده است.</div>
-            {% endfor %}
-          </div>
-
-          <div class="mt-4 hidden max-w-full overflow-x-auto rounded-[22px] border border-loomera-borderSoft md:block" tabindex="0" aria-label="جدول عملکرد کدهای تخفیف">
-            <table class="min-w-[760px] text-sm">
-              <thead>
-                <tr class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/80 text-right text-xs font-black text-loomera-textMuted">
-                  <th class="px-3 py-3">کد</th>
-                  <th class="px-3 py-3">استفاده</th>
-                  <th class="px-3 py-3">تخفیف</th>
-                  <th class="px-3 py-3">فروش</th>
-                  <th class="px-3 py-3">لغو</th>
-                  <th class="px-3 py-3">موفقیت</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for row in coupon_performance %}
-                  <tr class="border-b border-loomera-borderSoft last:border-b-0">
-                    <td class="px-3 py-3 font-black text-loomera-textPrimary" dir="ltr">{{ row.coupon_code }}</td>
-                    <td class="px-3 py-3 text-loomera-textSecondary">{{ row.uses }}</td>
-                    <td class="px-3 py-3 text-loomera-textSecondary">{{ row.discount_total|floatformat:0 }} تومان</td>
-                    <td class="px-3 py-3 text-loomera-textSecondary">{{ row.sales|floatformat:0 }} تومان</td>
-                    <td class="px-3 py-3 text-loomera-textSecondary">{{ row.cancelled }}</td>
-                    <td class="px-3 py-3 {% if row.success_rate >= 70 %}text-loomera-success{% else %}text-loomera-warning{% endif %} font-black">{{ row.success_rate }}٪</td>
-                  </tr>
-                {% empty %}
-                  <tr><td colspan="6" class="px-3 py-8 text-center text-sm text-loomera-textMuted">در این بازه استفاده‌ای از کدهای تخفیف ثبت نشده است.</td></tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </article>
-
-        <article class="min-w-0 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-          <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div class="min-w-0">
-              <h3 class="text-base font-black text-loomera-textPrimary">عملکرد سبدهای تخفیف</h3>
-              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">تأثیر کمپین‌های تخفیف خدمات روی فروش و پایداری رزروها</p>
-            </div>
-            <a href="{% url 'dashboards:finance_baskets' %}" class="inline-flex w-full justify-center rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/40 sm:w-auto">مدیریت سبدها</a>
-          </div>
-
-          <div class="mt-4 space-y-3 md:hidden">
-            {% for row in basket_performance %}
-              <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-                <div class="flex min-w-0 items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <p class="truncate text-sm font-black text-loomera-textPrimary">{{ row.basket_discount_title }}</p>
-                    <p class="mt-1 text-xs text-loomera-textMuted">استفاده: {{ row.uses }} • لغو: {{ row.cancelled }}</p>
-                  </div>
-                  <span class="shrink-0 rounded-full px-3 py-1 text-xs font-black {% if row.success_rate >= 70 %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
-                    {{ row.success_rate }}٪
-                  </span>
-                </div>
-
-                <dl class="mt-4 grid grid-cols-2 gap-3 text-xs">
-                  <div class="rounded-2xl bg-white p-3">
-                    <dt class="font-bold text-loomera-textMuted">تخفیف</dt>
-                    <dd class="mt-1 break-words font-black text-rose-700">{{ row.discount_total|floatformat:0 }} تومان</dd>
-                  </div>
-                  <div class="rounded-2xl bg-white p-3">
-                    <dt class="font-bold text-loomera-textMuted">فروش</dt>
-                    <dd class="mt-1 break-words font-black text-loomera-textPrimary">{{ row.sales|floatformat:0 }} تومان</dd>
-                  </div>
-                </dl>
-              </article>
-            {% empty %}
-              <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted">در این بازه استفاده‌ای از سبدهای تخفیف ثبت نشده است.</div>
-            {% endfor %}
-          </div>
-
-          <div class="mt-4 hidden max-w-full overflow-x-auto rounded-[22px] border border-loomera-borderSoft md:block" tabindex="0" aria-label="جدول عملکرد سبدهای تخفیف">
-            <table class="min-w-[760px] text-sm">
-              <thead>
-                <tr class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/80 text-right text-xs font-black text-loomera-textMuted">
-                  <th class="px-3 py-3">عنوان</th>
-                  <th class="px-3 py-3">استفاده</th>
-                  <th class="px-3 py-3">تخفیف</th>
-                  <th class="px-3 py-3">فروش</th>
-                  <th class="px-3 py-3">لغو</th>
-                  <th class="px-3 py-3">موفقیت</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for row in basket_performance %}
-                  <tr class="border-b border-loomera-borderSoft last:border-b-0">
-                    <td class="px-3 py-3 font-black text-loomera-textPrimary">{{ row.basket_discount_title }}</td>
-                    <td class="px-3 py-3 text-loomera-textSecondary">{{ row.uses }}</td>
-                    <td class="px-3 py-3 text-loomera-textSecondary">{{ row.discount_total|floatformat:0 }} تومان</td>
-                    <td class="px-3 py-3 text-loomera-textSecondary">{{ row.sales|floatformat:0 }} تومان</td>
-                    <td class="px-3 py-3 text-loomera-textSecondary">{{ row.cancelled }}</td>
-                    <td class="px-3 py-3 {% if row.success_rate >= 70 %}text-loomera-success{% else %}text-loomera-warning{% endif %} font-black">{{ row.success_rate }}٪</td>
-                  </tr>
-                {% empty %}
-                  <tr><td colspan="6" class="px-3 py-8 text-center text-sm text-loomera-textMuted">در این بازه استفاده‌ای از سبدهای تخفیف ثبت نشده است.</td></tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </article>
-      </div>
     </div>
-  </details>
+  </section>
 
-  <details id="finance-section-reconciliation" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">تطبیق و روش‌های پرداخت</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">تفکیک پرداخت‌ها و کنترل اختلاف اسناد</h2></div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
-    <div class="space-y-5 p-4 sm:p-5 lg:p-6">
-      <article class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-        <div class="flex items-center justify-between gap-3"><div><h3 class="text-base font-black text-loomera-textPrimary">تفکیک روش پرداخت</h3><p class="mt-1 text-xs leading-6 text-loomera-textMuted">اثر هر روش پرداخت روی فروش، refund و سهم نهایی مجموعه</p></div><span class="rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText">{{ payment_breakdown|length }} روش</span></div>
-        <div class="mt-4 overflow-x-auto rounded-[22px] border border-loomera-borderSoft">
-          <table class="min-w-full text-sm">
-            <thead><tr class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/80 text-right text-xs font-black text-loomera-textMuted"><th class="px-3 py-3">روش پرداخت</th><th class="px-3 py-3">تعداد</th><th class="px-3 py-3">مبلغ پرداخت</th><th class="px-3 py-3">بازگشت وجه</th><th class="px-3 py-3">خالص سهم مجموعه</th></tr></thead>
-            <tbody>
-              {% for row in payment_breakdown %}
-                <tr class="border-b border-loomera-borderSoft last:border-b-0"><td class="px-3 py-3 font-black text-loomera-textPrimary">{{ row.label }}</td><td class="px-3 py-3 text-loomera-textSecondary">{{ row.count }}</td><td class="px-3 py-3 text-loomera-textSecondary">{{ row.paid|floatformat:0 }} تومان</td><td class="px-3 py-3 text-loomera-textSecondary">{{ row.refunds|floatformat:0 }} تومان</td><td class="px-3 py-3 text-loomera-textSecondary">{{ row.net_due|floatformat:0 }} تومان</td></tr>
-              {% empty %}
-                <tr><td colspan="5" class="px-3 py-8 text-center text-sm text-loomera-textMuted">در این بازه داده مالی ثبت نشده است.</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </article>
-
-      <article class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div class="min-w-0"><h3 class="text-base font-black text-loomera-textPrimary">جدول تطبیق اسناد و کیف پول</h3><p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای هر رزرو دیجیتال، مبلغ مورد انتظار سند تسویه با اثر واقعی آن در کیف پول مقایسه می‌شود.</p></div>
-          <div class="flex min-w-0 flex-col gap-3 lg:min-w-[28rem]">
-            <label class="relative block min-w-0"><span class="sr-only">جستجوی تطبیق مالی</span><i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i><input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="جستجو با شماره سفارش یا وضعیت" data-finance-reconcile-search></label>
-            <div class="flex gap-2 overflow-x-auto pb-1" aria-label="فیلتر سریع تطبیق مالی">
-              <button type="button" class="shrink-0 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-finance-reconcile-filter="all">همه</button>
-              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-finance-reconcile-filter="mismatch">دارای اختلاف</button>
-              <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-finance-reconcile-filter="ok">بدون اختلاف</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-4 overflow-x-auto rounded-[22px] border border-loomera-borderSoft">
-          <table class="min-w-full text-sm">
-            <thead>
-              <tr class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/80 text-right text-xs font-black text-loomera-textMuted">
-                <th class="px-3 py-3">سفارش</th>
-                <th class="px-3 py-3">روش پرداخت</th>
-                <th class="px-3 py-3">مبلغ خام</th>
-                <th class="px-3 py-3">تخفیف</th>
-                <th class="px-3 py-3">پرداخت مشتری</th>
-                <th class="px-3 py-3">سهم متخصص</th>
-                <th class="px-3 py-3">سهم مجموعه</th>
-                <th class="px-3 py-3">اثر کیف پول مجموعه</th>
-                <th class="px-3 py-3">اختلاف</th>
-                <th class="px-3 py-3">وضعیت</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for row in reconciliation_rows %}
-                <tr class="border-b border-loomera-borderSoft align-top last:border-b-0" data-finance-reconcile-item data-state="{% if row.delta %}mismatch{% else %}ok{% endif %}" data-search-value="{{ row.settlement.order.order_number }} {{ row.settlement.customer.user.mobile_number }} {{ row.payment_method_label }} {{ row.label }} {{ row.note }}">
-                  <td class="px-3 py-4"><p class="font-black text-loomera-textPrimary">{{ row.settlement.order.order_number }}</p><p class="mt-1 text-xs text-loomera-textMuted">{{ row.settlement.created_at|jalali_short }} • {{ row.settlement.customer.user.mobile_number }}</p></td>
-                  <td class="px-3 py-4 text-loomera-textSecondary">{{ row.payment_method_label }}</td>
-
-                  <td class="px-3 py-4 text-loomera-textSecondary">
-                    {{ row.gross_services_amount|floatformat:0 }} تومان
-                  </td>
-
-                  <td class="px-3 py-4 {% if row.discount_amount %}font-black text-rose-700{% else %}text-loomera-textSecondary{% endif %}">
-                    {{ row.discount_amount|floatformat:0 }} تومان
-                  </td>
-
-                  <td class="px-3 py-4 font-black text-loomera-textPrimary">
-                    {{ row.paid_amount|floatformat:0 }} تومان
-                  </td>
-
-                  <td class="px-3 py-4 text-loomera-textSecondary">
-                    {{ row.stylist_share|floatformat:0 }} تومان
-                  </td>
-
-                  <td class="px-3 py-4 text-loomera-textSecondary">
-                    {{ row.salon_share|floatformat:0 }} تومان
-                  </td>
-
-                  <td class="px-3 py-4 text-loomera-textSecondary">
-                    {{ row.actual_wallet_effect|floatformat:0 }} تومان
-                  </td>
-
-                  <td class="px-3 py-4 {% if row.delta %}font-black text-rose-700{% else %}text-loomera-success{% endif %}">
-                    {{ row.delta|floatformat:0 }} تومان
-                  </td>
-
-                  <td class="px-3 py-4">
-                    <span class="rounded-full px-3 py-1 text-xs font-black {{ row.tone }}">{{ row.label }}</span>
-                    <p class="mt-2 max-w-xs text-xs leading-6 text-loomera-textMuted">{{ row.note }}</p>
-                  </td>
-                </tr>
-              {% empty %}
-                <tr><td colspan="10" class="px-3 py-8 text-center text-sm text-loomera-textMuted">در این بازه سندی برای تطبیق وجود ندارد.</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <div class="mt-4 hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted" data-finance-reconcile-empty>سندی با این جستجو یا فیلتر پیدا نشد.</div>
-      </article>
-    </div>
-  </details>
-
-  <details id="finance-section-paths" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">عملیات‌های تکراری مالی</h2></div>
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></span>
-    </summary>
+  <section id="finance-section-payments" class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="finance-reports" data-lm-task-key="payments" data-lm-task-label="روش‌های دریافت" data-lm-task-order="2">
+    <header data-lm-direct-section-header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+      <p class="text-[11px] font-black text-loomera-primaryText">روش پرداخت</p>
+      <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">پول از چه روشی دریافت شده؟</h2>
+      <p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای هر روش، تعداد پرداخت، مبلغ دریافتی، بازپرداخت و سهم نهایی مجموعه را مقایسه کن.</p>
+    </header>
     <div class="p-4 sm:p-5 lg:p-6">
-      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <a href="{% url 'dashboards:payout_settings' %}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card"><span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span><h3 class="mt-4 text-sm font-black text-loomera-textPrimary">کیف پول و برداشت</h3><p class="mt-2 text-xs leading-6 text-loomera-textMuted">تنظیم شبا، درخواست برداشت و اسناد تسویه</p></a>
-        <a href="{% url 'dashboards:finance_coupons' %}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card"><span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-ticket" aria-hidden="true"></i></span><h3 class="mt-4 text-sm font-black text-loomera-textPrimary">کدهای تخفیف</h3><p class="mt-2 text-xs leading-6 text-loomera-textMuted">مدیریت کمپین‌های کد تخفیف و کنترل استفاده</p></a>
-        <a href="{% url 'dashboards:finance_baskets' %}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card"><span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-tags" aria-hidden="true"></i></span><h3 class="mt-4 text-sm font-black text-loomera-textPrimary">سبدهای تخفیف</h3><p class="mt-2 text-xs leading-6 text-loomera-textMuted">ساخت تخفیف خدمات و بررسی اثر آن روی فروش</p></a>
-        <a href="{{ export_url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card"><span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-download" aria-hidden="true"></i></span><h3 class="mt-4 text-sm font-black text-loomera-textPrimary">خروجی گزارش</h3><p class="mt-2 text-xs leading-6 text-loomera-textMuted">دریافت CSV بر اساس فیلترهای فعلی صفحه</p></a>
+      <div class="grid gap-2.5 md:hidden">
+        {% for row in payment_breakdown %}
+          <article class="rounded-[20px] border border-loomera-borderSoft bg-white p-3.5">
+            <div class="flex items-center justify-between gap-3"><strong class="text-sm font-black text-loomera-textPrimary">{{ row.label }}</strong><span class="rounded-full bg-loomera-bgSubtle px-2.5 py-1 text-[10px] font-black text-loomera-textMuted">{{ row.count }} پرداخت</span></div>
+            <dl class="mt-3 grid grid-cols-3 gap-2 border-t border-loomera-borderSoft pt-3 text-center">
+              <div><dt class="text-[9px] text-loomera-textMuted">دریافتی</dt><dd class="mt-1 text-[11px] font-black text-loomera-textPrimary">{{ row.paid|floatformat:0 }}</dd></div>
+              <div><dt class="text-[9px] text-loomera-textMuted">بازپرداخت</dt><dd class="mt-1 text-[11px] font-black text-rose-700">{{ row.refunds|floatformat:0 }}</dd></div>
+              <div><dt class="text-[9px] text-loomera-textMuted">سهم مجموعه</dt><dd class="mt-1 text-[11px] font-black text-loomera-success">{{ row.net_due|floatformat:0 }}</dd></div>
+            </dl>
+          </article>
+        {% empty %}<div class="rounded-[20px] border border-dashed border-loomera-borderSoft p-6 text-center text-sm text-loomera-textMuted">داده‌ای برای این بازه وجود ندارد.</div>{% endfor %}
+      </div>
+
+      <div class="hidden overflow-hidden rounded-[22px] border border-loomera-borderSoft md:block">
+        <table class="min-w-full text-right text-xs">
+          <thead class="bg-loomera-bgSubtle text-loomera-textMuted"><tr><th class="px-4 py-3">روش پرداخت</th><th class="px-4 py-3">تعداد</th><th class="px-4 py-3">دریافتی</th><th class="px-4 py-3">بازپرداخت</th><th class="px-4 py-3">سهم مجموعه</th></tr></thead>
+          <tbody>{% for row in payment_breakdown %}<tr class="border-t border-loomera-borderSoft"><td class="px-4 py-3 font-black text-loomera-textPrimary">{{ row.label }}</td><td class="px-4 py-3">{{ row.count }}</td><td class="px-4 py-3">{{ row.paid|floatformat:0 }} تومان</td><td class="px-4 py-3 text-rose-700">{{ row.refunds|floatformat:0 }} تومان</td><td class="px-4 py-3 font-black text-loomera-success">{{ row.net_due|floatformat:0 }} تومان</td></tr>{% empty %}<tr><td colspan="5" class="px-4 py-8 text-center text-loomera-textMuted">داده‌ای برای این بازه وجود ندارد.</td></tr>{% endfor %}</tbody>
+        </table>
       </div>
     </div>
-  </details>
+  </section>
+
+  <section id="finance-section-reconciliation" class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="finance-reports" data-lm-task-key="reconciliation" data-lm-task-label="نیازمند بررسی" data-lm-task-order="3">
+    <header data-lm-direct-section-header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+      <p class="text-[11px] font-black text-loomera-primaryText">اختلاف‌های مالی</p>
+      <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">کدام سندها نیاز به بررسی دارند؟</h2>
+      <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فقط سندهایی نمایش داده می‌شوند که اختلاف دارند یا در وضعیت نگه‌داری هستند؛ موارد سالم از این لیست حذف شده‌اند.</p>
+    </header>
+    <div class="space-y-2.5 p-4 sm:p-5 lg:p-6">
+      {% for row in reconciliation_attention_rows %}
+        <details class="rounded-[20px] border border-loomera-warning/20 bg-loomera-warningSoft/25 p-3.5">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-3">
+            <span class="min-w-0"><strong class="block truncate text-xs font-black text-loomera-textPrimary">سفارش {{ row.settlement.order.order_number }}</strong><span class="mt-1 block text-[10px] text-loomera-textMuted">{{ row.payment_method_label }} • {{ row.payout_state_label }}</span></span>
+            <span class="rounded-full px-2.5 py-1 text-[10px] font-black {% if row.status == 'mismatch' %}bg-rose-100 text-rose-700{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">{{ row.label }}</span>
+          </summary>
+          <div class="mt-3 grid gap-2 border-t border-loomera-warning/15 pt-3 text-xs sm:grid-cols-3"><div><span class="text-loomera-textMuted">مبلغ مورد انتظار:</span> <strong>{{ row.expected_wallet_effect|floatformat:0 }} تومان</strong></div><div><span class="text-loomera-textMuted">مبلغ ثبت‌شده:</span> <strong>{{ row.actual_wallet_effect|floatformat:0 }} تومان</strong></div><div><span class="text-loomera-textMuted">اختلاف:</span> <strong class="text-rose-700">{{ row.delta|floatformat:0 }} تومان</strong></div></div>
+          {% if row.note %}<p class="mt-3 rounded-2xl bg-white/75 px-3 py-2 text-[11px] leading-6 text-loomera-textSecondary">{{ row.note }}</p>{% endif %}
+        </details>
+      {% empty %}
+        <div class="rounded-[22px] border border-loomera-success/20 bg-loomera-successSoft/45 p-6 text-center"><span class="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-success">✓</span><p class="mt-3 text-sm font-black text-loomera-textPrimary">مورد مشکوکی پیدا نشد</p><p class="mt-1 text-xs leading-6 text-loomera-textMuted">در بازه انتخاب‌شده، اسناد مالی و تغییرات کیف پول با هم هماهنگ هستند.</p></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="fixed inset-0 z-[95] hidden items-end justify-center bg-loomera-textPrimary/45 p-0 backdrop-blur-sm sm:items-center sm:p-4" data-finance-filter-modal aria-hidden="true">
+    <section class="flex max-h-[90dvh] w-full flex-col overflow-hidden rounded-t-[30px] border border-loomera-borderSoft bg-white shadow-lm-elevated sm:max-w-2xl sm:rounded-[30px]" role="dialog" aria-modal="true" aria-labelledby="finance-filter-title">
+      <header class="flex items-start justify-between gap-3 border-b border-loomera-borderSoft px-4 py-4 sm:px-5">
+        <div><p class="text-[11px] font-black text-loomera-primaryText">فیلتر گزارش</p><h2 id="finance-filter-title" class="mt-1 text-lg font-black text-loomera-textPrimary">کدام تراکنش‌ها را می‌خواهی ببینی؟</h2><p class="mt-1 text-xs leading-6 text-loomera-textMuted">بازه زمانی، روش پرداخت یا وضعیت پول را محدود کن.</p></div>
+        <button type="button" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary" data-finance-filter-close aria-label="بستن فیلتر">×</button>
+      </header>
+      <div class="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
+        <form method="get" class="grid gap-4 sm:grid-cols-2">
+          <label><span class="mb-2 block text-xs font-black text-loomera-textPrimary">از تاریخ</span><input name="start_date" value="{{ filters.start_date }}" data-jdp data-jalali-date class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm outline-none focus:border-loomera-primary/30 focus:ring-4 focus:ring-loomera-primary/10"></label>
+          <label><span class="mb-2 block text-xs font-black text-loomera-textPrimary">تا تاریخ</span><input name="end_date" value="{{ filters.end_date }}" data-jdp data-jalali-date class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm outline-none focus:border-loomera-primary/30 focus:ring-4 focus:ring-loomera-primary/10"></label>
+          <label><span class="mb-2 block text-xs font-black text-loomera-textPrimary">روش پرداخت</span><select name="payment_method" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm outline-none focus:border-loomera-primary/30 focus:ring-4 focus:ring-loomera-primary/10">{% for value,label in payment_method_options %}<option value="{{ value }}" {% if filters.payment_method == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+          <label><span class="mb-2 block text-xs font-black text-loomera-textPrimary">وضعیت پول</span><select name="payout_state" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm outline-none focus:border-loomera-primary/30 focus:ring-4 focus:ring-loomera-primary/10">{% for value,label in payout_state_options %}<option value="{{ value }}" {% if filters.payout_state == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+          <div class="flex flex-col-reverse gap-2 border-t border-loomera-borderSoft pt-4 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between"><a href="{{ clear_filters_url }}" class="inline-flex min-h-11 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary">بازگشت به ۳۰ روز اخیر</a><button class="inline-flex min-h-11 items-center justify-center rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white">اعمال فیلتر</button></div>
+        </form>
+      </div>
+    </section>
+  </div>
 </section>
 {% endblock %}
 
 {% block js %}
-  {{ block.super }}
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      if (typeof jalaliDatepicker !== "undefined") {
-        jalaliDatepicker.startWatch({ selector: "[data-jdp]" });
-      }
-
-      const rows = Array.from(document.querySelectorAll("[data-finance-reconcile-item]"));
-      const filterButtons = Array.from(document.querySelectorAll("[data-finance-reconcile-filter]"));
-      const searchInput = document.querySelector("[data-finance-reconcile-search]");
-      const emptyState = document.querySelector("[data-finance-reconcile-empty]");
-      let activeFilter = "all";
-
-      const updateFilterButtons = () => {
-        filterButtons.forEach((button) => {
-          const active = button.dataset.financeReconcileFilter === activeFilter;
-          button.classList.toggle("border-loomera-primary/20", active);
-          button.classList.toggle("bg-loomera-primarySoft", active);
-          button.classList.toggle("text-loomera-primaryText", active);
-          button.classList.toggle("border-loomera-borderSoft", !active);
-          button.classList.toggle("bg-white", !active);
-          button.classList.toggle("text-loomera-textSecondary", !active);
-          button.setAttribute("aria-pressed", active ? "true" : "false");
-        });
-      };
-
-      const applyReconcileFilters = () => {
-        const query = (searchInput?.value || "").trim().toLowerCase();
-        let visibleCount = 0;
-
-        rows.forEach((row) => {
-          const state = row.dataset.state || "ok";
-          const searchValue = (row.dataset.searchValue || row.textContent || "").toLowerCase();
-          const matchesFilter = activeFilter === "all" || state === activeFilter;
-          const matchesQuery = !query || searchValue.includes(query);
-          const visible = matchesFilter && matchesQuery;
-          row.classList.toggle("hidden", !visible);
-          if (visible) visibleCount += 1;
-        });
-
-        emptyState?.classList.toggle("hidden", visibleCount !== 0);
-        updateFilterButtons();
-
-        window.LoomeraDashboardWorkspace?.refresh?.();
-      };
-
-      filterButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          activeFilter = button.dataset.financeReconcileFilter || "all";
-          applyReconcileFilters();
-        });
-      });
-
-      searchInput?.addEventListener("input", applyReconcileFilters);
-      applyReconcileFilters();
-    });
-  </script>
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.querySelector('[data-finance-filter-modal]');
+  const openButton = document.querySelector('[data-finance-filter-open]');
+  const closeButtons = Array.from(document.querySelectorAll('[data-finance-filter-close]'));
+  if (!modal || !openButton) return;
+  const close = () => {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('overflow-hidden');
+    openButton.focus();
+  };
+  const open = () => {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('overflow-hidden');
+    modal.querySelector('input, select, button')?.focus();
+  };
+  openButton.addEventListener('click', open);
+  closeButtons.forEach((button) => button.addEventListener('click', close));
+  modal.addEventListener('click', (event) => { if (event.target === modal) close(); });
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') close(); });
+});
+</script>
 {% endblock %}

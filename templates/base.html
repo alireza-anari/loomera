@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="{% static 'css/loomera-brand.css' %}">
     <link rel="stylesheet" href="{% static 'css/loomera-palette-override.css' %}">
     <link rel="stylesheet" href="{% static 'css/loomera-typography.css' %}">
+    <link rel="stylesheet" href="{% static 'css/loomera-validation.css' %}">
     <link rel="stylesheet" href="{% static 'css/fontawesome/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/jalalidatepicker/jalalidatepicker.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/components/unified_sliders.css' %}">
@@ -27,8 +28,8 @@
     {% block vendor_css %}{% endblock %}
 
     {% block head %}{% endblock %}
-    
-    
+
+
 </head>
 <body class="lm-shell lm-public-customer-shell lm-app-surface antialiased {% block shell_body_class %}{% endblock %} {% block body_class %}{% endblock %}" data-shell="public-customer" {% block body_attrs %}{% endblock %}>
     {% if not hide_navbar %}

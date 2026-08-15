@@ -3,506 +3,197 @@
 
 {% block content %}
   {% url 'dashboards:salon_profile' as salon_profile_url %}
-  {% url 'dashboards:service_menu' as service_menu_url %}
-  {% url 'dashboards:team_member' as team_member_url %}
-  {% url 'dashboards:scheduled_shifts' as scheduled_shifts_url %}
-  {% url 'dashboards:catalog' as catalog_url %}
-  {% url 'dashboards:membership' as membership_url %}
   {% url 'dashboards:quick_links' as quick_links_url %}
-  {% if salon %}
-    {% url 'dashboards:appointment_calendar' salon.id as appointment_calendar_url %}
-  {% endif %}
 
-  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-workspace-root data-dashboard-page="online-booking">
-    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="online-booking-title">
-      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.18),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.96),rgba(255,255,255,0))]" aria-hidden="true"></div>
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-page="online-booking">
+    <header class="relative overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="online-booking-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
 
-      <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.32fr)_minmax(320px,0.68fr)] xl:items-stretch">
-        <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
-          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0">
-              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-                <i class="fa-solid fa-globe text-[10px]" aria-hidden="true"></i>
-                <span class="truncate">رزرو و بازار</span>
-              </span>
-
-              <h1 id="online-booking-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-                {{ online_booking_workspace.page_title|default:"رزرو آنلاین و صفحه عمومی مجموعه" }}
-              </h1>
-              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-                کیفیت پروفایل، خدمات، تیم، ساعات کاری و لینک‌های سریع رزرو را در یک workspace عملیاتی ببین تا صفحه عمومی مجموعه آماده جذب مشتری بماند.
-              </p>
-            </div>
-
-            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
-              <i class="fa-solid fa-bullhorn text-lg" aria-hidden="true"></i>
+      <div class="relative flex min-w-0 flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+              <i class="fa-solid fa-calendar-check text-[10px]" aria-hidden="true"></i>
+              رزرو آنلاین
+            </span>
+            <span class="lm-status-chip inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-black {% if online_booking_workspace.status.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif online_booking_workspace.status.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">
+              <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>
+              {{ online_booking_workspace.status.label }}
             </span>
           </div>
 
-          <div class="mt-6 grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <a href="{{ online_booking_workspace.public_booking_url }}" target="_blank" rel="noopener" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5 hover:shadow-lm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-eye text-xs" aria-hidden="true"></i>
-              <span class="truncate">مشاهده صفحه عمومی</span>
-            </a>
-            <a href="{{ service_menu_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-scissors text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">خدمات</span>
-            </a>
-            <a href="{{ team_member_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-user-group text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">اعضای تیم</span>
-            </a>
-            <a href="{{ scheduled_shifts_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-regular fa-calendar-days text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">شیفت‌ها</span>
-            </a>
-          </div>
+          <h1 id="online-booking-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+            {{ online_booking_workspace.page_title }}
+          </h1>
+          <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
+            {{ online_booking_workspace.status.description }}
+          </p>
         </div>
 
-        <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس رزرو آنلاین">
-          <div class="flex min-w-0 items-center justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-white/55">فوکوس فعلی</p>
-              <h2 class="mt-1 truncate text-lg font-black">اولویت‌های صفحه عمومی</h2>
-            </div>
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-              <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-            </span>
-          </div>
-
-          <div class="mt-5 space-y-3">
-            {% for item in online_booking_workspace.focus_items %}
-              <article class="min-w-0 rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <div class="flex min-w-0 items-start justify-between gap-3">
-                  <h3 class="min-w-0 flex-1 text-sm font-black leading-6 text-white">{{ item.title }}</h3>
-                  <span class="max-w-[42%] shrink-0 truncate rounded-full px-3 py-1 text-[10px] font-black {% if item.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% elif item.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.tone == 'primary' %}bg-loomera-primarySoft text-loomera-primaryText{% else %}bg-white/10 text-white{% endif %}">
-                    {{ item.value }}
-                  </span>
-                </div>
-                <p class="mt-2 text-xs leading-6 text-white/72">{{ item.description }}</p>
-              </article>
-            {% empty %}
-              <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-                <h3 class="text-sm font-black text-white">رزرو آنلاین آماده است</h3>
-                <p class="mt-2 text-xs leading-6 text-white/72">مورد فوری برای پیگیری صفحه عمومی ثبت نشده است.</p>
-              </article>
-            {% endfor %}
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-      <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های رزرو آنلاین">
-        <div class="flex min-w-max items-center gap-2">
-          <button type="button" data-dashboard-workspace-tab data-target="#online-booking-section-overview" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" aria-selected="true">
-            <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
-            <span>نمای کلی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>{{ online_booking_workspace.progress_label }}</span>
-          </button>
-          <button type="button" data-dashboard-workspace-tab data-target="#online-booking-section-readiness" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-list-check text-[10px]" aria-hidden="true"></i>
-            <span>چک‌لیست</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ online_booking_workspace.total_checks }}</span>
-          </button>
-          <button type="button" data-dashboard-workspace-tab data-target="#online-booking-section-public" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-eye text-[10px]" aria-hidden="true"></i>
-            <span>صفحه عمومی</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ online_booking_workspace.dependency_cards|length }}</span>
-          </button>
-          <a href="{{ quick_links_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-link text-[10px]" aria-hidden="true"></i>
-            <span>لینک‌های رزرو</span>
-            <i class="fa-solid fa-arrow-up-left-from-square text-[9px]" aria-hidden="true"></i>
+        <div class="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col">
+          {% if online_booking_workspace.public_is_active %}
+            <a href="{{ online_booking_workspace.public_booking_url }}" target="_blank" rel="noopener"
+               class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5">
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
+              مشاهده صفحه مشتری
+            </a>
+          {% elif online_booking_workspace.readiness.next_action %}
+            <a href="{{ online_booking_workspace.readiness.next_action.action_url }}"
+               class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5">
+              {{ online_booking_workspace.readiness.next_action.action_label }}
+              <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+            </a>
+          {% endif %}
+          <a href="{{ salon_profile_url }}"
+             class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText">
+            <i class="fa-regular fa-pen-to-square text-xs" aria-hidden="true"></i>
+            ویرایش صفحه سالن
           </a>
-          <button type="button" data-dashboard-workspace-tab data-target="#online-booking-section-routes" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-bolt text-[10px]" aria-hidden="true"></i>
-            <span>مسیرها</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ online_booking_workspace.quick_actions|length }}</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <details id="online-booking-section-overview" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">نمای سریع</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت رزرو آنلاین</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="p-4 sm:p-5 lg:p-6">
-        <section class="rounded-[30px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 sm:p-5" aria-labelledby="online-readiness-title">
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-loomera-primaryText">آمادگی صفحه عمومی</p>
-              <h3 id="online-readiness-title" class="mt-1 text-lg font-black text-loomera-textPrimary">{{ online_booking_workspace.progress_label }} حوزه کلیدی آماده است</h3>
-              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">هرچه این چک‌لیست کامل‌تر باشد، مسیر رزرو مشتری شفاف‌تر و قابل‌اعتمادتر می‌شود.</p>
-            </div>
-            <a href="{{ online_booking_workspace.public_booking_url }}" target="_blank" rel="noopener" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-primary/15 bg-white px-4 py-2 text-xs font-black text-loomera-primaryText transition hover:-translate-y-0.5 hover:bg-loomera-primarySoft/50">
-              <i class="fa-solid fa-eye text-[11px]" aria-hidden="true"></i>
-              <span>پیش‌نمایش عمومی</span>
-            </a>
-          </div>
-
-          <div class="mt-5 overflow-hidden rounded-full bg-white shadow-inner">
-            <div class="h-2.5 rounded-full bg-loomera-primary" style="width: {{ online_booking_workspace.readiness_progress }}%"></div>
-          </div>
-          <div class="mt-2 flex items-center justify-between text-[11px] font-black text-loomera-textMuted">
-            <span>۰٪</span>
-            <span>{{ online_booking_workspace.readiness_progress }}٪ تکمیل</span>
-            <span>۱۰۰٪</span>
-          </div>
-        </section>
-
-        <div class="mt-4 grid min-w-0 grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-6">
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">خدمات فعال</p>
-            <strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ online_booking_workspace.services_count }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted">قابل نمایش در رزرو عمومی</p>
-          </article>
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">اعضای تیم</p>
-            <strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ online_booking_workspace.team_count }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted">آماده برای رزرو</p>
-          </article>
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">روزهای کاری</p>
-            <strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ online_booking_workspace.opening_days_count }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted">مبنای زمان‌های رزرو</p>
-          </article>
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">گالری</p>
-            <strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ online_booking_workspace.gallery_count }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted">برای اعتماد مشتری</p>
-          </article>
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">ویژگی‌ها</p>
-            <strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ online_booking_workspace.supplementary_count }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted">تکمیل اعتماد صفحه</p>
-          </article>
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:rounded-[26px] sm:p-4">
-            <p class="truncate text-[11px] font-bold text-loomera-textMuted sm:text-xs">توضیحات</p>
-            <strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ online_booking_workspace.description_length }}</strong>
-            <p class="mt-2 line-clamp-2 text-[11px] leading-5 text-loomera-textMuted">کاراکتر معرفی مجموعه</p>
-          </article>
         </div>
       </div>
-    </details>
+    </header>
 
-    <details id="online-booking-section-readiness" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">چک‌لیست عملیاتی</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">آمادگی رزرو عمومی</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+    <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-5">
+      <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" aria-labelledby="booking-setup-title">
+        <header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+          <div class="flex items-start gap-3">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl {% if online_booking_workspace.readiness.is_ready %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">
+              <i class="fa-solid {% if online_booking_workspace.readiness.is_ready %}fa-circle-check{% else %}fa-list-check{% endif %}" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0">
+              <p class="text-[11px] font-black {% if online_booking_workspace.readiness.is_ready %}text-loomera-success{% else %}text-loomera-primaryText{% endif %}">راه‌اندازی رزرو</p>
+              <h2 id="booking-setup-title" class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">{{ online_booking_workspace.status.title }}</h2>
+              {% if not online_booking_workspace.readiness.is_ready and online_booking_workspace.readiness.next_action %}
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">قدم بعدی: {{ online_booking_workspace.readiness.next_action.title }}</p>
+              {% elif online_booking_workspace.readiness.is_ready %}
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">مسیر مشتری آماده است؛ یک رزرو واقعی آزمایشی انجام بده تا تجربه انتخاب خدمت، متخصص و زمان را بررسی کنی.</p>
+              {% endif %}
+            </div>
+          </div>
+        </header>
 
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="grid gap-3 md:grid-cols-2">
-          {% for item in online_booking_workspace.readiness_items %}
-            <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-card">
-              <div class="flex min-w-0 items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <h3 class="text-sm font-black text-loomera-textPrimary">{{ item.title }}</h3>
-                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
+        {% if not online_booking_workspace.readiness.is_ready %}
+          <div class="p-4 sm:p-5 lg:p-6">
+            <div class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4 sm:p-5">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p class="text-xs font-black text-loomera-textMuted">پیشرفت آماده‌سازی</p>
+                  <div class="mt-1 flex items-baseline gap-2">
+                    <strong class="text-lg font-black text-loomera-textPrimary">{{ online_booking_workspace.readiness.completed_count_label }} از {{ online_booking_workspace.readiness.total_count_label }} مرحله</strong>
+                    <span class="text-xs font-bold text-loomera-textMuted">تکمیل شده</span>
+                  </div>
                 </div>
-                <span class="shrink-0 rounded-full px-3 py-1 text-[11px] font-black {% if item.is_ready %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
-                  {% if item.is_ready %}آماده{% else %}نیازمند تکمیل{% endif %}
-                </span>
+                <strong class="text-2xl font-black text-loomera-primaryText">{{ online_booking_workspace.readiness.percent_label }}</strong>
               </div>
-              <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-loomera-borderSoft bg-white/90 px-3 py-3">
-                <span class="text-[11px] font-bold text-loomera-textMuted">{{ item.meta }}</span>
-                <a href="{{ item.cta_url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/50">
-                  <span>{{ item.cta_label }}</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+
+              <div class="mt-4 h-2 overflow-hidden rounded-full bg-white" aria-label="پیشرفت راه‌اندازی رزرو">
+                <div class="h-full rounded-full bg-loomera-primary transition-all" style="width: {{ online_booking_workspace.readiness.percent }}%"></div>
+              </div>
+            </div>
+
+            {% if online_booking_workspace.readiness.next_action %}
+              <div class="mt-4 flex flex-col gap-3 rounded-[24px] border border-loomera-primary/15 bg-loomera-primarySoft/35 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black text-loomera-primaryText">کار بعدی</p>
+                  <h3 class="mt-1 text-sm font-black text-loomera-textPrimary">{{ online_booking_workspace.readiness.next_action.title }}</h3>
+                </div>
+                <a href="{{ online_booking_workspace.readiness.next_action.action_url }}"
+                   class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                  {{ online_booking_workspace.readiness.next_action.action_label }}
+                  <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
                 </a>
               </div>
-            </article>
-          {% empty %}
-            <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2">هنوز چک‌لیستی برای رزرو آنلاین در دسترس نیست.</div>
-          {% endfor %}
-        </div>
-      </div>
-    </details>
-
-    <details id="online-booking-section-public" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">صفحه عمومی</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وابستگی‌ها و گروه‌بندی رزرو</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="space-y-4 p-4 sm:p-5 lg:p-6">
-        <section class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 sm:p-5">
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0">
-              <h3 class="text-base font-black text-loomera-textPrimary">پیش‌نمایش صفحه عمومی</h3>
-              <p class="mt-2 text-sm leading-7 text-loomera-textMuted">این لینک صفحه واقعی مجموعه در بخش مشتری را باز می‌کند تا تجربه رزرو را مثل یک کاربر عادی بررسی کنی.</p>
-            </div>
-            <a href="{{ online_booking_workspace.public_booking_url }}" target="_blank" rel="noopener" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white transition hover:opacity-95">
-              <span>باز کردن صفحه عمومی</span>
-              <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-            </a>
+            {% endif %}
           </div>
-        </section>
-
-        <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <section class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-            <div class="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <p class="text-[11px] font-black text-loomera-primaryText">ورودی‌های رزرو</p>
-                <h3 class="mt-1 text-base font-black text-loomera-textPrimary">گروه‌بندی تنظیمات عمومی</h3>
-              </div>
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
-            </div>
-            <div class="space-y-3">
-              {% for group in online_booking_workspace.setup_groups %}
-                <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-                  <h4 class="text-sm font-black text-loomera-textPrimary">{{ group.title }}</h4>
-                  <ul class="mt-3 space-y-2 text-xs leading-6 text-loomera-textMuted">
-                    {% for item in group.items %}
-                      <li class="rounded-2xl bg-white px-3 py-2">{{ item }}</li>
-                    {% endfor %}
-                  </ul>
-                </article>
-              {% empty %}
-                <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted">گروه تنظیماتی برای رزرو عمومی ثبت نشده است.</div>
-              {% endfor %}
-            </div>
-          </section>
-
-          <section class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-            <div class="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <p class="text-[11px] font-black text-loomera-primaryText">وابستگی‌ها</p>
-                <h3 class="mt-1 text-base font-black text-loomera-textPrimary">مسیرهای اثرگذار روی رزرو آنلاین</h3>
-              </div>
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i></span>
-            </div>
-            <div class="space-y-3">
-              {% for item in online_booking_workspace.dependency_cards %}
-                <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-                  <div class="flex min-w-0 items-start justify-between gap-3">
-                    <h4 class="min-w-0 text-sm font-black text-loomera-textPrimary">{{ item.title }}</h4>
-                    <span class="shrink-0 rounded-full px-3 py-1 text-[11px] font-bold {% if item.status_tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif item.status_tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">{{ item.status }}</span>
+        {% else %}
+          <div class="p-4 sm:p-5 lg:p-6">
+            <div class="rounded-[24px] border border-loomera-success/20 bg-loomera-successSoft/50 p-4 sm:p-5">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 text-loomera-success">
+                    <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                    <span class="text-xs font-black">رزرو آنلاین فعال</span>
                   </div>
-                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
-                  <a href="{{ item.url }}" class="mt-4 inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/50">ورود به بخش</a>
-                </article>
-              {% empty %}
-                <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted">وابستگی خاصی برای این صفحه ثبت نشده است.</div>
-              {% endfor %}
-            </div>
-          </section>
-        </div>
-      </div>
-    </details>
-
-    <section class="rounded-[26px] border border-loomera-primary/15 bg-loomera-primarySoft/45 p-4 sm:p-5">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p class="text-[11px] font-black text-loomera-primaryText">مرکز مدیریت لینک‌ها</p>
-          <h2 class="mt-1 text-base font-black text-loomera-textPrimary">آمار و QR لینک‌های رزرو</h2>
-          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">تمام لینک‌های مدیر و متخصص‌ها را همراه با بازده هر محل استفاده ببین.</p>
-        </div>
-
-        <a href="{{ quick_links_url }}" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_16px_34px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5">
-          <i class="fa-solid fa-chart-simple text-xs" aria-hidden="true"></i>
-          <span>ورود به لینک‌های رزرو</span>
-        </a>
-      </div>
-    </section>
-
-    <details id="online-booking-section-routes" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">مسیرهای سریع</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">اقدام‌های مرتبط با رزرو آنلاین</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
-
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {% for action in online_booking_workspace.quick_actions %}
-            <a href="{{ action.url }}" class="group rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:shadow-lm-card">
-              <div class="flex items-start justify-between gap-3">
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="{{ action.icon }}" aria-hidden="true"></i></span>
-                <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[10px] font-black text-loomera-textMuted">{{ action.badge }}</span>
+                  <h3 class="mt-2 text-base font-black text-loomera-textPrimary">یک رزرو آزمایشی مثل مشتری انجام بده</h3>
+                  <p class="mt-2 max-w-2xl text-xs leading-6 text-loomera-textSecondary">خدمت، متخصص، تاریخ، زمان و نتیجه نهایی را از صفحه عمومی بررسی کن.</p>
+                </div>
+                <a href="{{ online_booking_workspace.public_booking_url }}" target="_blank" rel="noopener"
+                   class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+                  شروع تست رزرو
+                  <i class="fa-solid fa-arrow-up-left-from-square text-xs" aria-hidden="true"></i>
+                </a>
               </div>
-              <h3 class="mt-4 text-sm font-black text-loomera-textPrimary">{{ action.title }}</h3>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ action.description }}</p>
-            </a>
-          {% empty %}
-            <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted sm:col-span-2 xl:col-span-4">مسیر سریعی برای رزرو آنلاین تعریف نشده است.</div>
-          {% endfor %}
-        </div>
-
-        {% if salon %}
-          <div class="mt-5 flex flex-wrap gap-3 border-t border-loomera-borderSoft pt-4">
-            <a href="{{ appointment_calendar_url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">مدیریت نوبت‌ها</a>
-            <a href="{{ service_menu_url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">منوی خدمات</a>
-            <a href="{{ team_member_url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">اعضای تیم</a>
-            <a href="{{ scheduled_shifts_url }}" class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">شیفت‌ها</a>
+            </div>
           </div>
         {% endif %}
+      </section>
+
+      <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" aria-labelledby="quick-links-entry-title">
+        <header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+          <div class="flex items-start gap-3">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="fa-solid fa-link" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0">
+              <p class="text-[11px] font-black text-loomera-primaryText">اشتراک و اندازه‌گیری</p>
+              <h2 id="quick-links-entry-title" class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">لینک‌های رزرو</h2>
+            </div>
+          </div>
+        </header>
+
+        <div class="flex h-full flex-col p-4 sm:p-5 lg:p-6">
+          <p class="text-sm leading-7 text-loomera-textSecondary">برای کمپین، شبکه‌های اجتماعی، QR یا یک خدمت و متخصص مشخص، لینک جدا بساز و عملکرد هر مسیر را همان‌جا ببین.</p>
+
+          <div class="mt-4 grid grid-cols-2 gap-2 text-[11px] font-black text-loomera-textSecondary">
+            <span class="rounded-2xl bg-loomera-bgSubtle/75 px-3 py-3 text-center">لینک مستقیم</span>
+            <span class="rounded-2xl bg-loomera-bgSubtle/75 px-3 py-3 text-center">QR و چاپ</span>
+            <span class="rounded-2xl bg-loomera-bgSubtle/75 px-3 py-3 text-center">بازدید</span>
+            <span class="rounded-2xl bg-loomera-bgSubtle/75 px-3 py-3 text-center">تبدیل به رزرو</span>
+          </div>
+
+          <a href="{{ quick_links_url }}"
+             class="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+            مدیریت لینک‌های رزرو
+            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <details id="online-booking-page-improvement" class="group overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card">
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6">
+        <div class="flex min-w-0 items-center gap-3">
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-bgSubtle text-loomera-textSecondary">
+            <i class="fa-regular fa-images text-sm" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-loomera-primaryText">اختیاری</p>
+            <h2 class="mt-1 text-base font-black text-loomera-textPrimary">بهبود صفحه سالن</h2>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ online_booking_workspace.profile_quality_missing_count }} مورد اختیاری برای اعتماد بیشتر مشتری باقی مانده است.</p>
+          </div>
+        </div>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
+          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        </span>
+      </summary>
+
+      <div class="grid gap-3 border-t border-loomera-borderSoft p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-3 lg:p-6">
+        {% for item in online_booking_workspace.profile_quality_items %}
+          <article class="flex min-w-0 flex-col rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4">
+            <div class="flex items-start justify-between gap-2">
+              <h3 class="text-sm font-black leading-6 text-loomera-textPrimary">{{ item.title }}</h3>
+              <span class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {% if item.is_done %}bg-loomera-successSoft text-loomera-success{% else %}bg-white text-loomera-textMuted{% endif %}">{% if item.is_done %}تکمیل{% else %}اختیاری{% endif %}</span>
+            </div>
+            <p class="mt-2 flex-1 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
+            {% if not item.is_done %}
+              <a href="{{ item.action_url }}" class="mt-3 inline-flex min-h-9 items-center gap-2 self-start rounded-xl bg-white px-3 py-2 text-xs font-black text-loomera-primaryText">
+                {{ item.action_label }}
+                <i class="fa-solid fa-arrow-left-long text-[10px]" aria-hidden="true"></i>
+              </a>
+            {% endif %}
+          </article>
+        {% endfor %}
       </div>
     </details>
   </section>
-{% endblock %}
-
-{% block js %}
-  {{ block.super }}
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const form = document.querySelector("[data-quick-link-form]");
-      if (!form) return;
-
-      if (typeof jalaliDatepicker !== "undefined") {
-        jalaliDatepicker.startWatch({ selector: "[data-jdp]", autoHide: true });
-      }
-            
-      const modeInput = form.querySelector("[data-quick-link-mode]");
-      const serviceInput = form.querySelector("[data-quick-link-service]");
-      const stylistInput = form.querySelector("[data-quick-link-stylist]");
-      const dateInput = form.querySelector("[data-quick-link-date]");
-      const timeInput = form.querySelector("[data-quick-link-time]");
-      const timeEmpty = document.querySelector("[data-quick-link-time-empty]");
-
-      let workingTimesByDay = {};
-      try {
-        workingTimesByDay = JSON.parse(timeInput?.dataset.workingTimes || "{}");
-      } catch (error) {
-        workingTimesByDay = {};
-      }
-
-      const toEnglishDigits = (value) => String(value || "")
-        .replace(/[۰-۹]/g, (char) => "۰۱۲۳۴۵۶۷۸۹".indexOf(char))
-        .replace(/[٠-٩]/g, (char) => "٠١٢٣٤٥٦٧٨٩".indexOf(char))
-        .replace(/-/g, "/");
-
-      const getDayKeyFromJalali = (value) => {
-        const normalized = toEnglishDigits(value).trim();
-        const match = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-        if (!match || !window.JalaliDate || typeof window.JalaliDate.jalaliToGregorian !== "function") {
-          return timeInput?.dataset.selectedDayKey || "";
-        }
-        const [, year, month, day] = match.map(Number);
-        const gregorian = window.JalaliDate.jalaliToGregorian(year, month, day);
-        const jsDate = new Date(gregorian[0], gregorian[1] - 1, gregorian[2]);
-        return String(((jsDate.getDay() + 1) % 7) + 1);
-      };
-
-      const renderTimeOptions = () => {
-        if (!timeInput) return;
-        const dayKey = getDayKeyFromJalali(dateInput?.value);
-        const options = workingTimesByDay[dayKey] || [];
-        const selected = timeInput.value || timeInput.dataset.selectedTime || "";
-
-        timeInput.innerHTML = '<option value="">انتخاب ساعت</option>';
-
-        options.forEach((timeValue) => {
-          const option = document.createElement("option");
-          option.value = timeValue;
-          option.textContent = timeValue;
-          if (timeValue === selected) option.selected = true;
-          timeInput.appendChild(option);
-        });
-
-        if (!options.length) {
-          const option = document.createElement("option");
-          option.value = "";
-          option.textContent = "ساعت کاری برای این تاریخ ثبت نشده";
-          option.disabled = true;
-          timeInput.appendChild(option);
-        }
-
-        timeEmpty?.classList.toggle("hidden", options.length !== 0);
-      };
-            
-      const title = document.querySelector("[data-quick-link-readiness-title]");
-      const description = document.querySelector("[data-quick-link-readiness-description]");
-      const badge = document.querySelector("[data-quick-link-readiness-badge]");
-      const bar = document.querySelector("[data-quick-link-readiness-bar]");
-
-      const modeRequirements = {
-        service: [serviceInput],
-        stylist: [stylistInput],
-        service_stylist: [serviceInput, stylistInput],
-        service_stylist_time: [serviceInput, stylistInput, dateInput, timeInput],
-      };
-
-      const updateReadiness = () => {
-        const mode = modeInput?.value || "service";
-        const requiredInputs = modeRequirements[mode] || [];
-        const completeCount = requiredInputs.filter((input) => Boolean(input?.value)).length;
-        const total = Math.max(requiredInputs.length, 1);
-        const percent = Math.round((completeCount / total) * 100);
-        const ready = percent >= 100;
-
-        if (title) title.textContent = ready ? "لینک آماده ساخت است" : "لینک سریع هنوز کامل نیست";
-        if (description) {
-          description.textContent = ready
-            ? "حالا می‌توانی لینک را بسازی و برای کمپین، واتساپ یا مسیرهای داخلی استفاده کنی."
-            : "فیلدهای لازم برای نوع لینک انتخاب‌شده را کامل کن تا لینک قابل ساخت شود.";
-        }
-        if (badge) {
-          badge.textContent = ready ? "آماده" : `${completeCount} از ${total}`;
-          badge.classList.toggle("bg-loomera-successSoft", ready);
-          badge.classList.toggle("text-loomera-success", ready);
-          badge.classList.toggle("bg-white", !ready);
-          badge.classList.toggle("text-loomera-primaryText", !ready);
-        }
-        if (bar) bar.style.width = `${Math.max(percent, 12)}%`;
-
-        window.LoomeraDashboardWorkspace?.refreshAll?.();
-      };
-
-      [modeInput, serviceInput, stylistInput, dateInput, timeInput].forEach((input) => {
-        input?.addEventListener("change", updateReadiness);
-        input?.addEventListener("input", updateReadiness);
-      });
-      
-      const copyButtons = Array.from(document.querySelectorAll("[data-copy-quick-link]"));
-
-      copyButtons.forEach((button) => {
-        button.addEventListener("click", async function () {
-          const targetSelector = button.dataset.copyTarget;
-          const target = targetSelector ? document.querySelector(targetSelector) : null;
-          const label = button.querySelector("[data-copy-label]");
-          const value = (target?.value || target?.textContent || "").trim();
-
-          if (!value) return;
-
-          try {
-            await navigator.clipboard.writeText(value);
-            if (label) label.textContent = "کپی شد";
-
-            window.setTimeout(() => {
-              if (label) label.textContent = "کپی لینک";
-            }, 1800);
-          } catch (error) {
-            window.prompt("کپی خودکار ممکن نشد؛ لینک را دستی کپی کن:", value);
-          }
-        });
-      });
-
-      renderTimeOptions();
-      updateReadiness();
-    });
-  </script>
 {% endblock %}

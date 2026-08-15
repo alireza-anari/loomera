@@ -1,323 +1,189 @@
 {% extends "dashboard_template.html" %}
 {% block title %}محتوای مجموعه{% endblock %}
 {% block content %}
-
 <style>
-  .content-option-chip { isolation: isolate; }
-  .content-option-chip input[type="checkbox"] {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .content-option-chip::before {
-    content: "+";
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.55rem;
-    height: 1.55rem;
-    border-radius: 999px;
-    background: #fff;
-    border: 1px solid rgba(124, 91, 201, 0.22);
-    color: #7c5bc9;
-    font-weight: 900;
-    line-height: 1;
-    flex: 0 0 auto;
-    transition: all 180ms ease;
-  }
-  .content-option-chip:hover::before {
-    transform: scale(1.05);
-    background: rgba(124, 91, 201, 0.09);
-  }
-  .content-option-chip:has(input[type="checkbox"]:checked) {
-    border-color: rgba(124, 91, 201, 0.55);
-    background: linear-gradient(135deg, rgba(124, 91, 201, 0.16), rgba(255,255,255,0.92));
-    color: #5b3bb2;
-    box-shadow: 0 14px 32px rgba(124, 91, 201, 0.13);
-  }
-  .content-option-chip:has(input[type="checkbox"]:checked)::before {
-    content: "✓";
-    background: #7c5bc9;
-    border-color: #7c5bc9;
-    color: #fff;
-  }
+  .content-option-chip input[type="checkbox"] { width: 1.1rem; height: 1.1rem; flex: 0 0 auto; }
+  .content-multi-select ul { display: grid; gap: .5rem; }
+  .content-multi-select li label { display:flex; align-items:center; gap:.55rem; border:1px solid #E7E2EF; border-radius:1rem; background:#fff; padding:.65rem .8rem; font-size:.75rem; font-weight:800; color:#625C6F; }
 </style>
-
-<div class="space-y-6" data-content-studio="manager">
-  {% include "dashboards/components/page_hero.html" with eyebrow="Content Studio" eyebrow_icon="fa-regular fa-newspaper" title="محتوای مجموعه" description="مقاله، استوری و پیشنهادهای تیم را در یک جریان منظم بساز، بررسی و منتشر کن." action_label="مشاهده مجله" action_url="/magazine/" badges=page_meta.badges %}
-
-  <nav class="sticky top-20 z-20 -mx-2 flex gap-2 overflow-x-auto rounded-[24px] border border-loomera-borderSoft bg-white/95 px-3 py-3 shadow-lm-card backdrop-blur lg:hidden">
-    <a href="#content-overview" class="shrink-0 rounded-full bg-loomera-primary px-4 py-2 text-[11px] font-black text-white">خلاصه</a>
-    <a href="#article-create" class="shrink-0 rounded-full bg-loomera-bgSubtle px-4 py-2 text-[11px] font-black text-loomera-primaryText">مقاله</a>
-    <a href="#story-create" class="shrink-0 rounded-full bg-loomera-bgSubtle px-4 py-2 text-[11px] font-black text-loomera-primaryText">استوری</a>
-    <a href="#team-submissions" class="shrink-0 rounded-full bg-loomera-bgSubtle px-4 py-2 text-[11px] font-black text-loomera-primaryText">پیشنهادها</a>
-    <a href="#content-manage" class="shrink-0 rounded-full bg-loomera-bgSubtle px-4 py-2 text-[11px] font-black text-loomera-primaryText">مدیریت</a>
-  </nav>
-
-  <details id="content-overview" open class="group rounded-[32px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3">
-      <div>
-        <h2 class="mt-2 text-xl font-black text-loomera-textPrimary">اتاق محتوای مجموعه</h2>
-        <p class="mt-2 text-sm leading-7 text-loomera-textMuted">اول محتوا را بساز، بعد با برچسب، خدمت مرتبط و وضعیت رضایت مشتری آماده انتشار کن.</p>
+<section class="min-w-0 max-w-full space-y-4 lg:space-y-5" data-dashboard-page="manager-content-studio">
+  <section class="relative overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="content-hub-title">
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.15),transparent_44%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
+    <div class="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <div class="min-w-0">
+        <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText"><i class="fa-regular fa-newspaper text-[10px]" aria-hidden="true"></i>محتوای مجموعه</span>
+        <h1 id="content-hub-title" class="mt-4 text-xl font-black leading-8 text-loomera-textPrimary sm:text-3xl">مدیریت محتوای مجموعه</h1>
+        <p class="mt-2 max-w-3xl text-sm leading-7 text-loomera-textSecondary">محتوای منتشرشده را مدیریت کن، مقاله یا استوری جدید بساز و پیشنهادهای تیم را از یک جریان مشخص بررسی کن.</p>
       </div>
-      <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText transition group-open:rotate-180"><i class="fa-solid fa-chevron-down"></i></span>
-    </summary>
-    <div class="mt-6 grid gap-4 md:grid-cols-3">
-      <article class="rounded-[28px] border border-loomera-borderSoft bg-loomera-bgSubtle p-5">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primaryText"><i class="fa-regular fa-newspaper"></i></span>
-        <p class="mt-4 text-xs font-black text-loomera-textMuted">مقاله‌ها</p>
-        <strong class="mt-2 block text-3xl font-black text-loomera-textPrimary">{{ recent_articles|length }}</strong>
-      </article>
-      <article class="rounded-[28px] border border-loomera-borderSoft bg-loomera-bgSubtle p-5">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primaryText"><i class="fa-regular fa-circle-play"></i></span>
-        <p class="mt-4 text-xs font-black text-loomera-textMuted">استوری‌ها</p>
-        <strong class="mt-2 block text-3xl font-black text-loomera-textPrimary">{{ recent_stories|length }}</strong>
-      </article>
-      <article class="rounded-[28px] border border-loomera-borderSoft bg-loomera-bgSubtle p-5">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primaryText"><i class="fa-solid fa-users-viewfinder"></i></span>
-        <p class="mt-4 text-xs font-black text-loomera-textMuted">پیشنهادهای تیم</p>
-        <strong class="mt-2 block text-3xl font-black text-loomera-textPrimary">{{ staff_submissions|length }}</strong>
-      </article>
+      <a href="/magazine/" target="_blank" rel="noopener" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/40">مشاهده مجله<i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i></a>
     </div>
-    <div class="mt-5 rounded-[26px] border border-loomera-borderSoft bg-gradient-to-l from-loomera-primarySoft to-white px-5 py-4">
-      <h3 class="text-sm font-black text-loomera-textPrimary">چک‌لیست انتشار</h3>
-      <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">عنوان روشن، تصویر مناسب، متن کامل، برچسب مرتبط و وضعیت رضایت مشتری را کامل کن. برای پیشنهادهای متخصصان، قبل از «تأیید و انتشار» پیش‌نمایش را بررسی کن.</p>
-    </div>
-  </details>
-
-  <section class="grid gap-5 xl:grid-cols-2">
-    <details id="article-create" open class="group rounded-[32px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
-      <summary class="flex cursor-pointer list-none items-start justify-between gap-3">
-        <div>
-          <h2 class="mt-1 text-xl font-black text-loomera-textPrimary">ساخت مقاله</h2>
-          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">مقاله را پیش‌نویس کن یا بعد از تکمیل مجوزها مستقیم منتشر کن.</p>
-        </div>
-        <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText transition group-open:rotate-180"><i class="fa-solid fa-chevron-down"></i></span>
-      </summary>
-      <form method="post" enctype="multipart/form-data" class="mt-6 space-y-5">
-        {% csrf_token %}
-        <input type="hidden" name="form_type" value="article">
-        {% if article_form.errors %}
-          <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold leading-7 text-rose-700">
-            <p class="font-black">مقاله آماده ذخیره نیست؛ این موارد را اصلاح کن:</p>
-            <ul class="mt-2 list-inside list-disc space-y-1">
-              {% for field in article_form %}{% if field.errors %}<li>{{ field.label }}: {{ field.errors|join:'، ' }}</li>{% endif %}{% endfor %}
-            </ul>
-          </div>
-        {% endif %}
-        <div class="grid gap-4 md:grid-cols-2">
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ article_form.title.label }}</label>{{ article_form.title }}{% if article_form.title.help_text %}<p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ article_form.title.help_text }}</p>{% endif %}{% if article_form.title.errors %}<p class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-600">{{ article_form.title.errors|join:'، ' }}</p>{% endif %}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ article_form.cover_image.label }}</label>{{ article_form.cover_image }}{% if article_form.cover_image.help_text %}<p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ article_form.cover_image.help_text }}</p>{% endif %}{% if article_form.cover_image.errors %}<p class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-600">{{ article_form.cover_image.errors|join:'، ' }}</p>{% endif %}</div>
-          <div class="md:col-span-2"><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ article_form.summary.label }}</label>{{ article_form.summary }}{% if article_form.summary.help_text %}<p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ article_form.summary.help_text }}</p>{% endif %}{% if article_form.summary.errors %}<p class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-600">{{ article_form.summary.errors|join:'، ' }}</p>{% endif %}</div>
-          <div class="md:col-span-2"><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ article_form.content.label }}</label>{{ article_form.content }}{% if article_form.content.help_text %}<p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ article_form.content.help_text }}</p>{% endif %}{% if article_form.content.errors %}<p class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-600">{{ article_form.content.errors|join:'، ' }}</p>{% endif %}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ article_form.content_type.label }}</label>{{ article_form.content_type }}{% if article_form.content_type.errors %}<p class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-600">{{ article_form.content_type.errors|join:'، ' }}</p>{% endif %}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ article_form.category.label }}</label>{{ article_form.category }}{% if article_form.category.help_text %}<p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ article_form.category.help_text }}</p>{% endif %}</div>
-          <div class="md:col-span-2 rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-            <div class="flex items-center justify-between gap-3"><label class="text-sm font-black text-loomera-textSecondary">{{ article_form.tags.label }}</label><span class="rounded-full bg-white px-3 py-1 text-[11px] font-black text-loomera-primaryText">چندانتخابی</span></div>
-            <div class="mt-3 grid max-h-60 gap-2 overflow-auto sm:grid-cols-2 lg:grid-cols-3">
-              {% for choice in article_form.tags %}<label class="content-option-chip relative flex cursor-pointer items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 text-xs font-black text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/70 hover:text-loomera-primaryText hover:shadow-lm-soft">{{ choice.tag }}<span>#{{ choice.choice_label }}</span></label>{% empty %}<p class="rounded-2xl border border-dashed border-loomera-borderSoft bg-white px-4 py-4 text-xs leading-6 text-loomera-textMuted sm:col-span-2 lg:col-span-3">هنوز برچسب آماده‌ای ثبت نشده است. از فیلد «برچسب‌های جدید» استفاده کن.</p>{% endfor %}
-            </div>
-            <div class="mt-3"><label class="mb-2 block text-xs font-black text-loomera-textSecondary">{{ article_form.new_tags.label }}</label>{{ article_form.new_tags }}<p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ article_form.new_tags.help_text }}</p></div>
-          </div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ article_form.visibility.label }}</label>{{ article_form.visibility }}{% if article_form.visibility.help_text %}<p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ article_form.visibility.help_text }}</p>{% endif %}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ article_form.client_consent_status.label }}</label>{{ article_form.client_consent_status }}{% if article_form.client_consent_status.errors %}<p class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-600">{{ article_form.client_consent_status.errors|join:'، ' }}</p>{% endif %}</div>
-          <div class="md:col-span-2 rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-            <p class="text-sm font-black text-loomera-textSecondary">خدمات مرتبط</p>
-            <div class="mt-3 grid max-h-56 gap-2 overflow-auto sm:grid-cols-2">
-              {% for choice in article_form.related_services %}<label class="content-option-chip relative flex cursor-pointer items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 text-xs font-black text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/70 hover:text-loomera-primaryText hover:shadow-lm-soft">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>{% empty %}<p class="rounded-2xl border border-dashed border-loomera-borderSoft bg-white px-4 py-4 text-xs leading-6 text-loomera-textMuted sm:col-span-2">فعلاً خدمتی برای اتصال به مقاله پیدا نشد. این بخش اختیاری است.</p>{% endfor %}
-            </div>
-          </div>
-          <div class="md:col-span-2 rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-            <p class="text-sm font-black text-loomera-textSecondary">گروه خدمات مرتبط</p>
-            <div class="mt-3 grid max-h-56 gap-2 overflow-auto sm:grid-cols-2">
-              {% for choice in article_form.related_service_groups %}<label class="content-option-chip relative flex cursor-pointer items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 text-xs font-black text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/70 hover:text-loomera-primaryText hover:shadow-lm-soft">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>{% empty %}<p class="rounded-2xl border border-dashed border-loomera-borderSoft bg-white px-4 py-4 text-xs leading-6 text-loomera-textMuted sm:col-span-2">گروه خدمت مرتبطی پیدا نشد. این بخش اختیاری است.</p>{% endfor %}
-            </div>
-          </div>
-          <div class="md:col-span-2 grid gap-3 sm:grid-cols-2">
-            <label class="content-option-chip relative flex cursor-pointer items-start gap-3 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/70 hover:text-loomera-primaryText hover:shadow-lm-soft">{{ article_form.contains_identifiable_client }}<span>{{ article_form.contains_identifiable_client.help_text|default:article_form.contains_identifiable_client.label }}</span></label>
-            <label class="content-option-chip relative flex cursor-pointer items-start gap-3 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/70 hover:text-loomera-primaryText hover:shadow-lm-soft">{{ article_form.manager_approved_responsibility }}<span>{{ article_form.manager_approved_responsibility.help_text|default:article_form.manager_approved_responsibility.label }}</span></label>
-          </div>
-        </div>
-        <div class="flex flex-wrap gap-3 border-t border-loomera-borderSoft pt-5">
-          <button type="submit" name="article_action" value="draft" class="rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-xs font-black text-loomera-textSecondary">ذخیره پیش‌نویس</button>
-          <button type="submit" name="article_action" value="publish" class="rounded-full bg-loomera-primary px-5 py-3 text-xs font-black text-white shadow-lm-soft">انتشار مقاله</button>
-        </div>
-      </form>
-    </details>
-
-    <details id="story-create" open class="group rounded-[32px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
-      <summary class="flex cursor-pointer list-none items-start justify-between gap-3">
-        <div>
-          <h2 class="mt-1 text-xl font-black text-loomera-textPrimary">ساخت استوری</h2>
-          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">استوری را با کاور، دکمه و لینک مرتبط بساز.</p>
-        </div>
-        <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText transition group-open:rotate-180"><i class="fa-solid fa-chevron-down"></i></span>
-      </summary>
-      <form method="post" enctype="multipart/form-data" class="mt-6 space-y-5">
-        {% csrf_token %}
-        <input type="hidden" name="form_type" value="story">
-        {% if story_form.errors %}
-          <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold leading-7 text-rose-700"><p class="font-black">استوری کامل نیست؛ موارد مشخص‌شده را اصلاح کن.</p><ul class="mt-2 list-inside list-disc space-y-1">{% for field in story_form %}{% if field.errors %}<li>{{ field.label }}: {{ field.errors|join:'، ' }}</li>{% endif %}{% endfor %}</ul></div>
-        {% endif %}
-        <div class="grid gap-4 md:grid-cols-2">
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.title.label }}</label>{{ story_form.title }}{% if story_form.title.help_text %}<p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ story_form.title.help_text }}</p>{% endif %}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.cover_image.label }}</label>{{ story_form.cover_image }}{% if story_form.cover_image.help_text %}<p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ story_form.cover_image.help_text }}</p>{% endif %}</div>
-          <div class="md:col-span-2"><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.summary.label }}</label>{{ story_form.summary }}{% if story_form.summary.help_text %}<p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ story_form.summary.help_text }}</p>{% endif %}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.visibility.label }}</label>{{ story_form.visibility }}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.stylist.label }}</label>{{ story_form.stylist }}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.cta_type.label }}</label>{{ story_form.cta_type }}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.cta_label.label }}</label>{{ story_form.cta_label }}</div>
-          <div class="md:col-span-2"><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.cta_url.label }}</label>{{ story_form.cta_url }}{% if story_form.cta_url.help_text %}<p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ story_form.cta_url.help_text }}</p>{% endif %}</div>
-          {% if story_link_suggestions %}
-            <div class="md:col-span-2 rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-              <p class="text-sm font-black text-loomera-textSecondary">پیشنهادهای لینک آماده</p>
-              <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">روی هر گزینه کلیک کن تا لینک در فیلد دکمه قرار بگیرد.</p>
-              <div class="mt-3 flex flex-wrap gap-2">
-                {% for link in story_link_suggestions %}<button type="button" data-copy-to="{{ story_form.cta_url.id_for_label }}" data-url="{{ link.url }}" class="rounded-full bg-white px-3 py-2 text-[11px] font-black text-loomera-primaryText">{{ link.label }}</button>{% endfor %}
-              </div>
-            </div>
-          {% endif %}
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.related_article.label }}</label>{{ story_form.related_article }}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.related_service.label }}</label>{{ story_form.related_service }}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.related_service_group.label }}</label>{{ story_form.related_service_group }}</div>
-          <div><label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.client_consent_status.label }}</label>{{ story_form.client_consent_status }}</div>
-          <div class="md:col-span-2 grid gap-3 sm:grid-cols-2">
-            <label class="content-option-chip relative flex cursor-pointer items-start gap-3 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/70 hover:text-loomera-primaryText hover:shadow-lm-soft">{{ story_form.contains_identifiable_client }}<span>{{ story_form.contains_identifiable_client.help_text|default:story_form.contains_identifiable_client.label }}</span></label>
-            <label class="content-option-chip relative flex cursor-pointer items-start gap-3 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/70 hover:text-loomera-primaryText hover:shadow-lm-soft">{{ story_form.manager_approved_responsibility }}<span>{{ story_form.manager_approved_responsibility.help_text|default:story_form.manager_approved_responsibility.label }}</span></label>
-          </div>
-        </div>
-        <div class="flex flex-wrap gap-3 border-t border-loomera-borderSoft pt-5">
-          <button type="submit" name="story_action" value="draft" class="rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-xs font-black text-loomera-textSecondary">ذخیره پیش‌نویس</button>
-          <button type="submit" name="story_action" value="publish" class="rounded-full bg-loomera-primary px-5 py-3 text-xs font-black text-white shadow-lm-soft">انتشار استوری</button>
-        </div>
-      </form>
-    </details>
   </section>
 
-  <details id="team-submissions" open class="group rounded-[32px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3">
-      <div>
-        <h2 class="mt-1 text-xl font-black text-loomera-textPrimary">پیشنهادهای متخصصان</h2>
-        <p class="mt-1 text-xs leading-6 text-loomera-textMuted">هر پیشنهاد را باز کن، پیش‌نمایش را ببین و بر اساس نسخه نهایی تصمیم بگیر.</p>
+  <div class="lm-task-tabs-anchor" data-lm-task-tabs-anchor="manager-content" data-lm-task-tabs-label="بخش‌های محتوای مجموعه" aria-label="بخش‌های محتوای مجموعه"></div>
+
+  <section id="content-manage" class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" data-lm-task-panel="manager-content" data-lm-task-key="manage" data-lm-task-label="مدیریت محتوا" data-lm-task-default data-lm-task-order="1">
+    <header class="border-b border-loomera-borderSoft p-4 sm:p-5 lg:p-6">
+      <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <p class="text-[11px] font-black text-loomera-primaryText">مرکز مدیریت</p>
+          <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">مقاله‌ها و استوری‌های مجموعه</h2>
+          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">محتوا را پیدا کن، وضعیتش را ببین و فقط در صورت نیاز کارت آن را برای ویرایش باز کن.</p>
+        </div>
+        <div class="flex flex-col gap-2 sm:flex-row">
+          <label class="relative min-w-0 sm:min-w-64"><span class="sr-only">جستجوی محتوا</span><i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted"></i><input type="search" data-content-search placeholder="جستجو در عنوان محتوا" class="w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/60 py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary/35 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10"></label>
+          <select data-content-type-filter class="rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary outline-none focus:border-loomera-primary/35"><option value="all">همه محتوا</option><option value="article">مقاله</option><option value="story">استوری</option></select>
+        </div>
       </div>
-      <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText transition group-open:rotate-180"><i class="fa-solid fa-chevron-down"></i></span>
-    </summary>
-    <div class="mt-5 space-y-4">
+      <div class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4"><p class="text-[11px] font-bold text-loomera-textMuted">کل محتوا</p><strong class="mt-2 block text-xl font-black text-loomera-textPrimary">{{ content_summary.total }}</strong></article>
+        <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4"><p class="text-[11px] font-bold text-loomera-textMuted">منتشرشده</p><strong class="mt-2 block text-xl font-black text-loomera-success">{{ content_summary.published }}</strong></article>
+        <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4"><p class="text-[11px] font-bold text-loomera-textMuted">پیش‌نویس</p><strong class="mt-2 block text-xl font-black text-loomera-textPrimary">{{ content_summary.drafts }}</strong></article>
+        <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4"><p class="text-[11px] font-bold text-loomera-textMuted">پیشنهاد نیازمند بررسی</p><strong class="mt-2 block text-xl font-black text-loomera-warning">{{ content_summary.team_pending }}</strong></article>
+      </div>
+    </header>
+
+    <div class="grid gap-4 p-4 sm:p-5 lg:p-6 xl:grid-cols-2" data-content-management-list>
+      <section class="space-y-3" data-content-group="article">
+        <div class="flex items-center justify-between gap-3"><h3 class="text-sm font-black text-loomera-textPrimary">مقاله‌ها</h3><a href="?tab=create#article-create-form" class="text-xs font-black text-loomera-primaryText">+ مقاله جدید</a></div>
+        {% for item, form in article_edit_forms %}
+          <details class="lm-compact-record" data-content-card data-content-type="article" data-content-search-value="{{ item.title }} {{ item.get_status_display }}">
+            <summary class="lm-compact-record-summary"><span class="lm-compact-record-avatar"><i class="fa-regular fa-newspaper"></i></span><span class="min-w-0 flex-1 text-right"><strong class="block truncate text-sm font-black text-loomera-textPrimary">{{ item.title }}</strong><span class="mt-1 block text-xs text-loomera-textMuted">مقاله • {{ item.get_status_display }}</span></span><span class="lm-compact-record-chevron"><i class="fa-solid fa-chevron-down text-[10px]"></i></span></summary>
+            <div class="lm-compact-record-body">
+              <form method="post" enctype="multipart/form-data" class="grid gap-3">
+                {% csrf_token %}<input type="hidden" name="form_type" value="article_edit"><input type="hidden" name="article_id" value="{{ item.id }}">
+                {% include "partials/form_errors.html" with form=form %}
+                <label class="text-xs font-black text-loomera-textSecondary">عنوان{{ form.title }}</label>
+                <label class="text-xs font-black text-loomera-textSecondary">خلاصه{{ form.summary }}</label>
+                <label class="text-xs font-black text-loomera-textSecondary">متن مقاله{{ form.content }}</label>
+                <details class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/50"><summary class="cursor-pointer list-none px-4 py-3 text-xs font-black text-loomera-primaryText">تنظیمات تکمیلی</summary><div class="grid gap-3 border-t border-loomera-borderSoft p-3 sm:grid-cols-2">{{ form.cover_image }}{{ form.content_type }}{{ form.category }}{{ form.visibility }}{{ form.client_consent_status }}</div></details>
+                <label class="flex items-start gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-3 text-xs font-bold text-loomera-textSecondary">{{ form.manager_approved_responsibility }}<span>مسئولیت و مجوز انتشار/ویرایش را تأیید می‌کنم.</span></label>
+                <div class="flex flex-wrap gap-2 border-t border-loomera-borderSoft pt-3"><button type="submit" name="article_action" value="save" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-[11px] font-black text-loomera-textSecondary">ذخیره</button><button type="submit" name="article_action" value="publish" class="rounded-full bg-loomera-primary px-4 py-2 text-[11px] font-black text-white">انتشار</button><button type="submit" name="article_action" value="archive" class="rounded-full bg-rose-50 px-4 py-2 text-[11px] font-black text-rose-700">آرشیو</button></div>
+              </form>
+            </div>
+          </details>
+        {% empty %}<div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/50 px-4 py-7 text-center text-sm text-loomera-textMuted">هنوز مقاله‌ای ساخته نشده است.</div>{% endfor %}
+      </section>
+
+      <section class="space-y-3" data-content-group="story">
+        <div class="flex items-center justify-between gap-3"><h3 class="text-sm font-black text-loomera-textPrimary">استوری‌ها</h3><a href="?tab=create#story-create-form" class="text-xs font-black text-loomera-primaryText">+ استوری جدید</a></div>
+        {% for item, form in story_edit_forms %}
+          <details class="lm-compact-record" data-content-card data-content-type="story" data-content-search-value="{{ item.title }} {{ item.get_status_display }}">
+            <summary class="lm-compact-record-summary"><span class="lm-compact-record-avatar"><i class="fa-regular fa-circle-play"></i></span><span class="min-w-0 flex-1 text-right"><strong class="block truncate text-sm font-black text-loomera-textPrimary">{{ item.title }}</strong><span class="mt-1 block text-xs text-loomera-textMuted">استوری • {{ item.get_status_display }}</span></span><span class="lm-compact-record-chevron"><i class="fa-solid fa-chevron-down text-[10px]"></i></span></summary>
+            <div class="lm-compact-record-body">
+              <form method="post" enctype="multipart/form-data" class="grid gap-3">
+                {% csrf_token %}<input type="hidden" name="form_type" value="story_edit"><input type="hidden" name="story_id" value="{{ item.id }}">
+                {% include "partials/form_errors.html" with form=form %}
+                <label class="text-xs font-black text-loomera-textSecondary">عنوان{{ form.title }}</label>
+                <label class="text-xs font-black text-loomera-textSecondary">توضیح{{ form.summary }}</label>
+                <details class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/50"><summary class="cursor-pointer list-none px-4 py-3 text-xs font-black text-loomera-primaryText">تنظیمات تکمیلی</summary><div class="grid gap-3 border-t border-loomera-borderSoft p-3 sm:grid-cols-2">{{ form.cover_image }}{{ form.visibility }}{{ form.cta_type }}{{ form.cta_label }}{{ form.cta_url }}{{ form.related_article }}{{ form.related_service }}{{ form.related_service_group }}{{ form.stylist }}{{ form.client_consent_status }}</div></details>
+                <label class="flex items-start gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-3 text-xs font-bold text-loomera-textSecondary">{{ form.manager_approved_responsibility }}<span>مسئولیت و مجوز انتشار/ویرایش را تأیید می‌کنم.</span></label>
+                <div class="flex flex-wrap gap-2 border-t border-loomera-borderSoft pt-3"><button type="submit" name="story_action" value="save" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-[11px] font-black text-loomera-textSecondary">ذخیره</button><button type="submit" name="story_action" value="publish" class="rounded-full bg-loomera-primary px-4 py-2 text-[11px] font-black text-white">انتشار</button><button type="submit" name="story_action" value="archive" class="rounded-full bg-rose-50 px-4 py-2 text-[11px] font-black text-rose-700">آرشیو</button></div>
+              </form>
+            </div>
+          </details>
+        {% empty %}<div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/50 px-4 py-7 text-center text-sm text-loomera-textMuted">هنوز استوری‌ای ساخته نشده است.</div>{% endfor %}
+      </section>
+      <div class="hidden xl:col-span-2 rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/50 px-4 py-8 text-center text-sm text-loomera-textMuted" data-content-empty>محتوایی با این جستجو پیدا نشد.</div>
+    </div>
+  </section>
+
+  <section id="content-create" class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" data-lm-task-panel="manager-content" data-lm-task-key="create" data-lm-task-label="ساخت محتوا" data-lm-task-order="2">
+    <header class="border-b border-loomera-borderSoft p-4 sm:p-5 lg:p-6">
+      <p class="text-[11px] font-black text-loomera-primaryText">محتوای جدید</p><h2 class="mt-1 text-lg font-black text-loomera-textPrimary">چه چیزی می‌خواهی بسازی؟</h2><p class="mt-1 text-xs leading-6 text-loomera-textMuted">نوع محتوا را انتخاب کن؛ فقط فرم همان نوع نمایش داده می‌شود.</p>
+      <div class="mt-4 inline-flex rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-1.5" role="tablist" aria-label="نوع محتوای جدید"><button type="button" data-create-content-type="article" class="rounded-2xl bg-loomera-primary px-4 py-2.5 text-xs font-black text-white">مقاله</button><button type="button" data-create-content-type="story" class="rounded-2xl px-4 py-2.5 text-xs font-black text-loomera-textSecondary">استوری</button></div>
+    </header>
+
+    <div class="p-4 sm:p-5 lg:p-6">
+      <form id="article-create-form" method="post" enctype="multipart/form-data" class="space-y-5" data-create-content-form="article">
+        {% csrf_token %}<input type="hidden" name="form_type" value="article">
+        {% if article_form.errors %}<div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-loomera-danger text-rose-700">مقاله آماده ذخیره نیست. فیلدهای مشخص‌شده را بررسی کن.</div>{% endif %}
+        <section class="grid gap-4 md:grid-cols-2">
+          <div><label class="mb-2 block text-xs font-black text-loomera-textSecondary">{{ article_form.title.label }}</label>{{ article_form.title }}{% for error in article_form.title.errors %}<p class="mt-2 text-xs font-black text-loomera-danger">{{ error }}</p>{% endfor %}</div>
+          <div><label class="mb-2 block text-xs font-black text-loomera-textSecondary">{{ article_form.cover_image.label }}</label>{{ article_form.cover_image }}</div>
+          <div class="md:col-span-2"><label class="mb-2 block text-xs font-black text-loomera-textSecondary">{{ article_form.summary.label }}</label>{{ article_form.summary }}</div>
+          <div class="md:col-span-2"><label class="mb-2 block text-xs font-black text-loomera-textSecondary">{{ article_form.content.label }}</label>{{ article_form.content }}</div>
+        </section>
+        <details class="group rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/45"><summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4"><div><strong class="text-sm font-black text-loomera-textPrimary">دسته‌بندی و ارتباط با خدمات</strong><p class="mt-1 text-xs text-loomera-textMuted">اختیاری؛ برای پیدا شدن بهتر محتوا.</p></div><i class="fa-solid fa-chevron-down text-xs text-loomera-primaryText transition group-open:rotate-180"></i></summary><div class="grid gap-4 border-t border-loomera-borderSoft p-4 md:grid-cols-2"><label class="text-xs font-black text-loomera-textSecondary">نوع محتوا{{ article_form.content_type }}</label><label class="text-xs font-black text-loomera-textSecondary">دسته{{ article_form.category }}</label><label class="text-xs font-black text-loomera-textSecondary">نحوه نمایش{{ article_form.visibility }}</label><div><label class="mb-2 block text-xs font-black text-loomera-textSecondary">برچسب‌ها</label><div class="content-multi-select">{{ article_form.tags }}</div></div><div><label class="mb-2 block text-xs font-black text-loomera-textSecondary">برچسب جدید</label>{{ article_form.new_tags }}</div><div><label class="mb-2 block text-xs font-black text-loomera-textSecondary">خدمات مرتبط</label><div class="content-multi-select max-h-56 overflow-auto">{{ article_form.related_services }}</div></div><div><label class="mb-2 block text-xs font-black text-loomera-textSecondary">گروه‌های خدمت</label><div class="content-multi-select max-h-56 overflow-auto">{{ article_form.related_service_groups }}</div></div></div></details>
+        <section class="rounded-[24px] border border-loomera-borderSoft bg-white p-4"><h3 class="text-sm font-black text-loomera-textPrimary">مجوز انتشار</h3><div class="mt-3 grid gap-3 sm:grid-cols-2"><label class="content-option-chip flex items-start gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-3 text-xs font-bold text-loomera-textSecondary">{{ article_form.contains_identifiable_client }}<span>مشتری قابل شناسایی در محتوا وجود دارد</span></label><label class="text-xs font-black text-loomera-textSecondary">وضعیت رضایت مشتری{{ article_form.client_consent_status }}</label><label class="content-option-chip sm:col-span-2 flex items-start gap-2 rounded-2xl bg-loomera-primarySoft/55 px-3 py-3 text-xs font-bold text-loomera-primaryText">{{ article_form.manager_approved_responsibility }}<span>مسئولیت و مجوز انتشار این محتوا را تأیید می‌کنم.</span></label></div></section>
+        <div class="flex flex-col-reverse gap-2 border-t border-loomera-borderSoft pt-4 sm:flex-row sm:justify-end"><button type="submit" name="article_action" value="draft" class="min-h-11 rounded-2xl border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary">ذخیره پیش‌نویس</button><button type="submit" name="article_action" value="publish" class="min-h-11 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white">انتشار مقاله</button></div>
+      </form>
+
+      <form id="story-create-form" method="post" enctype="multipart/form-data" class="hidden space-y-5" data-create-content-form="story">
+        {% csrf_token %}<input type="hidden" name="form_type" value="story">
+        {% if story_form.errors %}<div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-loomera-danger text-rose-700">استوری آماده ذخیره نیست. فیلدهای مشخص‌شده را بررسی کن.</div>{% endif %}
+        <section class="grid gap-4 md:grid-cols-2"><div><label class="mb-2 block text-xs font-black text-loomera-textSecondary">{{ story_form.title.label }}</label>{{ story_form.title }}</div><div><label class="mb-2 block text-xs font-black text-loomera-textSecondary">{{ story_form.cover_image.label }}</label>{{ story_form.cover_image }}</div><div class="md:col-span-2"><label class="mb-2 block text-xs font-black text-loomera-textSecondary">{{ story_form.summary.label }}</label>{{ story_form.summary }}</div></section>
+        <details class="group rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/45"><summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4"><div><strong class="text-sm font-black text-loomera-textPrimary">لینک و ارتباط استوری</strong><p class="mt-1 text-xs text-loomera-textMuted">اختیاری؛ کاربر را به خدمت، مقاله یا لینک مناسب هدایت کن.</p></div><i class="fa-solid fa-chevron-down text-xs text-loomera-primaryText transition group-open:rotate-180"></i></summary><div class="grid gap-4 border-t border-loomera-borderSoft p-4 md:grid-cols-2"><label class="text-xs font-black text-loomera-textSecondary">نحوه نمایش{{ story_form.visibility }}</label><label class="text-xs font-black text-loomera-textSecondary">متخصص مرتبط{{ story_form.stylist }}</label><label class="text-xs font-black text-loomera-textSecondary">نوع دکمه{{ story_form.cta_type }}</label><label class="text-xs font-black text-loomera-textSecondary">متن دکمه{{ story_form.cta_label }}</label><div class="md:col-span-2"><label class="mb-2 block text-xs font-black text-loomera-textSecondary">لینک دکمه</label>{{ story_form.cta_url }}{% if story_link_suggestions %}<div class="mt-2 flex flex-wrap gap-2">{% for link in story_link_suggestions %}<button type="button" data-copy-to="{{ story_form.cta_url.id_for_label }}" data-url="{{ link.url }}" class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-primaryText">{{ link.label }}</button>{% endfor %}</div>{% endif %}</div><label class="text-xs font-black text-loomera-textSecondary">مقاله مرتبط{{ story_form.related_article }}</label><label class="text-xs font-black text-loomera-textSecondary">خدمت مرتبط{{ story_form.related_service }}</label><label class="text-xs font-black text-loomera-textSecondary">گروه خدمت{{ story_form.related_service_group }}</label></div></details>
+        <section class="rounded-[24px] border border-loomera-borderSoft bg-white p-4"><h3 class="text-sm font-black text-loomera-textPrimary">مجوز انتشار</h3><div class="mt-3 grid gap-3 sm:grid-cols-2"><label class="content-option-chip flex items-start gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-3 text-xs font-bold text-loomera-textSecondary">{{ story_form.contains_identifiable_client }}<span>مشتری قابل شناسایی در محتوا وجود دارد</span></label><label class="text-xs font-black text-loomera-textSecondary">وضعیت رضایت مشتری{{ story_form.client_consent_status }}</label><label class="content-option-chip sm:col-span-2 flex items-start gap-2 rounded-2xl bg-loomera-primarySoft/55 px-3 py-3 text-xs font-bold text-loomera-primaryText">{{ story_form.manager_approved_responsibility }}<span>مسئولیت و مجوز انتشار این محتوا را تأیید می‌کنم.</span></label></div></section>
+        <div class="flex flex-col-reverse gap-2 border-t border-loomera-borderSoft pt-4 sm:flex-row sm:justify-end"><button type="submit" name="story_action" value="draft" class="min-h-11 rounded-2xl border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary">ذخیره پیش‌نویس</button><button type="submit" name="story_action" value="publish" class="min-h-11 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white">انتشار استوری</button></div>
+      </form>
+    </div>
+  </section>
+
+  <section id="team-submissions" class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" data-lm-task-panel="manager-content" data-lm-task-key="submissions" data-lm-task-label="پیشنهادهای تیم" data-lm-task-order="3">
+    <header class="border-b border-loomera-borderSoft p-4 sm:p-5 lg:p-6"><div class="flex items-center justify-between gap-3"><div><p class="text-[11px] font-black text-loomera-primaryText">پیشنهادهای تیم</p><h2 class="mt-1 text-lg font-black text-loomera-textPrimary">بررسی محتوای متخصصان</h2><p class="mt-1 text-xs leading-6 text-loomera-textMuted">هر پیشنهاد را باز کن؛ اگر آماده انتشار نیست، دقیقاً مشخص کن چه چیزی باید اصلاح شود.</p></div>{% if content_summary.team_pending %}<span class="rounded-full bg-loomera-warningSoft px-3 py-2 text-xs font-black text-loomera-warning">{{ content_summary.team_pending }} نیازمند بررسی</span>{% endif %}</div></header>
+    <div class="space-y-3 p-4 sm:p-5 lg:p-6">
       {% for item in staff_submissions %}
-        <details class="group/sub rounded-[28px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-          <summary class="cursor-pointer list-none">
-            <div class="flex items-center gap-4">
-              <div class="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-loomera-borderSoft bg-white">
-                {% if item.media %}<img src="{{ item.media.url }}" alt="{{ item.title }}" class="h-full w-full object-cover" loading="lazy">{% else %}<div class="flex h-full w-full items-center justify-center text-loomera-primaryText"><i class="fa-regular fa-image"></i></div>{% endif %}
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-black text-loomera-textPrimary">{{ item.title|default:item.get_submission_type_display }}</p>
-                <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ item.stylist.get_fullName }} • {{ item.get_submission_type_display }} • {{ item.get_status_display }}</p>
-              </div>
-              <span class="hidden shrink-0 rounded-full bg-white px-3 py-2 text-[11px] font-black text-loomera-primaryText sm:inline-flex">بررسی</span>
-            </div>
-          </summary>
-          <div class="mt-4 grid gap-4 border-t border-loomera-borderSoft pt-4 xl:grid-cols-[minmax(0,1fr)_430px]">
-            <div class="rounded-[26px] bg-white p-4">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText">پیش‌نمایش نهایی</span>
-                {% if item.media %}<a href="{{ item.media.url }}" target="_blank" class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-[11px] font-black text-loomera-primaryText">باز کردن فایل اصلی</a>{% endif %}
-              </div>
-              {% if item.media %}<div class="mt-4 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle"><img src="{{ item.media.url }}" alt="{{ item.title }}" class="max-h-[420px] w-full object-cover" loading="lazy"></div>{% endif %}
-              <h3 class="mt-4 text-lg font-black text-loomera-textPrimary">{{ item.title|default:item.get_submission_type_display }}</h3>
-              {% if item.body %}<p class="mt-3 whitespace-pre-line text-sm leading-8 text-loomera-textSecondary">{{ item.body }}</p>{% else %}<p class="mt-3 rounded-2xl border border-dashed border-loomera-borderSoft px-4 py-6 text-center text-sm text-loomera-textMuted">متنی برای پیش‌نمایش ثبت نشده است.</p>{% endif %}
-              {% if item.review_note %}<p class="mt-4 rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-xs leading-6 text-loomera-textSecondary">یادداشت قبلی مدیر: {{ item.review_note }}</p>{% endif %}
-            </div>
-            <form method="post" class="space-y-3 rounded-[26px] border border-loomera-borderSoft bg-white p-4">
-              {% csrf_token %}
-              <input type="hidden" name="form_type" value="submission_action">
-              <input type="hidden" name="submission_id" value="{{ item.id }}">
-              <div class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3">
-                <p class="text-xs font-black text-loomera-textPrimary">نسخه نهایی در پیش‌نمایش سمت راست نمایش داده شده است.</p>
-                <p class="mt-2 text-[11px] leading-6 text-loomera-textMuted">برای جلوگیری از تکرار، متن و عنوان اینجا دوباره نمایش داده نمی‌شود. اگر نیاز به تغییر محتواست، از «درخواست اصلاح» استفاده کن تا متخصص نسخه جدید ارسال کند.</p>
-              </div>
-              <label class="block text-xs font-black text-loomera-textSecondary">یادداشت برای متخصص</label>
-              <textarea name="review_note" rows="3" class="w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold leading-7 text-loomera-textPrimary outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="برای رد یا درخواست اصلاح، دلیل را کوتاه و قابل اجرا بنویس. قطب‌نمای اصلاح برای متخصص همین متن است.">{{ item.review_note }}</textarea>
-              {% if item.status == 'pending_review' or item.status == 'needs_revision' or item.status == 'rejected' or item.status == 'draft' %}
-                <div class="grid gap-2 sm:grid-cols-3">
-                  <button type="submit" name="submission_action" value="approve" class="rounded-full bg-emerald-100 px-4 py-3 text-[11px] font-black text-emerald-700">تأیید و انتشار</button>
-                  <button type="submit" name="submission_action" value="revision" class="rounded-full bg-amber-100 px-4 py-3 text-[11px] font-black text-amber-700">درخواست اصلاح</button>
-                  <button type="submit" name="submission_action" value="reject" class="rounded-full bg-rose-100 px-4 py-3 text-[11px] font-black text-rose-700">رد</button>
-                </div>
-              {% else %}<p class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-xs font-bold text-loomera-textMuted">این محتوا بررسی شده است.</p>{% endif %}
-            </form>
+        <details class="lm-compact-record">
+          <summary class="lm-compact-record-summary"><span class="lm-compact-record-avatar">{% if item.media %}<img src="{{ item.media.url }}" class="h-full w-full rounded-2xl object-cover" alt="">{% else %}<i class="fa-regular fa-image"></i>{% endif %}</span><span class="min-w-0 flex-1 text-right"><strong class="block truncate text-sm font-black text-loomera-textPrimary">{{ item.title|default:item.get_submission_type_display }}</strong><span class="mt-1 block text-xs text-loomera-textMuted">{{ item.stylist.get_fullName }} • {{ item.get_submission_type_display }} • {{ item.get_status_display }}</span></span><span class="lm-compact-record-chevron"><i class="fa-solid fa-chevron-down text-[10px]"></i></span></summary>
+          <div class="lm-compact-record-body grid gap-4 xl:grid-cols-[minmax(0,1fr)_390px]">
+            <div>{% if item.media %}<a href="{{ item.media.url }}" target="_blank" class="mb-3 inline-flex text-xs font-black text-loomera-primaryText">باز کردن فایل اصلی</a>{% endif %}<h3 class="text-base font-black text-loomera-textPrimary">{{ item.title|default:item.get_submission_type_display }}</h3><p class="mt-3 whitespace-pre-line text-sm leading-8 text-loomera-textSecondary">{{ item.body|default:'متنی ثبت نشده است.' }}</p>{% if item.review_note %}<p class="mt-3 rounded-2xl bg-loomera-bgSubtle px-3 py-3 text-xs leading-6 text-loomera-textMuted">یادداشت قبلی: {{ item.review_note }}</p>{% endif %}</div>
+            <form method="post" class="space-y-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/45 p-3">{% csrf_token %}<input type="hidden" name="form_type" value="submission_action"><input type="hidden" name="submission_id" value="{{ item.id }}"><label class="block text-xs font-black text-loomera-textSecondary">یادداشت برای متخصص</label><textarea name="review_note" rows="4" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold leading-7 text-loomera-textPrimary outline-none focus:border-loomera-primary/35" placeholder="برای رد یا اصلاح، دلیل کوتاه و قابل اجرا بنویس.">{{ item.review_note }}</textarea>{% if item.status == 'pending_review' or item.status == 'needs_revision' or item.status == 'rejected' or item.status == 'draft' %}<div class="grid gap-2 sm:grid-cols-3 xl:grid-cols-1"><button type="submit" name="submission_action" value="approve" class="rounded-2xl bg-emerald-100 px-4 py-3 text-xs font-black text-emerald-700">تأیید و انتشار</button><button type="submit" name="submission_action" value="revision" class="rounded-2xl bg-amber-100 px-4 py-3 text-xs font-black text-amber-700">درخواست اصلاح</button><button type="submit" name="submission_action" value="reject" class="rounded-2xl bg-rose-100 px-4 py-3 text-xs font-black text-rose-700">رد محتوا</button></div>{% else %}<p class="rounded-2xl bg-white px-3 py-3 text-xs font-bold text-loomera-textMuted">این پیشنهاد قبلاً بررسی شده است.</p>{% endif %}</form>
           </div>
         </details>
-      {% empty %}
-        <p class="rounded-2xl border border-dashed border-loomera-borderSoft px-4 py-8 text-center text-sm text-loomera-textMuted">هنوز محتوای پیشنهادی از تیم ثبت نشده است.</p>
-      {% endfor %}
+      {% empty %}<div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/50 px-4 py-8 text-center text-sm text-loomera-textMuted">هنوز پیشنهادی از تیم ثبت نشده است.</div>{% endfor %}
     </div>
-  </details>
+  </section>
+</section>
+{% endblock %}
 
-  <details id="content-manage" open class="group rounded-[32px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3">
-      <div>
-        <h2 class="mt-1 text-xl font-black text-loomera-textPrimary">مدیریت محتوای منتشرشده</h2>
-        <p class="mt-1 text-xs leading-6 text-loomera-textMuted">مقاله‌ها و استوری‌های خودت را ویرایش، منتشر یا آرشیو کن.</p>
-      </div>
-      <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText transition group-open:rotate-180"><i class="fa-solid fa-chevron-down"></i></span>
-    </summary>
-    <div class="mt-5 grid gap-5 xl:grid-cols-2">
-      <div class="space-y-3">
-        <h3 class="text-sm font-black text-loomera-textPrimary">مقاله‌های من</h3>
-        {% for item, form in article_edit_forms %}
-          <details class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-            <summary class="cursor-pointer list-none"><div class="flex items-center justify-between gap-3"><span class="truncate text-sm font-black text-loomera-textPrimary">{{ item.title }}</span><span class="rounded-full bg-white px-3 py-1 text-[11px] font-black text-loomera-primaryText">{{ item.get_status_display }}</span></div></summary>
-            <form method="post" enctype="multipart/form-data" class="mt-4 grid gap-3 border-t border-loomera-borderSoft pt-4">
-              {% csrf_token %}<input type="hidden" name="form_type" value="article_edit"><input type="hidden" name="article_id" value="{{ item.id }}">
-              {% if form.errors %}<div class="rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-700">{{ form.errors }}</div>{% endif %}
-              {{ form.title }}{{ form.summary }}{{ form.content }}{{ form.cover_image }}{{ form.content_type }}{{ form.category }}{{ form.visibility }}{{ form.client_consent_status }}
-              <label class="flex items-start gap-2 rounded-2xl bg-white px-3 py-3 text-xs font-bold text-loomera-textSecondary">{{ form.manager_approved_responsibility }}<span>مسئولیت و مجوز انتشار/ویرایش را تأیید می‌کنم.</span></label>
-              <div class="flex flex-wrap gap-2"><button type="submit" name="article_action" value="save" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-[11px] font-black text-loomera-textSecondary">ذخیره</button><button type="submit" name="article_action" value="publish" class="rounded-full bg-loomera-primary px-4 py-2 text-[11px] font-black text-white">انتشار</button><button type="submit" name="article_action" value="archive" class="rounded-full bg-rose-50 px-4 py-2 text-[11px] font-black text-rose-700">آرشیو</button></div>
-            </form>
-          </details>
-        {% empty %}<p class="rounded-2xl border border-dashed border-loomera-borderSoft px-4 py-5 text-sm text-loomera-textMuted">هنوز مقاله‌ای ثبت نشده است.</p>{% endfor %}
-      </div>
-      <div class="space-y-3">
-        <h3 class="text-sm font-black text-loomera-textPrimary">استوری‌های من</h3>
-        {% for item, form in story_edit_forms %}
-          <details class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-            <summary class="cursor-pointer list-none"><div class="flex items-center justify-between gap-3"><span class="truncate text-sm font-black text-loomera-textPrimary">{{ item.title }}</span><span class="rounded-full bg-white px-3 py-1 text-[11px] font-black text-loomera-primaryText">{{ item.get_status_display }}</span></div></summary>
-            <form method="post" enctype="multipart/form-data" class="mt-4 grid gap-3 border-t border-loomera-borderSoft pt-4">
-              {% csrf_token %}<input type="hidden" name="form_type" value="story_edit"><input type="hidden" name="story_id" value="{{ item.id }}">
-              {% if form.errors %}<div class="rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-700">{{ form.errors }}</div>{% endif %}
-              {{ form.title }}{{ form.summary }}{{ form.cover_image }}{{ form.visibility }}{{ form.cta_type }}{{ form.cta_label }}{{ form.cta_url }}{{ form.related_article }}{{ form.related_service }}{{ form.related_service_group }}{{ form.stylist }}{{ form.client_consent_status }}
-              <label class="flex items-start gap-2 rounded-2xl bg-white px-3 py-3 text-xs font-bold text-loomera-textSecondary">{{ form.manager_approved_responsibility }}<span>مسئولیت و مجوز انتشار/ویرایش را تأیید می‌کنم.</span></label>
-              <div class="flex flex-wrap gap-2"><button type="submit" name="story_action" value="save" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-[11px] font-black text-loomera-textSecondary">ذخیره</button><button type="submit" name="story_action" value="publish" class="rounded-full bg-loomera-primary px-4 py-2 text-[11px] font-black text-white">انتشار</button><button type="submit" name="story_action" value="archive" class="rounded-full bg-rose-50 px-4 py-2 text-[11px] font-black text-rose-700">آرشیو</button></div>
-            </form>
-          </details>
-        {% empty %}<p class="rounded-2xl border border-dashed border-loomera-borderSoft px-4 py-5 text-sm text-loomera-textMuted">هنوز استوری ثبت نشده است.</p>{% endfor %}
-      </div>
-    </div>
-  </details>
-</div>
+{% block js %}
+{{ block.super }}
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    document.addEventListener('click', function (event) {
-      var btn = event.target.closest('[data-copy-to]');
-      if (!btn) return;
-      event.preventDefault();
-      var input = document.getElementById(btn.dataset.copyTo);
-      if (!input) return;
-      input.value = btn.dataset.url || '';
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-      input.focus();
-      btn.classList.add('bg-loomera-primary', 'text-white');
-      btn.textContent = 'لینک انتخاب شد';
+document.addEventListener('DOMContentLoaded', function () {
+  const typeButtons = Array.from(document.querySelectorAll('[data-create-content-type]'));
+  const createForms = Array.from(document.querySelectorAll('[data-create-content-form]'));
+  const activateType = (type) => {
+    createForms.forEach(form => form.classList.toggle('hidden', form.dataset.createContentForm !== type));
+    typeButtons.forEach(button => {
+      const active = button.dataset.createContentType === type;
+      button.classList.toggle('bg-loomera-primary', active);
+      button.classList.toggle('text-white', active);
+      button.classList.toggle('text-loomera-textSecondary', !active);
     });
-    if (window.matchMedia('(max-width: 768px)').matches) {
-      document.querySelectorAll('details[id]').forEach(function (item) { item.removeAttribute('open'); });
-      var overview = document.getElementById('content-overview');
-      if (overview) overview.setAttribute('open', 'open');
-    }
+  };
+  typeButtons.forEach(button => button.addEventListener('click', () => activateType(button.dataset.createContentType)));
+  if (document.querySelector('[data-create-content-form="story"] .text-loomera-danger, [data-create-content-form="story"] .errorlist')) activateType('story');
+
+  document.addEventListener('click', function (event) {
+    const button = event.target.closest('[data-copy-to]');
+    if (!button) return;
+    const input = document.getElementById(button.dataset.copyTo);
+    if (!input) return;
+    input.value = button.dataset.url || '';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.focus();
   });
+
+  const cards = Array.from(document.querySelectorAll('[data-content-card]'));
+  const search = document.querySelector('[data-content-search]');
+  const typeFilter = document.querySelector('[data-content-type-filter]');
+  const empty = document.querySelector('[data-content-empty]');
+  const apply = () => {
+    const query = (search?.value || '').trim().toLowerCase();
+    const type = typeFilter?.value || 'all';
+    let visible = 0;
+    cards.forEach(card => {
+      const matchesType = type === 'all' || card.dataset.contentType === type;
+      const haystack = (card.dataset.contentSearchValue || '').toLowerCase();
+      const show = matchesType && (!query || haystack.includes(query));
+      card.classList.toggle('hidden', !show);
+      if (show) visible += 1;
+    });
+    empty?.classList.toggle('hidden', visible !== 0);
+  };
+  search?.addEventListener('input', apply);
+  typeFilter?.addEventListener('change', apply);
+  apply();
+});
 </script>
 {% endblock %}

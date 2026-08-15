@@ -22,6 +22,7 @@ from .booking_utils import (
     BLOCKING_STATUSES,
     build_cancellation_policy,
     get_service_buffer_minutes,
+    get_blocking_order_details_queryset,
     get_upcoming_available_stylists_for_service,
     resolve_best_available_stylist_for_service,
     resolve_booking_sequence,
@@ -71,7 +72,6 @@ PUBLIC_BOOKING_STYLIST_VISIBILITIES = (
 )
 
 APPOINTMENT_CHECKOUT_FORM_ACTIONS = {
-    "",
     "apply_coupon",
     "clear_coupon",
     "confirm_checkout",
@@ -109,10 +109,27 @@ def _clean_appointment_checkout_form_action(request):
     ):
         raise ValidationError("حجم اطلاعات ارسالی بیش از حد مجاز است.")
 
-    action = (request.POST.get("form_action") or "").strip()
+    raw_actions = request.POST.getlist("form_action")
+    actions = [str(value or "").strip() for value in raw_actions]
+    actions = [value for value in actions if value]
 
-    if action not in APPOINTMENT_CHECKOUT_FORM_ACTIONS:
-        raise ValidationError("عملیات checkout معتبر نیست.")
+    # A hidden action proxy may coexist with the native submit button value.
+    # Accept the last explicit known action rather than relying on QueryDict.get()
+    # ordering. Unknown values are never allowed to finalize a reservation.
+    valid_actions = [
+        value for value in actions if value in APPOINTMENT_CHECKOUT_FORM_ACTIONS
+    ]
+    action = valid_actions[-1] if valid_actions else ""
+
+    # Fail closed: finalizing a booking must always be an explicit user action.
+    # Never interpret an implicit form submit (for example Enter in the coupon
+    # field or a browser that drops the submitter button) as confirmation.
+    if not action:
+        if actions:
+            raise ValidationError("عملیات checkout معتبر نیست.")
+        raise ValidationError(
+            "عملیات مشخص نیست؛ برای ثبت نهایی رزرو از دکمه «ثبت نهایی» استفاده کنید."
+        )
 
     return action
 
@@ -1480,20 +1497,16 @@ class StylistAvailabilityAPI(View):
             .order_by("date", "start_time")
         )
 
+        # Keep this payload in lock-step with the final slot validator.
+        # Any finalized/paid booking occupies the stylist's time regardless of
+        # whether that historical service is still active/public/catalog-backed.
         booked_items = (
-            OrderDetail.objects.filter(
+            get_blocking_order_details_queryset(
                 salon=salon,
-                date__range=[start_date, end_date],
-                order__status__in=BLOCKING_STATUSES,
-                stylist__is_active=True,
-                stylist__public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
-                service__is_active=True,
-                service__services_of_salon=salon,
+                start_date=start_date,
+                end_date=end_date,
             )
-            .filter(
-                Q(service__is_platform_catalog=True)
-                | Q(service__catalog_source__isnull=False)
-            )
+            .filter(stylist__isnull=False)
             .select_related("stylist", "service")
             .order_by("date", "time")
         )
@@ -1574,7 +1587,7 @@ class StylistAvailabilityAPI(View):
                     "reason": item.reason or "مرخصی تاییدشده",
                 }
             )
-        return JsonResponse(
+        response = JsonResponse(
             {
                 "schedules": schedules_payload,
                 "booked_times": booked_payload,
@@ -1582,6 +1595,10 @@ class StylistAvailabilityAPI(View):
             },
             json_dumps_params={"ensure_ascii": False},
         )
+        # Availability is volatile; a browser/proxy cache must not resurrect a
+        # slot that has already been taken.
+        response["Cache-Control"] = "no-store, private"
+        return response
 
 
 class StylistsForServiceAPI(View):
@@ -1734,7 +1751,7 @@ class BookingQuickLinkStylistServicesView(View):
 
         if not services:
             messages.error(request, "برای این متخصص در این مجموعه خدمت فعالی پیدا نشد.")
-            return redirect("salons:detail_salon", pk=salon.id)
+            return redirect(salon.get_absolute_url())
 
         return render(
             request,
@@ -4150,7 +4167,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             messages.error(request, str(exc))
             return redirect("orders:reservation_preview")
 
-        checkout_action = form_action or "confirm_checkout"
+        checkout_action = form_action
 
         post_data = request.POST.copy()
         post_data["coupon_code"] = coupon_code
@@ -4247,6 +4264,24 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             )
             coupon_code = ""
             payload = _build_checkout_payload(request=request, coupon_code="")
+
+        # Safety invariant: no database reservation may be created unless the
+        # request explicitly came from the final checkout action. Coupon
+        # actions are read-only pricing operations and must already have
+        # returned above. Keeping this guard immediately before the
+        # finalization path prevents future refactors from accidentally letting
+        # a secondary submit action fall through to Order.objects.create().
+        if checkout_action != "confirm_checkout":
+            logger.warning(
+                "Checkout non-final action reached finalization guard | action=%s | user=%s",
+                checkout_action,
+                getattr(request.user, "pk", None),
+            )
+            messages.error(
+                request,
+                "این عملیات فقط برای به‌روزرسانی پیش‌نمایش است و رزرو ثبت نشد.",
+            )
+            return self._render(request, form=form, coupon_code=coupon_code)
 
         checkout_fingerprint = _build_checkout_submission_fingerprint(
             request=request,

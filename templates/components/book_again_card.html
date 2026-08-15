@@ -3,7 +3,7 @@
 {% load jalali_filters %}
 
 <article class="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-loomera-borderSoft bg-white shadow-lm-soft transition duration-200 hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-lm-card">
-  <a href="{% url 'salons:detail_salon' item.salon.id %}" class="relative block h-40 overflow-hidden bg-loomera-primarySoft" aria-label="مشاهده {{ item.salon.salon_name }}">
+  <a href="{{ item.salon.get_absolute_url }}" class="relative block h-40 overflow-hidden bg-loomera-primarySoft" aria-label="مشاهده {{ item.salon.salon_name }}">
     {% if item.salon.card_image_url %}
       <img src="{{ item.salon.card_image_url }}" alt="{{ item.salon.salon_name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
     {% elif item.salon.banner_image %}
@@ -110,7 +110,7 @@
           <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
         </a>
       {% else %}
-        <a href="{% url 'salons:detail_salon' item.salon.id %}"
+        <a href="{{ item.salon.get_absolute_url }}"
            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
           <span>مشاهده</span>
           <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>

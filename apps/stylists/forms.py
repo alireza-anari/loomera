@@ -433,9 +433,13 @@ class WorkSamplesForm(forms.ModelForm):
 
 
 class StylistUserForm(forms.ModelForm):
-    def __init__(self, *args, allow_existing_mobile=False, **kwargs):
+    def __init__(self, *args, allow_existing_mobile=False, allow_mobile_edit=True, **kwargs):
         self.allow_existing_mobile = allow_existing_mobile
+        self.allow_mobile_edit = allow_mobile_edit
         super().__init__(*args, **kwargs)
+
+        if not allow_mobile_edit:
+            self.fields.pop("mobile_number", None)
 
         apply_dashboard_form_styles(self)
 
@@ -458,14 +462,15 @@ class StylistUserForm(forms.ModelForm):
                 "dir": "ltr",
             }
         )
-        self.fields["mobile_number"].widget.attrs.update(
-            {
-                "placeholder": "09xxxxxxxxx",
-                "dir": "ltr",
-                "inputmode": "numeric",
-                "autocomplete": "tel",
-            }
-        )
+        if "mobile_number" in self.fields:
+            self.fields["mobile_number"].widget.attrs.update(
+                {
+                    "placeholder": "09xxxxxxxxx",
+                    "dir": "ltr",
+                    "inputmode": "numeric",
+                    "autocomplete": "tel",
+                }
+            )
 
     class Meta:
         model = CustomUser
@@ -1127,6 +1132,11 @@ class EmergencyInfoForm(forms.ModelForm):
         emergency_family = (cleaned_data.get("emergency_contact_family") or "").strip()
         emergency_phone = (cleaned_data.get("emergency_phone") or "").strip()
         relationship = (cleaned_data.get("relationship") or "").strip()
+
+        # Beta UX: emergency contact is optional. If the manager starts filling
+        # this section, keep the complete-data validation below.
+        if not any([emergency_name, emergency_family, emergency_phone, relationship]):
+            return cleaned_data
 
         if not emergency_name:
             self.add_error("emergency_contact_name", "نام تماس اضطراری را وارد کن.")

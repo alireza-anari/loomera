@@ -10,6 +10,9 @@
 
   const ACTION_PROXY_NAME = "form_action";
   const CONFIRM_ACTION = "confirm_checkout";
+  const APPLY_COUPON_ACTION = "apply_coupon";
+  const CLEAR_COUPON_ACTION = "clear_coupon";
+  const ACTION_BUTTON_SELECTOR = 'button[type="submit"][name="form_action"]';
 
   const PAYMENT_PRESENTATIONS = {
     online: {
@@ -139,26 +142,69 @@
       .forEach((input) => input.remove());
   }
 
-  function ensureConfirmActionProxy(form) {
+  function ensureActionProxy(form, action) {
     removeActionProxy(form);
 
     const input = document.createElement("input");
     input.type = "hidden";
     input.name = ACTION_PROXY_NAME;
-    input.value = CONFIRM_ACTION;
+    input.value = action;
     input.dataset.checkoutActionProxy = "1";
 
     form.appendChild(input);
   }
 
-  function submittedAction(event) {
+  function submittedAction(event, form) {
     const submitter = event.submitter;
 
-    if (!submitter) {
-      return "";
+    if (submitter && submitter.value) {
+      return submitter.value;
     }
 
-    return submitter.value || "";
+    const requestedAction = form.dataset.checkoutRequestedAction || "";
+    if (requestedAction) {
+      return requestedAction;
+    }
+
+    const couponInput = form.querySelector(COUPON_INPUT_SELECTOR);
+    if (couponInput && document.activeElement === couponInput) {
+      return APPLY_COUPON_ACTION;
+    }
+
+    return "";
+  }
+
+  function actionButtons(form) {
+    const buttons = Array.from(form.querySelectorAll(ACTION_BUTTON_SELECTOR));
+    const formId = form.getAttribute("id");
+
+    if (!formId) {
+      return buttons;
+    }
+
+    const externalButtons = Array.from(
+      document.querySelectorAll(
+        `${ACTION_BUTTON_SELECTOR}[form="${CSS.escape(formId)}"]`,
+      ),
+    );
+
+    return Array.from(new Set([...buttons, ...externalButtons]));
+  }
+
+  function bindActionIntent(form) {
+    actionButtons(form).forEach((button) => {
+      button.addEventListener("click", function () {
+        const action = button.value || "";
+        form.dataset.checkoutRequestedAction = action;
+
+        // Put the action in the form *before* the browser starts its native
+        // submit algorithm. Some browsers do not include controls appended
+        // from the later submit event in the POST payload consistently.
+        if (action) {
+          ensureActionProxy(form, action);
+        }
+      });
+    });
   }
 
   function mobileCheckoutBar(form) {
@@ -215,6 +261,26 @@
     couponInput.addEventListener("blur", function () {
       setMobileBarKeyboardHidden(form, false);
     });
+
+    couponInput.addEventListener("keydown", function (event) {
+      if (event.key !== "Enter" || event.isComposing) {
+        return;
+      }
+
+      event.preventDefault();
+      form.dataset.checkoutRequestedAction = APPLY_COUPON_ACTION;
+      ensureActionProxy(form, APPLY_COUPON_ACTION);
+
+      const applyButton = form.querySelector(
+        '[data-checkout-coupon-action="apply"]',
+      );
+
+      if (typeof form.requestSubmit === "function") {
+        form.requestSubmit(applyButton || undefined);
+      } else {
+        form.submit();
+      }
+    });
   }
 
   function bindForm(form) {
@@ -226,13 +292,31 @@
 
     bindPaymentUX(form);
     bindCouponKeyboardUX(form);
+    bindActionIntent(form);
     setBusy(form, false);
 
     form.addEventListener("submit", function (event) {
-      const action = submittedAction(event);
+      const action = submittedAction(event, form);
+
+      if (!action) {
+        // Never allow an implicit/ambiguous submit to become a reservation.
+        event.preventDefault();
+        event.stopPropagation();
+        removeActionProxy(form);
+        return;
+      }
+
+      if (action === APPLY_COUPON_ACTION || action === CLEAR_COUPON_ACTION) {
+        ensureActionProxy(form, action);
+        form.dataset.checkoutRequestedAction = "";
+        return;
+      }
 
       if (action !== CONFIRM_ACTION) {
+        event.preventDefault();
+        event.stopPropagation();
         removeActionProxy(form);
+        form.dataset.checkoutRequestedAction = "";
         return;
       }
 
@@ -242,7 +326,8 @@
         return;
       }
 
-      ensureConfirmActionProxy(form);
+      ensureActionProxy(form, CONFIRM_ACTION);
+      form.dataset.checkoutRequestedAction = "";
       setBusy(form, true);
     });
   }
@@ -256,6 +341,7 @@
   window.addEventListener("pageshow", function () {
     document.querySelectorAll(FORM_SELECTOR).forEach((form) => {
       removeActionProxy(form);
+      form.dataset.checkoutRequestedAction = "";
       setMobileBarKeyboardHidden(form, false);
       updatePaymentPresentation(form);
       setBusy(form, false);

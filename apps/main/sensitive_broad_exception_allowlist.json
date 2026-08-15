@@ -960,7 +960,7 @@
     "path": "apps/payments/views.py",
     "qualname": "WalletDetailView.get",
     "try_handler_index": 0,
-    "try_sha256": "0f647746b6e3a3548815778083eb1ec3ad86213faa40a6ea9845d5ef2e7ce153",
+    "try_sha256": "eabfee4bd271d2ee98e636b6757c942eb71d5ed30e56b503e06cbbc06ee668ae",
     "handler_sha256": "8c56a5da6a594b9b78cf0c6e964f3a18c7e6f5e10e497e1e53b87160e0ec7f90",
     "category": "user_facing_recovery",
     "review_status": "tracked_legacy",

@@ -1,0 +1,87 @@
+{% with icon_key=key|default:"overview" %}
+<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  {% if icon_key == "overview" %}
+    <path d="M3.8 10.8 12 4l8.2 6.8"/>
+    <path d="M5.5 9.8v9.1h13V9.8"/>
+    <path d="M9.2 18.9v-5.6h5.6v5.6"/>
+  {% elif icon_key == "appointments" or icon_key == "my_appointments" %}
+    <rect x="3.5" y="5.2" width="17" height="15" rx="2.4"/>
+    <path d="M7.5 3.5v3.2M16.5 3.5v3.2M3.5 9h17"/>
+    <path d="m8.2 14 2.1 2.1 5-5"/>
+  {% elif icon_key == "clients" %}
+    <circle cx="9" cy="9" r="3"/>
+    <path d="M3.8 19c.7-3 2.6-4.7 5.2-4.7s4.5 1.7 5.2 4.7"/>
+    <path d="M16.2 8.1a2.6 2.6 0 0 1 0 5.1M16.7 15.1c1.8.5 3 1.8 3.5 3.9"/>
+  {% elif icon_key == "team" %}
+    <circle cx="8.2" cy="8.5" r="2.8"/>
+    <circle cx="16.3" cy="9.5" r="2.3"/>
+    <path d="M3.5 19c.6-3 2.3-4.7 4.7-4.7 2.5 0 4.2 1.7 4.8 4.7"/>
+    <path d="M13.5 15.1c.8-.8 1.7-1.2 2.8-1.2 2.1 0 3.5 1.4 4.2 4"/>
+  {% elif icon_key == "services" %}
+    <path d="M5 7.2h14M7.2 4.9v4.6M16.8 4.9v4.6"/>
+    <rect x="4" y="11.3" width="16" height="7.8" rx="2.1"/>
+    <path d="M8 15.2h3.2M14.3 15.2H16"/>
+  {% elif icon_key == "schedule" or icon_key == "my_schedule" %}
+    <circle cx="12" cy="12" r="8.5"/>
+    <path d="M12 7.5v5l3.3 2"/>
+  {% elif icon_key == "online_booking" or icon_key == "quick_links" %}
+    <circle cx="12" cy="12" r="8.5"/>
+    <path d="M3.7 12h16.6M12 3.5c2.1 2.3 3.2 5.1 3.2 8.5S14.1 18.2 12 20.5M12 3.5C9.9 5.8 8.8 8.6 8.8 12s1.1 6.2 3.2 8.5"/>
+  {% elif icon_key == "content" or icon_key == "my_content" %}
+    <path d="M6 3.8h8.3l3.7 3.7V20H6z"/>
+    <path d="M14 3.8V8h4M9 12h6M9 15.5h4.5"/>
+  {% elif icon_key == "membership" %}
+    <path d="m12 3 2.5 3.3 4.1.5-1.6 3.8 1.2 3.9-3.9.2L12 18l-2.3-3.3-3.9-.2 1.2-3.9-1.6-3.8 4.1-.5z"/>
+    <path d="m9.7 10.9 1.5 1.5 3.2-3.2"/>
+  {% elif icon_key == "catalog" %}
+    <path d="M4.2 5.2A2.2 2.2 0 0 1 6.4 3h4.1v16.5H6.4a2.2 2.2 0 0 0-2.2 2.2z"/>
+    <path d="M19.8 5.2A2.2 2.2 0 0 0 17.6 3h-4.1v16.5h4.1a2.2 2.2 0 0 1 2.2 2.2z"/>
+  {% elif icon_key == "reports" %}
+    <path d="M5 19V9.5M10 19V5M15 19v-6.5M20 19V8"/>
+    <path d="M3.5 19.5h18"/>
+  {% elif icon_key == "finance" or icon_key == "my_finance" %}
+    <rect x="3.5" y="6" width="17" height="13" rx="2.5"/>
+    <path d="M3.5 9.2h17M15.5 14.2h2.2"/>
+  {% elif icon_key == "finance_wallet" %}
+    <path d="M4 7.3A2.3 2.3 0 0 1 6.3 5h10.4A2.3 2.3 0 0 1 19 7.3v10.4a2.3 2.3 0 0 1-2.3 2.3H6.3A2.3 2.3 0 0 1 4 17.7z"/>
+    <path d="M4 9h15M14.8 13.2h2.1"/>
+  {% elif icon_key == "finance_cost" %}
+    <path d="M5 19V9.5M10 19V13M15 19V6M20 19v-8"/>
+    <path d="M3.5 19.5h18M6 6.8l4 2.2 5-5 4 2.3"/>
+  {% elif icon_key == "finance_team" %}
+    <circle cx="8.3" cy="8.3" r="2.7"/>
+    <path d="M3.8 18.8c.7-3 2.3-4.5 4.5-4.5 2.3 0 3.9 1.5 4.6 4.5"/>
+    <path d="M15 7.2h5M17.5 4.7v5"/>
+    <path d="M15 14.5h5M15 17.7h3.3"/>
+  {% elif icon_key == "finance_discount" %}
+    <path d="M4.5 6.2A1.7 1.7 0 0 1 6.2 4.5h11.6a1.7 1.7 0 0 1 1.7 1.7v3a2.9 2.9 0 0 0 0 5.6v3a1.7 1.7 0 0 1-1.7 1.7H6.2a1.7 1.7 0 0 1-1.7-1.7v-3a2.9 2.9 0 0 0 0-5.6z"/>
+    <path d="m9 15 6-6M9.2 9.2h.1M14.7 14.7h.1"/>
+  {% elif icon_key == "products" %}
+    <path d="m4.2 7.5 7.8-4 7.8 4-7.8 4z"/>
+    <path d="m4.2 7.5.1 9 7.7 4 7.7-4 .1-9M12 11.5v9"/>
+  {% elif icon_key == "stocktakes" %}
+    <path d="M8 4.5h8M9 3h6v3H9z"/>
+    <rect x="5" y="5.5" width="14" height="15" rx="2.2"/>
+    <path d="m8.5 11 1.4 1.4 2.7-2.7M8.5 16h6.8"/>
+  {% elif icon_key == "profile" %}
+    <path d="M4 9.5h16l-1.4-4.2H5.4z"/>
+    <path d="M5.5 9.5V20h13V9.5M9 20v-5.2h6V20"/>
+    <path d="M4 9.5c.2 1.5 1.2 2.4 2.5 2.4 1.2 0 2.2-.8 2.5-2.4.3 1.6 1.3 2.4 3 2.4s2.7-.8 3-2.4c.3 1.6 1.3 2.4 2.5 2.4 1.3 0 2.3-.9 2.5-2.4"/>
+  {% elif icon_key == "settings" or icon_key == "my_settings" %}
+    <path d="M5 7h14M5 17h14M8.5 4.8v4.4M15.5 14.8v4.4"/>
+    <circle cx="8.5" cy="7" r="1.6"/>
+    <circle cx="15.5" cy="17" r="1.6"/>
+  {% elif icon_key == "management" %}
+    <rect x="4" y="4" width="6" height="6" rx="1.4"/>
+    <rect x="14" y="4" width="6" height="6" rx="1.4"/>
+    <rect x="4" y="14" width="6" height="6" rx="1.4"/>
+    <rect x="14" y="14" width="6" height="6" rx="1.4"/>
+  {% elif icon_key == "account" or icon_key == "my_profile" %}
+    <circle cx="12" cy="8.2" r="3.2"/>
+    <path d="M5.5 20c.7-3.7 3-5.7 6.5-5.7s5.8 2 6.5 5.7"/>
+  {% else %}
+    <circle cx="12" cy="12" r="8.5"/>
+    <path d="M8.5 12h7M12 8.5v7"/>
+  {% endif %}
+</svg>
+{% endwith %}

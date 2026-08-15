@@ -1151,7 +1151,7 @@ def build_reports_context(request, salon):
             True if start_date != default_start or end_date != default_end else "",
         ]
         if value
-    ) + len(report_notices)
+    )
 
     stylist_label = next(
         (
@@ -1320,7 +1320,9 @@ def build_reports_context(request, salon):
             "has_filters": active_filter_count > 0,
             "active_filter_count": active_filter_count,
             "active_filter_chips": active_filter_chips,
-            "clear_filters_url": base_url,
+            "clear_filters_url": _build_query_url(
+                base_url, {}, tab=tab if tab != "overview" else ""
+            ),
             "active_range_label": format_jalali_range(start_date, end_date),
             "chart": _build_chart(
                 filtered_qs,

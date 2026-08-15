@@ -1,169 +1,38 @@
 {% extends "dashboard_template.html" %}
+{% load static %}
 {% load jalali_extras %}
 
 {% block title %}محتوای من{% endblock %}
 {% block body_attrs %}data-page="stylist-content"{% endblock %}
 
+{% block head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/pages/stylist_workspace.css' %}">
+{% endblock %}
+
 {% block content %}
 
-<style>
-  .content-option-chip {
-    isolation: isolate;
-  }
 
-  .content-option-chip input[type="checkbox"] {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    pointer-events: none;
-  }
+<section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-content" data-content-studio="stylist">
+  {% include "dashboards/components/page_hero.html" with eyebrow="مدیریت محتوا" eyebrow_icon="fa-regular fa-pen-to-square" title="محتوای من" description="اول وضعیت ارسال‌های قبلی را ببین؛ برای محتوای جدید مقاله یا استوری را انتخاب کن و مدیر مجموعه بررسی نهایی را انجام می‌دهد." action_label="رفتن به مجله" action_url="/magazine/" badges=page_meta.badges %}
 
-  .content-option-chip::before {
-    content: "+";
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.55rem;
-    height: 1.55rem;
-    border-radius: 999px;
-    background: #fff;
-    border: 1px solid rgba(124, 91, 201, 0.22);
-    color: #7c5bc9;
-    font-weight: 900;
-    line-height: 1;
-    flex: 0 0 auto;
-    transition: all 180ms ease;
-  }
+  <div class="lm-task-tabs-anchor"
+       data-lm-task-tabs-anchor="stylist-content"
+       data-lm-task-tabs-label="بخش‌های محتوای من"
+       aria-label="بخش‌های محتوای من"></div>
 
-  .content-option-chip:hover::before {
-    transform: scale(1.05);
-    background: rgba(124, 91, 201, 0.09);
-  }
-
-  .content-option-chip:has(input[type="checkbox"]:checked) {
-    border-color: rgba(124, 91, 201, 0.55);
-    background: linear-gradient(135deg, rgba(124, 91, 201, 0.16), rgba(255,255,255,0.92));
-    color: #5b3bb2;
-    box-shadow: 0 14px 32px rgba(124, 91, 201, 0.13);
-  }
-
-  .content-option-chip:has(input[type="checkbox"]:checked)::before {
-    content: "✓";
-    background: #7c5bc9;
-    border-color: #7c5bc9;
-    color: #fff;
-  }
-</style>
-
-<section class="min-w-0 max-w-full space-y-5 overflow-visible" data-dashboard-workspace-root data-dashboard-page="stylist-content" data-content-studio="stylist">
-  {% include "dashboards/components/page_hero.html" with eyebrow="Creator Studio" eyebrow_icon="fa-regular fa-pen-to-square" title="محتوای من" description="مقاله و استوری پیشنهادی را مثل فرم مدیر مجموعه کامل کن؛ مدیر مجموعه فقط بررسی و انتشار را انجام می‌دهد." action_label="رفتن به مجله" action_url="/magazine/" badges=page_meta.badges %}
-
-  <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell>
-    <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش محتوای متخصص">
-      <div class="flex min-w-max gap-2">
-        <button type="button" data-dashboard-workspace-tab data-target="#creator-overview" aria-selected="true" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5">
-          <i class="fa-solid fa-chart-simple text-[10px]" aria-hidden="true"></i>
-          <span>خلاصه</span>
-        </button>
-
-        <button type="button" data-dashboard-workspace-tab data-target="#creator-article" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-          <i class="fa-regular fa-newspaper text-[10px]" aria-hidden="true"></i>
-          <span>مقاله</span>
-        </button>
-
-        <button type="button" data-dashboard-workspace-tab data-target="#creator-story" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-          <i class="fa-regular fa-circle-play text-[10px]" aria-hidden="true"></i>
-          <span>استوری</span>
-        </button>
-
-        <button type="button" data-dashboard-workspace-tab data-target="#creator-submissions" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-          <i class="fa-regular fa-rectangle-list text-[10px]" aria-hidden="true"></i>
-          <span>ارسال‌ها</span>
-          <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ submissions|length|fa_digits }}</span>
-        </button>
-
-        {% if submission_edit_forms %}
-          <button type="button" data-dashboard-workspace-tab data-target="#creator-edit" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-            <i class="fa-solid fa-pen-to-square text-[10px]" aria-hidden="true"></i>
-            <span>ویرایش</span>
-            <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ submission_edit_forms|length|fa_digits }}</span>
-          </button>
-        {% endif %}
-      </div>
-    </nav>
-  </div>
-
-  <details id="creator-overview"
+  <section id="creator-article"
            class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-           data-dashboard-workspace-panel
-           data-dashboard-workspace-open-mobile="true"
-           open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+           data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-content" data-lm-task-key="article" data-lm-task-label="مقاله جدید" data-lm-task-order="2">
+    <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
       <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">Creator Studio</p>
-        <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">استودیوی محتوای متخصص</h2>
-        <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-          برای مجموعه {{ stylist_salon.salon_name|default:"فعال" }} محتوا پیشنهاد بده؛ انتشار نهایی با مدیر مجموعه است.
-        </p>
-      </div>
-
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
-
-    <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-3 lg:p-6">
-      <article class="rounded-[28px] border border-loomera-borderSoft bg-loomera-bgSubtle p-5">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primaryText">
-          <i class="fa-regular fa-paper-plane" aria-hidden="true"></i>
-        </span>
-        <p class="mt-4 text-xs font-black text-loomera-textMuted">ارسال‌های من</p>
-        <strong class="mt-2 block text-3xl font-black text-loomera-textPrimary">{{ submissions|length|fa_digits }}</strong>
-      </article>
-
-      <article class="rounded-[28px] border border-loomera-borderSoft bg-loomera-bgSubtle p-5">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primaryText">
-          <i class="fa-regular fa-newspaper" aria-hidden="true"></i>
-        </span>
-        <p class="mt-4 text-xs font-black text-loomera-textMuted">مقاله پیشنهادی</p>
-        <strong class="mt-2 block text-3xl font-black text-loomera-textPrimary">✓</strong>
-      </article>
-
-      <article class="rounded-[28px] border border-loomera-borderSoft bg-loomera-bgSubtle p-5">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primaryText">
-          <i class="fa-regular fa-circle-play" aria-hidden="true"></i>
-        </span>
-        <p class="mt-4 text-xs font-black text-loomera-textMuted">استوری پیشنهادی</p>
-        <strong class="mt-2 block text-3xl font-black text-loomera-textPrimary">✓</strong>
-      </article>
-    </div>
-
-    <div class="mx-4 mb-4 rounded-[26px] border border-loomera-borderSoft bg-gradient-to-l from-loomera-primarySoft to-white px-5 py-4 sm:mx-5 lg:mx-6">
-      <h3 class="text-sm font-black text-loomera-textPrimary">قبل از ارسال</h3>
-      <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">
-        عنوان واضح، تصویر مناسب، متن کامل، برچسب و خدمت مرتبط را اضافه کن. اگر مشتری در تصویر یا متن قابل تشخیص است، وضعیت رضایت را دقیق انتخاب کن.
-      </p>
-    </div>
-  </details>
-
-  <details id="creator-article"
-           class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-           data-dashboard-workspace-panel
-           open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">Article Submission</p>
+        <p class="text-[11px] font-black text-loomera-primaryText">ارسال مقاله</p>
         <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ارسال مقاله پیشنهادی</h2>
         <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
           عنوان، متن، تصویر، برچسب و خدمات مرتبط مقاله را کامل کن.
         </p>
       </div>
-
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
+</header>
 
     <form method="post" enctype="multipart/form-data" class="space-y-5 p-4 sm:p-5 lg:p-6">
       {% csrf_token %}
@@ -190,7 +59,7 @@
         <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-[11px] font-black text-loomera-primaryText">Article Basics</p>
+              <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات مقاله</p>
               <h3 class="mt-1 text-base font-black text-loomera-textPrimary">اطلاعات اصلی مقاله</h3>
               <p class="mt-1 text-xs leading-6 text-loomera-textMuted">عنوان، رسانه و متن مقاله پیشنهادی را وارد کن.</p>
             </div>
@@ -241,7 +110,7 @@
         <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-[11px] font-black text-loomera-primaryText">Tags & Services</p>
+              <p class="text-[11px] font-black text-loomera-primaryText">برچسب‌ها و خدمات</p>
               <h3 class="mt-1 text-base font-black text-loomera-textPrimary">برچسب‌ها و خدمات مرتبط</h3>
               <p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای کمک به مدیر مجموعه، ارتباط محتوا با خدمات را دقیق مشخص کن.</p>
             </div>
@@ -324,7 +193,7 @@
         <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-[11px] font-black text-loomera-primaryText">Visibility & Consent</p>
+              <p class="text-[11px] font-black text-loomera-primaryText">نمایش و تأیید انتشار</p>
               <h3 class="mt-1 text-base font-black text-loomera-textPrimary">نمایش و رضایت مشتری</h3>
               <p class="mt-1 text-xs leading-6 text-loomera-textMuted">اگر مشتری در محتوا قابل شناسایی است، وضعیت رضایت را دقیق انتخاب کن.</p>
             </div>
@@ -366,7 +235,7 @@
         </div>
       </section>
 
-      <div class="sticky bottom-4 z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
+      <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p class="text-xs leading-6 text-loomera-textMuted">
             این مقاله فقط برای بررسی مدیر مجموعه فعال ارسال می‌شود.
@@ -379,25 +248,20 @@
         </div>
       </div>
     </form>
-  </details>
+  </section>
 
-  <details id="creator-story"
+  <section id="creator-story"
            class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-           data-dashboard-workspace-panel
-           open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+           data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-content" data-lm-task-key="story" data-lm-task-label="استوری جدید" data-lm-task-order="3">
+    <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
       <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">Story Submission</p>
+        <p class="text-[11px] font-black text-loomera-primaryText">ارسال استوری</p>
         <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ارسال استوری پیشنهادی</h2>
         <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
           تصویر یا ویدیو، کپشن، CTA و لینک پیشنهادی استوری را کامل کن.
         </p>
       </div>
-
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
+</header>
 
     <form method="post" enctype="multipart/form-data" class="space-y-5 p-4 sm:p-5 lg:p-6">
       {% csrf_token %}
@@ -424,7 +288,7 @@
         <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-[11px] font-black text-loomera-primaryText">Story Basics</p>
+              <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات استوری</p>
               <h3 class="mt-1 text-base font-black text-loomera-textPrimary">اطلاعات اصلی استوری</h3>
               <p class="mt-1 text-xs leading-6 text-loomera-textMuted">عنوان، رسانه و متن استوری پیشنهادی را وارد کن.</p>
             </div>
@@ -488,7 +352,7 @@
         <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-[11px] font-black text-loomera-primaryText">CTA</p>
+              <p class="text-[11px] font-black text-loomera-primaryText">لینک اقدام</p>
               <h3 class="mt-1 text-base font-black text-loomera-textPrimary">دکمه و لینک استوری</h3>
               <p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای استوری می‌توانی لینک رزرو، لینک صفحه سالن یا لینک خدمت پیشنهاد بدهی.</p>
             </div>
@@ -543,7 +407,7 @@
         <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-[11px] font-black text-loomera-primaryText">Tags & Services</p>
+              <p class="text-[11px] font-black text-loomera-primaryText">برچسب‌ها و خدمات</p>
               <h3 class="mt-1 text-base font-black text-loomera-textPrimary">برچسب‌ها و خدمات مرتبط</h3>
               <p class="mt-1 text-xs leading-6 text-loomera-textMuted">ارتباط استوری با خدمات یا گروه خدمات را مشخص کن.</p>
             </div>
@@ -627,7 +491,7 @@
         </div>
       </section>
 
-      <div class="sticky bottom-4 z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
+      <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p class="text-xs leading-6 text-loomera-textMuted">
             این استوری فقط برای بررسی مدیر مجموعه فعال ارسال می‌شود.
@@ -640,29 +504,32 @@
         </div>
       </div>
     </form>
-  </details>
+  </section>
 
-  <details id="creator-submissions"
+  <section id="creator-submissions"
            class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-           data-dashboard-workspace-panel
-           open>
-    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+           data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-content" data-lm-task-key="submissions" data-lm-task-label="ارسال‌های من" data-lm-task-default data-lm-task-order="1">
+    <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
       <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-primaryText">Submissions</p>
+        <p class="text-[11px] font-black text-loomera-primaryText">ارسال‌های من</p>
         <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ارسال‌های اخیر من</h2>
         <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
           وضعیت مقاله‌ها و استوری‌های پیشنهادی خودت را پیگیری کن.
         </p>
       </div>
+</header>
 
-      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-        <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-      </span>
-    </summary>
-
-    <div class="grid gap-4 p-4 sm:p-5 lg:grid-cols-2 lg:p-6">
+    <div class="p-4 sm:p-5 lg:p-6">
+      <div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3 text-center"><p class="text-[10px] font-bold text-loomera-textMuted">کل ارسال‌ها</p><strong class="mt-1 block text-lg font-black text-loomera-textPrimary">{{ stylist_content_summary.total|fa_digits }}</strong></div>
+        <div class="rounded-2xl bg-amber-50 px-3 py-3 text-center"><p class="text-[10px] font-bold text-amber-700">در بررسی</p><strong class="mt-1 block text-lg font-black text-amber-800">{{ stylist_content_summary.pending|fa_digits }}</strong></div>
+        <div class="rounded-2xl bg-rose-50 px-3 py-3 text-center"><p class="text-[10px] font-bold text-rose-700">نیازمند اصلاح</p><strong class="mt-1 block text-lg font-black text-rose-800">{{ stylist_content_summary.revision|fa_digits }}</strong></div>
+        <div class="rounded-2xl bg-emerald-50 px-3 py-3 text-center"><p class="text-[10px] font-bold text-emerald-700">تأیید/منتشر</p><strong class="mt-1 block text-lg font-black text-emerald-800">{{ stylist_content_summary.published|fa_digits }}</strong></div>
+      </div>
+      <input type="search" data-stylist-content-search placeholder="جستجو در عنوان یا وضعیت ارسال‌ها" class="mb-4 w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm outline-none focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+      <div class="grid gap-4 lg:grid-cols-2" data-stylist-content-list>
       {% for item in submissions %}
-        <article class="rounded-[28px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
+        <article class="rounded-[28px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4" data-stylist-content-card data-search-value="{{ item.title }} {{ item.get_status_display }} {{ item.get_submission_type_display }}">
           {% if item.media %}
             <a href="{{ item.media.url }}" target="_blank" rel="noopener" class="mb-4 block overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white">
               <img src="{{ item.media.url }}" alt="{{ item.title }}" class="h-44 w-full object-cover" loading="lazy">
@@ -698,27 +565,23 @@
           هنوز محتوایی ارسال نکرده‌ای.
         </p>
       {% endfor %}
+      </div>
     </div>
-  </details>
+  </section>
 
   {% if submission_edit_forms %}
-    <details id="creator-edit"
+    <section id="creator-edit"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             open>
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-content" data-lm-task-key="submissions" data-lm-task-label="ارسال‌های من" data-lm-task-default data-lm-task-order="1">
+      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">Edit & Resubmit</p>
+          <p class="text-[11px] font-black text-loomera-primaryText">ویرایش و ارسال دوباره</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ویرایش و ارسال دوباره</h2>
           <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
             محتوای در انتظار بررسی، ردشده یا نیازمند اصلاح را از اینجا کامل کن.
           </p>
         </div>
-
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-        </span>
-      </summary>
+</header>
 
       <div class="space-y-3 p-4 sm:p-5 lg:p-6">
         {% for item, form in submission_edit_forms %}
@@ -739,11 +602,7 @@
                 {{ hidden }}
               {% endfor %}
 
-              {% if form.errors %}
-                <div class="rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-700">
-                  {{ form.errors }}
-                </div>
-              {% endif %}
+              {% include "partials/form_errors.html" with form=form %}
 
               <div class="grid gap-3 md:grid-cols-2">
                 {% for field in form.visible_fields %}
@@ -772,7 +631,7 @@
           </details>
         {% endfor %}
       </div>
-    </details>
+    </section>
   {% endif %}
 </section>
 {% endblock %}
@@ -781,6 +640,15 @@
   {{ block.super }}
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      const contentSearch = document.querySelector("[data-stylist-content-search]");
+      const contentCards = Array.from(document.querySelectorAll("[data-stylist-content-card]"));
+      contentSearch?.addEventListener("input", function () {
+        const query = contentSearch.value.trim().toLowerCase();
+        contentCards.forEach((card) => {
+          const haystack = (card.dataset.searchValue || card.textContent || "").toLowerCase();
+          card.classList.toggle("hidden", Boolean(query) && !haystack.includes(query));
+        });
+      });
       document.addEventListener("click", function (event) {
         const button = event.target.closest("[data-copy-to]");
         if (!button) return;

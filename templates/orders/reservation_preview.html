@@ -1,395 +1,296 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}تأیید رزرو{% endblock %}
+
 {% block content %}
-  <div class="min-h-dvh bg-loomera-bg pb-40 pt-0 text-loomera-textPrimary lg:pb-16"
-       data-checkout-step="preview">
-    {% url 'orders:select_dateTime' as booking_back_url %}
-    {% include "orders/_booking_step_header.html" with step_current="4" page_title="تأیید رزرو" page_subtitle="جزئیات خدمت، متخصص، زمان و هزینه را قبل از ثبت نهایی بررسی کن." back_url=booking_back_url back_label="بازگشت به انتخاب زمان" only %}
-    <div class="mx-auto w-full max-w-7xl px-4 py-5 lg:px-6 lg:py-8 xl:px-0">
-      <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
-        <main class="min-w-0 space-y-5" aria-labelledby="checkout-heading">
-          <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6">
-            <div class="flex items-start gap-4">
-              {% if checkout.salon.banner_image %}
-                <img src="{{ checkout.salon.banner_image.url }}"
-                     alt="{{ checkout.salon.salon_name }}"
-                     class="h-20 w-20 shrink-0 rounded-3xl object-cover shadow-sm lg:h-28 lg:w-28">
-              {% else %}
-                <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-loomera-primarySoft text-2xl font-black text-loomera-primary shadow-sm lg:h-28 lg:w-28"
-                     aria-hidden="true">{{ checkout.salon.salon_name|first }}</div>
-              {% endif %}
-              <div class="min-w-0 flex-1">
-                <p class="hidden text-xs font-black uppercase tracking-wide text-loomera-primary lg:block">مرحله ۴ از ۴</p>
-                <h1 id="checkout-heading"
-                    class="text-xl font-black leading-9 text-loomera-textPrimary lg:text-3xl">جزئیات رزرو را بررسی کن</h1>
-                <h2 class="mt-2 truncate text-base font-black text-loomera-textPrimary">{{ checkout.salon.salon_name }}</h2>
-                {% if checkout.salon.address %}
-                  <p class="mt-1 line-clamp-2 text-sm leading-7 text-loomera-textMuted">{{ checkout.salon.address }}</p>
-                {% endif %}
-              </div>
-            </div>
-            <div class="mt-5 flex flex-wrap items-center gap-2"
-                 aria-label="زمان کلی رزرو">
-              <span class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-2 text-xs font-black text-loomera-textSecondary"><i class="fa-regular fa-calendar text-loomera-primary"
-   aria-hidden="true"></i>{{ checkout.overall_date_label }}</span>
-              <span class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-2 text-xs font-black text-loomera-textSecondary"><i class="fa-regular fa-clock text-loomera-primary" aria-hidden="true"></i>{{ checkout.overall_time_label }}</span>
-              {% if checkout.is_split_day_booking %}
-                <span class="inline-flex items-center rounded-full bg-loomera-infoSoft px-4 py-2 text-xs font-black text-loomera-info">رزرو چندروزه</span>
-              {% endif %}
-            </div>
-          </section>
-          <form method="post"
-                id="appointment-checkout-form"
-                action="{% url 'orders:checkout' %}"
-                class="space-y-5"
-                data-checkout-guard-form>
-            {% csrf_token %}
-            {% if checkout.is_split_day_booking %}
-              <section class="rounded-[2rem] border border-loomera-primary/20 bg-loomera-primarySoft/45 p-4 shadow-lm-soft lg:p-6"
-                       aria-labelledby="split-booking-title">
-                <div>
-                  <h2 id="split-booking-title"
-                      class="text-lg font-black text-loomera-textPrimary">این رزرو روی چند روز برنامه‌ریزی می‌شود</h2>
-                  <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">برای حفظ ترتیب خدمات، بخشی از رزرو روی روزهای بعد قرار گرفته است. جزئیات هر روز پیش از ثبت نهایی مشخص است.</p>
-                </div>
-                <div class="mt-4 grid gap-3 sm:grid-cols-2">
-                  {% for day in checkout.grouped_days %}
-                    <article class="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-sm">
-                      <div class="flex items-center justify-between gap-3">
-                        <span class="font-black text-loomera-textPrimary">{{ day.date }}</span>
-                        <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-xs font-black text-loomera-textSecondary">{{ day.service_count }} خدمت</span>
-                      </div>
-                      <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ day.start }} تا {{ day.end }}</p>
-                    </article>
-                  {% endfor %}
-                </div>
-              </section>
+<div class="min-h-dvh bg-loomera-bg pb-40 pt-0 text-loomera-textPrimary lg:pb-16" data-checkout-step="preview">
+  {% url 'orders:select_dateTime' as booking_back_url %}
+{% include "orders/_booking_step_header.html" with step_current="4" page_title="تأیید رزرو" page_subtitle="جزئیات خدمت، متخصص، زمان و هزینه را قبل از ثبت نهایی بررسی کن." back_url=booking_back_url back_label="بازگشت به انتخاب زمان" only %}
+
+  <div class="mx-auto w-full max-w-7xl px-4 py-5 lg:px-6 lg:py-8 xl:px-0">
+
+
+    <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+      <main class="min-w-0 space-y-5" aria-labelledby="checkout-heading">
+        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6">
+          <div class="flex items-start gap-4">
+            {% if checkout.salon.banner_image %}
+              <img src="{{ checkout.salon.banner_image.url }}" alt="{{ checkout.salon.salon_name }}" class="h-20 w-20 shrink-0 rounded-3xl object-cover shadow-sm lg:h-28 lg:w-28">
+            {% else %}
+              <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-loomera-primarySoft text-2xl font-black text-loomera-primary shadow-sm lg:h-28 lg:w-28" aria-hidden="true">{{ checkout.salon.salon_name|first }}</div>
             {% endif %}
-            <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6"
-                     aria-labelledby="checkout-services-title">
-              <div class="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p class="text-xs font-black uppercase tracking-wide text-loomera-primary">خلاصه نوبت</p>
-                  <h2 id="checkout-services-title"
-                      class="mt-1 text-xl font-black text-loomera-textPrimary lg:text-2xl">خدمات، متخصص‌ها و زمان</h2>
-                </div>
-                <span class="rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">{{ checkout.service_details|length }} خدمت</span>
+            <div class="min-w-0 flex-1">
+              <p class="hidden text-xs font-black uppercase tracking-wide text-loomera-primary lg:block">مرحله ۴ از ۴</p>
+              <h1 id="checkout-heading" class="text-xl font-black leading-9 text-loomera-textPrimary lg:text-3xl">جزئیات رزرو را بررسی کن</h1>
+              <h2 class="mt-2 truncate text-base font-black text-loomera-textPrimary">{{ checkout.salon.salon_name }}</h2>
+              {% if checkout.salon.address %}<p class="mt-1 line-clamp-2 text-sm leading-7 text-loomera-textMuted">{{ checkout.salon.address }}</p>{% endif %}
+            </div>
+          </div>
+
+          <div class="mt-5 flex flex-wrap items-center gap-2" aria-label="زمان کلی رزرو">
+            <span class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-2 text-xs font-black text-loomera-textSecondary"><i class="fa-regular fa-calendar text-loomera-primary" aria-hidden="true"></i>{{ checkout.overall_date_label }}</span>
+            <span class="inline-flex items-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-2 text-xs font-black text-loomera-textSecondary"><i class="fa-regular fa-clock text-loomera-primary" aria-hidden="true"></i>{{ checkout.overall_time_label }}</span>
+            {% if checkout.is_split_day_booking %}
+              <span class="inline-flex items-center rounded-full bg-loomera-infoSoft px-4 py-2 text-xs font-black text-loomera-info">رزرو چندروزه</span>
+            {% endif %}
+          </div>
+        </section>
+
+        <form method="post" id="appointment-checkout-form" action="{% url 'orders:checkout' %}" class="space-y-5" data-checkout-guard-form>
+          {% csrf_token %}
+
+          {% if checkout.is_split_day_booking %}
+            <section class="rounded-[2rem] border border-loomera-primary/20 bg-loomera-primarySoft/45 p-4 shadow-lm-soft lg:p-6" aria-labelledby="split-booking-title">
+              <div>
+                <h2 id="split-booking-title" class="text-lg font-black text-loomera-textPrimary">این رزرو روی چند روز برنامه‌ریزی می‌شود</h2>
+                <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">برای حفظ ترتیب خدمات، بخشی از رزرو روی روزهای بعد قرار گرفته است. جزئیات هر روز پیش از ثبت نهایی مشخص است.</p>
               </div>
-              <div class="mt-5 grid gap-3" role="list" aria-label="خدمات انتخاب‌شده">
-                {% for detail in checkout.service_details %}
-                  <article class="rounded-[1.6rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-sm transition hover:border-loomera-primary/25 hover:shadow-lm-soft"
-                           role="listitem">
-                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
-                      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm font-black text-loomera-primary"
-                           aria-hidden="true">{{ detail.sequence }}</div>
-                      <div class="min-w-0 flex-1">
-                        <h3 class="text-base font-black text-loomera-textPrimary">{{ detail.service.service_name }}</h3>
-                        <dl class="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-                          <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-2">
-                            <dt class="text-xs font-bold text-loomera-textMuted">متخصص</dt>
-                            <dd class="mt-1 font-black text-loomera-textPrimary">
-                              {{ detail.stylist.user.get_fullName }}
-                              {% if detail.auto_resolved %}<span class="mr-2 rounded-full bg-loomera-infoSoft px-2 py-1 text-[11px] text-loomera-info">انتخاب خودکار</span>{% endif %}
-                            </dd>
-                          </div>
-                          <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-2">
-                            <dt class="text-xs font-bold text-loomera-textMuted">تاریخ</dt>
-                            <dd class="mt-1 font-black text-loomera-textPrimary">
-                              {{ detail.date }}
-                            </dd>
-                          </div>
-                          <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-2">
-                            <dt class="text-xs font-bold text-loomera-textMuted">ساعت</dt>
-                            <dd class="mt-1 font-black text-loomera-textPrimary">
-                              {{ detail.time }} تا {{ detail.end_time }}
-                            </dd>
-                          </div>
-                          <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-2">
-                            <dt class="text-xs font-bold text-loomera-textMuted">مدت</dt>
-                            <dd class="mt-1 font-black text-loomera-textPrimary">
-                              {{ detail.duration }} دقیقه
-                            </dd>
-                          </div>
-                        </dl>
-                      </div>
-                      <div class="shrink-0 text-right sm:text-left">
-                        <strong class="block rounded-full bg-white px-3 py-2 text-sm font-black text-loomera-textPrimary shadow-sm ring-1 ring-loomera-borderSoft">{{ detail.price|floatformat:0 }} تومان</strong>
-                        {% if detail.has_service_discount %}<span class="mt-2 inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-black text-rose-700">تخفیف خدمات</span>{% endif %}
-                      </div>
+              <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                {% for day in checkout.grouped_days %}
+                  <article class="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-sm">
+                    <div class="flex items-center justify-between gap-3">
+                      <span class="font-black text-loomera-textPrimary">{{ day.date }}</span>
+                      <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-xs font-black text-loomera-textSecondary">{{ day.service_count }} خدمت</span>
                     </div>
+                    <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ day.start }} تا {{ day.end }}</p>
                   </article>
                 {% endfor %}
               </div>
             </section>
-            <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6"
-                     aria-labelledby="checkout-payment-title">
-              <div class="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p class="text-xs font-black uppercase tracking-wide text-loomera-primary">پرداخت</p>
-                  <h2 id="checkout-payment-title"
-                      class="mt-1 text-xl font-black text-loomera-textPrimary lg:text-2xl">تخفیف و روش پرداخت</h2>
-                </div>
-                {% if checkout.requires_online_payment %}
-                  <span class="rounded-full bg-loomera-infoSoft px-4 py-2 text-xs font-black text-loomera-info">اولین مراجعه • پرداخت دیجیتال</span>
-                {% endif %}
+          {% endif %}
+
+          <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6" aria-labelledby="checkout-services-title">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="text-xs font-black uppercase tracking-wide text-loomera-primary">خلاصه نوبت</p>
+                <h2 id="checkout-services-title" class="mt-1 text-xl font-black text-loomera-textPrimary lg:text-2xl">خدمات، متخصص‌ها و زمان</h2>
               </div>
-              <div class="mt-5 rounded-[1.6rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-                <label class="mb-2 block text-sm font-black text-loomera-textPrimary"
-                       for="{{ form.coupon_code.id_for_label }}">کد تخفیف</label>
+              <span class="rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">{{ checkout.service_details|length }} خدمت</span>
+            </div>
+
+            <div class="mt-5 grid gap-3" role="list" aria-label="خدمات انتخاب‌شده">
+              {% for detail in checkout.service_details %}
+                <article class="rounded-[1.6rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-sm transition hover:border-loomera-primary/25 hover:shadow-lm-soft" role="listitem">
+                  <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm font-black text-loomera-primary" aria-hidden="true">{{ detail.sequence }}</div>
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-base font-black text-loomera-textPrimary">{{ detail.service.service_name }}</h3>
+                      <dl class="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+                        <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-2"><dt class="text-xs font-bold text-loomera-textMuted">متخصص</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ detail.stylist.user.get_fullName }}{% if detail.auto_resolved %}<span class="mr-2 rounded-full bg-loomera-infoSoft px-2 py-1 text-[11px] text-loomera-info">انتخاب خودکار</span>{% endif %}</dd></div>
+                        <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-2"><dt class="text-xs font-bold text-loomera-textMuted">تاریخ</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ detail.date }}</dd></div>
+                        <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-2"><dt class="text-xs font-bold text-loomera-textMuted">ساعت</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ detail.time }} تا {{ detail.end_time }}</dd></div>
+                        <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-2"><dt class="text-xs font-bold text-loomera-textMuted">مدت</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ detail.duration }} دقیقه</dd></div>
+                      </dl>
+                    </div>
+                    <div class="shrink-0 text-right sm:text-left">
+                      <strong class="block rounded-full bg-white px-3 py-2 text-sm font-black text-loomera-textPrimary shadow-sm ring-1 ring-loomera-borderSoft">{{ detail.price|floatformat:0 }} تومان</strong>
+                      {% if detail.has_service_discount %}<span class="mt-2 inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-black text-rose-700">تخفیف خدمات</span>{% endif %}
+                    </div>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+          </section>
+
+          <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6" aria-labelledby="checkout-payment-title">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="text-xs font-black uppercase tracking-wide text-loomera-primary">پرداخت</p>
+                <h2 id="checkout-payment-title" class="mt-1 text-xl font-black text-loomera-textPrimary lg:text-2xl">تخفیف و روش پرداخت</h2>
+              </div>
+              {% if checkout.requires_online_payment %}
+                <span class="rounded-full bg-loomera-infoSoft px-4 py-2 text-xs font-black text-loomera-info">اولین مراجعه • پرداخت دیجیتال</span>
+              {% endif %}
+            </div>
+
+            <details class="mt-5 rounded-[1.6rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4" {% if checkout.coupon or form.coupon_code.errors %}open{% endif %}>
+              <summary class="cursor-pointer list-none text-sm font-black text-loomera-textPrimary">
+                <span class="inline-flex items-center gap-2"><i class="fa-solid fa-ticket text-loomera-primary" aria-hidden="true"></i>کد تخفیف داری؟</span>
+              </summary>
+              <div class="mt-4">
+                <label class="mb-2 block text-xs font-bold text-loomera-textMuted" for="{{ form.coupon_code.id_for_label }}">کد تخفیف</label>
                 <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
-                  <input type="text"
-                         name="{{ form.coupon_code.html_name }}"
-                         id="{{ form.coupon_code.id_for_label }}"
-                         value="{% if checkout.coupon %}{{ checkout.coupon.coupon_code }}{% endif %}"
-                         placeholder="کد تخفیف را وارد کن"
-                         autocomplete="off"
-                         data-checkout-coupon-input
-                         class="h-12 w-full rounded-full border border-loomera-borderSoft bg-white px-4 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted/70 focus:border-loomera-primary focus:ring-4 focus:ring-loomera-primary/15">
-                  <button type="submit"
-                          name="form_action"
-                          value="apply_coupon"
-                          class="inline-flex h-12 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-5 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
-                    اعمال تخفیف
-                  </button>
+                  <input
+                    type="text"
+                    name="{{ form.coupon_code.html_name }}"
+                    id="{{ form.coupon_code.id_for_label }}"
+                    value="{% if checkout.coupon %}{{ checkout.coupon.coupon_code }}{% endif %}"
+                    placeholder="کد تخفیف را وارد کن"
+                    autocomplete="off"
+                    data-checkout-coupon-input
+                    class="h-12 w-full rounded-full border border-loomera-borderSoft bg-white px-4 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted/70 focus:border-loomera-primary focus:ring-4 focus:ring-loomera-primary/15"
+                  >
+                  <button type="submit" name="form_action" value="apply_coupon" data-checkout-coupon-action="apply" class="inline-flex h-12 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-5 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">اعمال</button>
                   {% if checkout.coupon %}
-                    <button type="submit"
-                            name="form_action"
-                            value="clear_coupon"
-                            class="inline-flex h-12 items-center justify-center rounded-full px-5 text-sm font-black text-rose-700 transition hover:bg-rose-50">
-                      حذف کد
-                    </button>
+                    <button type="submit" name="form_action" value="clear_coupon" data-checkout-coupon-action="clear" class="inline-flex h-12 items-center justify-center rounded-full px-5 text-sm font-black text-rose-700 transition hover:bg-rose-50">حذف</button>
                   {% endif %}
                 </div>
                 {% if form.coupon_code.errors %}
                   <p class="mt-2 text-xs font-bold text-rose-700">{{ form.coupon_code.errors|join:'، ' }}</p>
-                {% else %}
-                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">اگر کد معتبر نباشد، رزرو بدون تخفیف هم قابل ادامه است.</p>
-                {% endif %}
-                {% if checkout.coupon %}
-                  <p class="mt-2 text-xs font-black text-emerald-700">کد {{ checkout.coupon.coupon_code }} با موفقیت روی مبلغ این رزرو اعمال شد.</p>
-                  {% if checkout.discount_cap_amount %}
-                    <p class="mt-1 text-xs text-loomera-textMuted">سقف این کد: {{ checkout.discount_cap_amount|floatformat:0 }} تومان</p>
-                  {% endif %}
+                {% elif checkout.coupon %}
+                  <p class="mt-2 text-xs font-black text-emerald-700">کد {{ checkout.coupon.coupon_code }} با موفقیت اعمال شد.</p>
                 {% endif %}
               </div>
-              {% if checkout.basket_discount_amount %}
-                <div class="mt-4 rounded-[1.6rem] border border-emerald-100 bg-emerald-50 p-4 text-sm leading-7 text-emerald-800">
-                  <p class="font-black">{{ checkout.basket_discount_title|default:'تخفیف خدمات' }}</p>
-                  <p class="mt-1">روی {{ checkout.basket_discount_service_count }} خدمت از این رزرو، {{ checkout.basket_discount_percent }}٪ تخفیف خدمات اعمال شده است.</p>
-                  <p class="mt-1 text-xs">
-                    مبلغ تخفیف: {{ checkout.basket_discount_amount|floatformat:0 }} تومان
-                    {% if checkout.basket_discount_cap_amount %} • سقف کمپین: {{ checkout.basket_discount_cap_amount|floatformat:0 }} تومان{% endif %}
-                  </p>
-                </div>
+            </details>
+
+            {% if checkout.basket_discount_amount %}
+              <div class="mt-4 rounded-[1.6rem] border border-emerald-100 bg-emerald-50 p-4 text-sm leading-7 text-emerald-800">
+                <p class="font-black">{{ checkout.basket_discount_title|default:'تخفیف خدمات' }}</p>
+                <p class="mt-1">{{ checkout.basket_discount_amount|floatformat:0 }} تومان تخفیف روی این رزرو اعمال شده است.</p>
+              </div>
+            {% endif %}
+
+            <div class="mt-5" data-checkout-payment-methods>
+              <p class="mb-3 text-sm font-black text-loomera-textPrimary">روش پرداخت</p>
+              {% if form.payment_method.field.choices|length == 1 %}
+                {% for value, label in form.payment_method.field.choices %}
+                  <input type="radio" name="{{ form.payment_method.html_name }}" value="{{ value }}" checked class="sr-only">
+                  <div data-payment-option
+                       data-selected="0"
+                       class="flex items-start gap-3 rounded-[1.4rem] border border-loomera-primary/20 bg-loomera-primarySoft/45 p-4 data-[selected=1]:border-loomera-primary data-[selected=1]:bg-loomera-primarySoft/55 data-[selected=1]:ring-2 data-[selected=1]:ring-loomera-primary/15">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-loomera-primary shadow-sm"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
+                    <span class="min-w-0 flex-1">
+                      <span class="block text-sm font-black text-loomera-textPrimary">{{ label }}</span>
+                      <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">نوبت الان ثبت می‌شود و مبلغ هنگام مراجعه داخل مجموعه پرداخت خواهد شد.</span>
+                    </span>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <fieldset>
+                  <legend class="sr-only">روش پرداخت</legend>
+                  <div class="grid gap-3" role="radiogroup" aria-label="روش پرداخت">
+                    {% for radio in form.payment_method %}
+                      <label data-payment-option
+                             data-selected="0"
+                             class="flex cursor-pointer items-start gap-3 rounded-[1.4rem] border border-loomera-borderSoft bg-white p-4 shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/35 data-[selected=1]:border-loomera-primary data-[selected=1]:bg-loomera-primarySoft/55 data-[selected=1]:shadow-lm-soft data-[selected=1]:ring-2 data-[selected=1]:ring-loomera-primary/15 [&_input]:mt-1 [&_input]:h-4 [&_input]:w-4 [&_input]:accent-loomera-primary">
+                        <span class="shrink-0">{{ radio.tag }}</span>
+                        <span class="min-w-0 flex-1">
+                          <span class="block text-sm font-black text-loomera-textPrimary">{{ radio.choice_label }}</span>
+                          {% if radio.data.value == 'online' %}
+                            <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">پرداخت از طریق درگاه انجام می‌شود.</span>
+                          {% elif radio.data.value == 'wallet' %}
+                            <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">موجودی کیف پول: {{ checkout.wallet_balance|floatformat:0 }} تومان</span>
+                          {% else %}
+                            <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">پرداخت هنگام مراجعه داخل مجموعه انجام می‌شود.</span>
+                          {% endif %}
+                        </span>
+                      </label>
+                    {% endfor %}
+                  </div>
+                </fieldset>
               {% endif %}
-              <fieldset class="mt-5" data-checkout-payment-methods>
-                <legend class="mb-3 text-sm font-black text-loomera-textPrimary">روش پرداخت</legend>
-                <div class="grid gap-3" role="radiogroup" aria-label="روش پرداخت">
-                  {% for radio in form.payment_method %}
-                    <label data-payment-option
-                           data-selected="0"
-                           class="flex cursor-pointer items-start gap-3 rounded-[1.4rem] border border-loomera-borderSoft bg-white p-4 shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/35 data-[selected=1]:border-loomera-primary data-[selected=1]:bg-loomera-primarySoft/55 data-[selected=1]:shadow-lm-soft data-[selected=1]:ring-2 data-[selected=1]:ring-loomera-primary/15 [&_input]:mt-1 [&_input]:h-4 [&_input]:w-4 [&_input]:accent-loomera-primary">
-                      <span class="shrink-0">{{ radio.tag }}</span>
-                      <span class="min-w-0 flex-1">
-                        <span class="block text-sm font-black text-loomera-textPrimary">{{ radio.choice_label }}</span>
-                        {% if radio.data.value == 'online' %}
-                          <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">پرداخت از طریق درگاه انجام می‌شود و رزرو بعد از تأیید پرداخت نهایی می‌شود.</span>
-                        {% elif radio.data.value == 'wallet' %}
-                          <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">پرداخت از موجودی کیف پول انجام می‌شود. موجودی فعلی: {{ checkout.wallet_balance|floatformat:0 }} تومان</span>
-                        {% else %}
-                          <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">رزرو ثبت می‌شود و پرداخت هنگام مراجعه داخل مجموعه انجام خواهد شد.</span>
-                        {% endif %}
-                      </span>
-                    </label>
-                  {% endfor %}
-                </div>
-                {% if form.payment_method.errors %}
-                  <p class="mt-2 text-xs font-bold text-rose-700">{{ form.payment_method.errors|join:'، ' }}</p>
-                {% endif %}
-              </fieldset>
-            </section>
-            <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6"
-                     aria-labelledby="checkout-price-title">
-              <h2 id="checkout-price-title"
-                  class="text-xl font-black text-loomera-textPrimary">خلاصه هزینه</h2>
-              <dl class="mt-5 space-y-3 text-sm">
-                <div class="flex items-center justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-4 py-3">
-                  <dt class="font-bold text-loomera-textMuted">جمع خدمات</dt>
-                  <dd class="font-black text-loomera-textPrimary">
-                    {{ checkout.subtotal|floatformat:0 }} تومان
-                  </dd>
-                </div>
-                {% if checkout.basket_discount_amount %}
-                  <div class="flex items-center justify-between gap-4 rounded-2xl bg-emerald-50 px-4 py-3">
-                    <dt class="font-bold text-emerald-700">
-                      تخفیف خدمات
-                      {% if checkout.basket_discount_title %}• {{ checkout.basket_discount_title }}{% endif %}
-                    </dt>
-                    <dd class="font-black text-emerald-700">
-                      {{ checkout.basket_discount_amount|floatformat:0 }} تومان
-                    </dd>
-                  </div>
-                {% endif %}
-                {% if checkout.coupon_discount_amount %}
-                  <div class="flex items-center justify-between gap-4 rounded-2xl bg-emerald-50 px-4 py-3">
-                    <dt class="font-bold text-emerald-700">
-                      تخفیف کد
-                      {% if checkout.coupon_code %}• {{ checkout.coupon_code }}{% endif %}
-                    </dt>
-                    <dd class="font-black text-emerald-700">
-                      {{ checkout.coupon_discount_amount|floatformat:0 }} تومان
-                    </dd>
-                  </div>
-                {% endif %}
-                <div class="flex items-center justify-between gap-4 rounded-2xl bg-emerald-50 px-4 py-3">
-                  <dt class="font-bold text-emerald-700">جمع کل تخفیف</dt>
-                  <dd class="font-black text-emerald-700">
-                    {{ checkout.discount_amount|floatformat:0 }} تومان
-                  </dd>
-                </div>
-                <div class="flex items-center justify-between gap-4 rounded-[1.4rem] bg-loomera-primary px-4 py-4 text-white shadow-lm-soft">
-                  <dt class="text-sm font-black">مبلغ قابل پرداخت</dt>
-                  <dd class="text-lg font-black">
-                    {{ checkout.total_amount|floatformat:0 }} تومان
-                  </dd>
-                </div>
-              </dl>
-            </section>
-            <section class="flex items-start gap-3 rounded-[2rem] border border-blue-100 bg-blue-50 p-4 shadow-lm-soft lg:p-5"
-                     aria-labelledby="checkout-policy-title">
-              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700">
-                <i class="fa-solid fa-shield-heart" aria-hidden="true"></i>
-              </div>
-              <div>
-                <h2 id="checkout-policy-title" class="text-sm font-black text-blue-950">{{ checkout.booking_policy.title }}</h2>
-                <p class="mt-2 text-sm leading-7 text-blue-900">{{ checkout.booking_policy.description }}</p>
-                <p class="mt-3 text-xs leading-6 text-blue-800">{{ checkout.booking_policy.hint }}</p>
-              </div>
-            </section>
-            <aside class="fixed inset-x-0 bottom-0 z-50 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur-md transition duration-200 ease-out data-[keyboard-hidden=true]:pointer-events-none data-[keyboard-hidden=true]:translate-y-full data-[keyboard-hidden=true]:opacity-0 lg:hidden"
-                   aria-label="ثبت نهایی رزرو"
-                   data-checkout-mobile-bar
-                   data-keyboard-hidden="false">
-              <div class="mx-auto flex w-full max-w-md items-center gap-3">
-                <div class="min-w-0 flex-1">
-                  <p class="text-xs font-bold text-loomera-textMuted">مبلغ نهایی</p>
-                  <p class="truncate text-lg font-black text-loomera-textPrimary">{{ checkout.total_amount|floatformat:0 }} تومان</p>
-                </div>
-                <button type="submit"
-                        id="appointment-checkout-submit"
-                        name="form_action"
-                        value="confirm_checkout"
-                        data-checkout-final-submit
-                        data-checkout-payment-cta
-                        data-loading-label="در حال ثبت رزرو"
-                        class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
-                  <i class="fa-solid fa-lock text-xs" aria-hidden="true"></i>
-                  <span>ثبت نهایی</span>
-                </button>
-              </div>
-            </aside>
-          </form>
-        </main>
-        <aside class="hidden lg:block lg:self-start"
-               style="position: sticky;
-                      top: 12rem;
-                      align-self: flex-start;
-                      height: fit-content"
-               aria-label="خلاصه نهایی رزرو">
-          <div class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-elevated">
-            <p class="text-xs font-black uppercase tracking-wide text-loomera-primary">خلاصه پرداخت</p>
-            <h2 class="mt-2 text-2xl font-black text-loomera-textPrimary">{{ checkout.total_amount|floatformat:0 }} تومان</h2>
-            <dl class="mt-5 space-y-3 text-sm text-loomera-textSecondary">
-              <div class="flex justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-3 py-2">
-                <dt>مجموعه</dt>
-                <dd class="font-black text-loomera-textPrimary">
-                  {{ checkout.salon.salon_name }}
-                </dd>
-              </div>
-              <div class="flex justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-3 py-2">
-                <dt>تاریخ</dt>
-                <dd class="font-black text-loomera-textPrimary">
-                  {{ checkout.overall_date_label }}
-                </dd>
-              </div>
-              <div class="flex justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-3 py-2">
-                <dt>ساعت</dt>
-                <dd class="font-black text-loomera-textPrimary">
-                  {{ checkout.overall_time_label }}
-                </dd>
-              </div>
-              <div class="flex justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-3 py-2">
-                <dt>تعداد خدمات</dt>
-                <dd class="font-black text-loomera-textPrimary">
-                  {{ checkout.service_details|length }}
-                </dd>
-              </div>
+              {% if form.payment_method.errors %}<p class="mt-2 text-xs font-bold text-rose-700">{{ form.payment_method.errors|join:'، ' }}</p>{% endif %}
+            </div>
+          </section>
+
+          <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-6" aria-labelledby="checkout-price-title">
+            <h2 id="checkout-price-title" class="text-xl font-black text-loomera-textPrimary">خلاصه هزینه</h2>
+            <dl class="mt-5 space-y-3 text-sm">
+              <div class="flex items-center justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-4 py-3"><dt class="font-bold text-loomera-textMuted">جمع خدمات</dt><dd class="font-black text-loomera-textPrimary">{{ checkout.subtotal|floatformat:0 }} تومان</dd></div>
+              {% if checkout.basket_discount_amount %}<div class="flex items-center justify-between gap-4 rounded-2xl bg-emerald-50 px-4 py-3"><dt class="font-bold text-emerald-700">تخفیف خدمات{% if checkout.basket_discount_title %} • {{ checkout.basket_discount_title }}{% endif %}</dt><dd class="font-black text-emerald-700">{{ checkout.basket_discount_amount|floatformat:0 }} تومان</dd></div>{% endif %}
+              {% if checkout.coupon_discount_amount %}<div class="flex items-center justify-between gap-4 rounded-2xl bg-emerald-50 px-4 py-3"><dt class="font-bold text-emerald-700">تخفیف کد{% if checkout.coupon_code %} • {{ checkout.coupon_code }}{% endif %}</dt><dd class="font-black text-emerald-700">{{ checkout.coupon_discount_amount|floatformat:0 }} تومان</dd></div>{% endif %}
+              <div class="flex items-center justify-between gap-4 rounded-2xl bg-emerald-50 px-4 py-3"><dt class="font-bold text-emerald-700">جمع کل تخفیف</dt><dd class="font-black text-emerald-700">{{ checkout.discount_amount|floatformat:0 }} تومان</dd></div>
+              <div class="flex items-center justify-between gap-4 rounded-[1.4rem] bg-loomera-primary px-4 py-4 text-white shadow-lm-soft"><dt class="text-sm font-black">مبلغ قابل پرداخت</dt><dd class="text-lg font-black">{{ checkout.total_amount|floatformat:0 }} تومان</dd></div>
             </dl>
-            <button type="submit"
-                    form="appointment-checkout-form"
-                    name="form_action"
-                    value="confirm_checkout"
-                    id="appointment-checkout-submit-desktop"
-                    data-checkout-final-submit
-                    data-checkout-payment-cta
-                    data-loading-label="در حال ثبت رزرو"
-                    class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
-              <i class="fa-solid fa-lock text-xs" aria-hidden="true"></i>
-              <span>ثبت نهایی رزرو</span>
-            </button>
-            <p class="mt-4 text-xs leading-6 text-loomera-textMuted">
-              قبل از ثبت نهایی، جزئیات خدمات، متخصص‌ها و زمان رزرو را بررسی کن.
-            </p>
-          </div>
-        </aside>
-      </div>
+          </section>
+
+          <section class="flex items-start gap-3 rounded-[2rem] border border-blue-100 bg-blue-50 p-4 shadow-lm-soft lg:p-5" aria-labelledby="checkout-policy-title">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i></div>
+            <div>
+              <h2 id="checkout-policy-title" class="text-sm font-black text-blue-950">{{ checkout.booking_policy.title }}</h2>
+              <p class="mt-2 text-sm leading-7 text-blue-900">{{ checkout.booking_policy.description }}</p>
+              <p class="mt-3 text-xs leading-6 text-blue-800">{{ checkout.booking_policy.hint }}</p>
+            </div>
+          </section>
+
+          <aside data-mobile-primary-action
+                 data-checkout-mobile-bar
+                 data-keyboard-hidden="false"
+                 class="fixed inset-x-0 bottom-0 z-50 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur-md transition duration-200 ease-out data-[keyboard-hidden=true]:pointer-events-none data-[keyboard-hidden=true]:translate-y-full data-[keyboard-hidden=true]:opacity-0 lg:hidden"
+                 aria-label="ثبت نهایی رزرو">
+            <div class="mx-auto flex w-full max-w-md items-center gap-3">
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold text-loomera-textMuted">مبلغ نهایی</p>
+                <p class="truncate text-lg font-black text-loomera-textPrimary">{{ checkout.total_amount|floatformat:0 }} تومان</p>
+              </div>
+              <button type="submit" id="appointment-checkout-submit" name="form_action" value="confirm_checkout" data-checkout-final-submit data-checkout-payment-cta data-loading-label="در حال ثبت رزرو" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40">
+                <i class="fa-solid fa-lock text-xs" aria-hidden="true"></i>
+                <span>ثبت نهایی</span>
+              </button>
+            </div>
+          </aside>
+        </form>
+      </main>
+
+      <aside
+        class="hidden lg:block lg:self-start"
+        style="position: sticky; top: 12rem; align-self: flex-start; height: fit-content;"
+        aria-label="خلاصه نهایی رزرو"
+      >
+        <div class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-elevated">
+          <p class="text-xs font-black uppercase tracking-wide text-loomera-primary">
+            خلاصه پرداخت
+          </p>
+
+          <h2 class="mt-2 text-2xl font-black text-loomera-textPrimary">
+            {{ checkout.total_amount|floatformat:0 }} تومان
+          </h2>
+
+          <dl class="mt-5 space-y-3 text-sm text-loomera-textSecondary">
+            <div class="flex justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-3 py-2">
+              <dt>مجموعه</dt>
+              <dd class="font-black text-loomera-textPrimary">
+                {{ checkout.salon.salon_name }}
+              </dd>
+            </div>
+
+            <div class="flex justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-3 py-2">
+              <dt>تاریخ</dt>
+              <dd class="font-black text-loomera-textPrimary">
+                {{ checkout.overall_date_label }}
+              </dd>
+            </div>
+
+            <div class="flex justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-3 py-2">
+              <dt>ساعت</dt>
+              <dd class="font-black text-loomera-textPrimary">
+                {{ checkout.overall_time_label }}
+              </dd>
+            </div>
+
+            <div class="flex justify-between gap-4 rounded-2xl bg-loomera-bgSubtle px-3 py-2">
+              <dt>تعداد خدمات</dt>
+              <dd class="font-black text-loomera-textPrimary">
+                {{ checkout.service_details|length }}
+              </dd>
+            </div>
+          </dl>
+
+          <button
+            type="submit"
+            form="appointment-checkout-form"
+            name="form_action"
+            value="confirm_checkout"
+            id="appointment-checkout-submit-desktop"
+            data-checkout-final-submit
+            data-checkout-payment-cta
+            data-loading-label="در حال ثبت رزرو"
+            class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3.5 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/40"
+          >
+            <i class="fa-solid fa-lock text-xs" aria-hidden="true"></i>
+            <span>ثبت نهایی رزرو</span>
+          </button>
+
+          <p class="mt-4 text-xs leading-6 text-loomera-textMuted">
+            قبل از ثبت نهایی، جزئیات خدمات، متخصص‌ها و زمان رزرو را بررسی کن.
+          </p>
+        </div>
+      </aside>
     </div>
   </div>
+</div>
 {% endblock %}
+
 {% block js %}
   <script src="{% static 'js/pages/booking_checkout_submit_guard.js' %}" defer></script>
 {% endblock %}
-{% comment %} {% block js %}
-  <script>
-(function () {
-  const getButtons = () => [
-    document.getElementById('appointment-checkout-submit'),
-    document.getElementById('appointment-checkout-submit-desktop'),
-  ].filter(Boolean);
-
-  const defaultLabels = new Map();
-
-  function resetCheckoutButtons() {
-    getButtons().forEach((button) => {
-      if (!defaultLabels.has(button)) {
-        defaultLabels.set(button, button.innerHTML);
-      }
-      button.disabled = false;
-      button.classList.remove('opacity-70', 'cursor-not-allowed');
-      button.innerHTML = defaultLabels.get(button);
-    });
-  }
-
-  function bindCheckoutSubmit() {
-    const form = document.getElementById('appointment-checkout-form');
-    if (!form || form.dataset.submitBound === '1') return;
-    form.dataset.submitBound = '1';
-    resetCheckoutButtons();
-
-    form.addEventListener('submit', function (event) {
-      const action = event.submitter?.value || '';
-      if (action !== 'confirm_checkout') return;
-      getButtons().forEach((button) => {
-        button.disabled = true;
-        button.classList.add('opacity-70', 'cursor-not-allowed');
-        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs" aria-hidden="true"></i><span>در حال ثبت رزرو</span>';
-      });
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', bindCheckoutSubmit);
-  window.addEventListener('pageshow', resetCheckoutButtons);
-})();
-</script>
-{% endblock %} {% endcomment %}

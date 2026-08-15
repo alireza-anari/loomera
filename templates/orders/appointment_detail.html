@@ -19,14 +19,12 @@
         <p class="text-[11px] font-black text-loomera-primary">جزئیات نوبت</p>
         <h1 class="truncate text-base font-black text-loomera-textPrimary">{{ appointment.salon.salon_name }}</h1>
       </div>
-      <button type="button" onclick="addToCalendar()" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-primary shadow-sm transition hover:bg-loomera-primarySoft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30" aria-label="افزودن به تقویم">
-        <i class="fa-regular fa-calendar-plus" aria-hidden="true"></i>
-      </button>
+      <span class="h-10 w-10" aria-hidden="true"></span>
     </div>
   </header>
 
   <!-- HERO -->
-  <section class="relative isolate overflow-hidden bg-slate-950" aria-label="اطلاعات اصلی نوبت">
+  <section class="relative isolate hidden overflow-hidden bg-slate-950 lg:block" aria-label="اطلاعات اصلی نوبت">
     {% if appointment.salon.banner_image %}
       <img src="{{ appointment.salon.banner_image.url }}" alt="{{ appointment.salon.salon_name }}" class="h-[260px] w-full object-cover opacity-80 lg:h-[340px]">
     {% else %}
@@ -71,7 +69,21 @@
     </div>
   </section>
 
-  <main class="mx-auto w-full max-w-7xl px-4 pb-8 pt-5 lg:px-6 lg:pb-16 xl:px-0">
+  <section class="mx-4 mt-4 rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:hidden" aria-label="خلاصه نوبت">
+    <div class="flex items-start justify-between gap-4">
+      <div class="min-w-0">
+        <p class="text-xs font-black text-loomera-primary">نوبت شما</p>
+        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">{{ visit_date_label }}</h2>
+        <p class="mt-1 text-sm font-bold text-loomera-textSecondary">{{ visit_time_label }} • {{ service_count }} خدمت</p>
+      </div>
+      <div class="shrink-0 text-left">
+        <p class="text-xs font-bold text-loomera-textMuted">مبلغ</p>
+        <strong class="mt-1 block text-base font-black text-loomera-textPrimary">{{ total_price|floatformat:0|intcomma }} تومان</strong>
+      </div>
+    </div>
+  </section>
+
+  <main class="mx-auto w-full max-w-7xl px-4 pb-8 pt-4 lg:px-6 lg:pb-16 lg:pt-5 xl:px-0">
     <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
       <div class="min-w-0 space-y-5">
         <!-- STATUS STRIP -->
@@ -424,7 +436,7 @@
         <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
           <h2 class="text-sm font-black text-loomera-textPrimary">شماره رزرو</h2>
           <p class="mt-2 font-mono text-sm text-loomera-textMuted">{{ appointment.order.order_number|default:'---' }}</p>
-          <a href="{% url 'salons:detail_salon' appointment.salon.id %}" class="mt-4 inline-flex w-full items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
+          <a href="{{ appointment.salon.get_absolute_url }}" class="mt-4 inline-flex w-full items-center justify-between rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textPrimary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
             <span class="inline-flex items-center gap-2"><i class="fa-solid fa-store" aria-hidden="true"></i>مشاهده صفحه مجموعه</span>
             <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
           </a>
@@ -435,7 +447,7 @@
 </div>
 
 <!-- MOBILE CTA -->
-<div class="fixed inset-x-0 bottom-0 z-50 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur-md lg:hidden">
+<div data-mobile-primary-action class="fixed inset-x-0 bottom-0 z-50 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur-md lg:hidden">
   <div class="mx-auto grid max-w-md grid-cols-2 gap-2">
     <button type="button" onclick="addToCalendar()" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary">تقویم</button>
     {% if show_manage_cta %}

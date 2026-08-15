@@ -1,5 +1,5 @@
 <article data-salon-card class="group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-loomera-borderSoft bg-white shadow-lm-soft transition duration-200 hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:shadow-lm-card">
-  <a href="{% url 'salons:detail_salon' salon.id %}" class="block" aria-label="مشاهده {{ salon.salon_name }}">
+  <a href="{{ salon.get_absolute_url }}" class="block" aria-label="مشاهده {{ salon.salon_name }}">
     <div class="relative h-40 overflow-hidden bg-loomera-primarySoft sm:h-44">
       {% if salon.card_image_url %}
         <img src="{{ salon.card_image_url }}" alt="{{ salon.salon_name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
@@ -46,7 +46,7 @@
     </div>
 
     <div class="mt-4 flex gap-2 pt-1">
-      <a href="{% url 'salons:detail_salon' salon.id %}" class="inline-flex flex-1 items-center justify-center rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-loomera-primaryHover">
+      <a href="{{ salon.get_absolute_url }}" class="inline-flex flex-1 items-center justify-center rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-loomera-primaryHover">
         مشاهده و رزرو
       </a>
     </div>

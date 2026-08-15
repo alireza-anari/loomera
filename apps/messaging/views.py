@@ -206,6 +206,16 @@ class MessagingPrivacyView(TemplateView):
 class MessagingDisconnectView(LoginRequiredMixin, View):
     http_method_names = ["post"]
 
+    def _safe_next_url(self, request) -> str:
+        next_url = str(request.POST.get("next") or "").strip()
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
+            return next_url
+        return reverse("messaging:status")
+
     def post(self, request, identity_id: int, *args, **kwargs):
         identity = get_object_or_404(
             MessagingIdentity.objects.select_related("provider", "user"),
@@ -215,4 +225,4 @@ class MessagingDisconnectView(LoginRequiredMixin, View):
         )
         disconnect_identity(identity)
         messages.success(request, "اتصال ربات بله با حساب شما قطع شد.", "success")
-        return redirect(reverse("messaging:status"))
+        return redirect(self._safe_next_url(request))

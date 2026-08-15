@@ -1,23 +1,86 @@
 {% extends "dashboard_template.html" %}
 
-{% block title %}تقویم و مدیریت نوبت‌ها{% endblock %}
+{% block title %}تقویم نوبت‌ها{% endblock %}
 
 {% block head %}
   {{ block.super }}
   <style>
     [data-appointments-workspace].is-loading {
-      opacity: 0.55;
+      opacity: .55;
       pointer-events: none;
-      transition: opacity 0.2s ease;
+      transition: opacity .2s ease;
     }
 
-    [data-dashboard-workspace-panel] > summary::-webkit-details-marker {
-      display: none;
+    .lm-calendar-stylist-chip {
+      border-color: color-mix(in srgb, var(--stylist-color) 22%, #E9E6F0);
+      background: color-mix(in srgb, var(--stylist-color) 7%, white);
+      color: #504A5F;
+    }
+    .lm-calendar-stylist-chip.is-active {
+      border-color: color-mix(in srgb, var(--stylist-color) 48%, #D9D3E6);
+      background: color-mix(in srgb, var(--stylist-color) 14%, white);
+      color: var(--stylist-color);
+      box-shadow: 0 8px 22px color-mix(in srgb, var(--stylist-color) 12%, transparent);
+    }
+    [data-calendar-stylist-avatar] {
+      color: var(--stylist-color);
+      background: color-mix(in srgb, var(--stylist-color) 12%, white);
+    }
+    .lm-calendar-view-toggle {
+      border: 1px solid transparent;
+    }
+    .lm-calendar-view-toggle.is-active,
+    .lm-calendar-view-toggle[aria-pressed="true"] {
+      border-color: #735CBE;
+      background: #735CBE;
+      color: white;
+      box-shadow: 0 8px 18px rgba(115, 92, 190, .2);
+    }
+    .lm-calendar-mobile-day {
+      border-color: #E9E6F0;
+      background: rgba(255,255,255,.92);
+      color: #5A5468;
+    }
+    .lm-calendar-mobile-day.is-active {
+      border-color: #735CBE;
+      background: #735CBE;
+      color: white;
+      box-shadow: 0 12px 24px rgba(115,92,190,.18);
+    }
+    .lm-calendar-mobile-day.is-active span { color: inherit; }
+    .lm-calendar-mobile-day.is-active span:last-child { background: rgba(255,255,255,.18); }
+    .lm-calendar-mobile-day:not(.is-active) span:last-child { background: #F6F4FA; }
+    .lm-calendar-mobile-day.is-today:not(.is-active) { border-color: rgba(115,92,190,.32); }
+
+    .lm-calendar-agenda-card {
+      border-color: color-mix(in srgb, var(--event-color) 24%, #E9E6F0);
+      background: linear-gradient(90deg, color-mix(in srgb, var(--event-color) 4%, white), color-mix(in srgb, var(--event-color) 9%, white));
+      box-shadow: inset -4px 0 0 var(--event-color);
+    }
+    .lm-calendar-agenda-card [data-calendar-time] {
+      border-color: color-mix(in srgb, var(--event-color) 18%, #E9E6F0);
+    }
+    .lm-calendar-agenda-card [data-calendar-stylist-name] { color: var(--event-color); }
+
+    .lm-calendar-week-event {
+      border-color: color-mix(in srgb, var(--event-color) 30%, #E9E6F0);
+      background: color-mix(in srgb, var(--event-color) 10%, white);
+      color: #383243;
+      box-shadow: inset -3px 0 0 var(--event-color), 0 4px 12px rgba(50,45,65,.05);
     }
 
-    [data-dashboard-workspace-tabs][data-dashboard-workspace-tabs-pinned="true"] {
-      box-shadow: 0 18px 40px rgba(46, 42, 60, 0.12);
+    @media (max-width: 1023.98px) {
+      .lm-calendar-week-view { display: none; }
+      .lm-calendar-day-view { display: block; }
     }
+    @media (min-width: 1024px) {
+      .lm-calendar-week-view { display: block; }
+      .lm-calendar-day-view { display: none; }
+    }
+    [data-appointment-calendar-board][data-calendar-mode="day"] .lm-calendar-day-view { display: block !important; }
+    [data-appointment-calendar-board][data-calendar-mode="day"] .lm-calendar-week-view { display: none !important; }
+    [data-appointment-calendar-board][data-calendar-mode="week"] .lm-calendar-day-view { display: none !important; }
+    [data-appointment-calendar-board][data-calendar-mode="week"] .lm-calendar-week-view { display: block !important; }
   </style>
 {% endblock %}
 
@@ -25,277 +88,165 @@
 
 {% block content %}
   {% if salon %}
-    <div id="appointmentWorkspace" data-appointments-workspace data-dashboard-workspace-root class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5">
-      <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="appointments-page-title">
-        <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
-
-        <div class="relative grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-stretch">
-          <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
-            <div class="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div class="min-w-0">
-                <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-                  <i class="fa-regular fa-calendar-days text-[10px]" aria-hidden="true"></i>
-                  <span class="truncate">تقویم عملیاتی مجموعه</span>
-                </span>
-
-                <h1 id="appointments-page-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-                  {{ appointment_management.workspace.page_title }}
-                </h1>
-                <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-                  {{ appointment_management.subtitle }}
-                </p>
-              </div>
-
-              <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
-                <i class="fa-solid fa-calendar-check text-lg" aria-hidden="true"></i>
+    <div id="appointmentWorkspace" data-appointments-workspace class="min-w-0 max-w-full space-y-4">
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5 lg:p-6" aria-labelledby="appointments-page-title">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 id="appointments-page-title" class="text-xl font-black text-loomera-textPrimary sm:text-2xl">تقویم نوبت‌ها</h1>
+              <span class="inline-flex items-center rounded-full bg-loomera-bgSubtle px-3 py-1.5 text-xs font-black text-loomera-textSecondary">
+                {{ appointment_management.workspace.calendar_rows_count_label }} نوبت
               </span>
             </div>
-
-            <div class="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div class="flex min-w-0 items-center justify-between gap-2 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-2 shadow-lm-soft lg:min-w-[26rem]" aria-label="کنترل تاریخ تقویم">
-                <a href="{{ appointment_management.focus_navigation.next_url }}"
-                   data-appointments-ajax-link
-                   class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"
-                   aria-label="روز بعد">
-                  <i class="fa-solid fa-angle-right" aria-hidden="true"></i>
-                </a>
-
-                <a href="{{ appointment_management.focus_navigation.today_url }}"
-                   data-appointments-ajax-link
-                   class="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-2xl bg-loomera-primary px-4 text-sm font-black text-white shadow-[0_16px_34px_rgba(115,92,190,0.20)] transition hover:opacity-95"
-                   aria-current="date">
-                  <span class="truncate">{{ appointment_management.schedule_board.date_label }}</span>
-                </a>
-
-                <a href="{{ appointment_management.focus_navigation.previous_url }}"
-                   data-appointments-ajax-link
-                   class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"
-                   aria-label="روز قبل">
-                  <i class="fa-solid fa-angle-left" aria-hidden="true"></i>
-                </a>
-              </div>
-
-              <div class="flex flex-wrap gap-2">
-                <a href="{{ appointment_management.focus_navigation.today_url }}" data-appointments-ajax-link class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-white">
-                  <i class="fa-solid fa-location-crosshairs text-[11px]" aria-hidden="true"></i>
-                  <span>امروز</span>
-                </a>
-                {% if appointment_management.has_filters %}
-                  <a href="{{ appointment_management.clear_filters_url }}" data-appointments-ajax-link class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
-                    <i class="fa-solid fa-filter-circle-xmark text-[11px]" aria-hidden="true"></i>
-                    <span>پاک‌سازی فیلترها</span>
-                  </a>
-                {% endif %}
-              </div>
-            </div>
+            <p class="mt-1 text-sm leading-7 text-loomera-textMuted">برنامه هفتگی تیم را یک‌جا ببین، متخصص‌ها را با رنگ تشخیص بده و نوبت را سریع باز کن.</p>
           </div>
 
-          <aside class="min-w-0 rounded-[26px] border border-loomera-primary/15 bg-gradient-to-br from-loomera-primary via-loomera-primaryHover to-loomera-primaryActive p-4 text-white shadow-lm-elevated sm:p-5 lg:p-6" aria-label="فوکوس تقویم">
-            <div class="flex min-w-0 items-center justify-between gap-3">
-              <div class="min-w-0">
-                <p class="text-[11px] font-black text-white/55">نمای فعال</p>
-                <h2 class="mt-1 truncate text-lg font-black">{{ appointment_management.active_range_label }}</h2>
-              </div>
-              <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-                <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-              </span>
-            </div>
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <button type="button" data-appointments-filter-open class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border {% if appointment_management.has_filters %}border-loomera-primary/25 bg-loomera-primarySoft text-loomera-primaryText{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary{% endif %} px-4 text-sm font-black shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/50">
+              <i class="fa-solid fa-filter text-xs" aria-hidden="true"></i>
+              <span>فیلتر</span>
+              {% if appointment_management.has_filters %}<span class="rounded-full bg-white px-2 py-0.5 text-[10px]">{{ appointment_management.active_filter_count }}</span>{% endif %}
+            </button>
+            <a href="{{ appointment_management.add_booking_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 text-sm font-black text-white shadow-[0_14px_30px_rgba(115,92,190,.18)] transition hover:bg-loomera-primaryHover">
+              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+              <span>ثبت نوبت</span>
+            </a>
+          </div>
+        </div>
 
-            <div class="mt-5 space-y-3">
-              {% for item in appointment_management.workspace.focus_items %}
-                <article class="min-w-0 rounded-[22px] border border-white/10 bg-white/10 p-4">
-                  <div class="flex min-w-0 items-start justify-between gap-3">
-                    <h3 class="min-w-0 flex-1 text-sm font-black leading-6 text-white">{{ item.title }}</h3>
-                    <span class="max-w-[42%] shrink-0 truncate rounded-full bg-white/10 px-3 py-1 text-[10px] font-black text-white">{{ item.value }}</span>
+        <div class="lm-mobile-scroll-strip mt-4 flex gap-2 overflow-x-auto pb-1" aria-label="فیلتر سریع نوبت‌ها">
+          {% for tab in appointment_management.tabs %}
+            {% if tab.key == 'all' or tab.key == 'attention' or tab.key == 'in_progress' or tab.key == 'unpaid' %}
+              <a href="{{ tab.url }}" data-appointments-ajax-link class="lm-app-touch-target inline-flex shrink-0 items-center gap-2 rounded-full border px-4 text-xs font-black transition {% if tab.is_active %}border-loomera-primary/20 bg-loomera-primarySoft text-loomera-primaryText{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary hover:bg-loomera-primarySoft/40{% endif %}">
+                <span>{{ tab.label }}</span>
+                <span class="rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px]">{{ tab.count_label }}</span>
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        {% if appointment_management.active_filter_chips %}
+          <div class="lm-mobile-scroll-strip mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="فیلترهای فعال">
+            {% for chip in appointment_management.active_filter_chips %}
+              <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-primarySoft px-3 py-2 text-[11px] font-black text-loomera-primaryText">{{ chip.label }}: {{ chip.value }}</span>
+            {% endfor %}
+            <a href="{{ appointment_management.clear_filters_url }}" data-appointments-ajax-link class="lm-app-touch-target inline-flex shrink-0 items-center rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary">پاک‌سازی</a>
+          </div>
+        {% endif %}
+      </section>
+
+      <section id="appointments-section-calendar" class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-3 shadow-lm-card sm:p-4 lg:p-5" aria-labelledby="calendar-board-title" data-lm-task-panel="appointments" data-lm-task-key="calendar" data-lm-task-label="تقویم" data-lm-task-default data-lm-task-order="1">
+        <div class="mb-4 flex items-center justify-between gap-3 px-1">
+          <div class="min-w-0">
+            <h2 id="calendar-board-title" class="text-base font-black text-loomera-textPrimary">تقویم تیم</h2>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">هر رنگ مربوط به یک متخصص است؛ روی هر نوبت بزن تا جزئیاتش باز شود.</p>
+          </div>
+          <span class="hidden shrink-0 items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-2 text-[11px] font-black text-loomera-primaryText sm:inline-flex">
+            <i class="fa-regular fa-calendar-days" aria-hidden="true"></i>
+            {{ appointment_management.week_calendar.appointment_count_label }} نوبت
+          </span>
+        </div>
+        {% include "dashboards/components/appointments_calendar_board.html" %}
+      </section>
+
+      <section class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-3 shadow-lm-card sm:p-5" aria-labelledby="appointments-list-title" id="appointments-section-list" data-lm-task-panel="appointments" data-lm-task-key="list" data-lm-task-label="فهرست نوبت‌ها" data-lm-task-order="2">
+        <div class="mb-4 flex items-center justify-between gap-3 px-1">
+          <div class="min-w-0">
+            <h2 id="appointments-list-title" class="text-base font-black text-loomera-textPrimary">فهرست نوبت‌ها</h2>
+            <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ appointment_management.active_range_label }} • {{ appointment_management.filter_summary.tab_label }}</p>
+          </div>
+          {% if appointment_management.has_filters %}
+            <a href="{{ appointment_management.clear_filters_url }}" data-appointments-ajax-link class="shrink-0 text-xs font-black text-loomera-primaryText">نمای امروز</a>
+          {% endif %}
+        </div>
+        {% if appointment_management.filters.tab == 'all' and appointment_management.workspace.awaiting_confirm_count_label != '۰' or appointment_management.filters.tab == 'all' and appointment_management.workspace.pay_in_salon_pending_count_label != '۰' or appointment_management.filters.tab == 'all' and appointment_management.workspace.in_service_count_label != '۰' %}
+        <section class="grid gap-3 sm:grid-cols-3" aria-label="موارد نیازمند توجه">
+          {% if appointment_management.workspace.awaiting_confirm_count_label != '۰' %}
+            <article class="rounded-[22px] border border-amber-100 bg-amber-50/70 p-4">
+              <p class="text-xs font-bold text-amber-700">در انتظار پیگیری</p>
+              <p class="mt-2 text-xl font-black text-loomera-textPrimary">{{ appointment_management.workspace.awaiting_confirm_count_label }}</p>
+            </article>
+          {% endif %}
+          {% if appointment_management.workspace.in_service_count_label != '۰' %}
+            <article class="rounded-[22px] border border-violet-100 bg-violet-50/70 p-4">
+              <p class="text-xs font-bold text-violet-700">در حال انجام خدمت</p>
+              <p class="mt-2 text-xl font-black text-loomera-textPrimary">{{ appointment_management.workspace.in_service_count_label }}</p>
+            </article>
+          {% endif %}
+          {% if appointment_management.workspace.pay_in_salon_pending_count_label != '۰' %}
+            <article class="rounded-[22px] border border-orange-100 bg-orange-50/70 p-4">
+              <p class="text-xs font-bold text-orange-700">تسویه در مجموعه مانده</p>
+              <p class="mt-2 text-xl font-black text-loomera-textPrimary">{{ appointment_management.workspace.pay_in_salon_pending_count_label }}</p>
+            </article>
+          {% endif %}
+        </section>
+      {% endif %}
+
+        {% include "dashboards/components/appointments_table.html" %}
+      </section>
+
+      <details id="appointments-section-team" class="group rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" data-lm-task-panel="appointments" data-lm-task-key="team" data-lm-task-label="نمای اعضا" data-lm-task-order="3">
+        <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 sm:px-5">
+          <div>
+            <h2 class="text-sm font-black text-loomera-textPrimary">برنامه تیم در این روز</h2>
+            <p class="mt-1 text-xs text-loomera-textMuted">نمای متخصص‌ها و نوبت‌های هر نفر</p>
+          </div>
+          <i class="fa-solid fa-chevron-down text-xs text-loomera-textMuted transition group-open:rotate-180" aria-hidden="true"></i>
+        </summary>
+        <div class="border-t border-loomera-borderSoft p-4 sm:p-5">
+          {% if appointment_management.schedule_board.columns %}
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {% for column in appointment_management.schedule_board.columns %}
+                <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4">
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                      <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ column.name }}</h3>
+                      <p class="mt-1 text-xs text-loomera-textMuted">{{ column.count_label }} نوبت</p>
+                    </div>
+                    <span class="h-3 w-3 shrink-0 rounded-full" style="background: {{ column.color }}"></span>
                   </div>
-                </article>
-              {% empty %}
-                <article class="rounded-[22px] border border-white/10 bg-white/10 p-4">
-                  <h3 class="text-sm font-black text-white">نمای تقویم آماده است</h3>
-                  <p class="mt-2 text-xs leading-6 text-white/72">فیلتر یا بازه ویژه‌ای برای پیگیری فوری وجود ندارد.</p>
+                  {% if column.appointments %}
+                    <div class="mt-3 space-y-2">
+                      {% for item in column.appointments %}
+                        <a href="{{ item.detail_url }}" class="flex items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 shadow-sm">
+                          <div class="min-w-0">
+                            <p class="truncate text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</p>
+                            <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ item.service_name }}</p>
+                          </div>
+                          <span class="shrink-0 text-sm font-black text-loomera-primaryText">{{ item.time_label }}</span>
+                        </a>
+                      {% endfor %}
+                    </div>
+                  {% else %}
+                    <p class="mt-3 rounded-2xl bg-white px-3 py-3 text-xs text-loomera-textMuted">نوبتی ندارد.</p>
+                  {% endif %}
                 </article>
               {% endfor %}
             </div>
-          </aside>
+          {% else %}
+            <p class="rounded-2xl bg-loomera-bgSubtle px-4 py-4 text-sm text-loomera-textMuted">عضو فعالی برای نمایش برنامه پیدا نشد.</p>
+          {% endif %}
         </div>
-      </section>
-
-      <section class="rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5 lg:p-6" aria-labelledby="appointments-readiness-title" data-appointments-readiness-card>
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">خلاصه عملیاتی</p>
-            <h2 id="appointments-readiness-title" class="mt-1 text-lg font-black text-loomera-textPrimary">وضعیت رزروهای این بازه</h2>
-            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای تصمیم سریع‌تر، تعداد نوبت‌ها، ارزش رزروها، پرداخت‌های معوق و اعضای درگیر را همین‌جا ببین.</p>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {% for action in appointment_management.workspace.quick_actions|slice:":3" %}
-              {% if action.url and action.url != '#' %}
-                <a href="{{ action.url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-white">
-                  <i class="{{ action.icon }} text-[11px]" aria-hidden="true"></i>
-                  <span>{{ action.title }}</span>
-                </a>
-              {% endif %}
-            {% endfor %}
-          </div>
-        </div>
-
-        <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <span class="text-xs font-bold text-loomera-textMuted">کل نوبت‌ها</span>
-            <strong class="mt-2 block text-xl font-black text-loomera-textPrimary">{{ appointment_management.workspace.rows_count_label }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">تعداد رزروهای مطابق فیلترهای فعلی.</p>
-          </article>
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <span class="text-xs font-bold text-loomera-textMuted">ارزش رزروها</span>
-            <strong class="mt-2 block text-xl font-black text-loomera-textPrimary">{{ appointment_management.workspace.total_value_label }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">جمع مبلغ رزروهای بازه فعال.</p>
-          </article>
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <span class="text-xs font-bold text-loomera-textMuted">پرداخت‌نشده</span>
-            <strong class="mt-2 block text-xl font-black text-loomera-textPrimary">{{ appointment_management.workspace.unpaid_count_label }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">مواردی که نیازمند پیگیری پرداخت هستند.</p>
-          </article>
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-            <span class="text-xs font-bold text-loomera-textMuted">اعضای درگیر</span>
-            <strong class="mt-2 block text-xl font-black text-loomera-textPrimary">{{ appointment_management.workspace.team_count_label }}</strong>
-            <p class="mt-2 text-xs leading-6 text-loomera-textMuted">تعداد اعضای تیم حاضر در این برنامه.</p>
-          </article>
-        </div>
-      </section>
-
-      <div class="relative min-h-[4.25rem]" data-dashboard-workspace-tabs-shell data-dashboard-workspace-tabs-gap="0">
-        <nav class="relative z-30 -mx-1 overflow-x-auto rounded-[26px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_16px_34px_rgba(46,42,60,0.10)] backdrop-blur supports-[backdrop-filter]:bg-white/90" data-dashboard-workspace-tabs aria-label="پیمایش بخش‌های تقویم نوبت‌ها">
-          <div class="flex min-w-max items-center gap-2">
-            <button type="button" data-appointments-filter-open class="inline-flex min-h-10 items-center gap-2 rounded-2xl border {% if appointment_management.has_filters %}border-loomera-primary/20 bg-loomera-primarySoft text-loomera-primaryText shadow-sm{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary{% endif %} px-4 py-2 text-xs font-black transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText">
-              <i class="fa-solid fa-filter text-[10px]" aria-hidden="true"></i>
-              <span>فیلترها</span>
-              {% if appointment_management.has_filters %}
-                <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText">{{ appointment_management.active_filter_count }}</span>
-              {% endif %}
-            </button>
-            <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primaryText shadow-sm transition hover:-translate-y-0.5" data-dashboard-workspace-tab data-target="appointments-section-summary">
-              <i class="fa-solid fa-chart-pie text-[10px]" aria-hidden="true"></i>
-              <span>خلاصه روز</span>
-              <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-black text-loomera-primaryText" data-dashboard-workspace-tab-badge>۴</span>
-            </button>
-            <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="appointments-section-board">
-              <i class="fa-solid fa-users-viewfinder text-[10px]" aria-hidden="true"></i>
-              <span>برنامه تیم</span>
-              <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ appointment_management.schedule_board.columns|length }}</span>
-            </button>
-            <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/45 hover:text-loomera-primaryText" data-dashboard-workspace-tab data-target="appointments-section-list">
-              <i class="fa-solid fa-list-check text-[10px]" aria-hidden="true"></i>
-              <span>فهرست و وضعیت‌ها</span>
-              <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-black text-loomera-textMuted" data-dashboard-workspace-tab-badge>{{ appointment_management.workspace.rows_count_label }}</span>
-            </button>
-          </div>
-        </nav>
-      </div>
+      </details>
 
       <div class="fixed inset-0 z-[90] hidden" data-appointments-filter-modal aria-hidden="true">
         <button type="button" class="absolute inset-0 bg-loomera-textPrimary/35 backdrop-blur-sm" data-appointments-filter-close aria-label="بستن فیلترها"></button>
-        <div class="absolute inset-x-3 top-[calc(env(safe-area-inset-top,0px)+5rem)] max-h-[calc(100vh-7rem)] overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white shadow-lm-elevated sm:left-1/2 sm:right-auto sm:w-[min(46rem,calc(100vw-2rem))] sm:-translate-x-1/2 lg:top-[6rem]">
-          <div class="flex items-start justify-between gap-3 border-b border-loomera-borderSoft px-4 py-4 sm:px-5">
-            <div class="min-w-0">
-              <p class="text-[11px] font-black text-loomera-primaryText">فیلترهای تقویم</p>
-              <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">محدود کردن رزروها</h2>
-              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">جستجو، تاریخ، متخصص، خدمت و وضعیت را بدون اشغال فضای اصلی صفحه تنظیم کن.</p>
+        <div class="absolute inset-x-3 top-[calc(env(safe-area-inset-top,0px)+5rem)] max-h-[calc(100vh-7rem)] overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-elevated sm:left-1/2 sm:right-auto sm:w-[min(42rem,calc(100vw-2rem))] sm:-translate-x-1/2 lg:top-[6rem]">
+          <div class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-4 sm:px-5">
+            <div>
+              <h2 class="text-base font-black text-loomera-textPrimary">فیلتر نوبت‌ها</h2>
+              <p class="mt-1 text-xs text-loomera-textMuted">فقط وقتی لازم است دامنه نوبت‌ها را محدود کن.</p>
             </div>
-            <button type="button" class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primaryText" data-appointments-filter-close aria-label="بستن">
-              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-            </button>
+            <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary" data-appointments-filter-close aria-label="بستن"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
           </div>
-          <div class="max-h-[calc(100vh-14rem)] overflow-y-auto p-3 sm:p-5">
+          <div class="max-h-[calc(100vh-13rem)] overflow-y-auto p-3 sm:p-4">
             {% include "dashboards/components/filter_bar.html" %}
-            {% if appointment_management.active_filter_chips %}
-              <div class="mt-4 flex gap-2 overflow-x-auto pb-1" role="list" aria-label="فیلترهای فعال">
-                {% for chip in appointment_management.active_filter_chips %}
-                  <span class="inline-flex shrink-0 items-center rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-2 text-[11px] font-black text-loomera-primaryText" role="listitem">{{ chip.label }}: {{ chip.value }}</span>
-                {% endfor %}
-                <a href="{{ appointment_management.clear_filters_url }}" data-appointments-ajax-link class="inline-flex shrink-0 items-center rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary" role="listitem">پاک‌سازی</a>
-              </div>
-            {% endif %}
           </div>
         </div>
       </div>
-
-      <details id="appointments-section-summary" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="false" open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">نمای روز</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">خلاصه روز و اقدامات سریع</h2>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-          </span>
-        </summary>
-
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {% for item in appointment_management.schedule_board.summary|slice:":4" %}
-              <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-                <span class="block truncate text-xs font-bold text-loomera-textMuted">{{ item.label }}</span>
-                <strong class="mt-2 block truncate text-lg font-black text-loomera-textPrimary">{{ item.value }}</strong>
-              </article>
-            {% endfor %}
-          </div>
-
-          <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft"><span class="text-xs font-bold text-loomera-textMuted">کل نوبت‌ها</span><strong class="mt-2 block text-lg font-black text-loomera-textPrimary">{{ appointment_management.workspace.rows_count_label }}</strong></article>
-            <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft"><span class="text-xs font-bold text-loomera-textMuted">ارزش رزروها</span><strong class="mt-2 block text-lg font-black text-loomera-textPrimary">{{ appointment_management.workspace.total_value_label }}</strong></article>
-            <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft"><span class="text-xs font-bold text-loomera-textMuted">پرداخت‌نشده</span><strong class="mt-2 block text-lg font-black text-loomera-textPrimary">{{ appointment_management.workspace.unpaid_count_label }}</strong></article>
-            <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft"><span class="text-xs font-bold text-loomera-textMuted">انجام‌شده</span><strong class="mt-2 block text-lg font-black text-loomera-textPrimary">{{ appointment_management.workspace.completed_count_label }}</strong></article>
-          </div>
-        </div>
-      </details>
-
-      <details id="appointments-section-board" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="true" open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">برنامه روزانه</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">برنامه روزانه تیم</h2>
-            <p class="mt-1 hidden text-xs leading-6 text-loomera-textMuted sm:block">{{ appointment_management.schedule_board.date_label }} • {{ appointment_management.schedule_board.opening_label }}</p>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-          </span>
-        </summary>
-
-        <div class="p-3 sm:p-5 lg:p-6">
-          {% if appointment_management.schedule_board.time_slots %}
-            <div class="mb-4 flex gap-2 overflow-x-auto pb-1" aria-label="ساعت‌های دارای نوبت">
-              {% for slot in appointment_management.schedule_board.time_slots %}<span class="inline-flex shrink-0 rounded-full bg-loomera-bgSubtle px-3 py-2 text-[11px] font-black text-loomera-textMuted">{{ slot }}</span>{% endfor %}
-            </div>
-          {% endif %}
-          {% include "dashboards/partials/appointment_schedule_board.html" with calendar_mode="responsive" %}
-        </div>
-      </details>
-
-      <details id="appointments-section-list" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-dashboard-workspace-open-mobile="false" open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">پیگیری و عملیات</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">فهرست نوبت‌ها و عملیات گروهی</h2>
-          </div>
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
-          </span>
-        </summary>
-
-        <div class="p-3 sm:p-5 lg:p-6">
-          <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <p class="text-xs leading-6 text-loomera-textMuted">دسته‌بندی وضعیت‌ها و فهرست عملیات گروهی در یک بخش قرار گرفته‌اند تا پیگیری نوبت‌ها سریع‌تر و متمرکزتر باشد.</p>
-            <span class="inline-flex w-fit rounded-full bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText">{{ appointment_management.filter_summary.tab_label }}</span>
-          </div>
-          <div class="mb-4 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-2">
-            {% include "dashboards/components/header_tabs.html" %}
-          </div>
-          {% include "dashboards/components/appointments_table.html" %}
-        </div>
-      </details>
     </div>
   {% else %}
     {% url "dashboards:salon_manager_dashboard" as dashboard_overview_url %}
-    {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-building" title="مجموعه فعالی برای این حساب پیدا نشد" description="برای استفاده از مدیریت نوبت‌ها ابتدا باید یک مجموعه به حساب مدیر متصل باشد." action_label="بازگشت به داشبورد" action_url=dashboard_overview_url %}
+    {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-building" title="مجموعه فعالی برای این حساب پیدا نشد" description="برای مدیریت نوبت‌ها ابتدا باید یک مجموعه به حساب مدیر متصل باشد." action_label="بازگشت به داشبورد" action_url=dashboard_overview_url %}
   {% endif %}
 {% endblock %}
