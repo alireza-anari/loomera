@@ -332,7 +332,7 @@ export function setupFiltersUI() {
       items.forEach((item) => {
         const button = document.createElement("button");
         button.type = "button";
-        button.className = "inline-flex items-center gap-2 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-[11px] font-black text-loomera-primary transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600";
+        button.className = "inline-flex shrink-0 items-center gap-1.5 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-2.5 py-1.5 text-[10px] font-black text-loomera-primary transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600";
         button.innerHTML = `<span class="opacity-70">${item.label}:</span><span>${item.value}</span><i class="fa-solid fa-xmark text-[10px]"></i>`;
         button.setAttribute("aria-label", `حذف فیلتر ${item.label}`);
         button.addEventListener("click", () => removeActiveFilter(item.key));

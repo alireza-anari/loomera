@@ -157,9 +157,10 @@
       </section>
 
       <!-- SECTION NAV -->
+      <div class="sticky z-30 -mx-4 md:mx-0" style="top: var(--lm-detail-topbar-height, 64px);">
       <nav
         data-section-nav
-        class="sticky top-[calc(var(--lm-detail-topbar-height,64px)-1.25rem)] z-30 -mx-4 overflow-x-auto border-y border-loomera-borderSoft bg-white/95 px-4 py-2 shadow-lm-soft backdrop-blur-md transition-opacity duration-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:rounded-3xl md:border"
+        class="overflow-x-auto border-y border-loomera-borderSoft bg-white/95 px-4 py-2 shadow-lm-soft backdrop-blur-md transition-opacity duration-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:rounded-3xl md:border"
         aria-label="بخش‌های صفحه مجموعه"
       >
         <ul class="flex whitespace-nowrap text-sm font-bold" role="list">
@@ -170,6 +171,7 @@
           <li><a href="#about" class="inline-flex shrink-0 rounded-full px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">اطلاعات مجموعه</a></li>
         </ul>
       </nav>
+      </div>
 
       <!-- SERVICES -->
       <section id="services" class="lm-venue-section lm-service-selection-section lm-card lm-card--spacious scroll-mt-32 lg:scroll-mt-40" aria-labelledby="servicesTitle">
@@ -362,9 +364,7 @@
       <section id="about" class="lm-venue-section lm-card lm-card--spacious" aria-labelledby="aboutTitle">
         <div class="lm-venue-section__header">
           <div>
-            <p class="lm-overline">قبل از رزرو</p>
             <h2 id="aboutTitle" class="lm-section-title">اطلاعات {{ salon.salon_name }}</h2>
-            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">معرفی، ساعات کاری و امکانات مجموعه در یک بخش.</p>
           </div>
           {% if salon.location %}<a href="#location" class="inline-flex shrink-0 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-primary"><i class="fa-solid fa-location-dot"></i>موقعیت</a>{% endif %}
         </div>
