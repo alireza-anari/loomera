@@ -3144,14 +3144,38 @@ class SalonProfileCreatorStep8View(
 
     def post(self, request, *args, **kwargs):
         salon = self.get_salon()
+        was_profile_edit_mode = _is_manager_profile_edit_mode(request.user)
         form = self.form_class(request.POST, instance=salon)
         if form.is_valid():
             form.save()
-            messages.success(request, "توضیحات مجموعه ذخیره شد.")
-            if _is_manager_profile_edit_mode(request.user):
-                return redirect("dashboards:salon_profile")
 
-            return redirect("dashboards:salon_manager_dashboard")
+            # Completing the initial profile publishes the salon immediately.
+            # Booking readiness is a separate follow-up flow: service, team and
+            # schedule are required for receiving appointments, not for making
+            # the public salon page available.
+            activated_now = False
+            if not salon.is_active:
+                salon.is_active = True
+                salon.save(update_fields=["is_active"])
+                activated_now = True
+
+            if not was_profile_edit_mode:
+                messages.success(
+                    request,
+                    (
+                        "اطلاعات اولیه مجموعه تکمیل شد و صفحه مجموعه فعال است. "
+                        "برای دریافت نوبت، اولین خدمت، عضو تیم و برنامه کاری را اضافه کن."
+                    ),
+                )
+                return redirect(
+                    f'{reverse("dashboards:salon_profile")}?setup=booking'
+                )
+
+            if activated_now:
+                messages.success(request, "توضیحات ذخیره شد و صفحه مجموعه فعال شد.")
+            else:
+                messages.success(request, "توضیحات مجموعه ذخیره شد.")
+            return redirect("dashboards:salon_profile")
 
         context = self.get_context_data(form=form)
         messages.error(request, "لطفاً توضیحات مجموعه را تکمیل کنید.")
@@ -3333,7 +3357,7 @@ class SalonProfileView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vie
                 "title": "معرفی مجموعه",
                 "description": "متن کوتاهی که سبک، تجربه و فضای مجموعه را معرفی می‌کند.",
                 "meta": f"{to_persian_digits(description_length)} از ۶۰۰ کاراکتر",
-                "is_ready": description_length >= 200,
+                "is_ready": description_length > 0,
                 "url": reverse("dashboards:salon_profile_creator_step8"),
                 "cta_label": "ویرایش معرفی",
                 "icon": "fa-regular fa-file-lines",
@@ -3354,15 +3378,64 @@ class SalonProfileView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vie
             profile_quality_label = "نیازمند تکمیل"
 
         booking_readiness = build_salon_readiness_checklist(salon_with_stats)
-        activation_items = [
-            item for item in booking_readiness["booking_items"]
-            if item["key"] != "public_active"
+        readiness_by_key = {
+            item["key"]: item for item in booking_readiness["items"]
+        }
+
+        service_item = readiness_by_key.get("services", {})
+        team_item = readiness_by_key.get("team", {})
+        stylist_services_item = readiness_by_key.get("stylist_services", {})
+        bookable_path_item = readiness_by_key.get("bookable_path", {})
+
+        booking_setup_items = [
+            {
+                "key": "service",
+                "title": "اولین خدمت را اضافه کن",
+                "description": "برای شروع دریافت نوبت، یک خدمت فعال با مدت‌زمان معتبر کافی است.",
+                "is_done": bool(service_item.get("is_done")),
+                "url": reverse("dashboards:add_service"),
+                "action_label": "افزودن خدمت",
+                "icon": "fa-solid fa-scissors",
+            },
+            {
+                "key": "team",
+                "title": "یک عضو تیم اضافه کن",
+                "description": "حداقل یک عضو فعال اضافه کن و یکی از خدمات مجموعه را به او متصل کن.",
+                "is_done": bool(
+                    team_item.get("is_done")
+                    and stylist_services_item.get("is_done")
+                ),
+                "url": reverse("dashboards:add_stylist"),
+                "action_label": "افزودن عضو",
+                "icon": "fa-solid fa-user-plus",
+            },
+            {
+                "key": "schedule",
+                "title": "برنامه کاری عضو را تنظیم کن",
+                "description": "برای عضو متصل به خدمت، یک برنامه کاری جاری یا آینده بساز تا زمان رزرو ایجاد شود.",
+                "is_done": bool(bookable_path_item.get("is_done")),
+                "url": reverse("dashboards:scheduled_shifts"),
+                "action_label": "تنظیم برنامه کاری",
+                "icon": "fa-regular fa-calendar-days",
+            },
         ]
-        activation_prerequisites_met = all(item["is_done"] for item in activation_items)
-        next_activation_item = next(
-            (item for item in activation_items if not item["is_done"]),
+        booking_setup_completed_count = sum(
+            1 for item in booking_setup_items if item["is_done"]
+        )
+        booking_setup_complete = booking_setup_completed_count == len(
+            booking_setup_items
+        )
+        next_booking_setup_item = next(
+            (item for item in booking_setup_items if not item["is_done"]),
             None,
         )
+
+        # Publication depends only on the initial onboarding profile. Services,
+        # team, schedules, payout and verification are not publication blockers.
+        activation_prerequisites_met = (
+            _get_required_onboarding_view_name(request.user) is None
+        )
+        next_activation_item = None
 
         context = {
             "salon": salon_with_stats,
@@ -3388,6 +3461,15 @@ class SalonProfileView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vie
                 ),
                 "address_label": salon_with_stats.address or "—",
                 "booking_readiness": booking_readiness,
+                "booking_setup_items": booking_setup_items,
+                "booking_setup_complete": booking_setup_complete,
+                "booking_setup_completed_count_label": to_persian_digits(
+                    booking_setup_completed_count
+                ),
+                "booking_setup_total_count_label": to_persian_digits(
+                    len(booking_setup_items)
+                ),
+                "next_booking_setup_item": next_booking_setup_item,
                 "activation_prerequisites_met": activation_prerequisites_met,
                 "next_activation_item": next_activation_item,
             },
@@ -4836,6 +4918,7 @@ def membership(request):
         and snapshot["opening_days_count"] > 0
     )
     payout_ready = bool(salon and salon.payout_profile_complete)
+    online_payment_enabled = bool(getattr(settings, "ONLINE_PAYMENT_ENABLED", False))
     trust_ready = snapshot["gallery_count"] > 0 and snapshot["supplementary_count"] > 0
 
     readiness_items = [
@@ -4858,14 +4941,6 @@ def membership(request):
             "cta_url": reverse("dashboards:online_booking"),
         },
         {
-            "title": "تسویه و اطلاعات مالی",
-            "description": "موتور subscription هنوز فعال نیست، اما readiness اطلاعات تسویه و policyهای پایه باید مشخص باشند.",
-            "is_ready": payout_ready,
-            "meta": salon.cancellation_policy_summary if salon else "—",
-            "cta_label": "مالی",
-            "cta_url": reverse("dashboards:finance_withdraw"),
-        },
-        {
             "title": "اعتماد صفحه و محتوای تکمیلی",
             "description": "تصاویر و ویژگی‌های تکمیلی برای کیفیت تجربه partner و public booking اهمیت دارند.",
             "is_ready": trust_ready,
@@ -4874,6 +4949,18 @@ def membership(request):
             "cta_url": reverse("dashboards:salon_profile"),
         },
     ]
+    if online_payment_enabled:
+        readiness_items.append(
+            {
+                "title": "تسویه و اطلاعات مالی",
+                "description": "برای دریافت و تسویه پرداخت آنلاین، اطلاعات حساب و قوانین مالی را تکمیل کن.",
+                "is_ready": payout_ready,
+                "meta": salon.cancellation_policy_summary if salon else "—",
+                "cta_label": "مالی",
+                "cta_url": reverse("dashboards:finance_withdraw"),
+            }
+        )
+
     ready_count = sum(1 for item in readiness_items if item["is_ready"])
     readiness_progress = (
         int((ready_count / len(readiness_items)) * 100) if readiness_items else 0
@@ -14766,32 +14853,27 @@ class StylistNotificationCenterView(StylistDashboardGuardMixin, View):
 
 
 def _activate_salon_public_page(request, salon):
-    """Activate the public page using the canonical booking-readiness checks."""
+    """Publish a completed onboarding profile without booking/finance blockers."""
     if salon.is_active:
         messages.info(request, "صفحه عمومی مجموعه قبلاً فعال شده است.")
         return None
 
-    readiness = build_salon_readiness_checklist(salon)
-    next_prerequisite = next(
-        (
-            item
-            for item in readiness["booking_items"]
-            if item["key"] != "public_active" and not item["is_done"]
-        ),
-        None,
-    )
-    if next_prerequisite:
+    required_view_name = _get_required_onboarding_view_name(request.user)
+    if required_view_name:
         messages.warning(
             request,
-            f"قبل از فعال‌سازی صفحه عمومی، این مورد را کامل کن: {next_prerequisite['title']}",
+            "قبل از انتشار صفحه مجموعه، اطلاعات اولیه پروفایل را کامل کن.",
         )
-        return next_prerequisite.get("action_url") or reverse("dashboards:salon_profile")
+        return reverse(required_view_name)
 
     salon.is_active = True
     salon.save(update_fields=["is_active"])
     messages.success(
         request,
-        "صفحه عمومی مجموعه فعال شد. حالا مسیر رزرو را یک‌بار از نگاه مشتری بررسی کن.",
+        (
+            "صفحه عمومی مجموعه فعال شد. برای دریافت نوبت، "
+            "یک خدمت، عضو تیم و برنامه کاری اضافه کن."
+        ),
     )
     return None
 

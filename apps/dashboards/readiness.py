@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 
@@ -292,11 +293,11 @@ def build_salon_readiness_checklist(
         ),
         _build_item(
             key="services",
-            title="حداقل ۳ خدمت فعال با مدت‌زمان معتبر وجود دارد",
-            description="برای شروع رزرو آنلاین، بهتر است حداقل سه خدمت با مدت‌زمان معتبر فعال باشد.",
-            is_done=active_services_count >= 3 and priced_services_count >= 3,
-            action_label="مدیریت خدمات",
-            action_url=_safe_reverse("dashboards:service_menu"),
+            title="حداقل یک خدمت فعال با مدت‌زمان معتبر وجود دارد",
+            description="برای شروع دریافت نوبت، ثبت یک خدمت فعال با مدت‌زمان معتبر کافی است.",
+            is_done=active_services_count >= 1 and priced_services_count >= 1,
+            action_label="افزودن یا مدیریت خدمت",
+            action_url=_safe_reverse("dashboards:add_service"),
             weight=2,
         ),
         _build_item(
@@ -348,15 +349,6 @@ def build_salon_readiness_checklist(
             weight=1,
         ),
         _build_item(
-            key="payout",
-            title="اطلاعات تسویه تکمیل شده است",
-            description="برای تسویه منظم، شبا، نام صاحب حساب و موبایل مسئول تسویه باید ثبت شود.",
-            is_done=payout_is_complete,
-            action_label="تنظیمات تسویه",
-            action_url=_safe_reverse("dashboards:payout_settings"),
-            weight=1,
-        ),
-        _build_item(
             key="verification",
             title="وضعیت احراز سالن تأیید شده است",
             description="برای نمایش مطمئن‌تر در فضای عمومی، وضعیت احراز باید تأیید شود.",
@@ -367,8 +359,8 @@ def build_salon_readiness_checklist(
         ),
         _build_item(
             key="public_active",
-            title="سالن برای نمایش و رزرو فعال است",
-            description="بعد از تکمیل موارد اصلی، سالن باید فعال باشد تا در مسیر رزرو عمومی استفاده شود.",
+            title="صفحه عمومی مجموعه منتشر شده است",
+            description="انتشار صفحه عمومی بعد از تکمیل اطلاعات اولیه انجام می‌شود و مستقل از آماده‌سازی رزرو است.",
             is_done=is_public_active,
             action_label="مدیریت صفحه عمومی",
             action_url=f'{_safe_reverse("dashboards:salon_profile")}?tab=public',
@@ -376,38 +368,72 @@ def build_salon_readiness_checklist(
         ),
     ]
 
-    total_weight = sum(item["weight"] for item in items) or 1
-    completed_weight = sum(item["weight"] for item in items if item["is_done"])
-    percent = round((completed_weight / total_weight) * 100)
-
-    completed_count = sum(1 for item in items if item["is_done"])
-    total_count = len(items)
-    missing_items = [item for item in items if not item["is_done"]]
-
-    is_ready = percent >= 90 and not missing_items
-
-    if not has_bookable_path:
-        summary = (
-            "برای رزرو واقعی، یک متخصص قابل‌نمایش را به خدمت فعال متصل کنید "
-            "و برای همان متخصص در همین سالن برنامه کاری جاری یا آینده بسازید."
+    if bool(getattr(settings, "ONLINE_PAYMENT_ENABLED", False)):
+        items.append(
+            _build_item(
+                key="payout",
+                title="اطلاعات تسویه تکمیل شده است",
+                description="برای تسویه پرداخت‌های آنلاین، شبا، نام صاحب حساب و موبایل مسئول تسویه را ثبت کن.",
+                is_done=payout_is_complete,
+                action_label="تنظیمات تسویه",
+                action_url=_safe_reverse("dashboards:payout_settings"),
+                weight=1,
+            )
         )
-    elif is_ready:
-        summary = "سالن از نظر اطلاعات پایه، تیم، خدمات و رزرو آنلاین آماده شروع است."
-    elif percent >= 70:
-        summary = "سالن به وضعیت آماده نزدیک است؛ چند مورد باقی‌مانده را تکمیل کنید."
-    else:
-        summary = "برای شروع رزرو آنلاین، چند بخش اصلی سالن هنوز نیاز به تکمیل دارد."
 
-    # Compatibility contract for dashboard surfaces that still consume the
-    # richer readiness payload.  ``items`` remains the canonical checklist,
-    # while these derived keys keep Online Booking, onboarding final-step,
-    # salon-profile activation, and dashboard setup prompts in sync.
-    booking_items = list(items)
+    # Public publication and booking readiness are intentionally separate.
+    # Gallery, verification and payout improve trust/finance operations, but they
+    # must never block a salon that completed onboarding from becoming public or
+    # from preparing its first bookable path.
+    required_keys = {
+        "profile",
+        "location",
+        "services",
+        "team",
+        "stylist_services",
+        "schedule",
+        "bookable_path",
+        "opening_hours",
+        "public_active",
+    }
+    required_items = [item for item in items if item["key"] in required_keys]
+    booking_items = [
+        item
+        for item in items
+        if item["key"]
+        in {"services", "team", "stylist_services", "schedule", "bookable_path"}
+    ]
     profile_quality_items = [
         item
         for item in items
         if item["key"] in {"gallery", "verification"}
     ]
+    finance_items = [item for item in items if item["key"] == "payout"]
+
+    total_weight = sum(item["weight"] for item in required_items) or 1
+    completed_weight = sum(
+        item["weight"] for item in required_items if item["is_done"]
+    )
+    percent = round((completed_weight / total_weight) * 100)
+
+    completed_count = sum(1 for item in required_items if item["is_done"])
+    total_count = len(required_items)
+    missing_items = [item for item in required_items if not item["is_done"]]
+
+    is_ready = not missing_items
+
+    if not is_public_active:
+        summary = "صفحه عمومی مجموعه هنوز منتشر نشده است."
+    elif not has_bookable_path:
+        summary = (
+            "صفحه مجموعه فعال است. برای دریافت نوبت، یک خدمت و عضو تیم اضافه کن "
+            "و برای همان عضو برنامه کاری بساز."
+        )
+    elif is_ready:
+        summary = "صفحه مجموعه فعال است و حداقل یک مسیر واقعی برای دریافت نوبت دارد."
+    else:
+        summary = "برای دریافت نوبت، چند مورد اصلی هنوز نیاز به تکمیل دارد."
+
     next_action = missing_items[0] if missing_items else None
 
     return {
@@ -424,6 +450,7 @@ def build_salon_readiness_checklist(
         "items": items,
         "booking_items": booking_items,
         "profile_quality_items": profile_quality_items,
+        "finance_items": finance_items,
         "missing_items": missing_items,
         "next_action": next_action,
         "has_bookable_path": has_bookable_path,
