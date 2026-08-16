@@ -4,9 +4,8 @@
 {% block body_attrs %}data-page="show_salons"{% endblock %}
 {% block content %}
 <main class="min-h-dvh bg-loomera-bg pb-24 text-loomera-textPrimary" data-show-salons-page>
-  <header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/92 px-4 py-3 backdrop-blur lg:static lg:border-0 lg:bg-transparent lg:px-0 lg:py-0">
+  <header class="border-b border-loomera-borderSoft bg-white/92 px-4 py-3 backdrop-blur lg:border-0 lg:bg-transparent lg:px-0 lg:py-0">
     <div class="mx-auto flex w-full max-w-7xl items-center gap-3 lg:mt-8 lg:rounded-[28px] lg:border lg:border-loomera-borderSoft lg:bg-white lg:p-6 lg:shadow-lm-card">
-      <a href="{% url 'salons:home' %}" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white lg:hidden" aria-label="بازگشت"><i class="fa-solid fa-arrow-right"></i></a>
       <div class="min-w-0 flex-1"><p class="text-xs font-black text-loomera-primary">کشف و رزرو</p><h1 class="mt-1 text-lg font-black lg:text-2xl">مجموعه مناسب را پیدا کن</h1><p class="mt-1 hidden text-sm text-loomera-textMuted lg:block">از تجربه‌های قبلی شروع کن یا با جستجو و دسته‌بندی خدمات گزینه جدیدی پیدا کن.</p></div>
       <a href="{% url 'search:search_page' %}" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white lg:px-5 lg:py-3 lg:text-sm"><i class="fa-solid fa-magnifying-glass"></i><span>جستجو</span></a>
     </div>

@@ -267,7 +267,7 @@ function initTopbarAndTabs() {
     });
   };
 
-  const getScrollOffset = () => getTopbarHeight() + 18;
+  const getScrollOffset = () => getTopbarHeight() + (contentTabsNav?.offsetHeight || 0) + 12;
 
   const updateTopbar = () => {
     if (!topbar || !scrolledTitle) return;
