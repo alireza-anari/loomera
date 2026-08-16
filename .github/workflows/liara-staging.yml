@@ -57,6 +57,36 @@ jobs:
 
           echo "Staging deployment target validated."
 
+      - name: Prepare staging PostgreSQL dependency
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('requirements.txt')
+          text = path.read_text(encoding='utf-8')
+
+          old = 'psycopg2==2.9.10'
+          new = 'psycopg2-binary==2.9.10'
+
+          if text.count(old) != 1:
+              raise SystemExit(
+                  f'Expected exactly one {old!r} in requirements.txt'
+              )
+
+          if new in text:
+              raise SystemExit(
+                  f'{new!r} already exists unexpectedly'
+              )
+
+          path.write_text(
+              text.replace(old, new, 1),
+              encoding='utf-8',
+          )
+
+          print('STAGING_PSYCOPG2_BINARY_READY')
+          PY
+
       - name: Deploy to Liara
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
