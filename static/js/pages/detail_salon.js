@@ -247,6 +247,74 @@ function initTopbarAndTabs() {
     return;
   }
 
+  const tabsHost =
+    contentTabsNav.parentElement?.classList.contains("sticky")
+      ? contentTabsNav.parentElement
+      : contentTabsNav;
+  const tabsPlaceholder = document.createElement("div");
+  tabsPlaceholder.hidden = true;
+  tabsPlaceholder.setAttribute("aria-hidden", "true");
+  tabsHost.parentNode?.insertBefore(tabsPlaceholder, tabsHost);
+
+  let tabsNaturalTop = 0;
+  let tabsFixed = false;
+
+  const resetTabsFixedStyles = () => {
+    tabsHost.style.position = "";
+    tabsHost.style.top = "";
+    tabsHost.style.left = "";
+    tabsHost.style.width = "";
+    tabsHost.style.zIndex = "";
+    tabsHost.style.marginLeft = "";
+    tabsHost.style.marginRight = "";
+    tabsHost.style.right = "";
+    delete tabsHost.dataset.fixedTabs;
+    tabsFixed = false;
+    tabsPlaceholder.hidden = true;
+    tabsPlaceholder.style.height = "";
+  };
+
+  const measureTabsNaturalTop = () => {
+    if (tabsFixed) resetTabsFixedStyles();
+    tabsNaturalTop = tabsHost.getBoundingClientRect().top + window.scrollY;
+  };
+
+  const setTabsFixed = (shouldFix) => {
+    if (shouldFix === tabsFixed) {
+      if (shouldFix) {
+        tabsHost.style.top = `${getTopbarHeight()}px`;
+      }
+      return;
+    }
+
+    if (!shouldFix) {
+      resetTabsFixedStyles();
+      return;
+    }
+
+    const rect = tabsHost.getBoundingClientRect();
+    tabsPlaceholder.style.height = `${tabsHost.offsetHeight}px`;
+    tabsPlaceholder.hidden = false;
+
+    tabsHost.dataset.fixedTabs = "1";
+    tabsHost.style.position = "fixed";
+    tabsHost.style.top = `${getTopbarHeight()}px`;
+    tabsHost.style.left = `${rect.left}px`;
+    tabsHost.style.width = `${rect.width}px`;
+    tabsHost.style.right = "auto";
+    tabsHost.style.zIndex = "39";
+    tabsHost.style.marginLeft = "0";
+    tabsHost.style.marginRight = "0";
+    tabsFixed = true;
+  };
+
+  const updateTabsPinning = () => {
+    if (!tabsNaturalTop) measureTabsNaturalTop();
+    const shouldFix =
+      window.scrollY + getTopbarHeight() >= tabsNaturalTop;
+    setTabsFixed(shouldFix);
+  };
+
   const sections = contentTabLinks
     .map((link) => {
       const href = link.getAttribute("href") || "";
@@ -329,13 +397,19 @@ function initTopbarAndTabs() {
   const updateAll = () => {
     syncTopbarCssVar();
     updateTopbar();
+    updateTabsPinning();
     updateActiveTab();
   };
 
   window.addEventListener("scroll", updateAll, { passive: true });
-  window.addEventListener("resize", updateAll);
+  window.addEventListener("resize", () => {
+    resetTabsFixedStyles();
+    measureTabsNaturalTop();
+    updateAll();
+  });
 
   syncTopbarCssVar();
+  measureTabsNaturalTop();
   updateAll();
 }
 
