@@ -72,12 +72,8 @@
 
   <div id="searchStatus" class="hidden border-b border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-xs font-bold text-loomera-textMuted" aria-live="polite"></div>
 
-  <div id="activeFiltersBar" class="hidden border-b border-loomera-borderSoft bg-white/90 px-3 py-3 lg:px-4" aria-label="فیلترهای فعال">
-    <div class="mb-2 flex items-center justify-between gap-3">
-      <span class="text-[11px] font-black text-loomera-textMuted">فیلترهای فعال</span>
-      <button type="button" data-clear-active-filters class="rounded-full bg-rose-50 px-3 py-1.5 text-[11px] font-black text-rose-600">حذف همه</button>
-    </div>
-    <div id="activeFiltersChips" class="flex flex-wrap gap-2"></div>
+  <div id="activeFiltersBar" class="hidden border-b border-loomera-borderSoft bg-white/90 px-3 py-2 lg:px-4" aria-label="فیلترهای فعال">
+    <div id="activeFiltersChips" class="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></div>
   </div>
 
   <div id="searchLoading" class="hidden px-3 py-4 lg:px-4" aria-live="polite" aria-label="در حال بارگذاری نتایج">
