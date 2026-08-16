@@ -24,8 +24,8 @@
   <script type="application/ld+json">{{ salon_schema_json|safe }}</script>
   <script type="application/ld+json">{{ salon_breadcrumb_schema_json|safe }}</script>
   <style>
-    body[data-page="detail_salon"] { overflow-x: hidden; }
-    body[data-page="detail_salon"] main { overflow-x: clip; }
+    body[data-page="detail_salon"] { overflow-x: clip; overflow-y: visible; }
+    body[data-page="detail_salon"] main { overflow-x: clip; overflow-y: visible; }
     #detail_topbar { max-width: 100vw; }
     #salonMap {
       width: 100%;
