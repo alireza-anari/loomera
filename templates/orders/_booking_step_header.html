@@ -30,7 +30,11 @@ Expected context:
     {% endif %}
 
     <div class="min-w-0 flex-1">
-      <p class="text-xs font-black text-loomera-primary">مرحله {{ step_current }} از ۴</p>
+      <p class="text-xs font-black text-loomera-primary">
+        مرحله
+        {% if step_current == '1' %}۱{% elif step_current == '2' %}۲{% elif step_current == '3' %}۳{% elif step_current == '4' %}۴{% else %}{{ step_current }}{% endif %}
+        از ۴
+      </p>
       <h1 id="bookingPageTitle" class="truncate text-lg font-black text-loomera-textPrimary">{{ page_title }}</h1>
       {% if page_subtitle %}
         <p class="mt-0.5 truncate text-xs font-medium text-loomera-textMuted">{{ page_subtitle }}</p>
