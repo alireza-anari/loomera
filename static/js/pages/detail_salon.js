@@ -173,9 +173,12 @@ function initTopbarAndTabs() {
   const topbar = document.getElementById("detail_topbar");
   const scrolledTitle = document.getElementById("detail_scrolledTitle");
   const contentTabsNav = document.querySelector("[data-section-nav]");
+  const navAnchor =
+    document.querySelector("[data-section-nav-anchor]") ||
+    contentTabsNav?.parentElement ||
+    null;
   const backBtn = document.querySelector('[data-action="go-back"]');
   const shareBtn = document.querySelector('[data-action="share-page"]');
-
   const contentTabLinks = contentTabsNav
     ? Array.from(contentTabsNav.querySelectorAll('a[href^="#"]'))
     : [];
@@ -211,7 +214,6 @@ function initTopbarAndTabs() {
         }
 
         const copied = await copyTextWithFallback(shareUrl);
-
         if (copied) {
           window.alert("لینک صفحه کپی شد");
           return;
@@ -222,7 +224,6 @@ function initTopbarAndTabs() {
         if (error?.name === "AbortError") return;
 
         const copied = await copyTextWithFallback(shareUrl).catch(() => false);
-
         if (copied) {
           window.alert("لینک صفحه کپی شد");
           return;
@@ -234,6 +235,11 @@ function initTopbarAndTabs() {
   }
 
   const getTopbarHeight = () => (topbar ? topbar.offsetHeight : 64);
+  const getTopOffset = () => {
+    if (!topbar) return 0;
+    const rect = topbar.getBoundingClientRect();
+    return Math.max(0, rect.bottom);
+  };
 
   const syncTopbarCssVar = () => {
     document.documentElement.style.setProperty(
@@ -242,10 +248,72 @@ function initTopbarAndTabs() {
     );
   };
 
-  if (!contentTabsNav || !tabLinks.length) {
+  if (!contentTabsNav || !navAnchor || !tabLinks.length) {
     syncTopbarCssVar();
     return;
   }
+
+  let tabsPinned = false;
+  let framePending = false;
+
+  const clearPinnedStyles = () => {
+    contentTabsNav.style.position = "";
+    contentTabsNav.style.top = "";
+    contentTabsNav.style.left = "";
+    contentTabsNav.style.right = "";
+    contentTabsNav.style.width = "";
+    contentTabsNav.style.maxWidth = "";
+    contentTabsNav.style.zIndex = "";
+    contentTabsNav.style.margin = "";
+    contentTabsNav.style.boxSizing = "";
+    contentTabsNav.style.transform = "";
+    delete contentTabsNav.dataset.pinnedTabs;
+  };
+
+  const restoreTabs = () => {
+    if (contentTabsNav.parentElement !== navAnchor) {
+      navAnchor.appendChild(contentTabsNav);
+    }
+    clearPinnedStyles();
+    navAnchor.style.height = "";
+    tabsPinned = false;
+  };
+
+  const pinTabs = () => {
+    const anchorRect = navAnchor.getBoundingClientRect();
+    const navHeight = contentTabsNav.offsetHeight || 52;
+
+    navAnchor.style.height = `${navHeight}px`;
+
+    if (contentTabsNav.parentElement !== document.body) {
+      document.body.appendChild(contentTabsNav);
+    }
+
+    contentTabsNav.dataset.pinnedTabs = "1";
+    contentTabsNav.style.position = "fixed";
+    contentTabsNav.style.top = `${getTopOffset()}px`;
+    contentTabsNav.style.left = `${Math.max(0, anchorRect.left)}px`;
+    contentTabsNav.style.right = "auto";
+    contentTabsNav.style.width = `${Math.min(anchorRect.width, window.innerWidth)}px`;
+    contentTabsNav.style.maxWidth = "100vw";
+    contentTabsNav.style.zIndex = "39";
+    contentTabsNav.style.margin = "0";
+    contentTabsNav.style.boxSizing = "border-box";
+    contentTabsNav.style.transform = "translateZ(0)";
+    tabsPinned = true;
+  };
+
+  const updateTabsPinning = () => {
+    const topOffset = getTopOffset();
+    const anchorRect = navAnchor.getBoundingClientRect();
+    const shouldPin = anchorRect.top <= topOffset;
+
+    if (shouldPin) {
+      pinTabs();
+    } else if (tabsPinned || contentTabsNav.parentElement !== navAnchor) {
+      restoreTabs();
+    }
+  };
 
   const sections = contentTabLinks
     .map((link) => {
@@ -256,18 +324,17 @@ function initTopbarAndTabs() {
     })
     .filter(Boolean);
 
-  const contentActiveClasses = ["is-active"];
-
   const setActiveHref = (activeHref) => {
     contentTabLinks.forEach((link) => {
       const isActive = link.getAttribute("href") === activeHref;
-      contentActiveClasses.forEach((className) => link.classList.toggle(className, isActive));
+      link.classList.toggle("is-active", isActive);
       if (isActive) link.setAttribute("aria-current", "true");
       else link.removeAttribute("aria-current");
     });
   };
 
-  const getScrollOffset = () => getTopbarHeight() + (contentTabsNav?.offsetHeight || 0) + 12;
+  const getScrollOffset = () =>
+    getTopOffset() + (contentTabsNav.offsetHeight || 0) + 12;
 
   const updateTopbar = () => {
     if (!topbar || !scrolledTitle) return;
@@ -293,7 +360,7 @@ function initTopbarAndTabs() {
     let activeHref = sections[0].href;
 
     sections.forEach(({ href, section }) => {
-      const top = section.offsetTop;
+      const top = section.getBoundingClientRect().top + window.scrollY;
       const bottom = top + section.offsetHeight;
 
       if (marker >= top && marker < bottom) {
@@ -316,9 +383,12 @@ function initTopbarAndTabs() {
       const section = id ? document.getElementById(id) : null;
       if (!section) return;
 
-      const top = section.getBoundingClientRect().top + window.scrollY - getScrollOffset();
-      setActiveHref(href);
+      const top =
+        section.getBoundingClientRect().top +
+        window.scrollY -
+        getScrollOffset();
 
+      setActiveHref(href);
       window.scrollTo({
         top: Math.max(0, top),
         behavior: "smooth",
@@ -327,18 +397,32 @@ function initTopbarAndTabs() {
   });
 
   const updateAll = () => {
+    framePending = false;
     syncTopbarCssVar();
     updateTopbar();
+    updateTabsPinning();
     updateActiveTab();
   };
 
-  window.addEventListener("scroll", updateAll, { passive: true });
-  window.addEventListener("resize", updateAll);
+  const requestUpdate = () => {
+    if (framePending) return;
+    framePending = true;
+    window.requestAnimationFrame(updateAll);
+  };
+
+  window.addEventListener("scroll", requestUpdate, { passive: true });
+  document.addEventListener("scroll", requestUpdate, {
+    passive: true,
+    capture: true,
+  });
+
+  window.addEventListener("resize", requestUpdate);
+  window.visualViewport?.addEventListener("resize", requestUpdate);
+  window.addEventListener("load", requestUpdate, { once: true });
 
   syncTopbarCssVar();
-  updateAll();
+  requestUpdate();
 }
-
 function initSamplesSection() {
   const samplesCarouselEl = document.querySelector('[data-carousel="samples"]');
   if (samplesCarouselEl) {
@@ -1069,8 +1153,8 @@ function initGenericModals() {
 }
 
 export default function initDetailSalon() {
-  document.body.style.overflowX = "hidden";
-  document.documentElement.style.overflowX = "hidden";
+  document.body.style.overflowX = "clip";
+  document.documentElement.style.overflowX = "clip";
 
   initHeroSlider();
   initFavoriteButton();
