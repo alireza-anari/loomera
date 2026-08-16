@@ -1,4 +1,4 @@
-import initDetailSalon from "./pages/detail_salon.js";
+import initDetailSalon from "./pages/detail_salon.js?v=20260816-tabs-v5";
 import initSalons from "./pages/show_salons.js";
 import initSearchPage from "./pages/search.js";
 import initOrdersPage from "./pages/orders.js";
