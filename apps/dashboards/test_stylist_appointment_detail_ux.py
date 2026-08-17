@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 
 from django.conf import settings
 from django.test import SimpleTestCase
@@ -112,3 +112,16 @@ class StylistAppointmentDetailUXTests(SimpleTestCase):
 
         self.assertIn("hidden", header_tag)
         self.assertIn("lg:flex", header_tag)
+    def test_lifecycle_action_forms_use_native_submit(self):
+        self.assertGreaterEqual(
+            self.template.count('data-lm-form-ux="off"'),
+            2,
+        )
+        self.assertIn(
+            'name="action"',
+            self.template,
+        )
+        self.assertIn(
+            'value="{{ item.key }}"',
+            self.template,
+        )

@@ -51,7 +51,7 @@
           </div>
 
           {% if stylist_lifecycle_actions %}
-            <form method="post" class="flex w-full gap-2 lg:w-auto lg:min-w-[360px]">
+            <form method="post" data-lm-form-ux="off" class="flex w-full gap-2 lg:w-auto lg:min-w-[360px]">
               {% csrf_token %}
               {% for item in stylist_lifecycle_actions %}
                 <button type="submit"
@@ -90,7 +90,7 @@
                 {% endif %}
               </div>
               {% if not cash_payment_state.stylist_confirmed %}
-                <form method="post" class="shrink-0">
+                <form method="post" data-lm-form-ux="off" class="shrink-0">
                   {% csrf_token %}
                   <button name="action" value="confirm_cash_payment" class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-700 sm:w-auto">
                     <i class="fa-solid fa-money-bill-wave text-xs" aria-hidden="true"></i>
@@ -356,7 +356,7 @@
                     <label class="mb-2 block text-xs font-bold text-loomera-textMuted">نام ماده</label>
                     <input name="template_material_name" placeholder="مثلاً ماسک پوست یا رنگ مو" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
                   </div>
-            </details>
+
 
                   <div>
                     <label class="mb-2 block text-xs font-bold text-loomera-textMuted">واحد</label>
@@ -395,6 +395,7 @@
                 </button>
               </form>
             </div>
+            </details>
 
             <div class="space-y-3">
               {% for usage in material_usages %}
