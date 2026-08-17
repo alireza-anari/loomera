@@ -4483,6 +4483,9 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
                 update_fields=["is_paid", "is_finally", "status", "checkout_locked_at"]
             )
 
+            from apps.orders.appointment_lifecycle import auto_confirm_order_details
+
+            auto_confirm_order_details(order=order)
             consume_booking_quick_link_from_session(request, order)
             schedule_order_reminder(order)
             notify_manager_and_stylists_for_booking(order, event_type="booking_paid")
@@ -4544,6 +4547,9 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             order.is_finally = True
             order.save(update_fields=["status", "is_finally"])
 
+            from apps.orders.appointment_lifecycle import auto_confirm_order_details
+
+            auto_confirm_order_details(order=order)
             consume_booking_quick_link_from_session(request, order)
             schedule_order_reminder(order)
             notify_manager_and_stylists_for_booking(order, event_type="booking_created")
@@ -4568,7 +4574,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
 
             messages.success(
                 request,
-                "نوبت شما ثبت شد و در انتظار تایید متخصص قرار گرفت. پرداخت این سفارش در مجموعه انجام می‌شود.",
+                "نوبت شما قطعی شد و در برنامه کاری متخصص قرار گرفت. پرداخت این سفارش در مجموعه انجام می‌شود.",
             )
 
             redirect_url = reverse("orders:appointments")
