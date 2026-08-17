@@ -226,6 +226,32 @@
           </section>
           {% endif %}
 
+          {% if appointment.order.status == "cancelled" and appointment.order.cancellation_reason %}
+          <section
+            class="rounded-[1.5rem] border border-rose-200 bg-rose-50 p-4 shadow-sm"
+            aria-label="دلیل لغو نوبت"
+            data-customer-cancellation-reason
+          >
+            <div class="flex items-start gap-3">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-rose-600 shadow-sm">
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="text-[11px] font-black text-rose-700">دلیل لغو نوبت</p>
+                <p class="mt-1 text-sm font-bold leading-7 text-rose-950">
+                  {{ appointment.order.cancellation_reason }}
+                </p>
+                {% if appointment.order.refunded_to_wallet_amount %}
+                  <p class="mt-2 border-t border-rose-200 pt-2 text-xs font-bold leading-6 text-rose-700">
+                    {{ appointment.order.refunded_to_wallet_amount|floatformat:0|intcomma }}
+                    تومان به کیف پول شما بازگشت داده شده است.
+                  </p>
+                {% endif %}
+              </div>
+            </div>
+          </section>
+          {% endif %}
+
           <section class="overflow-hidden rounded-[1.5rem] border bg-white" aria-labelledby="mobile-services-title" data-mobile-services-card>
             <div class="flex items-center justify-between gap-3 px-4 py-3.5">
               <div class="flex min-w-0 items-center gap-2.5">
@@ -411,6 +437,32 @@
 
           </div>
         </section>
+
+        {% if appointment.order.status == "cancelled" and appointment.order.cancellation_reason %}
+        <section
+          class="hidden rounded-[2rem] border border-rose-200 bg-rose-50 p-5 shadow-lm-card lg:block"
+          aria-label="دلیل لغو نوبت"
+          data-customer-cancellation-reason
+        >
+          <div class="flex items-start gap-4">
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-rose-600 shadow-sm">
+              <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0 flex-1">
+              <h2 class="text-base font-black text-rose-950">دلیل لغو نوبت</h2>
+              <p class="mt-1.5 text-sm font-bold leading-7 text-rose-800">
+                {{ appointment.order.cancellation_reason }}
+              </p>
+              {% if appointment.order.refunded_to_wallet_amount %}
+                <p class="mt-3 inline-flex rounded-full bg-white px-3 py-1.5 text-xs font-black text-rose-700 ring-1 ring-rose-200">
+                  {{ appointment.order.refunded_to_wallet_amount|floatformat:0|intcomma }}
+                  تومان به کیف پول شما بازگشت داده شده است.
+                </p>
+              {% endif %}
+            </div>
+          </div>
+        </section>
+        {% endif %}
 
         <!-- SUMMARY -->
         <section class="hidden rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:block lg:p-6" aria-labelledby="booking-detail-summary-title">

@@ -15,7 +15,7 @@
   {% url 'dashboards:stylist_quick_links' as stylist_quick_links_url %}
 
   <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-appointments">
-    {% include "dashboards/components/page_hero.html" with eyebrow="نوبت‌های متخصص" eyebrow_icon="fa-regular fa-calendar-check" title="نوبت‌های من" description="امروز، نوبت‌های آینده و سابقه را جدا ببین؛ هر نوبت فقط یک‌بار در جای درست خودش نمایش داده می‌شود." action_label="ثبت نوبت برای خودم" action_url=stylist_add_booking_url badges=page_meta.badges %}
+    {% include "dashboards/components/page_hero.html" with eyebrow="نوبت‌های متخصص" eyebrow_icon="fa-regular fa-calendar-check" title="نوبت‌های من" description="نوبت‌های امروز را بدون ورود به جزئیات مدیریت کن؛ در روند عادی فقط شروع و پایان خدمت لازم است." action_label="ثبت نوبت برای خودم" action_url=stylist_add_booking_url badges=page_meta.badges %}
 
     <section class="lm-stylist-summary-surface" aria-label="خلاصه نوبت‌های من" data-lm-stylist-surface>
       <div class="grid grid-cols-3 gap-2 p-2 sm:gap-3 sm:p-3">
@@ -39,32 +39,66 @@
           <p class="text-[11px] font-black text-loomera-primaryText">امروز</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">نوبت‌های امروز</h2>
           <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            نوبت‌های امروز شما در مجموعه فعال فعلی.
+            کار اصلی امروز را از همین کارت‌ها و با یک لمس انجام بده.
           </p>
         </div>
 </header>
 
       <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3 sm:p-5 lg:p-6">
         {% for item in today_appointment_cards %}
-          <details class="lm-compact-record" data-lm-compact-record data-lm-compact-group="stylist-appts-today">
-            <summary class="lm-compact-record-summary">
-              <span class="lm-compact-record-avatar" aria-hidden="true">{{ item.customer_name|slice:":1" }}</span>
-              <span class="min-w-0 flex-1 text-right">
-                <span class="flex min-w-0 flex-wrap items-center gap-2"><strong class="min-w-0 line-clamp-1 text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong><span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span></span>
-                <span class="mt-1 block line-clamp-1 text-xs text-loomera-textMuted">{{ item.service_name }} • {{ item.date_label }} • {{ item.time_label }}</span>
-              </span>
-              <span class="lm-compact-record-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
-            </summary>
-            <div class="lm-compact-record-body">
-              <div class="grid grid-cols-2 gap-2 text-xs text-loomera-textSecondary">
-                <div class="lm-compact-metric">زمان: {{ item.time_label }}{% if item.end_time_label != '—' %} تا {{ item.end_time_label }}{% endif %}</div>
-                <div class="lm-compact-metric">{{ item.payment_state }}</div>
-                <div class="lm-compact-metric">{{ item.price_label }}</div>
-                <div class="lm-compact-metric truncate">{{ item.customer_phone|default:"شماره تماس ثبت نشده" }}</div>
+          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-sm" data-stylist-fast-flow-card>
+            <div class="flex items-start gap-3">
+              <span class="lm-compact-record-avatar shrink-0" aria-hidden="true">{{ item.customer_name|slice:":1" }}</span>
+              <div class="min-w-0 flex-1 text-right">
+                <div class="flex min-w-0 flex-wrap items-center gap-2">
+                  <strong class="min-w-0 line-clamp-1 text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong>
+                  <span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
+                </div>
+                <p class="mt-1 line-clamp-1 text-xs text-loomera-textMuted">{{ item.service_name }} • {{ item.time_label }}{% if item.end_time_label != '—' %} تا {{ item.end_time_label }}{% endif %}</p>
+                <p class="mt-1 text-[11px] text-loomera-textMuted">{{ item.payment_state }} • {{ item.price_label }}</p>
               </div>
-              <div class="mt-3 border-t border-loomera-borderSoft pt-3"><a href="{{ item.detail_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2.5 text-sm font-black text-white">جزئیات و اقدام‌ها<i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i></a></div>
             </div>
-          </details>
+
+            {% if item.quick_action %}
+              <form method="post" action="{{ item.detail_url }}" data-lm-form-ux="off" class="mt-4">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="{{ item.quick_action.key }}">
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-black {{ item.quick_action.class }}">
+                  {% if item.quick_action.key == "complete_service" %}
+                    <i class="fa-solid fa-check" aria-hidden="true"></i>
+                  {% else %}
+                    <i class="fa-solid fa-play" aria-hidden="true"></i>
+                  {% endif %}
+                  <span>{{ item.quick_action.label }}</span>
+                </button>
+              </form>
+            {% endif %}
+
+            <div class="mt-3 flex items-center justify-between gap-3 border-t border-loomera-borderSoft pt-3">
+              {% if item.exception_action %}
+                {% if item.exception_action.key == "no_show_decision" %}
+                  <button type="button"
+                          class="text-[11px] font-black text-orange-600"
+                          data-no-show-decision-open
+                          data-action-url="{{ item.detail_url }}"
+                          data-next="{{ request.path }}">
+                    {{ item.exception_action.label }}
+                  </button>
+                {% else %}
+                  <form method="post" action="{{ item.detail_url }}" data-lm-form-ux="off">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="{{ item.exception_action.key }}">
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button class="text-[11px] font-black text-rose-600" {% if item.exception_action.key == "reject" %}onclick="return confirm('این نوبت لغو می‌شود و به مشتری اطلاع داده خواهد شد. ادامه می‌دهی؟')"{% endif %}>{{ item.exception_action.label }}</button>
+                  </form>
+                {% endif %}
+              {% else %}
+                <span></span>
+              {% endif %}
+              <a href="{{ item.detail_url }}" class="text-[11px] font-black text-loomera-textMuted">جزئیات</a>
+            </div>
+          </article>
         {% empty %}
           <div class="md:col-span-2 xl:col-span-3">
             {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-check" title="برای امروز نوبتی ثبت نشده" description="اگر مشتری حضوری داری، می‌توانی نوبتش را همین حالا ثبت کنی." action_label="ثبت نوبت" action_url=stylist_add_booking_url %}
@@ -163,4 +197,5 @@
 
 
   </section>
+{% include "dashboards/partials/stylist_no_show_decision_dialog.html" %}
 {% endblock %}

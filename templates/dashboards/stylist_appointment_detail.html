@@ -54,17 +54,26 @@
             <form method="post" data-lm-form-ux="off" class="flex w-full gap-2 lg:w-auto lg:min-w-[360px]">
               {% csrf_token %}
               {% for item in stylist_lifecycle_actions %}
-                <button type="submit"
-                        name="action"
-                        value="{{ item.key }}"
-                        class="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-2xl px-3 py-2.5 text-sm font-black transition
-                               {% if item.key == 'reject' %}
-                                 border border-rose-200 bg-rose-50 text-rose-700 shadow-none hover:bg-rose-100
-                               {% else %}
-                                 shadow-sm hover:-translate-y-0.5 hover:opacity-95 {{ item.class }}
-                               {% endif %}">
-                  {{ item.label }}
-                </button>
+                {% if item.key == "no_show_decision" %}
+                  <button type="button"
+                          data-no-show-decision-open
+                          data-action-url="{{ request.path }}"
+                          data-next="{{ request.path }}"
+                          class="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2.5 text-sm font-black text-orange-700 transition hover:bg-orange-100">
+                    {{ item.label }}
+                  </button>
+                {% else %}
+                  <button type="submit" name="action" value="{{ item.key }}"
+                          {% if item.key == "reject" %}onclick="return confirm('این نوبت لغو می‌شود و به مشتری اطلاع داده خواهد شد. ادامه می‌دهی؟')"{% endif %}
+                          class="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-2xl px-3 py-2.5 text-sm font-black transition
+                                 {% if item.key == 'reject' %}
+                                   border border-rose-200 bg-rose-50 text-rose-700 shadow-none hover:bg-rose-100
+                                 {% else %}
+                                   shadow-sm hover:-translate-y-0.5 hover:opacity-95 {{ item.class }}
+                                 {% endif %}">
+                    {{ item.label }}
+                  </button>
+                {% endif %}
               {% endfor %}
             </form>
           {% elif not appointment_obj.order.selected_payment_method == "pay_in_salon" or not appointment_obj.order.service_completed_at or appointment_obj.order.is_paid %}
@@ -518,4 +527,5 @@
       </div>
     </section>
   </section>
+{% include "dashboards/partials/stylist_no_show_decision_dialog.html" %}
 {% endblock %}
