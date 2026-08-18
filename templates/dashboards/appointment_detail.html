@@ -166,37 +166,53 @@
       {# ------------------------------------------------------------------ #}
       {# Compact workspace navigation                                       #}
       {# ------------------------------------------------------------------ #}
-      <div class="relative min-h-[3.5rem]" data-dashboard-workspace-tabs-shell>
-        <nav class="-mx-1 overflow-x-auto rounded-[22px] border border-loomera-borderSoft bg-white/95 p-1.5 shadow-lm-soft backdrop-blur"
+      <div class="sticky top-[5.5rem] z-30 -mx-3 px-3 sm:-mx-5 sm:px-5 lg:top-[6.5rem] lg:-mx-8 lg:px-8"
+           data-dashboard-workspace-tabs-shell>
+        <nav class="overflow-x-auto rounded-[22px] border border-loomera-borderSoft bg-white/90 p-1.5 shadow-[0_12px_30px_rgba(46,42,60,0.10)] backdrop-blur-xl"
              data-dashboard-workspace-tabs
              aria-label="بخش‌های جزئیات نوبت">
           <div class="grid min-w-[22rem] grid-cols-4 gap-1">
             <button type="button"
+                    id="appointment-tab-summary"
                     class="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText"
                     data-dashboard-workspace-tab
                     data-target="#appointment-section-summary"
+                    data-tab-key="summary"
+                    aria-controls="appointment-section-summary"
                     aria-selected="true">
               <i class="fa-solid fa-list-check text-[10px]" aria-hidden="true"></i>
               خلاصه
             </button>
             <button type="button"
+                    id="appointment-tab-customer"
                     class="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/45"
                     data-dashboard-workspace-tab
-                    data-target="#appointment-section-customer">
+                    data-target="#appointment-section-customer"
+                    data-tab-key="customer"
+                    aria-controls="appointment-section-customer"
+                    aria-selected="false">
               <i class="fa-regular fa-user text-[10px]" aria-hidden="true"></i>
               مشتری
             </button>
             <button type="button"
+                    id="appointment-tab-finance"
                     class="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/45"
                     data-dashboard-workspace-tab
-                    data-target="#appointment-section-finance">
+                    data-target="#appointment-section-finance"
+                    data-tab-key="finance"
+                    aria-controls="appointment-section-finance"
+                    aria-selected="false">
               <i class="fa-solid fa-wallet text-[10px]" aria-hidden="true"></i>
               مالی
             </button>
             <button type="button"
+                    id="appointment-tab-more"
                     class="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/45"
                     data-dashboard-workspace-tab
-                    data-target="#appointment-section-more">
+                    data-target="#appointment-section-more"
+                    data-tab-key="more"
+                    aria-controls="appointment-section-more"
+                    aria-selected="false">
               <i class="fa-solid fa-ellipsis text-[10px]" aria-hidden="true"></i>
               بیشتر
             </button>
@@ -205,283 +221,327 @@
       </div>
 
       {# ------------------------------------------------------------------ #}
-      {# Summary                                                            #}
+      {# Tab workspace: only the active section is visible                   #}
       {# ------------------------------------------------------------------ #}
-      <details id="appointment-section-summary"
-               class="group overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-card"
-               data-dashboard-workspace-panel
-               data-dashboard-workspace-open-mobile="true"
-               open>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 marker:hidden sm:px-5">
-          <div class="min-w-0">
+      <div class="min-w-0" data-appointment-tab-workspace>
+
+        {# Summary #}
+        <section id="appointment-section-summary"
+                 class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-card"
+                 data-dashboard-workspace-panel
+                 data-panel-key="summary"
+                 aria-labelledby="appointment-tab-summary">
+          <header class="border-b border-loomera-borderSoft px-4 py-3 sm:px-5">
             <p class="text-[11px] font-black text-loomera-primaryText">خلاصه</p>
             <h2 class="mt-1 text-base font-black text-loomera-textPrimary">خدمات این نوبت</h2>
-          </div>
-          <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-[10px]" aria-hidden="true"></i>
-          </span>
-        </summary>
+          </header>
 
-        <div class="space-y-3 p-4 sm:p-5">
-          {% if detail.items %}
-            {% for item in detail.items %}
-              <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4">
-                <div class="flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service_name }}</h3>
-                    <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ item.stylist_name }}</p>
-                  </div>
-                  <span class="shrink-0 rounded-full bg-white px-3 py-1.5 text-[10px] font-black text-loomera-textSecondary shadow-sm">
-                    {{ item.duration_label }}
-                  </span>
-                </div>
-
-                <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-                  <span class="inline-flex items-center gap-1.5 text-loomera-textMuted">
-                    <i class="fa-regular fa-clock" aria-hidden="true"></i>
-                    {{ item.time_label }}
-                  </span>
-                  <span class="font-black text-loomera-textPrimary">{{ item.price_label }}</span>
-                </div>
-
-                <div class="mt-3 flex flex-wrap gap-2">
-                  <a href="{{ item.material_url }}"
-                     class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary">
-                    <i class="fa-solid fa-flask-vial text-[10px]" aria-hidden="true"></i>
-                    مواد مصرفی
-                  </a>
-                  {% if item.financial_finalized %}
-                    <span class="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-loomera-successSoft px-3 py-2 text-[11px] font-black text-loomera-success">
-                      <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i>
-                      مالی نهایی
+          <div class="space-y-3 p-4 sm:p-5">
+            {% if detail.items %}
+              {% for item in detail.items %}
+                <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-4">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                      <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service_name }}</h3>
+                      <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ item.stylist_name }}</p>
+                    </div>
+                    <span class="shrink-0 rounded-full bg-white px-3 py-1.5 text-[10px] font-black text-loomera-textSecondary shadow-sm">
+                      {{ item.duration_label }}
                     </span>
-                  {% endif %}
-                </div>
-              </article>
-            {% endfor %}
-          {% else %}
-            <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-6 text-center text-sm text-loomera-textMuted">
-              خدمتی برای این رزرو ثبت نشده است.
-            </div>
-          {% endif %}
+                  </div>
 
-          {% if detail.description %}
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-white p-4">
-              <p class="text-[11px] font-black text-loomera-primaryText">یادداشت رزرو</p>
-              <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">{{ detail.description }}</p>
-            </div>
-          {% endif %}
-        </div>
-      </details>
+                  <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                    <span class="inline-flex items-center gap-1.5 text-loomera-textMuted">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                      {{ item.time_label }}
+                    </span>
+                    <span class="font-black text-loomera-textPrimary">{{ item.price_label }}</span>
+                  </div>
 
-      {# ------------------------------------------------------------------ #}
-      {# Customer                                                           #}
-      {# ------------------------------------------------------------------ #}
-      <details id="appointment-section-customer"
-               class="group overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-card"
-               data-dashboard-workspace-panel
-               data-dashboard-workspace-open-mobile="false">
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 marker:hidden sm:px-5">
-          <div class="min-w-0">
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <a href="{{ item.material_url }}"
+                       class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary">
+                      <i class="fa-solid fa-flask-vial text-[10px]" aria-hidden="true"></i>
+                      مواد مصرفی
+                    </a>
+                    {% if item.financial_finalized %}
+                      <span class="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-loomera-successSoft px-3 py-2 text-[11px] font-black text-loomera-success">
+                        <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i>
+                        مالی نهایی
+                      </span>
+                    {% endif %}
+                  </div>
+                </article>
+              {% endfor %}
+            {% else %}
+              <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-6 text-center text-sm text-loomera-textMuted">
+                خدمتی برای این رزرو ثبت نشده است.
+              </div>
+            {% endif %}
+
+            {% if detail.description %}
+              <div class="rounded-[22px] border border-loomera-borderSoft bg-white p-4">
+                <p class="text-[11px] font-black text-loomera-primaryText">یادداشت رزرو</p>
+                <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">{{ detail.description }}</p>
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        {# Customer #}
+        <section id="appointment-section-customer"
+                 class="hidden overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-card"
+                 data-dashboard-workspace-panel
+                 data-panel-key="customer"
+                 aria-labelledby="appointment-tab-customer"
+                 hidden>
+          <header class="border-b border-loomera-borderSoft px-4 py-3 sm:px-5">
             <p class="text-[11px] font-black text-loomera-primaryText">مشتری</p>
             <h2 class="mt-1 text-base font-black text-loomera-textPrimary">اطلاعات و ارتباط</h2>
-          </div>
-          <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-[10px]" aria-hidden="true"></i>
-          </span>
-        </summary>
+          </header>
 
-        <div class="p-4 sm:p-5">
-          <div class="flex items-center gap-3">
-            {% if detail.customer_avatar_url %}
-              <img src="{{ detail.customer_avatar_url }}"
-                   alt="{{ detail.customer_name }}"
-                   class="h-14 w-14 shrink-0 rounded-[20px] object-cover">
-            {% else %}
-              <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] bg-loomera-primarySoft text-lg font-black text-loomera-primary">
-                {{ detail.customer_name|first|default:"م" }}
-              </span>
-            {% endif %}
-            <div class="min-w-0">
-              <h3 class="truncate text-base font-black text-loomera-textPrimary">{{ detail.customer_name }}</h3>
-              <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ detail.customer_mobile|default:"شماره تماس ثبت نشده" }}</p>
+          <div class="p-4 sm:p-5">
+            <div class="flex items-center gap-3">
+              {% if detail.customer_avatar_url %}
+                <img src="{{ detail.customer_avatar_url }}"
+                     alt="{{ detail.customer_name }}"
+                     class="h-14 w-14 shrink-0 rounded-[20px] object-cover">
+              {% else %}
+                <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] bg-loomera-primarySoft text-lg font-black text-loomera-primary">
+                  {{ detail.customer_name|first|default:"م" }}
+                </span>
+              {% endif %}
+              <div class="min-w-0">
+                <h3 class="truncate text-base font-black text-loomera-textPrimary">{{ detail.customer_name }}</h3>
+                <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ detail.customer_mobile|default:"شماره تماس ثبت نشده" }}</p>
+              </div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-2 gap-2">
+              {% if detail.customer_mobile %}
+                <a href="tel:{{ detail.customer_mobile }}"
+                   class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-3 py-2.5 text-xs font-black text-white">
+                  <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                  تماس
+                </a>
+              {% endif %}
+              {% if detail.customer_url %}
+                <a href="{{ detail.customer_url }}"
+                   class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textSecondary">
+                  <i class="fa-regular fa-user" aria-hidden="true"></i>
+                  پروفایل
+                </a>
+              {% endif %}
+            </div>
+
+            <div class="mt-4 grid grid-cols-3 gap-2 text-center">
+              <div class="rounded-[18px] bg-loomera-bgSubtle p-3">
+                <span class="block text-[10px] font-bold text-loomera-textMuted">تعداد مراجعه</span>
+                <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">{{ detail.customer_summary.visits }}</strong>
+              </div>
+              <div class="rounded-[18px] bg-loomera-bgSubtle p-3">
+                <span class="block text-[10px] font-bold text-loomera-textMuted">مجموع خرید</span>
+                <strong class="mt-1 block truncate text-xs font-black text-loomera-textPrimary">{{ detail.customer_summary.total_spent }}</strong>
+              </div>
+              <div class="rounded-[18px] bg-loomera-bgSubtle p-3">
+                <span class="block text-[10px] font-bold text-loomera-textMuted">آخرین مراجعه</span>
+                <strong class="mt-1 block truncate text-xs font-black text-loomera-textPrimary">{{ detail.customer_summary.last_visit }}</strong>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div class="mt-4 grid grid-cols-2 gap-2">
-            {% if detail.customer_mobile %}
-              <a href="tel:{{ detail.customer_mobile }}"
-                 class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-3 py-2.5 text-xs font-black text-white">
-                <i class="fa-solid fa-phone" aria-hidden="true"></i>
-                تماس
-              </a>
-            {% endif %}
-            {% if detail.customer_url %}
-              <a href="{{ detail.customer_url }}"
-                 class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textSecondary">
-                <i class="fa-regular fa-user" aria-hidden="true"></i>
-                پروفایل
-              </a>
-            {% endif %}
-          </div>
-
-          <div class="mt-4 grid grid-cols-3 gap-2 text-center">
-            <div class="rounded-[18px] bg-loomera-bgSubtle p-3">
-              <span class="block text-[10px] font-bold text-loomera-textMuted">تعداد مراجعه</span>
-              <strong class="mt-1 block text-sm font-black text-loomera-textPrimary">{{ detail.customer_summary.visits }}</strong>
-            </div>
-            <div class="rounded-[18px] bg-loomera-bgSubtle p-3">
-              <span class="block text-[10px] font-bold text-loomera-textMuted">مجموع خرید</span>
-              <strong class="mt-1 block truncate text-xs font-black text-loomera-textPrimary">{{ detail.customer_summary.total_spent }}</strong>
-            </div>
-            <div class="rounded-[18px] bg-loomera-bgSubtle p-3">
-              <span class="block text-[10px] font-bold text-loomera-textMuted">آخرین مراجعه</span>
-              <strong class="mt-1 block truncate text-xs font-black text-loomera-textPrimary">{{ detail.customer_summary.last_visit }}</strong>
-            </div>
-          </div>
-        </div>
-      </details>
-
-      {# ------------------------------------------------------------------ #}
-      {# Finance                                                            #}
-      {# ------------------------------------------------------------------ #}
-      <details id="appointment-section-finance"
-               class="group overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-card"
-               data-dashboard-workspace-panel
-               data-dashboard-workspace-open-mobile="false">
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 marker:hidden sm:px-5">
-          <div class="min-w-0">
+        {# Finance #}
+        <section id="appointment-section-finance"
+                 class="hidden overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-card"
+                 data-dashboard-workspace-panel
+                 data-panel-key="finance"
+                 aria-labelledby="appointment-tab-finance"
+                 hidden>
+          <header class="border-b border-loomera-borderSoft px-4 py-3 sm:px-5">
             <p class="text-[11px] font-black text-loomera-primaryText">مالی</p>
             <h2 class="mt-1 text-base font-black text-loomera-textPrimary">خلاصه پرداخت و سهم‌ها</h2>
-          </div>
-          <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-[10px]" aria-hidden="true"></i>
-          </span>
-        </summary>
+          </header>
 
-        <div class="space-y-4 p-4 sm:p-5">
-          {% if detail.financial_status_note %}
-            <div class="rounded-[20px] border border-loomera-warning/20 bg-loomera-warningSoft px-4 py-3 text-xs leading-6 text-loomera-warning">
-              {{ detail.financial_status_note }}
-            </div>
-          {% endif %}
-
-          <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {% for item in detail.finance_summary %}
-              <div class="rounded-[20px] bg-loomera-bgSubtle/70 p-3">
-                <span class="block truncate text-[10px] font-bold text-loomera-textMuted">{{ item.label }}</span>
-                <strong class="mt-1 block break-words text-xs font-black text-loomera-textPrimary">{{ item.value }}</strong>
+          <div class="space-y-4 p-4 sm:p-5">
+            {% if detail.financial_status_note %}
+              <div class="rounded-[20px] border border-loomera-warning/20 bg-loomera-warningSoft px-4 py-3 text-xs leading-6 text-loomera-warning">
+                {{ detail.financial_status_note }}
               </div>
-            {% endfor %}
-          </div>
+            {% endif %}
 
-          {% if detail.financial_breakdown %}
-            <details class="group rounded-[22px] border border-loomera-borderSoft bg-white">
-              <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
-                <span class="text-xs font-black text-loomera-textPrimary">تقسیم درآمد و کسورات</span>
-                <i class="fa-solid fa-chevron-down text-[10px] text-loomera-textMuted transition group-open:rotate-180" aria-hidden="true"></i>
-              </summary>
-              <div class="grid grid-cols-2 gap-2 border-t border-loomera-borderSoft p-3 sm:grid-cols-4">
-                {% for item in detail.financial_breakdown %}
-                  <div class="rounded-[18px] bg-loomera-bgSubtle/70 p-3">
-                    <span class="block truncate text-[10px] font-bold text-loomera-textMuted">{{ item.label }}</span>
-                    <strong class="mt-1 block truncate text-xs font-black text-loomera-textPrimary">{{ item.value }}</strong>
-                  </div>
-                {% endfor %}
-              </div>
-            </details>
-          {% endif %}
-
-          {% if detail.items %}
-            <details class="group rounded-[22px] border border-loomera-borderSoft bg-white">
-              <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
-                <div class="min-w-0">
-                  <span class="block text-xs font-black text-loomera-textPrimary">عملیات مالی پیشرفته</span>
-                  <span class="mt-1 block text-[10px] leading-5 text-loomera-textMuted">فقط در صورت نیاز به نهایی‌سازی دستی مالی استفاده شود.</span>
+            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {% for item in detail.finance_summary %}
+                <div class="rounded-[20px] bg-loomera-bgSubtle/70 p-3">
+                  <span class="block truncate text-[10px] font-bold text-loomera-textMuted">{{ item.label }}</span>
+                  <strong class="mt-1 block break-words text-xs font-black text-loomera-textPrimary">{{ item.value }}</strong>
                 </div>
-                <i class="fa-solid fa-chevron-down text-[10px] text-loomera-textMuted transition group-open:rotate-180" aria-hidden="true"></i>
-              </summary>
-              <div class="space-y-2 border-t border-loomera-borderSoft p-3">
-                <form method="post" action="{{ detail.items.0.finance_finalize_url }}" data-lm-form-ux="off">
-                  {% csrf_token %}
-                  <input type="hidden" name="action" value="finalize_order">
-                  <button type="submit"
-                          class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-loomera-textPrimary px-4 py-2.5 text-xs font-black text-white">
-                    <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i>
-                    نهایی‌سازی مالی کل رزرو
-                  </button>
-                </form>
+              {% endfor %}
+            </div>
 
-                {% for item in detail.items %}
-                  {% if item.can_finalize_finance and not item.financial_finalized %}
-                    <form method="post" action="{{ item.finance_finalize_url }}" data-lm-form-ux="off">
-                      {% csrf_token %}
-                      <input type="hidden" name="action" value="finalize_detail">
-                      <button type="submit"
-                              class="inline-flex min-h-10 w-full items-center justify-between gap-3 rounded-2xl bg-loomera-successSoft px-4 py-2.5 text-xs font-black text-loomera-success">
-                        <span>{{ item.service_name }}</span>
-                        <span>نهایی‌سازی</span>
-                      </button>
-                    </form>
-                  {% endif %}
-                {% endfor %}
-              </div>
-            </details>
-          {% endif %}
-        </div>
-      </details>
+            {% if detail.financial_breakdown %}
+              <details class="group rounded-[22px] border border-loomera-borderSoft bg-white">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
+                  <span class="text-xs font-black text-loomera-textPrimary">تقسیم درآمد و کسورات</span>
+                  <i class="fa-solid fa-chevron-down text-[10px] text-loomera-textMuted transition group-open:rotate-180" aria-hidden="true"></i>
+                </summary>
+                <div class="grid grid-cols-2 gap-2 border-t border-loomera-borderSoft p-3 sm:grid-cols-4">
+                  {% for item in detail.financial_breakdown %}
+                    <div class="rounded-[18px] bg-loomera-bgSubtle/70 p-3">
+                      <span class="block truncate text-[10px] font-bold text-loomera-textMuted">{{ item.label }}</span>
+                      <strong class="mt-1 block truncate text-xs font-black text-loomera-textPrimary">{{ item.value }}</strong>
+                    </div>
+                  {% endfor %}
+                </div>
+              </details>
+            {% endif %}
 
-      {# ------------------------------------------------------------------ #}
-      {# More: timeline + identifiers                                        #}
-      {# ------------------------------------------------------------------ #}
-      <details id="appointment-section-more"
-               class="group overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-card"
-               data-dashboard-workspace-panel
-               data-dashboard-workspace-open-mobile="false">
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 marker:hidden sm:px-5">
-          <div class="min-w-0">
+            {% if detail.items %}
+              <details class="group rounded-[22px] border border-loomera-borderSoft bg-white">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
+                  <div class="min-w-0">
+                    <span class="block text-xs font-black text-loomera-textPrimary">عملیات مالی پیشرفته</span>
+                    <span class="mt-1 block text-[10px] leading-5 text-loomera-textMuted">فقط در صورت نیاز به نهایی‌سازی دستی مالی استفاده شود.</span>
+                  </div>
+                  <i class="fa-solid fa-chevron-down text-[10px] text-loomera-textMuted transition group-open:rotate-180" aria-hidden="true"></i>
+                </summary>
+                <div class="space-y-2 border-t border-loomera-borderSoft p-3">
+                  <form method="post" action="{{ detail.items.0.finance_finalize_url }}" data-lm-form-ux="off">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="finalize_order">
+                    <button type="submit"
+                            class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-loomera-textPrimary px-4 py-2.5 text-xs font-black text-white">
+                      <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i>
+                      نهایی‌سازی مالی کل رزرو
+                    </button>
+                  </form>
+
+                  {% for item in detail.items %}
+                    {% if item.can_finalize_finance and not item.financial_finalized %}
+                      <form method="post" action="{{ item.finance_finalize_url }}" data-lm-form-ux="off">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="finalize_detail">
+                        <button type="submit"
+                                class="inline-flex min-h-10 w-full items-center justify-between gap-3 rounded-2xl bg-loomera-successSoft px-4 py-2.5 text-xs font-black text-loomera-success">
+                          <span>{{ item.service_name }}</span>
+                          <span>نهایی‌سازی</span>
+                        </button>
+                      </form>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </details>
+            {% endif %}
+          </div>
+        </section>
+
+        {# More #}
+        <section id="appointment-section-more"
+                 class="hidden overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-card"
+                 data-dashboard-workspace-panel
+                 data-panel-key="more"
+                 aria-labelledby="appointment-tab-more"
+                 hidden>
+          <header class="border-b border-loomera-borderSoft px-4 py-3 sm:px-5">
             <p class="text-[11px] font-black text-loomera-primaryText">بیشتر</p>
             <h2 class="mt-1 text-base font-black text-loomera-textPrimary">تاریخچه و اطلاعات فنی</h2>
-          </div>
-          <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-            <i class="fa-solid fa-chevron-down text-[10px]" aria-hidden="true"></i>
-          </span>
-        </summary>
+          </header>
 
-        <div class="space-y-4 p-4 sm:p-5">
-          <div>
-            <h3 class="text-xs font-black text-loomera-textPrimary">تاریخچه نوبت</h3>
-            <div class="mt-3 space-y-2">
-              {% for item in detail.timeline %}
-                <article class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-3">
-                  <div class="flex items-start justify-between gap-3">
-                    <strong class="text-xs font-black text-loomera-textPrimary">{{ item.title }}</strong>
-                    <span class="shrink-0 text-[10px] font-bold text-loomera-textMuted">{{ item.meta }}</span>
-                  </div>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
-                </article>
-              {% empty %}
-                <p class="text-xs text-loomera-textMuted">تاریخچه‌ای ثبت نشده است.</p>
-              {% endfor %}
+          <div class="space-y-4 p-4 sm:p-5">
+            <div>
+              <h3 class="text-xs font-black text-loomera-textPrimary">تاریخچه نوبت</h3>
+              <div class="mt-3 space-y-2">
+                {% for item in detail.timeline %}
+                  <article class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-3">
+                    <div class="flex items-start justify-between gap-3">
+                      <strong class="text-xs font-black text-loomera-textPrimary">{{ item.title }}</strong>
+                      <span class="shrink-0 text-[10px] font-bold text-loomera-textMuted">{{ item.meta }}</span>
+                    </div>
+                    <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
+                  </article>
+                {% empty %}
+                  <p class="text-xs text-loomera-textMuted">تاریخچه‌ای ثبت نشده است.</p>
+                {% endfor %}
+              </div>
             </div>
-          </div>
 
-          <details class="group rounded-[22px] border border-loomera-borderSoft bg-white">
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
-              <span class="text-xs font-black text-loomera-textPrimary">شناسه‌ها و اطلاعات فنی</span>
-              <i class="fa-solid fa-chevron-down text-[10px] text-loomera-textMuted transition group-open:rotate-180" aria-hidden="true"></i>
-            </summary>
-            <dl class="grid gap-2 border-t border-loomera-borderSoft p-3 sm:grid-cols-2">
-              {% for item in detail.metadata %}
-                <div class="rounded-[18px] bg-loomera-bgSubtle/70 p-3">
-                  <dt class="text-[10px] font-bold text-loomera-textMuted">{{ item.label }}</dt>
-                  <dd class="mt-1 break-words text-xs font-black text-loomera-textPrimary">{{ item.value }}</dd>
-                </div>
-              {% endfor %}
-            </dl>
-          </details>
-        </div>
-      </details>
+            <details class="group rounded-[22px] border border-loomera-borderSoft bg-white">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
+                <span class="text-xs font-black text-loomera-textPrimary">شناسه‌ها و اطلاعات فنی</span>
+                <i class="fa-solid fa-chevron-down text-[10px] text-loomera-textMuted transition group-open:rotate-180" aria-hidden="true"></i>
+              </summary>
+              <dl class="grid gap-2 border-t border-loomera-borderSoft p-3 sm:grid-cols-2">
+                {% for item in detail.metadata %}
+                  <div class="rounded-[18px] bg-loomera-bgSubtle/70 p-3">
+                    <dt class="text-[10px] font-bold text-loomera-textMuted">{{ item.label }}</dt>
+                    <dd class="mt-1 break-words text-xs font-black text-loomera-textPrimary">{{ item.value }}</dd>
+                  </div>
+                {% endfor %}
+              </dl>
+            </details>
+          </div>
+        </section>
+      </div>
     </div>
   {% endwith %}
+{% endblock %}
+
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const root = document.querySelector("[data-appointment-detail-page]");
+      if (!root) return;
+
+      const tabs = Array.from(root.querySelectorAll("[data-dashboard-workspace-tab]"));
+      const panels = Array.from(root.querySelectorAll("[data-dashboard-workspace-panel]"));
+      if (!tabs.length || !panels.length) return;
+
+      const activeClasses = [
+        "bg-loomera-primarySoft",
+        "text-loomera-primaryText"
+      ];
+      const inactiveClasses = [
+        "text-loomera-textSecondary"
+      ];
+
+      function setActiveTab(key, options) {
+        const opts = options || {};
+        const selectedTab = tabs.find((tab) => tab.dataset.tabKey === key) || tabs[0];
+        const selectedKey = selectedTab.dataset.tabKey;
+
+        tabs.forEach((tab) => {
+          const active = tab.dataset.tabKey === selectedKey;
+          tab.setAttribute("aria-selected", active ? "true" : "false");
+
+          activeClasses.forEach((className) => tab.classList.toggle(className, active));
+          inactiveClasses.forEach((className) => tab.classList.toggle(className, !active));
+        });
+
+        panels.forEach((panel) => {
+          const active = panel.dataset.panelKey === selectedKey;
+          panel.hidden = !active;
+          panel.classList.toggle("hidden", !active);
+        });
+
+        if (opts.updateHash !== false) {
+          const nextHash = "#appointment-tab-" + selectedKey;
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, "", nextHash);
+          }
+        }
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", function () {
+          setActiveTab(tab.dataset.tabKey);
+        });
+      });
+
+      const hashKey = window.location.hash.replace("#appointment-tab-", "");
+      const validHash = tabs.some((tab) => tab.dataset.tabKey === hashKey);
+      setActiveTab(validHash ? hashKey : "summary", { updateHash: false });
+    });
+  </script>
 {% endblock %}
