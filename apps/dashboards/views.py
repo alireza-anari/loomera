@@ -87,7 +87,6 @@ from apps.orders.lifecycle import (
 from apps.orders.appointment_lifecycle import (
     confirm_no_show,
     confirm_order_detail,
-    get_delay_policy,
     complete_service as complete_order_detail_service,
     mark_client_late,
     mark_customer_arrived as mark_order_detail_customer_arrived,
@@ -167,6 +166,7 @@ from apps.dashboards.finance_forms import AppointmentMaterialUsageForm
 from apps.payments.finance import (
     confirm_pay_in_salon_cash_payment,
     finalize_order_detail_financials,
+    get_pay_in_salon_cash_confirmation_state,
     release_eligible_stylist_wallet_funds_for_salon,
 )
 from apps.payments.models import (
@@ -337,7 +337,7 @@ def _stylist_context_payload(ctx):
 def _stylist_base_appointments_qs(stylist, salon=None):
     qs = (
         OrderDetail.objects.filter(stylist=stylist)
-        .select_related("order", "service", "salon", "salon__delay_policy", "order__customer__user")
+        .select_related("order", "service", "salon", "order__customer__user")
         .order_by("date", "time", "id")
     )
     if salon is not None:
@@ -445,30 +445,16 @@ def _stylist_detail_status_meta(detail):
     if detail.order.status == "cancelled":
         return {"label": "لغو شده", "badge_class": "bg-rose-100 text-rose-700"}
 
-    if detail.order.status == "no_show":
-        return {
-            "label": "عدم حضور تأیید شد",
-            "badge_class": "bg-rose-100 text-rose-700",
-        }
-
     if detail.confirmation_status == detail.ConfirmationStatus.REJECTED:
         return {"label": "رد شده", "badge_class": "bg-rose-100 text-rose-700"}
 
-    # Finalized bookings should read as booked, even for legacy rows that were
-    # created before auto-confirm and still carry awaiting_confirmation.
-    if (
-        detail.lifecycle_status == detail.ServiceLifecycleStatus.AWAITING_CONFIRMATION
-        and detail.order.is_finally
-    ):
-        return {"label": "رزرو شده", "badge_class": "bg-indigo-100 text-indigo-700"}
-
     mapping = {
         detail.ServiceLifecycleStatus.AWAITING_CONFIRMATION: {
-            "label": "در انتظار ثبت نهایی",
+            "label": "در انتظار تایید",
             "badge_class": "bg-amber-100 text-amber-700",
         },
         detail.ServiceLifecycleStatus.CONFIRMED: {
-            "label": "رزرو شده",
+            "label": "تایید شده",
             "badge_class": "bg-indigo-100 text-indigo-700",
         },
         detail.ServiceLifecycleStatus.ARRIVED: {
@@ -486,22 +472,6 @@ def _stylist_detail_status_meta(detail):
         detail.ServiceLifecycleStatus.DISPUTED: {
             "label": "دارای اختلاف",
             "badge_class": "bg-slate-100 text-slate-700",
-        },
-        "client_late": {
-            "label": "مشتری با تأخیر رسید",
-            "badge_class": "bg-amber-100 text-amber-700",
-        },
-        "no_show_pending_review": {
-            "label": "عدم حضور در انتظار بررسی",
-            "badge_class": "bg-orange-100 text-orange-700",
-        },
-        "no_show_confirmed": {
-            "label": "عدم حضور تأیید شد",
-            "badge_class": "bg-rose-100 text-rose-700",
-        },
-        "service_overrun": {
-            "label": "زمان خدمت بیشتر شد",
-            "badge_class": "bg-amber-100 text-amber-700",
         },
     }
 
@@ -10148,11 +10118,7 @@ class DashboardManualBookingView(
             date=cd["appointment_date"],
             time=cd["start_time"],
             end_time=cd["resolved_end_time"],
-            confirmation_status=OrderDetail.ConfirmationStatus.CONFIRMED,
-            lifecycle_status=OrderDetail.ServiceLifecycleStatus.CONFIRMED,
-            stylist_confirmed_at=timezone.now(),
         )
-        order.refresh_lifecycle_from_details()
 
         from apps.payments.finance import sync_settlement_for_order
 
@@ -10461,103 +10427,101 @@ def _build_stylist_lifecycle_timeline(order, detail=None):
     ]
 
 
-def _stylist_no_show_is_available(detail) -> bool:
-    """Expose the no-show exception only after the salon policy threshold."""
-    if detail.customer_arrived_at or detail.service_started_at:
-        return False
-    if detail.no_show_pending_at or detail.no_show_confirmed_at:
-        return False
-
-    start_dt = detail.appointment_start_datetime()
-    if start_dt is None:
-        return False
-
-    try:
-        policy = detail.salon.delay_policy
-    except Exception:
-        policy = get_delay_policy(detail.salon)
-    threshold_minutes = int(policy.no_show_after_minutes if policy else 20)
-    return timezone.now() >= start_dt + timedelta(minutes=threshold_minutes)
-
-
 def _get_allowed_stylist_lifecycle_actions(detail):
-    """Return a short happy path plus exception-only actions for specialists."""
     order = detail.order
-
-    # Completion and cash collection are separate facts. Once all services are
-    # complete, expose exactly one collection-side action for pay-in-salon.
-    if (
-        order.selected_payment_method == "pay_in_salon"
-        and (order.service_completed_at or order.status == "completed")
-        and not order.is_paid
-        and order.status not in {"cancelled", "no_show", "disputed"}
-    ):
-        return [
-            {
-                "key": "confirm_cash_payment",
-                "label": "دریافت وجه شد",
-                "class": "bg-emerald-600 text-white",
-            }
-        ]
-
-    if (
-        order.status in {"cancelled", "completed", "no_show", "disputed"}
-        or detail.confirmation_status == OrderDetail.ConfirmationStatus.REJECTED
-        or detail.service_completed_at
-    ):
+    if order.status == "cancelled":
         return []
-
-    if detail.no_show_pending_at and not detail.no_show_confirmed_at:
-        return [
-            {
-                "key": "no_show_decision",
-                "label": "تکمیل وضعیت عدم حضور",
-                "class": "border border-orange-200 bg-orange-50 text-orange-700",
-            }
-        ]
-
-    if detail.service_started_at and not detail.service_completed_at:
-        return [
-            {
-                "key": "complete_service",
-                "label": "پایان خدمت",
-                "class": "bg-emerald-600 text-white",
-            }
-        ]
 
     actions = []
 
-    # A specialist can start today's appointment directly. Start will also
-    # record customer arrival so no separate check-in tap is required.
-    if not detail.date or detail.date <= timezone.localdate():
+    if detail.confirmation_status == OrderDetail.ConfirmationStatus.PENDING:
         actions.append(
             {
-                "key": "start_service",
-                "label": "شروع خدمت",
+                "key": "confirm",
+                "label": "تایید نوبت",
                 "class": "bg-loomera-primary text-white",
             }
         )
-
-    # Exceptions stay secondary. Once the no-show threshold is reached, it
-    # replaces "cannot perform" because the operational question has changed.
-    if _stylist_no_show_is_available(detail):
-        actions.append(
-            {
-                "key": "no_show_decision",
-                "label": "مشتری نیامد",
-                "class": "border border-orange-200 bg-orange-50 text-orange-700",
-            }
-        )
-    elif not detail.customer_arrived_at and not detail.service_started_at:
         actions.append(
             {
                 "key": "reject",
-                "label": "امکان انجام ندارم",
+                "label": "رد نوبت",
                 "class": "border border-rose-200 bg-rose-50 text-rose-700",
+            }
+        )
+        return actions
+
+    if detail.confirmation_status == OrderDetail.ConfirmationStatus.REJECTED:
+        return []
+
+    if (
+        detail.confirmation_status == OrderDetail.ConfirmationStatus.CONFIRMED
+        and not detail.customer_arrived_at
+        and not detail.no_show_pending_at
+    ):
+        if not detail.client_late_recorded_at:
+            actions.append(
+                {
+                    "key": "client_late",
+                    "label": "ثبت تأخیر مشتری",
+                    "class": "border border-amber-200 bg-amber-50 text-amber-700",
+                }
+            )
+        actions.append(
+            {
+                "key": "arrived",
+                "label": "ثبت رسیدن مشتری",
+                "class": "border border-slate-200 bg-white text-slate-800",
+            }
+        )
+        actions.append(
+            {
+                "key": "no_show_pending",
+                "label": "ثبت عدم حضور برای بررسی",
+                "class": "border border-orange-200 bg-orange-50 text-orange-700",
+            }
+        )
+
+    if detail.no_show_pending_at and not detail.no_show_confirmed_at:
+        actions.append(
+            {
+                "key": "confirm_no_show",
+                "label": "تأیید نهایی عدم حضور",
+                "class": "border border-rose-200 bg-rose-50 text-rose-700",
+            }
+        )
+        actions.append(
+            {
+                "key": "mark_disputed",
+                "label": "ارسال برای بررسی اختلاف",
+                "class": "border border-slate-200 bg-white text-slate-800",
+            }
+        )
+
+    if detail.customer_arrived_at and not detail.service_started_at:
+        actions.append(
+            {
+                "key": "start_service",
+                "label": "شروع کار",
+                "class": "border border-slate-200 bg-white text-slate-800",
+            }
+        )
+
+    if detail.service_started_at and not detail.service_completed_at:
+        # ثبت دستی «طولانی‌شدن خدمت» از جریان عملیاتی حذف شده است تا نوبت‌ها
+        # به‌خاطر اختلاف زمان سیستم/مدت خدمت دچار وضعیت مبهم نشوند.
+        # اگر خدمت دیرتر تمام شود، زمان واقعی پایان خدمت در complete_service ذخیره می‌شود
+        # و گزارش‌ها می‌توانند overrun را از همان زمان واقعی محاسبه کنند.
+        actions.append(
+            {
+                "key": "complete_service",
+                "label": "پایان کار",
+                "class": "border border-emerald-200 bg-emerald-50 text-emerald-700",
             }
         )
 
     return actions
+
 
 def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
     from apps.payments.finance import (
@@ -10581,7 +10545,11 @@ def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
         result = confirm_pay_in_salon_cash_payment(order, actor=actor, role="stylist")
         if result.get("already_paid"):
             return "پرداخت این رزرو قبلاً نهایی شده است."
-        return "دریافت وجه ثبت شد و پرداخت رزرو نهایی شد."
+        if result.get("finalized"):
+            return "دریافت پرداخت نقدی تایید شد و چون مشتری هم تایید کرده بود، پرداخت رزرو نهایی شد."
+        return (
+            "تایید دریافت پرداخت نقدی ثبت شد. پرداخت بعد از تایید مشتری نهایی می‌شود."
+        )
 
     was_fully_confirmed = not order.order_details1.exclude(
         confirmation_status=OrderDetail.ConfirmationStatus.CONFIRMED
@@ -10611,18 +10579,23 @@ def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
         return "این خدمت با موفقیت از سمت متخصص تایید شد."
 
     if action == "reject":
+        if detail.confirmation_status == OrderDetail.ConfirmationStatus.CONFIRMED:
+            raise ValidationError("خدمت تایید شده را از این بخش نمی‌توان رد کرد.")
+
         if detail.confirmation_status == OrderDetail.ConfirmationStatus.REJECTED:
             raise ValidationError("این خدمت قبلاً رد شده است.")
 
         reject_order_detail(
             detail=detail,
             actor=actor,
-            reason="متخصص اعلام کرد امکان انجام این نوبت را ندارد",
+            reason="رد شده توسط متخصص",
         )
 
         order.refresh_from_db()
 
-        return "نوبت لغو شد و به مشتری و مدیر مجموعه اطلاع داده شد."
+        return (
+            "این نوبت رد و به‌صورت خودکار لغو شد. به مشتری و مدیر مجموعه اطلاع داده شد."
+        )
 
     if action == "client_late":
         mark_client_late(detail=detail, actor=actor)
@@ -10645,42 +10618,6 @@ def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
             body="رسیدن مشتری برای این رزرو از سمت متخصص ثبت شد.",
         )
         return "رسیدن مشتری ثبت شد."
-
-    if action == "no_show_confirm_direct":
-        if not detail.no_show_pending_at:
-            mark_no_show_pending(
-                detail=detail,
-                actor=actor,
-                note="ثبت خودکار مرحله اولیه برای تأیید مستقیم عدم حضور",
-                notify=False,
-            )
-            detail.refresh_from_db()
-
-        confirm_no_show(
-            detail=detail,
-            actor=actor,
-            note="عدم حضور توسط متخصص به‌صورت مستقیم تأیید شد.",
-        )
-        order.refresh_from_db()
-        return "عدم حضور مشتری تأیید شد."
-
-    if action == "no_show_review":
-        if not detail.no_show_pending_at:
-            mark_no_show_pending(
-                detail=detail,
-                actor=actor,
-                note="عدم حضور برای بررسی بیشتر ثبت شد.",
-                notify=False,
-            )
-            detail.refresh_from_db()
-
-        mark_order_detail_disputed(
-            detail=detail,
-            actor=actor,
-            note="عدم حضور نیازمند بررسی از داشبورد متخصص",
-        )
-        order.refresh_from_db()
-        return "پرونده عدم حضور برای بررسی پشتیبانی ثبت شد."
 
     if action == "no_show_pending":
         mark_no_show_pending(detail=detail, actor=actor)
@@ -10718,27 +10655,10 @@ def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
         return "این نوبت برای بررسی اختلاف ثبت شد."
 
     if action == "start_service":
+        if not detail.customer_arrived_at:
+            raise ValidationError("ابتدا باید رسیدن مشتری ثبت شود.")
         if detail.service_started_at:
             raise ValidationError("شروع این خدمت قبلاً ثبت شده است.")
-        if detail.service_completed_at:
-            raise ValidationError("این خدمت قبلاً پایان یافته است.")
-        if detail.no_show_pending_at or detail.no_show_confirmed_at:
-            raise ValidationError("برای این نوبت وضعیت عدم حضور ثبت شده است.")
-
-        # Legacy finalized rows may still be pending. Normalize them on the
-        # first real operational action so they also use the fast flow.
-        if detail.confirmation_status == OrderDetail.ConfirmationStatus.PENDING:
-            confirm_order_detail(detail=detail, actor=actor, auto=True)
-            detail.refresh_from_db()
-
-        if detail.confirmation_status != OrderDetail.ConfirmationStatus.CONFIRMED:
-            raise ValidationError("این نوبت در وضعیت قابل شروع نیست.")
-
-        # Starting service is also an implicit check-in. The arrival timestamp
-        # and delay data remain available to reports without a separate tap.
-        if not detail.customer_arrived_at:
-            mark_order_detail_customer_arrived(detail=detail, actor=actor)
-            detail.refresh_from_db()
 
         start_order_detail_service(detail=detail, actor=actor)
         order.refresh_lifecycle_from_details()
@@ -10746,11 +10666,11 @@ def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
         notify_operational_milestone(
             order,
             event_type="service_started",
-            title="انجام خدمت شروع شد",
+            title="انجام کار شروع شد",
             body=f"اجرای خدمت {detail.service.service_name if detail.service_id else ''} شروع شد.",
         )
 
-        return "خدمت شروع شد."
+        return "شروع کار ثبت شد."
 
     if action == "service_overrun":
         raise ValidationError(
@@ -10770,30 +10690,11 @@ def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
 
             sync_settlement_for_order(order, payment=latest_payment)
 
-            finance_finalized = True
-            try:
-                finalize_order_financials(
-                    order,
-                    payment=latest_payment,
-                    recorded_by=actor,
-                    require_all_completed=True,
-                )
-            except Exception:
-                finance_finalized = False
-                logger.exception(
-                    "Automatic financial finalization failed after service completion | order=%s",
-                    order.pk,
-                )
-
             notify_operational_milestone(
                 order,
                 event_type="service_completed",
                 title="خدمت به پایان رسید",
-                body=(
-                    "همه خدمات این رزرو انجام شدند و محاسبات مالی به‌صورت خودکار نهایی شد."
-                    if finance_finalized
-                    else "همه خدمات این رزرو انجام شدند. محاسبات مالی برای بررسی بیشتر در جزئیات باقی مانده است."
-                ),
+                body="همه خدمات این رزرو انجام شدند. اکنون مواد مصرفی باید ثبت و محاسبات مالی نهایی شود.",
             )
 
             if order.selected_payment_method == "pay_in_salon" and not order.is_paid:
@@ -10801,7 +10702,7 @@ def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
                     order,
                     event_type="pay_in_salon_pending",
                     title="رزرو آماده تسویه در مجموعه است",
-                    body="خدمت کامل شده است. پس از دریافت وجه، متخصص می‌تواند پرداخت حضوری را با «دریافت وجه شد» نهایی کند.",
+                    body="خدمت کامل شده و مشتری می‌تواند پرداخت نقدی را تایید کند یا آنلاین بپردازد.",
                 )
             else:
                 mark_review_requested(order)
@@ -10813,7 +10714,7 @@ def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
                 body=f"خدمت {detail.service.service_name if detail.service_id else ''} انجام شد. هنوز همه خدمات این رزرو کامل نشده‌اند.",
             )
 
-        return "پایان خدمت ثبت شد."
+        return "پایان کار ثبت شد."
 
     raise ValidationError("این عملیات معتبر نیست.")
 
@@ -11147,29 +11048,6 @@ def _serialize_stylist_appointment_card(detail, *, can_view_client_phone=True):
     )
     status_meta = _stylist_detail_status_meta(detail)
     pricing = _stylist_item_pricing_meta(detail)
-    actions = _get_allowed_stylist_lifecycle_actions(detail)
-
-    quick_action = next(
-        (
-            action
-            for action in actions
-            if action["key"] in {
-                "start_service",
-                "complete_service",
-                "confirm_cash_payment",
-            }
-        ),
-        None,
-    )
-    exception_action = next(
-        (
-            action
-            for action in actions
-            if action["key"] in {"no_show_decision", "reject"}
-        ),
-        None,
-    )
-
     return {
         "id": detail.id,
         "customer_name": customer_name,
@@ -11199,12 +11077,8 @@ def _serialize_stylist_appointment_card(detail, *, can_view_client_phone=True):
         ),
         "payment_state": "پرداخت شده" if detail.order.is_paid else "پرداخت‌نشده",
         "salon_name": detail.salon.salon_name if detail.salon_id else "",
-        "quick_action": quick_action,
-        "exception_action": exception_action,
-        "is_in_service": bool(
-            detail.service_started_at and not detail.service_completed_at
-        ),
     }
+
 
 def _serialize_stylist_schedule_row(item):
     return {
@@ -13486,12 +13360,7 @@ class StylistAddBookingView(StylistDashboardGuardMixin, View):
                 date=cd["appointment_date"],
                 time=cd["start_time"],
                 end_time=cd["resolved_end_time"],
-                confirmation_status=OrderDetail.ConfirmationStatus.CONFIRMED,
-                lifecycle_status=OrderDetail.ServiceLifecycleStatus.CONFIRMED,
-                stylist_confirmed_at=timezone.now(),
             )
-            order.refresh_lifecycle_from_details()
-
             from apps.payments.finance import sync_settlement_for_order
 
             sync_settlement_for_order(order)
@@ -14039,6 +13908,9 @@ class StylistAppointmentDetailView(StylistDashboardGuardMixin, View):
                 "stylist_lifecycle_timeline": _build_stylist_lifecycle_timeline(
                     detail.order, detail
                 ),
+                "cash_payment_state": get_pay_in_salon_cash_confirmation_state(
+                    detail.order
+                ),
             }
         )
         context.update(_stylist_context_payload(ctx))
@@ -14174,16 +14046,6 @@ class StylistAppointmentDetailView(StylistDashboardGuardMixin, View):
             return redirect("dashboards:stylist_appointments")
         detail = self._get_detail(stylist, appointment_id, salon=salon)
         action = (request.POST.get("action") or "").strip()
-        next_url = (request.POST.get("next") or "").strip()
-        if not next_url or not url_has_allowed_host_and_scheme(
-            next_url,
-            allowed_hosts={request.get_host()},
-            require_https=request.is_secure(),
-        ):
-            next_url = reverse(
-                "dashboards:stylist_appointment_detail",
-                kwargs={"appointment_id": detail.id},
-            )
 
         material_actions = {
             "generate_materials",
@@ -14206,7 +14068,9 @@ class StylistAppointmentDetailView(StylistDashboardGuardMixin, View):
         except ValidationError as exc:
             messages.error(request, str(exc))
 
-        return redirect(next_url)
+        return redirect(
+            "dashboards:stylist_appointment_detail", appointment_id=detail.id
+        )
 
 
 class StylistFinanceView(StylistDashboardGuardMixin, View):

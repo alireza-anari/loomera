@@ -18,7 +18,7 @@
   {% url 'dashboards:stylist_add_schedule' as stylist_add_schedule_url %}
 
   <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-dashboard">
-    {% include "dashboards/components/page_hero.html" with eyebrow="فضای کاری من" eyebrow_icon="fa-solid fa-house" title="خانه کاری من" description="کارهای امروز را از همین صفحه انجام بده؛ در روند عادی فقط شروع و پایان خدمت لازم است." action_label="ثبت نوبت" action_url=stylist_add_booking_url badges=page_meta.badges %}
+    {% include "dashboards/components/page_hero.html" with eyebrow="فضای کاری من" eyebrow_icon="fa-solid fa-house" title="خانه کاری من" description="امروزت را سریع ببین و برای جزئیات وارد نوبت‌ها، برنامه یا درآمد شو؛ خانه فقط خلاصه کارهای مهم را نشان می‌دهد." action_label="ثبت نوبت" action_url=stylist_add_booking_url badges=page_meta.badges %}
 
     <section class="lm-stylist-summary-surface" aria-label="خلاصه فضای کاری متخصص" data-lm-direct-section data-lm-stylist-surface>
       <div class="lm-stylist-summary-grid">
@@ -45,60 +45,10 @@
         </header>
         <div class="grid gap-3 p-4 sm:p-5 md:grid-cols-2">
           {% for item in stylist_home.today_items %}
-            <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-sm" data-stylist-fast-flow-card>
-              <div class="flex items-start gap-3">
-                <span class="lm-compact-record-avatar shrink-0" aria-hidden="true">{{ item.customer_name|slice:":1" }}</span>
-                <div class="min-w-0 flex-1">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <strong class="truncate text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong>
-                    <span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
-                  </div>
-                  <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ item.service_name }} • {{ item.time_label }}</p>
-                </div>
-              </div>
-
-              {% if item.quick_action %}
-                <form method="post" action="{{ item.detail_url }}" data-lm-form-ux="off" class="mt-4">
-                  {% csrf_token %}
-                  <input type="hidden" name="action" value="{{ item.quick_action.key }}">
-                  <input type="hidden" name="next" value="{{ request.path }}">
-                  <button class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-black {{ item.quick_action.class }}">
-                    {% if item.quick_action.key == "complete_service" %}
-                      <i class="fa-solid fa-check" aria-hidden="true"></i>
-                    {% elif item.quick_action.key == "confirm_cash_payment" %}
-                      <i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i>
-                    {% else %}
-                      <i class="fa-solid fa-play" aria-hidden="true"></i>
-                    {% endif %}
-                    <span>{{ item.quick_action.label }}</span>
-                  </button>
-                </form>
-              {% endif %}
-
-              <div class="mt-3 flex items-center justify-between gap-3 border-t border-loomera-borderSoft pt-3">
-                {% if item.exception_action %}
-                  {% if item.exception_action.key == "no_show_decision" %}
-                    <button type="button"
-                            class="text-[11px] font-black text-orange-600"
-                            data-no-show-decision-open
-                            data-action-url="{{ item.detail_url }}"
-                            data-next="{{ request.path }}">
-                      {{ item.exception_action.label }}
-                    </button>
-                  {% else %}
-                    <form method="post" action="{{ item.detail_url }}" data-lm-form-ux="off">
-                      {% csrf_token %}
-                      <input type="hidden" name="action" value="{{ item.exception_action.key }}">
-                      <input type="hidden" name="next" value="{{ request.path }}">
-                      <button class="text-[11px] font-black text-rose-600" {% if item.exception_action.key == "reject" %}onclick="return confirm('این نوبت لغو می‌شود و به مشتری اطلاع داده خواهد شد. ادامه می‌دهی؟')"{% endif %}>{{ item.exception_action.label }}</button>
-                    </form>
-                  {% endif %}
-                {% else %}
-                  <span></span>
-                {% endif %}
-                <a href="{{ item.detail_url }}" class="text-[11px] font-black text-loomera-textMuted">جزئیات</a>
-              </div>
-            </article>
+            <details class="lm-compact-record" data-lm-compact-record data-lm-compact-group="stylist-home-today">
+              <summary class="lm-compact-record-summary"><span class="lm-compact-record-avatar">{{ item.customer_name|slice:":1" }}</span><span class="min-w-0 flex-1"><strong class="block truncate text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong><span class="mt-1 block truncate text-xs text-loomera-textMuted">{{ item.service_name }} • {{ item.time_label }}</span></span><span class="lm-compact-record-chevron"><i class="fa-solid fa-chevron-down text-[10px]"></i></span></summary>
+              <div class="lm-compact-record-body"><div class="grid grid-cols-2 gap-2 text-xs"><div class="lm-compact-metric">{{ item.status_label }}</div><div class="lm-compact-metric">{{ item.payment_state }}</div></div><a href="{{ item.detail_url }}" class="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">جزئیات نوبت<i class="fa-solid fa-arrow-left text-[10px]"></i></a></div>
+            </details>
           {% empty %}
             <div class="md:col-span-2">{% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-check" title="برای امروز نوبتی نداری" description="اگر مشتری حضوری داری، می‌توانی همین حالا نوبتش را ثبت کنی." action_label="ثبت نوبت" action_url=stylist_add_booking_url %}</div>
           {% endfor %}
@@ -121,5 +71,4 @@
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p class="text-[11px] font-black text-loomera-primaryText">دسترسی سریع</p><h2 class="mt-1 text-base font-black text-loomera-textPrimary">کارهای شخصی من</h2></div><div class="flex flex-wrap gap-2"><a href="{{ stylist_finance_url }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary">درآمد من</a><a href="{{ stylist_quick_links_url }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary">لینک رزرو</a><a href="{{ stylist_profile_url }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary">پروفایل من</a></div></div>
     </section>
   </section>
-{% include "dashboards/partials/stylist_no_show_decision_dialog.html" %}
 {% endblock %}

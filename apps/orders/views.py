@@ -2762,16 +2762,10 @@ class AppointmentDetailView(LoginRequiredMixin, DetailView):
             order.wallet_transactions.order_by("-created_at")[:5]
         )
         if order.selected_payment_method == "pay_in_salon":
-            if order.is_paid:
-                context["payment_status_label"] = "پرداخت در مجموعه انجام شد"
-                context["payment_status_class"] = (
-                    "bg-green-50 text-green-700 border-green-200"
-                )
-            else:
-                context["payment_status_label"] = "پرداخت در مجموعه"
-                context["payment_status_class"] = (
-                    "bg-amber-50 text-amber-700 border-amber-200"
-                )
+            context["payment_status_label"] = "پرداخت در مجموعه"
+            context["payment_status_class"] = (
+                "bg-amber-50 text-amber-700 border-amber-200"
+            )
         elif order.is_paid:
             context["payment_status_label"] = "پرداخت شده"
             context["payment_status_class"] = (
@@ -3021,19 +3015,73 @@ class PayInSalonSettlementView(LoginRequiredMixin, View):
             order__customer__user=request.user,
         )
 
-        from apps.payments.finance import sync_settlement_for_order
+        from apps.payments.finance import (
+            confirm_pay_in_salon_cash_payment,
+            sync_settlement_for_order,
+        )
         from apps.payments.gateways import initiate_payment
         from apps.payments.models import Payment
         import secrets
         import uuid
 
         if action == "cash":
-            # Compatibility for stale forms/bookmarks. Cash receipt is now
-            # recorded by the collection side only.
-            messages.info(
-                request,
-                "ثبت دریافت وجه توسط مجموعه انجام می‌شود و نیازی به تأیید شما نیست.",
-            )
+            with transaction.atomic():
+                order = Order.objects.select_for_update().get(pk=appointment.order_id)
+
+                if order.status == "cancelled":
+                    messages.error(request, "این رزرو لغو شده و دیگر قابل تسویه نیست.")
+                    return redirect("orders:appointment_detail", pk=appointment.pk)
+
+                if not _order_ready_for_pay_in_salon_settlement(order):
+                    messages.error(
+                        request,
+                        "پرداخت در مجموعه فقط بعد از پایان خدمت فعال می‌شود.",
+                    )
+                    return redirect("orders:appointment_detail", pk=appointment.pk)
+
+                if order.is_paid:
+                    messages.info(request, "این رزرو قبلاً از نظر مالی نهایی شده است.")
+                    return redirect("orders:appointment_detail", pk=appointment.pk)
+
+                if not _order_has_valid_pay_in_salon_method(order):
+                    messages.error(
+                        request,
+                        "تسویه در مجموعه فقط برای رزروهای پرداخت در مجموعه فعال است.",
+                    )
+                    return redirect("orders:appointment_detail", pk=appointment.pk)
+
+                try:
+                    result = confirm_pay_in_salon_cash_payment(
+                        order,
+                        actor=request.user,
+                        role="customer",
+                    )
+                except ValidationError as exc:
+                    messages.error(request, str(exc))
+                    return redirect("orders:appointment_detail", pk=appointment.pk)
+
+            if result.get("finalized"):
+                messages.success(
+                    request,
+                    "پرداخت نقدی با تایید شما و متخصص نهایی شد و امکان ثبت دیدگاه فعال است.",
+                )
+                payment = result.get("payment")
+                if payment:
+                    transaction.on_commit(
+                        lambda order=result[
+                            "order"
+                        ], payment=payment: notify_payment_success(
+                            customer=order.customer,
+                            payment=payment,
+                            order=order,
+                        )
+                    )
+            else:
+                messages.success(
+                    request,
+                    "تایید پرداخت نقدی شما ثبت شد. بعد از تایید متخصص، پرداخت نهایی می‌شود.",
+                )
+
             return redirect("orders:appointment_detail", pk=appointment.pk)
 
         with transaction.atomic():
@@ -3064,7 +3112,7 @@ class PayInSalonSettlementView(LoginRequiredMixin, View):
             if getattr(order.salon, "verification_status", "") != "verified":
                 messages.error(
                     request,
-                    "پرداخت آنلاین تکمیلی فقط برای مجموعه‌های احراز هویت‌شده فعال است. تسویه حضوری توسط مجموعه ثبت می‌شود.",
+                    "پرداخت آنلاین تکمیلی فقط برای مجموعه‌های احراز هویت‌شده فعال است. برای این مجموعه، پرداخت نقدی را تایید کنید.",
                 )
                 return redirect("orders:appointment_detail", pk=appointment.pk)
 
@@ -4435,9 +4483,6 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
                 update_fields=["is_paid", "is_finally", "status", "checkout_locked_at"]
             )
 
-            from apps.orders.appointment_lifecycle import auto_confirm_order_details
-
-            auto_confirm_order_details(order=order)
             consume_booking_quick_link_from_session(request, order)
             schedule_order_reminder(order)
             notify_manager_and_stylists_for_booking(order, event_type="booking_paid")
@@ -4499,9 +4544,6 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             order.is_finally = True
             order.save(update_fields=["status", "is_finally"])
 
-            from apps.orders.appointment_lifecycle import auto_confirm_order_details
-
-            auto_confirm_order_details(order=order)
             consume_booking_quick_link_from_session(request, order)
             schedule_order_reminder(order)
             notify_manager_and_stylists_for_booking(order, event_type="booking_created")
@@ -4526,7 +4568,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
 
             messages.success(
                 request,
-                "نوبت شما قطعی شد و در برنامه کاری متخصص قرار گرفت. پرداخت این سفارش در مجموعه انجام می‌شود.",
+                "نوبت شما ثبت شد و در انتظار تایید متخصص قرار گرفت. پرداخت این سفارش در مجموعه انجام می‌شود.",
             )
 
             redirect_url = reverse("orders:appointments")

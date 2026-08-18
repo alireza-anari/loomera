@@ -339,12 +339,7 @@ def _refresh_order(order: Order) -> Order:
 
 
 @transaction.atomic
-def confirm_order_detail(
-    *,
-    detail: OrderDetail,
-    actor=None,
-    auto: bool = False,
-) -> OrderDetail:
+def confirm_order_detail(*, detail: OrderDetail, actor=None) -> OrderDetail:
     detail = (
         OrderDetail.objects.select_for_update(of=("self",))
         .select_related("order", "service", "stylist", "salon")
@@ -365,20 +360,10 @@ def confirm_order_detail(
     detail.recompute_schedule_snapshots()
     record_appointment_event(
         order_detail=detail,
-        event_type=(
-            AppointmentEvent.EventType.STATUS_CHANGED
-            if auto
-            else AppointmentEvent.EventType.STYLIST_CONFIRMED
-        ),
+        event_type=AppointmentEvent.EventType.STYLIST_CONFIRMED,
         actor=actor,
         old_status=old_status,
         new_status=detail.lifecycle_status,
-        note=(
-            "رزرو نهایی‌شده بدون نیاز به تأیید دستی متخصص قطعی شد."
-            if auto
-            else ""
-        ),
-        metadata={"auto_confirmed": bool(auto)},
     )
 
     is_fully_confirmed = not detail.order.order_details1.exclude(
@@ -386,66 +371,34 @@ def confirm_order_detail(
     ).exists()
     notify_customer = is_fully_confirmed and not was_fully_confirmed
 
-    # Auto-confirm is the normal booking path now. The booking-created
-    # notification/SMS already describes the reservation as final, so emitting a
-    # second "stylist confirmed" notification here would duplicate the customer
-    # message. Manual confirm remains supported for legacy/admin flows.
-    if not auto:
-        _notify_appointment_lifecycle(
-            detail=detail,
-            event_type="stylist_confirmed",
-            title="نوبت توسط آرایشگر تأیید شد",
-            body=(
-                "همه خدمات این رزرو تأیید شد و نوبت شما در برنامه کاری سالن قرار گرفت."
-                if notify_customer
-                else "این نوبت توسط آرایشگر تأیید شد و در برنامه کاری سالن قرار گرفت."
-            ),
-            actor=actor,
-            include_customer=notify_customer,
-            include_stylist=True,
-            include_manager=True,
-            meta={"order_fully_confirmed": notify_customer},
+    _notify_appointment_lifecycle(
+        detail=detail,
+        event_type="stylist_confirmed",
+        title="نوبت توسط آرایشگر تأیید شد",
+        body=(
+            "همه خدمات این رزرو تأیید شد و نوبت شما در برنامه کاری سالن قرار گرفت."
+            if notify_customer
+            else "این نوبت توسط آرایشگر تأیید شد و در برنامه کاری سالن قرار گرفت."
+        ),
+        actor=actor,
+        include_customer=notify_customer,
+        include_stylist=True,
+        include_manager=True,
+        meta={"order_fully_confirmed": notify_customer},
+    )
+
+    if notify_customer:
+        from apps.orders.lifecycle import (
+            queue_customer_booking_confirmed_sms,
         )
 
-        if notify_customer:
-            from apps.orders.lifecycle import (
-                queue_customer_booking_confirmed_sms,
-            )
-
-            queue_customer_booking_confirmed_sms(
-                detail.order,
-                order_detail=detail,
-            )
+        queue_customer_booking_confirmed_sms(
+            detail.order,
+            order_detail=detail,
+        )
 
     _refresh_order(detail.order)
     return detail
-
-
-@transaction.atomic
-def auto_confirm_order_details(*, order: Order, actor=None) -> list[OrderDetail]:
-    """Confirm every pending item after the booking itself is finalized."""
-    order = Order.objects.select_for_update().get(pk=order.pk)
-    if order.status == "cancelled":
-        return []
-
-    pending_details = list(
-        order.order_details1.select_for_update(of=("self",))
-        .filter(confirmation_status=OrderDetail.ConfirmationStatus.PENDING)
-        .order_by("id")
-    )
-
-    confirmed = []
-    for detail in pending_details:
-        confirmed.append(
-            confirm_order_detail(
-                detail=detail,
-                actor=actor,
-                auto=True,
-            )
-        )
-
-    order.refresh_from_db()
-    return confirmed
 
 
 @transaction.atomic
@@ -461,24 +414,13 @@ def reject_order_detail(
     if detail.order.status == "cancelled":
         raise ValidationError("این رزرو قبلاً لغو شده است.")
 
-    if (
-        detail.confirmation_status == OrderDetail.ConfirmationStatus.CONFIRMED
-        and (
-            detail.customer_arrived_at
-            or detail.service_started_at
-            or detail.service_completed_at
-            or detail.no_show_pending_at
-            or detail.no_show_confirmed_at
-        )
-    ):
-        raise ValidationError(
-            "بعد از حضور مشتری یا شروع فرایند خدمت، این نوبت از این مسیر قابل لغو نیست."
-        )
+    if detail.confirmation_status == OrderDetail.ConfirmationStatus.CONFIRMED:
+        raise ValidationError("خدمت تایید شده را از این بخش نمی‌توان رد کرد.")
 
     if detail.confirmation_status == OrderDetail.ConfirmationStatus.REJECTED:
         raise ValidationError("این خدمت قبلاً رد شده است.")
 
-    reject_reason = reason or "متخصص اعلام کرد امکان انجام این نوبت را ندارد"
+    reject_reason = reason or "رد شده توسط آرایشگر"
     old_status = detail.lifecycle_status
 
     detail.mark_rejected(reason=reject_reason, at=timezone.now())
@@ -497,8 +439,8 @@ def reject_order_detail(
 
     cancellation = cancel_order_with_financials(
         order=detail.order,
-        reason="لغو نوبت به دلیل عدم امکان انجام توسط متخصص",
-        refund_reason="عدم امکان انجام نوبت توسط متخصص",
+        reason="لغو خودکار به دلیل رد نوبت توسط آرایشگر",
+        refund_reason="رد نوبت توسط آرایشگر",
         payment=detail.order.payment_order.order_by("-id").first(),
     )
 
@@ -524,7 +466,7 @@ def reject_order_detail(
         event_type="stylist_rejected_cancelled",
         title="نوبت شما لغو شد",
         body=(
-            f"متخصص برای نوبت {service_name} اعلام کرد امکان انجام خدمت را ندارد و رزرو لغو شد."
+            f"نوبت شما برای {service_name} توسط آرایشگر تایید نشد و رزرو به‌صورت خودکار لغو شد."
             f"{refund_text}"
         ),
         actor=actor,
@@ -661,68 +603,38 @@ def complete_service(*, detail: OrderDetail, actor=None) -> OrderDetail:
 
 
 @transaction.atomic
-def mark_no_show_pending(
-    *,
-    detail: OrderDetail,
-    actor=None,
-    note: str = "",
-    notify: bool = True,
-) -> OrderDetail:
-    detail = (
-        OrderDetail.objects.select_for_update(of=("self",))
-        .select_related("order", "service", "stylist", "salon")
-        .get(pk=detail.pk)
-    )
+def mark_no_show_pending(*, detail: OrderDetail, actor=None, note: str = "") -> OrderDetail:
+    detail = OrderDetail.objects.select_for_update(of=("self",)).select_related("order", "service", "stylist", "salon").get(pk=detail.pk)
     if detail.customer_arrived_at:
         raise ValidationError("برای نوبتی که حضور مشتری ثبت شده، عدم حضور قابل ثبت نیست.")
     if detail.service_started_at:
         raise ValidationError("برای نوبتی که خدمت شروع شده، عدم حضور قابل ثبت نیست.")
     if detail.no_show_pending_at:
         raise ValidationError("عدم حضور برای این نوبت قبلاً در انتظار بررسی ثبت شده است.")
-
     policy = get_delay_policy(detail.salon)
     start_dt = detail.appointment_start_datetime()
     threshold_minutes = int(policy.no_show_after_minutes if policy else 20)
     if start_dt and timezone.now() < start_dt + timedelta(minutes=threshold_minutes):
-        raise ValidationError(
-            f"ثبت عدم حضور فقط بعد از گذشت {threshold_minutes} دقیقه از زمان نوبت امکان‌پذیر است."
-        )
-
-    dispute_until = timezone.now() + timedelta(
-        hours=int(policy.no_show_dispute_window_hours if policy else 12)
-    )
+        raise ValidationError(f"ثبت عدم حضور فقط بعد از گذشت {threshold_minutes} دقیقه از زمان نوبت امکان‌پذیر است.")
+    dispute_until = timezone.now() + timedelta(hours=int(policy.no_show_dispute_window_hours if policy else 12))
     old_status = detail.lifecycle_status
-    detail.mark_no_show_pending(
-        dispute_until=dispute_until,
-        note=note,
-        at=timezone.now(),
-    )
-    record_appointment_event(
-        order_detail=detail,
-        event_type=AppointmentEvent.EventType.NO_SHOW_PENDING,
+    detail.mark_no_show_pending(dispute_until=dispute_until, note=note, at=timezone.now())
+    record_appointment_event(order_detail=detail, event_type=AppointmentEvent.EventType.NO_SHOW_PENDING, actor=actor, old_status=old_status, new_status=detail.lifecycle_status, note=note, metadata={"dispute_until": dispute_until.isoformat()})
+    _notify_appointment_lifecycle(
+        detail=detail,
+        event_type="no_show_pending_review",
+        title="عدم حضور مشتری در انتظار بررسی ثبت شد",
+        body="برای این نوبت عدم حضور مشتری ثبت شده و تا پایان مهلت بررسی قابل پیگیری است.",
         actor=actor,
-        old_status=old_status,
-        new_status=detail.lifecycle_status,
-        note=note,
-        metadata={"dispute_until": dispute_until.isoformat()},
+        include_customer=True,
+        include_stylist=True,
+        include_manager=True,
+        priority="high",
+        meta={"dispute_until": dispute_until.isoformat()},
     )
-
-    if notify:
-        _notify_appointment_lifecycle(
-            detail=detail,
-            event_type="no_show_pending_review",
-            title="عدم حضور مشتری در انتظار بررسی ثبت شد",
-            body="برای این نوبت عدم حضور مشتری ثبت شده و تا پایان مهلت بررسی قابل پیگیری است.",
-            actor=actor,
-            include_customer=True,
-            include_stylist=True,
-            include_manager=True,
-            priority="high",
-            meta={"dispute_until": dispute_until.isoformat()},
-        )
-
     _refresh_order(detail.order)
     return detail
+
 
 def _get_active_no_show_policy(detail: OrderDetail):
     try:
