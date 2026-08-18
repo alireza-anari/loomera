@@ -3,6 +3,16 @@
 {% block body_attrs %}data-page="service-menu"{% endblock %}
 
 {% block content %}
+<style>
+  @media (hover: hover) {
+    [data-dashboard-page="service-menu"] :is(button:not(:disabled), a.inline-flex):hover {
+      background-color: rgb(var(--lm-accent-rgb) / 1) !important;
+      border-color: rgb(var(--lm-accent-rgb) / 0.72) !important;
+      color: rgb(var(--lm-text-primary-rgb) / 1) !important;
+      opacity: 1 !important;
+    }
+  }
+</style>
   {% url 'dashboards:team_member' as team_member_url %}
 
   <section class="min-w-0 max-w-full space-y-4 lg:space-y-5" data-dashboard-page="service-menu" data-service-menu-page>
@@ -151,8 +161,7 @@
                     <div class="mt-3 flex flex-wrap items-center gap-2 border-t border-loomera-borderSoft pt-3">
                       <a href="{{ service.edit_url }}" class="lm-app-touch-target inline-flex items-center justify-center rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">ویرایش خدمت</a>
                       {% if not service.is_active or not service.has_future_active_bookings %}<form method="post" action="{{ service.toggle_url }}">{% csrf_token %}<button type="submit" class="lm-app-touch-target rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-bold text-loomera-textSecondary">{% if service.is_active %}غیرفعال‌کردن{% else %}فعال‌کردن{% endif %}</button></form>{% endif %}
-                      {% if service.is_active and not service.has_future_active_bookings %}<form method="post" action="{{ service.archive_url }}">{% csrf_token %}<button type="submit" class="lm-app-touch-target rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-bold text-loomera-textSecondary">آرشیو</button></form>{% endif %}
-                      {% if not service.has_future_active_bookings %}<form method="post" action="{{ service.remove_url }}" onsubmit="return confirm('{% if service.has_booking_history %}این خدمت سابقه نوبت دارد و امن آرشیو می‌شود. ادامه می‌دهی؟{% else %}از حذف این خدمت مطمئنی؟{% endif %}');">{% csrf_token %}<button type="submit" class="lm-app-touch-target rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-bold {% if service.has_booking_history %}text-loomera-textSecondary{% else %}text-rose-700{% endif %}">{% if service.has_booking_history %}آرشیو امن{% else %}حذف{% endif %}</button></form>{% endif %}
+                      {% if not service.has_future_active_bookings and not service.has_booking_history %}<form method="post" action="{{ service.remove_url }}" onsubmit="return confirm('از حذف این خدمت مطمئنی؟');">{% csrf_token %}<button type="submit" class="lm-app-touch-target rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-bold text-rose-700 transition">حذف</button></form>{% endif %}
                     </div>
                   </div>
                 </details>
