@@ -166,9 +166,10 @@
       {# ------------------------------------------------------------------ #}
       {# Compact workspace navigation                                       #}
       {# ------------------------------------------------------------------ #}
-      <div class="sticky top-[5.5rem] z-30 -mx-3 px-3 sm:-mx-5 sm:px-5 lg:top-[6.5rem] lg:-mx-8 lg:px-8"
+      <div class="relative z-30 -mx-3 px-3 sm:-mx-5 sm:px-5 lg:-mx-8 lg:px-8"
            data-dashboard-workspace-tabs-shell>
-        <nav class="overflow-x-auto rounded-[22px] border border-loomera-borderSoft bg-white/90 p-1.5 shadow-[0_12px_30px_rgba(46,42,60,0.10)] backdrop-blur-xl"
+        <nav class="overflow-x-auto rounded-[22px] border border-loomera-borderSoft bg-white/92 p-1.5 shadow-[0_12px_30px_rgba(46,42,60,0.10)] backdrop-blur-xl"
+             data-dashboard-workspace-tabs-nav
              data-dashboard-workspace-tabs
              aria-label="بخش‌های جزئیات نوبت">
           <div class="grid min-w-[22rem] grid-cols-4 gap-1">
@@ -496,7 +497,10 @@
 
       const tabs = Array.from(root.querySelectorAll("[data-dashboard-workspace-tab]"));
       const panels = Array.from(root.querySelectorAll("[data-dashboard-workspace-panel]"));
-      if (!tabs.length || !panels.length) return;
+      const tabsShell = root.querySelector("[data-dashboard-workspace-tabs-shell]");
+      const tabsNav = root.querySelector("[data-dashboard-workspace-tabs-nav]");
+
+      if (!tabs.length || !panels.length || !tabsShell || !tabsNav) return;
 
       const activeClasses = [
         "bg-loomera-primarySoft",
@@ -542,6 +546,90 @@
       const hashKey = window.location.hash.replace("#appointment-tab-", "");
       const validHash = tabs.some((tab) => tab.dataset.tabKey === hashKey);
       setActiveTab(validHash ? hashKey : "summary", { updateHash: false });
+
+      /*
+       * The dashboard shell uses overflow-x-hidden on parent containers.
+       * That makes CSS position: sticky unreliable on mobile browsers.
+       * We therefore pin the tab bar to the viewport with position: fixed
+       * after it reaches the dashboard top bar, while its wrapper keeps
+       * the original space in the document.
+       */
+      let floating = false;
+      let rafPending = false;
+
+      function dashboardTopOffset() {
+        const topbar = document.querySelector("[data-dashboard-topbar]");
+        if (!topbar) return 76;
+        return Math.ceil(topbar.getBoundingClientRect().height + 8);
+      }
+
+      function restoreTabs() {
+        if (!floating) return;
+
+        floating = false;
+        tabsShell.style.height = "";
+        tabsNav.style.position = "";
+        tabsNav.style.top = "";
+        tabsNav.style.left = "";
+        tabsNav.style.width = "";
+        tabsNav.style.zIndex = "";
+        tabsNav.style.margin = "";
+        tabsNav.style.borderRadius = "";
+        tabsNav.style.boxShadow = "";
+      }
+
+      function syncFloatingTabs() {
+        rafPending = false;
+
+        const topOffset = dashboardTopOffset();
+
+        /*
+         * When the nav is fixed the wrapper remains in normal flow and acts
+         * as the reliable position sentinel.
+         */
+        const shellRect = tabsShell.getBoundingClientRect();
+        const shouldFloat = shellRect.top <= topOffset;
+
+        if (!shouldFloat) {
+          restoreTabs();
+          return;
+        }
+
+        if (!floating) {
+          floating = true;
+          tabsShell.style.height = tabsNav.offsetHeight + "px";
+        }
+
+        const rect = tabsShell.getBoundingClientRect();
+
+        tabsNav.style.position = "fixed";
+        tabsNav.style.top = topOffset + "px";
+        tabsNav.style.left = rect.left + "px";
+        tabsNav.style.width = rect.width + "px";
+        tabsNav.style.zIndex = "49";
+        tabsNav.style.margin = "0";
+        tabsNav.style.borderRadius = "22px";
+        tabsNav.style.boxShadow =
+          "0 14px 34px rgba(46,42,60,0.14), 0 2px 10px rgba(115,92,190,0.08)";
+      }
+
+      function requestTabsSync() {
+        if (rafPending) return;
+        rafPending = true;
+        window.requestAnimationFrame(syncFloatingTabs);
+      }
+
+      window.addEventListener("scroll", requestTabsSync, { passive: true });
+      window.addEventListener("resize", requestTabsSync);
+      window.addEventListener("orientationchange", requestTabsSync);
+
+      /*
+       * Recalculate once fonts/layout have settled and once again shortly
+       * after load for mobile browser chrome resizing.
+       */
+      requestTabsSync();
+      window.setTimeout(requestTabsSync, 150);
+      window.setTimeout(requestTabsSync, 500);
     });
   </script>
 {% endblock %}
