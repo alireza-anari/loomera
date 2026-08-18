@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 
 LIFECYCLE_LABELS = {
     "booked": "رزرو ثبت شد",
-    "awaiting_stylist_confirmation": "در انتظار تایید متخصص",
-    "stylist_confirmed": "متخصص تایید کرد",
+    "awaiting_stylist_confirmation": "در انتظار قطعی‌شدن رزرو",
+    "stylist_confirmed": "رزرو قطعی شد",
     "arrived": "مشتری به سالن رسید",
     "in_service": "انجام کار شروع شد",
     "completed": "پایان کار",
@@ -146,7 +146,7 @@ def build_progress_steps(order: Order):
             "is_done": True,
             "is_current": False,
             "meta": _format_progress_datetime(order.register_date),
-            "description": "رزرو شما ثبت شد و برای تایید متخصص ارسال شد.",
+            "description": "درخواست رزرو شما ثبت شده است.",
         },
         {
             "key": "awaiting_stylist_confirmation",
@@ -154,11 +154,11 @@ def build_progress_steps(order: Order):
             "is_done": bool(order.stylist_confirmed_at or order.stylist_approved),
             "is_current": False,
             "meta": (
-                "منتظر تایید متخصص"
+                "در انتظار نهایی‌شدن"
                 if not (order.stylist_confirmed_at or order.stylist_approved)
-                else "تایید شد"
+                else "نهایی شد"
             ),
-            "description": "متخصص در حال بررسی نوبت شماست. بعد از تایید، وضعیت نوبت به‌روزرسانی می‌شود.",
+            "description": "پس از نهایی‌شدن رزرو، زمان انتخاب‌شده در برنامه متخصص قطعی می‌شود.",
         },
         {
             "key": "stylist_confirmed",
@@ -170,7 +170,7 @@ def build_progress_steps(order: Order):
                 if order.stylist_confirmed_at
                 else ""
             ),
-            "description": "نوبت شما توسط متخصص تایید شده است.",
+            "description": "زمان این نوبت قطعی و در برنامه متخصص ثبت شده است.",
         },
         {
             "key": "arrived",
@@ -534,7 +534,7 @@ def queue_customer_booking_created_sms(
         order=order,
         event_type=event_type,
         title="رزرو شما ثبت شد",
-        body=("رزرو شما ثبت شد و اطلاعات نوبت از طریق پیامک " "برای شما ارسال می‌شود."),
+        body=("رزرو شما قطعی ثبت شد و اطلاعات نوبت از طریق پیامک برای شما ارسال می‌شود."),
     )
 
 
@@ -662,7 +662,7 @@ def notify_manager_and_stylists_for_booking(order: Order, *, event_type: str):
                 channel="dashboard",
                 event_type="booking_created",
                 title="رزرو شما ثبت شد",
-                body=f"رزرو شما برای {service_names} در {meta_label or 'زمان انتخاب‌شده'} ثبت شد و در انتظار تایید مجموعه/متخصص است.",
+                body=f"رزرو شما برای {service_names} در {meta_label or 'زمان انتخاب‌شده'} قطعی ثبت شد و در برنامه کاری متخصص قرار گرفت.",
                 target_user=customer_user,
                 delivery_status="sent",
                 meta={"panel": "customer", "date_label": meta_label},

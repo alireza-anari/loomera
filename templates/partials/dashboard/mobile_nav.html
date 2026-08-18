@@ -1,157 +1,749 @@
-<nav class="lm-partner-mobile-nav lm-app-bottom-nav-surface fixed inset-x-0 bottom-0 z-30 border-t border-loomera-borderSoft bg-white/95 px-2 py-2 shadow-[0_-18px_45px_rgba(46,42,60,0.10)] backdrop-blur-xl lg:hidden"
+<style>
+  /*
+   * Loomera manager mobile navigation
+   * ------------------------------------------------------------
+   * - customer-style transparent glass navbar
+   * - icon-only navigation
+   * - create/management menus float directly above their trigger
+   * - no sidebar/backend/route/JS changes required
+   */
+
+  .lm-partner-mobile-nav {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 70;
+    padding:
+      0 14px
+      calc(10px + env(safe-area-inset-bottom, 0px));
+    background: transparent;
+    border: 0;
+    pointer-events: none;
+  }
+
+  .lm-partner-mobile-nav__surface {
+    position: relative;
+    isolation: isolate;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+
+    width: min(100%, 430px);
+    min-height: 72px;
+    margin: 0 auto;
+
+    /* Reserve a dedicated dock on the right, like the reference. */
+    padding: 8px 86px 8px 10px;
+    direction: ltr;
+
+    border: 0;
+    border-radius: 30px;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+
+    pointer-events: auto;
+  }
+
+  /*
+   * Real reference-style notch:
+   * the navbar itself stays flat; a semicircle is CUT OUT of its top edge.
+   * This is the key difference from the previous raised-bump attempts.
+   */
+  .lm-partner-mobile-nav__surface::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+
+    border: 1px solid rgba(115, 92, 190, 0.10);
+    border-radius: 30px;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.14) 0%,
+        rgba(248, 245, 253, 0.07) 100%
+      );
+
+    box-shadow:
+      0 14px 34px rgba(46, 42, 60, 0.08),
+      0 3px 12px rgba(115, 92, 190, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.48);
+
+    backdrop-filter: blur(24px) saturate(165%);
+    -webkit-backdrop-filter: blur(24px) saturate(165%);
+
+    /*
+     * Cut a true concave semicircle from the top-center of the bar.
+     * Outside the circle remains visible; the lower half becomes the notch.
+     */
+    -webkit-mask:
+      radial-gradient(circle 38px at calc(100% - 42px) 0,
+        transparent 0 37px,
+        #000 38px);
+    mask:
+      radial-gradient(circle 38px at calc(100% - 42px) 0,
+        transparent 0 37px,
+        #000 38px);
+  }
+
+  /* Subtle rim following the bottom half of the notch. */
+  .lm-partner-mobile-nav__surface::after {
+    content: "";
+    position: absolute;
+    left: calc(100% - 42px);
+    top: -1px;
+    z-index: -1;
+
+    width: 76px;
+    height: 38px;
+
+    border: 1px solid rgba(115, 92, 190, 0.10);
+    border-top: 0;
+    border-radius: 0 0 42px 42px;
+
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .lm-partner-mobile-nav__side {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-around;
+    gap: 4px;
+    direction: rtl;
+  }
+
+  .lm-partner-mobile-nav__side--primary {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .lm-partner-mobile-nav__side--secondary {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .lm-partner-mobile-nav__item {
+    position: relative;
+    display: grid;
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    place-items: center;
+    justify-self: center;
+
+    border: 1px solid transparent;
+    border-radius: 50%;
+    background: transparent;
+    color: #726D83;
+    text-decoration: none;
+
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+
+    transition:
+      transform 180ms ease,
+      color 180ms ease,
+      background-color 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .lm-partner-mobile-nav__item svg,
+  .lm-partner-mobile-nav__item i {
+    position: relative;
+    z-index: 1;
+    width: 1.45rem;
+    height: 1.45rem;
+    font-size: 1.45rem;
+    line-height: 1;
+  }
+
+  .lm-partner-mobile-nav__item:active {
+    transform: scale(0.92);
+  }
+
+  .lm-partner-mobile-nav__item:focus-visible,
+  .lm-partner-mobile-nav__create:focus-visible,
+  .lm-partner-float-action:focus-visible {
+    outline: 3px solid rgba(115, 92, 190, 0.20);
+    outline-offset: 3px;
+  }
+
+  .lm-partner-mobile-nav__item.is-active,
+  .lm-partner-mobile-nav__item[aria-current="page"] {
+    color: var(--lm-primary, #735CBE);
+
+    background:
+      radial-gradient(
+        circle at 50% 43%,
+        rgba(255, 255, 255, 0.99) 0 43%,
+        rgba(244, 238, 255, 0.97) 100%
+      );
+
+    border-color: rgba(115, 92, 190, 0.17);
+
+    box-shadow:
+      0 0 0 7px rgba(115, 92, 190, 0.055),
+      0 10px 24px rgba(115, 92, 190, 0.17),
+      inset 0 1px 0 rgba(255, 255, 255, 0.98);
+  }
+
+  .lm-partner-mobile-nav__item.is-disabled {
+    opacity: 0.34;
+    cursor: not-allowed;
+  }
+
+  /* Center create action */
+  .lm-partner-mobile-nav__create-root,
+  .lm-partner-mobile-nav__management-root {
+    position: relative;
+    display: grid;
+    place-items: center;
+  }
+
+  .lm-partner-mobile-nav__create-root {
+    position: absolute;
+    right: 16px;
+    top: 8px;
+    z-index: 3;
+
+    padding-inline: 0;
+    transform: translateY(-22px);
+  }
+
+  /*
+   * Small round button seated in the notch, like the reference.
+   * No halo, no large cradle, no extra background shape.
+   */
+  .lm-partner-mobile-nav__create {
+    position: relative;
+    display: inline-grid;
+
+    width: 52px;
+    height: 52px;
+    place-items: center;
+
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 50%;
+
+    color: #fff;
+    background:
+      linear-gradient(
+        145deg,
+        #8068D4 0%,
+        var(--lm-primary, #735CBE) 58%,
+        #6048A8 100%
+      );
+
+    box-shadow:
+      0 9px 20px rgba(115, 92, 190, 0.28),
+      0 3px 8px rgba(46, 42, 60, 0.10),
+      inset 0 1px 0 rgba(255, 255, 255, 0.34);
+
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      filter 180ms ease;
+
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .lm-partner-mobile-nav__create:hover {
+    filter: brightness(1.04);
+    box-shadow:
+      0 11px 24px rgba(115, 92, 190, 0.34),
+      0 4px 9px rgba(46, 42, 60, 0.11),
+      inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  }
+
+  .lm-partner-mobile-nav__create:active {
+    transform: scale(0.92);
+  }
+
+  .lm-partner-mobile-nav__create i {
+    font-size: 1.15rem;
+    transition: transform 180ms ease;
+  }
+
+  /* Keep the approved + -> × interaction. */
+  .lm-partner-mobile-nav__create[aria-expanded="true"] i {
+    transform: rotate(45deg);
+  }
+
+  /*
+   * Floating icon menu
+   * All actions remain individually accessible using aria-label/title,
+   * but no visible text competes with the page.
+   */
+  .lm-partner-float-menu {
+    position: absolute;
+    bottom: calc(100% + 24px);
+    z-index: 96;
+
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
+    gap: 8px;
+
+    width: min(18.5rem, calc(100vw - 24px));
+    padding: 8px;
+
+    border: 1px solid rgba(115, 92, 190, 0.10);
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.76);
+
+    box-shadow:
+      0 18px 42px rgba(46, 42, 60, 0.15),
+      0 5px 16px rgba(115, 92, 190, 0.09),
+      inset 0 1px 0 rgba(255, 255, 255, 0.96);
+
+    backdrop-filter: blur(22px) saturate(155%);
+    -webkit-backdrop-filter: blur(22px) saturate(155%);
+
+    animation: lm-partner-float-menu-in 160ms ease-out both;
+  }
+
+  .lm-partner-float-menu.hidden {
+    display: none;
+  }
+
+  .lm-partner-float-menu--create {
+    right: -4px;
+    left: auto;
+    transform: none;
+  }
+
+  /*
+   * Management sits left of the center action in the current manager nav.
+   * A smaller translation keeps its five icons fully inside narrow screens
+   * while they still visually originate from the management button.
+   */
+  .lm-partner-float-menu--management {
+    left: 50%;
+    transform: translateX(-28%);
+  }
+
+  .lm-partner-float-menu::after {
+    content: "";
+    position: absolute;
+    bottom: -7px;
+    width: 14px;
+    height: 14px;
+
+    border-right: 1px solid rgba(115, 92, 190, 0.10);
+    border-bottom: 1px solid rgba(115, 92, 190, 0.10);
+
+    background: rgba(255, 255, 255, 0.90);
+    transform: rotate(45deg);
+  }
+
+  .lm-partner-float-menu--create::after {
+    right: 22px;
+    left: auto;
+  }
+
+  .lm-partner-float-menu--management::after {
+    left: calc(28% - 7px);
+  }
+
+  .lm-partner-float-action {
+    position: relative;
+    display: grid;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    justify-self: center;
+
+    border: 1px solid rgba(115, 92, 190, 0.11);
+    border-radius: 18px;
+
+    color: #656078;
+    background:
+      linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.98),
+        rgba(247, 243, 253, 0.96)
+      );
+
+    box-shadow:
+      0 7px 16px rgba(46, 42, 60, 0.10),
+      inset 0 1px 0 rgba(255, 255, 255, 1);
+
+    text-decoration: none;
+
+    transition:
+      transform 160ms ease,
+      color 160ms ease,
+      background-color 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .lm-partner-float-action i,
+  .lm-partner-float-action svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .lm-partner-float-action:active {
+    transform: translateY(1px) scale(0.91);
+  }
+
+  .lm-partner-float-action:hover,
+  .lm-partner-float-action:focus-visible,
+  .lm-partner-float-action:active,
+  .lm-partner-float-action.is-active {
+    color: var(--lm-accent, #A7C8A1);
+    border-color: color-mix(in srgb, var(--lm-accent, #A7C8A1) 42%, transparent);
+    background:
+      linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--lm-accent, #A7C8A1) 12%, white),
+        rgba(255, 255, 255, 1)
+      );
+    box-shadow:
+      0 8px 18px color-mix(in srgb, var(--lm-accent, #A7C8A1) 24%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 1);
+  }
+
+  .lm-partner-float-action[data-label]::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 9px);
+    z-index: 120;
+
+    min-width: max-content;
+    max-width: 10rem;
+    padding: 6px 9px;
+
+    border: 1px solid rgba(115, 92, 190, 0.10);
+    border-radius: 12px;
+
+    background: rgba(39, 35, 50, 0.92);
+    color: #fff;
+
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1.4;
+    white-space: nowrap;
+
+    box-shadow: 0 8px 20px rgba(39, 35, 50, 0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 5px) scale(0.96);
+    transform-origin: center bottom;
+    transition:
+      opacity 130ms ease,
+      transform 130ms ease;
+  }
+
+  .lm-partner-float-action[data-label]::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 3px);
+    z-index: 119;
+
+    width: 9px;
+    height: 9px;
+
+    background: rgba(39, 35, 50, 0.92);
+    transform: translateX(-50%) rotate(45deg);
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 130ms ease;
+  }
+
+  .lm-partner-float-action[data-label]:hover::before,
+  .lm-partner-float-action[data-label]:hover::after,
+  .lm-partner-float-action[data-label]:focus-visible::before,
+  .lm-partner-float-action[data-label]:focus-visible::after,
+  .lm-partner-float-action[data-label]:active::before,
+  .lm-partner-float-action[data-label]:active::after {
+    opacity: 1;
+  }
+
+  .lm-partner-float-action[data-label]:hover::before,
+  .lm-partner-float-action[data-label]:focus-visible::before,
+  .lm-partner-float-action[data-label]:active::before {
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  .lm-partner-float-action.is-disabled {
+    opacity: 0.30;
+    filter: grayscale(1);
+    cursor: not-allowed;
+  }
+
+  @keyframes lm-partner-float-menu-in {
+    from {
+      opacity: 0;
+      margin-bottom: -6px;
+    }
+    to {
+      opacity: 1;
+      margin-bottom: 0;
+    }
+  }
+
+  @media (max-width: 374px) {
+    .lm-partner-mobile-nav__surface {
+      padding-right: 78px;
+    }
+
+    .lm-partner-mobile-nav__surface::before {
+      -webkit-mask:
+        radial-gradient(circle 36px at calc(100% - 39px) 0,
+          transparent 0 35px,
+          #000 36px);
+      mask:
+        radial-gradient(circle 36px at calc(100% - 39px) 0,
+          transparent 0 35px,
+          #000 36px);
+    }
+
+    .lm-partner-mobile-nav__surface::after {
+      left: calc(100% - 39px);
+      width: 72px;
+      height: 36px;
+    }
+
+    .lm-partner-mobile-nav__create-root {
+      right: 13px;
+    }
+
+    .lm-partner-float-menu {
+      width: calc(100vw - 18px);
+      gap: 5px;
+      padding: 7px;
+    }
+
+    .lm-partner-float-action {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+    }
+
+    .lm-partner-float-menu--management {
+      transform: translateX(-25%);
+    }
+
+    .lm-partner-float-menu--management::after {
+      left: calc(25% - 7px);
+    }
+  }
+
+  @media (max-width: 1023.98px) {
+    body {
+      padding-bottom: calc(98px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lm-partner-mobile-nav__item,
+    .lm-partner-mobile-nav__create,
+    .lm-partner-mobile-nav__create i,
+    .lm-partner-float-action {
+      transition: none;
+    }
+
+    .lm-partner-float-menu {
+      animation: none;
+    }
+  }
+</style>
+
+<nav class="lm-partner-mobile-nav lg:hidden"
      data-shell-nav="partner-mobile"
      aria-label="ناوبری عملیاتی موبایل پارتنر">
-  <div class="flex items-end justify-between gap-1.5" role="list">
-    <div class="flex min-w-0 flex-1 items-stretch justify-between gap-1">
+  <div class="lm-partner-mobile-nav__surface" role="list">
+
+    {# Home + Calendar: existing routes/availability are unchanged. #}
+    <div class="lm-partner-mobile-nav__side lm-partner-mobile-nav__side--primary">
       {% for item in dashboard_mobile_nav_items|slice:":2" %}
         {% if item.is_available %}
           <a href="{{ item.url }}"
              role="listitem"
              aria-label="{{ item.label }}"
              {% if item.is_active %}aria-current="page"{% endif %}
-             class="lm-partner-mobile-nav__item lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if item.is_active %}is-active bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textMuted hover:bg-loomera-bgSubtle hover:text-loomera-textPrimary{% endif %}">
+             class="lm-partner-mobile-nav__item lm-app-touch-target {% if item.is_active %}is-active{% endif %}">
             {% include "partials/dashboard/nav_icon.html" with key=item.key %}
-            <span class="max-w-full truncate">{{ item.short_label }}</span>
           </a>
         {% else %}
           <span role="listitem"
                 aria-label="{{ item.label }}؛ در دسترس نیست"
                 aria-disabled="true"
-                class="lm-partner-mobile-nav__item is-disabled lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold text-loomera-textMuted">
+                class="lm-partner-mobile-nav__item is-disabled lm-app-touch-target">
             {% include "partials/dashboard/nav_icon.html" with key=item.key %}
-            <span class="max-w-full truncate">{{ item.short_label }}</span>
           </span>
         {% endif %}
       {% endfor %}
     </div>
 
+    {# Quick create: same actions and current dashboard_layout.js hooks. #}
     {% if dashboard_create_actions %}
-      <div class="relative -mt-8 shrink-0" data-mobile-create-root>
+      <div class="lm-partner-mobile-nav__create-root"
+           data-mobile-create-root>
         <button type="button"
-                class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-loomera-primary text-white shadow-[0_18px_36px_rgba(115,92,190,0.30)] ring-4 ring-white transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-primary/25"
+                class="lm-partner-mobile-nav__create"
                 aria-label="ایجاد سریع"
-                aria-haspopup="dialog"
+                aria-haspopup="menu"
                 aria-expanded="false"
                 aria-controls="partner-mobile-create-panel"
                 data-mobile-create-toggle>
-          <i class="fa-solid fa-plus text-lg" aria-hidden="true"></i>
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
         </button>
 
         <div id="partner-mobile-create-panel"
-             class="hidden absolute bottom-[calc(100%+0.9rem)] left-1/2 z-50 w-[min(20.5rem,calc(100vw-1rem))] -translate-x-1/2 rounded-[28px] border border-loomera-borderSoft bg-white p-3 shadow-[0_24px_70px_rgba(46,42,60,0.16)]"
-             role="dialog"
+             class="lm-partner-float-menu lm-partner-float-menu--create hidden"
+             role="menu"
              aria-label="ایجاد سریع در پنل مجموعه"
              data-mobile-create-panel>
-          <div class="mb-3 px-2">
-            <h3 class="text-sm font-black text-loomera-textPrimary">ایجاد سریع</h3>
-            <p class="mt-1 text-[11px] text-loomera-textMuted">اکشن‌های اصلی محیط کاری</p>
-          </div>
-
-          <div class="max-h-[55vh] space-y-2 overflow-y-auto overscroll-contain">
-            {% for action in dashboard_create_actions %}
-              {% if action.is_available %}
-                <a href="{{ action.url }}"
-                   class="lm-partner-mobile-nav__action flex items-center justify-between rounded-2xl border border-loomera-borderSoft px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:bg-loomera-bgSubtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-                  <div class="flex min-w-0 items-center gap-3">
-                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-                      <i class="{{ action.icon }} text-xs" aria-hidden="true"></i>
-                    </span>
-                    <span class="truncate">{{ action.label }}</span>
-                  </div>
-                  <i class="fa-solid fa-arrow-left shrink-0 text-xs text-loomera-textMuted" aria-hidden="true"></i>
-                </a>
-              {% else %}
-                <span class="lm-partner-mobile-nav__action is-disabled flex items-center justify-between rounded-2xl border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold text-loomera-textMuted" aria-disabled="true">
-                  <div class="flex min-w-0 items-center gap-3">
-                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-borderSoft text-loomera-textMuted">
-                      <i class="{{ action.icon }} text-xs" aria-hidden="true"></i>
-                    </span>
-                    <span class="truncate">{{ action.label }}</span>
-                  </div>
-                  <span class="shrink-0 rounded-full bg-white px-2 py-1 text-[10px] font-black text-loomera-textMuted">{{ action.lock_reason|default:"فقط مدیر" }}</span>
-                </span>
-              {% endif %}
-            {% empty %}
-              <div class="rounded-2xl bg-loomera-bgSubtle px-4 py-5 text-sm leading-7 text-loomera-textMuted">
-                اکشن سریعی برای این بخش در دسترس نیست.
-              </div>
-            {% endfor %}
-          </div>
+          {% for action in dashboard_create_actions %}
+            {% if action.is_available %}
+              <a href="{{ action.url }}"
+                 role="menuitem"
+                 aria-label="{{ action.label }}"
+                 title="{{ action.label }}"
+                 data-label="{{ action.label }}"
+                 class="lm-partner-float-action">
+                {% if action.label == "افزودن خدمت" %}
+                  <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+                {% elif action.label == "افزودن رزرو" or action.label == "افزودن نوبت" %}
+                  <i class="fa-regular fa-calendar-plus" aria-hidden="true"></i>
+                {% elif action.label == "افزودن مشتری" %}
+                  <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                {% elif action.label == "افزودن عضو تیم" %}
+                  <i class="fa-solid fa-user-group" aria-hidden="true"></i>
+                {% elif action.label == "تقویم نوبت‌ها" %}
+                  <i class="fa-regular fa-calendar-days" aria-hidden="true"></i>
+                {% elif action.label == "افزودن مرخصی" %}
+                  <i class="fa-regular fa-calendar-minus" aria-hidden="true"></i>
+                {% elif action.label == "لینک رزرو من" %}
+                  <i class="fa-solid fa-link" aria-hidden="true"></i>
+                {% else %}
+                  <i class="{{ action.icon }}" aria-hidden="true"></i>
+                {% endif %}
+              </a>
+            {% else %}
+              <span role="menuitem"
+                    aria-label="{{ action.label }}؛ {{ action.lock_reason|default:'در دسترس نیست' }}"
+                    aria-disabled="true"
+                    title="{{ action.label }}"
+                    data-label="{{ action.label }}"
+                    class="lm-partner-float-action is-disabled">
+                <i class="{{ action.icon }}" aria-hidden="true"></i>
+              </span>
+            {% endif %}
+          {% endfor %}
         </div>
       </div>
     {% endif %}
 
-    <div class="flex min-w-0 flex-1 items-stretch justify-between gap-1">
+    {# Management + Account. The existing management panel stays a panel; no sidebar involved. #}
+    <div class="lm-partner-mobile-nav__side lm-partner-mobile-nav__side--secondary">
       {% for item in dashboard_mobile_nav_items|slice:"2:" %}
         {% if item.kind == "panel" %}
-          <div class="relative flex min-w-0 flex-1" data-mobile-management-root>
+          <div class="lm-partner-mobile-nav__management-root"
+               data-mobile-management-root>
             <button type="button"
                     role="listitem"
                     aria-label="{{ item.label }}"
-                    aria-haspopup="dialog"
+                    aria-haspopup="menu"
                     aria-expanded="false"
                     aria-controls="partner-mobile-management-panel"
                     data-mobile-management-toggle
-                    class="lm-partner-mobile-nav__item lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if item.is_active %}is-active bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textMuted hover:bg-loomera-bgSubtle hover:text-loomera-textPrimary{% endif %}">
+                    {% if item.is_active %}aria-current="page"{% endif %}
+                    class="lm-partner-mobile-nav__item lm-app-touch-target {% if item.is_active %}is-active{% endif %}">
               {% include "partials/dashboard/nav_icon.html" with key=item.key %}
-              <span class="max-w-full truncate">{{ item.short_label }}</span>
             </button>
 
             <div id="partner-mobile-management-panel"
-                 class="hidden fixed inset-x-2 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] z-50 max-h-[min(66vh,32rem)] overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white p-3 shadow-[0_24px_70px_rgba(46,42,60,0.18)]"
-                 role="dialog"
+                 class="lm-partner-float-menu lm-partner-float-menu--management hidden"
+                 role="menu"
                  aria-label="{{ item.label }}"
                  data-mobile-management-panel>
-              <div class="flex items-start justify-between gap-3 px-2 pb-3">
-                <div>
-                  <h3 class="text-sm font-black text-loomera-textPrimary">{{ item.label }}</h3>
-                  <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">{% if dashboard_role == 'stylist' %}ابزارهای شخصی و تنظیمات کاری{% else %}کارهای اصلی راه‌اندازی و مدیریت مجموعه{% endif %}</p>
-                </div>
-                <button type="button"
-                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-loomera-bgSubtle text-loomera-textSecondary"
-                        aria-label="بستن {{ item.label }}"
-                        data-mobile-management-close>
-                  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                </button>
-              </div>
-              <div class="max-h-[50vh] space-y-1.5 overflow-y-auto overscroll-contain">
-                {% for management_item in item.panel_items %}
-                  {% if management_item.is_available %}
-                    <a href="{{ management_item.url }}"
-                       class="flex items-center gap-3 rounded-2xl px-3 py-3 transition {% if management_item.is_active %}bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textSecondary hover:bg-loomera-bgSubtle{% endif %}">
-                      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm ring-1 ring-loomera-primary/10">
-                        {% include "partials/dashboard/nav_icon.html" with key=management_item.key %}
-                      </span>
-                      <div class="min-w-0 flex-1">
-                        <p class="truncate text-sm font-black">{{ management_item.label }}</p>
-                        <p class="mt-0.5 truncate text-[11px] text-loomera-textMuted">{{ management_item.caption }}</p>
-                      </div>
-                      <i class="fa-solid fa-arrow-left shrink-0 text-[10px] text-loomera-textMuted" aria-hidden="true"></i>
-                    </a>
-                  {% endif %}
-                {% endfor %}
-              </div>
+              {% for management_item in item.panel_items %}
+                {% if management_item.is_available %}
+                  <a href="{{ management_item.url }}"
+                     role="menuitem"
+                     aria-label="{{ management_item.label }}"
+                     title="{{ management_item.label }}"
+                     data-label="{{ management_item.label }}"
+                     class="lm-partner-float-action {% if management_item.is_active %}is-active{% endif %}">
+                    {% if management_item.key == "services" %}
+                      <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+                    {% elif management_item.key == "team" %}
+                      <i class="fa-solid fa-user-group" aria-hidden="true"></i>
+                    {% elif management_item.key == "schedule" %}
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    {% elif management_item.key == "online_booking" %}
+                      <i class="fa-solid fa-globe" aria-hidden="true"></i>
+                    {% elif management_item.key == "clients" %}
+                      <i class="fa-regular fa-address-book" aria-hidden="true"></i>
+                    {% elif management_item.key == "my_finance" %}
+                      <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+                    {% elif management_item.key == "quick_links" %}
+                      <i class="fa-solid fa-link" aria-hidden="true"></i>
+                    {% elif management_item.key == "my_content" %}
+                      <i class="fa-regular fa-newspaper" aria-hidden="true"></i>
+                    {% elif management_item.key == "my_profile" %}
+                      <i class="fa-regular fa-id-card" aria-hidden="true"></i>
+                    {% elif management_item.key == "my_settings" %}
+                      <i class="fa-solid fa-gear" aria-hidden="true"></i>
+                    {% else %}
+                      {% include "partials/dashboard/nav_icon.html" with key=management_item.key %}
+                    {% endif %}
+                  </a>
+                {% else %}
+                  <span role="menuitem"
+                        aria-label="{{ management_item.label }}؛ {{ management_item.lock_reason|default:'در دسترس نیست' }}"
+                        aria-disabled="true"
+                        title="{{ management_item.label }}"
+                        data-label="{{ management_item.label }}"
+                        class="lm-partner-float-action is-disabled">
+                    {% include "partials/dashboard/nav_icon.html" with key=management_item.key %}
+                  </span>
+                {% endif %}
+              {% endfor %}
             </div>
           </div>
+
         {% elif item.is_available %}
           <a href="{{ item.url }}"
              role="listitem"
              aria-label="{{ item.label }}"
              {% if item.is_active %}aria-current="page"{% endif %}
-             class="lm-partner-mobile-nav__item lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if item.is_active %}is-active bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textMuted hover:bg-loomera-bgSubtle hover:text-loomera-textPrimary{% endif %}">
+             class="lm-partner-mobile-nav__item lm-app-touch-target {% if item.is_active %}is-active{% endif %}">
             {% include "partials/dashboard/nav_icon.html" with key=item.key %}
-            <span class="max-w-full truncate">{{ item.short_label }}</span>
           </a>
+
         {% else %}
           <span role="listitem"
                 aria-label="{{ item.label }}؛ در دسترس نیست"
                 aria-disabled="true"
-                class="lm-partner-mobile-nav__item is-disabled lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold text-loomera-textMuted">
+                class="lm-partner-mobile-nav__item is-disabled lm-app-touch-target">
             {% include "partials/dashboard/nav_icon.html" with key=item.key %}
-            <span class="max-w-full truncate">{{ item.short_label }}</span>
           </span>
         {% endif %}
       {% endfor %}
     </div>
+
   </div>
 </nav>

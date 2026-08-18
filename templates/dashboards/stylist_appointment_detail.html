@@ -12,163 +12,126 @@
 {% block content %}
   {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-appointment-detail">
-    {% include "dashboards/components/page_hero.html" with eyebrow="نوبت شخصی" eyebrow_icon="fa-regular fa-calendar-check" title="جزئیات نوبت من" description="اطلاعات همین رزرو، مشتری مرتبط و مرحله عملیاتی این خدمت فقط در مجموعه فعال فعلی نمایش داده می‌شود." action_label="بازگشت به نوبت‌ها" action_url=stylist_appointments_url badges=page_meta.badges %}
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-appointment-detail">
+    <div class="flex items-center justify-between gap-3 px-1 py-1" data-stylist-appointment-compact-header>
+      <div class="min-w-0">
+        <p class="text-[11px] font-black text-loomera-primary">نوبت شخصی</p>
+        <h1 class="mt-0.5 truncate text-lg font-black text-loomera-textPrimary">جزئیات نوبت</h1>
+      </div>
+      <a href="{{ stylist_appointments_url }}"
+         class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition hover:bg-loomera-primarySoft"
+         aria-label="بازگشت به نوبت‌ها">
+        <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+      </a>
+    </div>
 
 
 
-    <section id="stylist-appointment-section-summary"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section>
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">خلاصه نوبت</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">{{ appointment.customer_name }}</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            {{ appointment.service_name }} • {{ appointment.date_label }} • {{ appointment.time_label }}{% if appointment.end_time_label != '—' %} تا {{ appointment.end_time_label }}{% endif %}
-          </p>
+    <!-- PRIMARY TASK: always first -->
+    <section id="stylist-appointment-section-actions"
+             class="overflow-hidden rounded-[28px] border border-loomera-primary/20 bg-gradient-to-br from-loomera-primarySoft/75 via-white to-loomera-accentSoft/45 shadow-lm-card"
+             data-dashboard-workspace-panel data-lm-direct-section data-stylist-primary-actions>
+      <div class="p-3.5 sm:p-4 lg:p-5">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="lm-status-chip inline-flex items-center rounded-full px-3 py-1 text-[11px] font-black {{ appointment.status_badge_class }}">
+                {{ appointment.status_label }}
+              </span>
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-loomera-textSecondary ring-1 ring-loomera-borderSoft">
+                <i class="fa-regular fa-clock text-[10px] text-loomera-primary" aria-hidden="true"></i>
+                {{ appointment.date_label }} • {{ appointment.time_label }}{% if appointment.end_time_label != '—' %} تا {{ appointment.end_time_label }}{% endif %}
+              </span>
+            </div>
+            <p class="mt-3 truncate text-sm font-black text-loomera-textPrimary">
+              {{ appointment.customer_name }}
+              <span class="mx-1 text-loomera-textMuted" aria-hidden="true">•</span>
+              <span class="font-bold text-loomera-textSecondary">{{ appointment.service_name }}</span>
+            </p>
+          </div>
+
+          {% if stylist_lifecycle_actions %}
+            <form method="post" data-lm-form-ux="off" class="flex w-full gap-2 lg:w-auto lg:min-w-[360px]">
+              {% csrf_token %}
+              {% for item in stylist_lifecycle_actions %}
+                {% if item.key == "no_show_decision" %}
+                  <button type="button"
+                          data-no-show-decision-open
+                          data-action-url="{{ request.path }}"
+                          data-next="{{ request.path }}"
+                          class="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2.5 text-sm font-black text-orange-700 transition hover:bg-orange-100">
+                    {{ item.label }}
+                  </button>
+                {% else %}
+                  <button type="submit" name="action" value="{{ item.key }}"
+                          {% if item.key == "reject" %}onclick="return confirm('این نوبت لغو می‌شود و به مشتری اطلاع داده خواهد شد. ادامه می‌دهی؟')"{% endif %}
+                          class="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-2xl px-3 py-2.5 text-sm font-black transition
+                                 {% if item.key == 'reject' %}
+                                   border border-rose-200 bg-rose-50 text-rose-700 shadow-none hover:bg-rose-100
+                                 {% else %}
+                                   shadow-sm hover:-translate-y-0.5 hover:opacity-95 {{ item.class }}
+                                 {% endif %}">
+                    {{ item.label }}
+                  </button>
+                {% endif %}
+              {% endfor %}
+            </form>
+          {% else %}
+            <span class="inline-flex w-full items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white/75 px-4 py-3 text-sm font-bold text-loomera-textMuted lg:w-auto">
+              فعلاً اقدامی نیاز نیست
+            </span>
+          {% endif %}
         </div>
-</header>
 
-      <div class="grid gap-4 p-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)] sm:p-5 lg:p-6">
-        <article class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0">
-              <h3 class="truncate text-xl font-black text-loomera-textPrimary">{{ appointment.customer_name }}</h3>
-              <p class="mt-2 text-sm font-bold text-loomera-textSecondary">{{ appointment.service_name }}</p>
-            </div>
-
-            <span class="lm-status-chip inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-black {{ appointment.status_badge_class }}">
-              {{ appointment.status_label }}
-            </span>
-          </div>
-
-          <div class="mt-5 grid gap-3 sm:grid-cols-2">
-            <div class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-sm text-loomera-textSecondary">
-              <p class="text-[11px] font-black text-loomera-textMuted">تاریخ</p>
-              <p class="mt-1 font-black text-loomera-textPrimary">{{ appointment.date_label }}</p>
-            </div>
-
-            <div class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-sm text-loomera-textSecondary">
-              <p class="text-[11px] font-black text-loomera-textMuted">ساعت</p>
-              <p class="mt-1 font-black text-loomera-textPrimary">
-                {{ appointment.time_label }}{% if appointment.end_time_label != '—' %} تا {{ appointment.end_time_label }}{% endif %}
-              </p>
-            </div>
-
-            <div class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-sm text-loomera-textSecondary">
-              <p class="text-[11px] font-black text-loomera-textMuted">روش پرداخت</p>
-              <p class="mt-1 font-black text-loomera-textPrimary">{{ appointment.payment_method }}</p>
-            </div>
-
-            <div class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-sm text-loomera-textSecondary">
-              <p class="text-[11px] font-black text-loomera-textMuted">وضعیت پرداخت</p>
-              <p class="mt-1 font-black text-loomera-textPrimary">{{ appointment.payment_state }}</p>
-            </div>
-          </div>
-        </article>
-
-        <article class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات مشتری</p>
-              <h3 class="mt-1 text-base font-black text-loomera-textPrimary">{{ appointment.customer_name }}</h3>
-            </div>
-            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-              <i class="fa-regular fa-user" aria-hidden="true"></i>
-            </span>
-          </div>
-
-          <div class="mt-5 space-y-3 text-sm">
-            <div class="flex items-center justify-between gap-3 rounded-2xl bg-loomera-bgSubtle px-4 py-3">
-              <span class="text-loomera-textMuted">شماره تماس</span>
-              <strong class="text-loomera-textPrimary">{{ appointment.customer_phone|default:'—' }}</strong>
-            </div>
-
-            <div class="flex items-center justify-between gap-3 rounded-2xl bg-loomera-bgSubtle px-4 py-3">
-              <span class="text-loomera-textMuted">مجموعه</span>
-              <strong class="truncate text-loomera-textPrimary">{{ appointment.salon_name|default:'—' }}</strong>
-            </div>
-
-            <div class="rounded-2xl bg-loomera-bgSubtle px-4 py-3">
-              <div class="flex items-center justify-between gap-3">
-                <span class="text-loomera-textMuted">هزینه نهایی</span>
-                <strong class="text-loomera-textPrimary">{{ appointment.price_label }}</strong>
-              </div>
-
-              {% if appointment.has_discount %}
-                <div class="mt-3 rounded-xl bg-white px-3 py-2 text-xs leading-6">
-                  <p class="font-bold text-emerald-700">تخفیف این خدمت: {{ appointment.discount_label }}</p>
-                  <p class="mt-1 text-loomera-textMuted">قیمت خام: {{ appointment.base_price_label }}</p>
-                </div>
-              {% endif %}
-            </div>
-          </div>
-        </article>
       </div>
     </section>
 
-    <section id="stylist-appointment-section-actions"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-amber-200 bg-white/95 shadow-lm-card lg:scroll-mt-36"
+    <!-- ESSENTIAL APPOINTMENT CONTEXT -->
+    <section id="stylist-appointment-section-summary"
+             class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card"
              data-dashboard-workspace-panel data-lm-direct-section>
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-amber-100 bg-amber-50/80 px-4 py-3 shadow-sm transition hover:bg-amber-50 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-amber-700">دم‌دست و قبل از مواد مصرفی</p>
-          <h2 class="mt-1 truncate text-base font-black text-slate-950 sm:text-lg">اقدام‌های عملیاتی متخصص</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-slate-600">
-            تأیید، رد، رسیدن مشتری، شروع کار، پایان کار و تأیید پرداخت نقدی از همین بخش انجام می‌شود.
-          </p>
-        </div>
-</header>
-
-      <div class="space-y-4 p-4 sm:p-5 lg:p-6">
-        {% if appointment_obj.order.selected_payment_method == "pay_in_salon" and appointment_obj.order.service_completed_at and not appointment_obj.order.is_paid %}
-          <article class="rounded-[24px] border border-amber-200 bg-amber-50 px-4 py-4">
-            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div class="min-w-0">
-                <h4 class="text-sm font-black text-amber-950">تأیید پرداخت نقدی</h4>
-                {% if cash_payment_state.customer_confirmed and cash_payment_state.stylist_confirmed %}
-                  <p class="mt-1 text-sm leading-7 text-amber-800">تأیید دوطرفه ثبت شده و پرداخت در حال نهایی‌سازی است.</p>
-                {% elif cash_payment_state.customer_confirmed %}
-                  <p class="mt-1 text-sm leading-7 text-amber-800">مشتری پرداخت نقدی را تأیید کرده است. برای نهایی‌شدن پرداخت، دریافت وجه را تأیید کن.</p>
-                {% elif cash_payment_state.stylist_confirmed %}
-                  <p class="mt-1 text-sm leading-7 text-amber-800">تأیید دریافت وجه از سمت شما ثبت شده است. پرداخت بعد از تأیید مشتری نهایی می‌شود.</p>
-                {% else %}
-                  <p class="mt-1 text-sm leading-7 text-amber-800">برای پرداخت حضوری، هم مشتری و هم متخصص باید پرداخت نقدی را تأیید کنند.</p>
-                {% endif %}
-              </div>
-
-              {% if not cash_payment_state.stylist_confirmed %}
-                <form method="post" class="shrink-0">
-                  {% csrf_token %}
-                  <button name="action" value="confirm_cash_payment" class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-emerald-700 sm:w-auto">
-                    <i class="fa-solid fa-money-bill-wave text-xs" aria-hidden="true"></i>
-                    تأیید دریافت وجه نقد
-                  </button>
-                </form>
-              {% else %}
-                <span class="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-white px-5 py-3 text-sm font-black text-emerald-700">
-                  تأیید شما ثبت شده
-                </span>
-              {% endif %}
-            </div>
-          </article>
-        {% endif %}
-
-        {% if stylist_lifecycle_actions %}
-          <form method="post" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {% csrf_token %}
-            {% for item in stylist_lifecycle_actions %}
-              <button type="submit" name="action" value="{{ item.key }}" class="inline-flex min-h-12 items-center justify-center rounded-2xl px-4 py-3 text-sm font-black transition hover:-translate-y-0.5 hover:opacity-95 {{ item.class }}">
-                {{ item.label }}
-              </button>
-            {% endfor %}
-          </form>
-        {% else %}
-          <div class="rounded-[24px] border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm leading-7 text-slate-500">
-            در حال حاضر اقدام عملیاتی جدیدی برای این نوبت باقی نمانده است.
+      <div class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6">
+        <div class="flex min-w-0 items-center gap-3">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+            <i class="fa-regular fa-user" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0">
+            <h2 class="truncate text-base font-black text-loomera-textPrimary">{{ appointment.customer_name }}</h2>
+            <p class="mt-0.5 truncate text-xs font-bold text-loomera-textMuted">{{ appointment.service_name }}</p>
           </div>
+        </div>
+        {% if appointment.customer_phone %}
+          <a href="tel:{{ appointment.customer_phone }}"
+             class="inline-flex h-10 shrink-0 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 text-xs font-black text-loomera-primary transition hover:bg-loomera-primarySoft">
+            <i class="fa-solid fa-phone text-[10px]" aria-hidden="true"></i>
+            <span class="hidden sm:inline">تماس</span>
+          </a>
         {% endif %}
+      </div>
+
+      <div class="grid gap-2 p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-4 lg:px-5">
+        <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3">
+          <p class="text-[10px] font-black text-loomera-textMuted">زمان</p>
+          <p class="mt-1 text-xs font-black text-loomera-textPrimary">{{ appointment.date_label }}</p>
+          <p class="mt-0.5 text-xs font-bold text-loomera-textSecondary">{{ appointment.time_label }}{% if appointment.end_time_label != '—' %} تا {{ appointment.end_time_label }}{% endif %}</p>
+        </div>
+        <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3">
+          <p class="text-[10px] font-black text-loomera-textMuted">مبلغ</p>
+          <p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ appointment.price_label }}</p>
+          {% if appointment.has_discount %}
+            <p class="mt-0.5 text-[10px] font-bold text-emerald-700">تخفیف {{ appointment.discount_label }}</p>
+          {% endif %}
+        </div>
+        <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3">
+          <p class="text-[10px] font-black text-loomera-textMuted">پرداخت</p>
+          <p class="mt-1 truncate text-xs font-black text-loomera-textPrimary">{{ appointment.payment_method }}</p>
+          <p class="mt-0.5 truncate text-[10px] font-bold text-loomera-textMuted">{{ appointment.payment_state }}</p>
+        </div>
+        <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3">
+          <p class="text-[10px] font-black text-loomera-textMuted">مجموعه</p>
+          <p class="mt-1 truncate text-xs font-black text-loomera-textPrimary">{{ appointment.salon_name|default:'—' }}</p>
+          <p class="mt-0.5 truncate text-[10px] font-bold text-loomera-textMuted">{{ appointment.customer_phone|default:'بدون شماره تماس' }}</p>
+        </div>
       </div>
     </section>
 
@@ -180,11 +143,7 @@
              data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="history" data-lm-task-label="سوابق" data-lm-task-order="3">
       <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">تاریخچه عملیات</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">تایم‌لاین عملیات</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            رویدادهای واقعی ثبت‌شده برای همین آیتم نوبت.
-          </p>
+          <h2 class="truncate text-base font-black text-loomera-textPrimary sm:text-lg">سوابق نوبت</h2>
         </div>
         <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
           <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
@@ -202,7 +161,7 @@
           </article>
         {% empty %}
           <div class="rounded-2xl border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted">
-            هنوز رویداد عملیاتی برای این نوبت ثبت نشده است. بعد از تأیید، رسیدن مشتری، شروع کار یا سایر اقدام‌ها، این بخش به‌صورت خودکار پر می‌شود.
+            هنوز سابقه‌ای برای این نوبت ثبت نشده است.
           </div>
         {% endfor %}
       </div>
@@ -214,9 +173,7 @@
          data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="history" data-lm-task-label="سوابق" data-lm-task-order="3">
       <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">پرونده اختلاف</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت اختلاف این خدمت</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">اگر عدم حضور یا اختلافی ثبت شده باشد، همین‌جا قابل پیگیری است.</p>
+          <h2 class="truncate text-base font-black text-loomera-textPrimary sm:text-lg">اختلاف و عدم حضور</h2>
         </div>
         <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
           <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
@@ -266,13 +223,9 @@
     <section id="stylist-appointment-section-materials"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="materials" data-lm-task-label="مواد مصرفی" data-lm-task-default data-lm-task-order="1">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+      <header data-lm-direct-section-header class="hidden cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:flex lg:px-6 lg:py-4">
         <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">مواد مصرفی</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مواد مصرفی این خدمت</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            مواد مصرفی واقعی این نوبت را قبل از نهایی‌سازی مالی ثبت کن.
-          </p>
+          <h2 class="truncate text-base font-black text-loomera-textPrimary sm:text-lg">مواد مصرفی</h2>
         </div>
 </header>
 
@@ -281,10 +234,7 @@
           <div class="rounded-[24px] border border-amber-200 bg-amber-50 p-4">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div class="min-w-0">
-                <p class="text-sm font-black text-amber-900">بعد از پایان خدمت، مواد مصرفی و مالی را تکمیل کن</p>
-                <p class="mt-1 text-sm leading-7 text-amber-800">
-                  خدمت انجام شده است. قبل از نهایی‌سازی مالی، مواد مصرفی را از قالب خدمت اضافه کن یا دستی ثبت کن.
-                </p>
+                <p class="text-sm font-black text-amber-900">مواد مصرفی را بررسی و مالی را نهایی کن</p>
               </div>
               <div class="flex flex-col gap-2 sm:flex-row">
                 <form method="post">
@@ -307,12 +257,9 @@
             </div>
           </div>
         {% endif %}
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div class="flex items-center justify-between gap-3">
           <div class="min-w-0">
-            <h3 class="text-base font-black text-loomera-textPrimary">مدیریت مواد مصرفی</h3>
-            <p class="mt-1 text-sm leading-7 text-loomera-textMuted">
-              این بخش بعد از اقدام‌های عملیاتی آمده تا دکمه‌های اصلی نوبت همیشه بالاتر و سریع‌تر در دسترس باشند.
-            </p>
+            <h3 class="text-sm font-black text-loomera-textPrimary">مواد مصرفی</h3>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
@@ -332,10 +279,23 @@
 
         {% if not is_financial_finalized %}
           <div class="grid gap-5 xl:grid-cols-[minmax(280px,0.8fr)_minmax(0,1.2fr)]">
-            <div class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4">
-              <h4 class="text-sm font-black text-loomera-textPrimary">افزودن ماده مصرفی</h4>
-
-              <form method="post" class="mt-4 space-y-4">
+            <details class="group overflow-hidden rounded-[22px] border border-loomera-borderSoft bg-white" {% if material_usage_form.errors %}open{% endif %}>
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5">
+                <div class="flex min-w-0 items-center gap-2.5">
+                  <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+                    <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+                  </span>
+                  <div class="min-w-0">
+                    <h4 class="text-sm font-black text-loomera-textPrimary">افزودن ماده مصرفی</h4>
+                    <p class="mt-0.5 text-[11px] text-loomera-textMuted">ثبت دستی یا افزودن از قالب</p>
+                  </div>
+                </div>
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-loomera-bgSubtle text-loomera-textSecondary transition group-open:rotate-180">
+                  <i class="fa-solid fa-chevron-down text-[10px]" aria-hidden="true"></i>
+                </span>
+              </summary>
+              <div class="border-t border-loomera-borderSoft bg-loomera-bgSubtle/45 p-4">
+              <form method="post" class="space-y-4">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="create_material_usage">
 
@@ -367,16 +327,14 @@
                 {% csrf_token %}
                 <input type="hidden" name="action" value="create_material_template">
 
-                <h4 class="text-sm font-black text-loomera-textPrimary">ثبت قالب مواد برای همین خدمت</h4>
-                <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                  اگر ماده مصرفی این خدمت در قالب‌ها وجود ندارد، می‌توانی همین‌جا یک قالب پایه برای خدمت ثبت کنی.
-                </p>
+                <h4 class="text-sm font-black text-loomera-textPrimary">ثبت قالب مواد</h4>
 
                 <div class="mt-4 grid gap-3 sm:grid-cols-2">
                   <div>
                     <label class="mb-2 block text-xs font-bold text-loomera-textMuted">نام ماده</label>
                     <input name="template_material_name" placeholder="مثلاً ماسک پوست یا رنگ مو" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-sm outline-none focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
                   </div>
+
 
                   <div>
                     <label class="mb-2 block text-xs font-bold text-loomera-textMuted">واحد</label>
@@ -415,6 +373,7 @@
                 </button>
               </form>
             </div>
+            </details>
 
             <div class="space-y-3">
               {% for usage in material_usages %}
@@ -483,13 +442,9 @@
     <section id="stylist-appointment-section-finance"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="finance" data-lm-task-label="مالی" data-lm-task-order="2">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+      <header data-lm-direct-section-header class="hidden cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:flex lg:px-6 lg:py-4">
         <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">مالی</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">خلاصه مالی این خدمت</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            نهایی‌سازی مالی بعد از پایان کار انجام می‌شود.
-          </p>
+          <h2 class="truncate text-base font-black text-loomera-textPrimary sm:text-lg">خلاصه مالی</h2>
         </div>
 </header>
 
@@ -541,4 +496,5 @@
       </div>
     </section>
   </section>
+{% include "dashboards/partials/stylist_no_show_decision_dialog.html" %}
 {% endblock %}
