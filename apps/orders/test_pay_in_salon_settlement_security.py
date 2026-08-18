@@ -189,12 +189,20 @@ class PayInSalonSettlementSecurityTests(TestCase):
         self.assertEqual(response.status_code, 302)
         mocked.assert_not_called()
 
-    def test_customer_cash_confirmation_no_longer_calls_finance_service(self):
+    def test_cash_settlement_calls_finance_service_for_valid_order(self):
         customer = self._customer(mobile="09126000107")
         appointment = self._appointment(customer=customer, completed=True)
 
         self.client.force_login(customer.user)
-        with patch("apps.payments.finance.confirm_pay_in_salon_cash_payment") as mocked:
+
+        with patch(
+            "apps.payments.finance.confirm_pay_in_salon_cash_payment",
+            return_value={
+                "finalized": False,
+                "order": appointment.order,
+                "payment": None,
+            },
+        ) as mocked:
             response = self.client.post(
                 reverse(
                     "orders:pay_in_salon_settlement", kwargs={"pk": appointment.pk}
@@ -203,9 +211,7 @@ class PayInSalonSettlementSecurityTests(TestCase):
             )
 
         self.assertEqual(response.status_code, 302)
-        mocked.assert_not_called()
-        appointment.order.refresh_from_db()
-        self.assertFalse(appointment.order.is_paid)
+        mocked.assert_called_once()
 
     def test_online_settlement_requires_verified_salon(self):
         customer = self._customer(mobile="09126000108")

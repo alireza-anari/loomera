@@ -1077,10 +1077,6 @@ class AppointmentPaymentVerifyView(View):
                                 "update_date",
                             ]
                         )
-
-                        from apps.orders.appointment_lifecycle import auto_confirm_order_details
-
-                        auto_confirm_order_details(order=order)
                         sync_settlement_for_order(order, payment=locked_payment)
                         if order.service_completed_at or order.status == "completed":
                             notify_operational_milestone(
