@@ -1,393 +1,79 @@
-<style>
-  /* ============================================================
-     Loomera Partner Mobile Nav
-     - same visual language as customer navbar
-     - transparent glass surface
-     - equal-size icons
-     - compact center create button
-     - modern quick-create bottom sheet
-     ============================================================ */
-
-  .lm-partner-mobile-nav {
-    position: fixed;
-    inset-inline: 0;
-    bottom: 0;
-    z-index: 70;
-    padding:
-      0 14px
-      calc(10px + env(safe-area-inset-bottom, 0px));
-    pointer-events: none;
-    background: transparent;
-  }
-
-  .lm-partner-mobile-nav__surface {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    width: min(100%, 430px);
-    min-height: 72px;
-    margin: 0 auto;
-    padding: 8px 10px;
-    border: 1px solid rgba(115, 92, 190, 0.10);
-    border-radius: 30px;
-    background:
-      linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.84) 0%,
-        rgba(250, 248, 255, 0.76) 100%
-      );
-    box-shadow:
-      0 18px 42px rgba(46, 42, 60, 0.14),
-      0 4px 14px rgba(115, 92, 190, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(22px) saturate(155%);
-    -webkit-backdrop-filter: blur(22px) saturate(155%);
-    pointer-events: auto;
-    direction: ltr;
-  }
-
-  .lm-partner-mobile-nav__side {
-    display: flex;
-    min-width: 0;
-    align-items: center;
-    justify-content: space-around;
-    gap: 4px;
-  }
-
-  .lm-partner-mobile-nav__item {
-    position: relative;
-    display: grid;
-    width: 52px;
-    height: 52px;
-    place-items: center;
-    flex: 0 0 52px;
-    border-radius: 50%;
-    color: #726D83;
-    text-decoration: none;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    transition:
-      transform 180ms ease,
-      color 180ms ease,
-      background-color 180ms ease,
-      box-shadow 180ms ease,
-      border-color 180ms ease;
-  }
-
-  .lm-partner-mobile-nav__item i {
-    position: relative;
-    z-index: 1;
-    font-size: 1.48rem;
-    line-height: 1;
-  }
-
-  .lm-partner-mobile-nav__item:active {
-    transform: scale(0.92);
-  }
-
-  .lm-partner-mobile-nav__item:focus-visible,
-  .lm-partner-mobile-nav__create:focus-visible {
-    outline: 3px solid rgba(115, 92, 190, 0.20);
-    outline-offset: 3px;
-  }
-
-  .lm-partner-mobile-nav__item.is-active,
-  .lm-partner-mobile-nav__item[aria-current="page"] {
-    color: var(--lm-primary, #735CBE);
-    background:
-      radial-gradient(
-        circle at 50% 42%,
-        rgba(255, 255, 255, 0.98) 0 44%,
-        rgba(244, 238, 255, 0.96) 100%
-      );
-    border: 1px solid rgba(115, 92, 190, 0.17);
-    box-shadow:
-      0 0 0 7px rgba(115, 92, 190, 0.055),
-      0 10px 24px rgba(115, 92, 190, 0.17),
-      inset 0 1px 0 rgba(255, 255, 255, 0.98);
-  }
-
-  .lm-partner-mobile-nav__item.is-disabled {
-    opacity: 0.38;
-    cursor: not-allowed;
-  }
-
-  .lm-partner-mobile-nav__create-root {
-    position: relative;
-    display: grid;
-    place-items: center;
-    padding-inline: 4px;
-  }
-
-  .lm-partner-mobile-nav__create {
-    position: relative;
-    display: inline-grid;
-    width: 54px;
-    height: 54px;
-    place-items: center;
-    border: 1px solid rgba(115, 92, 190, 0.16);
-    border-radius: 20px;
-    color: #fff;
-    background:
-      linear-gradient(
-        145deg,
-        #866FDB 0%,
-        var(--lm-primary, #735CBE) 62%,
-        #654BAE 100%
-      );
-    box-shadow:
-      0 12px 26px rgba(115, 92, 190, 0.30),
-      inset 0 1px 0 rgba(255, 255, 255, 0.28);
-    transition: transform 180ms ease, box-shadow 180ms ease;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .lm-partner-mobile-nav__create:active {
-    transform: scale(0.92);
-  }
-
-  .lm-partner-mobile-nav__create i {
-    font-size: 1.22rem;
-  }
-
-  /* Quick create sheet */
-  .lm-partner-create-sheet {
-    position: fixed;
-    right: 10px;
-    left: 10px;
-    bottom: calc(92px + env(safe-area-inset-bottom, 0px));
-    z-index: 95;
-    width: min(calc(100vw - 20px), 410px);
-    max-height: min(70vh, 34rem);
-    margin-inline: auto;
-    overflow: hidden;
-    border: 1px solid rgba(115, 92, 190, 0.12);
-    border-radius: 30px;
-    background:
-      linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.96) 0%,
-        rgba(249, 247, 253, 0.95) 100%
-      );
-    box-shadow:
-      0 24px 70px rgba(46, 42, 60, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(26px) saturate(150%);
-    -webkit-backdrop-filter: blur(26px) saturate(150%);
-  }
-
-  .lm-partner-create-sheet__handle {
-    width: 42px;
-    height: 4px;
-    margin: 10px auto 0;
-    border-radius: 999px;
-    background: rgba(114, 109, 131, 0.22);
-  }
-
-  .lm-partner-create-sheet__body {
-    max-height: calc(min(70vh, 34rem) - 86px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: 10px 12px 14px;
-  }
-
-  .lm-partner-create-action {
-    display: flex;
-    min-height: 68px;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    border: 1px solid var(--lm-border-soft, #ECE8F2);
-    border-radius: 22px;
-    background: rgba(255, 255, 255, 0.88);
-    padding: 10px 12px;
-    color: var(--lm-text-secondary, #5D586B);
-    text-decoration: none;
-    transition:
-      transform 180ms ease,
-      border-color 180ms ease,
-      background-color 180ms ease,
-      box-shadow 180ms ease;
-  }
-
-  .lm-partner-create-action + .lm-partner-create-action {
-    margin-top: 8px;
-  }
-
-  .lm-partner-create-action:active {
-    transform: scale(0.985);
-  }
-
-  .lm-partner-create-action__icon {
-    display: inline-grid;
-    width: 44px;
-    height: 44px;
-    flex: 0 0 44px;
-    place-items: center;
-    border-radius: 17px;
-    color: var(--lm-primary, #735CBE);
-    background:
-      linear-gradient(
-        145deg,
-        rgba(238, 232, 250, 0.96),
-        rgba(255, 255, 255, 0.98)
-      );
-    box-shadow:
-      inset 0 0 0 1px rgba(115, 92, 190, 0.08),
-      0 5px 12px rgba(115, 92, 190, 0.08);
-  }
-
-  @media (max-width: 1023.98px) {
-    body {
-      padding-bottom: calc(98px + env(safe-area-inset-bottom, 0px));
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .lm-partner-mobile-nav__item,
-    .lm-partner-mobile-nav__create,
-    .lm-partner-create-action {
-      transition: none;
-    }
-  }
-</style>
-
-<nav class="lm-partner-mobile-nav lg:hidden"
+<nav class="lm-partner-mobile-nav lm-app-bottom-nav-surface fixed inset-x-0 bottom-0 z-30 border-t border-loomera-borderSoft bg-white/95 px-2 py-2 shadow-[0_-18px_45px_rgba(46,42,60,0.10)] backdrop-blur-xl lg:hidden"
      data-shell-nav="partner-mobile"
-     aria-label="ناوبری اصلی پنل مجموعه">
-  <div class="lm-partner-mobile-nav__surface" role="list">
-
-    <div class="lm-partner-mobile-nav__side">
+     aria-label="ناوبری عملیاتی موبایل پارتنر">
+  <div class="flex items-end justify-between gap-1.5" role="list">
+    <div class="flex min-w-0 flex-1 items-stretch justify-between gap-1">
       {% for item in dashboard_mobile_nav_items|slice:":2" %}
         {% if item.is_available %}
-          {% if item.key == "management" or item.label == "مدیریت" %}
-            <button type="button"
-                    role="listitem"
-                    aria-label="{{ item.label }}"
-                    class="lm-partner-mobile-nav__item lm-app-touch-target {% if item.is_active %}is-active{% endif %}"
-                    data-mobile-management-toggle>
-              <i class="{{ item.icon }}" aria-hidden="true"></i>
-            </button>
-          {% else %}
-            <a href="{{ item.url }}"
-               role="listitem"
-               aria-label="{{ item.label }}"
-               {% if item.is_active %}aria-current="page"{% endif %}
-               class="lm-partner-mobile-nav__item lm-app-touch-target {% if item.is_active %}is-active{% endif %}">
-              <i class="{{ item.icon }}" aria-hidden="true"></i>
-            </a>
-          {% endif %}
+          <a href="{{ item.url }}"
+             role="listitem"
+             aria-label="{{ item.label }}"
+             {% if item.is_active %}aria-current="page"{% endif %}
+             class="lm-partner-mobile-nav__item lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if item.is_active %}is-active bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textMuted hover:bg-loomera-bgSubtle hover:text-loomera-textPrimary{% endif %}">
+            {% include "partials/dashboard/nav_icon.html" with key=item.key %}
+            <span class="max-w-full truncate">{{ item.short_label }}</span>
+          </a>
         {% else %}
           <span role="listitem"
                 aria-label="{{ item.label }}؛ در دسترس نیست"
                 aria-disabled="true"
-                class="lm-partner-mobile-nav__item lm-partner-mobile-nav__item is-disabled lm-app-touch-target">
-            <i class="{{ item.icon }}" aria-hidden="true"></i>
+                class="lm-partner-mobile-nav__item is-disabled lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold text-loomera-textMuted">
+            {% include "partials/dashboard/nav_icon.html" with key=item.key %}
+            <span class="max-w-full truncate">{{ item.short_label }}</span>
           </span>
         {% endif %}
       {% endfor %}
     </div>
 
     {% if dashboard_create_actions %}
-      <div class="lm-partner-mobile-nav__create-root"
-           data-mobile-create-root>
+      <div class="relative -mt-8 shrink-0" data-mobile-create-root>
         <button type="button"
-                class="lm-partner-mobile-nav__create"
+                class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-loomera-primary text-white shadow-[0_18px_36px_rgba(115,92,190,0.30)] ring-4 ring-white transition hover:bg-loomera-primaryHover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-primary/25"
                 aria-label="ایجاد سریع"
                 aria-haspopup="dialog"
                 aria-expanded="false"
                 aria-controls="partner-mobile-create-panel"
                 data-mobile-create-toggle>
-          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          <i class="fa-solid fa-plus text-lg" aria-hidden="true"></i>
         </button>
 
         <div id="partner-mobile-create-panel"
-             class="lm-partner-create-sheet hidden"
+             class="hidden absolute bottom-[calc(100%+0.9rem)] left-1/2 z-50 w-[min(20.5rem,calc(100vw-1rem))] -translate-x-1/2 rounded-[28px] border border-loomera-borderSoft bg-white p-3 shadow-[0_24px_70px_rgba(46,42,60,0.16)]"
              role="dialog"
-             aria-modal="false"
              aria-label="ایجاد سریع در پنل مجموعه"
              data-mobile-create-panel>
-          <div class="lm-partner-create-sheet__handle" aria-hidden="true"></div>
-
-          <div class="flex items-start justify-between gap-3 px-5 pb-2 pt-3">
-            <div class="min-w-0">
-              <div class="flex items-center gap-2">
-                <span class="inline-grid h-9 w-9 place-items-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-                  <i class="fa-solid fa-wand-magic-sparkles text-xs" aria-hidden="true"></i>
-                </span>
-                <div>
-                  <h3 class="text-base font-black text-loomera-textPrimary">افزودن سریع</h3>
-                  <p class="mt-0.5 text-[11px] text-loomera-textMuted">کارهای پرتکرار مجموعه</p>
-                </div>
-              </div>
-            </div>
-
-            <button type="button"
-                    class="inline-grid h-9 w-9 shrink-0 place-items-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textMuted"
-                    aria-label="بستن ایجاد سریع"
-                    data-mobile-create-close>
-              <i class="fa-solid fa-xmark text-xs" aria-hidden="true"></i>
-            </button>
+          <div class="mb-3 px-2">
+            <h3 class="text-sm font-black text-loomera-textPrimary">ایجاد سریع</h3>
+            <p class="mt-1 text-[11px] text-loomera-textMuted">اکشن‌های اصلی محیط کاری</p>
           </div>
 
-          <div class="lm-partner-create-sheet__body">
+          <div class="max-h-[55vh] space-y-2 overflow-y-auto overscroll-contain">
             {% for action in dashboard_create_actions %}
               {% if action.is_available %}
                 <a href="{{ action.url }}"
-                   class="lm-partner-create-action">
+                   class="lm-partner-mobile-nav__action flex items-center justify-between rounded-2xl border border-loomera-borderSoft px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:bg-loomera-bgSubtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
                   <div class="flex min-w-0 items-center gap-3">
-                    <span class="lm-partner-create-action__icon">
-                      <i class="{{ action.icon }}" aria-hidden="true"></i>
+                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+                      <i class="{{ action.icon }} text-xs" aria-hidden="true"></i>
                     </span>
-
-                    <span class="min-w-0">
-                      <strong class="block truncate text-sm font-black text-loomera-textPrimary">
-                        {{ action.label }}
-                      </strong>
-
-                      <span class="mt-1 block truncate text-[10px] font-medium text-loomera-textMuted">
-                        {% if action.label == "افزودن خدمت" %}
-                          ساخت خدمت جدید برای مجموعه
-                        {% elif action.label == "افزودن رزرو" %}
-                          ثبت سریع نوبت برای مشتری
-                        {% elif action.label == "افزودن مشتری" %}
-                          اضافه کردن مشتری جدید
-                        {% elif action.label == "افزودن عضو تیم" %}
-                          دعوت یا اضافه کردن متخصص
-                        {% elif action.label == "تقویم نوبت‌ها" %}
-                          مشاهده و مدیریت برنامه رزروها
-                        {% else %}
-                          باز کردن این بخش
-                        {% endif %}
-                      </span>
-                    </span>
+                    <span class="truncate">{{ action.label }}</span>
                   </div>
-
-                  <i class="fa-solid fa-chevron-left shrink-0 text-[10px] text-loomera-textMuted"
-                     aria-hidden="true"></i>
+                  <i class="fa-solid fa-arrow-left shrink-0 text-xs text-loomera-textMuted" aria-hidden="true"></i>
                 </a>
               {% else %}
-                <div class="lm-partner-create-action opacity-45"
-                     aria-disabled="true">
+                <span class="lm-partner-mobile-nav__action is-disabled flex items-center justify-between rounded-2xl border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-bold text-loomera-textMuted" aria-disabled="true">
                   <div class="flex min-w-0 items-center gap-3">
-                    <span class="lm-partner-create-action__icon grayscale">
-                      <i class="{{ action.icon }}" aria-hidden="true"></i>
+                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-borderSoft text-loomera-textMuted">
+                      <i class="{{ action.icon }} text-xs" aria-hidden="true"></i>
                     </span>
-
-                    <span class="min-w-0">
-                      <strong class="block truncate text-sm font-black text-loomera-textMuted">
-                        {{ action.label }}
-                      </strong>
-                      <span class="mt-1 block text-[10px] text-loomera-textMuted">
-                        {{ action.lock_reason|default:"در دسترس نیست" }}
-                      </span>
-                    </span>
+                    <span class="truncate">{{ action.label }}</span>
                   </div>
-                </div>
+                  <span class="shrink-0 rounded-full bg-white px-2 py-1 text-[10px] font-black text-loomera-textMuted">{{ action.lock_reason|default:"فقط مدیر" }}</span>
+                </span>
               {% endif %}
             {% empty %}
-              <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-white px-4 py-6 text-center text-xs leading-6 text-loomera-textMuted">
-                اکشن سریعی برای این محیط کاری در دسترس نیست.
+              <div class="rounded-2xl bg-loomera-bgSubtle px-4 py-5 text-sm leading-7 text-loomera-textMuted">
+                اکشن سریعی برای این بخش در دسترس نیست.
               </div>
             {% endfor %}
           </div>
@@ -395,74 +81,77 @@
       </div>
     {% endif %}
 
-    <div class="lm-partner-mobile-nav__side">
+    <div class="flex min-w-0 flex-1 items-stretch justify-between gap-1">
       {% for item in dashboard_mobile_nav_items|slice:"2:" %}
-        {% if item.is_available %}
-          {% if item.key == "management" or item.label == "مدیریت" %}
+        {% if item.kind == "panel" %}
+          <div class="relative flex min-w-0 flex-1" data-mobile-management-root>
             <button type="button"
                     role="listitem"
                     aria-label="{{ item.label }}"
-                    class="lm-partner-mobile-nav__item lm-app-touch-target {% if item.is_active %}is-active{% endif %}"
-                    data-mobile-management-toggle>
-              <i class="{{ item.icon }}" aria-hidden="true"></i>
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                    aria-controls="partner-mobile-management-panel"
+                    data-mobile-management-toggle
+                    class="lm-partner-mobile-nav__item lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if item.is_active %}is-active bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textMuted hover:bg-loomera-bgSubtle hover:text-loomera-textPrimary{% endif %}">
+              {% include "partials/dashboard/nav_icon.html" with key=item.key %}
+              <span class="max-w-full truncate">{{ item.short_label }}</span>
             </button>
-          {% else %}
-            <a href="{{ item.url }}"
-               role="listitem"
-               aria-label="{{ item.label }}"
-               {% if item.is_active %}aria-current="page"{% endif %}
-               class="lm-partner-mobile-nav__item lm-app-touch-target {% if item.is_active %}is-active{% endif %}">
-              <i class="{{ item.icon }}" aria-hidden="true"></i>
-            </a>
-          {% endif %}
+
+            <div id="partner-mobile-management-panel"
+                 class="hidden fixed inset-x-2 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] z-50 max-h-[min(66vh,32rem)] overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white p-3 shadow-[0_24px_70px_rgba(46,42,60,0.18)]"
+                 role="dialog"
+                 aria-label="{{ item.label }}"
+                 data-mobile-management-panel>
+              <div class="flex items-start justify-between gap-3 px-2 pb-3">
+                <div>
+                  <h3 class="text-sm font-black text-loomera-textPrimary">{{ item.label }}</h3>
+                  <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">{% if dashboard_role == 'stylist' %}ابزارهای شخصی و تنظیمات کاری{% else %}کارهای اصلی راه‌اندازی و مدیریت مجموعه{% endif %}</p>
+                </div>
+                <button type="button"
+                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-loomera-bgSubtle text-loomera-textSecondary"
+                        aria-label="بستن {{ item.label }}"
+                        data-mobile-management-close>
+                  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="max-h-[50vh] space-y-1.5 overflow-y-auto overscroll-contain">
+                {% for management_item in item.panel_items %}
+                  {% if management_item.is_available %}
+                    <a href="{{ management_item.url }}"
+                       class="flex items-center gap-3 rounded-2xl px-3 py-3 transition {% if management_item.is_active %}bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textSecondary hover:bg-loomera-bgSubtle{% endif %}">
+                      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm ring-1 ring-loomera-primary/10">
+                        {% include "partials/dashboard/nav_icon.html" with key=management_item.key %}
+                      </span>
+                      <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-black">{{ management_item.label }}</p>
+                        <p class="mt-0.5 truncate text-[11px] text-loomera-textMuted">{{ management_item.caption }}</p>
+                      </div>
+                      <i class="fa-solid fa-arrow-left shrink-0 text-[10px] text-loomera-textMuted" aria-hidden="true"></i>
+                    </a>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% elif item.is_available %}
+          <a href="{{ item.url }}"
+             role="listitem"
+             aria-label="{{ item.label }}"
+             {% if item.is_active %}aria-current="page"{% endif %}
+             class="lm-partner-mobile-nav__item lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if item.is_active %}is-active bg-loomera-primarySoft text-loomera-primaryText{% else %}text-loomera-textMuted hover:bg-loomera-bgSubtle hover:text-loomera-textPrimary{% endif %}">
+            {% include "partials/dashboard/nav_icon.html" with key=item.key %}
+            <span class="max-w-full truncate">{{ item.short_label }}</span>
+          </a>
         {% else %}
           <span role="listitem"
                 aria-label="{{ item.label }}؛ در دسترس نیست"
                 aria-disabled="true"
-                class="lm-partner-mobile-nav__item is-disabled lm-app-touch-target">
-            <i class="{{ item.icon }}" aria-hidden="true"></i>
+                class="lm-partner-mobile-nav__item is-disabled lm-app-touch-target flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-2 text-[11px] font-bold text-loomera-textMuted">
+            {% include "partials/dashboard/nav_icon.html" with key=item.key %}
+            <span class="max-w-full truncate">{{ item.short_label }}</span>
           </span>
         {% endif %}
       {% endfor %}
     </div>
-
   </div>
 </nav>
-
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll("[data-mobile-management-toggle]").forEach(function (button) {
-      button.addEventListener("click", function () {
-        const primarySidebarOpen = document.querySelector("[data-sidebar-open]");
-        if (primarySidebarOpen) {
-          primarySidebarOpen.click();
-          return;
-        }
-
-        const sidebar = document.querySelector("[data-dashboard-sidebar]");
-        const overlay = document.querySelector("[data-dashboard-overlay]");
-
-        if (sidebar) {
-          sidebar.classList.remove("translate-x-full");
-          sidebar.classList.add("translate-x-0");
-        }
-
-        if (overlay) {
-          overlay.classList.remove("hidden");
-        }
-
-        document.body.classList.add("overflow-hidden");
-      });
-    });
-
-    document.querySelectorAll("[data-mobile-create-close]").forEach(function (button) {
-      button.addEventListener("click", function () {
-        const toggle = document.querySelector("[data-mobile-create-toggle]");
-        if (toggle && toggle.getAttribute("aria-expanded") === "true") {
-          toggle.click();
-        }
-      });
-    });
-  });
-</script>
