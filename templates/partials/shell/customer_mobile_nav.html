@@ -1,7 +1,7 @@
 {% with current_namespace=request.resolver_match.namespace|default:'' current_url=request.resolver_match.url_name|default:'' %}
 <style>
-  /* Loomera customer mobile nav — Style 3
-     Floating center Home + compact glass bar + icon-only navigation */
+  /* Loomera customer mobile navbar
+     Compact glass bar + equal-size modern outline icons + soft active halo */
   .lm-shell-customer-mobile-nav {
     position: fixed;
     right: 0;
@@ -13,61 +13,69 @@
       calc(10px + env(safe-area-inset-bottom, 0px));
     background: transparent;
     border: 0;
-    box-shadow: none;
     pointer-events: none;
   }
 
   .lm-shell-customer-mobile-nav__inner {
-    position: relative;
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     align-items: center;
-    min-height: 68px;
-    max-width: 430px;
+    width: min(100%, 430px);
+    min-height: 72px;
     margin: 0 auto;
-    padding: 8px 9px;
+    padding: 8px 10px;
     direction: ltr;
-    border: 1px solid color-mix(in srgb, var(--lm-border-soft, #ECE8F2) 82%, transparent);
-    border-radius: 28px;
+
+    border: 1px solid rgba(115, 92, 190, 0.10);
+    border-radius: 30px;
+
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, #FFFFFF 94%, transparent),
-        color-mix(in srgb, #FBF9FE 92%, transparent)
+        rgba(255, 255, 255, 0.82) 0%,
+        rgba(250, 248, 255, 0.74) 100%
       );
+
     box-shadow:
-      0 16px 42px rgba(46, 42, 60, 0.14),
-      0 4px 12px rgba(115, 92, 190, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(22px) saturate(150%);
-    -webkit-backdrop-filter: blur(22px) saturate(150%);
+      0 18px 42px rgba(46, 42, 60, 0.14),
+      0 4px 14px rgba(115, 92, 190, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.92);
+
+    backdrop-filter: blur(22px) saturate(155%);
+    -webkit-backdrop-filter: blur(22px) saturate(155%);
+
     pointer-events: auto;
   }
 
   .lm-shell-mobile-nav-item {
     position: relative;
     display: grid;
-    width: 48px;
-    height: 48px;
+    width: 54px;
+    height: 54px;
     place-items: center;
     justify-self: center;
-    border-radius: 18px;
-    color: #77728B;
+
+    border-radius: 50%;
+    color: #726D83;
     text-decoration: none;
+
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+
     transition:
+      transform 180ms ease,
       color 180ms ease,
       background-color 180ms ease,
       box-shadow 180ms ease,
-      transform 180ms ease;
+      border-color 180ms ease;
   }
 
   .lm-shell-mobile-nav-item i {
     position: relative;
     z-index: 1;
-    font-size: 1.34rem;
+    font-size: 1.55rem;
     line-height: 1;
+
     transition:
       transform 180ms ease,
       color 180ms ease;
@@ -78,122 +86,71 @@
   }
 
   .lm-shell-mobile-nav-item:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--lm-primary, #735CBE) 24%, transparent);
+    outline: 3px solid rgba(115, 92, 190, 0.20);
     outline-offset: 3px;
   }
 
-  /* Soft active state for every non-home destination */
-  .lm-shell-mobile-nav-item.is-active:not(.lm-shell-mobile-nav-item--home),
-  .lm-shell-mobile-nav-item[aria-current="page"]:not(.lm-shell-mobile-nav-item--home) {
+  /* فقط آیتم واقعاً فعال برجسته می‌شود */
+  .lm-shell-mobile-nav-item.is-active,
+  .lm-shell-mobile-nav-item[aria-current="page"] {
     color: var(--lm-primary, #735CBE);
-    background:
-      linear-gradient(
-        145deg,
-        color-mix(in srgb, var(--lm-primary-soft, #EEE8FA) 88%, white),
-        #FFFFFF
-      );
-    box-shadow:
-      0 8px 18px rgba(115, 92, 190, 0.12),
-      inset 0 0 0 1px color-mix(in srgb, var(--lm-primary, #735CBE) 11%, transparent);
-  }
 
-  .lm-shell-mobile-nav-item.is-active:not(.lm-shell-mobile-nav-item--home)::after,
-  .lm-shell-mobile-nav-item[aria-current="page"]:not(.lm-shell-mobile-nav-item--home)::after {
-    content: "";
-    position: absolute;
-    bottom: 4px;
-    width: 5px;
-    height: 5px;
-    border-radius: 999px;
-    background: var(--lm-accent, #A7C8A1);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--lm-accent, #A7C8A1) 16%, transparent);
-  }
-
-  /* Center floating Home — the distinctive Style 3 element */
-  .lm-shell-mobile-nav-item--home {
-    width: 62px;
-    height: 62px;
-    margin-top: -24px;
-    border: 1px solid color-mix(in srgb, var(--lm-primary, #735CBE) 9%, white);
-    border-radius: 23px;
-    color: var(--lm-primary, #735CBE);
     background:
       radial-gradient(
-        circle at 32% 24%,
-        rgba(255, 255, 255, 0.98) 0 26%,
-        transparent 27%
-      ),
-      linear-gradient(
-        145deg,
-        #FFFFFF 5%,
-        color-mix(in srgb, var(--lm-primary-soft, #EEE8FA) 78%, white) 100%
+        circle at 50% 44%,
+        rgba(255, 255, 255, 0.98) 0 44%,
+        rgba(244, 238, 255, 0.96) 100%
       );
+
+    border: 1px solid rgba(115, 92, 190, 0.18);
+
     box-shadow:
-      0 14px 30px rgba(115, 92, 190, 0.18),
-      0 5px 12px rgba(46, 42, 60, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 1);
+      0 0 0 7px rgba(115, 92, 190, 0.06),
+      0 10px 24px rgba(115, 92, 190, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.98);
   }
 
-  .lm-shell-mobile-nav-item--home::before {
+  .lm-shell-mobile-nav-item.is-active i,
+  .lm-shell-mobile-nav-item[aria-current="page"] i {
+    transform: translateY(-1px);
+    color: var(--lm-primary, #735CBE);
+  }
+
+  /* halo مدرن و خیلی ملایم */
+  .lm-shell-mobile-nav-item.is-active::before,
+  .lm-shell-mobile-nav-item[aria-current="page"]::before {
     content: "";
     position: absolute;
-    inset: -6px;
+    inset: -10px;
     z-index: -1;
-    border-radius: 27px;
+    border-radius: 50%;
+
     background:
       radial-gradient(
         circle,
-        color-mix(in srgb, var(--lm-primary, #735CBE) 13%, transparent),
-        transparent 68%
+        rgba(115, 92, 190, 0.13) 0%,
+        rgba(115, 92, 190, 0.05) 45%,
+        transparent 72%
       );
-    opacity: 0;
-    transform: scale(0.86);
-    transition:
-      opacity 180ms ease,
-      transform 180ms ease;
   }
 
-  .lm-shell-mobile-nav-item--home i {
-    font-size: 1.55rem;
-  }
-
-  .lm-shell-mobile-nav-item--home.is-active,
-  .lm-shell-mobile-nav-item--home[aria-current="page"] {
-    color: #FFFFFF;
-    background:
-      linear-gradient(
-        145deg,
-        #866FDB 0%,
-        var(--lm-primary, #735CBE) 62%,
-        #654BAE 100%
-      );
-    box-shadow:
-      0 16px 32px rgba(115, 92, 190, 0.34),
-      0 5px 14px rgba(115, 92, 190, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.32);
-  }
-
-  .lm-shell-mobile-nav-item--home.is-active::before,
-  .lm-shell-mobile-nav-item--home[aria-current="page"]::before {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  .lm-shell-mobile-nav-item--home.is-active::after,
-  .lm-shell-mobile-nav-item--home[aria-current="page"]::after {
+  /* نقطه ظریف سبز برند پایین آیتم فعال */
+  .lm-shell-mobile-nav-item.is-active::after,
+  .lm-shell-mobile-nav-item[aria-current="page"]::after {
     content: "";
     position: absolute;
-    bottom: -8px;
-    width: 22px;
-    height: 4px;
+    bottom: 3px;
+    width: 6px;
+    height: 6px;
     border-radius: 999px;
+
     background: var(--lm-accent, #A7C8A1);
+
     box-shadow:
-      0 0 0 4px color-mix(in srgb, var(--lm-accent, #A7C8A1) 13%, transparent),
-      0 4px 10px rgba(167, 200, 161, 0.30);
+      0 0 0 4px rgba(167, 200, 161, 0.14),
+      0 3px 8px rgba(167, 200, 161, 0.24);
   }
 
-  /* Keep page content clear of the floating nav */
   @media (max-width: 1023.98px) {
     body {
       padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
@@ -202,61 +159,72 @@
 
   @media (prefers-reduced-motion: reduce) {
     .lm-shell-mobile-nav-item,
-    .lm-shell-mobile-nav-item i,
-    .lm-shell-mobile-nav-item--home::before {
+    .lm-shell-mobile-nav-item i {
       transition: none;
     }
   }
 </style>
 
-<nav class="lm-shell-customer-mobile-nav lg:hidden"
-     data-shell-nav="customer-mobile"
-     aria-label="ناوبری اصلی اپ مشتری">
+<nav
+  class="lm-shell-customer-mobile-nav lg:hidden"
+  data-shell-nav="customer-mobile"
+  aria-label="ناوبری اصلی اپ مشتری"
+>
   <div class="lm-shell-customer-mobile-nav__inner" role="list">
 
-    {# حساب من — left side #}
-    <a href="{% url 'accounts:customer_panel' %}"
-       role="listitem"
-       aria-label="حساب من"
-       {% if current_namespace == 'accounts' %}aria-current="page"{% endif %}
-       class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'accounts' %}is-active{% endif %}">
+    {# حساب من #}
+    <a
+      href="{% url 'accounts:customer_panel' %}"
+      role="listitem"
+      aria-label="حساب من"
+      {% if current_namespace == 'accounts' %}aria-current="page"{% endif %}
+      class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'accounts' %}is-active{% endif %}"
+    >
       <i class="fa-regular fa-user" aria-hidden="true"></i>
     </a>
 
     {# مجله #}
-    <a href="{% url 'articles:magazine_home' %}"
-       role="listitem"
-       aria-label="مجله"
-       {% if current_namespace == 'articles' %}aria-current="page"{% endif %}
-       class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'articles' %}is-active{% endif %}">
-      <i class="fa-regular fa-newspaper" aria-hidden="true"></i>
-    </a>
-
-    {# خانه — floating center action #}
-    <a href="{% url 'salons:show_salons' %}"
-       role="listitem"
-       aria-label="خانه"
-       {% if current_namespace == 'salons' and current_url == 'show_salons' %}aria-current="page"{% endif %}
-       class="lm-shell-mobile-nav-item lm-shell-mobile-nav-item--home lm-app-touch-target {% if current_namespace == 'salons' and current_url == 'show_salons' %}is-active{% endif %}">
-      <i class="fa-solid fa-house" aria-hidden="true"></i>
+    <a
+      href="{% url 'articles:magazine_home' %}"
+      role="listitem"
+      aria-label="مجله"
+      {% if current_namespace == 'articles' %}aria-current="page"{% endif %}
+      class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'articles' %}is-active{% endif %}"
+    >
+      <i class="fa-regular fa-rectangle-list" aria-hidden="true"></i>
     </a>
 
     {# نوبت‌ها #}
-    <a href="{% url 'orders:appointments' %}"
-       role="listitem"
-       aria-label="نوبت‌ها"
-       {% if current_namespace == 'orders' %}aria-current="page"{% endif %}
-       class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'orders' %}is-active{% endif %}">
-      <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+    <a
+      href="{% url 'orders:appointments' %}"
+      role="listitem"
+      aria-label="نوبت‌ها"
+      {% if current_namespace == 'orders' %}aria-current="page"{% endif %}
+      class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'orders' %}is-active{% endif %}"
+    >
+      <i class="fa-regular fa-calendar-days" aria-hidden="true"></i>
     </a>
 
-    {# جستجو — right side #}
-    <a href="{% url 'search:search_page' %}"
-       role="listitem"
-       aria-label="جستجو"
-       {% if current_namespace == 'search' %}aria-current="page"{% endif %}
-       class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'search' %}is-active{% endif %}">
+    {# جستجو #}
+    <a
+      href="{% url 'search:search_page' %}"
+      role="listitem"
+      aria-label="جستجو"
+      {% if current_namespace == 'search' %}aria-current="page"{% endif %}
+      class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'search' %}is-active{% endif %}"
+    >
       <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+    </a>
+
+    {# خانه #}
+    <a
+      href="{% url 'salons:show_salons' %}"
+      role="listitem"
+      aria-label="خانه"
+      {% if current_namespace == 'salons' and current_url == 'show_salons' %}aria-current="page"{% endif %}
+      class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'salons' and current_url == 'show_salons' %}is-active{% endif %}"
+    >
+      <i class="fa-solid fa-house" aria-hidden="true"></i>
     </a>
 
   </div>
