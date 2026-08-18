@@ -9,7 +9,6 @@
        {% if current_namespace == 'salons' and current_url == 'show_salons' %}aria-current="page"{% endif %}
        class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'salons' and current_url == 'show_salons' %}is-active{% endif %}">
       <i class="fa-solid fa-house" aria-hidden="true"></i>
-      <span>خانه</span>
     </a>
 
     <a href="{% url 'search:search_page' %}"
@@ -18,7 +17,6 @@
        {% if current_namespace == 'search' %}aria-current="page"{% endif %}
        class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'search' %}is-active{% endif %}">
       <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-      <span>جستجو</span>
     </a>
 
     <a href="{% url 'orders:appointments' %}"
@@ -26,17 +24,15 @@
        aria-label="نوبت‌ها"
        {% if current_namespace == 'orders' %}aria-current="page"{% endif %}
        class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'orders' %}is-active{% endif %}">
-      <i class="fa-regular fa-calendar" aria-hidden="true"></i>
-      <span>نوبت‌ها</span>
+      <i class="fa-solid fa-calendar" aria-hidden="true"></i>
     </a>
 
     <a href="{% url 'articles:magazine_home' %}"
        role="listitem"
-       aria-label="مجله"
+       aria-label="علاقه‌مندی‌ها"
        {% if current_namespace == 'articles' %}aria-current="page"{% endif %}
        class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'articles' %}is-active{% endif %}">
-      <i class="fa-regular fa-newspaper" aria-hidden="true"></i>
-      <span>مجله</span>
+      <i class="fa-solid fa-newspaper" aria-hidden="true"></i>
     </a>
 
     <a href="{% url 'accounts:customer_panel' %}"
@@ -44,8 +40,7 @@
        aria-label="حساب من"
        {% if current_namespace == 'accounts' %}aria-current="page"{% endif %}
        class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'accounts' %}is-active{% endif %}">
-      <i class="fa-regular fa-user" aria-hidden="true"></i>
-      <span>حساب من</span>
+      <i class="fa-solid fa-user" aria-hidden="true"></i>
     </a>
   </div>
 </nav>
