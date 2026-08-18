@@ -116,6 +116,55 @@ class StylistFastFlowBackendTests(Stage1DomainFactoryMixin, TestCase):
             ["complete_service"],
         )
 
+    def test_pay_in_salon_uses_one_collection_confirmation_after_completion(self):
+        order, detail = self.make_pending_today()
+        order.selected_payment_method = "pay_in_salon"
+        order.save(update_fields=["selected_payment_method", "update_date"])
+
+        _apply_stylist_lifecycle_action(detail, "start_service", actor=self.stylist.user)
+        detail.refresh_from_db()
+        _apply_stylist_lifecycle_action(detail, "complete_service", actor=self.stylist.user)
+        detail.refresh_from_db()
+        order.refresh_from_db()
+
+        actions = _get_allowed_stylist_lifecycle_actions(detail)
+        self.assertEqual([item["key"] for item in actions], ["confirm_cash_payment"])
+        self.assertEqual(actions[0]["label"], "دریافت وجه شد")
+
+        card = _serialize_stylist_appointment_card(detail)
+        self.assertEqual(card["quick_action"]["key"], "confirm_cash_payment")
+
+        message = _apply_stylist_lifecycle_action(
+            detail, "confirm_cash_payment", actor=self.stylist.user
+        )
+        self.assertEqual(message, "دریافت وجه ثبت شد و پرداخت رزرو نهایی شد.")
+
+        order.refresh_from_db()
+        self.assertTrue(order.is_paid)
+        self.assertTrue(order.is_finally)
+        self.assertEqual(order.status, "completed")
+        payment = order.payment_order.filter(
+            provider="manual", meta__source="pay_in_salon_cash"
+        ).order_by("-id").first()
+        self.assertIsNotNone(payment)
+        self.assertTrue(payment.is_finally)
+        self.assertEqual(payment.state, "success")
+        self.assertTrue(payment.meta.get("received_at"))
+        self.assertFalse(bool(payment.meta.get("customer_confirmed_at")))
+
+        detail.refresh_from_db()
+        self.assertEqual(_get_allowed_stylist_lifecycle_actions(detail), [])
+
+    def test_customer_cannot_finalize_pay_in_salon_cash_receipt(self):
+        from django.core.exceptions import ValidationError
+        from apps.payments.finance import confirm_pay_in_salon_cash_payment
+
+        order, _ = self.make_pending_today()
+        with self.assertRaises(ValidationError):
+            confirm_pay_in_salon_cash_payment(
+                order, actor=self.customer.user, role="customer"
+            )
+
     def test_today_card_serializes_primary_and_exception_actions(self):
         _, detail = self.make_pending_today()
 

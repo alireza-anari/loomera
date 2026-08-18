@@ -76,44 +76,13 @@
                 {% endif %}
               {% endfor %}
             </form>
-          {% elif not appointment_obj.order.selected_payment_method == "pay_in_salon" or not appointment_obj.order.service_completed_at or appointment_obj.order.is_paid %}
+          {% else %}
             <span class="inline-flex w-full items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white/75 px-4 py-3 text-sm font-bold text-loomera-textMuted lg:w-auto">
               فعلاً اقدامی نیاز نیست
             </span>
           {% endif %}
         </div>
 
-        {% if appointment_obj.order.selected_payment_method == "pay_in_salon" and appointment_obj.order.service_completed_at and not appointment_obj.order.is_paid %}
-          <div class="mt-4 border-t border-loomera-primary/10 pt-4">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div class="min-w-0">
-                <p class="text-xs font-black text-loomera-textPrimary">پرداخت حضوری</p>
-                {% if cash_payment_state.customer_confirmed and cash_payment_state.stylist_confirmed %}
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">تأیید دوطرفه ثبت شده و پرداخت در حال نهایی‌شدن است.</p>
-                {% elif cash_payment_state.customer_confirmed %}
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">مشتری پرداخت را تأیید کرده؛ دریافت وجه را تأیید کن.</p>
-                {% elif cash_payment_state.stylist_confirmed %}
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">تأیید شما ثبت شده و منتظر تأیید مشتری است.</p>
-                {% else %}
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای نهایی‌شدن پرداخت، تأیید مشتری و متخصص لازم است.</p>
-                {% endif %}
-              </div>
-              {% if not cash_payment_state.stylist_confirmed %}
-                <form method="post" data-lm-form-ux="off" class="shrink-0">
-                  {% csrf_token %}
-                  <button name="action" value="confirm_cash_payment" class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-700 sm:w-auto">
-                    <i class="fa-solid fa-money-bill-wave text-xs" aria-hidden="true"></i>
-                    تأیید دریافت وجه
-                  </button>
-                </form>
-              {% else %}
-                <span class="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-white px-4 py-2.5 text-xs font-black text-emerald-700">
-                  تأیید شما ثبت شده
-                </span>
-              {% endif %}
-            </div>
-          </div>
-        {% endif %}
       </div>
     </section>
 

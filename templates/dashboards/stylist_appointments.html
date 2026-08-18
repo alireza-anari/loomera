@@ -67,6 +67,8 @@
                 <button class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-black {{ item.quick_action.class }}">
                   {% if item.quick_action.key == "complete_service" %}
                     <i class="fa-solid fa-check" aria-hidden="true"></i>
+                  {% elif item.quick_action.key == "confirm_cash_payment" %}
+                    <i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i>
                   {% else %}
                     <i class="fa-solid fa-play" aria-hidden="true"></i>
                   {% endif %}

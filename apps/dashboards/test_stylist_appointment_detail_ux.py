@@ -43,8 +43,8 @@ class StylistAppointmentDetailUXTests(SimpleTestCase):
         self.assertIn("stylist_lifecycle_actions", self.template)
         self.assertIn('name="action"', self.template)
         self.assertIn('value="{{ item.key }}"', self.template)
-        self.assertIn(
-            'value="confirm_cash_payment"',
+        self.assertNotIn(
+            "cash_payment_state",
             self.template,
         )
 
@@ -115,7 +115,7 @@ class StylistAppointmentDetailUXTests(SimpleTestCase):
     def test_lifecycle_action_forms_use_native_submit(self):
         self.assertGreaterEqual(
             self.template.count('data-lm-form-ux="off"'),
-            2,
+            1,
         )
         self.assertIn(
             'name="action"',

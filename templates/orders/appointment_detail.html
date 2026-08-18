@@ -200,21 +200,7 @@
 
             {% if customer_progress.needs_pay_in_salon %}
               <div class="mt-3 border-t border-loomera-primary/10 pt-3">
-                {% if customer_progress.pay_in_salon_cash_waiting_for_stylist %}
-                  <p class="text-xs leading-6 text-blue-800">تأیید پرداخت شما ثبت شده؛ منتظر تأیید مجموعه هستیم.</p>
-                {% elif customer_progress.pay_in_salon_cash_waiting_for_customer %}
-                  <p class="mb-3 text-xs leading-6 text-blue-800">مجموعه دریافت وجه را ثبت کرده؛ برای نهایی‌شدن پرداخت تأیید کن.</p>
-                {% else %}
-                  <p class="mb-3 text-xs leading-6 text-blue-800">پس از پایان خدمت، پرداخت در مجموعه تکمیل می‌شود.</p>
-                {% endif %}
-                <form method="post" action="{{ pay_in_salon_action_url }}">
-                  {% csrf_token %}
-                  {% if not customer_progress.pay_in_salon_cash_customer_confirmed %}
-                    <button type="submit" name="payment_action" value="cash" class="inline-flex w-full items-center justify-center rounded-full bg-loomera-primary px-4 py-2.5 text-xs font-black text-white shadow-lm-soft">
-                      تأیید پرداخت نقدی
-                    </button>
-                  {% endif %}
-                </form>
+                <p class="text-xs leading-6 text-blue-800">خدمت انجام شده است. پس از دریافت وجه، مجموعه پرداخت حضوری را ثبت می‌کند؛ نیازی به تأیید شما نیست.</p>
               </div>
             {% endif %}
 
@@ -582,30 +568,14 @@
 
           {% if customer_progress.needs_pay_in_salon %}
             <div class="mt-4 rounded-[1.5rem] border border-blue-200 bg-blue-50 p-4">
-              <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div class="flex items-start gap-3">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-blue-700 shadow-sm">
+                  <i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i>
+                </span>
                 <div class="min-w-0">
                   <h3 class="text-sm font-black text-blue-950">تسویه در مجموعه</h3>
-                  {% if customer_progress.pay_in_salon_cash_waiting_for_stylist %}
-                    <p class="mt-1 text-sm leading-7 text-blue-800">تأیید پرداخت نقدی شما ثبت شده است و منتظر تأیید مجموعه هستیم.</p>
-                  {% elif customer_progress.pay_in_salon_cash_waiting_for_customer %}
-                    <p class="mt-1 text-sm leading-7 text-blue-800">مجموعه دریافت وجه را ثبت کرده است. برای نهایی‌شدن پرداخت، تأیید کنید.</p>
-                  {% else %}
-                    <p class="mt-1 text-sm leading-7 text-blue-800">بعد از پایان خدمت، پرداخت در مجموعه تکمیل می‌شود.</p>
-                  {% endif %}
+                  <p class="mt-1 text-sm leading-7 text-blue-800">خدمت انجام شده است. پس از دریافت وجه، مجموعه پرداخت حضوری را ثبت می‌کند؛ نیازی به تأیید شما نیست.</p>
                 </div>
-
-                <form method="post" action="{{ pay_in_salon_action_url }}" class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-                  {% csrf_token %}
-                  {% if not customer_progress.pay_in_salon_cash_customer_confirmed %}
-                    <button type="submit" name="payment_action" value="cash" class="inline-flex items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
-                      تأیید پرداخت نقدی
-                    </button>
-                  {% else %}
-                    <span class="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-emerald-700">
-                      تأیید شما ثبت شده
-                    </span>
-                  {% endif %}
-                </form>
               </div>
             </div>
           {% endif %}

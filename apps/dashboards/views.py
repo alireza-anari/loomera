@@ -167,7 +167,6 @@ from apps.dashboards.finance_forms import AppointmentMaterialUsageForm
 from apps.payments.finance import (
     confirm_pay_in_salon_cash_payment,
     finalize_order_detail_financials,
-    get_pay_in_salon_cash_confirmation_state,
     release_eligible_stylist_wallet_funds_for_salon,
 )
 from apps.payments.models import (
@@ -10485,6 +10484,22 @@ def _get_allowed_stylist_lifecycle_actions(detail):
     """Return a short happy path plus exception-only actions for specialists."""
     order = detail.order
 
+    # Completion and cash collection are separate facts. Once all services are
+    # complete, expose exactly one collection-side action for pay-in-salon.
+    if (
+        order.selected_payment_method == "pay_in_salon"
+        and (order.service_completed_at or order.status == "completed")
+        and not order.is_paid
+        and order.status not in {"cancelled", "no_show", "disputed"}
+    ):
+        return [
+            {
+                "key": "confirm_cash_payment",
+                "label": "دریافت وجه شد",
+                "class": "bg-emerald-600 text-white",
+            }
+        ]
+
     if (
         order.status in {"cancelled", "completed", "no_show", "disputed"}
         or detail.confirmation_status == OrderDetail.ConfirmationStatus.REJECTED
@@ -10566,11 +10581,7 @@ def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
         result = confirm_pay_in_salon_cash_payment(order, actor=actor, role="stylist")
         if result.get("already_paid"):
             return "پرداخت این رزرو قبلاً نهایی شده است."
-        if result.get("finalized"):
-            return "دریافت پرداخت نقدی تایید شد و چون مشتری هم تایید کرده بود، پرداخت رزرو نهایی شد."
-        return (
-            "تایید دریافت پرداخت نقدی ثبت شد. پرداخت بعد از تایید مشتری نهایی می‌شود."
-        )
+        return "دریافت وجه ثبت شد و پرداخت رزرو نهایی شد."
 
     was_fully_confirmed = not order.order_details1.exclude(
         confirmation_status=OrderDetail.ConfirmationStatus.CONFIRMED
@@ -10790,7 +10801,7 @@ def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
                     order,
                     event_type="pay_in_salon_pending",
                     title="رزرو آماده تسویه در مجموعه است",
-                    body="خدمت کامل شده و مشتری می‌تواند پرداخت نقدی را تایید کند یا آنلاین بپردازد.",
+                    body="خدمت کامل شده است. پس از دریافت وجه، متخصص می‌تواند پرداخت حضوری را با «دریافت وجه شد» نهایی کند.",
                 )
             else:
                 mark_review_requested(order)
@@ -11142,7 +11153,11 @@ def _serialize_stylist_appointment_card(detail, *, can_view_client_phone=True):
         (
             action
             for action in actions
-            if action["key"] in {"start_service", "complete_service"}
+            if action["key"] in {
+                "start_service",
+                "complete_service",
+                "confirm_cash_payment",
+            }
         ),
         None,
     )
@@ -14023,9 +14038,6 @@ class StylistAppointmentDetailView(StylistDashboardGuardMixin, View):
                 ),
                 "stylist_lifecycle_timeline": _build_stylist_lifecycle_timeline(
                     detail.order, detail
-                ),
-                "cash_payment_state": get_pay_in_salon_cash_confirmation_state(
-                    detail.order
                 ),
             }
         )
