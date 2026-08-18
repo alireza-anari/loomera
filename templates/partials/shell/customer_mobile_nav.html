@@ -133,24 +133,6 @@
         transparent 72%
       );
   }
-
-  /* نقطه ظریف سبز برند پایین آیتم فعال */
-  .lm-shell-mobile-nav-item.is-active::after,
-  .lm-shell-mobile-nav-item[aria-current="page"]::after {
-    content: "";
-    position: absolute;
-    bottom: 3px;
-    width: 6px;
-    height: 6px;
-    border-radius: 999px;
-
-    background: var(--lm-accent, #A7C8A1);
-
-    box-shadow:
-      0 0 0 4px rgba(167, 200, 161, 0.14),
-      0 3px 8px rgba(167, 200, 161, 0.24);
-  }
-
   @media (max-width: 1023.98px) {
     body {
       padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
