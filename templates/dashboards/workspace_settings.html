@@ -3,56 +3,100 @@
 {% block title %}تنظیمات{% endblock %}
 
 {% block content %}
-<section class="min-w-0 max-w-full space-y-5 overflow-visible" data-dashboard-workspace-root data-settings-workspace>
-  <section class="relative overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="workspace-settings-title">
-    <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.92),rgba(255,255,255,0))]" aria-hidden="true"></div>
+<section class="min-w-0 max-w-full space-y-4 overflow-visible"
+         data-dashboard-workspace-root
+         data-dashboard-page="workspace-settings"
+         data-settings-workspace>
 
-    <div class="relative flex min-w-0 flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+  <section class="relative overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" aria-labelledby="workspace-settings-title">
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-36 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.14),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.9),rgba(255,255,255,0))]" aria-hidden="true"></div>
+
+    <div class="relative flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div class="min-w-0">
-        <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+        <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-2.5 py-1 text-[10px] font-black text-loomera-primaryText">
           <i class="fa-solid fa-gear text-[10px]" aria-hidden="true"></i>
           <span>تنظیمات</span>
         </span>
 
-        <h1 id="workspace-settings-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
+        <h1 id="workspace-settings-title" class="mt-2.5 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-2xl">
           تنظیمات مجموعه و حساب
         </h1>
-        <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-          فقط تنظیماتی که رفتار مجموعه یا حساب مدیر را تغییر می‌دهند اینجا هستند؛ کارهای روزانه مثل تقویم، تیم، خدمات، مالی و گزارش‌ها از منوی اصلی مدیریت می‌شوند.
+        <p class="mt-1.5 max-w-2xl text-xs leading-6 text-loomera-textSecondary sm:text-sm">
+          تنظیمات مجموعه، حساب مدیر و اعلان‌ها را از اینجا مدیریت کنید.
         </p>
       </div>
 
-      <a href="{% url 'dashboards:home' %}" class="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 sm:w-auto">
-        <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+      <a href="{% url 'dashboards:home' %}"
+         class="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textPrimary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 sm:w-auto">
+        <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
         <span>بازگشت به داشبورد</span>
       </a>
     </div>
   </section>
 
-  <section class="grid gap-4 xl:grid-cols-3" aria-label="دسته‌های تنظیمات">
+  <div class="lm-task-tabs-anchor"
+       data-lm-task-tabs-anchor="workspace-settings"
+       data-lm-task-tabs-label="بخش‌های تنظیمات"
+       aria-label="بخش‌های تنظیمات"></div>
+
+  <section class="space-y-4" aria-label="دسته‌های تنظیمات">
     {% for group in workspace_settings_groups %}
-      <article class="flex min-w-0 flex-col rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" data-settings-group="{{ group.key }}">
-        <div class="flex items-start gap-3">
-          <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="{{ group.icon }}" aria-hidden="true"></i>
-          </span>
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">{{ group.eyebrow }}</p>
-            <h2 class="mt-1 text-base font-black leading-7 text-loomera-textPrimary">{{ group.title }}</h2>
+      <article class="min-w-0 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card"
+               data-settings-group="{{ group.key }}"
+               data-dashboard-workspace-panel
+               data-lm-direct-section
+               data-lm-task-panel="workspace-settings"
+               data-lm-task-key="{{ group.key }}"
+               data-lm-task-label="{{ group.eyebrow }}"
+               data-lm-task-order="{{ forloop.counter }}"
+               {% if forloop.first %}data-lm-task-default{% endif %}>
+        <header class="border-b border-loomera-borderSoft px-4 py-3.5 sm:px-5">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="{{ group.icon }}" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0">
+              <p class="text-[10px] font-black text-loomera-primaryText">{{ group.eyebrow }}</p>
+              <h2 class="mt-0.5 text-base font-black leading-6 text-loomera-textPrimary">{{ group.title }}</h2>
+              <p class="mt-1 text-xs leading-5 text-loomera-textMuted">
+                {% if group.key == "business" %}
+                  پروفایل مجموعه و مسیر رزرو مشتری.
+                {% elif group.key == "account" %}
+                  اطلاعات حساب مدیر و امنیت ورود.
+                {% elif group.key == "notifications" %}
+                  اعلان‌های مدیر و اتصال پیام‌رسان.
+                {% else %}
+                  {{ group.description }}
+                {% endif %}
+              </p>
+            </div>
           </div>
-        </div>
+        </header>
 
-        <p class="mt-4 min-h-0 text-sm leading-7 text-loomera-textMuted xl:min-h-[3.5rem]">{{ group.description }}</p>
-
-        <div class="mt-5 space-y-2 border-t border-loomera-borderSoft pt-4">
+        <div class="grid gap-2.5 p-3 sm:grid-cols-2 sm:p-4">
           {% for item in group.items %}
-            <a href="{{ item.url }}" class="group/item flex min-w-0 items-center gap-3 rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 px-3.5 py-3.5 transition hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-soft">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition group-hover/item:border-loomera-primary/20 group-hover/item:text-loomera-primaryText">
+            <a href="{{ item.url }}"
+               class="group/item flex min-w-0 items-center gap-3 rounded-[18px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 px-3 py-3 transition hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-soft">
+              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition group-hover/item:border-loomera-primary/20 group-hover/item:text-loomera-primaryText">
                 <i class="{{ item.icon }} text-sm" aria-hidden="true"></i>
               </span>
               <span class="min-w-0 flex-1">
                 <span class="block text-sm font-black leading-6 text-loomera-textPrimary">{{ item.title }}</span>
-                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">{{ item.description }}</span>
+                <span class="mt-0.5 block text-[11px] leading-5 text-loomera-textMuted">
+                  {% if item.title == "پروفایل مجموعه" %}
+                    نام، آدرس، ساعات و تصاویر مجموعه
+                  {% elif item.title == "رزرو آنلاین و لینک‌ها" %}
+                    تنظیم رزرو و لینک‌های اشتراک
+                  {% elif item.title == "پروفایل مدیر" %}
+                    اطلاعات حساب مدیر مجموعه
+                  {% elif item.title == "تغییر رمز عبور" %}
+                    رمز ورود و امنیت حساب
+                  {% elif item.title == "اعلان‌ها و ارتباطات" %}
+                    اعلان‌ها و اتصال حساب بله
+                  {% else %}
+                    {{ item.description }}
+                  {% endif %}
+                </span>
               </span>
               <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-loomera-textMuted transition group-hover/item:bg-loomera-primarySoft group-hover/item:text-loomera-primaryText">
                 <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
@@ -62,22 +106,29 @@
         </div>
       </article>
     {% endfor %}
-  </section>
 
-  <section class="rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 sm:p-5" aria-labelledby="settings-legal-title">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div class="min-w-0">
-        <p class="text-[11px] font-black text-loomera-textMuted">اطلاعات حقوقی</p>
-        <h2 id="settings-legal-title" class="mt-1 text-sm font-black text-loomera-textPrimary">حریم خصوصی و شرایط استفاده</h2>
-      </div>
-      <div class="flex flex-wrap gap-2">
+    <section class="overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card"
+             aria-labelledby="settings-legal-title"
+             data-dashboard-workspace-panel
+             data-lm-direct-section
+             data-lm-task-panel="workspace-settings"
+             data-lm-task-key="legal"
+             data-lm-task-label="حقوقی"
+             data-lm-task-order="4">
+      <header class="border-b border-loomera-borderSoft px-4 py-3.5 sm:px-5">
+        <p class="text-[10px] font-black text-loomera-primaryText">اطلاعات حقوقی</p>
+        <h2 id="settings-legal-title" class="mt-0.5 text-base font-black text-loomera-textPrimary">حریم خصوصی و شرایط استفاده</h2>
+        <p class="mt-1 text-xs leading-5 text-loomera-textMuted">اسناد حقوقی لومرا و پیام‌رسان‌ها.</p>
+      </header>
+      <div class="flex flex-wrap gap-2 p-3 sm:p-4">
         {% for link in workspace_settings_legal_links %}
-          <a href="{{ link.url }}" class="inline-flex min-h-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:text-loomera-primaryText">
+          <a href="{{ link.url }}"
+             class="inline-flex min-h-9 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-3.5 py-1.5 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText">
             {{ link.label }}
           </a>
         {% endfor %}
       </div>
-    </div>
+    </section>
   </section>
 </section>
 {% endblock %}
