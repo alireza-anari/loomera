@@ -5,56 +5,50 @@
   {% url 'dashboards:salon_profile' as salon_profile_url %}
   {% url 'dashboards:quick_links' as quick_links_url %}
 
-  <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-page="online-booking">
-    <header class="relative overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="online-booking-title">
-      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
+  <section class="min-w-0 max-w-full space-y-3 overflow-visible lg:space-y-4" data-dashboard-workspace-root data-dashboard-page="online-booking">
+    <header class="relative overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3.5 shadow-lm-card sm:rounded-[28px] sm:p-4 lg:p-5" aria-labelledby="online-booking-title">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.13),transparent_44%),linear-gradient(180deg,rgba(245,240,255,0.72),rgba(255,255,255,0))]" aria-hidden="true"></div>
 
-      <div class="relative flex min-w-0 flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <div class="relative flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2">
-            <span class="inline-flex items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-              <i class="fa-solid fa-calendar-check text-[10px]" aria-hidden="true"></i>
-              رزرو آنلاین
-            </span>
-            <span class="lm-status-chip inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-black {% if online_booking_workspace.status.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif online_booking_workspace.status.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">
+            <h1 id="online-booking-title" class="text-lg font-black leading-7 tracking-tight text-loomera-textPrimary sm:text-xl lg:text-2xl">رزرو آنلاین</h1>
+            <span class="lm-status-chip inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[10px] font-black {% if online_booking_workspace.status.tone == 'success' %}bg-loomera-successSoft text-loomera-success{% elif online_booking_workspace.status.tone == 'warning' %}bg-loomera-warningSoft text-loomera-warning{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">
               <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>
               {{ online_booking_workspace.status.label }}
             </span>
           </div>
-
-          <h1 id="online-booking-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-            {{ online_booking_workspace.page_title }}
-          </h1>
-          <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-            {{ online_booking_workspace.status.description }}
+          <p class="mt-1.5 max-w-2xl text-xs leading-6 text-loomera-textMuted sm:text-sm">
+            رزرو آنلاین، آمادگی تیم و لینک‌های رزرو را از همین‌جا مدیریت کنید.
           </p>
         </div>
 
-        <div class="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col">
+        <div class="flex shrink-0 flex-wrap gap-2">
           {% if online_booking_workspace.public_is_active %}
             <a href="{{ online_booking_workspace.public_booking_url }}" target="_blank" rel="noopener"
-               class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5">
-              <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
+               class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-loomera-primary px-3.5 py-2 text-xs font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]" aria-hidden="true"></i>
               مشاهده صفحه مشتری
             </a>
           {% elif online_booking_workspace.readiness.next_action %}
             <a href="{{ online_booking_workspace.readiness.next_action.action_url }}"
-               class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(115,92,190,0.18)] transition hover:-translate-y-0.5">
+               class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-loomera-primary px-3.5 py-2 text-xs font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
               {{ online_booking_workspace.readiness.next_action.action_label }}
-              <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+              <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
             </a>
           {% endif %}
           <a href="{{ salon_profile_url }}"
-             class="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-2.5 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText">
-            <i class="fa-regular fa-pen-to-square text-xs" aria-hidden="true"></i>
+             class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-loomera-borderSoft bg-white px-3.5 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText">
+            <i class="fa-regular fa-pen-to-square text-[10px]" aria-hidden="true"></i>
             ویرایش صفحه سالن
           </a>
         </div>
       </div>
     </header>
 
-    <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-5">
-      <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" aria-labelledby="booking-setup-title">
+    <div data-lm-task-tabs-anchor="online-booking" data-lm-task-tabs-label="بخش‌های رزرو آنلاین"></div>
+
+    <section id="online-booking-setup" class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" aria-labelledby="booking-setup-title" data-lm-task-panel="online-booking" data-lm-task-key="setup" data-lm-task-label="راه‌اندازی" data-lm-task-default data-lm-task-order="1">
         <header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
           <div class="flex items-start gap-3">
             <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl {% if online_booking_workspace.readiness.is_ready %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-primarySoft text-loomera-primaryText{% endif %}">
@@ -126,9 +120,9 @@
             </div>
           </div>
         {% endif %}
-      </section>
+    </section>
 
-      <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" aria-labelledby="quick-links-entry-title">
+    <section id="online-booking-links" class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" aria-labelledby="quick-links-entry-title" data-lm-task-panel="online-booking" data-lm-task-key="links" data-lm-task-label="لینک‌ها" data-lm-task-order="3">
         <header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
           <div class="flex items-start gap-3">
             <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
@@ -157,11 +151,11 @@
             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
           </a>
         </div>
-      </section>
-    </div>
+    </section>
 
     {% if team_capacity_setup.members_count %}
-      <section class="rounded-[26px] border {% if team_capacity_setup.is_ready %}border-emerald-200 bg-emerald-50/70{% else %}border-amber-200 bg-amber-50/65{% endif %} p-4 shadow-lm-soft sm:p-5"
+      <section id="online-booking-team" class="rounded-[26px] border {% if team_capacity_setup.is_ready %}border-emerald-200 bg-emerald-50/70{% else %}border-amber-200 bg-amber-50/65{% endif %} p-4 shadow-lm-soft sm:p-5"
+               data-lm-task-panel="online-booking" data-lm-task-key="team" data-lm-task-label="آمادگی تیم" data-lm-task-order="2"
                data-team-capacity-setup
                aria-label="آمادگی رزرو اعضای تیم">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -229,7 +223,7 @@
       </section>
     {% endif %}
 
-    <details id="online-booking-page-improvement" class="group overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card">
+    <details id="online-booking-page-improvement" class="group overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" data-lm-task-panel="online-booking" data-lm-task-key="profile" data-lm-task-label="صفحه سالن" data-lm-task-order="4">
       <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6">
         <div class="flex min-w-0 items-center gap-3">
           <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-bgSubtle text-loomera-textSecondary">
