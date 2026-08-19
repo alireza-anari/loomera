@@ -1,6 +1,6 @@
 {% extends "dashboard_template.html" %}
 
-{% block title %}تقویم نوبت‌ها{% endblock %}
+{% block title %}تقویم تیم{% endblock %}
 
 {% block head %}
   {{ block.super }}
@@ -48,8 +48,9 @@
       box-shadow: 0 12px 24px rgba(115,92,190,.18);
     }
     .lm-calendar-mobile-day.is-active span { color: inherit; }
-    .lm-calendar-mobile-day.is-active span:last-child { background: rgba(255,255,255,.18); }
-    .lm-calendar-mobile-day:not(.is-active) span:last-child { background: #F6F4FA; }
+    .lm-calendar-mobile-day.is-active .lm-calendar-day-count { background: rgba(255,255,255,.18); }
+    .lm-calendar-mobile-day:not(.is-active) .lm-calendar-day-count { background: #F6F4FA; }
+    .lm-calendar-mobile-day.is-active .lm-calendar-leave-badge { color: #476844; background: rgba(225, 239, 221, .96); }
     .lm-calendar-mobile-day.is-today:not(.is-active) { border-color: rgba(115,92,190,.32); }
 
     .lm-calendar-agenda-card {
@@ -67,6 +68,29 @@
       background: color-mix(in srgb, var(--event-color) 10%, white);
       color: #383243;
       box-shadow: inset -3px 0 0 var(--event-color), 0 4px 12px rgba(50,45,65,.05);
+    }
+    .lm-calendar-leave-agenda-card {
+      border-color: rgba(127, 167, 122, .42);
+      background: linear-gradient(90deg, rgba(247, 251, 246, .98), rgba(235, 245, 232, .94));
+      box-shadow: inset -4px 0 0 #7FA77A;
+    }
+    .lm-calendar-leave-agenda-card [data-calendar-time] { border-color: rgba(127, 167, 122, .28); }
+    .lm-calendar-leave-badge {
+      border: 1px solid rgba(127, 167, 122, .28);
+      background: rgba(225, 239, 221, .88);
+      color: #476844;
+    }
+    .lm-calendar-leave-event {
+      border-style: dashed;
+      border-color: rgba(127, 167, 122, .7);
+      background: #F0F7EE;
+      color: #3F5F3C;
+      box-shadow: inset -3px 0 0 #7FA77A, 0 4px 12px rgba(50,45,65,.04);
+    }
+    .lm-calendar-all-day-leave {
+      border: 1px dashed rgba(127, 167, 122, .65);
+      background: #F0F7EE;
+      color: #3F5F3C;
     }
 
     @media (max-width: 1023.98px) {
@@ -93,12 +117,18 @@
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
-              <h1 id="appointments-page-title" class="text-xl font-black text-loomera-textPrimary sm:text-2xl">تقویم نوبت‌ها</h1>
+              <h1 id="appointments-page-title" class="text-xl font-black text-loomera-textPrimary sm:text-2xl">تقویم تیم</h1>
               <span class="inline-flex items-center rounded-full bg-loomera-bgSubtle px-3 py-1.5 text-xs font-black text-loomera-textSecondary">
                 {{ appointment_management.workspace.calendar_rows_count_label }} نوبت
               </span>
+              {% if appointment_management.workspace.calendar_leave_count %}
+                <span class="lm-calendar-leave-badge inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black">
+                  <i class="fa-regular fa-calendar-minus" aria-hidden="true"></i>
+                  {{ appointment_management.workspace.calendar_leave_count_label }} مرخصی
+                </span>
+              {% endif %}
             </div>
-            <p class="mt-1 text-sm leading-7 text-loomera-textMuted">برنامه هفتگی تیم را یک‌جا ببین، متخصص‌ها را با رنگ تشخیص بده و نوبت را سریع باز کن.</p>
+            <p class="mt-1 text-sm leading-7 text-loomera-textMuted">نوبت‌ها و مرخصی‌های تیم را یک‌جا ببین؛ مرخصی‌ها با ظاهر مستقل از نوبت نمایش داده می‌شوند.</p>
           </div>
 
           <div class="flex flex-col gap-2 sm:flex-row">

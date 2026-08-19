@@ -7,7 +7,9 @@
         </a>
         <a href="{{ calendar.today_url }}" data-appointments-ajax-link class="min-w-0 flex-1 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-2.5 text-center lg:min-w-[260px]">
           <span class="block truncate text-sm font-black text-loomera-textPrimary">{{ calendar.range_label }}</span>
-          <span class="mt-0.5 block text-[11px] text-loomera-textMuted">{{ calendar.appointment_count_label }} نوبت در این هفته</span>
+          <span class="mt-0.5 block text-[11px] text-loomera-textMuted">
+            {{ calendar.appointment_count_label }} نوبت در این هفته{% if calendar.leave_count %} • {{ calendar.leave_count_label }} مرخصی{% endif %}
+          </span>
         </a>
         <a href="{{ calendar.next_week_url }}" data-appointments-ajax-link class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-sm" aria-label="هفته بعد">
           <i class="fa-solid fa-angle-left" aria-hidden="true"></i>
@@ -35,6 +37,7 @@
           <span>{{ stylist.name }}</span>
           {% if stylist.id %}<span class="h-2.5 w-2.5 rounded-full" style="background: {{ stylist.color }}"></span>{% endif %}
           <span class="rounded-full bg-white/80 px-2 py-0.5 text-[10px]">{{ stylist.count_label }}</span>
+          {% if stylist.leave_count %}<span class="lm-calendar-leave-badge rounded-full px-2 py-0.5 text-[9px]">{{ stylist.leave_count_label }} مرخصی</span>{% endif %}
         </a>
       {% endfor %}
     </div>
@@ -44,7 +47,8 @@
         <a href="{{ day.url }}" data-appointments-ajax-link class="lm-calendar-mobile-day inline-flex min-w-[108px] shrink-0 flex-col items-center rounded-[20px] border px-3 py-3 text-center transition {% if day.is_focus %}is-active{% endif %} {% if day.is_today %}is-today{% endif %}">
           <span class="text-xs font-black">{{ day.weekday_label }}</span>
           <span class="mt-1 text-[11px]">{{ day.date_label }}</span>
-          <span class="mt-2 rounded-full px-2 py-0.5 text-[10px] font-black">{{ day.count_label }} نوبت</span>
+          <span class="lm-calendar-day-count mt-2 rounded-full px-2 py-0.5 text-[10px] font-black">{{ day.count_label }} نوبت</span>
+          {% if day.leave_count %}<span class="lm-calendar-leave-badge mt-1 rounded-full px-2 py-0.5 text-[9px] font-black">{{ day.leave_count_label }} مرخصی</span>{% endif %}
         </a>
       {% endfor %}
     </div>
@@ -54,38 +58,76 @@
         <div class="mb-3 flex items-center justify-between gap-3">
           <div>
             <p class="text-sm font-black text-loomera-textPrimary">{{ calendar.focus_day.full_label }}</p>
-            <p class="mt-1 text-xs text-loomera-textMuted">{{ calendar.focus_day.count_label }} نوبت برای این روز</p>
+            <p class="mt-1 text-xs text-loomera-textMuted">
+              {{ calendar.focus_day.count_label }} نوبت{% if calendar.focus_day.leave_count %} • {{ calendar.focus_day.leave_count_label }} مرخصی{% endif %}
+            </p>
           </div>
           <a href="{{ appointment_management.add_booking_url }}" class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primary text-white" aria-label="ثبت نوبت">
             <i class="fa-solid fa-plus" aria-hidden="true"></i>
           </a>
         </div>
 
-        {% if calendar.focus_day.appointments %}
+        {% if calendar.focus_day.events or calendar.focus_day.all_day_leaves %}
           <div class="space-y-2.5">
-            {% for item in calendar.focus_day.appointments %}
-              <a href="{{ item.detail_url }}" class="lm-calendar-agenda-card grid min-h-[76px] grid-cols-[76px_minmax(0,1fr)] items-center overflow-hidden rounded-[20px] border bg-white transition hover:-translate-y-0.5 hover:shadow-lm-soft" style="--event-color: {{ item.stylist_color }};">
+            {% for item in calendar.focus_day.all_day_leaves %}
+              <div class="lm-calendar-leave-agenda-card grid min-h-[76px] grid-cols-[76px_minmax(0,1fr)] items-center overflow-hidden rounded-[20px] border">
                 <div class="flex h-full flex-col items-center justify-center border-l px-2" data-calendar-time>
-                  <span class="text-sm font-black text-loomera-textPrimary">{{ item.time_label }}</span>
-                  {% if item.end_time_label %}<span class="mt-1 text-[10px] text-loomera-textMuted">تا {{ item.end_time_label }}</span>{% endif %}
+                  <i class="fa-regular fa-calendar-minus text-sm text-[#5E825A]" aria-hidden="true"></i>
+                  <span class="mt-1 text-[10px] font-black text-[#476844]">تمام روز</span>
                 </div>
                 <div class="min-w-0 px-4 py-3">
-                  <div class="flex items-start justify-between gap-3">
-                    <div class="min-w-0">
-                      <p class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service_name }}</p>
-                      <p class="mt-1 truncate text-xs text-loomera-textSecondary">{{ item.customer_name }}</p>
-                    </div>
-                    <span class="h-3 w-3 shrink-0 rounded-full" style="background: {{ item.stylist_color }}"></span>
+                  <div class="flex items-center gap-2">
+                    <span class="lm-calendar-leave-badge inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black">مرخصی</span>
+                    <span class="h-2.5 w-2.5 shrink-0 rounded-full" style="background: {{ item.stylist_color }}"></span>
                   </div>
-                  <p class="mt-2 truncate text-[11px] font-bold" data-calendar-stylist-name>{{ item.stylist_name }}</p>
+                  <p class="mt-2 truncate text-sm font-black text-loomera-textPrimary">{{ item.stylist_name }}</p>
+                  <p class="mt-1 truncate text-xs text-loomera-textSecondary">{{ item.reason }}</p>
                 </div>
-              </a>
+              </div>
+            {% endfor %}
+
+            {% for item in calendar.focus_day.events %}
+              {% if item.is_leave %}
+                <div class="lm-calendar-leave-agenda-card grid min-h-[76px] grid-cols-[76px_minmax(0,1fr)] items-center overflow-hidden rounded-[20px] border" style="--event-color: {{ item.event_color }};">
+                  <div class="flex h-full flex-col items-center justify-center border-l px-2" data-calendar-time>
+                    <span class="text-sm font-black text-loomera-textPrimary">{{ item.time_label }}</span>
+                    {% if item.end_time_label %}<span class="mt-1 text-[10px] text-loomera-textMuted">تا {{ item.end_time_label }}</span>{% endif %}
+                  </div>
+                  <div class="min-w-0 px-4 py-3">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <span class="lm-calendar-leave-badge inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black"><i class="fa-regular fa-calendar-minus" aria-hidden="true"></i>مرخصی</span>
+                        <p class="mt-2 truncate text-xs text-loomera-textSecondary">{{ item.reason }}</p>
+                      </div>
+                      <span class="h-3 w-3 shrink-0 rounded-full" style="background: {{ item.stylist_color }}"></span>
+                    </div>
+                    <p class="mt-2 truncate text-[11px] font-bold text-[#476844]">{{ item.stylist_name }}</p>
+                  </div>
+                </div>
+              {% else %}
+                <a href="{{ item.detail_url }}" class="lm-calendar-agenda-card grid min-h-[76px] grid-cols-[76px_minmax(0,1fr)] items-center overflow-hidden rounded-[20px] border bg-white transition hover:-translate-y-0.5 hover:shadow-lm-soft" style="--event-color: {{ item.event_color }};">
+                  <div class="flex h-full flex-col items-center justify-center border-l px-2" data-calendar-time>
+                    <span class="text-sm font-black text-loomera-textPrimary">{{ item.time_label }}</span>
+                    {% if item.end_time_label %}<span class="mt-1 text-[10px] text-loomera-textMuted">تا {{ item.end_time_label }}</span>{% endif %}
+                  </div>
+                  <div class="min-w-0 px-4 py-3">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <p class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service_name }}</p>
+                        <p class="mt-1 truncate text-xs text-loomera-textSecondary">{{ item.customer_name }}</p>
+                      </div>
+                      <span class="h-3 w-3 shrink-0 rounded-full" style="background: {{ item.stylist_color }}"></span>
+                    </div>
+                    <p class="mt-2 truncate text-[11px] font-bold" data-calendar-stylist-name>{{ item.stylist_name }}</p>
+                  </div>
+                </a>
+              {% endif %}
             {% endfor %}
           </div>
         {% else %}
           <div class="rounded-[22px] border border-dashed border-loomera-borderSoft bg-white px-4 py-8 text-center">
             <span class="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span>
-            <p class="mt-3 text-sm font-black text-loomera-textPrimary">برای این روز نوبتی ثبت نشده</p>
+            <p class="mt-3 text-sm font-black text-loomera-textPrimary">برای این روز نوبت یا مرخصی ثبت نشده</p>
             <a href="{{ appointment_management.add_booking_url }}" class="mt-3 inline-flex min-h-11 items-center justify-center rounded-2xl bg-loomera-primary px-4 text-xs font-black text-white">ثبت نوبت</a>
           </div>
         {% endif %}
@@ -101,9 +143,29 @@
               <span class="block text-xs font-black {% if day.is_focus %}text-loomera-primaryText{% else %}text-loomera-textPrimary{% endif %}">{{ day.weekday_label }}</span>
               <span class="mt-1 block text-[10px] text-loomera-textMuted">{{ day.date_label }}</span>
               {% if day.count %}<span class="mt-2 inline-flex rounded-full bg-white px-2 py-0.5 text-[9px] font-black text-loomera-textSecondary">{{ day.count_label }} نوبت</span>{% endif %}
+              {% if day.leave_count %}<span class="lm-calendar-leave-badge mt-1 inline-flex rounded-full px-2 py-0.5 text-[9px] font-black">{{ day.leave_count_label }} مرخصی</span>{% endif %}
             </a>
           {% endfor %}
         </div>
+
+        {% if calendar.has_all_day_leaves %}
+          <div class="grid grid-cols-[64px_repeat(7,minmax(0,1fr))] border-b border-loomera-borderSoft bg-[#F7FAF6]">
+            <div class="flex items-center justify-center border-l border-loomera-borderSoft px-1 py-2 text-[9px] font-black text-[#5E825A]">تمام‌روز</div>
+            {% for day in calendar.days %}
+              <div class="min-h-12 space-y-1 border-l border-loomera-borderSoft p-1.5">
+                {% for item in day.all_day_leaves %}
+                  <div class="lm-calendar-all-day-leave rounded-lg px-2 py-1.5" title="{{ item.reason }}">
+                    <div class="flex items-center gap-1">
+                      <i class="fa-regular fa-calendar-minus text-[9px]" aria-hidden="true"></i>
+                      <span class="truncate text-[9px] font-black">مرخصی</span>
+                    </div>
+                    <p class="mt-0.5 truncate text-[8px]">{{ item.stylist_name }}</p>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
 
         <div class="grid grid-cols-[64px_repeat(7,minmax(0,1fr))]">
           <div class="relative border-l border-loomera-borderSoft bg-loomera-bgSubtle/30" style="height: {{ calendar.calendar_height_px }}px;">
@@ -119,15 +181,26 @@
                   <span class="absolute inset-x-0 border-t border-loomera-borderSoft/70" style="top: {{ time.top_px }}px;"></span>
                 {% endfor %}
               </div>
-              {% for item in day.appointments %}
-                <a href="{{ item.detail_url }}" class="lm-calendar-week-event absolute z-[2] overflow-hidden rounded-xl border px-2 py-1.5 shadow-sm transition hover:z-10 hover:shadow-lm-card" style="--event-color: {{ item.stylist_color }}; top: {{ item.top_px }}px; height: {{ item.height_px }}px; right: calc({{ item.lane_offset }}% + 2px); width: calc({{ item.lane_width }}% - 4px);">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="truncate text-[10px] font-black">{{ item.time_label }}</span>
-                    <span class="h-2 w-2 shrink-0 rounded-full" style="background: {{ item.stylist_color }}"></span>
+              {% for item in day.events %}
+                {% if item.is_leave %}
+                  <div class="lm-calendar-week-event lm-calendar-leave-event absolute z-[2] overflow-hidden rounded-xl border px-2 py-1.5" style="--event-color: {{ item.event_color }}; top: {{ item.top_px }}px; height: {{ item.height_px }}px; right: calc({{ item.lane_offset }}% + 2px); width: calc({{ item.lane_width }}% - 4px);" title="مرخصی {{ item.stylist_name }}{% if item.reason %} - {{ item.reason }}{% endif %}">
+                    <div class="flex items-center justify-between gap-1">
+                      <span class="truncate text-[10px] font-black">{{ item.time_label }}</span>
+                      <i class="fa-regular fa-calendar-minus shrink-0 text-[9px]" aria-hidden="true"></i>
+                    </div>
+                    <p class="mt-0.5 truncate text-[10px] font-black">مرخصی</p>
+                    {% if item.height_px >= 58 %}<p class="mt-0.5 truncate text-[9px] opacity-80">{{ item.stylist_name }}</p>{% endif %}
                   </div>
-                  <p class="mt-0.5 truncate text-[10px] font-black">{{ item.service_name }}</p>
-                  {% if item.height_px >= 58 %}<p class="mt-0.5 truncate text-[9px] opacity-75">{{ item.customer_name }}</p>{% endif %}
-                </a>
+                {% else %}
+                  <a href="{{ item.detail_url }}" class="lm-calendar-week-event absolute z-[2] overflow-hidden rounded-xl border px-2 py-1.5 shadow-sm transition hover:z-10 hover:shadow-lm-card" style="--event-color: {{ item.event_color }}; top: {{ item.top_px }}px; height: {{ item.height_px }}px; right: calc({{ item.lane_offset }}% + 2px); width: calc({{ item.lane_width }}% - 4px);">
+                    <div class="flex items-center justify-between gap-1">
+                      <span class="truncate text-[10px] font-black">{{ item.time_label }}</span>
+                      <span class="h-2 w-2 shrink-0 rounded-full" style="background: {{ item.stylist_color }}"></span>
+                    </div>
+                    <p class="mt-0.5 truncate text-[10px] font-black">{{ item.service_name }}</p>
+                    {% if item.height_px >= 58 %}<p class="mt-0.5 truncate text-[9px] opacity-75">{{ item.customer_name }}</p>{% endif %}
+                  </a>
+                {% endif %}
               {% endfor %}
             </div>
           {% endfor %}
@@ -142,7 +215,8 @@
             <span class="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-2xl bg-white px-3 text-xs font-black text-loomera-textSecondary">
               <span class="h-2.5 w-2.5 rounded-full" style="background: {{ stylist.color }}"></span>
               {{ stylist.name }}
-              <span class="text-loomera-textMuted">{{ stylist.count_label }}</span>
+              <span class="text-loomera-textMuted">{{ stylist.count_label }} نوبت</span>
+              {% if stylist.leave_count %}<span class="lm-calendar-leave-badge rounded-full px-2 py-0.5 text-[9px]">{{ stylist.leave_count_label }} مرخصی</span>{% endif %}
             </span>
           {% endif %}
         {% endfor %}

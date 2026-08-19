@@ -5758,87 +5758,6 @@ class TeamMemberView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
 
         sent_invite_cards = _build_manager_sent_invites(salon)
 
-        today = timezone.localdate()
-        upcoming_time_offs_raw = list(
-            StylistTimeOff.objects.filter(
-                stylist__stylists_of_salon=salon,
-                date__gte=today,
-            )
-            .select_related("stylist__user")
-            .order_by("date", "start_time")[:12]
-        )
-        upcoming_time_offs = []
-        for item in upcoming_time_offs_raw:
-            if item.start_time and item.end_time:
-                time_label = (
-                    f"{format_time_fa(item.start_time)} تا {format_time_fa(item.end_time)}"
-                )
-            elif item.start_time:
-                time_label = format_time_fa(item.start_time)
-            else:
-                time_label = "تمام روز"
-
-            upcoming_time_offs.append(
-                {
-                    "stylist_name": item.stylist.get_fullName(),
-                    "date_label": _safe_jalali_label(
-                        item.date, formatter=format_jalali_with_weekday
-                    ),
-                    "time_label": time_label,
-                    "reason": item.reason or "بدون توضیح",
-                    "profile_url": reverse(
-                        "dashboards:stylist_overview",
-                        kwargs={"stylist_id": item.stylist.user.id},
-                    ),
-                }
-            )
-
-        service_coverage_raw = list(
-            GroupServices.objects.filter(services_of_group__services_of_salon=salon)
-            .annotate(
-                services_count=Count(
-                    "services_of_group",
-                    filter=Q(services_of_group__services_of_salon=salon),
-                    distinct=True,
-                ),
-                stylists_count=Count(
-                    "services_of_group__stylists",
-                    filter=Q(
-                        services_of_group__stylists__stylists_of_salon=salon,
-                        services_of_group__stylists__is_active=True,
-                    ),
-                    distinct=True,
-                ),
-            )
-            .order_by("group_title")
-            .distinct()
-        )
-        service_coverage = []
-        for group in service_coverage_raw:
-            has_coverage = (group.stylists_count or 0) > 0
-            service_coverage.append(
-                {
-                    "group_title": group.group_title,
-                    "services_count_label": to_persian_digits(
-                        group.services_count or 0
-                    ),
-                    "stylists_count_label": to_persian_digits(
-                        group.stylists_count or 0
-                    ),
-                    "coverage_label": (
-                        "پوشش دارد" if has_coverage else "بدون پوشش"
-                    ),
-                    "coverage_badge_class": (
-                        "bg-emerald-100 text-emerald-700"
-                        if has_coverage
-                        else "bg-amber-100 text-amber-700"
-                    ),
-                }
-            )
-        coverage_gap_count = sum(
-            1 for group in service_coverage_raw if (group.stylists_count or 0) == 0
-        )
-
         sort_labels = {
             "name_asc": "نام (الف تا ی)",
             "name_desc": "نام (ی تا الف)",
@@ -5913,14 +5832,6 @@ class TeamMemberView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
                 ),
                 "sent_invites": len(sent_invite_cards),
                 "sent_invites_label": to_persian_digits(len(sent_invite_cards)),
-                "upcoming_time_offs": upcoming_time_offs,
-                "upcoming_time_off_count": len(upcoming_time_offs_raw),
-                "upcoming_time_off_count_label": to_persian_digits(
-                    len(upcoming_time_offs_raw)
-                ),
-                "service_coverage": service_coverage,
-                "coverage_gap_count": coverage_gap_count,
-                "coverage_gap_count_label": to_persian_digits(coverage_gap_count),
                 "query": query,
                 "result_count_label": f"{to_persian_digits(total_count)} عضو",
                 "sort_label": sort_labels.get(applied_sort_by, "نام (الف تا ی)"),
@@ -6227,11 +6138,12 @@ class StylistOverviewView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, 
                 Sum("price", filter=Q(date__gte=start_current_month)),
                 Value(0),
             ),
-            current_appointments=Count("id", filter=Q(date__gte=start_current_month)),
-            current_unique_clients=Count(
-                "order__customer",
-                distinct=True,
-                filter=Q(date__gte=start_current_month),
+            current_appointments=Count(
+                "id",
+                filter=Q(
+                    date__gte=start_current_month,
+                    order__status="completed",
+                ),
             ),
             prev_sales=Coalesce(
                 Sum(
@@ -6242,12 +6154,11 @@ class StylistOverviewView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, 
             ),
             prev_appointments=Count(
                 "id",
-                filter=Q(date__lt=start_current_month, date__gte=start_last_month),
-            ),
-            prev_unique_clients=Count(
-                "order__customer",
-                distinct=True,
-                filter=Q(date__lt=start_current_month, date__gte=start_last_month),
+                filter=Q(
+                    date__lt=start_current_month,
+                    date__gte=start_last_month,
+                    order__status="completed",
+                ),
             ),
         )
 
@@ -6258,11 +6169,6 @@ class StylistOverviewView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, 
             stats["current_appointments"],
             stats["prev_appointments"],
         )
-        clients_change = calculate_percentage_change(
-            stats["current_unique_clients"],
-            stats["prev_unique_clients"],
-        )
-
         upcoming_appointments_qs = (
             OrderDetail.objects.filter(
                 salon=salon,
@@ -6309,24 +6215,17 @@ class StylistOverviewView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, 
         current_salon_services = list(
             current_salon_services_qs.order_by("service_name")
         )
-        monthly_workload = stats["current_appointments"] or 0
-        workload_hint = "سبک"
-        if monthly_workload >= 25:
-            workload_hint = "پُرتقاضا"
-        elif monthly_workload >= 10:
-            workload_hint = "متعادل"
-
         avg_score_value = float(stylist.get_average_score() or 0)
-        avg_score_label = (
-            to_persian_digits(f"{avg_score_value:.1f}") if avg_score_value else "۰"
+        satisfaction_percent = (
+            max(0, min(100, int(round((avg_score_value / 5) * 100))))
+            if avg_score_value > 0
+            else None
         )
-        rating_label = "بدون امتیاز"
-        if avg_score_value >= 4.5:
-            rating_label = "عالی"
-        elif avg_score_value >= 3:
-            rating_label = "خوب"
-        elif avg_score_value > 0:
-            rating_label = "متوسط"
+        satisfaction_percent_label = (
+            to_persian_digits(satisfaction_percent)
+            if satisfaction_percent is not None
+            else "—"
+        )
 
         member_status_label = "غیرفعال"
         member_status_badge_class = "bg-slate-200 text-slate-600"
@@ -6403,7 +6302,6 @@ class StylistOverviewView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, 
             "job_detail": job_detail,
             "service_groups": service_groups,
             "current_salon_services": current_salon_services,
-            "workload_hint": workload_hint,
             "upcoming_appointments": [
                 self._serialize_upcoming_appointment(item)
                 for item in upcoming_appointments_qs
@@ -6419,10 +6317,7 @@ class StylistOverviewView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, 
                 "sales_change": sales_change,
                 "appointments": to_persian_digits(stats["current_appointments"]),
                 "appointments_change": appointments_change,
-                "clients": to_persian_digits(stats["current_unique_clients"]),
-                "clients_change": clients_change,
-                "avg_score": avg_score_label,
-                "rating_label": rating_label,
+                "satisfaction_percent_label": satisfaction_percent_label,
             },
             "stylist_workspace": {
                 "member_status_label": member_status_label,
