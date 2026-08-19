@@ -1551,6 +1551,10 @@ class SalonsCustomersPageView(
             segment_label = "نیازمند پیگیری"
             segment_badge_class = "bg-amber-100 text-amber-700"
 
+        detail_url = reverse(
+            "dashboards:customer_detail", kwargs={"customer_id": customer.pk}
+        )
+
         return {
             "id": customer.pk,
             "full_name": full_name,
@@ -1569,9 +1573,8 @@ class SalonsCustomersPageView(
             "last_visit_raw": last_visit,
             "segment_label": segment_label,
             "segment_badge_class": segment_badge_class,
-            "detail_url": reverse(
-                "dashboards:customer_detail", kwargs={"customer_id": customer.pk}
-            ),
+            "detail_url": detail_url,
+            "appointments_popup_url": detail_url,
             "appointments_url": f"{reverse('dashboards:appointment_calendar', kwargs={'salon_id': salon.id})}?q={mobile or full_name}",
             "call_url": f"tel:{mobile}" if mobile else "",
             "has_profile_image": bool(getattr(customer, "profile_image", None)),
@@ -1803,6 +1806,17 @@ class CustomerDetailView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, V
             .select_related("order", "service", "stylist__user", "salon")
             .order_by("-date", "-time", "-id")
         )
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse(
+                {
+                    "appointments": [
+                        self._serialize_appointment(item, salon)
+                        for item in appointment_qs
+                    ]
+                },
+                json_dumps_params={"ensure_ascii": False},
+            )
+
         appointments = list(appointment_qs[:12])
 
         stats = appointment_qs.aggregate(
