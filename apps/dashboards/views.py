@@ -2300,6 +2300,10 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
             Salon.objects.select_related("salon_manager__user", "neighborhood"),
             salon_manager__user=request.user,
         )
+        team_capacity_setup = _build_team_capacity_setup_workspace(
+            salon=salon,
+        )
+
         # Beta UX: Online Booking uses the same canonical readiness payload as
         # onboarding and Dashboard Home. Do not create a parallel readiness score.
         readiness = build_salon_readiness_checklist(salon)
@@ -2341,6 +2345,7 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
 
         context = {
             "salon": salon,
+            "team_capacity_setup": team_capacity_setup,
             "online_booking_workspace": {
                 "page_title": "صفحه سالن و رزرو آنلاین",
                 "readiness": readiness,
@@ -7773,10 +7778,6 @@ class ScheduledShiftsView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, 
             salon_manager__user=request.user,
         )
 
-        team_capacity_setup = _build_team_capacity_setup_workspace(
-            salon=salon,
-        )
-
         start_date_str = request.GET.get("start_date")
         if start_date_str:
             try:
@@ -8081,7 +8082,6 @@ class ScheduledShiftsView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, 
             "salon": salon,
             "stylists_with_hours": stylists_data,
             "schedule_by_day": schedule_by_day,
-            "team_capacity_setup": team_capacity_setup,
             "setup_readiness": setup_readiness,
             "setup_next_action": setup_next_action,
             "date_range_display": date_range_display,

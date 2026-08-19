@@ -38,7 +38,7 @@ class TeamCapacitySetupWorkspaceTests(
             return_value=None,
         ):
             return self.client.get(
-                reverse("dashboards:scheduled_shifts")
+                reverse("dashboards:online_booking")
             )
 
     @staticmethod
@@ -228,3 +228,17 @@ class TeamCapacitySetupWorkspaceTests(
             response,
             'data-team-capacity-setup',
         )
+
+    def test_capacity_setup_is_not_rendered_on_work_schedule_page(self):
+        with patch(
+            "apps.dashboards.views._redirect_to_required_onboarding",
+            return_value=None,
+        ):
+            response = self.client.get(
+                reverse("dashboards:scheduled_shifts")
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "data-team-capacity-setup")
+        self.assertNotIn("team_capacity_setup", response.context)
+
