@@ -12,7 +12,7 @@
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">مدیریت سالن</p>
           <h1 class="mt-1 text-2xl font-black leading-9 text-loomera-textPrimary sm:text-3xl">تیم</h1>
-          <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">اعضا، درخواست‌های همکاری، دعوت‌ها، مرخصی‌های پیش‌رو و پوشش خدمات را از یک صفحه مدیریت کن.</p>
+          <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">اعضا، درخواست‌های همکاری و دعوت‌ها را از یک صفحه مدیریت کن.</p>
         </div>
 
         <div class="flex shrink-0 gap-2">
@@ -24,8 +24,6 @@
         <span class="rounded-full bg-loomera-bgSubtle px-3 py-2 text-loomera-textSecondary">{{ team_workspace.result_count_label }}</span>
         {% if team_workspace.pending_requests %}<a href="#team-member-section-requests" class="rounded-full bg-amber-50 px-3 py-2 text-amber-700">{{ team_workspace.pending_requests_label }} درخواست همکاری</a>{% endif %}
         {% if team_workspace.sent_invites %}<a href="#team-member-section-invites" class="rounded-full bg-sky-50 px-3 py-2 text-sky-700">{{ team_workspace.sent_invites_label }} دعوت باز</a>{% endif %}
-        {% if team_workspace.upcoming_time_off_count %}<a href="#team-member-section-timeoff" class="rounded-full bg-violet-50 px-3 py-2 text-violet-700">{{ team_workspace.upcoming_time_off_count_label }} مرخصی پیش‌رو</a>{% endif %}
-        {% if team_workspace.coverage_gap_count %}<a href="#team-member-section-coverage" class="rounded-full bg-amber-50 px-3 py-2 text-amber-700">{{ team_workspace.coverage_gap_count_label }} گروه بدون پوشش</a>{% endif %}
       </div>
     </header>
 
@@ -201,62 +199,6 @@
     </section>
 
 
-
-    <section id="team-member-section-timeoff" class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5 lg:p-6" data-lm-task-panel="team-member" data-lm-task-key="timeoff" data-lm-task-label="مرخصی‌ها" data-lm-task-order="4">
-      <div class="mb-4">
-        <p class="text-[11px] font-black text-loomera-primaryText">ظرفیت تیم</p>
-        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">مرخصی‌های پیش‌رو</h2>
-        <p class="mt-1 text-xs leading-6 text-loomera-textMuted">مرخصی‌های ثبت‌شده اعضا را اینجا ببین تا قبل از رزروهای آینده از ظرفیت واقعی تیم خبر داشته باشی.</p>
-      </div>
-
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {% for item in team_workspace.upcoming_time_offs %}
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-            <div class="flex min-w-0 items-start justify-between gap-3">
-              <a href="{{ item.profile_url }}" class="min-w-0 truncate text-sm font-black text-loomera-textPrimary transition hover:text-loomera-primaryText">{{ item.stylist_name }}</a>
-              <span class="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-bold text-loomera-textMuted">{{ item.date_label }}</span>
-            </div>
-            <p class="mt-2 text-xs font-black text-loomera-primaryText">{{ item.time_label }}</p>
-            <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">{{ item.reason }}</p>
-          </article>
-        {% empty %}
-          <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-8 text-center md:col-span-2 xl:col-span-3">
-            <i class="fa-regular fa-calendar-check text-xl text-loomera-primaryText" aria-hidden="true"></i>
-            <h3 class="mt-3 text-sm font-black text-loomera-textPrimary">مرخصی پیش‌رویی ثبت نشده</h3>
-            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">در حال حاضر مرخصی آینده‌ای برای اعضای تیم وجود ندارد.</p>
-          </div>
-        {% endfor %}
-      </div>
-    </section>
-
-    <section id="team-member-section-coverage" class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5 lg:p-6" data-lm-task-panel="team-member" data-lm-task-key="coverage" data-lm-task-label="پوشش خدمات" data-lm-task-order="5">
-      <div class="mb-4">
-        <p class="text-[11px] font-black text-loomera-primaryText">تقسیم خدمات</p>
-        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">پوشش خدمات بین اعضا</h2>
-        <p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای هر گروه خدمات ببین چند خدمت فعال و چند عضو پوشش‌دهنده دارد؛ گروه بدون پوشش سریع مشخص می‌شود.</p>
-      </div>
-
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {% for group in team_workspace.service_coverage %}
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4">
-            <div class="flex min-w-0 items-start justify-between gap-3">
-              <h3 class="min-w-0 truncate text-sm font-black text-loomera-textPrimary">{{ group.group_title }}</h3>
-              <span class="inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[11px] font-black {{ group.coverage_badge_class }}">{{ group.coverage_label }}</span>
-            </div>
-            <div class="mt-4 grid grid-cols-2 gap-3">
-              <div class="rounded-2xl bg-white px-3 py-3"><p class="text-[11px] font-bold text-loomera-textMuted">خدمات</p><p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ group.services_count_label }}</p></div>
-              <div class="rounded-2xl bg-white px-3 py-3"><p class="text-[11px] font-bold text-loomera-textMuted">اعضای پوشش‌دهنده</p><p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ group.stylists_count_label }}</p></div>
-            </div>
-          </article>
-        {% empty %}
-          <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-8 text-center md:col-span-2 xl:col-span-3">
-            <i class="fa-solid fa-scissors text-xl text-loomera-primaryText" aria-hidden="true"></i>
-            <h3 class="mt-3 text-sm font-black text-loomera-textPrimary">هنوز پوشش خدمتی ثبت نشده</h3>
-            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">بعد از اتصال خدمات به اعضای تیم، وضعیت پوشش گروه‌ها اینجا نمایش داده می‌شود.</p>
-          </div>
-        {% endfor %}
-      </div>
-    </section>
 
     <details id="team-member-section-invites" class="group rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" data-lm-task-panel="team-member" data-lm-task-key="invites" data-lm-task-label="دعوت متخصص" data-lm-task-order="3">
       <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:p-5">

@@ -46,9 +46,6 @@
                 <span class="lm-status-chip inline-flex items-center rounded-full px-3 py-1 text-[11px] font-black {{ stylist_workspace.member_status_badge_class }}">
                   {{ stylist_workspace.member_status_label }}
                 </span>
-                <span class="inline-flex items-center rounded-full bg-loomera-bgSubtle px-3 py-1 text-[11px] font-black text-loomera-textSecondary">
-                  {{ workload_hint }}
-                </span>
               </div>
               <p class="mt-3 text-sm font-black text-loomera-textPrimary">{{ stylist.expert|default:"بدون تخصص ثبت‌شده" }}</p>
               <p class="mt-2 inline-flex items-center gap-2 text-xs font-bold text-loomera-textMuted">
@@ -74,30 +71,23 @@
           <div class="mb-3 flex items-center justify-between gap-3">
             <div>
               <h2 class="text-base font-black text-loomera-textPrimary">عملکرد ماه جاری</h2>
-              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فقط عملکرد همین عضو در مجموعه فعلی.</p>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-3 xl:grid-cols-4">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <article class="rounded-2xl border border-loomera-borderSoft bg-white p-4">
               <p class="text-[11px] font-bold text-loomera-textMuted">فروش</p>
               <p class="mt-2 text-base font-black text-loomera-textPrimary">{{ stats.sales }}</p>
               <p class="mt-1 text-[10px] font-bold text-loomera-textMuted">{{ stats.sales_change }}٪ نسبت به ماه قبل</p>
             </article>
             <article class="rounded-2xl border border-loomera-borderSoft bg-white p-4">
-              <p class="text-[11px] font-bold text-loomera-textMuted">نوبت‌ها</p>
+              <p class="text-[11px] font-bold text-loomera-textMuted">نوبت‌های انجام‌شده</p>
               <p class="mt-2 text-base font-black text-loomera-textPrimary">{{ stats.appointments }}</p>
               <p class="mt-1 text-[10px] font-bold text-loomera-textMuted">{{ stats.appointments_change }}٪ نسبت به ماه قبل</p>
             </article>
             <article class="rounded-2xl border border-loomera-borderSoft bg-white p-4">
-              <p class="text-[11px] font-bold text-loomera-textMuted">مشتریان یکتا</p>
-              <p class="mt-2 text-base font-black text-loomera-textPrimary">{{ stats.clients }}</p>
-              <p class="mt-1 text-[10px] font-bold text-loomera-textMuted">{{ stats.clients_change }}٪ نسبت به ماه قبل</p>
-            </article>
-            <article class="rounded-2xl border border-loomera-borderSoft bg-white p-4">
-              <p class="text-[11px] font-bold text-loomera-textMuted">امتیاز میانگین</p>
-              <p class="mt-2 text-base font-black text-loomera-textPrimary">{{ stats.avg_score }}</p>
-              <p class="mt-1 text-[10px] font-bold text-loomera-textMuted">{{ stats.rating_label }}</p>
+              <p class="text-[11px] font-bold text-loomera-textMuted">درصد رضایت</p>
+              <p class="mt-2 text-base font-black text-loomera-textPrimary">{% if stats.satisfaction_percent_label == '—' %}—{% else %}{{ stats.satisfaction_percent_label }}٪{% endif %}</p>
             </article>
           </div>
         </div>

@@ -13,6 +13,7 @@ from apps.orders.models import Order, OrderDetail
 from apps.orders.lifecycle import determine_current_stage, mark_review_requested
 from apps.salons.models import SalonOpeningHours
 from apps.payments.finance import wallet_refund_amount_for_order
+from apps.stylists.models import StaffLeaveRequest
 from .jalali_utils import (
     format_jalali_numeric,
     format_jalali_range,
@@ -129,6 +130,7 @@ CALENDAR_FALLBACK_COLORS = [
     "#A56B35",  # warm brown
     "#5F6FC4",  # indigo
 ]
+CALENDAR_LEAVE_COLOR = "#7FA77A"
 
 PERSIAN_WEEKDAY_LABELS = {
     5: "شنبه",
@@ -218,6 +220,34 @@ def _appointment_minutes(item):
             duration = end - start
     return start, max(15, duration)
 
+def _leave_minutes(item):
+    if not item.start_time:
+        return None, None
+    start = item.start_time.hour * 60 + item.start_time.minute
+    duration = 60
+    if item.end_time:
+        end = item.end_time.hour * 60 + item.end_time.minute
+        if end > start:
+            duration = end - start
+    return start, max(15, duration)
+
+
+def _serialize_calendar_leave(item, stylist_color=None):
+    stylist_color = stylist_color or getattr(item.stylist, "calendar_color", "") or "#6d5ef7"
+    is_all_day = not bool(item.start_time)
+    return {
+        "event_type": "leave",
+        "is_leave": True,
+        "is_all_day": is_all_day,
+        "event_color": CALENDAR_LEAVE_COLOR,
+        "stylist_color": stylist_color,
+        "stylist_name": item.stylist.get_fullName(),
+        "time_label": "تمام روز" if is_all_day else format_time_fa(item.start_time),
+        "end_time_label": format_time_fa(item.end_time) if item.end_time else "",
+        "reason": (item.reason or "").strip() or "بدون توضیح",
+    }
+
+
 def _assign_calendar_lanes(events):
     """Assign simple overlap lanes so simultaneous bookings stay readable."""
     if not events:
@@ -271,9 +301,25 @@ def _build_week_calendar(
         .order_by("date", "time", "id")
     )
 
+    leave_count_qs = StaffLeaveRequest.objects.filter(
+        salon=salon,
+        status=StaffLeaveRequest.Status.APPROVED,
+        date__range=(week_start, week_end),
+    ).select_related("stylist__user")
+    week_leave_count_items = list(leave_count_qs.order_by("date", "start_time", "id"))
+    if selected_stylist_id:
+        week_leave_items = [
+            item for item in week_leave_count_items if item.stylist_id == selected_stylist_id
+        ]
+    else:
+        week_leave_items = week_leave_count_items
+
     start_candidates = []
     end_candidates = []
     serialized_by_day = {week_start + timedelta(days=offset): [] for offset in range(7)}
+    all_day_leaves_by_day = {
+        week_start + timedelta(days=offset): [] for offset in range(7)
+    }
 
     for item in week_items:
         start_minutes, duration = _appointment_minutes(item)
@@ -283,6 +329,30 @@ def _build_week_calendar(
         start_candidates.append(start_minutes)
         end_candidates.append(end_minutes)
         serialized = _serialize_appointment(item, stylist_color=color_map.get(item.stylist_id))
+        serialized.update(
+            {
+                "event_type": "appointment",
+                "is_leave": False,
+                "event_color": serialized["stylist_color"],
+                "start_minutes": start_minutes,
+                "end_minutes": end_minutes,
+                "duration_minutes": duration,
+            }
+        )
+        serialized_by_day.setdefault(item.date, []).append(serialized)
+
+    for item in week_leave_items:
+        serialized = _serialize_calendar_leave(
+            item,
+            stylist_color=color_map.get(item.stylist_id),
+        )
+        start_minutes, duration = _leave_minutes(item)
+        if start_minutes is None:
+            all_day_leaves_by_day.setdefault(item.date, []).append(serialized)
+            continue
+        end_minutes = start_minutes + duration
+        start_candidates.append(start_minutes)
+        end_candidates.append(end_minutes)
         serialized.update(
             {
                 "start_minutes": start_minutes,
@@ -320,11 +390,19 @@ def _build_week_calendar(
         day = week_start + timedelta(days=offset)
         events = _assign_calendar_lanes(serialized_by_day.get(day, []))
         for event in events:
-            event["top_px"] = int(((event["start_minutes"] - calendar_start) / 30) * CALENDAR_HALF_HOUR_PX)
+            event["top_px"] = int(
+                ((event["start_minutes"] - calendar_start) / 30)
+                * CALENDAR_HALF_HOUR_PX
+            )
             event["height_px"] = max(
                 46,
                 int((event["duration_minutes"] / 30) * CALENDAR_HALF_HOUR_PX) - 4,
             )
+
+        appointment_events = [event for event in events if not event.get("is_leave")]
+        timed_leave_events = [event for event in events if event.get("is_leave")]
+        all_day_leaves = all_day_leaves_by_day.get(day, [])
+        leave_count = len(timed_leave_events) + len(all_day_leaves)
 
         day_item = {
             "date": day,
@@ -333,9 +411,13 @@ def _build_week_calendar(
             "full_label": format_jalali_with_weekday(day),
             "is_focus": day == focus_date,
             "is_today": day == timezone.localdate(),
-            "appointments": events,
-            "count": len(events),
-            "count_label": to_persian_digits(len(events)),
+            "events": events,
+            "appointments": appointment_events,
+            "all_day_leaves": all_day_leaves,
+            "count": len(appointment_events),
+            "count_label": to_persian_digits(len(appointment_events)),
+            "leave_count": leave_count,
+            "leave_count_label": to_persian_digits(leave_count),
             "url": _build_query_url(
                 base_url,
                 current_params,
@@ -359,6 +441,10 @@ def _build_week_calendar(
     for item in count_items:
         stylist_week_counts[item.stylist_id] = stylist_week_counts.get(item.stylist_id, 0) + 1
 
+    stylist_leave_counts = {}
+    for item in week_leave_count_items:
+        stylist_leave_counts[item.stylist_id] = stylist_leave_counts.get(item.stylist_id, 0) + 1
+
     stylist_chips = [
         {
             "id": None,
@@ -367,17 +453,22 @@ def _build_week_calendar(
             "is_active": not selected_stylist_id,
             "count": len(count_items),
             "count_label": to_persian_digits(len(count_items)),
+            "leave_count": len(week_leave_count_items),
+            "leave_count_label": to_persian_digits(len(week_leave_count_items)),
             "url": _build_query_url(base_url, current_params, stylist=None),
         }
     ]
     for stylist in calendar_stylists:
         count = stylist_week_counts.get(stylist["id"], 0)
+        leave_count = stylist_leave_counts.get(stylist["id"], 0)
         stylist_chips.append(
             {
                 **{key: stylist[key] for key in ("id", "name", "color", "avatar_url", "initials")},
                 "is_active": stylist["id"] == selected_stylist_id,
                 "count": count,
                 "count_label": to_persian_digits(count),
+                "leave_count": leave_count,
+                "leave_count_label": to_persian_digits(leave_count),
                 "url": _build_query_url(base_url, current_params, stylist=stylist["id"]),
             }
         )
@@ -398,6 +489,9 @@ def _build_week_calendar(
         "calendar_end_minutes": calendar_end,
         "appointment_count": len(week_items),
         "appointment_count_label": to_persian_digits(len(week_items)),
+        "leave_count": len(week_leave_items),
+        "leave_count_label": to_persian_digits(len(week_leave_items)),
+        "has_all_day_leaves": any(day["all_day_leaves"] for day in days),
         "previous_week_url": _build_query_url(
             base_url,
             current_params,
@@ -2208,6 +2302,8 @@ def build_appointment_management_context(request, salon):
                 "dashboard_url": _safe_reverse("dashboards:salon_manager_dashboard"),
                 "rows_count_label": to_persian_digits(rows_count),
                 "calendar_rows_count_label": week_calendar["appointment_count_label"],
+                "calendar_leave_count_label": week_calendar["leave_count_label"],
+                "calendar_leave_count": week_calendar["leave_count"],
                 "unpaid_count_label": to_persian_digits(unpaid_count),
                 "paid_count_label": to_persian_digits(paid_count),
                 "cancelled_count_label": to_persian_digits(cancelled_count),
