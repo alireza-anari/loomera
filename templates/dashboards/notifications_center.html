@@ -551,6 +551,7 @@
              data-notification-card
              data-notification-category="{{ item.category }}"
              data-notification-unread="{% if item.is_unread %}true{% else %}false{% endif %}"
+             data-notification-read-url="{{ item.read_url|default:'' }}"
              data-notification-search-value="{{ item.title|escape }} {{ item.description|escape }} {{ item.meta|escape }} {{ item.category_label|escape }}">
             <span class="lm-notification-icon" aria-hidden="true">
               {% if "دریافت وجه" in item.title or "پرداخت" in item.title %}
@@ -682,6 +683,45 @@
           card.setAttribute("aria-hidden", visible ? "false" : "true");
         };
 
+        const csrfToken = () => {
+          const cookie = document.cookie
+            .split(";")
+            .map((part) => part.trim())
+            .find((part) => part.startsWith("csrftoken="));
+          return cookie ? decodeURIComponent(cookie.slice("csrftoken=".length)) : "";
+        };
+
+        const markReadBeforeNavigation = async (card) => {
+          const readUrl = card.dataset.notificationReadUrl || "";
+          const destination = card.href;
+          const isUnread = card.dataset.notificationUnread === "true";
+
+          if (!isUnread || !readUrl) {
+            window.location.assign(destination);
+            return;
+          }
+
+          try {
+            const response = await fetch(readUrl, {
+              method: "POST",
+              credentials: "same-origin",
+              headers: {
+                "X-CSRFToken": csrfToken(),
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json",
+              },
+            });
+
+            if (response.ok) {
+              card.dataset.notificationUnread = "false";
+            }
+          } catch (error) {
+            console.warn("Unable to mark notification as read before navigation.", error);
+          } finally {
+            window.location.assign(destination);
+          }
+        };
+
         const applyFilters = () => {
           let visibleCount = 0;
 
@@ -705,6 +745,29 @@
           button.addEventListener("click", () => {
             activeFilter = button.dataset.notificationFilter || "all";
             applyFilters();
+          });
+        });
+
+        cards.forEach((card) => {
+          card.addEventListener("click", (event) => {
+            if (
+              event.defaultPrevented
+              || event.button !== 0
+              || event.metaKey
+              || event.ctrlKey
+              || event.shiftKey
+              || event.altKey
+            ) {
+              return;
+            }
+
+            const readUrl = card.dataset.notificationReadUrl || "";
+            if (card.dataset.notificationUnread !== "true" || !readUrl) {
+              return;
+            }
+
+            event.preventDefault();
+            markReadBeforeNavigation(card);
           });
         });
 
