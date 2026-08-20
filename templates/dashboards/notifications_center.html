@@ -1,256 +1,809 @@
 {% extends "dashboard_template.html" %}
-{% block title %}مرکز اعلان‌ها{% endblock %}
+{% block title %}اعلان‌ها{% endblock %}
+{% block body_attrs %}data-page="notifications-center"{% endblock %}
+
+{% block head %}
+  {{ block.super }}
+  <style>
+    /* This page owns its header. Hide only the generic salon header. */
+    body[data-page="notifications-center"] [data-shell-header="partner-page"] {
+      display: none !important;
+    }
+
+    .lm-notifications-page {
+      width: 100%;
+      max-width: 980px;
+      margin-inline: auto;
+    }
+
+    .lm-notifications-summary {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      border: 1px solid var(--lm-border-soft, #e9e4f4);
+      border-radius: 1.25rem;
+      background: rgba(255, 255, 255, 0.97);
+      padding: 0.75rem 0.85rem;
+      box-shadow: 0 8px 22px rgba(38, 27, 75, 0.055);
+    }
+
+    .lm-notifications-summary-main {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .lm-notifications-summary-icon {
+      display: inline-flex;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.9rem;
+      background: var(--lm-primary-soft, #f3effc);
+      color: var(--lm-primary-text, #6748b7);
+      font-size: 1rem;
+    }
+
+    .lm-notifications-summary-title {
+      margin: 0;
+      color: var(--lm-text-primary, #211a33);
+      font-size: 1.05rem;
+      font-weight: 900;
+      line-height: 1.5;
+    }
+
+    .lm-notifications-summary-meta {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .lm-notifications-summary-pill {
+      display: inline-flex;
+      min-height: 32px;
+      align-items: center;
+      gap: 0.3rem;
+      border-radius: 999px;
+      background: var(--lm-bg-subtle, #f7f6fa);
+      padding: 0.3rem 0.55rem;
+      color: var(--lm-text-secondary, #5d566d);
+      font-size: 0.68rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .lm-notifications-summary-pill--unread {
+      background: #fff1f2;
+      color: #dc2626;
+    }
+
+    .lm-notifications-toolbar {
+      position: sticky;
+      top: var(--lm-dashboard-sticky-tabs-top, calc(4.75rem + env(safe-area-inset-top, 0px)));
+      z-index: 38;
+      margin-top: 0.55rem;
+      padding-bottom: 0.55rem;
+      background: linear-gradient(
+        180deg,
+        rgba(247, 246, 250, 0.995) 0%,
+        rgba(247, 246, 250, 0.985) 82%,
+        rgba(247, 246, 250, 0) 100%
+      );
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .lm-notifications-tabs {
+      display: flex;
+      min-width: 0;
+      max-width: 100%;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding: 0.35rem;
+      border: 1px solid var(--lm-border-soft, #e9e4f4);
+      border-radius: 1.1rem;
+      background: rgba(255, 255, 255, 0.985);
+      box-shadow: 0 9px 24px rgba(38, 27, 75, 0.065);
+      scrollbar-width: none;
+      overscroll-behavior-inline: contain;
+    }
+
+    .lm-notifications-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .lm-notifications-tab {
+      appearance: none;
+      display: inline-flex;
+      min-height: 40px;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 0.38rem;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: transparent;
+      padding: 0.5rem 0.78rem;
+      color: var(--lm-text-secondary, #5d566d);
+      font: inherit;
+      font-size: 0.73rem;
+      font-weight: 900;
+      line-height: 1.2;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+
+    .lm-notifications-tab:hover {
+      background: var(--lm-primary-soft, #f3effc);
+      color: var(--lm-primary-text, #6748b7);
+    }
+
+    .lm-notifications-tab[aria-selected="true"] {
+      border-color: rgba(115, 92, 190, 0.22);
+      background: var(--lm-primary, #735cbe);
+      color: #fff;
+    }
+
+    .lm-notifications-tab:focus-visible {
+      outline: 3px solid rgba(115, 92, 190, 0.18);
+      outline-offset: 2px;
+    }
+
+    .lm-notifications-search-toggle {
+      width: 40px;
+      padding-inline: 0;
+    }
+
+    .lm-notifications-search-toggle[aria-expanded="true"] {
+      border-color: rgba(115, 92, 190, 0.22);
+      background: var(--lm-primary-soft, #f3effc);
+      color: var(--lm-primary-text, #6748b7);
+    }
+
+    .lm-notifications-count {
+      display: inline-flex;
+      min-width: 1.45rem;
+      min-height: 1.45rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding-inline: 0.34rem;
+      background: var(--lm-bg-subtle, #f7f6fa);
+      color: inherit;
+      font-size: 0.63rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .lm-notifications-tab[aria-selected="true"] .lm-notifications-count {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .lm-notifications-tab[data-notification-filter="unread"]:not([aria-selected="true"]) .lm-notifications-count {
+      background: #fff1f2;
+      color: #dc2626;
+    }
+
+    .lm-notifications-search-panel {
+      margin-top: 0.45rem;
+      border: 1px solid var(--lm-border-soft, #e9e4f4);
+      border-radius: 1rem;
+      background: #fff;
+      padding: 0.4rem;
+      box-shadow: 0 9px 22px rgba(38, 27, 75, 0.055);
+    }
+
+    .lm-notifications-search-panel[hidden] {
+      display: none !important;
+    }
+
+    .lm-notifications-search-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .lm-notifications-search-input {
+      min-width: 0;
+      height: 40px;
+      flex: 1 1 auto;
+      border: 0;
+      border-radius: 0.75rem;
+      background: var(--lm-bg-subtle, #f7f6fa);
+      padding: 0.6rem 0.75rem;
+      color: var(--lm-text-primary, #211a33);
+      font: inherit;
+      font-size: 0.76rem;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .lm-notifications-search-input:focus {
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(115, 92, 190, 0.11);
+    }
+
+    .lm-notifications-search-submit {
+      display: inline-flex;
+      min-width: 84px;
+      height: 40px;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      border: 0;
+      border-radius: 0.75rem;
+      background: var(--lm-primary, #735cbe);
+      padding-inline: 0.8rem;
+      color: #fff;
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 7px 16px rgba(115, 92, 190, 0.16);
+      transition: transform 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+    }
+
+    .lm-notifications-search-submit:hover {
+      box-shadow: 0 9px 20px rgba(115, 92, 190, 0.21);
+      transform: translateY(-1px);
+    }
+
+    .lm-notifications-search-submit:active {
+      transform: translateY(0);
+    }
+
+    .lm-notifications-list {
+      display: grid;
+      gap: 0.65rem;
+      padding-top: 0.1rem;
+    }
+
+    .lm-notification-card {
+      display: flex;
+      min-width: 0;
+      align-items: flex-start;
+      gap: 0.7rem;
+      overflow: hidden;
+      border: 1px solid var(--lm-border-soft, #e9e4f4) !important;
+      border-inline-start-width: 1px !important;
+      border-radius: 1.2rem;
+      background: rgba(255, 255, 255, 0.985);
+      padding: 0.8rem;
+      color: inherit;
+      text-decoration: none;
+      box-shadow: 0 7px 20px rgba(38, 27, 75, 0.043);
+      transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+    }
+
+    .lm-notification-card[data-notification-unread="true"] {
+      background: linear-gradient(90deg, rgba(255, 247, 248, 0.96), rgba(255, 255, 255, 0.99) 34%);
+    }
+
+    .lm-notification-card:hover {
+      border-color: rgba(115, 92, 190, 0.24) !important;
+      box-shadow: 0 11px 24px rgba(38, 27, 75, 0.065);
+      transform: translateY(-1px);
+    }
+
+    .lm-notification-icon {
+      display: inline-flex;
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.9rem;
+      background: var(--lm-primary-soft, #f3effc);
+      color: var(--lm-primary-text, #6748b7);
+      font-size: 1rem;
+    }
+
+    .lm-notification-icon--finance {
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .lm-notification-icon--team {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+
+    .lm-notification-icon--payment {
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .lm-notification-icon--settlement {
+      background: #f0fdf4;
+      color: #15803d;
+    }
+
+    .lm-notification-icon--booking {
+      background: var(--lm-primary-soft, #f3effc);
+      color: var(--lm-primary-text, #6748b7);
+    }
+
+    .lm-notification-icon--confirmed {
+      background: #eefbf6;
+      color: #0f766e;
+    }
+
+    .lm-notification-icon--started {
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    .lm-notification-icon--completed {
+      background: #ecfeff;
+      color: #0f766e;
+    }
+
+    .lm-notification-icon--cancelled {
+      background: #fff1f2;
+      color: #be123c;
+    }
+
+    .lm-notification-icon--absence {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .lm-notification-icon--leave {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .lm-notification-content {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .lm-notification-head {
+      display: flex;
+      min-width: 0;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+
+    .lm-notification-title {
+      min-width: 0;
+      flex: 1 1 auto;
+      color: var(--lm-text-primary, #211a33);
+      font-size: 0.84rem;
+      font-weight: 900;
+      line-height: 1.65;
+    }
+
+    .lm-notification-meta {
+      flex: 0 0 auto;
+      padding-top: 0.05rem;
+      color: var(--lm-text-muted, #7d748d);
+      font-size: 0.64rem;
+      font-weight: 700;
+      line-height: 1.65;
+      white-space: nowrap;
+    }
+
+    .lm-notification-description {
+      display: -webkit-box;
+      margin-top: 0.12rem;
+      overflow: hidden;
+      color: var(--lm-text-secondary, #5d566d);
+      font-size: 0.74rem;
+      line-height: 1.8;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .lm-notification-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      margin-top: 0.45rem;
+    }
+
+    .lm-notification-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.32rem;
+      border-radius: 999px;
+      padding: 0.27rem 0.54rem;
+      font-size: 0.64rem;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .lm-notification-status--unread {
+      background: #fff1f2;
+      color: #dc2626;
+    }
+
+    .lm-notification-status--read {
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .lm-notification-chevron {
+      color: var(--lm-text-muted, #7d748d);
+      font-size: 0.64rem;
+      transition: transform 150ms ease;
+    }
+
+    .lm-notification-card:hover .lm-notification-chevron {
+      transform: translateX(-2px);
+    }
+
+    .lm-notifications-empty {
+      border: 1px dashed var(--lm-border-soft, #e9e4f4);
+      border-radius: 1.2rem;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 1.8rem 1rem;
+      color: var(--lm-text-muted, #7d748d);
+      text-align: center;
+      font-size: 0.78rem;
+      line-height: 1.9;
+    }
+
+    .lm-notifications-empty[hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 480px) {
+      .lm-notifications-summary {
+        align-items: center;
+      }
+
+      .lm-notifications-summary-meta {
+        gap: 0.3rem;
+      }
+
+      .lm-notifications-summary-pill {
+        min-height: 30px;
+        padding-inline: 0.48rem;
+        font-size: 0.64rem;
+      }
+    }
+  </style>
+{% endblock %}
 
 {% block content %}
-  <section class="min-w-0 max-w-full space-y-4 overflow-hidden lg:space-y-5" data-dashboard-page="notifications-center">
-    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="notifications-center-title">
-      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
-
-      <div class="relative flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+  <section class="lm-notifications-page" data-dashboard-page="notifications-center">
+    <section class="lm-notifications-summary" aria-label="خلاصه اعلان‌ها">
+      <div class="lm-notifications-summary-main">
+        <span class="lm-notifications-summary-icon" aria-hidden="true">
+          <i class="fa-regular fa-bell"></i>
+        </span>
         <div class="min-w-0">
-          <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-            <i class="fa-regular fa-bell text-[10px]" aria-hidden="true"></i>
-            <span class="truncate">اعلان‌ها و پیگیری‌ها</span>
-          </span>
-
-          <h1 id="notifications-center-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-            {{ notification_center_title|default:"مرکز اعلان‌ها" }}
-          </h1>
-
-          <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-            {{ notification_center_description|default:"اعلان‌های کاری را یک‌جا ببین و وارد صفحه مرتبط شو." }}
-          </p>
+          <h1 class="lm-notifications-summary-title">اعلان‌ها</h1>
         </div>
+      </div>
 
-        <div class="grid min-w-0 grid-cols-2 gap-3 sm:min-w-[300px]">
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-soft">
-            <p class="text-[11px] font-bold text-loomera-textMuted">کل اعلان‌ها</p>
-            <strong class="mt-2 block text-2xl font-black text-loomera-textPrimary">{{ notification_center.items|length }}</strong>
-          </article>
-
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white/90 p-4 shadow-lm-soft">
-            <p class="text-[11px] font-bold text-loomera-textMuted">خوانده‌نشده</p>
-            <strong class="mt-2 block text-2xl font-black text-loomera-textPrimary">
-              {% for tab in notification_center.tabs %}
-                {% if tab.key == 'all' %}{{ tab.unread_count }}{% endif %}
-              {% endfor %}
-            </strong>
-          </article>
-        </div>
+      <div class="lm-notifications-summary-meta" aria-label="آمار اعلان‌ها">
+        <span class="lm-notifications-summary-pill">
+          <span>کل</span>
+          <strong>{{ notification_center.items|length }}</strong>
+        </span>
+        <span class="lm-notifications-summary-pill lm-notifications-summary-pill--unread">
+          <span>خوانده‌نشده</span>
+          <strong>
+            {% for tab in notification_center.tabs %}
+              {% if tab.key == 'all' %}{{ tab.unread_count }}{% endif %}
+            {% endfor %}
+          </strong>
+        </span>
       </div>
     </section>
 
-    <section class="overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" aria-labelledby="notifications-list-title">
-      <header class="border-b border-loomera-borderSoft bg-white/96 p-4 sm:p-5 lg:p-6">
-        <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">لیست اعلان‌ها</p>
-            <h2 id="notifications-list-title" class="mt-1 text-lg font-black text-loomera-textPrimary">
-              جستجو و فیلتر اعلان‌ها
-            </h2>
-            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-              هر اعلان در یک کارت جدا نمایش داده می‌شود تا عنوان، توضیح، دسته و زمان با هم قاطی نشوند.
-            </p>
-          </div>
+    <div class="lm-notifications-toolbar" data-notification-toolbar>
+      <div class="lm-notifications-tabs" role="tablist" aria-label="فیلتر اعلان‌ها">
+        <button type="button"
+                class="lm-notifications-tab lm-notifications-search-toggle"
+                data-notification-search-toggle
+                aria-expanded="false"
+                aria-controls="notification-search-panel"
+                aria-label="جستجو در اعلان‌ها">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        </button>
 
-          <div class="inline-flex w-full items-center justify-between gap-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3 text-xs font-black text-loomera-textSecondary sm:w-auto">
-            <span>نتیجه قابل نمایش</span>
-            <strong class="text-loomera-primaryText" data-notification-visible-count>{{ notification_center.items|length }}</strong>
-          </div>
-        </div>
+        <button type="button"
+                class="lm-notifications-tab"
+                data-notification-filter="all"
+                aria-selected="true"
+                role="tab"
+                aria-controls="notification-list">
+          <span>همه</span>
+          <span class="lm-notifications-count">{{ notification_center.items|length }}</span>
+        </button>
 
-        <div class="mt-5 rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3" data-notification-tools>
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <button type="button"
+                class="lm-notifications-tab"
+                data-notification-filter="unread"
+                aria-selected="false"
+                role="tab"
+                aria-controls="notification-list">
+          <span>خوانده‌نشده</span>
+          <span class="lm-notifications-count">
+            {% for tab in notification_center.tabs %}
+              {% if tab.key == 'all' %}{{ tab.unread_count }}{% endif %}
+            {% endfor %}
+          </span>
+        </button>
+
+        {% for tab in notification_center.tabs %}
+          {% if tab.key != 'all' and tab.count %}
             <button type="button"
-                    class="order-first inline-flex min-h-12 shrink-0 items-center justify-between gap-3 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText sm:min-w-44"
-                    data-notification-filter-open
-                    aria-haspopup="dialog"
-                    aria-controls="notificationFilterModal">
-              <span class="inline-flex items-center gap-2">
-                <i class="fa-solid fa-sliders text-xs" aria-hidden="true"></i>
-                فیلتر
-              </span>
-              <span class="rounded-full bg-loomera-primarySoft px-2.5 py-1 text-[10px] font-black text-loomera-primaryText" data-notification-active-filter-label>همه اعلان‌ها</span>
+                    class="lm-notifications-tab"
+                    data-notification-filter="{{ tab.key }}"
+                    aria-selected="false"
+                    role="tab"
+                    aria-controls="notification-list">
+              {% if tab.key == 'finance' or tab.key == 'financial' %}
+                <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+              {% elif tab.key == 'appointments' or tab.key == 'appointment' or tab.key == 'bookings' %}
+                <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+              {% elif tab.key == 'team' or tab.key == 'staff' %}
+                <i class="fa-solid fa-user-group" aria-hidden="true"></i>
+              {% else %}
+                <i class="fa-regular fa-bell" aria-hidden="true"></i>
+              {% endif %}
+              <span>{{ tab.label }}</span>
+              <span class="lm-notifications-count">{{ tab.count }}</span>
             </button>
+          {% endif %}
+        {% endfor %}
+      </div>
 
-            <label class="relative block min-w-0 flex-1">
-              <span class="sr-only">جستجوی اعلان‌ها</span>
-              <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
-              <input
-                type="search"
-                class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
-                placeholder="جستجو با عنوان، توضیح، دسته یا زمان"
-                data-notification-search
-              >
-            </label>
-          </div>
-        </div>
-      </header>
+      <div id="notification-search-panel"
+           class="lm-notifications-search-panel"
+           data-notification-search-panel
+           hidden>
+        <form class="lm-notifications-search-row"
+              data-notification-search-form
+              role="search">
+          <label class="sr-only" for="notification-search-input">جستجو در اعلان‌ها</label>
+          <input id="notification-search-input"
+                 type="text"
+                 class="lm-notifications-search-input"
+                 placeholder="عنوان یا متن اعلان را جستجو کنید"
+                 autocomplete="off"
+                 enterkeyhint="search"
+                 data-notification-search>
+          <button type="submit"
+                  class="lm-notifications-search-submit">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <span>جستجو</span>
+          </button>
+        </form>
+      </div>
+    </div>
 
-      <div class="p-4 sm:p-5 lg:p-6">
-        <div class="grid gap-4" data-notification-list>
-          {% for item in notification_center.items %}
-            <details class="lm-compact-record min-w-0"
-              data-notification-card
-              data-lm-compact-record
-              data-lm-compact-group="notifications"
-              data-notification-category="{{ item.category }}"
-              data-notification-unread="{% if item.is_unread %}true{% else %}false{% endif %}"
-              data-notification-search-value="{{ item.title }} {{ item.description }} {{ item.meta }} {{ item.category_label }}">
-              <summary class="lm-compact-record-summary">
-                <span class="lm-compact-record-avatar" aria-hidden="true"><i class="{{ item.icon }}"></i></span>
-                <span class="min-w-0 flex-1 text-right">
-                  <span class="flex min-w-0 flex-wrap items-center gap-2">
-                    <strong class="min-w-0 line-clamp-1 text-sm font-black text-loomera-textPrimary">{{ item.title }}</strong>
-                    {% if item.is_unread %}<span class="shrink-0 rounded-full bg-loomera-primarySoft px-2.5 py-1 text-[10px] font-black text-loomera-primaryText">جدید</span>{% endif %}
+    <section id="notification-list" aria-label="لیست اعلان‌ها">
+      <div class="lm-notifications-list" data-notification-list>
+        {% for item in notification_center.items %}
+          <a href="{{ item.url }}"
+             class="lm-notification-card"
+             data-notification-card
+             data-notification-category="{{ item.category }}"
+             data-notification-unread="{% if item.is_unread %}true{% else %}false{% endif %}"
+             data-notification-search-value="{{ item.title|escape }} {{ item.description|escape }} {{ item.meta|escape }} {{ item.category_label|escape }}">
+            <span class="lm-notification-icon
+              {% if "دریافت وجه" in item.title or "پرداخت" in item.title %}lm-notification-icon--payment
+              {% elif "تسویه" in item.title %}lm-notification-icon--settlement
+              {% elif "رزرو جدید" in item.title or "نوبت جدید" in item.title %}lm-notification-icon--booking
+              {% elif "تأیید" in item.title or "تایید" in item.title %}lm-notification-icon--confirmed
+              {% elif "شروع" in item.title %}lm-notification-icon--started
+              {% elif "پایان" in item.title or "تکمیل" in item.title %}lm-notification-icon--completed
+              {% elif "لغو" in item.title %}lm-notification-icon--cancelled
+              {% elif "عدم حضور" in item.title %}lm-notification-icon--absence
+              {% elif "مرخصی" in item.title %}lm-notification-icon--leave
+              {% elif item.category == 'finance' or item.category == 'financial' %}lm-notification-icon--finance
+              {% elif item.category == 'team' or item.category == 'staff' %}lm-notification-icon--team{% endif %}"
+              aria-hidden="true">
+              {% if "دریافت وجه" in item.title or "پرداخت" in item.title %}
+                <i class="fa-solid fa-wallet"></i>
+              {% elif "تسویه" in item.title %}
+                <i class="fa-solid fa-receipt"></i>
+              {% elif "رزرو جدید" in item.title or "نوبت جدید" in item.title %}
+                <i class="fa-regular fa-calendar-plus"></i>
+              {% elif "تأیید" in item.title or "تایید" in item.title %}
+                <i class="fa-regular fa-calendar-check"></i>
+              {% elif "شروع" in item.title %}
+                <i class="fa-solid fa-play"></i>
+              {% elif "پایان" in item.title or "تکمیل" in item.title %}
+                <i class="fa-solid fa-circle-check"></i>
+              {% elif "لغو" in item.title %}
+                <i class="fa-solid fa-ban"></i>
+              {% elif "عدم حضور" in item.title %}
+                <i class="fa-solid fa-user-slash"></i>
+              {% elif "مرخصی" in item.title %}
+                <i class="fa-regular fa-calendar-minus"></i>
+              {% elif item.category == 'finance' or item.category == 'financial' %}
+                <i class="fa-solid fa-chart-line"></i>
+              {% elif item.category == 'team' or item.category == 'staff' %}
+                <i class="fa-solid fa-user-group"></i>
+              {% elif item.category == 'appointments' or item.category == 'appointment' or item.category == 'bookings' %}
+                <i class="fa-regular fa-calendar"></i>
+              {% else %}
+                <i class="{{ item.icon }}"></i>
+              {% endif %}
+            </span>
+
+            <span class="lm-notification-content">
+              <span class="lm-notification-head">
+                <strong class="lm-notification-title">{{ item.title }}</strong>
+                <span class="lm-notification-meta">{{ item.meta }}</span>
+              </span>
+
+              {% if item.description %}
+                <span class="lm-notification-description">{{ item.description }}</span>
+              {% endif %}
+
+              <span class="lm-notification-footer">
+                {% if item.is_unread %}
+                  <span class="lm-notification-status lm-notification-status--unread">
+                    <span class="h-2 w-2 rounded-full bg-rose-500" aria-hidden="true"></span>
+                    <span>خوانده‌نشده</span>
                   </span>
-                  <span class="mt-1 block line-clamp-1 text-xs text-loomera-textMuted">{{ item.category_label }} • {{ item.meta }}</span>
-                </span>
-                <span class="lm-compact-record-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
-              </summary>
-              <div class="lm-compact-record-body">
-                <p class="text-sm leading-7 text-loomera-textSecondary">{{ item.description }}</p>
-                <div class="mt-3 border-t border-loomera-borderSoft pt-3">
-                  <a href="{{ item.url }}" class="inline-flex min-h-11 items-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">مشاهده صفحه مرتبط<i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i></a>
-                </div>
-              </div>
-            </details>
-          {% empty %}
-            <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-8 text-center text-sm leading-7 text-loomera-textMuted">
-              {{ notification_center_empty_label|default:"هنوز اعلانی ثبت نشده است." }}
-            </div>
-          {% endfor %}
-
-          <div class="hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-8 text-center text-sm leading-7 text-loomera-textMuted" data-notification-empty>
-            اعلانی با این جستجو یا فیلتر پیدا نشد.
+                {% else %}
+                  <span class="lm-notification-status lm-notification-status--read">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i>
+                    <span>خوانده‌شده</span>
+                  </span>
+                {% endif %}
+                <i class="fa-solid fa-angle-left lm-notification-chevron" aria-hidden="true"></i>
+              </span>
+            </span>
+          </a>
+        {% empty %}
+          <div class="lm-notifications-empty">
+            {{ notification_center_empty_label|default:"هنوز اعلانی ثبت نشده است." }}
           </div>
+        {% endfor %}
+
+        <div class="lm-notifications-empty" data-notification-empty hidden>
+          اعلانی با این جستجو یا فیلتر پیدا نشد.
         </div>
       </div>
     </section>
   </section>
 
-    <div id="notificationFilterModal"
-         class="fixed inset-0 z-[95] hidden items-end justify-center bg-loomera-textPrimary/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
-         data-notification-filter-modal
-         aria-hidden="true">
-      <section class="w-full overflow-hidden rounded-t-[30px] border border-loomera-borderSoft bg-white shadow-lm-elevated sm:max-w-lg sm:rounded-[30px]" role="dialog" aria-modal="true" aria-labelledby="notification-filter-title">
-        <header class="flex items-start justify-between gap-4 border-b border-loomera-borderSoft px-4 py-4 sm:px-5">
-          <div>
-            <p class="text-[11px] font-black text-loomera-primaryText">فیلتر اعلان‌ها</p>
-            <h2 id="notification-filter-title" class="mt-1 text-base font-black text-loomera-textPrimary">چه اعلان‌هایی نمایش داده شوند؟</h2>
-            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">یک فیلتر انتخاب کن؛ جستجو جداگانه روی همان نتیجه اعمال می‌شود.</p>
-          </div>
-          <button type="button" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primaryText" data-notification-filter-close aria-label="بستن فیلترها">
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-          </button>
-        </header>
-        <div class="grid gap-2 p-4 sm:grid-cols-2 sm:p-5" aria-label="انتخاب فیلتر اعلان‌ها">
-          <button type="button" class="rounded-2xl border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-3 text-right text-sm font-black text-loomera-primaryText" data-notification-filter="all" data-filter-label="همه اعلان‌ها">همه اعلان‌ها</button>
-          <button type="button" class="rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-right text-sm font-black text-loomera-textSecondary" data-notification-filter="unread" data-filter-label="خوانده‌نشده">خوانده‌نشده</button>
-          {% for tab in notification_center.tabs %}
-            {% if tab.key != 'all' and tab.count %}
-              <button type="button" class="rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-right text-sm font-black text-loomera-textSecondary" data-notification-filter="{{ tab.key }}" data-filter-label="{{ tab.label }}">{{ tab.label }} <span class="text-[10px] text-loomera-textMuted">{{ tab.count }}</span></button>
-            {% endif %}
-          {% endfor %}
-        </div>
-      </section>
-    </div>
-{% endblock %}
-
-{% block js %}
-  {{ block.super }}
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const cards = Array.from(document.querySelectorAll("[data-notification-card]"));
-      const searchInput = document.querySelector("[data-notification-search]");
-      const filterButtons = Array.from(document.querySelectorAll("[data-notification-filter]"));
-      const filterOpen = document.querySelector("[data-notification-filter-open]");
-      const filterModal = document.querySelector("[data-notification-filter-modal]");
-      const filterCloseButtons = Array.from(document.querySelectorAll("[data-notification-filter-close]"));
-      const activeFilterLabel = document.querySelector("[data-notification-active-filter-label]");
-      const emptyState = document.querySelector("[data-notification-empty]");
-      const visibleCount = document.querySelector("[data-notification-visible-count]");
-      let activeFilter = "all";
-      let lastFocus = null;
+    (function () {
+      const rootSelector = '[data-dashboard-page="notifications-center"]';
 
-      const toPersianDigits = (value) => String(value || 0).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
+      const normalizeText = (value) => String(value || "")
+        .toLowerCase()
+        .replace(/[يى]/g, "ی")
+        .replace(/ك/g, "ک")
+        .replace(/[\u200c\u200f\u202a-\u202e]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
 
-      const openFilterModal = () => {
-        if (!filterModal) return;
-        lastFocus = document.activeElement;
-        filterModal.classList.remove("hidden");
-        filterModal.classList.add("flex");
-        filterModal.setAttribute("aria-hidden", "false");
-        document.body.classList.add("overflow-hidden");
-        filterModal.querySelector('[data-notification-filter="' + activeFilter + '"]')?.focus();
-      };
+      function initNotificationsCenter() {
+        const root = document.querySelector(rootSelector);
+        if (!root || root.dataset.notificationsReady === "true") return;
+        root.dataset.notificationsReady = "true";
 
-      const closeFilterModal = () => {
-        if (!filterModal) return;
-        filterModal.classList.add("hidden");
-        filterModal.classList.remove("flex");
-        filterModal.setAttribute("aria-hidden", "true");
-        document.body.classList.remove("overflow-hidden");
-        if (lastFocus instanceof HTMLElement) lastFocus.focus();
-      };
+        /* Remove the generic salon information header and its now-empty wrapper. */
+        const genericHeader = document.querySelector('[data-shell-header="partner-page"]');
+        if (genericHeader) {
+          const wrapper = genericHeader.parentElement;
+          genericHeader.remove();
+          if (wrapper && !wrapper.children.length && !wrapper.textContent.trim()) {
+            wrapper.remove();
+          }
+        }
 
-      const setButtonState = () => {
+        const searchToggle = root.querySelector("[data-notification-search-toggle]");
+        const searchPanel = root.querySelector("[data-notification-search-panel]");
+        const searchForm = root.querySelector("[data-notification-search-form]");
+        const searchInput = root.querySelector("[data-notification-search]");
+        const filterButtons = Array.from(root.querySelectorAll("[data-notification-filter]"));
+        const cards = Array.from(root.querySelectorAll("[data-notification-card]"));
+        const emptyState = root.querySelector("[data-notification-empty]");
+        let activeFilter = "all";
+        let activeQuery = "";
+
+        const matchesFilter = (card) => {
+          if (activeFilter === "all") return true;
+          if (activeFilter === "unread") return card.dataset.notificationUnread === "true";
+          return card.dataset.notificationCategory === activeFilter;
+        };
+
+        const setTabState = () => {
+          filterButtons.forEach((button) => {
+            const active = button.dataset.notificationFilter === activeFilter;
+            button.setAttribute("aria-selected", active ? "true" : "false");
+            button.setAttribute("tabindex", active ? "0" : "-1");
+          });
+        };
+
+        const setCardVisible = (card, visible) => {
+          card.hidden = !visible;
+          if (visible) {
+            card.style.removeProperty("display");
+          } else {
+            card.style.setProperty("display", "none", "important");
+          }
+          card.setAttribute("aria-hidden", visible ? "false" : "true");
+        };
+
+        const applyFilters = () => {
+          let visibleCount = 0;
+
+          cards.forEach((card) => {
+            const haystack = normalizeText(
+              `${card.dataset.notificationSearchValue || ""} ${card.textContent || ""}`
+            );
+            const visible = matchesFilter(card) && (!activeQuery || haystack.includes(activeQuery));
+            setCardVisible(card, visible);
+            if (visible) visibleCount += 1;
+          });
+
+          if (emptyState) {
+            emptyState.hidden = visibleCount !== 0;
+          }
+
+          setTabState();
+        };
+
         filterButtons.forEach((button) => {
-          const active = button.dataset.notificationFilter === activeFilter;
-          button.classList.toggle("border-loomera-primary/20", active);
-          button.classList.toggle("bg-loomera-primarySoft", active);
-          button.classList.toggle("text-loomera-primaryText", active);
-          button.classList.toggle("border-loomera-borderSoft", !active);
-          button.classList.toggle("bg-white", !active);
-          button.classList.toggle("text-loomera-textSecondary", !active);
-          button.setAttribute("aria-pressed", active ? "true" : "false");
-          if (active && activeFilterLabel) {
-            activeFilterLabel.textContent = button.dataset.filterLabel || button.textContent.trim();
+          button.addEventListener("click", () => {
+            activeFilter = button.dataset.notificationFilter || "all";
+            applyFilters();
+          });
+        });
+
+        searchToggle?.addEventListener("click", () => {
+          if (!searchPanel) return;
+          const willOpen = searchPanel.hidden;
+          searchPanel.hidden = !willOpen;
+          searchToggle.setAttribute("aria-expanded", willOpen ? "true" : "false");
+
+          if (willOpen) {
+            window.requestAnimationFrame(() => searchInput?.focus({ preventScroll: true }));
+          } else if (searchInput || activeQuery) {
+            if (searchInput) searchInput.value = "";
+            activeQuery = "";
+            applyFilters();
           }
         });
-      };
 
-      const matchesFilter = (card) => {
-        if (activeFilter === "all") return true;
-        if (activeFilter === "unread") return card.dataset.notificationUnread === "true";
-        return card.dataset.notificationCategory === activeFilter;
-      };
-
-      const applyFilters = () => {
-        const query = (searchInput?.value || "").trim().toLowerCase();
-        let count = 0;
-
-        cards.forEach((card) => {
-          const haystack = (card.dataset.notificationSearchValue || card.textContent || "").toLowerCase();
-          const visible = matchesFilter(card) && (!query || haystack.includes(query));
-          card.classList.toggle("hidden", !visible);
-          if (visible) count += 1;
-        });
-
-        emptyState?.classList.toggle("hidden", count !== 0);
-        if (visibleCount) visibleCount.textContent = toPersianDigits(count);
-        setButtonState();
-      };
-
-      filterButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          activeFilter = button.dataset.notificationFilter || "all";
+        searchForm?.addEventListener("submit", (event) => {
+          event.preventDefault();
+          activeQuery = normalizeText(searchInput?.value);
           applyFilters();
-          closeFilterModal();
         });
-      });
 
-      filterOpen?.addEventListener("click", openFilterModal);
-      filterCloseButtons.forEach((button) => button.addEventListener("click", closeFilterModal));
-      filterModal?.addEventListener("click", (event) => {
-        if (event.target === filterModal) closeFilterModal();
-      });
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && filterModal?.getAttribute("aria-hidden") === "false") closeFilterModal();
-      });
+        applyFilters();
 
-      searchInput?.addEventListener("input", applyFilters);
-      applyFilters();
-    });
+        /* Optional direct hook for regression/manual testing. */
+        window.__loomeraNotificationSearch = function (value) {
+          if (!searchInput) return;
+          searchInput.value = value || "";
+          activeQuery = normalizeText(value);
+          applyFilters();
+        };
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initNotificationsCenter, { once: true });
+      } else {
+        initNotificationsCenter();
+      }
+
+      document.addEventListener("htmx:afterSwap", initNotificationsCenter);
+      document.addEventListener("turbo:load", initNotificationsCenter);
+    })();
   </script>
 {% endblock %}
