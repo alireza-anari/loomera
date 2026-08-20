@@ -423,6 +423,7 @@ def _build_week_calendar(
                 current_params,
                 start=format_jalali_numeric(day),
                 end=format_jalali_numeric(day),
+                calendar_view="day",
             ),
         }
         days.append(day_item)
@@ -473,6 +474,8 @@ def _build_week_calendar(
             }
         )
 
+    previous_day_focus = focus_date - timedelta(days=1)
+    next_day_focus = focus_date + timedelta(days=1)
     previous_week_focus = focus_date - timedelta(days=7)
     next_week_focus = focus_date + timedelta(days=7)
 
@@ -492,6 +495,18 @@ def _build_week_calendar(
         "leave_count": len(week_leave_items),
         "leave_count_label": to_persian_digits(len(week_leave_items)),
         "has_all_day_leaves": any(day["all_day_leaves"] for day in days),
+        "previous_day_url": _build_query_url(
+            base_url,
+            current_params,
+            start=format_jalali_numeric(previous_day_focus),
+            end=format_jalali_numeric(previous_day_focus),
+        ),
+        "next_day_url": _build_query_url(
+            base_url,
+            current_params,
+            start=format_jalali_numeric(next_day_focus),
+            end=format_jalali_numeric(next_day_focus),
+        ),
         "previous_week_url": _build_query_url(
             base_url,
             current_params,
