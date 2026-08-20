@@ -306,60 +306,16 @@
       font-size: 1rem;
     }
 
-    .lm-notification-icon--finance {
-      background: #ecfdf5;
-      color: #047857;
-    }
 
-    .lm-notification-icon--team {
-      background: #eff6ff;
-      color: #2563eb;
-    }
 
-    .lm-notification-icon--payment {
-      background: #ecfdf5;
-      color: #047857;
-    }
 
-    .lm-notification-icon--settlement {
-      background: #f0fdf4;
-      color: #15803d;
-    }
 
-    .lm-notification-icon--booking {
-      background: var(--lm-primary-soft, #f3effc);
-      color: var(--lm-primary-text, #6748b7);
-    }
 
-    .lm-notification-icon--confirmed {
-      background: #eefbf6;
-      color: #0f766e;
-    }
 
-    .lm-notification-icon--started {
-      background: #fff7ed;
-      color: #c2410c;
-    }
 
-    .lm-notification-icon--completed {
-      background: #ecfeff;
-      color: #0f766e;
-    }
 
-    .lm-notification-icon--cancelled {
-      background: #fff1f2;
-      color: #be123c;
-    }
 
-    .lm-notification-icon--absence {
-      background: #fef2f2;
-      color: #b91c1c;
-    }
 
-    .lm-notification-icon--leave {
-      background: #eff6ff;
-      color: #1d4ed8;
-    }
 
     .lm-notification-content {
       min-width: 0;
@@ -596,19 +552,7 @@
              data-notification-category="{{ item.category }}"
              data-notification-unread="{% if item.is_unread %}true{% else %}false{% endif %}"
              data-notification-search-value="{{ item.title|escape }} {{ item.description|escape }} {{ item.meta|escape }} {{ item.category_label|escape }}">
-            <span class="lm-notification-icon
-              {% if "دریافت وجه" in item.title or "پرداخت" in item.title %}lm-notification-icon--payment
-              {% elif "تسویه" in item.title %}lm-notification-icon--settlement
-              {% elif "رزرو جدید" in item.title or "نوبت جدید" in item.title %}lm-notification-icon--booking
-              {% elif "تأیید" in item.title or "تایید" in item.title %}lm-notification-icon--confirmed
-              {% elif "شروع" in item.title %}lm-notification-icon--started
-              {% elif "پایان" in item.title or "تکمیل" in item.title %}lm-notification-icon--completed
-              {% elif "لغو" in item.title %}lm-notification-icon--cancelled
-              {% elif "عدم حضور" in item.title %}lm-notification-icon--absence
-              {% elif "مرخصی" in item.title %}lm-notification-icon--leave
-              {% elif item.category == 'finance' or item.category == 'financial' %}lm-notification-icon--finance
-              {% elif item.category == 'team' or item.category == 'staff' %}lm-notification-icon--team{% endif %}"
-              aria-hidden="true">
+            <span class="lm-notification-icon" aria-hidden="true">
               {% if "دریافت وجه" in item.title or "پرداخت" in item.title %}
                 <i class="fa-solid fa-wallet"></i>
               {% elif "تسویه" in item.title %}

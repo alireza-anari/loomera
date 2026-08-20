@@ -49,63 +49,71 @@
         <div id="dashboard-notification-panel"
              role="dialog"
              aria-label="اعلان‌ها"
-             class="hidden fixed left-1/2 top-[4.75rem] z-[90] w-[calc(100vw-1rem)] max-w-[24rem] -translate-x-1/2 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-[0_24px_70px_rgba(35,31,50,0.18)] ring-1 ring-white/70 lg:absolute lg:left-0 lg:right-auto lg:top-[calc(100%+0.75rem)] lg:w-[26rem] lg:max-w-[min(26rem,calc(100vw-3rem))] lg:translate-x-0"
+             class="hidden fixed left-1/2 top-[4.75rem] z-[90] w-[calc(100vw-1rem)] max-w-[23rem] -translate-x-1/2 overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-[0_22px_60px_rgba(35,31,50,0.16)] ring-1 ring-white/70 lg:absolute lg:left-0 lg:right-auto lg:top-[calc(100%+0.65rem)] lg:w-[24rem] lg:max-w-[min(24rem,calc(100vw-3rem))] lg:translate-x-0"
              data-notification-panel>
-          <div class="flex items-start justify-between gap-3 border-b border-loomera-borderSoft px-4 py-4">
-            <div class="min-w-0">
-              <h3 class="text-sm font-black text-loomera-textPrimary">{{ dashboard_notifications.title|default:"اعلان‌ها" }}</h3>
-              <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">{{ dashboard_notifications.subtitle|default:"نوبت‌ها، پرداخت‌ها و یادداشت‌های اخیر" }}</p>
+          <div class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-3.5 py-3">
+            <div class="flex min-w-0 items-center gap-2.5">
+              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText">
+                <i class="fa-regular fa-bell text-sm" aria-hidden="true"></i>
+              </span>
+              <h3 class="truncate text-sm font-black text-loomera-textPrimary">اعلان‌ها</h3>
             </div>
-            <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText" data-dashboard-notification-unread-count>
+            <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-[10px] font-black text-rose-600" data-dashboard-notification-unread-count>
+              <span class="h-1.5 w-1.5 rounded-full bg-rose-500" aria-hidden="true"></span>
               {{ dashboard_notifications.unread_count }} خوانده‌نشده
             </span>
           </div>
 
-          <div class="flex gap-2 overflow-x-auto border-b border-loomera-borderSoft px-3 py-3 [scrollbar-width:none]" role="tablist" aria-label="فیلتر اعلان‌ها">
+          <div class="flex gap-1.5 overflow-x-auto border-b border-loomera-borderSoft px-2.5 py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="فیلتر اعلان‌ها">
             {% for tab in dashboard_notifications.tabs %}
               <button type="button"
                       data-notification-tab="{{ tab.key }}"
                       role="tab"
                       aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
                       aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
-                      class="inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-[11px] font-black transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if forloop.first %}border-loomera-primary bg-loomera-primary text-white{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary hover:bg-loomera-bgSubtle{% endif %}">
+                      class="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[10px] font-black transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 {% if forloop.first %}border-loomera-primary bg-loomera-primary text-white{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText{% endif %}">
                 <i class="{{ tab.icon }} text-[10px]" aria-hidden="true"></i>
                 <span>{{ tab.label }}</span>
-                <span class="rounded-full bg-current/10 px-1.5 py-0.5 text-[10px]">{{ tab.count }}</span>
+                <span class="rounded-full bg-current/10 px-1.5 py-0.5 text-[9px]">{{ tab.count }}</span>
               </button>
             {% endfor %}
           </div>
 
-          <div class="max-h-[min(58vh,25rem)] space-y-2 overflow-y-auto overscroll-contain bg-white p-3" data-notification-list>
+          <div class="max-h-[min(56vh,23rem)] space-y-1.5 overflow-y-auto overscroll-contain bg-white p-2.5" data-notification-list>
             {% for item in dashboard_notifications.dropdown_items %}
               <a href="{{ item.url }}" data-notification-item data-notification-category="{{ item.category|default:'appointments' }}"
-                 class="group flex items-start gap-3 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-3 transition hover:border-loomera-primary/20 hover:bg-loomera-surfaceSoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-bgSubtle text-loomera-textSecondary transition group-hover:bg-white">
-                  <i class="{{ item.icon }}" aria-hidden="true"></i>
+                 class="group flex items-start gap-2.5 rounded-[18px] border border-loomera-borderSoft bg-white px-2.5 py-2.5 transition hover:border-loomera-primary/20 hover:bg-loomera-primarySoft/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText">
+                  <i class="{{ item.icon }} text-sm" aria-hidden="true"></i>
                 </span>
                 <div class="min-w-0 flex-1">
                   <div class="flex items-start justify-between gap-2">
-                    <p class="min-w-0 truncate text-sm font-bold leading-6 text-loomera-textPrimary">{{ item.title }}</p>
+                    <p class="min-w-0 flex-1 truncate text-xs font-black leading-5 text-loomera-textPrimary">{{ item.title }}</p>
                     {% if item.is_unread %}
-                      <span class="mt-1.5 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-loomera-primary" aria-label="خوانده‌نشده" data-dashboard-notification-unread-dot></span>
+                      <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[9px] font-black text-rose-600" data-dashboard-notification-unread-dot>
+                        <span class="h-1.5 w-1.5 rounded-full bg-rose-500" aria-hidden="true"></span>
+                        جدید
+                      </span>
                     {% endif %}
                   </div>
-                  <p class="mt-1 max-h-12 overflow-hidden break-words text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
-                  <p class="mt-2 truncate text-[11px] font-semibold text-loomera-textMuted">{{ item.meta }}</p>
+                  {% if item.description %}
+                    <p class="mt-0.5 line-clamp-2 break-words text-[11px] leading-5 text-loomera-textMuted">{{ item.description }}</p>
+                  {% endif %}
+                  <p class="mt-1.5 truncate text-[10px] font-semibold text-loomera-textMuted">{{ item.meta }}</p>
                 </div>
               </a>
             {% empty %}
-              <div class="rounded-2xl bg-loomera-bgSubtle px-4 py-5 text-sm leading-7 text-loomera-textMuted" data-notification-empty>
-                اعلان فعالی برای این مجموعه وجود ندارد.
+              <div class="rounded-2xl bg-loomera-bgSubtle px-4 py-5 text-center text-xs leading-6 text-loomera-textMuted" data-notification-empty>
+                اعلان جدیدی وجود ندارد.
               </div>
             {% endfor %}
           </div>
 
-          <div class="border-t border-loomera-borderSoft p-3">
+          <div class="border-t border-loomera-borderSoft p-2.5">
             <a href="{{ dashboard_notifications.panel_url }}"
-               class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:bg-loomera-bgSubtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <span>{{ dashboard_notifications.panel_label|default:"مشاهده نوبت‌ها" }}</span>
-              <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+               class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-2.5 text-xs font-black text-white shadow-[0_8px_18px_rgba(115,92,190,0.14)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_22px_rgba(115,92,190,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
+              <span>مشاهده همه اعلان‌ها</span>
+              <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
             </a>
           </div>
         </div>
