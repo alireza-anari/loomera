@@ -283,25 +283,59 @@ function setupDashboardLayout() {
   };
 
 
-  const markDashboardNotificationsSeen = () => {
-    if (!notificationRoot) return;
+  const setupNotificationReadActions = () => {
+    if (!notificationPanel) return;
 
-    const badge = notificationRoot.querySelector("[data-dashboard-notification-badge]");
-    const unreadCounter = notificationRoot.querySelector("[data-dashboard-notification-unread-count]");
-    const unreadDots = notificationRoot.querySelectorAll("[data-dashboard-notification-unread-dot]");
+    const csrfToken = () => {
+      const cookie = document.cookie
+        .split(";")
+        .map((part) => part.trim())
+        .find((part) => part.startsWith("csrftoken="));
+      return cookie ? decodeURIComponent(cookie.slice("csrftoken=".length)) : "";
+    };
 
-    badge?.classList.add("hidden");
+    notificationPanel.querySelectorAll("[data-notification-item]").forEach((item) => {
+      if (item.dataset.readBound === "true") return;
+      item.dataset.readBound = "true";
 
-    if (unreadCounter) {
-      unreadCounter.textContent = "۰ خوانده‌نشده";
-      unreadCounter.classList.remove("bg-loomera-primarySoft", "text-loomera-primaryText");
-      unreadCounter.classList.add("bg-loomera-bgSubtle", "text-loomera-textMuted");
-    }
+      item.addEventListener("click", async (event) => {
+        if (
+          event.defaultPrevented
+          || event.button !== 0
+          || event.metaKey
+          || event.ctrlKey
+          || event.shiftKey
+          || event.altKey
+        ) {
+          return;
+        }
 
-    unreadDots.forEach((dot) => {
-      dot.classList.add("hidden");
+        const readUrl = item.dataset.notificationReadUrl || "";
+        const isUnread = item.dataset.notificationUnread === "true";
+        if (!isUnread || !readUrl) return;
+
+        event.preventDefault();
+        const destination = item.href;
+
+        try {
+          await fetch(readUrl, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "X-CSRFToken": csrfToken(),
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+            },
+          });
+        } catch (error) {
+          console.warn("Unable to mark dashboard notification as read.", error);
+        } finally {
+          window.location.assign(destination);
+        }
+      });
     });
   };
+
 
   const openNotificationPanel = () => {
     if (!notificationPanel) return;
@@ -312,7 +346,7 @@ function setupDashboardLayout() {
     notificationPanel.classList.remove("hidden");
     setExpanded(notificationToggle, true);
     setupNotificationTabs();
-    markDashboardNotificationsSeen();
+    setupNotificationReadActions();
   };
 
   const openMobileCreatePanel = () => {
