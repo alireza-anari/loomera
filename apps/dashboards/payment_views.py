@@ -472,6 +472,7 @@ class SalonFinanceHubView(_SalonFinanceMixin, View):
 
         active_discount_count = active_coupons + active_baskets + active_campaigns
 
+        # Finance Hub UX stage 1: grouped navigation is preserved for gradual refactor.
         finance_groups = [
             {
                 "key": "money",

@@ -390,3 +390,22 @@ if (document.readyState === "loading") {
 } else {
   initDashboardWorkspace();
 }
+
+
+// Finance Hub UX stage 2: tab interaction shell.
+// Existing routes and financial calculations remain unchanged.
+document.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll("[data-finance-tab]");
+  if (!buttons.length) return;
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      buttons.forEach((item) => {
+        item.classList.remove("bg-loomera-primary", "text-white");
+        item.classList.add("bg-loomera-bgSubtle", "text-loomera-textSecondary");
+      });
+      button.classList.add("bg-loomera-primary", "text-white");
+      button.classList.remove("bg-loomera-bgSubtle", "text-loomera-textSecondary");
+    });
+  });
+});
