@@ -421,7 +421,13 @@ CREATE_ACTIONS = [
 ]
 
 MOBILE_NAV_KEYS = ["overview", "appointments"]
-MANAGER_MOBILE_MANAGEMENT_KEYS = ["services", "team", "schedule", "online_booking", "clients"]
+MANAGER_MOBILE_MANAGEMENT_KEYS = [
+    "services",
+    "team",
+    "schedule",
+    "online_booking",
+    "clients",
+]
 
 STYLIST_ALLOWED_NAV_KEYS = {
     "overview",
@@ -540,7 +546,10 @@ PAGE_ACTION_MAP = {
         "needs_salon": True,
     },
     "team": {"label": "افزودن عضو تیم", "url_name": "dashboards:add_stylist"},
-    "schedule": {"label": "افزودن برنامه کاری", "url_name": "dashboards:scheduled_shifts"},
+    "schedule": {
+        "label": "افزودن برنامه کاری",
+        "url_name": "dashboards:scheduled_shifts",
+    },
     "services": {"label": "افزودن خدمت", "url_name": "dashboards:add_service"},
     "reports": {
         "label": "تقویم مجموعه",
@@ -1312,6 +1321,7 @@ def _build_manager_shell_snapshot(
         "active_team_count": int(salon_metrics["active_team_count"] or 0),
     }
 
+
 def _build_shell_metrics(
     salon,
     *,
@@ -1758,7 +1768,14 @@ def build_dashboard_mobile_nav_items(
                 "url": "#",
                 "is_available": True,
                 "is_locked": False,
-                "is_active": active_key in {"my_finance", "my_content", "my_profile", "my_settings", "quick_links"},
+                "is_active": active_key
+                in {
+                    "my_finance",
+                    "my_content",
+                    "my_profile",
+                    "my_settings",
+                    "quick_links",
+                },
                 "panel_items": panel_items,
             }
         )
@@ -1815,15 +1832,15 @@ def build_dashboard_mobile_nav_items(
     )
     items.append(
         {
-            "key": "account",
+            "key": "reports",
             "kind": "link",
-            "label": "حساب",
-            "short_label": "حساب",
-            "icon": "fa-regular fa-user",
-            "url": _safe_reverse("dashboards:manager_profile"),
-            "is_available": True,
-            "is_locked": False,
-            "is_active": active_key in {"profile", "settings"},
+            "label": "گزارش‌ها",
+            "short_label": "گزارش‌ها",
+            "icon": "fa-solid fa-chart-column",
+            "url": (f"/dashboards/reports/salon/{salon.id}/" if salon else "#"),
+            "is_available": salon is not None,
+            "is_locked": salon is None,
+            "is_active": active_key == "reports",
         }
     )
     return items
@@ -2073,8 +2090,7 @@ def build_dashboard_context(
         and hasattr(user, "salon_manager_profile")
     )
     has_stylist_workspace = bool(
-        getattr(user, "is_authenticated", False)
-        and hasattr(user, "stylist")
+        getattr(user, "is_authenticated", False) and hasattr(user, "stylist")
     )
     workspace_modes = []
     if has_manager_workspace and has_stylist_workspace:
