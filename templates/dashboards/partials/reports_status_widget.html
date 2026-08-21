@@ -1,26 +1,40 @@
 {% if reports_dashboard.status_breakdown.is_empty %}
-  {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-circle-nodes" title="ترکیب وضعیت‌ها خالی است" description="وقتی در بازه فعال رزروی وجود داشته باشد، سهم وضعیت‌ها در اینجا نمایش داده می‌شود." %}
+  {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-chart-pie" title="برای این بازه رزروی وجود ندارد" description="با ثبت رزرو، ترکیب وضعیت‌ها اینجا به‌صورت نمودار نمایش داده می‌شود." %}
 {% else %}
-  <div class="space-y-3">
-    {% for item in reports_dashboard.status_breakdown.items %}
-      <article class="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="text-sm font-black text-slate-900">{{ item.label }}</h3>
-              <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold {{ item.badge_class }}">{{ item.count_label }} مورد</span>
+  <div class="space-y-3" data-reports-status-chart>
+    <div class="mx-auto w-full max-w-[240px]">
+      <canvas data-reports-status-canvas
+              style="display:block;width:100%;height:220px;"
+              role="img"
+              aria-label="نمودار دایره‌ای وضعیت رزروها"></canvas>
+    </div>
+
+    <div hidden>
+      {% for item in reports_dashboard.status_breakdown.items %}
+        {% if item.count %}
+          <span data-report-status-point
+                data-label="{{ item.label|escape }}"
+                data-count="{{ item.count }}"
+                data-color="{{ item.color }}"></span>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      {% for item in reports_dashboard.status_breakdown.items %}
+        {% if item.count %}
+          <div class="rounded-[14px] bg-loomera-bgSubtle px-2.5 py-2">
+            <div class="flex items-center gap-1.5">
+              <span class="h-2 w-2 shrink-0 rounded-full" style="background-color:{{ item.color }}"></span>
+              <span class="min-w-0 flex-1 truncate text-[9px] font-black text-loomera-textSecondary">{{ item.label }}</span>
             </div>
-            <p class="mt-2 text-xs text-slate-500">درآمد: {{ item.revenue_label }}</p>
+            <div class="mt-1 flex items-end justify-between gap-2">
+              <strong class="text-xs font-black text-loomera-textPrimary">{{ item.count_label }}</strong>
+              <span class="text-[9px] font-black text-loomera-textMuted">{{ item.share_label }}</span>
+            </div>
           </div>
-          <div class="text-left">
-            <p class="text-sm font-black text-slate-900">{{ item.share_label }}</p>
-            <p class="mt-1 text-xs text-slate-500">از کل بازه</p>
-          </div>
-        </div>
-        <div class="mt-3 h-2 rounded-full bg-white">
-          <div class="h-2 rounded-full bg-loomera-primary" style="width: {{ item.share }}%"></div>
-        </div>
-      </article>
-    {% endfor %}
+        {% endif %}
+      {% endfor %}
+    </div>
   </div>
 {% endif %}

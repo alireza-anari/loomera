@@ -33,6 +33,17 @@ class BetaUxCalendarRegressionStaticGuards(unittest.TestCase):
         self.assertIn("count_queryset=week_count_qs", source)
         self.assertIn('"calendar_rows_count_label": week_calendar["appointment_count_label"]', source)
 
+    def test_calendar_includes_only_approved_salon_scoped_staff_leave_requests(self):
+        source = self.read("apps/dashboards/appointment_management.py")
+        board = self.read("templates/dashboards/components/appointments_calendar_board.html")
+        self.assertIn("StaffLeaveRequest.objects.filter", source)
+        self.assertIn("salon=salon", source)
+        self.assertIn("status=StaffLeaveRequest.Status.APPROVED", source)
+        self.assertIn("selected_stylist_id", source)
+        self.assertIn('item.is_leave', board)
+        self.assertIn('مرخصی', board)
+        self.assertIn('calendar.has_all_day_leaves', board)
+
     def test_in_progress_and_attention_tabs_use_lifecycle_events_not_confirmation_only(self):
         source = self.read("apps/dashboards/appointment_management.py")
         self.assertIn('order__service_started_at__isnull=False', source)

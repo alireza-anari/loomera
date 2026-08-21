@@ -1,0 +1,41 @@
+{% if widget.is_empty %}
+  {% include "dashboards/components/empty_state.html" with icon=empty_icon title=empty_title description=empty_description %}
+{% else %}
+  <div class="space-y-4" data-reports-ranking-chart>
+    <div class="mx-auto flex w-full max-w-[250px] items-center justify-center py-2">
+      <div class="relative h-40 w-40 shrink-0 rounded-full"
+           style="background: conic-gradient({% for item in widget.items %}{{ item.chart_color }} {{ item.chart_start }}% {{ item.chart_end }}%{% if not forloop.last %}, {% endif %}{% endfor %});"
+           role="img"
+           aria-label="{{ title }}">
+        <div class="absolute flex flex-col items-center justify-center rounded-full bg-white text-center"
+             style="inset: 21%; box-shadow: inset 0 0 0 1px rgba(115, 92, 190, 0.07);">
+          <strong class="font-black text-loomera-textPrimary"
+                  style="font-size: 30px; line-height: 1;">
+            {{ widget.count_label|default:widget.items|length }}
+          </strong>
+          <span class="font-bold text-loomera-textSecondary"
+                style="margin-top: 6px; font-size: 11px; line-height: 1.45;">
+            {{ widget.center_label|default:"مورد برتر" }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {% for item in widget.items %}
+        <div class="rounded-[14px] bg-loomera-bgSubtle px-2.5 py-2">
+          <div class="flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 shrink-0 rounded-full"
+                  style="background-color: {{ item.chart_color }};"></span>
+            <span class="min-w-0 flex-1 truncate text-[9px] font-black text-loomera-textSecondary">{{ item.title }}</span>
+            <span class="shrink-0 text-[9px] font-black text-loomera-textMuted">{{ item.chart_share_label }}</span>
+          </div>
+          <div class="mt-1 flex items-end justify-between gap-2">
+            <strong class="truncate text-[10px] font-black text-loomera-textPrimary">{{ item.value }}</strong>
+            <span class="shrink-0 text-[9px] font-bold text-loomera-textMuted">{{ item.meta }}</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
