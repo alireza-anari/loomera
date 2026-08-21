@@ -126,23 +126,16 @@
         </div>
       </div>
 
-      <a href="{{ manager_profile_url }}"
-         aria-label="حساب و پروفایل مدیر مجموعه"
-         class="flex items-center gap-3 rounded-2xl border border-loomera-borderSoft bg-white p-1.5 shadow-lm-soft transition hover:border-loomera-primary/20 hover:bg-loomera-surfaceSoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 sm:px-3 sm:py-2 {% if hide_dashboard_top_nav %}sm:min-w-[17rem] sm:justify-between{% endif %}">
+      <a href="{% url 'dashboards:reports_dashboard' salon_id=dashboard_salon_id %}"
+         aria-label="گزارش‌های مجموعه"
+         class="flex items-center gap-3 rounded-2xl border border-loomera-borderSoft bg-white p-1.5 shadow-lm-soft transition hover:border-loomera-primary/20 hover:bg-loomera-surfaceSoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
         <div class="hidden text-left sm:block">
-          <p class="text-xs font-medium text-loomera-textMuted">{{ dashboard_header.role_label|default:"مدیر مجموعه" }}</p>
-          <p class="max-w-[11rem] truncate text-sm font-bold text-loomera-textPrimary">{{ dashboard_header.manager_name }}</p>
+          <p class="text-xs font-medium text-loomera-textMuted">گزارش‌ها</p>
+          <p class="max-w-[11rem] truncate text-sm font-bold text-loomera-textPrimary">عملکرد مجموعه</p>
         </div>
-
-        {% if dashboard_header.manager_avatar_url %}
-          <img src="{{ dashboard_header.manager_avatar_url }}"
-               alt="{{ dashboard_header.manager_name }}"
-               class="h-10 w-10 rounded-2xl border border-loomera-borderSoft object-cover">
-        {% else %}
-          <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primary text-sm font-black text-white">
-            {{ dashboard_header.manager_initial|default:"م" }}
-          </div>
-        {% endif %}
+        <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+          <i class="fa-solid fa-chart-line text-sm" aria-hidden="true"></i>
+        </span>
       </a>
     </div>
   </div>

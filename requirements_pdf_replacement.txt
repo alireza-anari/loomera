@@ -1,7 +1,0 @@
-REMOVE from requirements.txt:
-weasyprint==68.0
-
-ADD to requirements.txt:
-fpdf2==2.8.7
-uharfbuzz==0.56.0
-brotli==1.2.0
