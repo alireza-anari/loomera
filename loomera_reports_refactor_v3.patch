@@ -1,0 +1,390 @@
+--- a/templates/dashboards/reports.html
++++ b/templates/dashboards/reports.html
+@@ -15,9 +15,9 @@
+ 
+         <a href="{{ reports_dashboard.export_url }}"
+            class="inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-loomera-borderSoft bg-white px-3 py-2 text-[10px] font-black text-loomera-primaryText shadow-lm-soft transition hover:bg-loomera-primarySoft/35"
+-           aria-label="دریافت خروجی CSV">
+-          <i class="fa-solid fa-file-csv text-[11px]" aria-hidden="true"></i>
+-          <span>CSV</span>
++           aria-label="دریافت فایل گزارش">
++          <i class="fa-solid fa-file-arrow-down text-[11px]" aria-hidden="true"></i>
++          <span>فایل گزارش</span>
+         </a>
+       </div>
+ 
+@@ -119,8 +119,8 @@
+                hidden
+                class="rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-lm-card sm:p-4">
+         <div class="grid gap-3 xl:grid-cols-[minmax(0,1.28fr)_minmax(0,0.92fr)]">
+-          {% include "dashboards/components/chart_wrapper.html" with title="روند درآمد و رزروها" subtitle="تغییرات در طول بازه انتخاب‌شده" meta_label=reports_dashboard.filter_summary.group_by_label body_template="dashboards/partials/reports_chart_body.html" %}
+-          {% include "dashboards/components/widget_container.html" with title="وضعیت رزروها" subtitle="تکمیل، لغو و سایر وضعیت‌ها" body_template="dashboards/partials/reports_status_widget.html" %}
++          {% include "dashboards/components/chart_wrapper.html" with title="روند درآمد و رزروها" subtitle="درآمد و تعداد رزرو در هر بازه" body_template="dashboards/partials/reports_chart_body.html" %}
++          {% include "dashboards/components/widget_container.html" with title="وضعیت رزروها" subtitle="سهم هر وضعیت از کل رزروهای بازه" body_template="dashboards/partials/reports_status_widget.html" %}
+         </div>
+       </section>
+ 
+--- a/apps/dashboards/reports_components.py
++++ b/apps/dashboards/reports_components.py
+@@ -211,9 +211,9 @@
+             "tone": "neutral",
+         },
+         {
+-            "title": "مشتری‌های متفاوت",
++            "title": "مشتری جدید",
+             "value": to_persian_digits(unique_customers),
+-            "meta": "بدون شمارش تکراری",
++            "meta": "مشتری‌های این بازه",
+             "icon": "fa-regular fa-user",
+             "tone": "neutral",
+         },
+@@ -462,6 +462,15 @@
+ def _build_status_breakdown(filtered_qs):
+     total = filtered_qs.count()
+     rows = []
++    offset = 0
++    colors = {
++        "pending": "#f59e0b",
++        "confirmed": "#735cbe",
++        "paid": "#10b981",
++        "completed": "#0ea5e9",
++        "cancelled": "#f43f5e",
++    }
++
+     for status, label in STATUS_LABELS.items():
+         qs = filtered_qs.filter(order__status=status)
+         count = qs.count()
+@@ -469,16 +478,25 @@
+         share = (count / total * 100) if total else 0
+         rows.append(
+             {
++                "key": status,
+                 "label": label,
+                 "count": count,
+                 "count_label": to_persian_digits(count),
+                 "share": share,
+                 "share_label": _percent(share),
++                "offset": offset,
++                "color": colors.get(status, "#94a3b8"),
+                 "revenue_label": _currency(revenue),
+                 "badge_class": STATUS_BADGES.get(status, "bg-slate-100 text-slate-700"),
+             }
+         )
+-    return {"items": rows, "is_empty": total == 0}
++        offset += share
++
++    return {
++        "items": rows,
++        "is_empty": total == 0,
++        "total_label": to_persian_digits(total),
++    }
+ 
+ 
+ def _build_top_services(filtered_qs):
+@@ -865,10 +883,12 @@
+     response = HttpResponse(content_type="text/csv; charset=utf-8")
+     response["Content-Disposition"] = f'attachment; filename="{filename}"'
+ 
+-    # BOM برای اینکه Excel فارسی را درست‌تر باز کند.
++    # Excel روی بعضی تنظیمات منطقه‌ای CSV را در یک ستون باز می‌کند.
++    # BOM متن فارسی را سالم نگه می‌دارد و sep=, جداکننده فایل را صریح می‌کند.
+     response.write("\ufeff")
+-
+-    writer = csv.writer(response)
++    response.write("sep=,\r\n")
++
++    writer = csv.writer(response, lineterminator="\r\n")
+ 
+     writer.writerow(
+         [
+--- a/apps/dashboards/test_beta_ux_reports_filter_batch39_static_guards.py
++++ b/apps/dashboards/test_beta_ux_reports_filter_batch39_static_guards.py
+@@ -63,7 +63,7 @@
+         for label in (
+             "درآمد تأییدشده",
+             "کل رزروها",
+-            "مشتری‌های متفاوت",
++            "مشتری جدید",
+             "میانگین مبلغ هر رزرو",
+             "درصد رزروهای تکمیل‌شده",
+         ):
+@@ -82,6 +82,24 @@
+         count_block = source.split("active_filter_count = sum(", 1)[1].split("stylist_label =", 1)[0]
+         self.assertNotIn("report_notices", count_block)
+ 
++    def test_reports_v3_uses_clear_export_and_visual_charts(self):
++        page = self.read("templates/dashboards/reports.html")
++        filters = self.read("templates/dashboards/components/reports_filter_bar.html")
++        chart = self.read("templates/dashboards/partials/reports_chart_body.html")
++        status = self.read("templates/dashboards/partials/reports_status_widget.html")
++        components = self.read("apps/dashboards/reports_components.py")
++
++        self.assertIn("فایل گزارش", page)
++        self.assertNotIn(">CSV<", page)
++        self.assertNotIn("گروه‌بندی</span>", filters)
++        self.assertIn('type="hidden" name="group_by"', filters)
++        self.assertIn("دریافت فایل گزارش", filters)
++        self.assertIn("مشتری جدید", components)
++        self.assertIn("sep=,", components)
++        self.assertIn("نمودار درآمد و تعداد رزروها", chart)
++        self.assertIn("نمودار دایره‌ای وضعیت رزروها", status)
++        self.assertIn('stroke-dasharray="{{ item.share }} 100"', status)
++
+ 
+ if __name__ == "__main__":
+     import unittest
+--- a/templates/dashboards/components/reports_filter_bar.html
++++ b/templates/dashboards/components/reports_filter_bar.html
+@@ -69,15 +69,6 @@
+     </label>
+ 
+     <label>
+-      <span class="mb-2 block text-xs font-bold text-loomera-textMuted">گروه‌بندی</span>
+-      <select name="group_by" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+-        {% for option in reports_dashboard.filter_options.group_by %}
+-          <option value="{{ option.id }}" {% if reports_dashboard.filters.group_by == option.id %}selected{% endif %}>{{ option.label }}</option>
+-        {% endfor %}
+-      </select>
+-    </label>
+-
+-    <label>
+       <span class="mb-2 block text-xs font-bold text-loomera-textMuted">وضعیت</span>
+       <select name="status" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+         <option value="">همه وضعیت‌ها</option>
+@@ -108,10 +99,11 @@
+     </label>
+ 
+     <input type="hidden" name="tab" value="{{ reports_dashboard.filters.tab }}">
++    <input type="hidden" name="group_by" value="{{ reports_dashboard.filters.group_by }}">
+ 
+     <div class="md:col-span-2 xl:col-span-6 flex flex-col-reverse gap-3 border-t border-loomera-borderSoft pt-5 sm:flex-row sm:items-center sm:justify-between">
+       <a href="{{ reports_dashboard.export_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
+-        دانلود CSV
++        دریافت فایل گزارش
+         <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+       </a>
+       <div class="flex items-center gap-2 sm:mr-auto">
+--- a/templates/dashboards/partials/reports_chart_body.html
++++ b/templates/dashboards/partials/reports_chart_body.html
+@@ -1,110 +1,60 @@
+ {% if reports_dashboard.chart.is_empty %}
+-  {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-chart-column" title="در این بازه داده‌ای برای نمودار وجود ندارد" description="فیلترهای گزارش را تغییر بده تا روند درآمد و رزروها نمایش داده شود." %}
++  {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-chart-line" title="برای این بازه داده‌ای وجود ندارد" description="بازه یا فیلترها را تغییر بده تا روند درآمد و رزروها نمایش داده شود." %}
+ {% else %}
+-  <style>
+-    .lm-report-chart-scroll {
+-      scrollbar-width: thin;
+-      scrollbar-color: rgba(115, 92, 190, 0.35) transparent;
+-    }
++  <div class="space-y-3">
++    <div class="grid grid-cols-2 gap-2">
++      {% for item in reports_dashboard.chart.summary %}
++        {% if forloop.counter <= 2 %}
++          <div class="rounded-[16px] bg-loomera-bgSubtle px-3 py-2.5">
++            <span class="text-[9px] font-bold text-loomera-textMuted">{{ item.label }}</span>
++            <strong class="mt-1 block truncate text-xs font-black text-loomera-textPrimary">{{ item.value }}</strong>
++          </div>
++        {% endif %}
++      {% endfor %}
++    </div>
+ 
+-    .lm-report-chart-scroll::-webkit-scrollbar {
+-      height: 8px;
+-    }
++    <div class="overflow-hidden rounded-[20px] border border-loomera-borderSoft bg-gradient-to-b from-white to-loomera-bgSubtle/55 p-3">
++      <div class="mb-3 flex items-center gap-3 text-[9px] font-black text-loomera-textMuted">
++        <span class="inline-flex items-center gap-1.5">
++          <span class="h-2 w-2 rounded-full bg-loomera-primary"></span>
++          درآمد
++        </span>
++        <span class="inline-flex items-center gap-1.5">
++          <span class="h-2 w-2 rounded-sm bg-loomera-primary/20 ring-1 ring-loomera-primary/20"></span>
++          رزرو
++        </span>
++      </div>
+ 
+-    .lm-report-chart-scroll::-webkit-scrollbar-track {
+-      background: transparent;
+-    }
++      <div class="overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
++        <div class="flex min-w-max items-end gap-2 px-1" role="img" aria-label="نمودار درآمد و تعداد رزروها">
++          {% for item in reports_dashboard.chart.bars %}
++            <div class="flex w-[52px] shrink-0 flex-col items-center">
++              <div class="relative flex h-40 w-full items-end justify-center">
++                <div class="absolute inset-x-1 bottom-0 rounded-t-xl bg-loomera-primary/12"
++                     style="height: {% if item.appointments %}{% widthratio item.appointments 1 12 %}{% else %}4{% endif %}px; max-height: 92%; min-height: 4px;"
++                     aria-hidden="true"></div>
+ 
+-    .lm-report-chart-scroll::-webkit-scrollbar-thumb {
+-      background: rgba(115, 92, 190, 0.35);
+-      border-radius: 999px;
+-    }
+-
+-    .lm-report-chart-bar {
+-      position: relative;
+-    }
+-
+-    .lm-report-chart-tip {
+-      visibility: hidden;
+-      opacity: 0;
+-      transform: translate(-50%, 8px);
+-      transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+-    }
+-
+-    .lm-report-chart-bar:hover .lm-report-chart-tip {
+-      visibility: visible;
+-      opacity: 1;
+-      transform: translate(-50%, 0);
+-    }
+-
+-    @media (max-width: 640px) {
+-      .lm-report-chart-tip {
+-        display: none;
+-      }
+-    }
+-  </style>
+-
+-  <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_240px]">
+-    <div class="min-w-0 rounded-[24px] bg-loomera-surfaceSoft p-4">
+-      {% if reports_dashboard.chart.is_dense %}
+-        <div class="mb-3 flex items-center justify-between gap-3 rounded-2xl bg-white/70 px-4 py-3 text-xs font-bold text-slate-500">
+-          <span>نمودار شامل {{ reports_dashboard.chart.period_count_label }} بازه است؛ برای دیدن همه ستون‌ها افقی اسکرول کن.</span>
+-          <i class="fa-solid fa-arrows-left-right text-loomera-primary" aria-hidden="true"></i>
+-        </div>
+-      {% endif %}
+-
+-      <div class="lm-report-chart-scroll overflow-x-auto overflow-y-visible pb-3">
+-        <div
+-          class="flex min-h-[290px] items-end gap-3 px-1"
+-          style="min-width: {{ reports_dashboard.chart.min_width }}px;"
+-        >
+-          {% for item in reports_dashboard.chart.bars %}
+-            <div
+-              class="lm-report-chart-bar flex shrink-0 flex-col items-center gap-3"
+-              style="width: {{ reports_dashboard.chart.bar_width }}px;"
+-            >
+-              <div class="relative flex h-56 w-full items-end justify-center">
+-                <div
+-                  class="w-full rounded-t-[18px] bg-gradient-to-t from-loomera-primary to-loomera-primary/75 transition hover:opacity-90"
+-                  style="height: {{ item.height }}%; min-height: 10px;"
+-                  aria-label="{{ item.label }} - {{ item.revenue_label }} - {{ item.appointments_label }} رزرو"
+-                ></div>
+-
+-                <div class="lm-report-chart-tip pointer-events-none absolute left-1/2 top-2 z-30 w-max max-w-[220px] rounded-xl bg-slate-950 px-3 py-2 text-center text-[11px] font-semibold text-white shadow-xl">
+-                  <div>{{ item.label }}</div>
+-                  <div class="mt-1 text-slate-200">{{ item.revenue_label }}</div>
+-                  <div class="mt-1 text-slate-400">{{ item.appointments_label }} رزرو • {{ item.completed_label }} انجام‌شده</div>
+-                </div>
++                <div class="relative z-10 w-3.5 rounded-full bg-gradient-to-t from-loomera-primary to-loomera-primary/55 shadow-[0_5px_12px_rgba(115,92,190,0.18)]"
++                     style="height: {{ item.height }}%; min-height: 7px;"
++                     title="{{ item.label }} — {{ item.revenue_label }} — {{ item.appointments_label }} رزرو"></div>
+               </div>
+ 
+-              <div class="h-[54px] w-full text-center">
++              <div class="mt-2 min-h-9 text-center">
+                 {% if item.show_label %}
+-                  <p class="text-[11px] font-bold leading-5 text-slate-700">{{ item.label }}</p>
++                  <span class="block max-w-[52px] truncate text-[9px] font-black text-loomera-textSecondary">{{ item.label }}</span>
+                 {% else %}
+-                  <span class="mx-auto block h-1.5 w-1.5 rounded-full bg-slate-300"></span>
++                  <span class="mx-auto mt-1 block h-1 w-1 rounded-full bg-loomera-borderSoft"></span>
+                 {% endif %}
+-                <p class="mt-1 text-[10px] text-slate-400">{{ item.appointments_label }} رزرو</p>
++                <span class="mt-0.5 block text-[8px] font-bold text-loomera-textMuted">{{ item.appointments_label }} رزرو</span>
+               </div>
+             </div>
+           {% endfor %}
+         </div>
+       </div>
+-    </div>
+ 
+-    <div class="space-y-3">
+-      {% for item in reports_dashboard.chart.summary %}
+-        <div class="rounded-[24px] bg-slate-50 p-4">
+-          <p class="text-xs font-bold text-slate-500">{{ item.label }}</p>
+-          <p class="mt-2 text-lg font-black text-slate-950">{{ item.value }}</p>
+-        </div>
+-      {% endfor %}
+-
+-      <div class="rounded-[24px] border border-dashed border-slate-200 p-4">
+-        <p class="text-sm font-semibold text-slate-700">گروه‌بندی فعال: {{ reports_dashboard.filter_summary.group_by_label }}</p>
+-        <p class="mt-2 text-sm leading-7 text-slate-500">
+-          این نمودار کمک می‌کند روزها، هفته‌ها یا ماه‌های پرفروش، افت عملکرد و الگوی تکرار رزروها را سریع‌تر تشخیص بدهی.
+-        </p>
+-      </div>
++      <p class="mt-1 text-[9px] leading-5 text-loomera-textMuted">
++        ارتفاع خط بنفش میزان درآمد را نشان می‌دهد و عدد زیر هر بازه تعداد رزروهای همان بازه است.
++      </p>
+     </div>
+   </div>
+ {% endif %}
+--- a/templates/dashboards/partials/reports_status_widget.html
++++ b/templates/dashboards/partials/reports_status_widget.html
+@@ -1,26 +1,47 @@
+ {% if reports_dashboard.status_breakdown.is_empty %}
+-  {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-circle-nodes" title="ترکیب وضعیت‌ها خالی است" description="وقتی در بازه فعال رزروی وجود داشته باشد، سهم وضعیت‌ها در اینجا نمایش داده می‌شود." %}
++  {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-chart-pie" title="برای این بازه رزروی وجود ندارد" description="با ثبت رزرو، ترکیب وضعیت‌ها اینجا به‌صورت نمودار نمایش داده می‌شود." %}
+ {% else %}
+-  <div class="space-y-3">
+-    {% for item in reports_dashboard.status_breakdown.items %}
+-      <article class="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
+-        <div class="flex items-start justify-between gap-3">
+-          <div>
+-            <div class="flex items-center gap-2">
+-              <h3 class="text-sm font-black text-slate-900">{{ item.label }}</h3>
+-              <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold {{ item.badge_class }}">{{ item.count_label }} مورد</span>
++  <div class="grid items-center gap-4 sm:grid-cols-[170px_minmax(0,1fr)]">
++    <div class="relative mx-auto h-40 w-40">
++      <svg viewBox="0 0 42 42" class="h-full w-full -rotate-90" role="img" aria-label="نمودار دایره‌ای وضعیت رزروها">
++        <circle cx="21" cy="21" r="15.9155" fill="none" stroke="#f3f0f8" stroke-width="5"></circle>
++        {% for item in reports_dashboard.status_breakdown.items %}
++          {% if item.count %}
++            <circle cx="21"
++                    cy="21"
++                    r="15.9155"
++                    fill="none"
++                    stroke="{{ item.color }}"
++                    stroke-width="5"
++                    stroke-linecap="butt"
++                    pathLength="100"
++                    stroke-dasharray="{{ item.share }} 100"
++                    stroke-dashoffset="-{{ item.offset }}"></circle>
++          {% endif %}
++        {% endfor %}
++      </svg>
++
++      <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
++        <strong class="text-xl font-black text-loomera-textPrimary">{{ reports_dashboard.status_breakdown.total_label }}</strong>
++        <span class="mt-0.5 text-[9px] font-bold text-loomera-textMuted">کل رزروها</span>
++      </div>
++    </div>
++
++    <div class="grid grid-cols-2 gap-2">
++      {% for item in reports_dashboard.status_breakdown.items %}
++        {% if item.count %}
++          <div class="min-w-0 rounded-[14px] bg-loomera-bgSubtle px-2.5 py-2">
++            <div class="flex items-center gap-1.5">
++              <span class="h-2 w-2 shrink-0 rounded-full" style="background: {{ item.color }};"></span>
++              <span class="min-w-0 flex-1 truncate text-[9px] font-black text-loomera-textSecondary">{{ item.label }}</span>
+             </div>
+-            <p class="mt-2 text-xs text-slate-500">درآمد: {{ item.revenue_label }}</p>
++            <div class="mt-1 flex items-end justify-between gap-2">
++              <strong class="text-xs font-black text-loomera-textPrimary">{{ item.count_label }}</strong>
++              <span class="text-[9px] font-black text-loomera-textMuted">{{ item.share_label }}</span>
++            </div>
+           </div>
+-          <div class="text-left">
+-            <p class="text-sm font-black text-slate-900">{{ item.share_label }}</p>
+-            <p class="mt-1 text-xs text-slate-500">از کل بازه</p>
+-          </div>
+-        </div>
+-        <div class="mt-3 h-2 rounded-full bg-white">
+-          <div class="h-2 rounded-full bg-loomera-primary" style="width: {{ item.share }}%"></div>
+-        </div>
+-      </article>
+-    {% endfor %}
++        {% endif %}
++      {% endfor %}
++    </div>
+   </div>
+ {% endif %}

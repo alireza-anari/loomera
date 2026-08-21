@@ -69,15 +69,6 @@
     </label>
 
     <label>
-      <span class="mb-2 block text-xs font-bold text-loomera-textMuted">گروه‌بندی</span>
-      <select name="group_by" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
-        {% for option in reports_dashboard.filter_options.group_by %}
-          <option value="{{ option.id }}" {% if reports_dashboard.filters.group_by == option.id %}selected{% endif %}>{{ option.label }}</option>
-        {% endfor %}
-      </select>
-    </label>
-
-    <label>
       <span class="mb-2 block text-xs font-bold text-loomera-textMuted">وضعیت</span>
       <select name="status" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
         <option value="">همه وضعیت‌ها</option>
@@ -108,10 +99,11 @@
     </label>
 
     <input type="hidden" name="tab" value="{{ reports_dashboard.filters.tab }}">
+    <input type="hidden" name="group_by" value="{{ reports_dashboard.filters.group_by }}">
 
     <div class="md:col-span-2 xl:col-span-6 flex flex-col-reverse gap-3 border-t border-loomera-borderSoft pt-5 sm:flex-row sm:items-center sm:justify-between">
       <a href="{{ reports_dashboard.export_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
-        دانلود CSV
+        دریافت فایل گزارش
         <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
       </a>
       <div class="flex items-center gap-2 sm:mr-auto">

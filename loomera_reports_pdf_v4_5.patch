@@ -1,0 +1,634 @@
+--- a/apps/dashboards/reports_components.py
++++ b/apps/dashboards/reports_components.py
+@@ -1,12 +1,12 @@
+ from __future__ import annotations
+ 
+ from datetime import timedelta
+-from io import BytesIO
+-from html import escape as xml_escape
+-from zipfile import ZIP_DEFLATED, ZipFile
++from pathlib import Path
+ from urllib.parse import urlencode
+ 
++from django.contrib.staticfiles import finders
+ from django.http import HttpResponse
++from django.template.loader import render_to_string
+ 
+ from django.db.models import Count, Q, Sum
+ from django.urls import NoReverseMatch, reverse
+@@ -830,254 +830,51 @@
+ 
+ 
+ 
+-def _clean_report_value(value):
+-    if value is None:
++def _static_file_uri(relative_path):
++    resolved = finders.find(relative_path)
++    if not resolved:
+         return ""
+-    return str(value).replace("\r", " ").replace("\n", " ").strip()
+-
+-
+-def _report_export_rows(reports_dashboard):
+-    table = reports_dashboard.get("table", {})
+-    filters = reports_dashboard.get("filters", {})
+-    tab = filters.get("tab") or "overview"
+-    rows = table.get("rows", [])
+-
+-    if tab == "sales":
+-        headers = ["مشتری", "خدمت و متخصص", "تاریخ", "کد رزرو", "وضعیت", "مبلغ"]
+-        data = []
+-        for row in rows:
+-            status = row.get("status") or {}
+-            data.append([
+-                _clean_report_value(row.get("title")),
+-                _clean_report_value(row.get("subtitle")),
+-                _clean_report_value(row.get("date_label")),
+-                _clean_report_value(row.get("code")),
+-                _clean_report_value(status.get("label")),
+-                _clean_report_value(row.get("value_label")),
+-            ])
+-        return headers, data
+-
+-    if tab == "team":
+-        headers = ["متخصص", "توضیح", "تعداد رزرو", "درآمد", "مشتری", "درصد تکمیل"]
+-    elif tab == "services":
+-        headers = ["خدمت", "توضیح", "تعداد رزرو", "درآمد", "مشتری", "درصد تکمیل"]
+-    else:
+-        headers = ["بازه", "توضیح", "تعداد رزرو", "درآمد", "مشتری", "درصد تکمیل"]
+-
+-    data = [[
+-        _clean_report_value(row.get("title")),
+-        _clean_report_value(row.get("subtitle")),
+-        _clean_report_value(row.get("appointments_label")),
+-        _clean_report_value(row.get("revenue_label")),
+-        _clean_report_value(row.get("customers_label")),
+-        _clean_report_value(row.get("completion_label")),
+-    ] for row in rows]
+-    return headers, data
+-
+-
+-def _xlsx_col_name(index):
+-    name = ""
+-    while index:
+-        index, remainder = divmod(index - 1, 26)
+-        name = chr(65 + remainder) + name
+-    return name
+-
+-
+-def _xlsx_inline_cell(ref, value, style=0):
+-    safe = xml_escape(_clean_report_value(value))
+-    return (
+-        f'<c r="{ref}" t="inlineStr" s="{style}">'
+-        f'<is><t xml:space="preserve">{safe}</t></is></c>'
+-    )
+-
+-
+-def _xlsx_sheet_xml(rows, *, header_row=None, merge_title=False):
+-    max_cols = max((len(row) for row in rows), default=1)
+-    max_rows = max(len(rows), 1)
+-    end_col = _xlsx_col_name(max_cols)
+-    sheet_rows = []
+-
+-    for row_index, row in enumerate(rows, start=1):
+-        cells = []
+-        for col_index, value in enumerate(row, start=1):
+-            ref = f"{_xlsx_col_name(col_index)}{row_index}"
+-            if row_index == 1:
+-                style = 1
+-            elif header_row and row_index == header_row:
+-                style = 3
+-            elif col_index == 1 and row_index < (header_row or 9999):
+-                style = 2
+-            else:
+-                style = 4
+-            cells.append(_xlsx_inline_cell(ref, value, style))
+-
+-        height = "30" if row_index in {1, header_row} else "24"
+-        sheet_rows.append(
+-            f'<row r="{row_index}" ht="{height}" customHeight="1">'
+-            + "".join(cells)
+-            + "</row>"
+-        )
+-
+-    col_widths = []
+-    for idx in range(1, max_cols + 1):
+-        width = 24 if idx <= 2 else 18
+-        col_widths.append(
+-            f'<col min="{idx}" max="{idx}" width="{width}" customWidth="1"/>'
+-        )
+-
+-    merge_xml = ""
+-    if merge_title and max_cols > 1:
+-        merge_xml = (
+-            f'<mergeCells count="1"><mergeCell ref="A1:{end_col}1"/></mergeCells>'
+-        )
+-
+-    filter_xml = ""
+-    if header_row and max_rows > header_row:
+-        filter_xml = f'<autoFilter ref="A{header_row}:{end_col}{max_rows}"/>'
+-
+-    freeze_xml = ""
+-    if header_row:
+-        freeze_xml = (
+-            f'<pane ySplit="{header_row}" topLeftCell="A{header_row + 1}" '
+-            'activePane="bottomRight" state="frozen"/>'
+-        )
+-
+-    return (
+-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+-        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+-        f'<dimension ref="A1:{end_col}{max_rows}"/>'
+-        '<sheetViews><sheetView workbookViewId="0" rightToLeft="1" showGridLines="0">'
+-        f'{freeze_xml}</sheetView></sheetViews>'
+-        '<sheetFormatPr defaultRowHeight="22"/>'
+-        f'<cols>{"".join(col_widths)}</cols>'
+-        f'<sheetData>{"".join(sheet_rows)}</sheetData>'
+-        f'{merge_xml}{filter_xml}'
+-        '<pageMargins left="0.3" right="0.3" top="0.5" bottom="0.5" header="0.2" footer="0.2"/>'
+-        '</worksheet>'
+-    )
+-
+-
+-def _build_reports_xlsx_bytes(reports_dashboard):
+-    headers, data_rows = _report_export_rows(reports_dashboard)
+-    active_chips = reports_dashboard.get("active_filter_chips") or []
+-    stats = reports_dashboard.get("stats") or []
+-
+-    summary_rows = [
+-        ["گزارش‌های لومرا"],
+-        ["عنوان", reports_dashboard.get("workspace", {}).get("page_title") or "گزارش مجموعه"],
+-        ["بازه", reports_dashboard.get("active_range_label") or ""],
+-        ["آخرین به‌روزرسانی", reports_dashboard.get("filter_summary", {}).get("last_updated") or ""],
+-        ["تعداد نتایج", reports_dashboard.get("workspace", {}).get("result_count_label") or ""],
+-        [],
+-        ["خلاصه عملکرد"],
+-    ]
+-    for stat in stats:
+-        summary_rows.append([stat.get("title"), stat.get("value")])
+-
+-    if active_chips:
+-        summary_rows.extend([[], ["فیلترهای فعال"]])
+-        for chip in active_chips:
+-            summary_rows.append([chip.get("label"), chip.get("value")])
+-
+-    detail_rows = [
+-        ["جزئیات گزارش"],
+-        ["بازه", reports_dashboard.get("active_range_label") or ""],
+-        [],
+-        headers,
+-        *data_rows,
+-    ]
+-
+-    summary_xml = _xlsx_sheet_xml(summary_rows, merge_title=True)
+-    details_xml = _xlsx_sheet_xml(detail_rows, header_row=4, merge_title=True)
+-
+-    styles_xml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+-<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+-  <fonts count="3">
+-    <font><sz val="11"/><name val="Arial"/></font>
+-    <font><b/><sz val="16"/><color rgb="FFFFFFFF"/><name val="Arial"/></font>
+-    <font><b/><sz val="11"/><color rgb="FF352C46"/><name val="Arial"/></font>
+-  </fonts>
+-  <fills count="4">
+-    <fill><patternFill patternType="none"/></fill>
+-    <fill><patternFill patternType="gray125"/></fill>
+-    <fill><patternFill patternType="solid"><fgColor rgb="FF735CBE"/></patternFill></fill>
+-    <fill><patternFill patternType="solid"><fgColor rgb="FFF4F1FB"/></patternFill></fill>
+-  </fills>
+-  <borders count="2">
+-    <border><left/><right/><top/><bottom/><diagonal/></border>
+-    <border>
+-      <left style="thin"><color rgb="FFE8E2F2"/></left>
+-      <right style="thin"><color rgb="FFE8E2F2"/></right>
+-      <top style="thin"><color rgb="FFE8E2F2"/></top>
+-      <bottom style="thin"><color rgb="FFE8E2F2"/></bottom>
+-      <diagonal/>
+-    </border>
+-  </borders>
+-  <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+-  <cellXfs count="5">
+-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf>
+-    <xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyAlignment="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center"/></xf>
+-    <xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyAlignment="1" applyFill="1" applyFont="1" applyBorder="1"><alignment horizontal="right" vertical="center"/></xf>
+-    <xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyAlignment="1" applyFill="1" applyFont="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+-    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyAlignment="1" applyBorder="1"><alignment horizontal="right" vertical="center" wrapText="1"/></xf>
+-  </cellXfs>
+-  <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+-</styleSheet>'''
+-
+-    content_types = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+-  <Default Extension="xml" ContentType="application/xml"/>
+-  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+-  <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+-  <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+-  <Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+-</Types>'''
+-
+-    root_rels = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+-</Relationships>'''
+-
+-    workbook_xml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+-<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+-          xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+-  <bookViews><workbookView/></bookViews>
+-  <sheets>
+-    <sheet name="خلاصه" sheetId="1" r:id="rId1"/>
+-    <sheet name="جزئیات" sheetId="2" r:id="rId2"/>
+-  </sheets>
+-</workbook>'''
+-
+-    workbook_rels = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+-  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/>
+-  <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+-</Relationships>'''
+-
+-    output = BytesIO()
+-    with ZipFile(output, "w", ZIP_DEFLATED) as archive:
+-        archive.writestr("[Content_Types].xml", content_types)
+-        archive.writestr("_rels/.rels", root_rels)
+-        archive.writestr("xl/workbook.xml", workbook_xml)
+-        archive.writestr("xl/_rels/workbook.xml.rels", workbook_rels)
+-        archive.writestr("xl/styles.xml", styles_xml)
+-        archive.writestr("xl/worksheets/sheet1.xml", summary_xml)
+-        archive.writestr("xl/worksheets/sheet2.xml", details_xml)
+-    return output.getvalue()
++    return Path(resolved).resolve().as_uri()
++
++
++def _report_pdf_context(reports_dashboard, salon):
++    return {
++        "reports_dashboard": reports_dashboard,
++        "salon": salon,
++        "pdf_logo_uri": _static_file_uri(
++            "branding/logo/loomera-logo-horizontal-rtl-transparent-360.png"
++        ),
++        "pdf_font_uri": _static_file_uri(
++            "fonts/yekan-bakh/YekanBakh-Regular.woff2"
++        ),
++        "pdf_font_bold_uri": _static_file_uri(
++            "fonts/yekan-bakh/YekanBakh-Bold.woff2"
++        ),
++    }
+ 
+ 
+ def build_reports_csv_response(request, salon):
+-    # Keep the legacy function name for URL/view compatibility.
++    """Legacy function name kept for view compatibility; returns branded PDF."""
++    try:
++        from weasyprint import HTML
++    except ImportError as exc:  # pragma: no cover - deployment dependency guard
++        raise RuntimeError(
++            "PDF report export requires WeasyPrint. Add weasyprint==68.0 to requirements.txt."
++        ) from exc
++
+     reports_dashboard = build_reports_context(request, salon)["reports_dashboard"]
+-    payload = _build_reports_xlsx_bytes(reports_dashboard)
+-
+-    filename = f"loomera-salon-report-{salon.id}.xlsx"
+-    response = HttpResponse(
+-        payload,
+-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+-    )
++    html = render_to_string(
++        "dashboards/reports_pdf.html",
++        _report_pdf_context(reports_dashboard, salon),
++        request=request,
++    )
++    payload = HTML(
++        string=html,
++        base_url=request.build_absolute_uri("/"),
++    ).write_pdf()
++
++    filename = f"loomera-salon-report-{salon.id}.pdf"
++    response = HttpResponse(payload, content_type="application/pdf")
+     response["Content-Disposition"] = f'attachment; filename="{filename}"'
+     response["Content-Length"] = str(len(payload))
+     return response
+--- a/apps/dashboards/test_beta_ux_reports_filter_batch39_static_guards.py
++++ b/apps/dashboards/test_beta_ux_reports_filter_batch39_static_guards.py
+@@ -95,7 +95,6 @@
+         self.assertIn('type="hidden" name="group_by"', filters)
+         self.assertIn("دریافت فایل گزارش", filters)
+         self.assertIn("مشتری جدید", components)
+-        self.assertIn("sep=,", components)
+         self.assertIn("نمودار درآمد و تعداد رزروها", chart)
+         self.assertIn("نمودار دایره‌ای وضعیت رزروها", status)
+         self.assertIn('stroke-dasharray="{{ item.share }} 100"', status)
+@@ -108,13 +107,10 @@
+         ranking = self.read("templates/dashboards/partials/reports_ranking_chart.html")
+         js = self.read("static/js/pages/reports_dashboard.js")
+ 
+-        self.assertIn(".xlsx", components)
+-        self.assertIn(
+-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+-            components,
+-        )
+-        self.assertIn("ZipFile", components)
+-        self.assertNotIn('content_type="text/csv', components)
++        self.assertIn(".pdf", components)
++        self.assertIn("application/pdf", components)
++        self.assertIn("weasyprint", components)
++        self.assertNotIn(".xlsx", components)
+ 
+         self.assertIn("data-reports-trend-canvas", trend)
+         self.assertIn("data-reports-status-canvas", status)
+@@ -126,6 +122,20 @@
+         self.assertIn("const drawRankingChart", js)
+         self.assertIn("renderVisibleReportCharts", js)
+ 
++    def test_reports_v45_pdf_branding_and_ranking_labels(self):
++        components = self.read("apps/dashboards/reports_components.py")
++        page = self.read("templates/dashboards/reports.html")
++        ranking = self.read("templates/dashboards/partials/reports_ranking_chart.html")
++        pdf = self.read("templates/dashboards/reports_pdf.html")
++
++        self.assertIn("application/pdf", components)
++        self.assertIn("reports_pdf.html", components)
++        self.assertIn("گزارش PDF", page)
++        self.assertIn("عضو برتر", ranking)
++        self.assertIn("خدمت برتر", ranking)
++        self.assertIn("گزارش مدیریتی Loomera", pdf)
++        self.assertIn("loomera-logo-horizontal-rtl-transparent-360.png", components)
++
+ 
+ if __name__ == "__main__":
+     import unittest
+--- a/templates/dashboards/reports.html
++++ b/templates/dashboards/reports.html
+@@ -15,9 +15,9 @@
+ 
+         <a href="{{ reports_dashboard.export_url }}"
+            class="inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-loomera-borderSoft bg-white px-3 py-2 text-[10px] font-black text-loomera-primaryText shadow-lm-soft transition hover:bg-loomera-primarySoft/35"
+-           aria-label="دریافت فایل گزارش">
++           aria-label="دریافت گزارش PDF">
+           <i class="fa-solid fa-file-arrow-down text-[11px]" aria-hidden="true"></i>
+-          <span>فایل گزارش</span>
++          <span>گزارش PDF</span>
+         </a>
+       </div>
+ 
+--- a/templates/dashboards/partials/reports_ranking_chart.html
++++ b/templates/dashboards/partials/reports_ranking_chart.html
+@@ -9,7 +9,7 @@
+            aria-label="{{ title }}">
+         <div class="absolute inset-[20%] flex flex-col items-center justify-center rounded-full bg-white text-center shadow-[inset_0_0_0_1px_rgba(115,92,190,0.06)]">
+           <strong class="text-xl font-black text-loomera-textPrimary">{{ widget.items|length }}</strong>
+-          <span class="mt-0.5 text-[9px] font-bold text-loomera-textMuted">مورد برتر</span>
++          <span class="mt-0.5 text-[9px] font-bold text-loomera-textMuted">{% if "تیم" in title %}عضو برتر{% else %}خدمت برتر{% endif %}</span>
+         </div>
+       </div>
+     </div>
+--- a/templates/dashboards/reports_pdf.html
++++ b/templates/dashboards/reports_pdf.html
+@@ -0,0 +1,244 @@
++<!doctype html>
++<html lang="fa" dir="rtl">
++<head>
++  <meta charset="utf-8">
++  <title>{{ reports_dashboard.workspace.page_title }}</title>
++  <style>
++    {% if pdf_font_uri %}
++    @font-face { font-family: "YekanBakh"; src: url("{{ pdf_font_uri }}") format("woff2"); font-weight: 400; }
++    {% endif %}
++    {% if pdf_font_bold_uri %}
++    @font-face { font-family: "YekanBakh"; src: url("{{ pdf_font_bold_uri }}") format("woff2"); font-weight: 700 900; }
++    {% endif %}
++
++    @page {
++      size: A4;
++      margin: 14mm 13mm 16mm;
++      @bottom-left {
++        content: "loomera.ir";
++        color: #8a8198;
++        font-size: 8pt;
++      }
++      @bottom-right {
++        content: "صفحه " counter(page) " از " counter(pages);
++        color: #8a8198;
++        font-size: 8pt;
++      }
++    }
++
++    * { box-sizing: border-box; }
++    body {
++      margin: 0;
++      direction: rtl;
++      color: #2f283d;
++      background: #fff;
++      font-family: "YekanBakh", "Tahoma", sans-serif;
++      font-size: 9.5pt;
++      line-height: 1.75;
++    }
++    .header {
++      display: flex;
++      align-items: center;
++      justify-content: space-between;
++      gap: 16px;
++      border: 1px solid #e8e2f2;
++      border-top: 5px solid #735cbe;
++      border-radius: 14px;
++      padding: 12px 14px;
++      margin-bottom: 12px;
++      background: linear-gradient(135deg, #fff 0%, #faf8fe 100%);
++    }
++    .brand img { width: 106px; height: auto; display: block; }
++    .title-wrap { flex: 1; text-align: right; }
++    .eyebrow { color: #735cbe; font-weight: 800; font-size: 8pt; margin-bottom: 2px; }
++    h1 { margin: 0; font-size: 16pt; line-height: 1.45; font-weight: 900; }
++    .subline { margin-top: 4px; color: #7d748d; font-size: 8.5pt; }
++
++    .meta-strip {
++      display: grid;
++      grid-template-columns: repeat(3, 1fr);
++      gap: 7px;
++      margin-bottom: 12px;
++    }
++    .meta-box, .kpi, .panel {
++      border: 1px solid #e8e2f2;
++      border-radius: 11px;
++      background: #fff;
++    }
++    .meta-box { padding: 7px 9px; background: #f9f7fc; }
++    .meta-label { color: #8a8198; font-size: 7.5pt; }
++    .meta-value { margin-top: 1px; font-weight: 800; font-size: 9pt; }
++
++    .section-title {
++      display: flex;
++      align-items: center;
++      gap: 7px;
++      margin: 13px 0 7px;
++      font-size: 11pt;
++      font-weight: 900;
++    }
++    .section-title::before {
++      content: "";
++      width: 4px;
++      height: 17px;
++      border-radius: 4px;
++      background: #735cbe;
++    }
++
++    .kpi-grid {
++      display: grid;
++      grid-template-columns: repeat(3, 1fr);
++      gap: 7px;
++    }
++    .kpi { padding: 9px; break-inside: avoid; }
++    .kpi-label { color: #6d657a; font-size: 8pt; font-weight: 700; }
++    .kpi-value { margin-top: 3px; font-size: 12pt; font-weight: 900; color: #2f283d; }
++    .kpi-meta { margin-top: 2px; color: #93899f; font-size: 7pt; }
++
++    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
++    .panel { padding: 10px; break-inside: avoid; }
++    .panel h3 { margin: 0 0 7px; font-size: 10pt; font-weight: 900; }
++
++    .rank-item { margin-bottom: 7px; }
++    .rank-head { display: flex; justify-content: space-between; gap: 8px; font-size: 8pt; }
++    .rank-title { font-weight: 800; max-width: 65%; }
++    .rank-value { color: #735cbe; font-weight: 900; white-space: nowrap; }
++    .bar { height: 6px; border-radius: 6px; background: #f0ecf7; overflow: hidden; margin-top: 3px; }
++    .bar > span { display: block; height: 100%; border-radius: inherit; background: #735cbe; }
++    .rank-meta { margin-top: 2px; color: #93899f; font-size: 7pt; }
++
++    .status-list { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
++    .status-row { display: flex; align-items: center; justify-content: space-between; gap: 7px; padding: 5px 7px; border-radius: 8px; background: #faf9fc; }
++    .status-name { display: inline-flex; align-items: center; gap: 5px; font-size: 7.5pt; font-weight: 800; }
++    .dot { width: 7px; height: 7px; border-radius: 50%; }
++    .status-number { font-weight: 900; font-size: 8pt; }
++
++    table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 7.4pt; }
++    thead { display: table-header-group; }
++    tr { break-inside: avoid; }
++    th {
++      padding: 6px 5px;
++      background: #735cbe;
++      color: #fff;
++      border: 1px solid #735cbe;
++      font-weight: 800;
++      text-align: right;
++    }
++    td { padding: 5px; border: 1px solid #e8e2f2; vertical-align: top; word-wrap: break-word; }
++    tbody tr:nth-child(even) td { background: #faf9fc; }
++    .muted { color: #8a8198; }
++    .empty { padding: 16px; text-align: center; color: #8a8198; background: #faf9fc; border-radius: 10px; }
++    .filter-chip { display: inline-block; margin: 0 0 4px 4px; padding: 3px 7px; border-radius: 999px; background: #f1edf9; color: #6748b7; font-size: 7pt; font-weight: 800; }
++    .footer-note { margin-top: 12px; padding-top: 7px; border-top: 1px solid #e8e2f2; color: #9a90a4; font-size: 7pt; text-align: center; }
++  </style>
++</head>
++<body>
++  <header class="header">
++    <div class="title-wrap">
++      <div class="eyebrow">گزارش مدیریتی Loomera</div>
++      <h1>{{ salon.salon_name }}</h1>
++      <div class="subline">خلاصه عملکرد و جزئیات گزارش در بازه انتخاب‌شده</div>
++    </div>
++    {% if pdf_logo_uri %}<div class="brand"><img src="{{ pdf_logo_uri }}" alt="Loomera"></div>{% endif %}
++  </header>
++
++  <section class="meta-strip">
++    <div class="meta-box"><div class="meta-label">بازه گزارش</div><div class="meta-value">{{ reports_dashboard.active_range_label }}</div></div>
++    <div class="meta-box"><div class="meta-label">آخرین به‌روزرسانی</div><div class="meta-value">{{ reports_dashboard.filter_summary.last_updated }}</div></div>
++    <div class="meta-box"><div class="meta-label">تعداد رکورد</div><div class="meta-value">{{ reports_dashboard.workspace.result_count_label }}</div></div>
++  </section>
++
++  {% if reports_dashboard.active_filter_chips %}
++    <div>
++      {% for chip in reports_dashboard.active_filter_chips %}<span class="filter-chip">{{ chip.label }}: {{ chip.value }}</span>{% endfor %}
++    </div>
++  {% endif %}
++
++  <h2 class="section-title">خلاصه عملکرد</h2>
++  <section class="kpi-grid">
++    {% for card in reports_dashboard.stats %}
++      <article class="kpi">
++        <div class="kpi-label">{{ card.title }}</div>
++        <div class="kpi-value">{{ card.value }}</div>
++        {% if card.meta %}<div class="kpi-meta">{{ card.meta }}</div>{% endif %}
++      </article>
++    {% endfor %}
++  </section>
++
++  <h2 class="section-title">نگاه سریع</h2>
++  <section class="two-col">
++    <div class="panel">
++      <h3>خدمات پرفروش</h3>
++      {% if reports_dashboard.top_services.is_empty %}
++        <div class="empty">داده‌ای برای خدمات وجود ندارد.</div>
++      {% else %}
++        {% for item in reports_dashboard.top_services.items %}
++          <div class="rank-item">
++            <div class="rank-head"><span class="rank-title">{{ item.title }}</span><span class="rank-value">{{ item.value }}</span></div>
++            <div class="bar"><span style="width: {{ item.chart_end|default:0 }}%;"></span></div>
++            <div class="rank-meta">{{ item.meta }} - {{ item.chart_share_label }}</div>
++          </div>
++        {% endfor %}
++      {% endif %}
++    </div>
++
++    <div class="panel">
++      <h3>عملکرد تیم</h3>
++      {% if reports_dashboard.top_team.is_empty %}
++        <div class="empty">داده‌ای برای تیم وجود ندارد.</div>
++      {% else %}
++        {% for item in reports_dashboard.top_team.items %}
++          <div class="rank-item">
++            <div class="rank-head"><span class="rank-title">{{ item.title }}</span><span class="rank-value">{{ item.value }}</span></div>
++            <div class="bar"><span style="width: {{ item.chart_end|default:0 }}%;"></span></div>
++            <div class="rank-meta">{{ item.meta }} - {{ item.chart_share_label }}</div>
++          </div>
++        {% endfor %}
++      {% endif %}
++    </div>
++  </section>
++
++  <h2 class="section-title">وضعیت رزروها</h2>
++  <section class="panel">
++    {% if reports_dashboard.status_breakdown.is_empty %}
++      <div class="empty">برای این بازه رزروی وجود ندارد.</div>
++    {% else %}
++      <div class="status-list">
++        {% for item in reports_dashboard.status_breakdown.items %}
++          {% if item.count %}
++            <div class="status-row">
++              <span class="status-name"><span class="dot" style="background: {{ item.color }};"></span>{{ item.label }}</span>
++              <span class="status-number">{{ item.count_label }} - {{ item.share_label }}</span>
++            </div>
++          {% endif %}
++        {% endfor %}
++      </div>
++    {% endif %}
++  </section>
++
++  <h2 class="section-title">جزئیات گزارش</h2>
++  {% if reports_dashboard.table.is_empty %}
++    <div class="empty">داده‌ای برای نمایش وجود ندارد.</div>
++  {% elif reports_dashboard.table.kind == 'sales' %}
++    <table>
++      <thead><tr><th>مشتری</th><th>خدمت و متخصص</th><th>تاریخ</th><th>وضعیت</th><th>مبلغ</th></tr></thead>
++      <tbody>
++        {% for row in reports_dashboard.table.rows %}
++          <tr><td>{{ row.title }}</td><td>{{ row.subtitle }}</td><td>{{ row.date_label }}</td><td>{{ row.status.label }}</td><td>{{ row.value_label }}</td></tr>
++        {% endfor %}
++      </tbody>
++    </table>
++  {% else %}
++    <table>
++      <thead><tr><th>عنوان</th><th>توضیح</th><th>رزرو</th><th>درآمد</th><th>مشتری</th><th>تکمیل</th></tr></thead>
++      <tbody>
++        {% for row in reports_dashboard.table.rows %}
++          <tr><td>{{ row.title }}</td><td class="muted">{{ row.subtitle }}</td><td>{{ row.appointments_label }}</td><td>{{ row.revenue_label }}</td><td>{{ row.customers_label }}</td><td>{{ row.completion_label }}</td></tr>
++        {% endfor %}
++      </tbody>
++    </table>
++  {% endif %}
++
++  <div class="footer-note">این گزارش بر اساس داده‌های ثبت‌شده در Loomera و فیلترهای فعال در زمان دریافت فایل تولید شده است.</div>
++</body>
++</html>

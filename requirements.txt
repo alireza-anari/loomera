@@ -51,3 +51,6 @@ sentry-sdk==2.19.2
 whitenoise==6.8.2
 django-storages==1.14.6
 boto3==1.35.99
+fpdf2==2.8.7
+uharfbuzz==0.56.0
+brotli==1.2.0
