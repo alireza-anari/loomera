@@ -8,9 +8,13 @@
 
   <section class="min-w-0 max-w-full space-y-4 overflow-visible" data-dashboard-page="manager-profile" data-direct-edit-page>
     <header class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5">
+      <a href="{{ workspace_settings_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
+        <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
+        <span>تنظیمات</span>
+      </a>
       <div class="mt-3 max-w-2xl">
         <h1 class="text-xl font-black text-loomera-textPrimary sm:text-2xl">پروفایل مدیر</h1>
-        <p class="mt-1 text-sm leading-7 text-loomera-textMuted">اطلاعات حساب مدیر مجموعه را مدیریت کنید.</p>
+        <p class="mt-1 text-sm leading-7 text-loomera-textMuted">اطلاعات شخصی حساب مدیر را ویرایش کن. اطلاعاتی که مشتری درباره مجموعه می‌بیند از «پروفایل مجموعه» مدیریت می‌شود.</p>
       </div>
     </header>
 
@@ -41,7 +45,7 @@
             <div class="min-w-0">
               <h2 class="truncate text-base font-black text-loomera-textPrimary" data-manager-preview-name>{{ request.user.get_fullName|default:"مدیر مجموعه" }}</h2>
               <p class="mt-1 text-xs font-bold text-loomera-textMuted">حساب مدیر مجموعه</p>
-              <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">تصویر پروفایل</p>
+              <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">یک تصویر واضح و مربعی انتخاب کن.</p>
             </div>
           </div>
 
@@ -49,7 +53,7 @@
             <div class="mb-5">
               <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات حساب</p>
               <h2 id="manager-account-title" class="mt-1 text-base font-black text-loomera-textPrimary">نام و راه ارتباطی مدیر</h2>
-              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">این اطلاعات فقط برای حساب مدیر ذخیره می‌شود.</p>
+              <p class="mt-1 text-xs leading-6 text-loomera-textMuted">این اطلاعات مربوط به حساب خود مدیر است و با اطلاعات عمومی مجموعه جدا نگه داشته می‌شود.</p>
             </div>
 
             <div class="grid gap-4 sm:grid-cols-2">
@@ -81,17 +85,16 @@
         </div>
       </section>
 
-      <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-30 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur" data-direct-edit-savebar>
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div class="min-w-0">
-            <p class="text-xs font-black text-loomera-textPrimary" data-direct-edit-status>همه تغییرات ذخیره شده‌اند</p>
-            <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">فقط اطلاعات حساب مدیر ذخیره می‌شود؛ اطلاعات مجموعه از این صفحه تغییر نمی‌کند.</p>
+      <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-30 rounded-[20px] border border-loomera-borderSoft bg-white/95 p-2.5 shadow-[0_12px_30px_rgba(46,42,60,0.12)] backdrop-blur" data-direct-edit-savebar>
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0 hidden sm:block">
+            <p class="text-xs font-black text-loomera-textPrimary" data-direct-edit-status>آماده ذخیره تغییرات</p>
           </div>
-          <div class="flex gap-2">
+          <div class="flex gap-2 w-full sm:w-auto">
             <a href="{{ workspace_settings_url }}" class="inline-flex min-h-11 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">انصراف</a>
-            <button type="submit" class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white shadow-[0_14px_32px_rgba(115,92,190,0.20)] transition hover:opacity-95 sm:flex-none">
+            <button type="submit" class="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-sm font-black text-white shadow-[0_10px_24px_rgba(115,92,190,0.18)] transition hover:opacity-95 sm:flex-none">
               <i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>
-              <span>ذخیره پروفایل</span>
+              <span>ذخیره</span>
             </button>
           </div>
         </div>
