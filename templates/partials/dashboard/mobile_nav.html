@@ -329,6 +329,22 @@
     transform: translateX(-28%);
   }
 
+/* Stylist dashboard only: prevent management menu overflow */
+[data-dashboard-role="stylist"] .lm-partner-float-menu--management {
+    left: auto;
+    right: 58px;
+    transform: none;
+    width: min(18.5rem, calc(100vw - 32px));
+}
+
+@media (max-width: 380px) {
+  [data-dashboard-role="stylist"] .lm-partner-float-menu--management {
+    right: 12px;
+    width: calc(100vw - 24px);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
   .lm-partner-float-menu::after {
     content: "";
     position: absolute;
