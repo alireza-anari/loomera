@@ -1,37 +1,27 @@
 {% extends "dashboard_template.html" %}
 {% load static salons_filters %}
 
-
 {% block title %}پروفایل مدیر{% endblock %}
-
 
 {% block content %}
   {% url 'dashboards:workspace_settings' as workspace_settings_url %}
 
-
   <section class="min-w-0 max-w-full space-y-4 overflow-visible" data-dashboard-page="manager-profile" data-direct-edit-page>
     <header class="rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5">
-      <a href="{{ workspace_settings_url }}" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
-        <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
-        <span>تنظیمات</span>
-      </a>
       <div class="mt-3 max-w-2xl">
         <h1 class="text-xl font-black text-loomera-textPrimary sm:text-2xl">پروفایل مدیر</h1>
-        <p class="mt-1 text-sm leading-7 text-loomera-textMuted">اطلاعات مدیر مجموعه را مدیریت کنید.</p>
+        <p class="mt-1 text-sm leading-7 text-loomera-textMuted">اطلاعات حساب مدیر مجموعه را مدیریت کنید.</p>
       </div>
     </header>
 
-
     <form method="post" enctype="multipart/form-data" id="managerProfileForm" class="min-w-0 space-y-4 pb-24 lg:pb-4" data-manager-profile-form data-direct-edit-form>
       {% csrf_token %}
-
 
       {% if form.non_field_errors %}
         <div class="rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-7 text-rose-700" role="alert">
           {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
         </div>
       {% endif %}
-
 
       <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5 lg:p-6" aria-labelledby="manager-account-title">
         <div class="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8">
@@ -50,21 +40,67 @@
             </div>
             <div class="min-w-0">
               <h2 class="truncate text-base font-black text-loomera-textPrimary" data-manager-preview-name>{{ request.user.get_fullName|default:"مدیر مجموعه" }}</h2>
-              <p class="mt-1 text-xs font-bold text-loomera-textMuted">مدیر مجموعه</p>
+              <p class="mt-1 text-xs font-bold text-loomera-textMuted">حساب مدیر مجموعه</p>
               <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">تصویر پروفایل</p>
             </div>
           </div>
 
-
           <div class="min-w-0">
             <div class="mb-5">
               <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات حساب</p>
-              <h2 id="manager-account-title" class="mt-1 text-base font-black text-loomera-textPrimary">اطلاعات مدیر</h2>
+              <h2 id="manager-account-title" class="mt-1 text-base font-black text-loomera-textPrimary">نام و راه ارتباطی مدیر</h2>
               <p class="mt-1 text-xs leading-6 text-loomera-textMuted">این اطلاعات فقط برای حساب مدیر ذخیره می‌شود.</p>
             </div>
 
-
             <div class="grid gap-4 sm:grid-cols-2">
               <div>
+                <label for="{{ form.name.id_for_label }}" class="mb-2 block text-xs font-extrabold text-loomera-textMuted">نام</label>
+                {{ form.name|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}
+                {% for error in form.name.errors %}<span class="mt-2 block text-xs font-semibold text-rose-600">{{ error }}</span>{% endfor %}
+              </div>
+
+              <div>
+                <label for="{{ form.family.id_for_label }}" class="mb-2 block text-xs font-extrabold text-loomera-textMuted">نام خانوادگی</label>
+                {{ form.family|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" }}
+                {% for error in form.family.errors %}<span class="mt-2 block text-xs font-semibold text-rose-600">{{ error }}</span>{% endfor %}
+              </div>
+
+              <div>
+                <label class="mb-2 block text-xs font-extrabold text-loomera-textMuted">شماره موبایل حساب</label>
+                <div class="flex min-h-[50px] items-center rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle px-4 text-sm font-black text-loomera-textSecondary ltr" data-manager-account-mobile>{{ request.user.mobile_number }}</div>
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">این شماره شناسه ورود حساب است و از پروفایل قابل تغییر نیست.</p>
+              </div>
+
+              <div>
+                <label for="{{ form.email.id_for_label }}" class="mb-2 block text-xs font-extrabold text-loomera-textMuted">ایمیل <span class="font-normal">(اختیاری)</span></label>
+                {{ form.email|add_class:"w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10 ltr" }}
+                {% for error in form.email.errors %}<span class="mt-2 block text-xs font-semibold text-rose-600">{{ error }}</span>{% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-30 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur" data-direct-edit-savebar>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <p class="text-xs font-black text-loomera-textPrimary" data-direct-edit-status>همه تغییرات ذخیره شده‌اند</p>
+            <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">فقط اطلاعات حساب مدیر ذخیره می‌شود؛ اطلاعات مجموعه از این صفحه تغییر نمی‌کند.</p>
+          </div>
+          <div class="flex gap-2">
+            <a href="{{ workspace_settings_url }}" class="inline-flex min-h-11 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">انصراف</a>
+            <button type="submit" class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white shadow-[0_14px_32px_rgba(115,92,190,0.20)] transition hover:opacity-95 sm:flex-none">
+              <i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>
+              <span>ذخیره پروفایل</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </form>
+  </section>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script type="module" src="{% static 'js/pages/dashboard_manager_profile.js' %}"></script>
 {% endblock %}
