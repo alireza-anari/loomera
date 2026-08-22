@@ -1,23 +1,6 @@
 {% extends "dashboard_template.html" %}
 {% load static %}
-{% block title %}خانه کاری من
-<style>
-.lm-dashboard-tab {
-  min-height: 40px;
-  padding: .55rem 1rem;
-  border-radius: 999px;
-  white-space: nowrap;
-  font-size: .75rem;
-  font-weight: 900;
-  color: rgb(var(--color-loomera-textSecondary, 90 90 90));
-  background: white;
-}
-.lm-dashboard-tab:hover {
-  color: rgb(var(--color-loomera-primaryText, 30 100 80));
-}
-</style>
-
-{% endblock %}
+{% block title %}خانه کاری من{% endblock %}
 {% block body_attrs %}data-page="stylist-dashboard"{% endblock %}
 
 {% block head %}
@@ -36,120 +19,66 @@
 
   <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-dashboard">
 
-    {% include "dashboards/components/page_hero.html" with eyebrow="فضای کاری من" eyebrow_icon="fa-solid fa-house" title="خانه کاری من" description="نوبت‌های امروز و کارهای اصلی خودت را سریع مدیریت کن." action_label="ثبت نوبت" action_url=stylist_add_booking_url badges=page_meta.badges %}
+    {% include "dashboards/components/page_hero.html" with eyebrow="فضای کاری من" eyebrow_icon="fa-solid fa-house" title="خانه کاری من" description="مدیریت سریع نوبت‌ها و برنامه کاری" action_label="ثبت نوبت" action_url=stylist_add_booking_url badges=page_meta.badges %}
 
-    <section class="lm-stylist-summary-surface" aria-label="خلاصه فضای کاری متخصص" data-lm-direct-section data-lm-stylist-surface>
-      <div class="lm-stylist-summary-grid">
-        <a href="{{ stylist_appointments_url }}" class="lm-stylist-summary-card">
-          <p class="text-[11px] font-bold text-loomera-textMuted">نوبت امروز</p>
-          <strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ stylist_home.today_count_label }}</strong>
-          <span class="mt-1.5 block text-[11px] font-black text-loomera-primaryText">مشاهده</span>
-        </a>
+    <nav class="lm-stylist-tabs sticky top-[88px] z-30 flex gap-2 overflow-x-auto rounded-2xl border border-loomera-borderSoft bg-white/95 p-2 shadow-sm backdrop-blur">
+      <button type="button" class="lm-stylist-tab is-active" data-tab-target="today">نوبت‌های امروز</button>
+      <button type="button" class="lm-stylist-tab" data-tab-target="schedule">برنامه کاری</button>
+      <button type="button" class="lm-stylist-tab" data-tab-target="quick">دسترسی سریع</button>
+    </nav>
 
-        <a href="{{ stylist_schedule_url }}" class="lm-stylist-summary-card">
-          <p class="text-[11px] font-bold text-loomera-textMuted">برنامه کاری</p>
-          <strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ stylist_home.upcoming_count_label }}</strong>
-          <span class="mt-1.5 block text-[11px] font-black text-loomera-primaryText">مشاهده</span>
-        </a>
-
-        <a href="{{ stylist_profile_url }}" class="lm-stylist-summary-card">
-          <p class="text-[11px] font-bold text-loomera-textMuted">خدمات فعال</p>
-          <strong class="mt-2 block text-xl font-black text-loomera-textPrimary sm:text-2xl">{{ stylist_home.service_count_label }}</strong>
-          <span class="mt-1.5 block text-[11px] font-black text-loomera-primaryText">پروفایل</span>
-        </a>
-      </div>
+    <section class="lm-stylist-tab-content" data-tab-content="today">
+      <h2 class="rounded-2xl border border-loomera-borderSoft bg-white p-5 text-lg font-black">نوبت‌های امروز</h2>
+      {% for item in stylist_home.today_items %}
+      <article class="mt-3 rounded-[22px] border border-loomera-borderSoft bg-white p-4">
+        <strong class="font-black">{{ item.customer_name }}</strong>
+        <p class="mt-1 text-sm text-loomera-textMuted">{{ item.service_name }} - {{ item.time_label }}</p>
+      </article>
+      {% empty %}
+      {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-check" title="برای امروز نوبتی نداری" description="برای مشتری جدید نوبت ثبت کن." action_label="ثبت نوبت" action_url=stylist_add_booking_url %}
+      {% endfor %}
     </section>
 
-    <nav class="sticky top-0 z-30 -mx-2 flex gap-2 overflow-x-auto rounded-2xl border border-loomera-borderSoft bg-white/95 p-2 shadow-sm backdrop-blur" data-lm-sticky-tabs>
-          <a href="#today" class="lm-dashboard-tab">نوبت‌های امروز</a>
-          <a href="#schedule" class="lm-dashboard-tab">برنامه کاری</a>
-          <a href="#quick-actions" class="lm-dashboard-tab">دسترسی سریع</a>
-        </nav>
-
-        <section class="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
-      <article id="today" class="scroll-mt-24 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" data-lm-stylist-surface>
-        <header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-4 sm:px-5">
-          <div>
-            <p class="text-[11px] font-black text-loomera-primaryText">امروز</p>
-            <h2 class="mt-1 text-base font-black text-loomera-textPrimary">نوبت‌های امروز</h2>
-          </div>
-          <a href="{{ stylist_appointments_url }}" class="text-xs font-black text-loomera-primaryText">همه</a>
-        </header>
-
-        <div class="grid gap-3 p-4 sm:p-5 md:grid-cols-2">
-          {% for item in stylist_home.today_items %}
-            <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-sm" data-stylist-fast-flow-card>
-              <div class="flex items-start gap-3">
-                <span class="lm-compact-record-avatar shrink-0" aria-hidden="true">{{ item.customer_name|slice:":1" }}</span>
-                <div class="min-w-0 flex-1">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <strong class="truncate text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong>
-                    <span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
-                  </div>
-                  <p class="mt-1 truncate text-xs text-loomera-textMuted">{{ item.service_name }} • {{ item.time_label }}</p>
-                </div>
-              </div>
-
-              {% if item.quick_action %}
-                <form method="post" action="{{ item.detail_url }}" data-lm-form-ux="off" class="mt-4">
-                  {% csrf_token %}
-                  <input type="hidden" name="action" value="{{ item.quick_action.key }}">
-                  <input type="hidden" name="next" value="{{ request.path }}">
-                  <button class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-black {{ item.quick_action.class }}">
-                    <span>{{ item.quick_action.label }}</span>
-                  </button>
-                </form>
-              {% endif %}
-
-              <div class="mt-3 flex items-center justify-between gap-3 border-t border-loomera-borderSoft pt-3">
-                {% if item.exception_action %}
-                  <span class="text-[11px] font-black text-rose-600">{{ item.exception_action.label }}</span>
-                {% else %}
-                  <span></span>
-                {% endif %}
-                <a href="{{ item.detail_url }}" class="text-[11px] font-black text-loomera-textMuted">جزئیات</a>
-              </div>
-            </article>
-          {% empty %}
-            <div class="md:col-span-2">{% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-check" title="برای امروز نوبتی نداری" description="برای مشتری جدید می‌توانی نوبت ثبت کنی." action_label="ثبت نوبت" action_url=stylist_add_booking_url %}</div>
-          {% endfor %}
-        </div>
+    <section class="lm-stylist-tab-content hidden" data-tab-content="schedule">
+      <h2 class="rounded-2xl border border-loomera-borderSoft bg-white p-5 text-lg font-black">برنامه کاری</h2>
+      {% for row in stylist_home.schedule_rows %}
+      <article class="mt-3 rounded-[22px] border border-loomera-borderSoft bg-white p-4">
+        <strong class="font-black">{{ row.date_label }}</strong>
+        <p class="mt-1 text-sm text-loomera-textMuted">{{ row.time_label }}</p>
       </article>
-
-      <article id="schedule" class="scroll-mt-24 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card" data-lm-stylist-surface>
-        <header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-4 sm:px-5">
-          <div>
-            <p class="text-[11px] font-black text-loomera-primaryText">برنامه</p>
-            <h2 class="mt-1 text-base font-black text-loomera-textPrimary">شیفت‌های آینده</h2>
-          </div>
-          <a href="{{ stylist_schedule_url }}" class="text-xs font-black text-loomera-primaryText">همه</a>
-        </header>
-
-        <div class="space-y-2 p-4 sm:p-5">
-          {% for row in stylist_home.schedule_rows %}
-            <div class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-3">
-              <div class="flex items-center justify-between gap-3">
-                <strong class="text-sm font-black text-loomera-textPrimary">{{ row.date_label }}</strong>
-                <span class="text-xs font-black text-loomera-primaryText">{{ row.time_label }}</span>
-              </div>
-              <p class="mt-1 text-xs text-loomera-textMuted">{{ row.service_name|default:"همه خدمات" }}</p>
-            </div>
-          {% empty %}
-            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-clock" title="برنامه‌ای ثبت نشده" description="در صورت نیاز برنامه کاری جدید ثبت کن." action_label="درخواست برنامه" action_url=stylist_add_schedule_url %}
-          {% endfor %}
-        </div>
-      </article>
+      {% empty %}
+      {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-clock" title="برنامه‌ای ثبت نشده" description="برنامه کاری جدید ثبت کن." action_label="ثبت برنامه" action_url=stylist_add_schedule_url %}
+      {% endfor %}
     </section>
 
-    <section id="quick-actions" class="scroll-mt-24 rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" data-lm-stylist-surface>
-      <div class="flex flex-wrap gap-2">
-        <a href="{{ stylist_finance_url }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary">درآمد</a>
-        <a href="{{ stylist_quick_links_url }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary">لینک رزرو</a>
-        <a href="{{ stylist_profile_url }}" class="rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary">پروفایل</a>
+    <section class="lm-stylist-tab-content hidden" data-tab-content="quick">
+      <div class="rounded-[22px] border border-loomera-borderSoft bg-white p-5 flex flex-wrap gap-2">
+        <a href="{{ stylist_finance_url }}" class="rounded-full border px-4 py-2 text-xs font-black">درآمد</a>
+        <a href="{{ stylist_quick_links_url }}" class="rounded-full border px-4 py-2 text-xs font-black">لینک رزرو</a>
+        <a href="{{ stylist_profile_url }}" class="rounded-full border px-4 py-2 text-xs font-black">پروفایل</a>
       </div>
     </section>
 
   </section>
 
-  {% include "dashboards/partials/stylist_no_show_decision_dialog.html" %}
+  <style>
+    .lm-stylist-tab { min-height:44px; padding:.6rem 1rem; border-radius:999px; font-size:.75rem; font-weight:900; white-space:nowrap; }
+    .lm-stylist-tab.is-active { background:#7656c7; color:#fff; }
+  </style>
+
+  <script>
+    document.querySelectorAll('[data-tab-target]').forEach(tab => {
+      tab.addEventListener('click', function () {
+        const target = this.dataset.tabTarget;
+        document.querySelectorAll('[data-tab-content]').forEach(section => {
+          section.classList.toggle('hidden', section.dataset.tabContent !== target);
+        });
+        document.querySelectorAll('[data-tab-target]').forEach(item => {
+          item.classList.toggle('is-active', item === this);
+        });
+      });
+    });
+  </script>
+
+{% include "dashboards/partials/stylist_no_show_decision_dialog.html" %}
 {% endblock %}
