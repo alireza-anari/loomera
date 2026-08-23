@@ -3,6 +3,20 @@
 
 {% block title %}ویژگی‌ها و امکانات مجموعه{% endblock %}
 
+{% block head %}
+  {{ block.super }}
+  <style>
+    .lm-feature-card { box-shadow: 0 1px 0 rgba(46,42,60,.02); }
+    .lm-feature-card:hover { transform: translateY(-1px); border-color: rgba(115,92,190,.24); box-shadow: 0 10px 24px rgba(46,42,60,.07); }
+    .lm-feature-card.is-selected { border-color: rgba(115,92,190,.42); background: rgba(246,242,255,.78); box-shadow: 0 12px 28px rgba(115,92,190,.10); }
+    .lm-feature-checkbox:checked + .lm-feature-check { border-color: #735CBE; background: #735CBE; box-shadow: 0 7px 18px rgba(115,92,190,.22); }
+    .lm-feature-check i { opacity: 0; transform: scale(.65); transition: .16s ease; }
+    .lm-feature-checkbox:checked + .lm-feature-check i { opacity: 1; transform: scale(1); }
+    .lm-feature-checkbox:focus-visible + .lm-feature-check { outline: 3px solid rgba(115,92,190,.16); outline-offset: 2px; }
+    .lm-feature-tab[aria-selected="true"] { border-color: rgba(115,92,190,.24); background: #F2ECFF; color: #654CB1; box-shadow: 0 6px 18px rgba(115,92,190,.09); }
+  </style>
+{% endblock %}
+
 {% block content %}
   {% url 'dashboards:salon_profile_creator_step6' as previous_step_url %}
   {% url 'dashboards:salon_profile_creator_step8' as next_step_url %}
@@ -28,59 +42,140 @@
 
 
       <section id="features-section-builtin" class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-dashboard-workspace-panel data-lm-direct-section>
-        <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+        <header data-lm-direct-section-header class="flex cursor-default items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur sm:px-5 lg:px-6 lg:py-4">
           <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">گزینه‌های آماده</p>
-            <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">انتخاب ویژگی‌ها و امکانات</h2>
+            <p class="text-[11px] font-black text-loomera-primaryText">ویژگی‌های پیشنهادی بازار ایران</p>
+            <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">نوع مجموعه را انتخاب کن</h2>
           </div>
-</header>
+          <span class="hidden shrink-0 items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-2 text-[11px] font-black text-loomera-primaryText sm:inline-flex">
+            <i class="fa-solid fa-circle-check text-[10px]" aria-hidden="true"></i>
+            انتخاب چندگانه
+          </span>
+        </header>
 
         <div class="p-4 sm:p-5 lg:p-6">
-          <div class="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div class="flex flex-col gap-4">
             <div class="min-w-0">
-              <p class="text-xs leading-6 text-loomera-textMuted">از گزینه‌های آماده، موارد واقعی مجموعه را انتخاب کن. این موارد در صفحه عمومی مجموعه به مشتری کمک می‌کنند سریع‌تر تصمیم بگیرد.</p>
+              <p class="text-xs leading-6 text-loomera-textMuted">دسته مرتبط با مجموعه را باز کن و ویژگی‌هایی را بزن که مشتری واقعاً در مراجعه حضوری تجربه می‌کند.</p>
             </div>
-            <label class="relative block min-w-0 lg:w-80">
-              <span class="sr-only">جستجوی ویژگی‌های آماده</span>
+
+            <nav class="-mx-1 overflow-x-auto px-1 pb-1" aria-label="دسته‌بندی ویژگی‌های مجموعه" data-feature-category-tabs>
+              <div class="flex min-w-max items-center gap-2">
+<button type="button" class="lm-feature-tab inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border px-3.5 py-2 text-xs font-black transition border-loomera-primary/20 bg-loomera-primarySoft text-loomera-primaryText shadow-sm" data-feature-category-tab="beauty" aria-selected="true">
+              <i class="fa-solid fa-wand-magic-sparkles text-[10px]" aria-hidden="true"></i>
+              <span>سالن‌های زیبایی</span>
+              <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-1.5 py-0.5 text-[10px] font-black" data-feature-category-count="beauty">۰</span>
+            </button>
+<button type="button" class="lm-feature-tab inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border px-3.5 py-2 text-xs font-black transition border-loomera-borderSoft bg-white text-loomera-textSecondary" data-feature-category-tab="barber" aria-selected="false">
+              <i class="fa-solid fa-scissors text-[10px]" aria-hidden="true"></i>
+              <span>آرایشگاه‌های مردانه</span>
+              <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-1.5 py-0.5 text-[10px] font-black" data-feature-category-count="barber">۰</span>
+            </button>
+<button type="button" class="lm-feature-tab inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border px-3.5 py-2 text-xs font-black transition border-loomera-borderSoft bg-white text-loomera-textSecondary" data-feature-category-tab="medical" aria-selected="false">
+              <i class="fa-solid fa-user-doctor text-[10px]" aria-hidden="true"></i>
+              <span>خدمات درمانی زیبایی</span>
+              <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-1.5 py-0.5 text-[10px] font-black" data-feature-category-count="medical">۰</span>
+            </button>
+<button type="button" class="lm-feature-tab inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border px-3.5 py-2 text-xs font-black transition border-loomera-borderSoft bg-white text-loomera-textSecondary" data-feature-category-tab="spa" aria-selected="false">
+              <i class="fa-solid fa-spa text-[10px]" aria-hidden="true"></i>
+              <span>ماساژ و اسپا</span>
+              <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-white/80 px-1.5 py-0.5 text-[10px] font-black" data-feature-category-count="spa">۰</span>
+            </button>
+              </div>
+            </nav>
+
+            <label class="relative block min-w-0 sm:max-w-md">
+              <span class="sr-only">جستجو در ویژگی‌های این دسته</span>
               <i class="fa-solid fa-magnifying-glass pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-loomera-textMuted" aria-hidden="true"></i>
-              <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="جستجو در امکانات" data-feature-search>
+              <input type="search" class="w-full rounded-2xl border border-loomera-borderSoft bg-white py-3 pl-4 pr-10 text-sm font-bold text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10" placeholder="جستجو در این دسته" data-feature-search>
             </label>
           </div>
 
-          <div class="space-y-5" data-feature-sections>
-            {% for section in category_sections %}
-              <section class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-4 sm:p-5" data-feature-category>
-                <div class="mb-4 flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <h3 class="text-sm font-black text-loomera-textPrimary">{{ section.label }}</h3>
-                    <p class="mt-1 text-xs leading-6 text-loomera-textMuted">از این دسته هر تعداد مورد که واقعاً در مجموعه ارائه می‌شود انتخاب کن.</p>
-                  </div>
-                  <span class="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-black text-loomera-primaryText shadow-sm">{{ section.items|length }} مورد</span>
-                </div>
-
-                <div class="grid gap-3 md:grid-cols-2">
-                  {% for item in section.items %}
-                    <label class="group/feature flex min-w-0 items-start gap-3 rounded-[22px] border border-loomera-borderSoft bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/20 hover:shadow-lm-soft" data-feature-card data-feature-search-value="{{ section.label }} {{ item.title }} {{ item.description }}">
-                      <input type="checkbox" name="selected_items" value="{{ item.value }}" class="mt-1 h-5 w-5 shrink-0 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" {% if item.value in selected_item_values %}checked{% endif %}>
-                      <span class="min-w-0 flex-1">
-                        <span class="block text-sm font-black text-loomera-textPrimary">
-                          <i class="{{ item.icon_class }} ml-2 text-loomera-primaryText" aria-hidden="true"></i>{{ item.title }}
-                        </span>
-                        <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">{{ item.description }}</span>
-                      </span>
-                    </label>
-                  {% endfor %}
-                </div>
-              </section>
-            {% empty %}
-              <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-8 text-center text-sm leading-7 text-loomera-textMuted">
-                هنوز گزینه آماده‌ای برای ویژگی‌های مجموعه تعریف نشده است.
+          <div class="mt-5 space-y-4" data-feature-sections>
+          <section class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-3.5 sm:p-5" data-feature-category-panel="beauty">
+            <div class="mb-4 flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">سالن‌های زیبایی</h3>
+                <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فقط مواردی را انتخاب کن که واقعاً در مجموعه ارائه می‌شوند.</p>
               </div>
-            {% endfor %}
+              <span class="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-black text-loomera-primaryText shadow-sm">8 مورد</span>
+            </div>
+            <div class="grid gap-3 md:grid-cols-2">
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="خدمات عروس و همراهان" description="پکیج یا فضای مشخص برای آماده‌سازی عروس و همراهان در روز مراسم." display_icon="fa-solid fa-crown" value="custom::خدمات عروس و همراهان|fa-solid fa-sparkles|پکیج یا فضای مشخص برای آماده‌سازی عروس و همراهان در روز مراسم." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="اتاق یا فضای VIP" description="فضای جدا و آرام برای خدمات خصوصی یا مراجعه‌کنندگان ویژه." display_icon="fa-solid fa-gem" value="custom::اتاق یا فضای VIP|fa-solid fa-sparkles|فضای جدا و آرام برای خدمات خصوصی یا مراجعه‌کنندگان ویژه." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="خدمات تخصصی ناخن" description="مانیکور، پدیکور، کاشت یا ترمیم ناخن در مجموعه انجام می‌شود." display_icon="fa-solid fa-hand-sparkles" value="custom::خدمات تخصصی ناخن|fa-solid fa-sparkles|مانیکور، پدیکور، کاشت یا ترمیم ناخن در مجموعه انجام می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="رنگ، لایت و دکلره" description="خدمات تخصصی رنگ مو، لایت، مش و دکلره با مشاوره قبل از کار." display_icon="fa-solid fa-palette" value="custom::رنگ، لایت و دکلره|fa-solid fa-sparkles|خدمات تخصصی رنگ مو، لایت، مش و دکلره با مشاوره قبل از کار." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="اکستنشن مژه و خدمات ابرو" description="خدمات مژه و ابرو در فضای مشخص و توسط نیروی تخصصی ارائه می‌شود." display_icon="fa-solid fa-eye" value="custom::اکستنشن مژه و خدمات ابرو|fa-solid fa-sparkles|خدمات مژه و ابرو در فضای مشخص و توسط نیروی تخصصی ارائه می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="فیشیال و پاکسازی پوست" description="پاکسازی، آبرسانی و مراقبت‌های غیرپزشکی پوست در مجموعه ارائه می‌شود." display_icon="fa-solid fa-spa" value="custom::فیشیال و پاکسازی پوست|fa-solid fa-sparkles|پاکسازی، آبرسانی و مراقبت‌های غیرپزشکی پوست در مجموعه ارائه می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="مشاوره قبل از خدمات شیمیایی مو" description="قبل از رنگ، دکلره یا صافی درباره وضعیت مو و نتیجه مورد انتظار مشاوره انجام می‌شود." display_icon="fa-solid fa-comments" value="custom::مشاوره قبل از خدمات شیمیایی مو|fa-solid fa-sparkles|قبل از رنگ، دکلره یا صافی درباره وضعیت مو و نتیجه مورد انتظار مشاوره انجام می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="پذیرایی از مشتری" description="در زمان انتظار یا انجام خدمات، پذیرایی ساده برای مشتری در نظر گرفته شده است." display_icon="fa-solid fa-mug-hot" value="custom::پذیرایی از مشتری|fa-solid fa-sparkles|در زمان انتظار یا انجام خدمات، پذیرایی ساده برای مشتری در نظر گرفته شده است." %}
+            </div>
+          </section>
+          <section class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-3.5 sm:p-5 hidden" data-feature-category-panel="barber">
+            <div class="mb-4 flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">آرایشگاه‌های مردانه</h3>
+                <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فقط مواردی را انتخاب کن که واقعاً در مجموعه ارائه می‌شوند.</p>
+              </div>
+              <span class="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-black text-loomera-primaryText shadow-sm">8 مورد</span>
+            </div>
+            <div class="grid gap-3 md:grid-cols-2">
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="اصلاح و پیرایش تخصصی مو" description="کوتاهی و فرم‌دهی مو متناسب با مدل انتخابی و فرم صورت انجام می‌شود." display_icon="fa-solid fa-scissors" value="custom::اصلاح و پیرایش تخصصی مو|fa-solid fa-star|کوتاهی و فرم‌دهی مو متناسب با مدل انتخابی و فرم صورت انجام می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="فید و سایه تخصصی" description="خدمات فید، سایه و ترکیب حرفه‌ای خطوط مو در مجموعه ارائه می‌شود." display_icon="fa-solid fa-layer-group" value="custom::فید و سایه تخصصی|fa-solid fa-star|خدمات فید، سایه و ترکیب حرفه‌ای خطوط مو در مجموعه ارائه می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="اصلاح و فرم‌دهی ریش" description="مرتب‌سازی، فرم‌دهی و اصلاح ریش و سبیل با ابزار تخصصی انجام می‌شود." display_icon="fa-solid fa-user-tie" value="custom::اصلاح و فرم‌دهی ریش|fa-solid fa-star|مرتب‌سازی، فرم‌دهی و اصلاح ریش و سبیل با ابزار تخصصی انجام می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="گریم و آماده‌سازی داماد" description="خدمات ویژه داماد شامل اصلاح، استایل مو و آماده‌سازی چهره ارائه می‌شود." display_icon="fa-solid fa-crown" value="custom::گریم و آماده‌سازی داماد|fa-solid fa-star|خدمات ویژه داماد شامل اصلاح، استایل مو و آماده‌سازی چهره ارائه می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="پاکسازی پوست آقایان" description="پاکسازی و مراقبت غیرپزشکی پوست مخصوص آقایان در مجموعه انجام می‌شود." display_icon="fa-solid fa-droplet" value="custom::پاکسازی پوست آقایان|fa-solid fa-star|پاکسازی و مراقبت غیرپزشکی پوست مخصوص آقایان در مجموعه انجام می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="خدمات کودک و نوجوان" description="امکان کوتاهی و پیرایش مو برای کودکان و نوجوانان فراهم است." display_icon="fa-solid fa-child-reaching" value="custom::خدمات کودک و نوجوان|fa-solid fa-star|امکان کوتاهی و پیرایش مو برای کودکان و نوجوانان فراهم است." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="شست‌وشوی مو قبل یا بعد خدمات" description="فضای شست‌وشوی مو برای آماده‌سازی یا تکمیل خدمت در دسترس است." display_icon="fa-solid fa-shower" value="custom::شست‌وشوی مو قبل یا بعد خدمات|fa-solid fa-star|فضای شست‌وشوی مو برای آماده‌سازی یا تکمیل خدمت در دسترس است." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="رزرو با زمان‌بندی دقیق" description="نوبت‌ها با بازه زمانی مشخص مدیریت می‌شوند تا زمان انتظار کاهش پیدا کند." display_icon="fa-solid fa-clock" value="custom::رزرو با زمان‌بندی دقیق|fa-solid fa-star|نوبت‌ها با بازه زمانی مشخص مدیریت می‌شوند تا زمان انتظار کاهش پیدا کند." %}
+            </div>
+          </section>
+          <section class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-3.5 sm:p-5 hidden" data-feature-category-panel="medical">
+            <div class="mb-4 flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">خدمات درمانی زیبایی</h3>
+                <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فقط مواردی را انتخاب کن که واقعاً در مجموعه ارائه می‌شوند.</p>
+              </div>
+              <span class="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-black text-loomera-primaryText shadow-sm">10 مورد</span>
+            </div>
+            <div class="grid gap-3 md:grid-cols-2">
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="پزشک یا مسئول فنی مستقر" description="در زمان ارائه خدمات درمانی زیبایی، پزشک یا مسئول فنی مرتبط در مجموعه حضور دارد." display_icon="fa-solid fa-user-doctor" value="custom::پزشک یا مسئول فنی مستقر|fa-solid fa-circle-check|در زمان ارائه خدمات درمانی زیبایی، پزشک یا مسئول فنی مرتبط در مجموعه حضور دارد." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="اتاق درمان مجزا" description="خدمات درمانی در اتاق جدا با حریم خصوصی مناسب انجام می‌شود." display_icon="fa-solid fa-door-closed" value="custom::اتاق درمان مجزا|fa-solid fa-circle-check|خدمات درمانی در اتاق جدا با حریم خصوصی مناسب انجام می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="پرونده مراجعه‌کننده" description="سوابق مراجعه و اطلاعات لازم برای پیگیری خدمات هر مراجعه‌کننده ثبت می‌شود." display_icon="fa-solid fa-file-medical" value="custom::پرونده مراجعه‌کننده|fa-solid fa-circle-check|سوابق مراجعه و اطلاعات لازم برای پیگیری خدمات هر مراجعه‌کننده ثبت می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="مشاوره قبل از درمان" description="قبل از انجام خدمت، شرایط مراجعه‌کننده و نتیجه مورد انتظار بررسی می‌شود." display_icon="fa-solid fa-comments" value="custom::مشاوره قبل از درمان|fa-solid fa-circle-check|قبل از انجام خدمت، شرایط مراجعه‌کننده و نتیجه مورد انتظار بررسی می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="پیگیری پس از خدمت" description="برای خدمات نیازمند پیگیری، وضعیت مراجعه‌کننده پس از انجام خدمت بررسی می‌شود." display_icon="fa-solid fa-phone-volume" value="custom::پیگیری پس از خدمت|fa-solid fa-circle-check|برای خدمات نیازمند پیگیری، وضعیت مراجعه‌کننده پس از انجام خدمت بررسی می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="لیزر موهای زائد" description="خدمات لیزر موهای زائد با دستگاه و فضای اختصاصی در مجموعه ارائه می‌شود." display_icon="fa-solid fa-bolt" value="custom::لیزر موهای زائد|fa-solid fa-circle-check|خدمات لیزر موهای زائد با دستگاه و فضای اختصاصی در مجموعه ارائه می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="تزریقات زیبایی" description="خدمات تزریقی زیبایی مانند بوتاکس یا فیلر در صورت وجود مجوزهای لازم ارائه می‌شود." display_icon="fa-solid fa-syringe" value="custom::تزریقات زیبایی|fa-solid fa-circle-check|خدمات تزریقی زیبایی مانند بوتاکس یا فیلر در صورت وجود مجوزهای لازم ارائه می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="جوانسازی و خدمات پوستی دستگاهی" description="خدمات جوانسازی یا مراقبت پوستی با دستگاه‌های تخصصی در مجموعه انجام می‌شود." display_icon="fa-solid fa-wave-square" value="custom::جوانسازی و خدمات پوستی دستگاهی|fa-solid fa-circle-check|خدمات جوانسازی یا مراقبت پوستی با دستگاه‌های تخصصی در مجموعه انجام می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="استریل و بسته‌بندی ابزار" description="ابزار قابل استفاده مجدد طبق روال مجموعه ضدعفونی یا استریل و نگهداری می‌شود." display_icon="fa-solid fa-shield-heart" value="custom::استریل و بسته‌بندی ابزار|fa-solid fa-circle-check|ابزار قابل استفاده مجدد طبق روال مجموعه ضدعفونی یا استریل و نگهداری می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="مواد مصرفی یک‌بارمصرف" description="برای بخش‌های لازم از اقلام یک‌بارمصرف و بسته‌بندی‌شده استفاده می‌شود." display_icon="fa-solid fa-box-open" value="custom::مواد مصرفی یک‌بارمصرف|fa-solid fa-circle-check|برای بخش‌های لازم از اقلام یک‌بارمصرف و بسته‌بندی‌شده استفاده می‌شود." %}
+            </div>
+          </section>
+          <section class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-3.5 sm:p-5 hidden" data-feature-category-panel="spa">
+            <div class="mb-4 flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-loomera-textPrimary">ماساژ و اسپا</h3>
+                <p class="mt-1 text-xs leading-6 text-loomera-textMuted">فقط مواردی را انتخاب کن که واقعاً در مجموعه ارائه می‌شوند.</p>
+              </div>
+              <span class="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-black text-loomera-primaryText shadow-sm">10 مورد</span>
+            </div>
+            <div class="grid gap-3 md:grid-cols-2">
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="اتاق ماساژ خصوصی" description="ماساژ در اتاق مجزا و با حریم خصوصی مناسب انجام می‌شود." display_icon="fa-solid fa-door-closed" value="custom::اتاق ماساژ خصوصی|fa-solid fa-leaf|ماساژ در اتاق مجزا و با حریم خصوصی مناسب انجام می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="ماساژ ویژه بانوان" description="امکان رزرو خدمات ماساژ ویژه بانوان در مجموعه وجود دارد." display_icon="fa-solid fa-person-dress" value="custom::ماساژ ویژه بانوان|fa-solid fa-leaf|امکان رزرو خدمات ماساژ ویژه بانوان در مجموعه وجود دارد." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="ماساژ ویژه آقایان" description="امکان رزرو خدمات ماساژ ویژه آقایان در مجموعه وجود دارد." display_icon="fa-solid fa-person" value="custom::ماساژ ویژه آقایان|fa-solid fa-leaf|امکان رزرو خدمات ماساژ ویژه آقایان در مجموعه وجود دارد." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="دوش اختصاصی مجموعه" description="امکان استفاده از دوش قبل یا بعد از خدمات منتخب فراهم است." display_icon="fa-solid fa-shower" value="custom::دوش اختصاصی مجموعه|fa-solid fa-leaf|امکان استفاده از دوش قبل یا بعد از خدمات منتخب فراهم است." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="سونا خشک یا بخار" description="مجموعه دارای سونا برای استفاده مراجعه‌کنندگان طبق خدمات تعریف‌شده است." display_icon="fa-solid fa-temperature-high" value="custom::سونا خشک یا بخار|fa-solid fa-leaf|مجموعه دارای سونا برای استفاده مراجعه‌کنندگان طبق خدمات تعریف‌شده است." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="جکوزی" description="امکان استفاده از جکوزی در مجموعه و طبق شرایط خدمات فراهم است." display_icon="fa-solid fa-water" value="custom::جکوزی|fa-solid fa-leaf|امکان استفاده از جکوزی در مجموعه و طبق شرایط خدمات فراهم است." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="کمد شخصی قفل‌دار" description="برای نگهداری لباس و وسایل شخصی مراجعه‌کننده کمد امن در نظر گرفته شده است." display_icon="fa-solid fa-lock" value="custom::کمد شخصی قفل‌دار|fa-solid fa-leaf|برای نگهداری لباس و وسایل شخصی مراجعه‌کننده کمد امن در نظر گرفته شده است." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="حوله و ملحفه تمیز" description="برای هر مراجعه از حوله و ملحفه تمیز و آماده استفاده می‌شود." display_icon="fa-solid fa-bed" value="custom::حوله و ملحفه تمیز|fa-solid fa-leaf|برای هر مراجعه از حوله و ملحفه تمیز و آماده استفاده می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="رایحه‌درمانی" description="در برخی خدمات از رایحه‌ها یا روغن‌های مناسب برای تجربه آرامش‌بخش‌تر استفاده می‌شود." display_icon="fa-solid fa-leaf" value="custom::رایحه‌درمانی|fa-solid fa-leaf|در برخی خدمات از رایحه‌ها یا روغن‌های مناسب برای تجربه آرامش‌بخش‌تر استفاده می‌شود." %}
+              {% include "dashboards/partials/onboarding_feature_option.html" with title="فضای استراحت پس از ماساژ" description="فضای کوتاه برای استراحت و بازگشت تدریجی پس از پایان ماساژ در نظر گرفته شده است." display_icon="fa-solid fa-couch" value="custom::فضای استراحت پس از ماساژ|fa-solid fa-leaf|فضای کوتاه برای استراحت و بازگشت تدریجی پس از پایان ماساژ در نظر گرفته شده است." %}
+            </div>
+          </section>
           </div>
 
           <div class="mt-5 hidden rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-8 text-center text-sm leading-7 text-loomera-textMuted" data-feature-empty>
-            موردی با این جستجو پیدا نشد.
+            موردی با این جستجو در دسته انتخاب‌شده پیدا نشد.
           </div>
         </div>
       </section>
@@ -159,16 +254,14 @@
 
             <div class="mt-4 space-y-3" id="customFeaturesList">
               {% for item in custom_items %}
-                <label class="flex items-start gap-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 transition hover:border-loomera-primary/20 hover:bg-white" data-custom-feature-item data-custom-title="{{ item.title }}">
-                  <input type="checkbox" name="selected_items" value="{{ item.value }}" class="mt-1 h-5 w-5 rounded border-loomera-borderSoft text-loomera-primary focus:ring-loomera-primary/20" {% if item.value in selected_item_values %}checked{% endif %}>
-                  <span class="flex-1">
-                    <span class="block text-sm font-black text-loomera-textPrimary">
-                      <i class="{{ item.icon_class }} ml-2 text-loomera-primaryText" aria-hidden="true"></i>{{ item.title }}
-                    </span>
+                <label class="lm-feature-card relative flex items-start gap-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 transition" data-custom-feature-item data-custom-title="{{ item.title }}">
+                  <input type="checkbox" name="selected_items" value="{{ item.value }}" class="lm-feature-checkbox sr-only" {% if item.value in selected_item_values %}checked{% endif %}>
+                  <span class="lm-feature-check mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border border-loomera-borderSoft bg-white text-white transition" aria-hidden="true"><i class="fa-solid fa-check text-[10px]"></i></span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-sm font-black text-loomera-textPrimary"><i class="{{ item.icon_class }} ml-2 text-loomera-primaryText" aria-hidden="true"></i>{{ item.title }}</span>
                     <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">{{ item.description }}</span>
                   </span>
-
-                  <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textMuted transition hover:bg-loomera-dangerSoft hover:text-loomera-danger" data-remove-custom-feature title="حذف از لیست موقت">
+                  <button type="button" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textMuted transition hover:bg-loomera-dangerSoft hover:text-loomera-danger" data-remove-custom-feature title="حذف از لیست موقت">
                     <i class="fa-solid fa-xmark text-xs" aria-hidden="true"></i>
                   </button>
                 </label>

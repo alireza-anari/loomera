@@ -1,0 +1,15 @@
+<label class="lm-feature-card group/feature relative flex min-w-0 cursor-pointer items-start gap-3 rounded-[22px] border border-loomera-borderSoft bg-white p-3.5 transition sm:p-4" data-feature-card data-feature-title="{{ title }}" data-feature-search-value="{{ title }} {{ description }}">
+  <input type="checkbox" name="selected_items" value="{{ value }}" class="lm-feature-checkbox sr-only" {% if value in selected_item_values %}checked{% endif %}>
+  <span class="lm-feature-check mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border border-loomera-borderSoft bg-loomera-bgSubtle text-white transition" aria-hidden="true">
+    <i class="fa-solid fa-check text-[10px]"></i>
+  </span>
+  <span class="min-w-0 flex-1">
+    <span class="flex min-w-0 items-center gap-2.5">
+      <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText transition group-hover/feature:scale-105">
+        <i class="{{ display_icon }} text-xs" aria-hidden="true"></i>
+      </span>
+      <strong class="min-w-0 text-sm font-black leading-6 text-loomera-textPrimary">{{ title }}</strong>
+    </span>
+    <span class="mt-2 block text-xs leading-6 text-loomera-textMuted">{{ description }}</span>
+  </span>
+</label>
