@@ -8,13 +8,93 @@
 {% block head %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'css/pages/stylist_workspace.css' %}">
+  <style>
+    .lm-stylist-content-form input[type="text"],
+    .lm-stylist-content-form input[type="url"],
+    .lm-stylist-content-form input[type="search"],
+    .lm-stylist-content-form select,
+    .lm-stylist-content-form textarea {
+      width: 100%;
+      border: 1px solid var(--lm-border-soft, #e9e4f4);
+      border-radius: 1.15rem;
+      background: #fff;
+      padding: .78rem .9rem;
+      color: var(--lm-text-primary, #211a33);
+      font: inherit;
+      font-size: .82rem;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    }
+
+    .lm-stylist-content-form textarea {
+      min-height: 132px;
+      resize: vertical;
+      line-height: 1.9;
+    }
+
+    .lm-stylist-content-form select {
+      min-height: 48px;
+      cursor: pointer;
+    }
+
+    .lm-stylist-content-form input[type="text"]:focus,
+    .lm-stylist-content-form input[type="url"]:focus,
+    .lm-stylist-content-form input[type="search"]:focus,
+    .lm-stylist-content-form select:focus,
+    .lm-stylist-content-form textarea:focus {
+      border-color: rgba(115, 92, 190, .35);
+      box-shadow: 0 0 0 4px rgba(115, 92, 190, .09);
+      background: #fff;
+    }
+
+    .lm-content-upload-native {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      clip-path: inset(50%) !important;
+    }
+
+    .lm-content-upload-box {
+      display: flex;
+      min-height: 64px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      border: 1px dashed var(--lm-border-soft, #e9e4f4);
+      border-radius: 1.15rem;
+      background: #fff;
+      padding: .7rem .8rem;
+      transition: border-color 150ms ease, background-color 150ms ease;
+    }
+
+    .lm-content-upload-box:hover {
+      border-color: rgba(115, 92, 190, .38);
+      background: var(--lm-primary-soft, #f3effc);
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
 
 
 <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-content" data-content-studio="stylist">
-  {% include "dashboards/components/page_hero.html" with eyebrow="مدیریت محتوا" eyebrow_icon="fa-regular fa-pen-to-square" title="محتوای من" description="اول وضعیت ارسال‌های قبلی را ببین؛ برای محتوای جدید مقاله یا استوری را انتخاب کن و مدیر مجموعه بررسی نهایی را انجام می‌دهد." action_label="رفتن به مجله" action_url="/magazine/" badges=page_meta.badges %}
+  <header class="rounded-[24px] border border-loomera-borderSoft bg-white px-4 py-3.5 shadow-lm-card sm:px-5 sm:py-4">
+    <div class="flex items-center justify-between gap-3">
+      <div class="min-w-0">
+        <h1 class="text-xl font-black text-loomera-textPrimary sm:text-2xl">محتوای من</h1>
+        <p class="mt-1 text-xs font-bold text-loomera-textMuted">ارسال‌ها را پیگیری کن یا محتوای تازه بفرست.</p>
+      </div>
+      <a href="/magazine/" class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
+        <i class="fa-regular fa-newspaper text-[11px]" aria-hidden="true"></i>
+        مجله
+      </a>
+    </div>
+  </header>
 
   <div class="lm-task-tabs-anchor"
        data-lm-task-tabs-anchor="stylist-content"
@@ -29,12 +109,12 @@
         <p class="text-[11px] font-black text-loomera-primaryText">ارسال مقاله</p>
         <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ارسال مقاله پیشنهادی</h2>
         <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-          عنوان، متن، تصویر، برچسب و خدمات مرتبط مقاله را کامل کن.
+          اطلاعات اصلی مقاله را کامل کن و برای بررسی بفرست.
         </p>
       </div>
 </header>
 
-    <form method="post" enctype="multipart/form-data" class="space-y-5 p-4 sm:p-5 lg:p-6">
+    <form method="post" enctype="multipart/form-data" class="lm-stylist-content-form space-y-4 p-4 sm:p-5 lg:p-6">
       {% csrf_token %}
       <input type="hidden" name="form_type" value="article">
 
@@ -82,9 +162,19 @@
             {% endif %}
           </div>
 
-          <div>
+          <div class="relative">
             <label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ article_form.media.label }}</label>
-            {{ article_form.media }}
+            <div class="lm-content-upload-native">{{ article_form.media }}</div>
+            <label for="{{ article_form.media.id_for_label }}" class="lm-content-upload-box">
+              <span class="min-w-0">
+                <strong class="block text-sm font-black text-loomera-textPrimary">انتخاب تصویر مقاله</strong>
+                <span class="mt-1 block truncate text-[11px] font-bold text-loomera-textMuted" data-content-file-name="{{ article_form.media.id_for_label }}">هنوز فایلی انتخاب نشده است.</span>
+              </span>
+              <span class="inline-flex shrink-0 items-center gap-2 rounded-full bg-loomera-primary px-3 py-2 text-xs font-black text-white">
+                <i class="fa-regular fa-image text-[10px]" aria-hidden="true"></i>
+                انتخاب
+              </span>
+            </label>
             {% if article_form.media.help_text %}
               <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ article_form.media.help_text }}</p>
             {% endif %}
@@ -235,13 +325,13 @@
         </div>
       </section>
 
-      <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div data-mobile-primary-action class="rounded-[20px] border border-loomera-borderSoft bg-white p-2.5 shadow-[0_10px_26px_rgba(46,42,60,0.08)]">
+        <div class="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
           <p class="text-xs leading-6 text-loomera-textMuted">
             این مقاله فقط برای بررسی مدیر مجموعه فعال ارسال می‌شود.
           </p>
 
-          <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-xs font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+          <button type="submit" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white shadow-[0_8px_20px_rgba(115,92,190,0.16)] transition hover:bg-loomera-primaryHover">
             <i class="fa-solid fa-paper-plane text-xs" aria-hidden="true"></i>
             ارسال مقاله برای بررسی مدیر
           </button>
@@ -258,12 +348,12 @@
         <p class="text-[11px] font-black text-loomera-primaryText">ارسال استوری</p>
         <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ارسال استوری پیشنهادی</h2>
         <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-          تصویر یا ویدیو، کپشن، CTA و لینک پیشنهادی استوری را کامل کن.
+          تصویر یا ویدیو، متن و لینک پیشنهادی استوری را کامل کن.
         </p>
       </div>
 </header>
 
-    <form method="post" enctype="multipart/form-data" class="space-y-5 p-4 sm:p-5 lg:p-6">
+    <form method="post" enctype="multipart/form-data" class="lm-stylist-content-form space-y-4 p-4 sm:p-5 lg:p-6">
       {% csrf_token %}
       <input type="hidden" name="form_type" value="story">
 
@@ -308,9 +398,19 @@
             {% endif %}
           </div>
 
-          <div>
+          <div class="relative">
             <label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ story_form.media.label }}</label>
-            {{ story_form.media }}
+            <div class="lm-content-upload-native">{{ story_form.media }}</div>
+            <label for="{{ story_form.media.id_for_label }}" class="lm-content-upload-box">
+              <span class="min-w-0">
+                <strong class="block text-sm font-black text-loomera-textPrimary">انتخاب تصویر یا ویدیو</strong>
+                <span class="mt-1 block truncate text-[11px] font-bold text-loomera-textMuted" data-content-file-name="{{ story_form.media.id_for_label }}">هنوز فایلی انتخاب نشده است.</span>
+              </span>
+              <span class="inline-flex shrink-0 items-center gap-2 rounded-full bg-loomera-primary px-3 py-2 text-xs font-black text-white">
+                <i class="fa-regular fa-image text-[10px]" aria-hidden="true"></i>
+                انتخاب
+              </span>
+            </label>
             {% if story_form.media.help_text %}
               <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ story_form.media.help_text }}</p>
             {% endif %}
@@ -491,13 +591,13 @@
         </div>
       </section>
 
-      <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div data-mobile-primary-action class="rounded-[20px] border border-loomera-borderSoft bg-white p-2.5 shadow-[0_10px_26px_rgba(46,42,60,0.08)]">
+        <div class="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
           <p class="text-xs leading-6 text-loomera-textMuted">
             این استوری فقط برای بررسی مدیر مجموعه فعال ارسال می‌شود.
           </p>
 
-          <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-xs font-black text-white shadow-lm-soft transition hover:bg-loomera-primaryHover">
+          <button type="submit" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white shadow-[0_8px_20px_rgba(115,92,190,0.16)] transition hover:bg-loomera-primaryHover">
             <i class="fa-solid fa-paper-plane text-xs" aria-hidden="true"></i>
             ارسال استوری برای بررسی مدیر
           </button>
@@ -526,7 +626,7 @@
         <div class="rounded-2xl bg-rose-50 px-3 py-3 text-center"><p class="text-[10px] font-bold text-rose-700">نیازمند اصلاح</p><strong class="mt-1 block text-lg font-black text-rose-800">{{ stylist_content_summary.revision|fa_digits }}</strong></div>
         <div class="rounded-2xl bg-emerald-50 px-3 py-3 text-center"><p class="text-[10px] font-bold text-emerald-700">تأیید/منتشر</p><strong class="mt-1 block text-lg font-black text-emerald-800">{{ stylist_content_summary.published|fa_digits }}</strong></div>
       </div>
-      <input type="search" data-stylist-content-search placeholder="جستجو در عنوان یا وضعیت ارسال‌ها" class="mb-4 w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm outline-none focus:border-loomera-primary/30 focus:ring-2 focus:ring-loomera-primary/10">
+      <input type="search" data-stylist-content-search placeholder="جستجو در عنوان یا وضعیت ارسال‌ها" class="mb-4 w-full rounded-[18px] border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:ring-4 focus:ring-loomera-primary/10">
       <div class="grid gap-4 lg:grid-cols-2" data-stylist-content-list>
       {% for item in submissions %}
         <article class="rounded-[28px] border border-loomera-borderSoft bg-loomera-bgSubtle p-4" data-stylist-content-card data-search-value="{{ item.title }} {{ item.get_status_display }} {{ item.get_submission_type_display }}">
@@ -593,7 +693,7 @@
               </div>
             </summary>
 
-            <form method="post" enctype="multipart/form-data" class="mt-4 space-y-3 border-t border-loomera-borderSoft pt-4">
+            <form method="post" enctype="multipart/form-data" class="lm-stylist-content-form mt-4 space-y-3 border-t border-loomera-borderSoft pt-4">
               {% csrf_token %}
               <input type="hidden" name="form_type" value="submission_edit">
               <input type="hidden" name="submission_id" value="{{ item.id }}">
@@ -609,7 +709,20 @@
                   {% if field.name != "submission_type" %}
                     <div class="{% if field.name == 'body' or field.name == 'media' or field.name == 'suggested_tags' or field.name == 'suggested_services' or field.name == 'suggested_service_groups' or field.name == 'new_tags' %}md:col-span-2{% endif %}">
                       <label class="mb-2 block text-sm font-black text-loomera-textSecondary">{{ field.label }}</label>
-                      {{ field }}
+                      {% if field.name == "media" %}
+                        <div class="relative">
+                          <div class="lm-content-upload-native">{{ field }}</div>
+                          <label for="{{ field.id_for_label }}" class="lm-content-upload-box">
+                            <span class="min-w-0">
+                              <strong class="block text-sm font-black text-loomera-textPrimary">انتخاب فایل جدید</strong>
+                              <span class="mt-1 block truncate text-[11px] font-bold text-loomera-textMuted" data-content-file-name="{{ field.id_for_label }}">در صورت نیاز فایل جدید انتخاب کن.</span>
+                            </span>
+                            <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-primary px-3 py-2 text-xs font-black text-white">انتخاب</span>
+                          </label>
+                        </div>
+                      {% else %}
+                        {{ field }}
+                      {% endif %}
 
                       {% if field.help_text %}
                         <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">{{ field.help_text }}</p>
@@ -649,6 +762,17 @@
           card.classList.toggle("hidden", Boolean(query) && !haystack.includes(query));
         });
       });
+      document.querySelectorAll("[data-content-file-name]").forEach(function (label) {
+        const input = document.getElementById(label.dataset.contentFileName);
+        if (!input) return;
+
+        input.addEventListener("change", function () {
+          if (input.files && input.files.length) {
+            label.textContent = input.files[0].name;
+          }
+        });
+      });
+
       document.addEventListener("click", function (event) {
         const button = event.target.closest("[data-copy-to]");
         if (!button) return;

@@ -22,7 +22,7 @@
           تنظیمات مجموعه و حساب
         </h1>
         <p class="mt-1.5 max-w-2xl text-xs leading-6 text-loomera-textSecondary sm:text-sm">
-          تنظیمات مجموعه، حساب مدیر و اعلان‌ها را از اینجا مدیریت کنید.
+          تنظیمات مجموعه، حساب مدیر و اعلان‌ها را از اینجا مدیریت کنید؛ کارهای روزانه از منوی اصلی مدیریت می‌شوند.
         </p>
       </div>
 
@@ -52,8 +52,10 @@
                {% if forloop.first %}data-lm-task-default{% endif %}>
         <header class="border-b border-loomera-borderSoft px-4 py-3.5 sm:px-5">
           <div class="flex items-center gap-3">
-            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText">
-              <i class="{{ group.icon }}" aria-hidden="true"></i>
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText" aria-hidden="true">
+              <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-loomera-primary px-2 text-[11px] font-black leading-none text-white shadow-sm">
+                بله
+              </span>
             </span>
             <div class="min-w-0">
               <p class="text-[10px] font-black text-loomera-primaryText">{{ group.eyebrow }}</p>

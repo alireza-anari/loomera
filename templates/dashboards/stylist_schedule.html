@@ -12,186 +12,238 @@
 {% block content %}
   {% url 'dashboards:stylist_add_time_off' as stylist_time_off_url %}
   {% url 'dashboards:stylist_add_schedule' as stylist_add_schedule_url %}
-  {% url 'dashboards:stylist_quick_links' as stylist_quick_links_url %}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-schedule">
-    {% include "dashboards/components/page_hero.html" with eyebrow="برنامه شخصی" eyebrow_icon="fa-regular fa-clock" title="برنامه و مرخصی من" description="شیفت‌های تاییدشده، درخواست‌های برنامه و مرخصی را در سه مسیر روشن و بدون تکرار پیگیری کن." action_label="درخواست برنامه کاری" action_url=stylist_add_schedule_url badges=page_meta.badges %}
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lm-stylist-workspace"
+           data-dashboard-workspace-root
+           data-dashboard-page="stylist-schedule">
 
+    <header class="rounded-[26px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" data-lm-stylist-surface>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">برنامه کاری</p>
+          <h1 class="mt-1 text-xl font-black text-loomera-textPrimary sm:text-2xl">برنامه و مرخصی من</h1>
+        </div>
 
+        <div class="flex flex-wrap items-center gap-2">
+          <a href="{{ stylist_time_off_url }}"
+             class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3.5 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
+            <i class="fa-regular fa-calendar-xmark text-[11px]" aria-hidden="true"></i>
+            <span>درخواست مرخصی</span>
+          </a>
+          <a href="{{ stylist_add_schedule_url }}"
+             data-primary-action
+             class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-3.5 py-2 text-xs font-black text-white shadow-[0_10px_24px_rgba(109,94,247,0.16)] transition hover:opacity-95">
+            <i class="fa-regular fa-calendar-plus text-[11px]" aria-hidden="true"></i>
+            <span>درخواست برنامه</span>
+          </a>
+        </div>
+      </div>
+    </header>
 
-
-
-    <div data-lm-task-tabs-anchor="stylist-schedule" data-lm-task-tabs-label="بخش‌های برنامه و مرخصی من"></div>
+    <div data-lm-task-tabs-anchor="stylist-schedule"
+         data-lm-task-tabs-label="بخش‌های برنامه و مرخصی من"></div>
 
     <section id="stylist-schedule-section-approved"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-schedule" data-lm-task-key="shifts" data-lm-task-label="شیفت‌ها" data-lm-task-default data-lm-task-order="1">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-lm-direct-section
+             data-lm-task-panel="stylist-schedule"
+             data-lm-task-key="shifts"
+             data-lm-task-label="شیفت‌ها"
+             data-lm-task-default
+             data-lm-task-order="1">
+      <header data-lm-direct-section-header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">برنامه تاییدشده</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">شیفت‌های آینده</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">فقط برنامه‌های تاییدشده مجموعه فعال فعلی.</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">شیفت‌های آینده</h2>
         </div>
-</header>
+        <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-primarySoft px-2.5 py-1 text-[10px] font-black text-loomera-primaryText">
+          {{ schedule_rows|length }} شیفت
+        </span>
+      </header>
 
-      <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3 sm:p-5 lg:p-6">
+      <div class="grid gap-3 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3 lg:p-6">
         {% for row in schedule_rows %}
-          <article class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 text-sm text-loomera-textSecondary">
+          <article class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3.5 text-sm text-loomera-textSecondary">
             <div class="flex items-start justify-between gap-3">
-              <div>
+              <div class="min-w-0">
                 <div class="font-black text-loomera-textPrimary">{{ row.date_label }}</div>
-                <div class="mt-1">{{ row.start_label }} تا {{ row.end_label }}</div>
-                <div class="mt-1 text-loomera-textMuted">{{ row.service_name }}</div>
+                <div class="mt-1 text-xs font-bold text-loomera-textSecondary">{{ row.start_label }} تا {{ row.end_label }}</div>
+                {% if row.service_name %}
+                  <div class="mt-1 line-clamp-1 text-[11px] text-loomera-textMuted">{{ row.service_name }}</div>
+                {% endif %}
               </div>
-              <span class="lm-status-chip shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-black text-emerald-700">فعال</span>
+              <span class="lm-status-chip shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-black text-emerald-700">فعال</span>
             </div>
           </article>
         {% empty %}
           <div class="md:col-span-2 xl:col-span-3">
-            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-clock" title="شیفت فعالی ثبت نشده" description="برای ساخت اولین برنامه، درخواست برنامه کاری بفرست؛ بعد از تایید مدیر شیفت‌ها اینجا نمایش داده می‌شوند." action_label="درخواست برنامه کاری" action_url=stylist_add_schedule_url %}
+            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-clock" title="شیفت فعالی ثبت نشده" description="برای ساخت برنامه کاری، درخواست جدید بفرست؛ بعد از تایید مدیر اینجا نمایش داده می‌شود." action_label="درخواست برنامه" action_url=stylist_add_schedule_url %}
           </div>
         {% endfor %}
       </div>
     </section>
 
     <section id="stylist-schedule-section-schedule-requests"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-schedule" data-lm-task-key="requests" data-lm-task-label="درخواست برنامه" data-lm-task-order="2">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-lm-direct-section
+             data-lm-task-panel="stylist-schedule"
+             data-lm-task-key="requests"
+             data-lm-task-label="درخواست برنامه"
+             data-lm-task-order="2">
+      <header data-lm-direct-section-header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">درخواست‌ها</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">درخواست‌های برنامه کاری من</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">این درخواست‌ها فقط برای مجموعه فعال فعلی هستند.</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">درخواست‌های برنامه کاری</h2>
         </div>
-</header>
+        <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-bgSubtle px-2.5 py-1 text-[10px] font-black text-loomera-textSecondary">
+          {{ schedule_requests|length }} درخواست
+        </span>
+      </header>
 
-      <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3 sm:p-5 lg:p-6">
+      <div class="grid gap-3 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3 lg:p-6">
         {% for request in schedule_requests %}
-          <article class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 text-sm text-loomera-textSecondary">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
+          <article class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3.5 text-sm text-loomera-textSecondary">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
                 <div class="font-black text-loomera-textPrimary">{{ request.date|jalali_date:"weekday" }}</div>
-                <div class="mt-1">{{ request.start_time|fa_time }} تا {{ request.end_time|fa_time }}</div>
-                <div class="mt-1 text-loomera-textMuted">
+                <div class="mt-1 text-xs font-bold">{{ request.start_time|fa_time }} تا {{ request.end_time|fa_time }}</div>
+                <div class="mt-1 line-clamp-1 text-[11px] text-loomera-textMuted">
                   {% if request.service %}
-                    خدمت: {{ request.service.service_name }}
+                    {{ request.service.service_name }}
                   {% else %}
-                    همه خدمات / بدون خدمت مشخص
+                    همه خدمات
                   {% endif %}
                 </div>
-
-                {% if request.note %}
-                  <div class="mt-2 rounded-xl bg-white px-3 py-2 text-xs leading-6 text-loomera-textSecondary">
-                    توضیح شما: {{ request.note }}
-                  </div>
-                {% endif %}
-
-                {% if request.review_note %}
-                  <div class="mt-2 rounded-xl bg-white px-3 py-2 text-xs leading-6 text-loomera-textSecondary">
-                    یادداشت مدیر: {{ request.review_note }}
-                  </div>
-                {% endif %}
               </div>
 
               {% if request.status == "pending" %}
-                <span class="lm-status-chip inline-flex w-fit rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-700">در انتظار بررسی</span>
+                <span class="lm-status-chip inline-flex shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-black text-amber-700">در انتظار بررسی</span>
               {% elif request.status == "approved" %}
-                <span class="lm-status-chip inline-flex w-fit rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">تایید شده</span>
+                <span class="lm-status-chip inline-flex shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-black text-emerald-700">تایید شده</span>
               {% elif request.status == "rejected" %}
-                <span class="lm-status-chip inline-flex w-fit rounded-full bg-rose-100 px-3 py-1 text-xs font-black text-rose-700">رد شده</span>
+                <span class="lm-status-chip inline-flex shrink-0 rounded-full bg-rose-100 px-2.5 py-1 text-[10px] font-black text-rose-700">رد شده</span>
               {% else %}
-                <span class="lm-status-chip inline-flex w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">{{ request.get_status_display }}</span>
+                <span class="lm-status-chip inline-flex shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black text-slate-600">{{ request.get_status_display }}</span>
               {% endif %}
             </div>
+
+            {% if request.note or request.review_note %}
+              <div class="mt-3 space-y-2 border-t border-loomera-borderSoft pt-3 text-[11px] leading-6">
+                {% if request.note %}
+                  <p><span class="font-black text-loomera-textPrimary">توضیح من:</span> {{ request.note }}</p>
+                {% endif %}
+                {% if request.review_note %}
+                  <p><span class="font-black text-loomera-textPrimary">یادداشت مدیر:</span> {{ request.review_note }}</p>
+                {% endif %}
+              </div>
+            {% endif %}
           </article>
         {% empty %}
           <div class="md:col-span-2 xl:col-span-3">
-            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-plus" title="درخواستی ثبت نشده" description="اگر برنامه جدیدی می‌خواهی، همین حالا درخواستت را ثبت کن." action_label="درخواست برنامه کاری" action_url=stylist_add_schedule_url %}
+            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-plus" title="درخواست برنامه‌ای ثبت نشده" description="اگر برنامه جدیدی می‌خواهی، درخواستت را ثبت کن." action_label="درخواست برنامه" action_url=stylist_add_schedule_url %}
           </div>
         {% endfor %}
       </div>
     </section>
 
     <section id="stylist-schedule-section-time-off"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-schedule" data-lm-task-key="timeoff" data-lm-task-label="مرخصی" data-lm-task-order="3">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-lm-direct-section
+             data-lm-task-panel="stylist-schedule"
+             data-lm-task-key="timeoff"
+             data-lm-task-label="مرخصی"
+             data-lm-task-order="3">
+      <header data-lm-direct-section-header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">مرخصی</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مرخصی‌های ثبت‌شده</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">مرخصی‌ها بعد از تایید مدیر روی ظرفیت همین مجموعه اثر می‌گذارند.</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">مرخصی‌های من</h2>
         </div>
-</header>
+        <a href="{{ stylist_time_off_url }}"
+           class="inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-full bg-loomera-primary px-3 py-1.5 text-[11px] font-black text-white transition hover:opacity-95">
+          <i class="fa-solid fa-plus text-[9px]" aria-hidden="true"></i>
+          <span>درخواست جدید</span>
+        </a>
+      </header>
 
-      <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3 sm:p-5 lg:p-6">
-        {% for row in time_off_rows %}
-          <article class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 text-sm text-loomera-textSecondary">
-            <div class="font-black text-loomera-textPrimary">{{ row.date_label }}</div>
-            <div class="mt-1">{{ row.time_label }}</div>
-            <div class="mt-1 text-loomera-textMuted">{{ row.reason }}</div>
-          </article>
-        {% empty %}
-          <div class="md:col-span-2 xl:col-span-3">
-            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-xmark" title="مرخصی‌ای ثبت نشده" description="اگر قرار است در زمانی حضور نداشته باشی، درخواست مرخصی را ثبت کن." action_label="درخواست مرخصی" action_url=stylist_time_off_url %}
+      <div class="space-y-5 p-4 sm:p-5 lg:p-6">
+        <section id="stylist-leave-requests" class="scroll-mt-40" aria-labelledby="stylist-leave-requests-title">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <h3 id="stylist-leave-requests-title" class="text-sm font-black text-loomera-textPrimary">درخواست‌های مرخصی</h3>
+            <span class="text-[10px] font-black text-loomera-textMuted">{{ leave_requests|length }} درخواست</span>
           </div>
-        {% endfor %}
-      </div>
-    </section>
 
-    <section id="stylist-schedule-section-leave-requests"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-schedule" data-lm-task-key="timeoff" data-lm-task-label="مرخصی" data-lm-task-order="3">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">درخواست‌ها</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">درخواست‌های مرخصی من</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">وضعیت بررسی درخواست‌های مرخصی توسط مدیر همین مجموعه.</p>
-        </div>
-</header>
+          <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {% for request in leave_requests %}
+              <article class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3.5 text-sm text-loomera-textSecondary">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="font-black text-loomera-textPrimary">{{ request.date|jalali_date:"weekday" }}</div>
+                    <div class="mt-1 text-xs font-bold">
+                      {% if request.start_time and request.end_time %}
+                        {{ request.start_time|fa_time }} تا {{ request.end_time|fa_time }}
+                      {% else %}
+                        تمام روز
+                      {% endif %}
+                    </div>
+                    <div class="mt-1 line-clamp-2 text-[11px] text-loomera-textMuted">{{ request.reason|default:"بدون توضیح" }}</div>
+                  </div>
 
-      <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3 sm:p-5 lg:p-6">
-        {% for request in leave_requests %}
-          <article class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 text-sm text-loomera-textSecondary">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <div class="font-black text-loomera-textPrimary">{{ request.date|jalali_date:"weekday" }}</div>
-
-                <div class="mt-1">
-                  {% if request.start_time and request.end_time %}
-                    {{ request.start_time|fa_time }} تا {{ request.end_time|fa_time }}
+                  {% if request.status == "pending" %}
+                    <span class="lm-status-chip inline-flex shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-black text-amber-700">در انتظار بررسی</span>
+                  {% elif request.status == "approved" %}
+                    <span class="lm-status-chip inline-flex shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-black text-emerald-700">تایید شده</span>
+                  {% elif request.status == "rejected" %}
+                    <span class="lm-status-chip inline-flex shrink-0 rounded-full bg-rose-100 px-2.5 py-1 text-[10px] font-black text-rose-700">رد شده</span>
                   {% else %}
-                    تمام روز
+                    <span class="lm-status-chip inline-flex shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black text-slate-600">{{ request.get_status_display }}</span>
                   {% endif %}
                 </div>
 
-                <div class="mt-1 text-loomera-textMuted">{{ request.reason|default:"بدون توضیح" }}</div>
-
                 {% if request.review_note %}
-                  <div class="mt-2 rounded-xl bg-white px-3 py-2 text-xs leading-6 text-loomera-textSecondary">
-                    یادداشت مدیر: {{ request.review_note }}
+                  <div class="mt-3 border-t border-loomera-borderSoft pt-3 text-[11px] leading-6 text-loomera-textSecondary">
+                    <span class="font-black text-loomera-textPrimary">یادداشت مدیر:</span> {{ request.review_note }}
                   </div>
                 {% endif %}
+              </article>
+            {% empty %}
+              <div class="md:col-span-2 xl:col-span-3 rounded-[20px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/40 px-4 py-5 text-center">
+                <p class="text-xs font-black text-loomera-textPrimary">درخواست مرخصی‌ای ثبت نشده</p>
+                <p class="mt-1 text-[11px] text-loomera-textMuted">برای اعلام عدم حضور، درخواست جدید ثبت کن.</p>
               </div>
-
-              {% if request.status == "pending" %}
-                <span class="lm-status-chip inline-flex w-fit rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-700">در انتظار بررسی</span>
-              {% elif request.status == "approved" %}
-                <span class="lm-status-chip inline-flex w-fit rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">تایید شده</span>
-              {% elif request.status == "rejected" %}
-                <span class="lm-status-chip inline-flex w-fit rounded-full bg-rose-100 px-3 py-1 text-xs font-black text-rose-700">رد شده</span>
-              {% else %}
-                <span class="lm-status-chip inline-flex w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">{{ request.get_status_display }}</span>
-              {% endif %}
-            </div>
-          </article>
-        {% empty %}
-          <div class="md:col-span-2 xl:col-span-3">
-            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-xmark" title="درخواست مرخصی‌ای ثبت نشده" description="برای اعلام عدم حضور، درخواست مرخصی جدید ثبت کن." action_label="درخواست مرخصی" action_url=stylist_time_off_url %}
+            {% endfor %}
           </div>
-        {% endfor %}
+        </section>
+
+        <section aria-labelledby="stylist-approved-time-off-title" class="border-t border-loomera-borderSoft pt-5">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <h3 id="stylist-approved-time-off-title" class="text-sm font-black text-loomera-textPrimary">مرخصی‌های تاییدشده</h3>
+            <span class="text-[10px] font-black text-loomera-textMuted">{{ time_off_rows|length }} مورد</span>
+          </div>
+
+          <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {% for row in time_off_rows %}
+              <article class="rounded-[20px] border border-loomera-borderSoft bg-white p-3.5 text-sm text-loomera-textSecondary shadow-sm">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="font-black text-loomera-textPrimary">{{ row.date_label }}</div>
+                    <div class="mt-1 text-xs font-bold">{{ row.time_label }}</div>
+                    <div class="mt-1 line-clamp-2 text-[11px] text-loomera-textMuted">{{ row.reason }}</div>
+                  </div>
+                  <span class="lm-status-chip shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-black text-emerald-700">تایید شده</span>
+                </div>
+              </article>
+            {% empty %}
+              <div class="md:col-span-2 xl:col-span-3 rounded-[20px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/40 px-4 py-5 text-center">
+                <p class="text-xs font-black text-loomera-textPrimary">مرخصی تاییدشده‌ای نداری</p>
+              </div>
+            {% endfor %}
+          </div>
+        </section>
       </div>
     </section>
-
 
   </section>
 {% endblock %}

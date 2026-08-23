@@ -13,68 +13,117 @@
 {% block content %}
   {% url 'dashboards:stylist_withdrawals' as stylist_withdrawals_url %}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-finance">
-    {% include "dashboards/components/page_hero.html" with eyebrow="درآمد من" eyebrow_icon="fa-solid fa-wallet" title="درآمد من" description="فقط درآمد قطعی خدمات را ببین؛ مانده قابل دریافت و مبلغ در انتظار آزادشدن از درخواست‌های برداشت جدا نمایش داده می‌شوند." action_label="درخواست دریافت وجه" action_url=stylist_withdrawals_url badges=page_meta.badges %}
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lm-stylist-workspace"
+           data-dashboard-workspace-root
+           data-dashboard-page="stylist-finance">
 
-    <section class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5 lg:p-6" aria-label="خلاصه درآمد" data-lm-stylist-surface>
-      <div class="grid grid-cols-2 gap-3 xl:grid-cols-4">
+    <header class="rounded-[26px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" data-lm-stylist-surface>
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">مالی من</p>
+          <h1 class="mt-1 text-xl font-black text-loomera-textPrimary sm:text-2xl">درآمد من</h1>
+          {% if finance_scope_label %}
+            <p class="mt-1 truncate text-[11px] font-bold text-loomera-textMuted">{{ finance_scope_label }}</p>
+          {% endif %}
+        </div>
+        <a href="{{ stylist_withdrawals_url }}"
+           data-primary-action
+           class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white shadow-[0_10px_24px_rgba(109,94,247,0.16)] transition hover:opacity-95">
+          <i class="fa-solid fa-arrow-up-from-bracket text-[10px]" aria-hidden="true"></i>
+          <span>دریافت وجه</span>
+        </a>
+      </div>
+    </header>
+
+    <section class="rounded-[26px] border border-loomera-borderSoft bg-white/95 p-3 shadow-lm-card sm:p-4"
+             aria-label="خلاصه درآمد"
+             data-lm-stylist-surface>
+      <div class="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
         {% for card in summary_cards %}
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-3.5 shadow-lm-soft sm:p-4">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <p class="text-[10px] font-bold leading-5 text-loomera-textMuted sm:text-xs">{{ card.label }}</p>
-                <strong class="mt-2 block break-words text-sm font-black leading-6 text-loomera-textPrimary sm:text-lg">{{ card.value|fa_digits }}</strong>
-              </div>
-              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText sm:h-10 sm:w-10">
+          <article class="min-w-0 rounded-[18px] border border-loomera-borderSoft bg-white p-3 shadow-sm sm:p-3.5">
+            <div class="flex min-w-0 items-center gap-2.5">
+              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
                 <i class="{{ card.icon }} text-xs" aria-hidden="true"></i>
               </span>
+              <div class="min-w-0">
+                <p class="truncate text-[10px] font-bold leading-5 text-loomera-textMuted sm:text-[11px]">{{ card.label }}</p>
+                <strong class="mt-0.5 block truncate text-sm font-black leading-6 text-loomera-textPrimary sm:text-base">{{ card.value|fa_digits }}</strong>
+              </div>
             </div>
           </article>
         {% empty %}
-          <div class="col-span-2 xl:col-span-4">
+          <div class="col-span-2 lg:col-span-4">
             {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-wallet" title="هنوز درآمدی ثبت نشده" description="بعد از پایان و نهایی‌شدن خدمات، درآمد شما اینجا نمایش داده می‌شود." %}
           </div>
         {% endfor %}
       </div>
     </section>
 
-    <div data-lm-task-tabs-anchor="stylist-finance"></div>
+    <div data-lm-task-tabs-anchor="stylist-finance"
+         data-lm-task-tabs-label="بخش‌های درآمد من"></div>
 
     <section id="stylist-finance-section-earnings"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-finance" data-lm-task-key="earnings" data-lm-task-label="درآمد خدمات" data-lm-task-default data-lm-task-order="1">
-      <header data-lm-direct-section-header class="border-b border-loomera-borderSoft bg-white/95 px-4 py-4 sm:px-5 lg:px-6">
-        <p class="text-[11px] font-black text-loomera-primaryText">درآمد خدمات</p>
-        <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">درآمد قطعی خدمات من</h2>
-        <p class="mt-1 text-xs leading-6 text-loomera-textMuted">هر کارت نشان می‌دهد از یک خدمت چه مبلغی برای شما ثبت شده است.</p>
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-lm-direct-section
+             data-lm-task-panel="stylist-finance"
+             data-lm-task-key="earnings"
+             data-lm-task-label="درآمد خدمات"
+             data-lm-task-default
+             data-lm-task-order="1">
+      <header data-lm-direct-section-header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">درآمد خدمات</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">درآمد قطعی خدمات من</h2>
+        </div>
+        <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-primarySoft px-2.5 py-1 text-[10px] font-black text-loomera-primaryText">
+          {{ snapshots|length|fa_digits }} مورد
+        </span>
       </header>
 
       <div class="grid gap-3 p-4 sm:p-5 lg:grid-cols-2 lg:p-6">
         {% for item in snapshots %}
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+          <article class="rounded-[20px] border border-loomera-borderSoft bg-white p-3.5 shadow-sm sm:p-4">
             <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <h3 class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service.service_name }}</h3>
-                <p class="mt-1 text-[11px] text-loomera-textMuted">
+              <div class="min-w-0 flex-1">
+                <div class="flex min-w-0 flex-wrap items-center gap-2">
+                  <h3 class="min-w-0 truncate text-sm font-black text-loomera-textPrimary">{{ item.service.service_name }}</h3>
+                  <span class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {% if item.status == 'finalized' %}bg-emerald-50 text-emerald-700{% elif item.status == 'reversed' %}bg-rose-50 text-rose-700{% else %}bg-slate-100 text-slate-600{% endif %}">{{ item.get_status_display }}</span>
+                </div>
+                <p class="mt-1 line-clamp-1 text-[11px] text-loomera-textMuted">
                   {% if item.finalized_at %}{{ item.finalized_at|jalali_datetime }}{% elif item.created_at %}{{ item.created_at|jalali_datetime }}{% endif %}
                   {% if item.order.order_number %} • نوبت {{ item.order.order_number|fa_digits }}{% endif %}
                 </p>
               </div>
-              <span class="shrink-0 rounded-full px-3 py-1 text-[10px] font-black {% if item.status == 'finalized' %}bg-emerald-50 text-emerald-700{% elif item.status == 'reversed' %}bg-rose-50 text-rose-700{% else %}bg-slate-100 text-slate-600{% endif %}">{{ item.get_status_display }}</span>
             </div>
 
-            <div class="mt-4 flex items-end justify-between gap-3 rounded-[18px] bg-loomera-primarySoft/60 px-3.5 py-3">
-              <span class="text-xs font-bold text-loomera-textSecondary">سهم شما</span>
-              <strong class="text-base font-black text-loomera-primaryText">{{ item.stylist_net_share|floatformat:0|fa_digits }} تومان</strong>
+            <div class="mt-3 flex items-center justify-between gap-3 rounded-[16px] bg-loomera-primarySoft/60 px-3 py-2.5">
+              <span class="text-[11px] font-bold text-loomera-textSecondary">سهم شما</span>
+              <strong class="text-sm font-black text-loomera-primaryText sm:text-base">{{ item.stylist_net_share|floatformat:0|fa_digits }} تومان</strong>
             </div>
 
-            <details class="mt-3 rounded-[18px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-3.5 py-3">
-              <summary class="cursor-pointer list-none text-xs font-black text-loomera-textSecondary">جزئیات محاسبه</summary>
+            <details class="mt-3 rounded-[16px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-3 py-2.5">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-2 text-[11px] font-black text-loomera-textSecondary">
+                <span>جزئیات محاسبه</span>
+                <i class="fa-solid fa-chevron-down text-[9px] text-loomera-textMuted" aria-hidden="true"></i>
+              </summary>
               <div class="mt-3 grid grid-cols-2 gap-2 text-[11px]">
-                <div class="rounded-xl bg-white px-3 py-2"><span class="text-loomera-textMuted">مبلغ خدمت</span><strong class="mt-1 block text-loomera-textPrimary">{{ item.gross_amount|floatformat:0|fa_digits }} تومان</strong></div>
-                <div class="rounded-xl bg-white px-3 py-2"><span class="text-loomera-textMuted">بعد از تخفیف</span><strong class="mt-1 block text-loomera-textPrimary">{{ item.paid_amount_allocated|floatformat:0|fa_digits }} تومان</strong></div>
-                <div class="rounded-xl bg-white px-3 py-2"><span class="text-loomera-textMuted">تخفیف</span><strong class="mt-1 block text-loomera-textPrimary">{{ item.discount_allocated|floatformat:0|fa_digits }} تومان</strong></div>
-                <div class="rounded-xl bg-white px-3 py-2"><span class="text-loomera-textMuted">هزینه مواد</span><strong class="mt-1 block text-loomera-textPrimary">{{ item.material_cost_total|floatformat:0|fa_digits }} تومان</strong></div>
+                <div class="rounded-xl bg-white px-3 py-2">
+                  <span class="text-loomera-textMuted">مبلغ خدمت</span>
+                  <strong class="mt-1 block text-loomera-textPrimary">{{ item.gross_amount|floatformat:0|fa_digits }} تومان</strong>
+                </div>
+                <div class="rounded-xl bg-white px-3 py-2">
+                  <span class="text-loomera-textMuted">بعد از تخفیف</span>
+                  <strong class="mt-1 block text-loomera-textPrimary">{{ item.paid_amount_allocated|floatformat:0|fa_digits }} تومان</strong>
+                </div>
+                <div class="rounded-xl bg-white px-3 py-2">
+                  <span class="text-loomera-textMuted">تخفیف</span>
+                  <strong class="mt-1 block text-loomera-textPrimary">{{ item.discount_allocated|floatformat:0|fa_digits }} تومان</strong>
+                </div>
+                <div class="rounded-xl bg-white px-3 py-2">
+                  <span class="text-loomera-textMuted">هزینه مواد</span>
+                  <strong class="mt-1 block text-loomera-textPrimary">{{ item.material_cost_total|floatformat:0|fa_digits }} تومان</strong>
+                </div>
               </div>
             </details>
           </article>
@@ -87,27 +136,38 @@
     </section>
 
     <section id="stylist-finance-section-transactions"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-finance" data-lm-task-key="transactions" data-lm-task-label="تغییرات درآمد" data-lm-task-order="2">
-      <header data-lm-direct-section-header class="border-b border-loomera-borderSoft bg-white/95 px-4 py-4 sm:px-5 lg:px-6">
-        <p class="text-[11px] font-black text-loomera-primaryText">تغییرات درآمد</p>
-        <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">تغییرات درآمد من</h2>
-        <p class="mt-1 text-xs leading-6 text-loomera-textMuted">ثبت درآمد، آزادشدن مبلغ و اصلاحات مالی خدمات را به ترتیب زمان ببین. درخواست‌های دریافت در صفحه جدا هستند.</p>
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-lm-direct-section
+             data-lm-task-panel="stylist-finance"
+             data-lm-task-key="transactions"
+             data-lm-task-label="تغییرات درآمد"
+             data-lm-task-order="2">
+      <header data-lm-direct-section-header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">سابقه مالی</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">تغییرات درآمد من</h2>
+        </div>
+        <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-bgSubtle px-2.5 py-1 text-[10px] font-black text-loomera-textSecondary">
+          {{ transactions|length|fa_digits }} مورد
+        </span>
       </header>
 
       <div class="grid gap-3 p-4 sm:p-5 lg:grid-cols-2 xl:grid-cols-3 lg:p-6">
         {% for tx in transactions %}
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+          <article class="rounded-[20px] border border-loomera-borderSoft bg-white p-3.5 shadow-sm sm:p-4">
             <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <p class="text-sm font-black text-loomera-textPrimary">{{ tx.get_transaction_type_display }}</p>
+              <div class="min-w-0 flex-1">
+                <p class="line-clamp-1 text-sm font-black text-loomera-textPrimary">{{ tx.get_transaction_type_display }}</p>
                 <p class="mt-1 text-[11px] text-loomera-textMuted">{{ tx.created_at|jalali_datetime }}</p>
               </div>
-              <strong class="shrink-0 rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primaryText">
+              <strong class="shrink-0 rounded-full bg-loomera-primarySoft px-2.5 py-1 text-[11px] font-black text-loomera-primaryText">
                 {% if tx.available_delta %}{{ tx.available_delta|floatformat:0|fa_digits }}{% else %}{{ tx.pending_delta|floatformat:0|fa_digits }}{% endif %} تومان
               </strong>
             </div>
-            {% if tx.description %}<p class="mt-3 text-xs leading-6 text-loomera-textSecondary">{{ tx.description }}</p>{% endif %}
+            {% if tx.description %}
+              <p class="mt-3 line-clamp-2 border-t border-loomera-borderSoft pt-3 text-[11px] leading-6 text-loomera-textSecondary">{{ tx.description }}</p>
+            {% endif %}
           </article>
         {% empty %}
           <div class="lg:col-span-2 xl:col-span-3">

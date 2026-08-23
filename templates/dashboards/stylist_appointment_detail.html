@@ -12,7 +12,7 @@
 {% block content %}
   {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
 
-  <section class="min-w-0 max-w-full space-y-4 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-appointment-detail">
+  <section class="min-w-0 max-w-full space-y-3.5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-appointment-detail">
     <div class="flex items-center justify-between gap-3 px-1 py-1" data-stylist-appointment-compact-header>
       <div class="min-w-0">
         <p class="text-[11px] font-black text-loomera-primary">نوبت شخصی</p>
@@ -29,7 +29,7 @@
 
     <!-- PRIMARY TASK: always first -->
     <section id="stylist-appointment-section-actions"
-             class="overflow-hidden rounded-[28px] border border-loomera-primary/20 bg-gradient-to-br from-loomera-primarySoft/75 via-white to-loomera-accentSoft/45 shadow-lm-card"
+             class="overflow-hidden rounded-[26px] border border-loomera-primary/20 bg-gradient-to-br from-loomera-primarySoft/65 via-white to-loomera-accentSoft/30 shadow-lm-card"
              data-dashboard-workspace-panel data-lm-direct-section data-stylist-primary-actions>
       <div class="p-3.5 sm:p-4 lg:p-5">
         <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -88,9 +88,9 @@
 
     <!-- ESSENTIAL APPOINTMENT CONTEXT -->
     <section id="stylist-appointment-section-summary"
-             class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card"
+             class="overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card"
              data-dashboard-workspace-panel data-lm-direct-section>
-      <div class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6">
+      <div class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5">
         <div class="flex min-w-0 items-center gap-3">
           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
             <i class="fa-regular fa-user" aria-hidden="true"></i>
@@ -109,7 +109,7 @@
         {% endif %}
       </div>
 
-      <div class="grid gap-2 p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-4 lg:px-5">
+      <div class="grid grid-cols-2 gap-2 p-3 sm:p-4 lg:grid-cols-4 lg:px-5">
         <div class="rounded-2xl bg-loomera-bgSubtle px-3 py-3">
           <p class="text-[10px] font-black text-loomera-textMuted">زمان</p>
           <p class="mt-1 text-xs font-black text-loomera-textPrimary">{{ appointment.date_label }}</p>
@@ -137,18 +137,20 @@
 
     <div data-lm-task-tabs-anchor="stylist-appointment-detail" data-lm-task-tabs-label="جزئیات تکمیلی نوبت"></div>
 
-    <details id="stylist-appointment-section-timeline"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+    <section id="stylist-appointment-section-timeline"
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel
+             data-lm-direct-section
              data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="history" data-lm-task-label="سوابق" data-lm-task-order="3">
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <h2 class="truncate text-base font-black text-loomera-textPrimary sm:text-lg">سوابق نوبت</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+      <header data-lm-direct-section-header class="flex items-center gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 sm:px-5">
+        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+          <i class="fa-solid fa-clock-rotate-left text-xs" aria-hidden="true"></i>
         </span>
-      </summary>
+        <div class="min-w-0">
+          <p class="text-[10px] font-black text-loomera-primaryText">رویدادهای نوبت</p>
+          <h2 class="mt-0.5 truncate text-base font-black text-loomera-textPrimary">سوابق نوبت</h2>
+        </div>
+      </header>
 
       <div class="space-y-3 p-4 sm:p-5 lg:p-6">
         {% for item in stylist_lifecycle_timeline %}
@@ -165,20 +167,22 @@
           </div>
         {% endfor %}
       </div>
-    </details>
+    </section>
 
-    <details id="stylist-appointment-section-disputes"
-         class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+    <section id="stylist-appointment-section-disputes"
+         class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
          data-dashboard-workspace-panel
+         data-lm-direct-section
          data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="history" data-lm-task-label="سوابق" data-lm-task-order="3">
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <h2 class="truncate text-base font-black text-loomera-textPrimary sm:text-lg">اختلاف و عدم حضور</h2>
-        </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+      <header data-lm-direct-section-header class="flex items-center gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 sm:px-5">
+        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-700">
+          <i class="fa-solid fa-shield-halved text-xs" aria-hidden="true"></i>
         </span>
-      </summary>
+        <div class="min-w-0">
+          <p class="text-[10px] font-black text-loomera-primaryText">پیگیری‌های ویژه</p>
+          <h2 class="mt-0.5 truncate text-base font-black text-loomera-textPrimary">اختلاف و عدم حضور</h2>
+        </div>
+      </header>
 
       <div class="space-y-3 p-4 sm:p-5 lg:p-6">
         {% if stylist_dispute_cases %}
@@ -218,10 +222,10 @@
           </div>
         {% endif %}
       </div>
-    </details>
+    </section>
 
     <section id="stylist-appointment-section-materials"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             class="group scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="materials" data-lm-task-label="مواد مصرفی" data-lm-task-default data-lm-task-order="1">
       <header data-lm-direct-section-header class="hidden cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:flex lg:px-6 lg:py-4">
         <div class="min-w-0">
@@ -440,7 +444,7 @@
     </section>
 
     <section id="stylist-appointment-section-finance"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             class="group scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-appointment-detail" data-lm-task-key="finance" data-lm-task-label="مالی" data-lm-task-order="2">
       <header data-lm-direct-section-header class="hidden cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:flex lg:px-6 lg:py-4">
         <div class="min-w-0">
@@ -450,7 +454,7 @@
 
       <div class="space-y-5 p-4 sm:p-5 lg:p-6">
         {% if is_financial_finalized and financial_snapshot %}
-          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div class="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <div class="rounded-2xl bg-loomera-bgSubtle px-4 py-3">
               <p class="text-xs font-bold text-loomera-textMuted">هزینه مواد</p>
               <p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ financial_snapshot.material_cost_total }} تومان</p>

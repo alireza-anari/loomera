@@ -459,18 +459,25 @@ class StylistSelfBookingForm(forms.Form):
         if price in (None, ""):
             raise ValidationError("برای این خدمت نزد شما قیمت ثبت نشده است.")
 
-        duration = int(getattr(service, "duration_minutes", 0) or 60)
+        duration = get_service_duration_minutes(service)
+        buffer_minutes = get_service_buffer_minutes(service)
         start_dt = datetime.combine(appointment_date, start_time)
         end_dt = start_dt + timedelta(minutes=duration)
         end_time = end_dt.time()
 
-        validate_stylist_time_window(
-            stylist=stylist,
+        if not slot_is_available(
             salon=salon,
+            stylist=stylist,
+            service=service,
             date_value=appointment_date,
             start_time=start_time,
-            end_time=end_time,
-        )
+            duration_minutes=duration,
+            buffer_minutes=buffer_minutes,
+        ):
+            raise ValidationError(
+                "این زمان دیگر آزاد نیست یا خارج از برنامه کاری شماست. "
+                "لطفاً یکی از زمان‌های آزاد نمایش‌داده‌شده را انتخاب کن."
+            )
 
         cleaned_data["resolved_price"] = int(price or 0)
         cleaned_data["resolved_duration"] = duration

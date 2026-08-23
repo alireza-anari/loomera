@@ -5,70 +5,94 @@
 {% block body_attrs %}data-page="quick-link-detail"{% endblock %}
 
 {% block content %}
-  <section class="min-w-0 max-w-full space-y-5" data-dashboard-page="quick-link-detail">
-    <section class="relative overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-7">
-      <div class="pointer-events-none absolute inset-x-0 top-0 h-52 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.20),transparent_45%),linear-gradient(180deg,rgba(248,245,255,0.98),rgba(255,255,255,0))]" aria-hidden="true"></div>
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible"
+           data-dashboard-page="quick-link-detail"
+           data-dashboard-workspace-root>
 
-      <div class="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+    <header class="rounded-[24px] border border-loomera-borderSoft bg-white px-4 py-3.5 shadow-lm-card sm:px-5 sm:py-4">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div class="min-w-0">
-          <a href="{{ quick_link_detail.back_url }}" class="inline-flex items-center gap-2 text-xs font-black text-loomera-primaryText">
-            <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
-            بازگشت به لینک‌ها
+          <a href="{{ quick_link_detail.back_url }}"
+             class="inline-flex min-h-9 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-1.5 text-[11px] font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle hover:text-loomera-primaryText">
+            <i class="fa-solid fa-arrow-right text-[9px]" aria-hidden="true"></i>
+            <span>بازگشت به لینک‌ها</span>
           </a>
 
-          <div class="mt-4 flex flex-wrap items-center gap-2">
-            <span class="rounded-full bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <span class="rounded-full bg-loomera-primarySoft px-2.5 py-1 text-[10px] font-black text-loomera-primaryText">
               {{ quick_link_detail.placement_label }}
             </span>
-            <span class="rounded-full px-3 py-1.5 text-[11px] font-black {% if quick_link_detail.status_tone == 'success' %}bg-emerald-100 text-emerald-700{% elif quick_link_detail.status_tone == 'danger' %}bg-rose-100 text-rose-700{% elif quick_link_detail.status_tone == 'warning' %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-700{% endif %}">
+            <span class="rounded-full px-2.5 py-1 text-[10px] font-black {% if quick_link_detail.status_tone == 'success' %}bg-emerald-100 text-emerald-700{% elif quick_link_detail.status_tone == 'danger' %}bg-rose-100 text-rose-700{% elif quick_link_detail.status_tone == 'warning' %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-700{% endif %}">
               {{ quick_link_detail.status_label }}
             </span>
           </div>
 
-          <h1 class="mt-4 text-2xl font-black leading-9 text-loomera-textPrimary sm:text-3xl">
+          <h1 class="mt-2 text-xl font-black leading-8 text-loomera-textPrimary sm:text-2xl">
             {{ quick_link_detail.title }}
           </h1>
-
-          <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">
-            {{ quick_link_detail.mode_label }} • {{ quick_link_detail.campaign_name }}
+          <p class="mt-1 text-xs font-bold leading-6 text-loomera-textMuted">
+            {{ quick_link_detail.mode_label }}{% if quick_link_detail.campaign_name %} · {{ quick_link_detail.campaign_name }}{% endif %}
           </p>
         </div>
 
-        <div class="flex shrink-0 flex-wrap gap-2">
-          <a href="{{ quick_link_detail.url }}" target="_blank" rel="noopener" class="inline-flex min-h-11 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-xs font-black text-loomera-primaryText">
-            بازکردن لینک
+        <div class="grid w-full grid-cols-2 gap-2 sm:w-auto sm:grid-cols-4">
+          <a href="{{ quick_link_detail.url }}"
+             target="_blank"
+             rel="noopener"
+             class="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:text-loomera-primaryText">
+            <i class="fa-solid fa-arrow-up-right-from-square text-[9px]" aria-hidden="true"></i>
+            <span>باز کردن</span>
           </a>
-          <a href="{{ quick_link_detail.qr_preview_url }}" target="_blank" rel="noopener" class="inline-flex min-h-11 items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-xs font-black text-loomera-primaryText">
-            پیش‌نمایش QR
+
+          <a href="{{ quick_link_detail.qr_preview_url }}"
+             target="_blank"
+             rel="noopener"
+             class="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-[11px] font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:text-loomera-primaryText">
+            <i class="fa-solid fa-qrcode text-[10px]" aria-hidden="true"></i>
+            <span>نمایش کد رزرو</span>
           </a>
-          <a href="{{ quick_link_detail.qr_download_url }}" class="inline-flex min-h-11 items-center justify-center rounded-full bg-loomera-primary px-4 py-3 text-xs font-black text-white">
-            دانلود QR
+
+          <a href="{{ quick_link_detail.qr_download_url }}"
+             class="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-loomera-primary px-3 py-2 text-[11px] font-black text-white shadow-[0_8px_20px_rgba(115,92,190,0.16)] transition hover:opacity-95">
+            <i class="fa-solid fa-download text-[9px]" aria-hidden="true"></i>
+            <span>دانلود کد</span>
           </a>
+
           {% if quick_link_detail_role == "stylist" %}
-            <a href="{% url 'dashboards:stylist_quick_link_print_templates' quick_link_detail.quick_link.id %}" class="inline-flex min-h-11 items-center justify-center rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-3 text-xs font-black text-loomera-primaryText">
-              قالب‌های چاپی
+            <a href="{% url 'dashboards:stylist_quick_link_print_templates' quick_link_detail.quick_link.id %}"
+               class="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-[11px] font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/70">
+              <i class="fa-solid fa-print text-[9px]" aria-hidden="true"></i>
+              <span>قالب چاپ</span>
             </a>
           {% else %}
-            <a href="{% url 'dashboards:quick_link_print_templates' quick_link_detail.quick_link.id %}" class="inline-flex min-h-11 items-center justify-center rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-4 py-3 text-xs font-black text-loomera-primaryText">
-              قالب‌های چاپی
+            <a href="{% url 'dashboards:quick_link_print_templates' quick_link_detail.quick_link.id %}"
+               class="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2 text-[11px] font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/70">
+              <i class="fa-solid fa-print text-[9px]" aria-hidden="true"></i>
+              <span>قالب چاپ</span>
             </a>
           {% endif %}
         </div>
       </div>
 
-      <div class="relative mt-5 rounded-2xl border border-loomera-borderSoft bg-white/85 px-4 py-3 text-left text-xs leading-6 text-loomera-textSecondary break-all" dir="ltr" data-quick-link-detail-url>
-        {{ quick_link_detail.url }}
+      <div class="mt-3 flex min-w-0 items-center gap-2 rounded-[18px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-2.5">
+        <div class="min-w-0 flex-1 truncate text-left text-[11px] font-bold leading-6 text-loomera-textSecondary"
+             dir="ltr"
+             data-quick-link-detail-url>
+          {{ quick_link_detail.url }}
+        </div>
+        <button type="button"
+                class="inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-loomera-borderSoft bg-white px-3 py-1.5 text-[11px] font-black text-loomera-textSecondary transition hover:text-loomera-primaryText"
+                data-copy-detail-url>
+          <i class="fa-regular fa-copy text-[10px]" aria-hidden="true"></i>
+          <span data-copy-detail-label>کپی</span>
+        </button>
       </div>
-
-      <button type="button" class="relative mt-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-copy-detail-url>
-        کپی لینک
-      </button>
-    </section>
+    </header>
 
     {% if quick_link_detail.warnings %}
-      <section class="rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-800">
-        <p class="font-black">هشدارهای این لینک</p>
-        <ul class="mt-2 list-disc space-y-1 pr-5">
+      <section class="rounded-[20px] border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-6 text-amber-800">
+        <p class="font-black">نیاز به توجه</p>
+        <ul class="mt-1.5 list-disc space-y-1 pr-5">
           {% for warning in quick_link_detail.warnings %}
             <li>{{ warning }}</li>
           {% endfor %}
@@ -76,149 +100,218 @@
       </section>
     {% endif %}
 
-    <form method="get" class="flex flex-col gap-3 rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:flex-row sm:items-end">
-      <div class="min-w-0 flex-1">
-        <label for="detail-period" class="mb-2 block text-xs font-black text-loomera-textPrimary">بازه آماری</label>
-        <select id="detail-period" name="period" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary">
-          {% for value, label in quick_link_detail.period_options %}
-            <option value="{{ value }}" {% if quick_link_detail.period.key == value %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white">اعمال بازه</button>
-    </form>
+    <div class="lm-task-tabs-anchor"
+         data-lm-task-tabs-anchor="quick-link-detail"
+         data-lm-task-tabs-label="بخش‌های جزئیات لینک"
+         aria-label="بخش‌های جزئیات لینک"></div>
 
-    <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5" aria-label="آمار اصلی لینک">
-      <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-        <p class="text-xs font-black text-loomera-textMuted">بازشدن کل</p>
-        <p class="mt-3 text-2xl font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.total_opens|fa_digits }}</p>
-      </article>
-      <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-        <p class="text-xs font-black text-loomera-textMuted">بازدیدکننده یکتا</p>
-        <p class="mt-3 text-2xl font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.unique_visitors|fa_digits }}</p>
-      </article>
-      <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-        <p class="text-xs font-black text-loomera-textMuted">شروع رزرو</p>
-        <p class="mt-3 text-2xl font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.started_count|fa_digits }}</p>
-      </article>
-      <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-        <p class="text-xs font-black text-loomera-textMuted">رزرو موفق</p>
-        <p class="mt-3 text-2xl font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.converted_count|fa_digits }}</p>
-      </article>
-      <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-        <p class="text-xs font-black text-loomera-textMuted">نرخ تبدیل</p>
-        <p class="mt-3 text-2xl font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.conversion_rate|floatformat:2|fa_digits }}٪</p>
-      </article>
-    </section>
+    <section id="quick-link-detail-overview"
+             class="scroll-mt-28 space-y-4 lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-lm-task-panel="quick-link-detail"
+             data-lm-task-key="overview"
+             data-lm-task-label="آمار"
+             data-lm-task-order="1"
+             data-lm-task-default
+             data-lm-direct-section>
 
-    <section class="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-      <article class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
-        <div>
-          <p class="text-[11px] font-black text-loomera-primaryText">Funnel رزرو</p>
-          <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">از ورود تا رزرو موفق</h2>
+      <form method="get"
+            class="flex items-end gap-2 rounded-[20px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft">
+        <div class="min-w-0 flex-1">
+          <label for="detail-period" class="mb-1.5 block text-[11px] font-black text-loomera-textMuted">بازه آماری</label>
+          <div class="relative">
+            <select id="detail-period"
+                    name="period"
+                    class="w-full appearance-none rounded-[16px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 px-3 py-2.5 pl-9 text-xs font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/30 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10">
+              {% for value, label in quick_link_detail.period_options %}
+                <option value="{{ value }}" {% if quick_link_detail.period.key == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <i class="fa-solid fa-chevron-down pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[9px] text-loomera-textMuted" aria-hidden="true"></i>
+          </div>
         </div>
+        <button type="submit"
+                class="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-loomera-primary px-4 py-2 text-[11px] font-black text-white transition hover:opacity-95">
+          اعمال
+        </button>
+      </form>
 
-        <div class="mt-5 space-y-4">
-          {% for stage in quick_link_detail.funnel %}
-            <div>
-              <div class="flex items-center justify-between gap-3 text-xs">
-                <span class="font-black text-loomera-textPrimary">{{ stage.label }}</span>
-                <span class="font-black text-loomera-textSecondary">{{ stage.value|fa_digits }} • {{ stage.rate|floatformat:2|fa_digits }}٪</span>
+      <section class="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5" aria-label="آمار اصلی لینک">
+        <article class="rounded-[18px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft">
+          <p class="text-[10px] font-black text-loomera-textMuted">بازشدن کل</p>
+          <p class="mt-1.5 text-xl font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.total_opens|fa_digits }}</p>
+        </article>
+        <article class="rounded-[18px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft">
+          <p class="text-[10px] font-black text-loomera-textMuted">بازدیدکننده یکتا</p>
+          <p class="mt-1.5 text-xl font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.unique_visitors|fa_digits }}</p>
+        </article>
+        <article class="rounded-[18px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft">
+          <p class="text-[10px] font-black text-loomera-textMuted">شروع رزرو</p>
+          <p class="mt-1.5 text-xl font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.started_count|fa_digits }}</p>
+        </article>
+        <article class="rounded-[18px] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft">
+          <p class="text-[10px] font-black text-loomera-textMuted">رزرو موفق</p>
+          <p class="mt-1.5 text-xl font-black text-emerald-700">{{ quick_link_detail.metrics.converted_count|fa_digits }}</p>
+        </article>
+        <article class="col-span-2 rounded-[18px] border border-loomera-primary/15 bg-loomera-primarySoft/45 p-3 shadow-lm-soft sm:col-span-1">
+          <p class="text-[10px] font-black text-loomera-primaryText">نرخ تبدیل</p>
+          <p class="mt-1.5 text-xl font-black text-loomera-primaryText">{{ quick_link_detail.metrics.conversion_rate|floatformat:2|fa_digits }}٪</p>
+        </article>
+      </section>
+
+      <div class="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+        <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5">
+          <span class="sr-only">Funnel رزرو</span>
+          <p class="text-[10px] font-black text-loomera-primaryText">مسیر تبدیل رزرو</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary">از ورود تا رزرو موفق</h2>
+
+          <div class="mt-4 space-y-4">
+            {% for stage in quick_link_detail.funnel %}
+              <div>
+                <div class="flex items-center justify-between gap-3 text-[11px]">
+                  <span class="font-black text-loomera-textPrimary">{{ stage.label }}</span>
+                  <span class="font-black text-loomera-textSecondary">{{ stage.value|fa_digits }} · {{ stage.rate|floatformat:2|fa_digits }}٪</span>
+                </div>
+                <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-loomera-bgSubtle">
+                  <div class="h-full rounded-full {% if stage.key == 'unique' %}bg-sky-500{% elif stage.key == 'started' %}bg-amber-500{% else %}bg-emerald-500{% endif %}"
+                       style="width: {{ stage.width }}%"></div>
+                </div>
               </div>
-              <div class="mt-2 h-3 overflow-hidden rounded-full bg-loomera-bgSubtle">
-                <div class="h-full rounded-full {% if stage.key == 'unique' %}bg-sky-500{% elif stage.key == 'started' %}bg-amber-500{% else %}bg-emerald-500{% endif %}" style="width: {{ stage.width }}%"></div>
-              </div>
+            {% endfor %}
+          </div>
+
+          <div class="mt-4 grid grid-cols-2 gap-2.5">
+            <div class="rounded-[16px] bg-loomera-bgSubtle/70 p-3">
+              <p class="text-[10px] font-bold text-loomera-textMuted">شروع رزرو از بازدید</p>
+              <p class="mt-1 text-lg font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.start_rate|floatformat:2|fa_digits }}٪</p>
             </div>
-          {% endfor %}
-        </div>
+            <div class="rounded-[16px] bg-loomera-bgSubtle/70 p-3">
+              <p class="text-[10px] font-bold text-loomera-textMuted">تکمیل رزرو از شروع</p>
+              <p class="mt-1 text-lg font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.converted_from_start_rate|floatformat:2|fa_digits }}٪</p>
+            </div>
+          </div>
+        </article>
 
-        <div class="mt-5 grid gap-3 sm:grid-cols-2">
-          <div class="rounded-2xl bg-loomera-bgSubtle p-4">
-            <p class="text-xs font-bold text-loomera-textMuted">نرخ شروع رزرو</p>
-            <p class="mt-2 text-xl font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.start_rate|floatformat:2|fa_digits }}٪</p>
-          </div>
-          <div class="rounded-2xl bg-loomera-bgSubtle p-4">
-            <p class="text-xs font-bold text-loomera-textMuted">تبدیل شروع به رزرو</p>
-            <p class="mt-2 text-xl font-black text-loomera-textPrimary">{{ quick_link_detail.metrics.converted_from_start_rate|floatformat:2|fa_digits }}٪</p>
-          </div>
-        </div>
-      </article>
+        <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5">
+          <p class="text-[10px] font-black text-loomera-primaryText">نتیجه نوبت‌ها</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary">کیفیت رزروهای این لینک</h2>
 
-      <article class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
-        <p class="text-[11px] font-black text-loomera-primaryText">نتیجه نوبت‌ها</p>
-        <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">کیفیت رزروهای منتسب</h2>
-
-        <div class="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-          <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
-            <p class="text-xs font-black text-emerald-700">مراجعه و تکمیل</p>
-            <p class="mt-2 text-2xl font-black text-emerald-800">{{ quick_link_detail.metrics.completed_count|fa_digits }}</p>
+          <div class="mt-4 grid grid-cols-3 gap-2.5 xl:grid-cols-1">
+            <div class="rounded-[16px] border border-emerald-100 bg-emerald-50 p-3">
+              <p class="text-[10px] font-black text-emerald-700">تکمیل</p>
+              <p class="mt-1 text-xl font-black text-emerald-800">{{ quick_link_detail.metrics.completed_count|fa_digits }}</p>
+            </div>
+            <div class="rounded-[16px] border border-rose-100 bg-rose-50 p-3">
+              <p class="text-[10px] font-black text-rose-700">لغو</p>
+              <p class="mt-1 text-xl font-black text-rose-800">{{ quick_link_detail.metrics.cancelled_count|fa_digits }}</p>
+            </div>
+            <div class="rounded-[16px] border border-amber-100 bg-amber-50 p-3">
+              <p class="text-[10px] font-black text-amber-700">عدم مراجعه</p>
+              <p class="mt-1 text-xl font-black text-amber-800">{{ quick_link_detail.metrics.no_show_count|fa_digits }}</p>
+            </div>
           </div>
-          <div class="rounded-2xl border border-rose-100 bg-rose-50 p-4">
-            <p class="text-xs font-black text-rose-700">لغوشده</p>
-            <p class="mt-2 text-2xl font-black text-rose-800">{{ quick_link_detail.metrics.cancelled_count|fa_digits }}</p>
-          </div>
-          <div class="rounded-2xl border border-amber-100 bg-amber-50 p-4">
-            <p class="text-xs font-black text-amber-700">عدم مراجعه</p>
-            <p class="mt-2 text-2xl font-black text-amber-800">{{ quick_link_detail.metrics.no_show_count|fa_digits }}</p>
-          </div>
-        </div>
-      </article>
+        </article>
+      </div>
     </section>
 
-    <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p class="text-[11px] font-black text-loomera-primaryText">روند روزانه</p>
-          <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">تعامل کاربران در {{ quick_link_detail.period.label }}</h2>
-        </div>
-        <div class="flex flex-wrap gap-3 text-[10px] font-black text-loomera-textMuted">
+    <section id="quick-link-detail-trend"
+             class="scroll-mt-28 overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-lm-task-panel="quick-link-detail"
+             data-lm-task-key="trend"
+             data-lm-task-label="روند روزانه"
+             data-lm-task-order="2"
+             data-lm-direct-section>
+      <header data-lm-direct-section-header class="border-b border-loomera-borderSoft px-4 py-3 sm:px-5">
+        <p class="text-[10px] font-black text-loomera-primaryText">روند روزانه</p>
+        <h2 class="mt-1 text-base font-black text-loomera-textPrimary">تعامل کاربران در {{ quick_link_detail.period.label }}</h2>
+      </header>
+
+      <div class="p-4 sm:p-5">
+        <div class="flex flex-wrap gap-x-3 gap-y-2 text-[10px] font-black text-loomera-textMuted">
           <span><i class="ml-1 inline-block h-2.5 w-2.5 rounded-sm bg-sky-500"></i>بازشدن</span>
           <span><i class="ml-1 inline-block h-2.5 w-2.5 rounded-sm bg-violet-500"></i>یکتا</span>
           <span><i class="ml-1 inline-block h-2.5 w-2.5 rounded-sm bg-amber-500"></i>شروع</span>
           <span><i class="ml-1 inline-block h-2.5 w-2.5 rounded-sm bg-emerald-500"></i>رزرو</span>
         </div>
-      </div>
 
-      <div class="mt-6 overflow-x-auto pb-2">
-        <div class="flex min-h-[260px] min-w-max items-end gap-3 border-b border-loomera-borderSoft px-2" data-quick-link-daily-chart>
-          {% for point in quick_link_detail.daily %}
-            <div class="flex w-14 shrink-0 flex-col items-center justify-end gap-2">
-              <div class="flex h-48 items-end gap-1" title="{{ point.date_label }} — بازشدن {{ point.total_opens|fa_digits }}، یکتا {{ point.unique_visitors|fa_digits }}، شروع {{ point.started_count|fa_digits }}، رزرو {{ point.converted_count|fa_digits }}">
-                <span class="w-2 rounded-t bg-sky-500" style="height: {{ point.open_height }}%"></span>
-                <span class="w-2 rounded-t bg-violet-500" style="height: {{ point.unique_height }}%"></span>
-                <span class="w-2 rounded-t bg-amber-500" style="height: {{ point.started_height }}%"></span>
-                <span class="w-2 rounded-t bg-emerald-500" style="height: {{ point.converted_height }}%"></span>
+        <div class="mt-4 overflow-x-auto pb-2">
+          <div class="flex min-h-[220px] min-w-max items-end gap-3 border-b border-loomera-borderSoft px-2" data-quick-link-daily-chart>
+            {% for point in quick_link_detail.daily %}
+              <div class="flex w-14 shrink-0 flex-col items-center justify-end gap-2">
+                <div class="flex h-40 items-end gap-1"
+                     title="{{ point.date_label }} — بازشدن {{ point.total_opens|fa_digits }}، یکتا {{ point.unique_visitors|fa_digits }}، شروع {{ point.started_count|fa_digits }}، رزرو {{ point.converted_count|fa_digits }}">
+                  <span class="w-2 rounded-t bg-sky-500" style="height: {{ point.open_height }}%"></span>
+                  <span class="w-2 rounded-t bg-violet-500" style="height: {{ point.unique_height }}%"></span>
+                  <span class="w-2 rounded-t bg-amber-500" style="height: {{ point.started_height }}%"></span>
+                  <span class="w-2 rounded-t bg-emerald-500" style="height: {{ point.converted_height }}%"></span>
+                </div>
+                <span class="whitespace-nowrap text-[9px] font-bold text-loomera-textMuted">{{ point.date_label|fa_digits }}</span>
               </div>
-              <span class="whitespace-nowrap text-[9px] font-bold text-loomera-textMuted">{{ point.date_label|fa_digits }}</span>
-            </div>
-          {% endfor %}
+            {% endfor %}
+          </div>
         </div>
-      </div>
 
-      {% if not quick_link_detail.has_activity %}
-        <p class="mt-4 rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-center text-xs leading-6 text-loomera-textMuted">
-          در این بازه هنوز تعاملی برای لینک ثبت نشده است.
-        </p>
-      {% endif %}
+        {% if not quick_link_detail.has_activity %}
+          <p class="mt-3 rounded-[16px] bg-loomera-bgSubtle px-4 py-3 text-center text-xs leading-6 text-loomera-textMuted">
+            در این بازه هنوز تعاملی برای لینک ثبت نشده است.
+          </p>
+        {% endif %}
+      </div>
     </section>
 
-    <section class="grid gap-4 lg:grid-cols-2">
-      <article class="rounded-[26px] border border-loomera-borderSoft bg-white p-5 shadow-lm-soft">
-        <h2 class="text-base font-black text-loomera-textPrimary">مشخصات مسیر رزرو</h2>
-        <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-          <div><dt class="text-xs font-bold text-loomera-textMuted">خدمت</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.service_name }}</dd></div>
-          <div><dt class="text-xs font-bold text-loomera-textMuted">متخصص</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.stylist_name }}</dd></div>
-          <div><dt class="text-xs font-bold text-loomera-textMuted">تاریخ ثابت</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.date_label }}</dd></div>
-          <div><dt class="text-xs font-bold text-loomera-textMuted">ساعت ثابت</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.time_label }}</dd></div>
+    <section id="quick-link-detail-info"
+             class="scroll-mt-28 space-y-4 lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-lm-task-panel="quick-link-detail"
+             data-lm-task-key="info"
+             data-lm-task-label="مشخصات"
+             data-lm-task-order="3"
+             data-lm-direct-section>
+
+      <article class="overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+        <header data-lm-direct-section-header class="border-b border-loomera-borderSoft px-4 py-3 sm:px-5">
+          <p class="text-[10px] font-black text-loomera-primaryText">مسیر رزرو</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary">مشخصات لینک</h2>
+        </header>
+        <dl class="grid gap-x-4 gap-y-3 p-4 text-sm sm:grid-cols-2 sm:p-5">
+          <div class="rounded-[16px] bg-loomera-bgSubtle/55 px-3 py-2.5">
+            <dt class="text-[10px] font-bold text-loomera-textMuted">خدمت</dt>
+            <dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.service_name }}</dd>
+          </div>
+          <div class="rounded-[16px] bg-loomera-bgSubtle/55 px-3 py-2.5">
+            <dt class="text-[10px] font-bold text-loomera-textMuted">متخصص</dt>
+            <dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.stylist_name }}</dd>
+          </div>
+          <div class="rounded-[16px] bg-loomera-bgSubtle/55 px-3 py-2.5">
+            <dt class="text-[10px] font-bold text-loomera-textMuted">تاریخ ثابت</dt>
+            <dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.date_label }}</dd>
+          </div>
+          <div class="rounded-[16px] bg-loomera-bgSubtle/55 px-3 py-2.5">
+            <dt class="text-[10px] font-bold text-loomera-textMuted">ساعت ثابت</dt>
+            <dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.time_label }}</dd>
+          </div>
         </dl>
       </article>
 
-      <article class="rounded-[26px] border border-loomera-borderSoft bg-white p-5 shadow-lm-soft">
-        <h2 class="text-base font-black text-loomera-textPrimary">اطلاعات مدیریتی</h2>
-        <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-          <div><dt class="text-xs font-bold text-loomera-textMuted">سازنده</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.creator_name }}</dd></div>
-          <div><dt class="text-xs font-bold text-loomera-textMuted">نوع لینک</dt><dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.mode_label }}</dd></div>
-          <div class="sm:col-span-2"><dt class="text-xs font-bold text-loomera-textMuted">یادداشت داخلی</dt><dd class="mt-1 whitespace-pre-line font-bold leading-7 text-loomera-textSecondary">{{ quick_link_detail.internal_note|default:"بدون یادداشت" }}</dd></div>
+      <article class="overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft">
+        <header class="border-b border-loomera-borderSoft px-4 py-3 sm:px-5">
+          <p class="text-[10px] font-black text-loomera-primaryText">اطلاعات داخلی</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary">مدیریت لینک</h2>
+        </header>
+        <dl class="grid gap-x-4 gap-y-3 p-4 text-sm sm:grid-cols-2 sm:p-5">
+          <div class="rounded-[16px] bg-loomera-bgSubtle/55 px-3 py-2.5">
+            <dt class="text-[10px] font-bold text-loomera-textMuted">سازنده</dt>
+            <dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.creator_name }}</dd>
+          </div>
+          <div class="rounded-[16px] bg-loomera-bgSubtle/55 px-3 py-2.5">
+            <dt class="text-[10px] font-bold text-loomera-textMuted">نوع لینک</dt>
+            <dd class="mt-1 font-black text-loomera-textPrimary">{{ quick_link_detail.mode_label }}</dd>
+          </div>
+          <div class="sm:col-span-2 rounded-[16px] bg-loomera-bgSubtle/55 px-3 py-2.5">
+            <dt class="text-[10px] font-bold text-loomera-textMuted">یادداشت داخلی</dt>
+            <dd class="mt-1 whitespace-pre-line font-bold leading-7 text-loomera-textSecondary">{{ quick_link_detail.internal_note|default:"بدون یادداشت" }}</dd>
+          </div>
         </dl>
       </article>
     </section>
@@ -230,15 +323,16 @@
       if (!button) return;
 
       const target = document.querySelector("[data-quick-link-detail-url]");
+      const label = button.querySelector("[data-copy-detail-label]");
       const value = target ? target.textContent.trim() : "";
       if (!value) return;
 
       try {
         await navigator.clipboard.writeText(value);
-        const previous = button.textContent;
-        button.textContent = "کپی شد";
+        const previous = label ? label.textContent : "کپی";
+        if (label) label.textContent = "کپی شد";
         window.setTimeout(function () {
-          button.textContent = previous;
+          if (label) label.textContent = previous;
         }, 1400);
       } catch (_error) {
         window.prompt("لینک را کپی کن:", value);

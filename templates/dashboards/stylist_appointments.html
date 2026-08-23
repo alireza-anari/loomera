@@ -11,42 +11,51 @@
 
 {% block content %}
   {% url 'dashboards:stylist_add_booking' as stylist_add_booking_url %}
-  {% url 'dashboards:stylist_add_customer' as stylist_add_customer_url %}
-  {% url 'dashboards:stylist_quick_links' as stylist_quick_links_url %}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-appointments">
-    {% include "dashboards/components/page_hero.html" with eyebrow="نوبت‌های متخصص" eyebrow_icon="fa-regular fa-calendar-check" title="نوبت‌های من" description="نوبت‌های امروز را بدون ورود به جزئیات مدیریت کن؛ در روند عادی فقط شروع و پایان خدمت لازم است." action_label="ثبت نوبت برای خودم" action_url=stylist_add_booking_url badges=page_meta.badges %}
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lm-stylist-workspace"
+           data-dashboard-workspace-root
+           data-dashboard-page="stylist-appointments">
 
-    <section class="lm-stylist-summary-surface" aria-label="خلاصه نوبت‌های من" data-lm-stylist-surface>
-      <div class="grid grid-cols-3 gap-2 p-2 sm:gap-3 sm:p-3">
-        <article class="lm-stylist-summary-card text-center"><p class="text-[11px] font-bold text-loomera-textMuted">امروز</p><strong class="mt-2 block text-xl font-black text-loomera-textPrimary">{{ today_count_label }}</strong></article>
-        <article class="lm-stylist-summary-card text-center"><p class="text-[11px] font-bold text-loomera-textMuted">آینده</p><strong class="mt-2 block text-xl font-black text-loomera-textPrimary">{{ upcoming_count_label }}</strong></article>
-        <article class="lm-stylist-summary-card text-center"><p class="text-[11px] font-bold text-loomera-textMuted">گذشته</p><strong class="mt-2 block text-xl font-black text-loomera-textPrimary">{{ past_count_label }}</strong></article>
+    <header class="rounded-[26px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" data-lm-stylist-surface>
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">نوبت‌ها</p>
+          <h1 class="mt-1 text-xl font-black text-loomera-textPrimary sm:text-2xl">نوبت‌های من</h1>
+        </div>
+        <a href="{{ stylist_add_booking_url }}"
+           data-primary-action
+           class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white shadow-[0_10px_24px_rgba(109,94,247,0.16)] transition hover:opacity-95">
+          <i class="fa-solid fa-plus text-[10px]" aria-hidden="true"></i>
+          <span>ثبت نوبت</span>
+        </a>
       </div>
-    </section>
+    </header>
 
-
-
-
-
-    <div data-lm-task-tabs-anchor="stylist-appointments" data-lm-task-tabs-label="بخش‌های نوبت‌های من"></div>
+    <div data-lm-task-tabs-anchor="stylist-appointments"
+         data-lm-task-tabs-label="بخش‌های نوبت‌های من"></div>
 
     <section id="stylist-appointments-section-today"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-appointments" data-lm-task-key="today" data-lm-task-label="امروز" data-lm-task-default data-lm-task-order="1">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-lm-direct-section
+             data-lm-task-panel="stylist-appointments"
+             data-lm-task-key="today"
+             data-lm-task-label="امروز"
+             data-lm-task-default
+             data-lm-task-order="1">
+      <header data-lm-direct-section-header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">امروز</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">نوبت‌های امروز</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            کار اصلی امروز را از همین کارت‌ها و با یک لمس انجام بده.
-          </p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">نوبت‌های امروز</h2>
         </div>
-</header>
+        <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-primarySoft px-2.5 py-1 text-[10px] font-black text-loomera-primaryText">
+          {{ today_count_label }} نوبت
+        </span>
+      </header>
 
-      <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3 sm:p-5 lg:p-6">
+      <div class="grid gap-3 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3 lg:p-6">
         {% for item in today_appointment_cards %}
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-sm" data-stylist-fast-flow-card>
+          <article class="rounded-[20px] border border-loomera-borderSoft bg-white p-3.5 shadow-sm" data-stylist-fast-flow-card>
             <div class="flex items-start gap-3">
               <span class="lm-compact-record-avatar shrink-0" aria-hidden="true">{{ item.customer_name|slice:":1" }}</span>
               <div class="min-w-0 flex-1 text-right">
@@ -54,17 +63,19 @@
                   <strong class="min-w-0 line-clamp-1 text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong>
                   <span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
                 </div>
-                <p class="mt-1 line-clamp-1 text-xs text-loomera-textMuted">{{ item.service_name }} • {{ item.time_label }}{% if item.end_time_label != '—' %} تا {{ item.end_time_label }}{% endif %}</p>
+                <p class="mt-1 line-clamp-1 text-xs text-loomera-textMuted">
+                  {{ item.service_name }} • {{ item.time_label }}{% if item.end_time_label != '—' %} تا {{ item.end_time_label }}{% endif %}
+                </p>
                 <p class="mt-1 text-[11px] text-loomera-textMuted">{{ item.payment_state }} • {{ item.price_label }}</p>
               </div>
             </div>
 
             {% if item.quick_action %}
-              <form method="post" action="{{ item.detail_url }}" data-lm-form-ux="off" class="mt-4">
+              <form method="post" action="{{ item.detail_url }}" data-lm-form-ux="off" class="mt-3">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="{{ item.quick_action.key }}">
                 <input type="hidden" name="next" value="{{ request.path }}">
-                <button class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-black {{ item.quick_action.class }}">
+                <button class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-black {{ item.quick_action.class }}">
                   {% if item.quick_action.key == "complete_service" %}
                     <i class="fa-solid fa-check" aria-hidden="true"></i>
                   {% elif item.quick_action.key == "confirm_cash_payment" %}
@@ -103,32 +114,40 @@
           </article>
         {% empty %}
           <div class="md:col-span-2 xl:col-span-3">
-            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-check" title="برای امروز نوبتی ثبت نشده" description="اگر مشتری حضوری داری، می‌توانی نوبتش را همین حالا ثبت کنی." action_label="ثبت نوبت" action_url=stylist_add_booking_url %}
+            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-check" title="برای امروز نوبتی ثبت نشده" description="اگر مشتری حضوری داری، نوبتش را همین حالا ثبت کن." action_label="ثبت نوبت" action_url=stylist_add_booking_url %}
           </div>
         {% endfor %}
       </div>
     </section>
 
     <section id="stylist-appointments-section-upcoming"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-appointments" data-lm-task-key="upcoming" data-lm-task-label="آینده" data-lm-task-order="2">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-lm-direct-section
+             data-lm-task-panel="stylist-appointments"
+             data-lm-task-key="upcoming"
+             data-lm-task-label="آینده"
+             data-lm-task-order="2">
+      <header data-lm-direct-section-header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">آینده</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">نوبت‌های آینده</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            نوبت‌های بعد از امروز برای مجموعه فعال فعلی.
-          </p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">نوبت‌های آینده</h2>
         </div>
-</header>
+        <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-primarySoft px-2.5 py-1 text-[10px] font-black text-loomera-primaryText">
+          {{ upcoming_count_label }} نوبت
+        </span>
+      </header>
 
-      <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3 sm:p-5 lg:p-6">
+      <div class="grid gap-3 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3 lg:p-6">
         {% for item in upcoming_appointment_cards %}
           <details class="lm-compact-record" data-lm-compact-record data-lm-compact-group="stylist-appts-upcoming">
             <summary class="lm-compact-record-summary">
               <span class="lm-compact-record-avatar" aria-hidden="true">{{ item.customer_name|slice:":1" }}</span>
               <span class="min-w-0 flex-1 text-right">
-                <span class="flex min-w-0 flex-wrap items-center gap-2"><strong class="min-w-0 line-clamp-1 text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong><span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span></span>
+                <span class="flex min-w-0 flex-wrap items-center gap-2">
+                  <strong class="min-w-0 line-clamp-1 text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong>
+                  <span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
+                </span>
                 <span class="mt-1 block line-clamp-1 text-xs text-loomera-textMuted">{{ item.service_name }} • {{ item.date_label }} • {{ item.time_label }}</span>
               </span>
               <span class="lm-compact-record-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
@@ -140,7 +159,12 @@
                 <div class="lm-compact-metric">{{ item.price_label }}</div>
                 <div class="lm-compact-metric truncate">{{ item.customer_phone|default:"شماره تماس ثبت نشده" }}</div>
               </div>
-              <div class="mt-3 border-t border-loomera-borderSoft pt-3"><a href="{{ item.detail_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2.5 text-sm font-black text-white">جزئیات و اقدام‌ها<i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i></a></div>
+              <div class="mt-3 border-t border-loomera-borderSoft pt-3">
+                <a href="{{ item.detail_url }}" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">
+                  جزئیات و اقدام‌ها
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+              </div>
             </div>
           </details>
         {% empty %}
@@ -151,30 +175,34 @@
       </div>
     </section>
 
-    <details id="stylist-appointments-section-past"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+    <section id="stylist-appointments-section-past"
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel
-             data-lm-task-panel="stylist-appointments" data-lm-task-key="past" data-lm-task-label="گذشته" data-lm-task-order="3">
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             data-lm-direct-section
+             data-lm-task-panel="stylist-appointments"
+             data-lm-task-key="past"
+             data-lm-task-label="گذشته"
+             data-lm-task-order="3">
+      <header data-lm-direct-section-header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">گذشته</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">نوبت‌های گذشته</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            سوابق نوبت‌های شما در مجموعه فعال فعلی.
-          </p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">نوبت‌های گذشته</h2>
         </div>
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
-          <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+        <span class="inline-flex shrink-0 items-center rounded-full bg-loomera-bgSubtle px-2.5 py-1 text-[10px] font-black text-loomera-textSecondary">
+          {{ past_count_label }} نوبت
         </span>
-      </summary>
+      </header>
 
-      <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3 sm:p-5 lg:p-6">
+      <div class="grid gap-3 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3 lg:p-6">
         {% for item in past_appointment_cards %}
           <details class="lm-compact-record" data-lm-compact-record data-lm-compact-group="stylist-appts-past">
             <summary class="lm-compact-record-summary">
               <span class="lm-compact-record-avatar" aria-hidden="true">{{ item.customer_name|slice:":1" }}</span>
               <span class="min-w-0 flex-1 text-right">
-                <span class="flex min-w-0 flex-wrap items-center gap-2"><strong class="min-w-0 line-clamp-1 text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong><span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span></span>
+                <span class="flex min-w-0 flex-wrap items-center gap-2">
+                  <strong class="min-w-0 line-clamp-1 text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong>
+                  <span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
+                </span>
                 <span class="mt-1 block line-clamp-1 text-xs text-loomera-textMuted">{{ item.service_name }} • {{ item.date_label }} • {{ item.time_label }}</span>
               </span>
               <span class="lm-compact-record-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
@@ -186,7 +214,12 @@
                 <div class="lm-compact-metric">{{ item.price_label }}</div>
                 <div class="lm-compact-metric truncate">{{ item.customer_phone|default:"شماره تماس ثبت نشده" }}</div>
               </div>
-              <div class="mt-3 border-t border-loomera-borderSoft pt-3"><a href="{{ item.detail_url }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2.5 text-sm font-black text-white">جزئیات و اقدام‌ها<i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i></a></div>
+              <div class="mt-3 border-t border-loomera-borderSoft pt-3">
+                <a href="{{ item.detail_url }}" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">
+                  جزئیات
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </a>
+              </div>
             </div>
           </details>
         {% empty %}
@@ -195,9 +228,9 @@
           </div>
         {% endfor %}
       </div>
-    </details>
-
+    </section>
 
   </section>
-{% include "dashboards/partials/stylist_no_show_decision_dialog.html" %}
+
+  {% include "dashboards/partials/stylist_no_show_decision_dialog.html" %}
 {% endblock %}
