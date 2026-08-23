@@ -3,6 +3,17 @@
 
 {% block title %}{% if profile_edit_mode %}نام و تماس مجموعه{% else %}شروع ساخت مجموعه{% endif %}{% endblock %}
 
+{% block head %}
+  <style>
+    .lm-onboarding-savebar {
+      bottom: var(--lm-bottom-nav-space, 4.75rem) !important;
+    }
+    @media (min-width: 1024px) {
+      .lm-onboarding-savebar { bottom: 0 !important; }
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
   {% url 'dashboards:salon_manager_dashboard' as dashboard_url %}
   {% url 'dashboards:salon_profile' as salon_profile_url %}
@@ -47,13 +58,15 @@
         </div>
       </div>
 
-      <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <a href="{% if profile_edit_mode %}{{ salon_profile_url }}{% else %}{{ dashboard_url }}{% endif %}" class="inline-flex min-h-11 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40">{% if profile_edit_mode %}بازگشت به پروفایل مجموعه{% else %}بازگشت{% endif %}</a>
-        <button type="submit" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(115,92,190,0.20)] transition hover:-translate-y-0.5">
-          {% if profile_edit_mode %}ذخیره تغییرات{% else %}ذخیره و ادامه{% endif %}
-          <i class="fa-solid {% if profile_edit_mode %}fa-floppy-disk{% else %}fa-arrow-left-long{% endif %} text-xs" aria-hidden="true"></i>
-        </button>
+      <div data-mobile-primary-action class="lm-onboarding-savebar fixed inset-x-0 z-[60] border-t border-loomera-borderSoft bg-white/96 px-3 py-2 shadow-[0_-12px_34px_rgba(46,42,60,0.10)] backdrop-blur sm:px-5 lg:sticky lg:inset-x-auto lg:z-20 lg:rounded-[22px] lg:border lg:p-2.5 lg:shadow-lm-elevated">
+        <div class="mx-auto flex w-full max-w-3xl justify-end">
+          <button type="submit" class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-2.5 text-sm font-black text-white shadow-[0_10px_24px_rgba(115,92,190,0.18)] transition hover:opacity-95 sm:w-auto sm:min-w-36">
+            <i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>
+            <span>ذخیره</span>
+          </button>
+        </div>
       </div>
+      <div class="block h-16 lg:h-2" aria-hidden="true"></div>
     </form>
   </section>
 {% endblock %}
