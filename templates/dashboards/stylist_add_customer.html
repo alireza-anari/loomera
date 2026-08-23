@@ -1,5 +1,6 @@
 {% extends "dashboard_template.html" %}
 {% load static %}
+
 {% block title %}افزودن مشتری{% endblock %}
 {% block body_attrs %}data-page="stylist-add-customer"{% endblock %}
 
@@ -9,216 +10,184 @@
 {% endblock %}
 
 {% block content %}
-  {% url 'dashboards:stylist_add_booking' as stylist_add_booking_url %}
-  {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
-  {% url 'dashboards:stylist_quick_links' as stylist_quick_links_url %}
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lm-stylist-workspace"
+           data-dashboard-workspace-root
+           data-dashboard-page="stylist-add-customer">
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-add-customer">
-    {% include "dashboards/components/page_hero.html" with eyebrow="مشتری جدید" eyebrow_icon="fa-solid fa-user-plus" title="افزودن مشتری" description="یک مشتری جدید برای فهرست کاری خودت در مجموعه فعال فعلی بساز و بعد مستقیم به فرم ثبت نوبت برگرد." action_label="بازگشت" action_url=back_url badges=page_meta.badges %}
+    <header class="rounded-[24px] border border-loomera-borderSoft bg-white px-4 py-3.5 shadow-lm-card sm:px-5 sm:py-4">
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">مشتری جدید</p>
+          <h1 class="mt-1 text-xl font-black text-loomera-textPrimary sm:text-2xl">افزودن مشتری</h1>
+        </div>
 
-
+        <a href="{{ back_url }}"
+           class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/35 hover:text-loomera-primaryText">
+          <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
+          <span>بازگشت</span>
+        </a>
+      </div>
+    </header>
 
     <section id="stylist-add-customer-section-form"
              class="group scroll-mt-28 overflow-visible rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36 lm-stylist-form-shell"
-             data-dashboard-workspace-panel data-lm-direct-section>
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 rounded-t-[28px] border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">پروفایل مشتری</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">اطلاعات مشتری جدید</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            نام، شماره موبایل و اطلاعات اولیه مشتری را وارد کن.
-          </p>
-        </div>
-</header>
+             data-dashboard-workspace-panel
+             data-lm-direct-section>
 
-      <div class="p-4 sm:p-5 lg:p-6">
-        <form method="post" class="space-y-5">
-          {% csrf_token %}
-          <input type="hidden" name="next" value="{{ next_url }}">
+      <form method="post" class="space-y-4 p-4 sm:p-5 lg:p-6">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
 
-          {% if form.non_field_errors %}
-            <div class="rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-4 text-sm font-bold leading-7 text-rose-700" role="alert">
-              {% for error in form.non_field_errors %}
-                <p>{{ error }}</p>
-              {% endfor %}
-            </div>
-          {% endif %}
+        {% if form.non_field_errors %}
+          <div class="rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold leading-7 text-rose-700" role="alert">
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
 
-          <div data-lm-task-tabs-anchor="stylist-add-customer-form" data-lm-task-tabs-label="بخش‌های افزودن مشتری"></div>
+        <div class="lm-task-tabs-anchor"
+             data-lm-task-tabs-anchor="stylist-add-customer-form"
+             data-lm-task-tabs-label="بخش‌های افزودن مشتری"
+             aria-label="بخش‌های افزودن مشتری"></div>
 
-          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft" data-lm-task-panel="stylist-add-customer-form" data-lm-task-key="identity" data-lm-task-label="اطلاعات اصلی" data-lm-task-default data-lm-task-order="1">
-            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات هویتی</p>
-                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">هویت مشتری</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                    این اطلاعات برای ساخت حساب مشتری و شناسایی در نوبت‌ها استفاده می‌شود.
-                  </p>
-                </div>
-
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                  <i class="fa-regular fa-user" aria-hidden="true"></i>
-                </span>
-              </div>
-            </header>
-
-            <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
-              <div>
-                <label for="{{ form.name.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                  <i class="fa-regular fa-user text-xs text-loomera-primaryText" aria-hidden="true"></i>
-                  {{ form.name.label }}
-                </label>
-
-                {{ form.name }}
-
-                {% if form.name.errors %}
-                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                    {% for error in form.name.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </div>
-
-              <div>
-                <label for="{{ form.family.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                  <i class="fa-regular fa-user text-xs text-loomera-primaryText" aria-hidden="true"></i>
-                  {{ form.family.label }}
-                </label>
-
-                {{ form.family }}
-
-                {% if form.family.errors %}
-                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                    {% for error in form.family.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
-                  </div>
-                {% endif %}
+        <section class="overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft"
+                 data-lm-task-panel="stylist-add-customer-form"
+                 data-lm-task-key="identity"
+                 data-lm-task-label="اطلاعات اصلی"
+                 data-lm-task-default
+                 data-lm-task-order="1">
+          <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/55 px-4 py-3.5 sm:px-5">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-loomera-primaryText shadow-sm">
+                <i class="fa-regular fa-user text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <p class="text-[10px] font-black text-loomera-primaryText">اطلاعات اصلی</p>
+                <h2 class="mt-0.5 text-base font-black text-loomera-textPrimary">نام و نام خانوادگی</h2>
               </div>
             </div>
-          </section>
+          </header>
 
-          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft" data-lm-task-panel="stylist-add-customer-form" data-lm-task-key="contact" data-lm-task-label="راه ارتباطی" data-lm-task-order="2">
-            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات تماس</p>
-                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">اطلاعات تماس</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                    شماره موبایل باید یکتا باشد و با ۰۹ شروع شود.
-                  </p>
-                </div>
-
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                  <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
-                </span>
-              </div>
-            </header>
-
-            <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
-              <div>
-                <label for="{{ form.mobile_number.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                  <i class="fa-solid fa-mobile-screen-button text-xs text-loomera-primaryText" aria-hidden="true"></i>
-                  {{ form.mobile_number.label }}
-                </label>
-
-                {{ form.mobile_number }}
-
-                {% if form.mobile_number.errors %}
-                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                    {% for error in form.mobile_number.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-
-                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">
-                  اگر این شماره قبلاً در سیستم ثبت شده باشد، پیام خطا نمایش داده می‌شود.
-                </p>
-              </div>
-
-              <div>
-                <label for="{{ form.email.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                  <i class="fa-regular fa-envelope text-xs text-loomera-primaryText" aria-hidden="true"></i>
-                  {{ form.email.label }}
-                </label>
-
-                {{ form.email }}
-
-                {% if form.email.errors %}
-                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                    {% for error in form.email.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-
-                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">
-                  ایمیل اختیاری است و برای اطلاع‌رسانی‌های بعدی می‌تواند استفاده شود.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft" data-lm-task-panel="stylist-add-customer-form" data-lm-task-key="details" data-lm-task-label="اطلاعات تکمیلی" data-lm-task-order="3">
-            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">توضیحات بیشتر</p>
-                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">نشانی یا توضیح کوتاه</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                    این بخش اختیاری است و فقط برای شناخت بهتر مشتری در مراجعات بعدی استفاده می‌شود.
-                  </p>
-                </div>
-
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                  <i class="fa-regular fa-note-sticky" aria-hidden="true"></i>
-                </span>
-              </div>
-            </header>
-
-            <div class="p-4 sm:p-5">
-              <label for="{{ form.address.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                <i class="fa-regular fa-map text-xs text-loomera-primaryText" aria-hidden="true"></i>
-                {{ form.address.label }}
+          <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
+            <div>
+              <label for="{{ form.name.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
+                {{ form.name.label }}
               </label>
-
-              {{ form.address }}
-
-              {% if form.address.errors %}
+              {{ form.name }}
+              {% if form.name.errors %}
                 <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                  {% for error in form.address.errors %}
-                    <p>{{ error }}</p>
-                  {% endfor %}
+                  {% for error in form.name.errors %}<p>{{ error }}</p>{% endfor %}
                 </div>
               {% endif %}
             </div>
-          </section>
 
-          <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p class="text-xs leading-6 text-loomera-textMuted">
-                مشتری جدید به مجموعه فعال فعلی متصل می‌شود و بعد از ثبت، در فرم نوبت خودت قابل انتخاب است.
-              </p>
-
-              <div class="flex justify-end">
-                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
-                  <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
-                  ثبت مشتری
-                </button>
-              </div>
+            <div>
+              <label for="{{ form.family.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
+                {{ form.family.label }}
+              </label>
+              {{ form.family }}
+              {% if form.family.errors %}
+                <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                  {% for error in form.family.errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+              {% endif %}
             </div>
           </div>
-        </form>
-      </div>
+        </section>
+
+        <section class="overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft"
+                 data-lm-task-panel="stylist-add-customer-form"
+                 data-lm-task-key="contact"
+                 data-lm-task-label="راه ارتباطی"
+                 data-lm-task-order="2">
+          <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/55 px-4 py-3.5 sm:px-5">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-loomera-primaryText shadow-sm">
+                <i class="fa-solid fa-mobile-screen-button text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <p class="text-[10px] font-black text-loomera-primaryText">راه ارتباطی</p>
+                <h2 class="mt-0.5 text-base font-black text-loomera-textPrimary">شماره موبایل و ایمیل</h2>
+              </div>
+            </div>
+          </header>
+
+          <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
+            <div>
+              <label for="{{ form.mobile_number.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
+                {{ form.mobile_number.label }}
+              </label>
+              {{ form.mobile_number }}
+              <p class="mt-2 text-[11px] leading-6 text-loomera-textMuted">شماره موبایل باید با ۰۹ شروع شود.</p>
+              {% if form.mobile_number.errors %}
+                <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                  {% for error in form.mobile_number.errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+
+            <div>
+              <label for="{{ form.email.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
+                {{ form.email.label }}
+              </label>
+              {{ form.email }}
+              <p class="mt-2 text-[11px] leading-6 text-loomera-textMuted">ایمیل اختیاری است.</p>
+              {% if form.email.errors %}
+                <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                  {% for error in form.email.errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </section>
+
+        <section class="overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft"
+                 data-lm-task-panel="stylist-add-customer-form"
+                 data-lm-task-key="details"
+                 data-lm-task-label="اطلاعات تکمیلی"
+                 data-lm-task-order="3">
+          <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/55 px-4 py-3.5 sm:px-5">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-loomera-primaryText shadow-sm">
+                <i class="fa-regular fa-note-sticky text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <p class="text-[10px] font-black text-loomera-primaryText">اختیاری</p>
+                <h2 class="mt-0.5 text-base font-black text-loomera-textPrimary">نشانی یا توضیح کوتاه</h2>
+              </div>
+            </div>
+          </header>
+
+          <div class="p-4 sm:p-5">
+            <label for="{{ form.address.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
+              {{ form.address.label }}
+            </label>
+            {{ form.address }}
+            <p class="mt-2 text-[11px] leading-6 text-loomera-textMuted">برای شناخت بهتر مشتری در مراجعات بعدی استفاده می‌شود.</p>
+            {% if form.address.errors %}
+              <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                {% for error in form.address.errors %}<p>{{ error }}</p>{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        <div data-mobile-primary-action
+             class="rounded-[20px] border border-loomera-borderSoft bg-white p-2.5 shadow-[0_10px_28px_rgba(46,42,60,0.10)]">
+          <div class="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-[11px] font-bold leading-6 text-loomera-textMuted">
+              بعد از ثبت، مشتری در فرم ثبت نوبت قابل انتخاب است.
+            </p>
+
+            <button type="submit"
+                    class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white shadow-[0_8px_20px_rgba(115,92,190,0.16)] transition hover:opacity-95 sm:w-auto">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i>
+              <span>ثبت مشتری</span>
+            </button>
+          </div>
+        </div>
+      </form>
     </section>
-
-
-
-
-
-
   </section>
 {% endblock %}

@@ -320,13 +320,17 @@
   }
 
   /*
-   * Management sits left of the center action in the current manager nav.
-   * A smaller translation keeps its five icons fully inside narrow screens
-   * while they still visually originate from the management button.
+   * Keep the management menu fully inside the mobile viewport.
+   * The trigger can sit near either edge depending on the partner role,
+   * so center this menu on the viewport instead of the trigger.
    */
   .lm-partner-float-menu--management {
+    position: fixed;
     left: 50%;
-    transform: translateX(-28%);
+    right: auto;
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    width: min(18.5rem, calc(100vw - 24px));
   }
 
   .lm-partner-float-menu::after {
@@ -349,7 +353,7 @@
   }
 
   .lm-partner-float-menu--management::after {
-    left: calc(28% - 7px);
+    display: none;
   }
 
   .lm-partner-float-action {
@@ -541,11 +545,9 @@
     }
 
     .lm-partner-float-menu--management {
-      transform: translateX(-25%);
-    }
-
-    .lm-partner-float-menu--management::after {
-      left: calc(25% - 7px);
+      left: 50%;
+      width: calc(100vw - 18px);
+      transform: translateX(-50%);
     }
   }
 
@@ -577,33 +579,41 @@
     {# Home + Calendar: existing routes/availability are unchanged. #}
     <div class="lm-partner-mobile-nav__side lm-partner-mobile-nav__side--primary">
       {% for item in dashboard_mobile_nav_items|slice:":2" %}
-
         {% if item.is_available %}
-
-            <a href="{{ item.url }}"
-              role="listitem"
-              aria-label="{{ item.label }}"
-              {% if item.is_active %}aria-current="page"{% endif %}
-              class="lm-partner-mobile-nav__item lm-app-touch-target {% if item.is_active %}is-active{% endif %}">
-
-                {% include "partials/dashboard/nav_icon.html" with key=item.key %}
-
+          {% if item.key == "my_profile" or item.key == "profile" %}
+            {% if dashboard_salon_id %}
+            <a href="{% url 'dashboards:reports_dashboard' salon_id=dashboard_salon_id %}"
+               role="listitem"
+               aria-label="گزارش‌ها"
+               title="گزارش‌ها"
+               class="lm-partner-mobile-nav__item lm-app-touch-target">
+              <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
             </a>
-
-        {% else %}
-
+            {% else %}
             <span role="listitem"
-                  aria-label="{{ item.label }}؛ در دسترس نیست"
-                  aria-disabled="true"
+                  aria-label="گزارش‌ها در دسترس نیست"
                   class="lm-partner-mobile-nav__item is-disabled lm-app-touch-target">
-
-                {% include "partials/dashboard/nav_icon.html" with key=item.key %}
-
+              <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
             </span>
-
+            {% endif %}
+          {% else %}
+          <a href="{{ item.url }}"
+             role="listitem"
+             aria-label="{{ item.label }}"
+             {% if item.is_active %}aria-current="page"{% endif %}
+             class="lm-partner-mobile-nav__item lm-app-touch-target {% if item.is_active %}is-active{% endif %}">
+            {% include "partials/dashboard/nav_icon.html" with key=item.key %}
+          </a>
+          {% endif %}
+        {% else %}
+          <span role="listitem"
+                aria-label="{{ item.label }}؛ در دسترس نیست"
+                aria-disabled="true"
+                class="lm-partner-mobile-nav__item is-disabled lm-app-touch-target">
+            {% include "partials/dashboard/nav_icon.html" with key=item.key %}
+          </span>
         {% endif %}
-
-    {% endfor %}
+      {% endfor %}
     </div>
 
     {# Quick create: same actions and current dashboard_layout.js hooks. #}

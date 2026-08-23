@@ -12,30 +12,31 @@
 
 {% block content %}
   {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
-  {% url 'dashboards:stylist_schedule' as stylist_schedule_url %}
-  {% url 'dashboards:stylist_profile' as stylist_profile_url %}
-
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-quick-links">
-    {% include "dashboards/components/page_hero.html" with eyebrow="لینک سریع" eyebrow_icon="fa-solid fa-link" title="لینک رزرو من" description="لینک‌هایی بساز که فقط به مجموعه فعال فعلی و حساب متخصص خودت محدود باشند." action_label="نوبت‌های من" action_url=stylist_appointments_url badges=page_meta.badges %}
-
-
-
-
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-quick-links">
+    <header class="rounded-[24px] border border-loomera-borderSoft bg-white px-4 py-3.5 shadow-lm-card sm:px-5 sm:py-4">
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h1 class="truncate text-xl font-black text-loomera-textPrimary sm:text-2xl">لینک رزرو من</h1>
+          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">لینک مستقیم رزرو بساز و برای مشتری بفرست.</p>
+        </div>
+        <a href="{{ stylist_appointments_url }}" class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3.5 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
+          <i class="fa-regular fa-calendar-check text-[11px]" aria-hidden="true"></i>
+          <span class="hidden sm:inline">نوبت‌های من</span>
+        </a>
+      </div>
+    </header>
 
     <div data-lm-task-tabs-anchor="stylist-quick-links" data-lm-task-tabs-label="بخش‌های لینک رزرو من"></div>
 
     <section id="stylist-quick-links-section-create"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-quick-links" data-lm-task-key="create" data-lm-task-label="ساخت لینک" data-lm-task-default data-lm-task-order="1">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+      <header data-lm-direct-section-header class="border-b border-loomera-borderSoft bg-white/95 px-4 py-3 sm:px-5">
         <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">لینک رزرو سریع</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ساخت لینک رزرو من</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            نوع لینک را انتخاب کن؛ برای لینک زمان‌دار فقط روزها و ساعت‌های واقعاً آزاد نمایش داده می‌شوند.
-          </p>
+          <p class="text-[11px] font-black text-loomera-primaryText">ساخت لینک</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary">لینک جدید</h2>
         </div>
-</header>
+      </header>
 
       <div class="p-4 sm:p-5 lg:p-6">
         {% if quick_link_workspace.errors %}
@@ -54,10 +55,7 @@
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
                   <p class="text-[11px] font-black text-loomera-primaryText">نوع لینک</p>
-                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">محدوده لینک</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                    مجموعه و متخصص ثابت هستند؛ فقط نوع لینک و جزئیات رزرو را مشخص می‌کنی.
-                  </p>
+                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">چه چیزی از قبل مشخص باشد؟</h3>
                 </div>
                 <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
                   <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
@@ -68,13 +66,18 @@
             <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3">
               <div>
                 <label class="mb-2 block text-sm font-black text-loomera-textPrimary">نوع لینک</label>
-                <select name="quick_link_mode" data-quick-link-mode class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                  {% for mode in quick_link_workspace.mode_options %}
-                    <option value="{{ mode.value }}" {% if quick_link_workspace.current_mode == mode.value %}selected{% endif %}>
-                      {{ mode.label }}
-                    </option>
-                  {% endfor %}
-                </select>
+                <div class="relative">
+                  <select name="quick_link_mode" data-quick-link-mode class="w-full appearance-none rounded-[18px] border border-loomera-borderSoft bg-white px-4 py-3 pl-10 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
+                    {% for mode in quick_link_workspace.mode_options %}
+                      <option value="{{ mode.value }}" {% if quick_link_workspace.current_mode == mode.value %}selected{% endif %}>
+                        {{ mode.label }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-loomera-textMuted" aria-hidden="true">
+                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                  </span>
+                </div>
               </div>
 
               <div>
@@ -98,10 +101,7 @@
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
                   <p class="text-[11px] font-black text-loomera-primaryText">جزئیات رزرو</p>
-                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">جزئیات لینک</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                    اگر نوع لینک زمان‌دار باشد، تاریخ و ساعت باید کامل انتخاب شوند.
-                  </p>
+                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">خدمت و زمان</h3>
                 </div>
                 <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
                   <i class="fa-regular fa-calendar-days" aria-hidden="true"></i>
@@ -112,29 +112,38 @@
             <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3">
               <div>
                 <label class="mb-2 block text-sm font-black text-loomera-textPrimary">خدمت خودت</label>
-                <select name="service_id" data-quick-link-service class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                  <option value="">بدون انتخاب</option>
-                  {% for service in quick_link_workspace.services %}
-                    <option value="{{ service.id }}" {% if quick_link_workspace.selected_service == service.id|stringformat:'s' %}selected{% endif %}>
-                      {{ service.service_name }}
-                    </option>
-                  {% endfor %}
-                </select>
+                <div class="relative">
+                  <select name="service_id" data-quick-link-service class="w-full appearance-none rounded-[18px] border border-loomera-borderSoft bg-white px-4 py-3 pl-10 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
+                    <option value="">بدون انتخاب</option>
+                    {% for service in quick_link_workspace.services %}
+                      <option value="{{ service.id }}" {% if quick_link_workspace.selected_service == service.id|stringformat:'s' %}selected{% endif %}>
+                        {{ service.service_name }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-loomera-textMuted" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
+                </div>
               </div>
 
               <div data-quick-link-time-field>
                 <label class="mb-2 block text-sm font-black text-loomera-textPrimary">تاریخ آزاد</label>
-                <select name="appointment_date" data-quick-link-date data-selected-date="{{ quick_link_workspace.selected_date }}" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                  <option value="">اول خدمت را انتخاب کن</option>
-                </select>
+                <div class="relative">
+                  <select name="appointment_date" data-quick-link-date data-selected-date="{{ quick_link_workspace.selected_date }}" class="w-full appearance-none rounded-[18px] border border-loomera-borderSoft bg-white px-4 py-3 pl-10 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
+                    <option value="">اول خدمت را انتخاب کن</option>
+                  </select>
+                  <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-loomera-textMuted" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
+                </div>
                 <p class="mt-2 text-xs leading-6 text-loomera-textMuted" data-quick-link-availability-note>فقط روزهایی نمایش داده می‌شوند که واقعاً زمان آزاد داری.</p>
               </div>
 
               <div data-quick-link-time-field>
                 <label class="mb-2 block text-sm font-black text-loomera-textPrimary">ساعت آزاد</label>
-                <select name="appointment_time" data-quick-link-time data-selected-time="{{ quick_link_workspace.selected_time }}" class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
-                  <option value="">اول تاریخ را انتخاب کن</option>
-                </select>
+                <div class="relative">
+                  <select name="appointment_time" data-quick-link-time data-selected-time="{{ quick_link_workspace.selected_time }}" class="w-full appearance-none rounded-[18px] border border-loomera-borderSoft bg-white px-4 py-3 pl-10 text-sm font-black text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10">
+                    <option value="">اول تاریخ را انتخاب کن</option>
+                  </select>
+                  <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-loomera-textMuted" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
+                </div>
               </div>
 
               <div class="md:col-span-2">
@@ -142,7 +151,7 @@
                 <input
                   type="text"
                   name="quick_link_title"
-                  placeholder="مثلاً لینک بیوی اینستاگرام، لینک استوری، لینک مشتری‌های VIP"
+                  placeholder="مثلاً لینک صفحه معرفی، لینک استوری یا لینک مشتری‌های ویژه"
                   class="w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary outline-none transition placeholder:text-loomera-textMuted/60 focus:border-loomera-primary/40 focus:ring-4 focus:ring-loomera-primary/10"
                 >
               </div>
@@ -161,15 +170,12 @@
             </div>
           </section>
 
-          <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
+          <div data-mobile-primary-action class="mt-4 rounded-[20px] border border-loomera-borderSoft bg-white p-3 shadow-[0_10px_24px_rgba(46,42,60,0.08)]">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p class="text-xs leading-6 text-loomera-textMuted">
-                این لینک فقط به متخصص فعلی و مجموعه فعال فعلی محدود است.
-              </p>
-
-              <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
-                <i class="fa-solid fa-wand-magic-sparkles text-xs" aria-hidden="true"></i>
-                ساخت لینک رزرو
+              <p class="text-[11px] leading-6 text-loomera-textMuted">لینک فقط برای همین متخصص و مجموعه فعال ساخته می‌شود.</p>
+              <button type="submit" class="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-sm font-black text-white transition hover:bg-loomera-primaryHover sm:w-auto">
+                <i class="fa-solid fa-link text-xs" aria-hidden="true"></i>
+                ساخت لینک
               </button>
             </div>
           </div>
@@ -177,34 +183,28 @@
       </div>
     </section>
 
-    <section id="stylist-quick-links-section-generated"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-emerald-200 bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             {% if quick_link_workspace.generated_link %}open{% endif %} data-lm-direct-section data-lm-task-panel="stylist-quick-links" data-lm-task-key="create" data-lm-task-label="ساخت لینک" data-lm-task-order="1">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-emerald-100 bg-emerald-50/80 px-4 py-3 shadow-sm transition hover:bg-emerald-50 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-emerald-700">نتیجه ساخت لینک</p>
-          <h2 class="mt-1 truncate text-base font-black text-emerald-950 sm:text-lg">لینک آماده</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-emerald-800">
-            بعد از ساخت لینک، آن را از همین بخش کپی یا باز کن.
-          </p>
-        </div>
-</header>
+    {% if quick_link_workspace.generated_link %}
+      <section id="stylist-quick-links-section-generated"
+               class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-emerald-200 bg-white/95 shadow-lm-card lg:scroll-mt-36"
+               data-dashboard-workspace-panel data-lm-direct-section
+               data-lm-task-panel="stylist-quick-links" data-lm-task-key="create" data-lm-task-label="ساخت لینک" data-lm-task-order="1">
+        <header data-lm-direct-section-header class="border-b border-emerald-100 bg-emerald-50/80 px-4 py-3 sm:px-5">
+          <div class="min-w-0">
+            <p class="text-[11px] font-black text-emerald-700">لینک آماده</p>
+            <h2 class="mt-1 text-base font-black text-emerald-950">لینک با موفقیت ساخته شد</h2>
+          </div>
+        </header>
 
-      <div class="p-4 sm:p-5 lg:p-6">
-        {% if quick_link_workspace.generated_link %}
-          <article class="rounded-[26px] border border-emerald-200 bg-emerald-50 p-4 sm:p-5">
+        <div class="p-4 sm:p-5">
+          <article class="rounded-[22px] border border-emerald-200 bg-emerald-50 p-4">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p class="text-sm font-black text-emerald-950">لینک با موفقیت ساخته شد</p>
-                <p class="mt-1 text-xs leading-6 text-emerald-800">
-                  این لینک تا حدود {{ quick_link_workspace.expires_in_days|default:30|fa_digits }} روز معتبر است، مگر اینکه دائمی ساخته شده باشد.
-                </p>
-              </div>
+              <p class="text-xs leading-6 text-emerald-800">
+                اگر لینک دائمی نباشد، تا حدود {{ quick_link_workspace.expires_in_days|default:30|fa_digits }} روز اعتبار دارد.
+              </p>
 
               <div class="flex flex-wrap gap-2">
                 <button type="button" class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2.5 text-xs font-black text-white transition hover:bg-emerald-700" data-copy-quick-link data-copy-target="[data-quick-link-value]">
-                  <i class="fa-solid fa-copy text-[11px]" aria-hidden="true"></i>
+                  <i class="fa-regular fa-copy text-[11px]" aria-hidden="true"></i>
                   <span data-copy-label>کپی لینک</span>
                 </button>
 
@@ -219,29 +219,24 @@
               <span class="block min-w-max whitespace-nowrap">{{ quick_link_workspace.generated_link }}</span>
             </div>
 
-            <div class="mt-4 grid gap-2 text-xs text-loomera-textSecondary md:grid-cols-2 xl:grid-cols-4">
+            <div class="mt-4 grid gap-2 text-xs text-loomera-textSecondary sm:grid-cols-2">
               <div class="rounded-xl bg-white px-3 py-3">مجموعه: {{ quick_link_workspace.generated_payload.summary.salon }}</div>
               <div class="rounded-xl bg-white px-3 py-3">متخصص: {{ quick_link_workspace.generated_payload.summary.stylist }}</div>
               <div class="rounded-xl bg-white px-3 py-3">خدمت: {{ quick_link_workspace.generated_payload.summary.service }}</div>
               <div class="rounded-xl bg-white px-3 py-3">زمان: {{ quick_link_workspace.generated_payload.summary.date }} • {{ quick_link_workspace.generated_payload.summary.time }}</div>
             </div>
           </article>
-        {% else %}
-          {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-link" title="هنوز لینک جدیدی ساخته نشده" description="نوع لینک و جزئیات رزرو را انتخاب کن تا لینک آماده شود." action_label="ساخت لینک" action_url="?tab=create" %}
-        {% endif %}
-      </div>
-    </section>
+        </div>
+      </section>
+    {% endif %}
 
     <section id="stylist-quick-links-section-list"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-quick-links" data-lm-task-key="list" data-lm-task-label="لینک‌های من" data-lm-task-order="2">
       <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">لینک‌های ساخته‌شده</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">همه لینک‌های من</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            لینک‌های فعال، دائمی، منقضی یا غیرفعال خودت را مدیریت کن.
-          </p>
+          <p class="text-[11px] font-black text-loomera-primaryText">مدیریت لینک‌ها</p>
+          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">لینک‌های من</h2>
         </div>
 </header>
 
@@ -264,8 +259,8 @@
               <div class="mt-3 max-w-full overflow-x-auto rounded-2xl bg-white px-3 py-3 text-xs leading-6 text-loomera-textSecondary ring-1 ring-loomera-borderSoft" dir="ltr" data-stylist-quick-link-url-{{ link.id }}><span class="block min-w-max whitespace-nowrap">{{ link.url }}</span></div>
               <p class="mt-2 text-[11px] leading-6 text-loomera-textMuted">ساخت: {{ link.created_at_label }} • انقضا: {{ link.expires_at_label }} • آخرین بازدید: {{ link.last_opened_at_label }}</p>
               <div class="mt-3 grid grid-cols-2 gap-2 border-t border-loomera-borderSoft pt-3 sm:grid-cols-4">
-                <button type="button" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textSecondary" data-copy-quick-link data-copy-target="[data-stylist-quick-link-url-{{ link.id }}]">کپی</button>
-                <a href="{{ link.qr_download_url }}" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textSecondary"><i class="fa-solid fa-qrcode text-[10px]" aria-hidden="true"></i>QR</a>
+                <button type="button" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textSecondary" data-copy-quick-link data-copy-target="[data-stylist-quick-link-url-{{ link.id }}]"><i class="fa-regular fa-copy text-[10px]" aria-hidden="true"></i><span data-copy-label>کپی لینک</span></button>
+                <a href="{{ link.qr_download_url }}" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textSecondary"><i class="fa-solid fa-qrcode text-[10px]" aria-hidden="true"></i>کد رزرو</a>
                 <a href="{% url 'dashboards:stylist_quick_link_print_templates' link.id %}" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3 py-2.5 text-xs font-black text-loomera-primaryText"><i class="fa-solid fa-print text-[10px]" aria-hidden="true"></i>قالب‌های چاپ</a>
                 <a href="{{ link.url }}" target="_blank" rel="noopener" class="inline-flex items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-indigo-700">باز کردن</a>
               </div>

@@ -1,5 +1,5 @@
 {% extends "dashboard_template.html" %}
-{% block title %}اعلان‌ها{% endblock %}
+{% block title %}{{ notification_center_title|default:"اعلان‌ها" }}{% endblock %}
 {% block body_attrs %}data-page="notifications-center"{% endblock %}
 
 {% block head %}
@@ -55,6 +55,14 @@
       font-size: 1.05rem;
       font-weight: 900;
       line-height: 1.5;
+    }
+
+    .lm-notifications-summary-description {
+      margin: 0.12rem 0 0;
+      color: var(--lm-text-muted, #7d748d);
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1.75;
     }
 
     .lm-notifications-summary-meta {
@@ -440,7 +448,10 @@
           <i class="fa-regular fa-bell"></i>
         </span>
         <div class="min-w-0">
-          <h1 class="lm-notifications-summary-title">اعلان‌ها</h1>
+          <h1 class="lm-notifications-summary-title">{{ notification_center_title|default:"اعلان‌ها" }}</h1>
+          {% if notification_center_description %}
+            <p class="lm-notifications-summary-description">{{ notification_center_description }}</p>
+          {% endif %}
         </div>
       </div>
 

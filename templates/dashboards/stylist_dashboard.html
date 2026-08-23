@@ -17,94 +17,184 @@
   {% url 'dashboards:stylist_add_booking' as stylist_add_booking_url %}
   {% url 'dashboards:stylist_add_schedule' as stylist_add_schedule_url %}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-dashboard">
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-dashboard">
 
-    {% include "dashboards/components/page_hero.html" with eyebrow="فضای کاری من" eyebrow_icon="fa-solid fa-house" title="خانه کاری من" description="مدیریت سریع نوبت‌ها و برنامه کاری" action_label="ثبت نوبت" action_url=stylist_add_booking_url badges=page_meta.badges %}
+    <header class="rounded-[26px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" data-lm-stylist-surface>
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">فضای کاری من</p>
+          <h1 class="mt-1 text-xl font-black text-loomera-textPrimary sm:text-2xl">خانه کاری من</h1>
+          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">امروزت، شیفت‌های بعدی و کارهای پرکاربرد در یک نگاه.</p>
+        </div>
+        <a href="{{ stylist_add_booking_url }}" data-primary-action class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 self-start rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white shadow-[0_10px_24px_rgba(109,94,247,0.16)] transition hover:opacity-95 sm:self-auto">
+          <i class="fa-solid fa-plus text-[10px]" aria-hidden="true"></i>
+          <span>ثبت نوبت</span>
+        </a>
+      </div>
+    </header>
 
-    <div data-lm-task-tabs-anchor="stylist-dashboard" data-lm-task-tabs-label="بخش‌های خانه کاری من"></div>
+    <div data-lm-task-tabs-anchor="stylist-dashboard"
+         data-lm-task-tabs-label="بخش‌های خانه کاری من"></div>
 
     <section id="stylist-dashboard-section-today"
-             class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel
              data-lm-task-panel="stylist-dashboard"
              data-lm-task-key="today"
              data-lm-task-label="نوبت‌های امروز"
              data-lm-task-default
-             data-lm-task-order="1">
-      <header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
-        <h2 class="text-base font-black text-loomera-textPrimary sm:text-lg">نوبت‌های امروز</h2>
-        <span class="inline-flex items-center rounded-full bg-loomera-primarySoft px-3 py-1.5 text-xs font-black text-loomera-primaryText">{{ stylist_home.today_count_label }} نوبت</span>
+             data-lm-task-order="1"
+             data-lm-direct-section>
+      <header data-lm-direct-section-header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">امروز</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">نوبت‌های امروز</h2>
+        </div>
+        <div class="flex shrink-0 items-center gap-2">
+          <span class="inline-flex items-center rounded-full bg-loomera-primarySoft px-2.5 py-1 text-[10px] font-black text-loomera-primaryText">{{ stylist_home.today_count_label }} نوبت</span>
+          <a href="{{ stylist_appointments_url }}" class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textMuted transition hover:border-loomera-primary/30 hover:text-loomera-primaryText" aria-label="مشاهده همه نوبت‌ها">
+            <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+          </a>
+        </div>
       </header>
 
       <div class="grid gap-3 p-4 sm:p-5 md:grid-cols-2 lg:p-6">
         {% for item in stylist_home.today_items %}
-          <a href="{{ item.detail_url }}" class="block rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft transition hover:border-loomera-primary/30">
-            <div class="flex flex-wrap items-center gap-2">
-              <strong class="min-w-0 line-clamp-1 text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong>
-              <span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
+          <article class="rounded-[20px] border border-loomera-borderSoft bg-white p-3.5 shadow-sm transition hover:border-loomera-primary/30" data-stylist-fast-flow-card>
+            <div class="flex items-start gap-3">
+              <span class="lm-compact-record-avatar shrink-0" aria-hidden="true">{{ item.customer_name|slice:":1" }}</span>
+              <div class="min-w-0 flex-1">
+                <div class="flex min-w-0 flex-wrap items-center gap-2">
+                  <strong class="min-w-0 line-clamp-1 text-sm font-black text-loomera-textPrimary">{{ item.customer_name }}</strong>
+                  <span class="lm-status-chip shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black {{ item.status_badge_class }}">{{ item.status_label }}</span>
+                </div>
+                <p class="mt-1 line-clamp-1 text-xs text-loomera-textMuted">{{ item.service_name }} • {{ item.time_label }}</p>
+              </div>
             </div>
-            <p class="mt-1 text-sm text-loomera-textMuted">{{ item.service_name }} - {{ item.time_label }}</p>
-          </a>
+
+            {% if item.quick_action %}
+              <form method="post" action="{{ item.detail_url }}" data-lm-form-ux="off" class="mt-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="{{ item.quick_action.key }}">
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit"
+                        class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-black {{ item.quick_action.class }}">
+                  {% if item.quick_action.key == "complete_service" %}
+                    <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i>
+                  {% elif item.quick_action.key == "confirm_cash_payment" %}
+                    <i class="fa-solid fa-money-bill-wave text-[10px]" aria-hidden="true"></i>
+                  {% else %}
+                    <i class="fa-solid fa-play text-[10px]" aria-hidden="true"></i>
+                  {% endif %}
+                  <span>{{ item.quick_action.label }}</span>
+                </button>
+              </form>
+            {% endif %}
+
+            <div class="mt-3 flex items-center justify-between gap-3 border-t border-loomera-borderSoft pt-3">
+              {% if item.exception_action %}
+                {% if item.exception_action.key == "no_show_decision" %}
+                  <button type="button"
+                          class="text-[11px] font-black text-orange-600"
+                          data-no-show-decision-open
+                          data-action-url="{{ item.detail_url }}"
+                          data-next="{{ request.path }}">
+                    {{ item.exception_action.label }}
+                  </button>
+                {% else %}
+                  <form method="post" action="{{ item.detail_url }}" data-lm-form-ux="off">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="{{ item.exception_action.key }}">
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button type="submit"
+                            class="text-[11px] font-black text-rose-600"
+                            {% if item.exception_action.key == "reject" %}onclick="return confirm('این نوبت لغو می‌شود و به مشتری اطلاع داده خواهد شد. ادامه می‌دهی؟')"{% endif %}>
+                      {{ item.exception_action.label }}
+                    </button>
+                  </form>
+                {% endif %}
+              {% else %}
+                <span></span>
+              {% endif %}
+
+              <a href="{{ item.detail_url }}" class="text-[11px] font-black text-loomera-textMuted transition hover:text-loomera-primaryText">
+                جزئیات
+              </a>
+            </div>
+          </article>
         {% empty %}
-          {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-check" title="برای امروز نوبتی نداری" description="نوبت‌های امروزت اینجا نمایش داده می‌شوند." %}
+          <div class="md:col-span-2">
+            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-check" title="برای امروز نوبتی نداری" description="اگر مشتری حضوری داری، می‌توانی نوبتش را همین حالا ثبت کنی." action_label="ثبت نوبت" action_url=stylist_add_booking_url %}
+          </div>
         {% endfor %}
       </div>
     </section>
 
     <section id="stylist-dashboard-section-schedule"
-             class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel
              data-lm-task-panel="stylist-dashboard"
              data-lm-task-key="schedule"
-             data-lm-task-label="برنامه کاری"
-             data-lm-task-order="2">
-      <header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
-        <h2 class="text-base font-black text-loomera-textPrimary sm:text-lg">برنامه کاری</h2>
+             data-lm-task-label="شیفت‌های آینده"
+             data-lm-task-order="2"
+             data-lm-direct-section>
+      <header data-lm-direct-section-header class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">برنامه من</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">شیفت‌های آینده</h2>
+        </div>
+        <a href="{{ stylist_schedule_url }}" class="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border border-loomera-borderSoft bg-white px-3 py-1.5 text-[11px] font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:text-loomera-primaryText">
+          <span>برنامه کامل</span>
+          <i class="fa-solid fa-arrow-left text-[9px]" aria-hidden="true"></i>
+        </a>
       </header>
 
       <div class="grid gap-3 p-4 sm:p-5 md:grid-cols-2 lg:p-6">
         {% for row in stylist_home.schedule_rows %}
-          <article class="rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+          <article class="rounded-[20px] border border-loomera-borderSoft bg-white p-3.5 shadow-sm">
             <div class="flex items-center justify-between gap-3">
-              <strong class="text-sm font-black text-loomera-textPrimary">{{ row.date_label }}</strong>
-              <span class="text-xs font-bold text-loomera-textMuted">{{ row.time_label }}</span>
+              <strong class="min-w-0 text-sm font-black text-loomera-textPrimary">{{ row.date_label }}</strong>
+              <span class="shrink-0 rounded-full bg-loomera-bgSubtle px-2.5 py-1 text-[10px] font-black text-loomera-textSecondary">{{ row.time_label }}</span>
             </div>
-            <p class="mt-1 text-sm text-loomera-textMuted">{{ row.service_name }}</p>
+            <p class="mt-2 line-clamp-1 text-xs text-loomera-textMuted">{{ row.service_name }}</p>
           </article>
         {% empty %}
-          {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-clock" title="برنامه‌ای ثبت نشده" description="برنامه کاری جدید ثبت کن." action_label="ثبت برنامه" action_url=stylist_add_schedule_url %}
+          <div class="md:col-span-2">
+            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-clock" title="شیفت آینده‌ای ثبت نشده" description="اگر لازم است برنامه جدیدی ثبت کنی، از همینجا شروع کن." action_label="ثبت برنامه" action_url=stylist_add_schedule_url %}
+          </div>
         {% endfor %}
       </div>
     </section>
 
     <section id="stylist-dashboard-section-quick"
-             class="scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             class="scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel
              data-lm-task-panel="stylist-dashboard"
              data-lm-task-key="quick"
              data-lm-task-label="دسترسی سریع"
-             data-lm-task-order="3">
-      <header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+             data-lm-task-order="3"
+             data-lm-direct-section>
+      <header data-lm-direct-section-header class="border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
         <h2 class="text-base font-black text-loomera-textPrimary sm:text-lg">دسترسی سریع</h2>
       </header>
 
-      <div class="flex flex-wrap gap-2 p-4 sm:p-5 lg:p-6">
-        <a href="{{ stylist_finance_url }}" class="inline-flex min-h-11 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:text-loomera-primaryText">
-          <i class="fa-solid fa-wallet text-[11px]" aria-hidden="true"></i>
-          درآمد
+      <div class="grid grid-cols-3 gap-2 p-3 sm:gap-3 sm:p-4 lg:p-5">
+        <a href="{{ stylist_finance_url }}" class="flex min-w-0 flex-col items-center justify-center gap-2 rounded-[18px] border border-loomera-borderSoft bg-white px-2 py-3 text-center transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/20">
+          <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-wallet text-xs" aria-hidden="true"></i></span>
+          <span class="truncate text-[11px] font-black text-loomera-textSecondary sm:text-xs">درآمد</span>
         </a>
-        <a href="{{ stylist_quick_links_url }}" class="inline-flex min-h-11 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:text-loomera-primaryText">
-          <i class="fa-solid fa-link text-[11px]" aria-hidden="true"></i>
-          لینک رزرو
+        <a href="{{ stylist_quick_links_url }}" class="flex min-w-0 flex-col items-center justify-center gap-2 rounded-[18px] border border-loomera-borderSoft bg-white px-2 py-3 text-center transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/20">
+          <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-link text-xs" aria-hidden="true"></i></span>
+          <span class="truncate text-[11px] font-black text-loomera-textSecondary sm:text-xs">لینک رزرو</span>
         </a>
-        <a href="{{ stylist_profile_url }}" class="inline-flex min-h-11 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:text-loomera-primaryText">
-          <i class="fa-solid fa-id-badge text-[11px]" aria-hidden="true"></i>
-          پروفایل
+        <a href="{{ stylist_profile_url }}" class="flex min-w-0 flex-col items-center justify-center gap-2 rounded-[18px] border border-loomera-borderSoft bg-white px-2 py-3 text-center transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/20">
+          <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="fa-solid fa-id-badge text-xs" aria-hidden="true"></i></span>
+          <span class="truncate text-[11px] font-black text-loomera-textSecondary sm:text-xs">پروفایل</span>
         </a>
       </div>
     </section>
 
   </section>
 
-{% include "dashboards/partials/stylist_no_show_decision_dialog.html" %}
+  {% include "dashboards/partials/stylist_no_show_decision_dialog.html" %}
 {% endblock %}

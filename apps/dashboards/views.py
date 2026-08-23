@@ -337,7 +337,9 @@ def _stylist_context_payload(ctx):
 def _stylist_base_appointments_qs(stylist, salon=None):
     qs = (
         OrderDetail.objects.filter(stylist=stylist)
-        .select_related("order", "service", "salon", "salon__delay_policy", "order__customer__user")
+        .select_related(
+            "order", "service", "salon", "salon__delay_policy", "order__customer__user"
+        )
         .order_by("date", "time", "id")
     )
     if salon is not None:
@@ -1415,8 +1417,7 @@ def _build_salon_customers_queryset(
 
     queryset = (
         Customer.objects.filter(
-            Q(user_id__in=customer_ids_from_orders)
-            | Q(added_by_salon=salon)
+            Q(user_id__in=customer_ids_from_orders) | Q(added_by_salon=salon)
         )
         .select_related("user")
         .annotate(
@@ -1642,21 +1643,11 @@ class SalonsCustomersPageView(
             "page_title": f"مشتریان مجموعه {salon.salon_name}",
             "query": q,
             "sort_by": sort_by,
-            "total_customers": customer_metrics[
-                "total_customers"
-            ],
-            "with_appointments": customer_metrics[
-                "with_appointments"
-            ],
-            "vip_customers": customer_metrics[
-                "vip_customers"
-            ],
-            "recent_customers": customer_metrics[
-                "recent_customers"
-            ],
-            "needs_follow_up": customer_metrics[
-                "needs_follow_up"
-            ],
+            "total_customers": customer_metrics["total_customers"],
+            "with_appointments": customer_metrics["with_appointments"],
+            "vip_customers": customer_metrics["vip_customers"],
+            "recent_customers": customer_metrics["recent_customers"],
+            "needs_follow_up": customer_metrics["needs_follow_up"],
             "active_filter_chips": active_filter_chips,
             "result_count_label": (
                 f"{to_persian_digits(customer_metrics['total_customers'])} مشتری"
@@ -2058,9 +2049,9 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
         generator_errors=None,
     ):
         services = list(
-            salon.services.filter(
-                is_active=True, duration_minutes__gt=0
-            ).order_by("service_name")[:50]
+            salon.services.filter(is_active=True, duration_minutes__gt=0).order_by(
+                "service_name"
+            )[:50]
         )
         stylists = list(
             salon.stylists.filter(is_active=True)
@@ -2132,8 +2123,7 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
         # quick-link mode. The UX refactor only needs different validation for
         # an explicitly timed link.
         placement = (
-            request.POST.get("placement")
-            or BookingQuickLink.Placement.DIRECT
+            request.POST.get("placement") or BookingQuickLink.Placement.DIRECT
         ).strip()
         campaign_name = (request.POST.get("campaign_name") or "").strip()
         internal_note = (request.POST.get("internal_note") or "").strip()
@@ -2145,20 +2135,14 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
         errors = []
 
         valid_placements = {
-            value
-            for value, _label in BookingQuickLink.Placement.choices
+            value for value, _label in BookingQuickLink.Placement.choices
         }
         if placement not in valid_placements:
-            errors.append(
-                "محل استفاده انتخاب‌شده برای لینک معتبر نیست."
-            )
+            errors.append("محل استفاده انتخاب‌شده برای لینک معتبر نیست.")
 
         campaign_field = BookingQuickLink._meta.get_field("campaign_name")
         internal_note_field = BookingQuickLink._meta.get_field("internal_note")
-        if (
-            campaign_field.max_length
-            and len(campaign_name) > campaign_field.max_length
-        ):
+        if campaign_field.max_length and len(campaign_name) > campaign_field.max_length:
             errors.append("نام کمپین از طول مجاز بیشتر است.")
         if (
             internal_note_field.max_length
@@ -2179,9 +2163,7 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
                     pk=service_id,
                 ).first()
                 if not service_obj:
-                    errors.append(
-                        "خدمت انتخاب‌شده برای این مجموعه معتبر نیست."
-                    )
+                    errors.append("خدمت انتخاب‌شده برای این مجموعه معتبر نیست.")
                 else:
                     payload["service_ids"] = [service_obj.pk]
 
@@ -2195,9 +2177,7 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
                     .first()
                 )
                 if not stylist_obj:
-                    errors.append(
-                        "متخصص انتخاب‌شده برای این مجموعه معتبر نیست."
-                    )
+                    errors.append("متخصص انتخاب‌شده برای این مجموعه معتبر نیست.")
                 else:
                     payload["stylist_user_id"] = stylist_obj.pk
 
@@ -2212,18 +2192,12 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
 
         if mode == "service_stylist_time":
             if not appointment_date_obj or not appointment_time:
-                errors.append(
-                    "برای لینک زمان‌دار، تاریخ و ساعت را مشخص کن."
-                )
+                errors.append("برای لینک زمان‌دار، تاریخ و ساعت را مشخص کن.")
             elif appointment_date_obj < timezone.localdate():
                 errors.append(
                     "برای لینک زمان‌دار باید تاریخ امروز یا آینده را انتخاب کنی."
                 )
-            elif (
-                service_obj is not None
-                and stylist_obj is not None
-                and pair_is_valid
-            ):
+            elif service_obj is not None and stylist_obj is not None and pair_is_valid:
                 # UX requirement: timed links must be validated against the same
                 # engine as customer booking (schedule, leave, collisions and
                 # service duration), not merely salon opening hours.
@@ -2260,11 +2234,7 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
             "service": (
                 "صفحه اصلی سالن"
                 if mode == BookingQuickLink.Mode.SALON
-                else (
-                    service_obj.service_name
-                    if service_obj
-                    else "—"
-                )
+                else (service_obj.service_name if service_obj else "—")
             ),
             "stylist": stylist_obj.get_fullName() if stylist_obj else "—",
             "date": (
@@ -2279,10 +2249,7 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
         default_title = (
             f"صفحه اصلی {salon.salon_name}"
             if mode == BookingQuickLink.Mode.SALON
-            else (
-                payload["summary"]["service"]
-                or "لینک سریع رزرو"
-            )
+            else (payload["summary"]["service"] or "لینک سریع رزرو")
         )
         title = request.POST.get("quick_link_title") or default_title
 
@@ -3216,9 +3183,7 @@ class SalonProfileCreatorStep8View(
                         "برای دریافت نوبت، اولین خدمت، عضو تیم و برنامه کاری را اضافه کن."
                     ),
                 )
-                return redirect(
-                    f'{reverse("dashboards:salon_profile")}?setup=booking'
-                )
+                return redirect(f'{reverse("dashboards:salon_profile")}?setup=booking')
 
             if activated_now:
                 messages.success(request, "توضیحات ذخیره شد و صفحه مجموعه فعال شد.")
@@ -3247,9 +3212,7 @@ class SalonProfileCreatorStep10View(
     """Compatibility endpoint for the legacy public-activation step."""
 
     def get(self, request, *args, **kwargs):
-        return redirect(
-            f'{reverse("dashboards:salon_profile")}?tab=public'
-        )
+        return redirect(f'{reverse("dashboards:salon_profile")}?tab=public')
 
     def post(self, request, *args, **kwargs):
         salon = get_object_or_404(
@@ -3268,9 +3231,7 @@ class SalonProfileCreatorStep10View(
         if target:
             return redirect(target)
 
-        return redirect(
-            f'{reverse("dashboards:salon_profile")}?tab=public'
-        )
+        return redirect(f'{reverse("dashboards:salon_profile")}?tab=public')
 
 
 # ---------------------------------------------------------------------------------------------
@@ -3280,9 +3241,7 @@ class SalonProfileCreatorStep10View(
 @manager_required
 def salon_profile_creator_finalStep(request):
     """Compatibility route for legacy onboarding links."""
-    return redirect(
-        f'{reverse("dashboards:salon_profile")}?tab=public'
-    )
+    return redirect(f'{reverse("dashboards:salon_profile")}?tab=public')
 
 
 # ----------------------------------------------------------------------------------------------
@@ -3357,7 +3316,11 @@ class SalonProfileView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vie
                 "meta": (
                     salon_with_stats.neighborhood.name
                     if salon_with_stats.neighborhood_id
-                    else (f"منطقه {to_persian_digits(salon_with_stats.zone)}" if salon_with_stats.zone else "موقعیت کامل نشده")
+                    else (
+                        f"منطقه {to_persian_digits(salon_with_stats.zone)}"
+                        if salon_with_stats.zone
+                        else "موقعیت کامل نشده"
+                    )
                 ),
                 "is_ready": bool(
                     (salon_with_stats.address or "").strip()
@@ -3427,9 +3390,7 @@ class SalonProfileView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vie
             profile_quality_label = "نیازمند تکمیل"
 
         booking_readiness = build_salon_readiness_checklist(salon_with_stats)
-        readiness_by_key = {
-            item["key"]: item for item in booking_readiness["items"]
-        }
+        readiness_by_key = {item["key"]: item for item in booking_readiness["items"]}
 
         service_item = readiness_by_key.get("services", {})
         team_item = readiness_by_key.get("team", {})
@@ -3451,8 +3412,7 @@ class SalonProfileView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vie
                 "title": "یک عضو تیم اضافه کن",
                 "description": "حداقل یک عضو فعال اضافه کن و یکی از خدمات مجموعه را به او متصل کن.",
                 "is_done": bool(
-                    team_item.get("is_done")
-                    and stylist_services_item.get("is_done")
+                    team_item.get("is_done") and stylist_services_item.get("is_done")
                 ),
                 "url": reverse("dashboards:add_stylist"),
                 "action_label": "افزودن عضو",
@@ -3886,12 +3846,14 @@ def _build_created_service_setup_handoff(*, request, salon):
         "dismiss_url": service_menu_url,
     }
 
+
 _ACTIVE_SERVICE_BOOKING_STATUSES = (
     "pending",
     "confirmed",
     "paid",
     "disputed",
 )
+
 
 def _build_service_menu_queryset(
     *,
@@ -3910,9 +3872,7 @@ def _build_service_menu_queryset(
         OrderDetail.objects.filter(
             salon=salon,
             service_id=OuterRef("pk"),
-            order__status__in=(
-                _ACTIVE_SERVICE_BOOKING_STATUSES
-            ),
+            order__status__in=(_ACTIVE_SERVICE_BOOKING_STATUSES),
             date__gte=today,
         )
         .order_by()
@@ -3945,12 +3905,8 @@ def _build_service_menu_queryset(
             ),
         )
         .annotate(
-            min_price=Min(
-                "service_prices__price"
-            ),
-            max_price=Max(
-                "service_prices__price"
-            ),
+            min_price=Min("service_prices__price"),
+            max_price=Max("service_prices__price"),
             team_count=Count(
                 "stylists",
                 filter=Q(
@@ -3970,15 +3926,15 @@ def _build_service_menu_queryset(
                 ),
                 Value(0),
             ),
-            booking_history_exists=Exists(
-                booking_history
-            ),
+            booking_history_exists=Exists(booking_history),
         )
         .order_by(
             "service_name",
             "pk",
         )
     )
+
+
 def _apply_service_menu_booking_state(service):
     """Attach booking-state fields from prepared annotations."""
 
@@ -3991,17 +3947,9 @@ def _apply_service_menu_booking_state(service):
         or 0
     )
 
-    service.future_active_booking_count = (
-        future_booking_count
-    )
-    service.future_active_booking_count_label = (
-        to_persian_digits(
-            future_booking_count
-        )
-    )
-    service.has_future_active_bookings = (
-        future_booking_count > 0
-    )
+    service.future_active_booking_count = future_booking_count
+    service.future_active_booking_count_label = to_persian_digits(future_booking_count)
+    service.has_future_active_bookings = future_booking_count > 0
     service.has_booking_history = bool(
         getattr(
             service,
@@ -4012,6 +3960,7 @@ def _apply_service_menu_booking_state(service):
 
     return service
 
+
 def _build_service_menu_workspace_stats(services):
     """Build service workspace metrics without database queries."""
 
@@ -4021,29 +3970,13 @@ def _build_service_menu_workspace_stats(services):
         if service.duration_minutes is not None
     ]
 
-    avg_duration = (
-        int(sum(durations) / len(durations))
-        if durations
-        else 0
-    )
+    avg_duration = int(sum(durations) / len(durations)) if durations else 0
 
     return {
         "avg_duration": avg_duration,
-        "priced_count": sum(
-            1
-            for service in services
-            if service.min_price is not None
-        ),
-        "active_count": sum(
-            1
-            for service in services
-            if service.is_active is True
-        ),
-        "archived_count": sum(
-            1
-            for service in services
-            if service.is_active is False
-        ),
+        "priced_count": sum(1 for service in services if service.min_price is not None),
+        "active_count": sum(1 for service in services if service.is_active is True),
+        "archived_count": sum(1 for service in services if service.is_active is False),
         # Preserve the existing definition: no stylist relation at all.
         "unassigned_count": sum(
             1
@@ -4059,6 +3992,7 @@ def _build_service_menu_workspace_stats(services):
             == 0
         ),
     }
+
 
 class ServiceMenuView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View):
     def get(self, request):
@@ -4193,20 +4127,14 @@ class ServiceMenuView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
             key=lambda item: (item["label"] == uncategorized_label, item["label"])
         )
 
-        workspace_stats = (
-            _build_service_menu_workspace_stats(
-                services
-            )
-        )
+        workspace_stats = _build_service_menu_workspace_stats(services)
 
         context = {
             "salon": salon,
             "service_sections": service_sections,
             "service_setup_handoff": service_setup_handoff,
             "service_workspace": {
-                "total_services_count": to_persian_digits(
-                    len(services)
-                ),
+                "total_services_count": to_persian_digits(len(services)),
                 "total_groups_count": to_persian_digits(len(service_sections)),
                 "avg_duration": to_persian_digits(
                     int(workspace_stats.get("avg_duration") or 0)
@@ -5466,6 +5394,7 @@ def _build_created_stylist_setup_handoff(*, request, salon):
         "secondary_url": scheduled_shifts_url,
     }
 
+
 TEAM_MEMBER_SERVICES_ATTR = "_team_member_salon_services"
 
 
@@ -5486,6 +5415,7 @@ def _team_member_services_prefetch(*, salon):
         ),
         to_attr=TEAM_MEMBER_SERVICES_ATTR,
     )
+
 
 def _build_team_member_stylists_queryset(salon):
     """Return team members with fixed-query card data."""
@@ -5514,9 +5444,7 @@ def _build_team_member_stylists_queryset(salon):
                 filter=(
                     Q(
                         order_details_stylist__salon=salon,
-                        order_details_stylist__date__gte=(
-                            timezone.localdate()
-                        ),
+                        order_details_stylist__date__gte=(timezone.localdate()),
                     )
                     & ~Q(
                         order_details_stylist__order__status__in=[
@@ -5530,6 +5458,7 @@ def _build_team_member_stylists_queryset(salon):
             ),
         )
     )
+
 
 class TeamMemberView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View):
     template_name = "dashboards/team_member.html"
@@ -6620,10 +6549,12 @@ class AddStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
                     )
 
                     emergency_name = (
-                        emergency_form.cleaned_data.get("emergency_contact_name", "") or ""
+                        emergency_form.cleaned_data.get("emergency_contact_name", "")
+                        or ""
                     ).strip()
                     emergency_family = (
-                        emergency_form.cleaned_data.get("emergency_contact_family", "") or ""
+                        emergency_form.cleaned_data.get("emergency_contact_family", "")
+                        or ""
                     ).strip()
                     phone = (
                         emergency_form.cleaned_data.get("emergency_phone", "") or ""
@@ -6635,7 +6566,9 @@ class AddStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
                     if any([emergency_name, emergency_family, phone, relationship]):
                         emergency = emergency_form.save(commit=False)
                         emergency.stylist = stylist
-                        emergency.full_name = f"{emergency_name} {emergency_family}".strip()
+                        emergency.full_name = (
+                            f"{emergency_name} {emergency_family}".strip()
+                        )
                         emergency.emergency_contact = phone
                         emergency.relationship = relationship
                         emergency.save()
@@ -6651,9 +6584,7 @@ class AddStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
                         "عضو تیم با موفقیت ثبت شد.",
                     )
                 team_member_url = reverse("dashboards:team_member")
-                return redirect(
-                    f"{team_member_url}?created_stylist={stylist.user_id}"
-                )
+                return redirect(f"{team_member_url}?created_stylist={stylist.user_id}")
 
             except IntegrityError:
                 messages.error(
@@ -6851,7 +6782,7 @@ class EditStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
         return _build_salon_service_group_cards(
             salon=salon,
         )
-    
+
     def _extract_selected_service_ids(self, request):
         selected_ids = []
         raw_json = (request.POST.get("selected_services_input") or "").strip()
@@ -10468,6 +10399,7 @@ def _get_allowed_stylist_lifecycle_actions(detail):
 
     return actions
 
+
 def _apply_stylist_lifecycle_action(detail, action, *, actor=None):
     from apps.payments.finance import (
         finalize_order_financials,
@@ -11062,7 +10994,8 @@ def _serialize_stylist_appointment_card(detail, *, can_view_client_phone=True):
         (
             action
             for action in actions
-            if action["key"] in {
+            if action["key"]
+            in {
                 "start_service",
                 "complete_service",
                 "confirm_cash_payment",
@@ -11114,6 +11047,7 @@ def _serialize_stylist_appointment_card(detail, *, can_view_client_phone=True):
             detail.service_started_at and not detail.service_completed_at
         ),
     }
+
 
 def _serialize_stylist_schedule_row(item):
     return {
@@ -12683,11 +12617,15 @@ def _build_stylist_home_payload(*, stylist, salon, can_view_client_phone=False):
         row["time_label"] = f"{row['start_label']} تا {row['end_label']}"
         schedule_rows.append(row)
 
-    service_count = Services.objects.filter(
-        stylists=stylist,
-        services_of_salon=salon,
-        is_active=True,
-    ).distinct().count()
+    service_count = (
+        Services.objects.filter(
+            stylists=stylist,
+            services_of_salon=salon,
+            is_active=True,
+        )
+        .distinct()
+        .count()
+    )
 
     approved_leave_qs = StaffLeaveRequest.objects.filter(
         stylist=stylist,
@@ -12757,8 +12695,6 @@ class StylistDashboardView(StylistDashboardGuardMixin, View):
         context.update(_stylist_context_payload(ctx))
 
         return render(request, "dashboards/stylist_dashboard.html", context)
-
-
 
 
 STYLIST_QUICK_LINK_PERIOD_OPTIONS = (
@@ -12866,14 +12802,11 @@ def _build_stylist_quick_link_workspace(
     ).strip()
 
     selected_time = str(
-        request.POST.get("appointment_time")
-        or payload.get("time")
-        or ""
+        request.POST.get("appointment_time") or payload.get("time") or ""
     ).strip()
 
     selected_placement = str(
-        request.POST.get("placement")
-        or BookingQuickLink.Placement.DIRECT
+        request.POST.get("placement") or BookingQuickLink.Placement.DIRECT
     ).strip()
 
     scoped_links = BookingQuickLink.objects.filter(
@@ -12932,16 +12865,10 @@ def _build_stylist_quick_link_workspace(
         "selected_date": selected_date_obj.isoformat(),
         "selected_date_label": format_jalali_numeric(selected_date_obj),
         "selected_time": selected_time,
-        "selected_title": str(
-            request.POST.get("quick_link_title") or ""
-        ).strip(),
+        "selected_title": str(request.POST.get("quick_link_title") or "").strip(),
         "selected_placement": selected_placement,
-        "campaign_name": str(
-            request.POST.get("campaign_name") or ""
-        ).strip(),
-        "internal_note": str(
-            request.POST.get("internal_note") or ""
-        ).strip(),
+        "campaign_name": str(request.POST.get("campaign_name") or "").strip(),
+        "internal_note": str(request.POST.get("internal_note") or "").strip(),
         "is_permanent": request.POST.get("is_permanent") == "on",
         "placement_options": BookingQuickLink.Placement.choices,
         "title_max_length": title_field.max_length,
@@ -12964,26 +12891,16 @@ def _build_stylist_quick_link_workspace(
     }
 
 
-
 def _generate_stylist_quick_link(request, salon, stylist):
     mode = (request.POST.get("quick_link_mode") or "stylist").strip()
     service_id = str(request.POST.get("service_id") or "").strip()
-    appointment_date = str(
-        request.POST.get("appointment_date") or ""
-    ).strip()
-    appointment_time = str(
-        request.POST.get("appointment_time") or ""
-    ).strip()
+    appointment_date = str(request.POST.get("appointment_date") or "").strip()
+    appointment_time = str(request.POST.get("appointment_time") or "").strip()
     placement = str(
-        request.POST.get("placement")
-        or BookingQuickLink.Placement.DIRECT
+        request.POST.get("placement") or BookingQuickLink.Placement.DIRECT
     ).strip()
-    campaign_name = str(
-        request.POST.get("campaign_name") or ""
-    ).strip()
-    internal_note = str(
-        request.POST.get("internal_note") or ""
-    ).strip()
+    campaign_name = str(request.POST.get("campaign_name") or "").strip()
+    internal_note = str(request.POST.get("internal_note") or "").strip()
 
     errors = []
     payload = {
@@ -13017,18 +12934,14 @@ def _generate_stylist_quick_link(request, salon, stylist):
                 .first()
             )
             if not service_obj:
-                errors.append(
-                    "خدمت انتخاب‌شده برای این سالن و این متخصص فعال نیست."
-                )
+                errors.append("خدمت انتخاب‌شده برای این سالن و این متخصص فعال نیست.")
             else:
                 payload["service_ids"] = [service_obj.pk]
 
     parsed_date = None
     if mode == "service_stylist_time":
         if not appointment_date or not appointment_time:
-            errors.append(
-                "برای لینک مستقیم preview باید تاریخ و ساعت هم مشخص شود."
-            )
+            errors.append("برای لینک مستقیم preview باید تاریخ و ساعت هم مشخص شود.")
         else:
             try:
                 parsed_date = date.fromisoformat(appointment_date)
@@ -13051,7 +12964,9 @@ def _generate_stylist_quick_link(request, salon, stylist):
                 ]
 
             if parsed_date and appointment_time not in available_times:
-                errors.append("این زمان دیگر برای رزرو در دسترس نیست. یک زمان آزاد دیگر انتخاب کن.")
+                errors.append(
+                    "این زمان دیگر برای رزرو در دسترس نیست. یک زمان آزاد دیگر انتخاب کن."
+                )
             elif parsed_date:
                 payload["date"] = parsed_date.isoformat()
                 payload["time"] = appointment_time
@@ -13103,7 +13018,6 @@ def _generate_stylist_quick_link(request, salon, stylist):
     return link, payload, []
 
 
-
 def _build_salon_hours_map_for_schedule_form(salon):
     result = {}
 
@@ -13128,6 +13042,36 @@ def _build_salon_hours_map_for_schedule_form(salon):
         }
 
     return result
+
+
+def _build_salon_default_hours_for_time_off(salon):
+    opening_hours = list(
+        SalonOpeningHours.objects.filter(
+            salon=salon,
+            is_closed=False,
+            open_time__isnull=False,
+            close_time__isnull=False,
+        ).order_by("day_of_week")
+    )
+
+    if not opening_hours:
+        return {}
+
+    frequencies = {}
+    for item in opening_hours:
+        key = (item.open_time, item.close_time)
+        frequencies[key] = frequencies.get(key, 0) + 1
+
+    open_time, close_time = max(
+        frequencies,
+        key=lambda key: frequencies[key],
+    )
+
+    return {
+        "open": open_time.strftime("%H:%M"),
+        "close": close_time.strftime("%H:%M"),
+        "label": f"{format_time_fa(open_time)} تا {format_time_fa(close_time)}",
+    }
 
 
 class StylistAddScheduleView(StylistDashboardGuardMixin, View):
@@ -13424,25 +13368,15 @@ def _render_booking_quick_link_qr_response(
     quick_link,
     as_attachment,
 ):
-    warnings = get_booking_quick_link_qr_warnings(
-        quick_link
-    )
+    warnings = get_booking_quick_link_qr_warnings(quick_link)
 
-    confirmation_received = (
-        request.GET.get("confirm") == "1"
-    )
+    confirmation_received = request.GET.get("confirm") == "1"
 
-    if (
-        as_attachment
-        and warnings
-        and not confirmation_received
-    ):
+    if as_attachment and warnings and not confirmation_received:
         return JsonResponse(
             {
                 "ok": False,
-                "code": (
-                    "quick_link_qr_confirmation_required"
-                ),
+                "code": ("quick_link_qr_confirmation_required"),
                 "message": (
                     "این لینک دارای هشدار است. "
                     "پیش از دانلود، هشدارها را بررسی و "
@@ -13463,15 +13397,9 @@ def _render_booking_quick_link_qr_response(
         quick_link=quick_link,
     )
 
-    disposition = (
-        "attachment"
-        if as_attachment
-        else "inline"
-    )
+    disposition = "attachment" if as_attachment else "inline"
 
-    ascii_filename = (
-        f"loomera-quick-link-{quick_link.pk}.png"
-    )
+    ascii_filename = f"loomera-quick-link-{quick_link.pk}.png"
 
     encoded_filename = quote(
         generated.filename,
@@ -13484,21 +13412,17 @@ def _render_booking_quick_link_qr_response(
     )
 
     response["Content-Disposition"] = (
-        f'{disposition}; '
+        f"{disposition}; "
         f'filename="{ascii_filename}"; '
         f"filename*=UTF-8''{encoded_filename}"
     )
 
-    response["Cache-Control"] = (
-        "private, no-store, max-age=0"
-    )
+    response["Cache-Control"] = "private, no-store, max-age=0"
 
     response["Pragma"] = "no-cache"
     response["X-Content-Type-Options"] = "nosniff"
 
-    response["X-Loomera-QR-Warning-Count"] = str(
-        len(generated.warnings)
-    )
+    response["X-Loomera-QR-Warning-Count"] = str(len(generated.warnings))
 
     return response
 
@@ -13510,9 +13434,7 @@ class ManagerBookingQuickLinkQRView(
     as_attachment = False
 
     def dispatch(self, request, *args, **kwargs):
-        redirect_response = (
-            _redirect_if_non_manager_user(request)
-        )
+        redirect_response = _redirect_if_non_manager_user(request)
 
         if redirect_response:
             return redirect_response
@@ -13554,14 +13476,10 @@ class StylistBookingQuickLinkQRView(
     as_attachment = False
 
     def get(self, request, link_id, *args, **kwargs):
-        ctx = _get_stylist_dashboard_context(
-            request
-        )
+        ctx = _get_stylist_dashboard_context(request)
 
         if ctx.stylist is None or ctx.salon is None:
-            raise Http404(
-                "لینک رزرو در سالن فعال پیدا نشد."
-            )
+            raise Http404("لینک رزرو در سالن فعال پیدا نشد.")
 
         quick_link = get_object_or_404(
             BookingQuickLink.objects.select_related(
@@ -13632,9 +13550,7 @@ class StylistQuickLinksView(StylistDashboardGuardMixin, View):
     def post(self, request, *args, **kwargs):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
-        quick_link_action = str(
-            request.POST.get("quick_link_action") or ""
-        ).strip()
+        quick_link_action = str(request.POST.get("quick_link_action") or "").strip()
 
         if quick_link_action:
             scoped_links = BookingQuickLink.objects.filter(
@@ -13652,9 +13568,7 @@ class StylistQuickLinksView(StylistDashboardGuardMixin, View):
                         placement=request.POST.get("placement"),
                         campaign_name=request.POST.get("campaign_name"),
                         internal_note=request.POST.get("internal_note"),
-                        is_permanent=(
-                            request.POST.get("is_permanent") == "on"
-                        ),
+                        is_permanent=(request.POST.get("is_permanent") == "on"),
                     )
                 elif quick_link_action == "clone":
                     _link, message = clone_booking_quick_link(
@@ -13673,9 +13587,7 @@ class StylistQuickLinksView(StylistDashboardGuardMixin, View):
             except ValidationError as exc:
                 messages.error(
                     request,
-                    " ".join(
-                        getattr(exc, "messages", [str(exc)])
-                    ),
+                    " ".join(getattr(exc, "messages", [str(exc)])),
                 )
 
             return redirect("dashboards:stylist_quick_links")
@@ -13706,7 +13618,6 @@ class StylistQuickLinksView(StylistDashboardGuardMixin, View):
         )
         context.update(_stylist_context_payload(ctx))
         return render(request, self.template_name, context)
-
 
 
 class StylistAppointmentsView(StylistDashboardGuardMixin, View):
@@ -14152,7 +14063,9 @@ class StylistFinanceView(StylistDashboardGuardMixin, View):
         else:
             snapshots = OrderDetailFinancialSnapshot.objects.none()
             transactions_qs = wallet.transactions.none()
-            messages.warning(request, "برای مشاهده درآمد، ابتدا یک مجموعه فعال انتخاب کنید.")
+            messages.warning(
+                request, "برای مشاهده درآمد، ابتدا یک مجموعه فعال انتخاب کنید."
+            )
 
         finalized_summary = snapshots.aggregate(
             count=Count("id"),
@@ -14174,21 +14087,29 @@ class StylistFinanceView(StylistDashboardGuardMixin, View):
                 "snapshots": snapshots[:100],
                 "transactions": transactions_qs[:50],
                 "active_finance_salon": salon,
-                "finance_scope_label": f"مجموعه {salon.salon_name}" if salon else "بدون مجموعه فعال",
+                "finance_scope_label": (
+                    f"مجموعه {salon.salon_name}" if salon else "بدون مجموعه فعال"
+                ),
                 "summary_cards": [
                     {
                         "label": "قابل دریافت",
-                        "value": _dashboard_currency(wallet.available_balance_for_salon(salon)),
+                        "value": _dashboard_currency(
+                            wallet.available_balance_for_salon(salon)
+                        ),
                         "icon": "fa-solid fa-building-columns",
                     },
                     {
                         "label": "در انتظار آزادشدن",
-                        "value": _dashboard_currency(wallet.pending_balance_for_salon(salon)),
+                        "value": _dashboard_currency(
+                            wallet.pending_balance_for_salon(salon)
+                        ),
                         "icon": "fa-regular fa-clock",
                     },
                     {
                         "label": "درآمد قطعی",
-                        "value": _dashboard_currency(finalized_summary.get("stylist_share") or 0),
+                        "value": _dashboard_currency(
+                            finalized_summary.get("stylist_share") or 0
+                        ),
                         "icon": "fa-solid fa-chart-line",
                     },
                     {
@@ -14332,7 +14253,13 @@ class StylistAddTimeOffView(StylistDashboardGuardMixin, View):
             salon_override=salon,
             stylist_override=stylist,
         )
-        context.update({"form": form})
+        context.update(
+            {
+                "form": form,
+                "salon_hours_map": _build_salon_hours_map_for_schedule_form(salon),
+                "salon_default_hours": _build_salon_default_hours_for_time_off(salon),
+            }
+        )
         context.update(_stylist_context_payload(ctx))
         return render(request, "dashboards/stylist_add_time_off.html", context)
 
@@ -14389,7 +14316,13 @@ class StylistAddTimeOffView(StylistDashboardGuardMixin, View):
             salon_override=salon,
             stylist_override=stylist,
         )
-        context.update({"form": form})
+        context.update(
+            {
+                "form": form,
+                "salon_hours_map": _build_salon_hours_map_for_schedule_form(salon),
+                "salon_default_hours": _build_salon_default_hours_for_time_off(salon),
+            }
+        )
         context.update(_stylist_context_payload(ctx))
         return render(request, "dashboards/stylist_add_time_off.html", context)
 
@@ -14480,7 +14413,9 @@ class StylistProfileView(StylistDashboardGuardMixin, View):
             )
             context.update(
                 {
-                    "user_form": StylistUserForm(instance=request.user, allow_mobile_edit=False),
+                    "user_form": StylistUserForm(
+                        instance=request.user, allow_mobile_edit=False
+                    ),
                     "profile_form": StylistProfileForm(instance=stylist),
                     "emergency_form": EmergencyInfoForm(instance=emergency_info),
                     "stylist_profile_summary": _build_stylist_profile_summary(
@@ -14530,7 +14465,9 @@ class StylistProfileView(StylistDashboardGuardMixin, View):
 
         emergency_info = _get_stylist_emergency_info(stylist)
 
-        user_form = StylistUserForm(request.POST, instance=request.user, allow_mobile_edit=False)
+        user_form = StylistUserForm(
+            request.POST, instance=request.user, allow_mobile_edit=False
+        )
         profile_form = StylistProfileForm(request.POST, request.FILES, instance=stylist)
         emergency_form = EmergencyInfoForm(request.POST, instance=emergency_info)
 
@@ -14769,6 +14706,7 @@ class WorkspaceSettingsHubView(LoginRequiredMixin, View):
         )
         return render(request, self.template_name, context)
 
+
 class StylistSettingsHubView(StylistDashboardGuardMixin, View):
     template_name = "dashboards/stylist_settings.html"
 
@@ -14819,7 +14757,9 @@ class StylistSettingsHubView(StylistDashboardGuardMixin, View):
                                 "title": "اعلان‌ها و ارتباطات",
                                 "description": "تنظیم پیام‌های کاری/تبلیغاتی و اتصال حساب بله",
                                 "icon": "fa-regular fa-bell",
-                                "url": reverse("dashboards:stylist_communication_settings"),
+                                "url": reverse(
+                                    "dashboards:stylist_communication_settings"
+                                ),
                             },
                             {
                                 "title": "مرکز اعلان‌های من",
@@ -14856,9 +14796,15 @@ class StylistQuickLinkOptionsView(StylistDashboardGuardMixin, View):
             .first()
         )
         if service is None:
-            return JsonResponse({"error": "این خدمت برای شما در مجموعه فعال نیست."}, status=400)
+            return JsonResponse(
+                {"error": "این خدمت برای شما در مجموعه فعال نیست."}, status=400
+            )
         return JsonResponse(
-            {"availability": _quick_link_availability_days(salon=salon, service=service, stylist=stylist)},
+            {
+                "availability": _quick_link_availability_days(
+                    salon=salon, service=service, stylist=stylist
+                )
+            },
             json_dumps_params={"ensure_ascii": False},
         )
 
@@ -14935,7 +14881,6 @@ def _is_manager_profile_edit_mode(user):
     return _get_required_onboarding_view_name(user) is None
 
 
-
 class CustomerAppointmentsPopupView(
     SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
 ):
@@ -14950,10 +14895,7 @@ class CustomerAppointmentsPopupView(
         customer = get_object_or_404(
             Customer.objects.select_related("user")
             .filter(pk=customer_id)
-            .filter(
-                Q(added_by_salon=salon)
-                | Q(orders__order_details1__salon=salon)
-            )
+            .filter(Q(added_by_salon=salon) | Q(orders__order_details1__salon=salon))
             .distinct()
         )
 
