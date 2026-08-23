@@ -49,6 +49,16 @@ data-dashboard-page="salon-working-hours-step"
     .flatpickr-calendar.noCalendar .flatpickr-time input:hover,
     .flatpickr-calendar.noCalendar .flatpickr-time input:focus { background: #F6F2FF; }
     .flatpickr-calendar.noCalendar .numInputWrapper span { border-color: rgba(115, 92, 190, .12); }
+
+    /* Mobile save bar sits directly above the dashboard bottom navigation. */
+    .lm-working-hours-savebar {
+      bottom: var(--lm-bottom-nav-space, 4.75rem) !important;
+    }
+    @media (min-width: 1024px) {
+      .lm-working-hours-savebar {
+        bottom: 0 !important;
+      }
+    }
   </style>
 {% endblock %}
 
@@ -131,7 +141,7 @@ data-dashboard-page="salon-working-hours-step"
         </div>
       </section>
 
-      <div data-mobile-primary-action class="fixed inset-x-0 bottom-0 z-30 border-t border-loomera-borderSoft bg-white/96 px-3 pt-2 pb-[max(.5rem,env(safe-area-inset-bottom))] shadow-[0_-12px_34px_rgba(46,42,60,0.10)] backdrop-blur sm:px-5 lg:sticky lg:inset-x-auto lg:bottom-0 lg:rounded-[22px] lg:border lg:p-2.5 lg:shadow-lm-elevated">
+      <div data-mobile-primary-action class="lm-working-hours-savebar fixed inset-x-0 z-[60] border-t border-loomera-borderSoft bg-white/96 px-3 py-2 shadow-[0_-12px_34px_rgba(46,42,60,0.10)] backdrop-blur sm:px-5 lg:sticky lg:inset-x-auto lg:z-20 lg:rounded-[22px] lg:border lg:p-2.5 lg:shadow-lm-elevated">
         <div class="mx-auto flex w-full max-w-5xl justify-end">
           <button type="submit" class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-2.5 text-sm font-black text-white shadow-[0_10px_24px_rgba(115,92,190,0.18)] transition hover:opacity-95 sm:w-auto sm:min-w-36">
             <i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>
@@ -139,7 +149,7 @@ data-dashboard-page="salon-working-hours-step"
           </button>
         </div>
       </div>
-      <div class="block h-20 lg:h-2" aria-hidden="true"></div>
+      <div class="block h-16 lg:h-2" aria-hidden="true"></div>
     </form>
   </section>
 {% endblock %}
