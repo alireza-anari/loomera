@@ -54,6 +54,7 @@ data-dashboard-page="salon-working-hours-step"
 
 {% block content %}
   {% url 'dashboards:salon_profile_creator_step2' as step2_url %}
+  {% url 'dashboards:salon_profile' as salon_profile_url %}
 
   <section class="mx-auto min-w-0 max-w-5xl space-y-4" data-working-hours-step-page>
     <header class="rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6">
@@ -130,14 +131,15 @@ data-dashboard-page="salon-working-hours-step"
         </div>
       </section>
 
-      <div data-mobile-primary-action class="lm-dashboard-sticky-action fixed inset-x-3 bottom-0 z-30 flex flex-col-reverse gap-2 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-lm-elevated backdrop-blur sm:inset-x-5 lg:sticky lg:inset-x-auto lg:bottom-3 lg:z-20 lg:flex-row lg:items-center lg:justify-between">
-        <a href="{% if profile_edit_mode %}{{ salon_profile_url }}{% else %}{{ step2_url }}{% endif %}" class="inline-flex min-h-11 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary">{% if profile_edit_mode %}بازگشت به پروفایل مجموعه{% else %}بازگشت{% endif %}</a>
-        <button type="submit" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white">
-          {% if profile_edit_mode %}ذخیره تغییرات{% else %}ذخیره و ورود به داشبورد{% endif %}
-          <i class="fa-solid {% if profile_edit_mode %}fa-floppy-disk{% else %}fa-arrow-left-long{% endif %} text-xs" aria-hidden="true"></i>
-        </button>
+      <div data-mobile-primary-action class="fixed inset-x-0 bottom-0 z-30 border-t border-loomera-borderSoft bg-white/96 px-3 pt-2 pb-[max(.5rem,env(safe-area-inset-bottom))] shadow-[0_-12px_34px_rgba(46,42,60,0.10)] backdrop-blur sm:px-5 lg:sticky lg:inset-x-auto lg:bottom-0 lg:rounded-[22px] lg:border lg:p-2.5 lg:shadow-lm-elevated">
+        <div class="mx-auto flex w-full max-w-5xl justify-end">
+          <button type="submit" class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-2.5 text-sm font-black text-white shadow-[0_10px_24px_rgba(115,92,190,0.18)] transition hover:opacity-95 sm:w-auto sm:min-w-36">
+            <i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>
+            <span>ذخیره</span>
+          </button>
+        </div>
       </div>
-      <div class="block h-24 lg:hidden" aria-hidden="true"></div>
+      <div class="block h-20 lg:h-2" aria-hidden="true"></div>
     </form>
   </section>
 {% endblock %}
