@@ -27,6 +27,13 @@ data-marker-icon-url="{% static 'vendor/mapp/dist/assets/images/marker-icon.png'
     #salon-location-map .leaflet-bottom {
       z-index: 5 !important;
     }
+
+    .lm-onboarding-savebar {
+      bottom: var(--lm-bottom-nav-space, 4.75rem) !important;
+    }
+    @media (min-width: 1024px) {
+      .lm-onboarding-savebar { bottom: 0 !important; }
+    }
   </style>
 {% endblock %}
 
@@ -117,14 +124,15 @@ data-marker-icon-url="{% static 'vendor/mapp/dist/assets/images/marker-icon.png'
         </div>
       </section>
 
-      <div data-mobile-primary-action class="lm-dashboard-sticky-action fixed inset-x-3 bottom-0 z-30 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-lm-elevated backdrop-blur sm:inset-x-5 lg:sticky lg:inset-x-auto lg:bottom-3 lg:z-20 lg:flex lg:items-center lg:justify-between">
-        <a href="{% if profile_edit_mode %}{{ salon_profile_url }}{% else %}{{ step1_url }}{% endif %}" class="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textSecondary lg:w-auto">{% if profile_edit_mode %}بازگشت به پروفایل مجموعه{% else %}بازگشت{% endif %}</a>
-        <button type="submit" id="submitStepBtn" class="mt-2 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-55 lg:mt-0 lg:w-auto" disabled>
-          {% if profile_edit_mode %}ذخیره تغییرات{% else %}ذخیره و ادامه{% endif %}
-          <i class="fa-solid {% if profile_edit_mode %}fa-floppy-disk{% else %}fa-arrow-left-long{% endif %} text-xs" aria-hidden="true"></i>
-        </button>
+      <div data-mobile-primary-action class="lm-onboarding-savebar fixed inset-x-0 z-[60] border-t border-loomera-borderSoft bg-white/96 px-3 py-2 shadow-[0_-12px_34px_rgba(46,42,60,0.10)] backdrop-blur sm:px-5 lg:sticky lg:inset-x-auto lg:z-20 lg:rounded-[22px] lg:border lg:p-2.5 lg:shadow-lm-elevated">
+        <div class="mx-auto flex w-full max-w-5xl justify-end">
+          <button type="submit" id="submitStepBtn" class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-5 py-2.5 text-sm font-black text-white shadow-[0_10px_24px_rgba(115,92,190,0.18)] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-55 sm:w-auto sm:min-w-36" disabled>
+            <i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>
+            <span>ذخیره</span>
+          </button>
+        </div>
       </div>
-      <div class="block h-24 lg:hidden" aria-hidden="true"></div>
+      <div class="block h-16 lg:h-2" aria-hidden="true"></div>
     </form>
   </section>
 {% endblock %}
