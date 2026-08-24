@@ -16,93 +16,236 @@
 {% block content %}
 <main class="min-h-screen overflow-x-hidden bg-loomera-bg pb-28 lg:pb-16" data-services-page>
 
-<header class="sticky top-0 z-40 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
-<div class="flex items-center justify-between gap-3">
-<a href="{% url 'salons:show_salons' %}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft bg-white shadow-lm-soft" aria-label="بازگشت">
-<i class="fa-solid fa-chevron-right"></i>
-</a>
-<h1 class="truncate text-sm font-black">{% if selected_group %}{{ selected_group.group_title }}{% else %}خدمات زیبایی{% endif %}</h1>
-<a href="{% url 'search:search_page' %}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-loomera-borderSoft text-loomera-primary" aria-label="جستجو">
-<i class="fa-solid fa-magnifying-glass"></i>
-</a>
-</div>
+<header class="sticky top-0 z-50 border-b border-loomera-borderSoft bg-white/95 px-4 py-2 backdrop-blur lg:hidden">
+    <div class="flex items-center justify-between gap-3">
+        <a href="{% url 'salons:show_salons' %}" 
+           class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-loomera-borderSoft bg-white"
+           aria-label="بازگشت">
+            <i class="fa-solid fa-chevron-right text-sm"></i>
+        </a>
+
+        <h1 class="truncate text-sm font-black">
+            {% if selected_group %}
+                {{ selected_group.group_title }}
+            {% else %}
+                خدمات زیبایی
+            {% endif %}
+        </h1>
+
+        <a href="{% url 'search:search_page' %}"
+           class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-loomera-borderSoft text-loomera-primary"
+           aria-label="جستجو">
+            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+        </a>
+    </div>
 </header>
 
-<section class="mx-auto mt-4 w-full max-w-7xl rounded-[1.5rem] border border-loomera-borderSoft bg-white px-4 py-3 shadow-lm-card sm:px-5 lg:mt-8">
-<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-<div>
-<p class="text-xs font-black text-loomera-primary">خدمات</p>
-<h1 class="mt-1 text-xl font-black sm:text-2xl">
-{% if selected_group %}{{ selected_group.group_title }}{% else %}همه خدمات{% endif %}
-</h1>
-<p class="mt-2 hidden text-sm leading-6 text-loomera-textSecondary sm:block">
-{% if selected_group.descriptions %}{{ selected_group.descriptions }}{% else %}خدمات مورد نیاز خود را انتخاب کنید.{% endif %}
-</p>
-</div>
-<a href="{% url 'search:search_page' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="inline-flex items-center justify-center rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">
-جستجوی مجموعه
-</a>
-</div>
+
+<section class="mx-auto mt-3 w-full max-w-7xl px-4 lg:mt-8">
+    <div class="rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 shadow-lm-soft">
+        <div class="flex items-center justify-between gap-3">
+
+            <div>
+                <p class="text-[11px] font-black text-loomera-primary">
+                    خدمات
+                </p>
+
+                <h1 class="mt-1 text-lg font-black">
+                    {% if selected_group %}
+                        {{ selected_group.group_title }}
+                    {% else %}
+                        همه خدمات
+                    {% endif %}
+                </h1>
+            </div>
+
+            <a href="{% url 'search:search_page' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}"
+               class="shrink-0 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">
+                جستجوی مجموعه
+            </a>
+
+        </div>
+    </div>
 </section>
 
-<div class="mx-auto mt-5 grid w-full max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[240px_1fr] xl:px-0">
+
+<div class="mx-auto mt-3 w-full max-w-7xl px-4 sm:px-6 lg:grid lg:grid-cols-[240px_1fr] xl:px-0">
+
 
 <aside class="hidden lg:block">
 <section class="sticky top-24 rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card">
-<h2 class="text-base font-black">دسته‌بندی خدمات</h2>
+
+<h2 class="text-base font-black">
+دسته‌بندی خدمات
+</h2>
+
 <div class="mt-4 grid gap-2">
+
 {% for group in groups %}
-<a href="{% url 'services:group_services' group.id %}" class="flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm font-black {% if selected_group and selected_group.id == group.id %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% else %}border-loomera-borderSoft{% endif %}">
+
+<a href="{% url 'services:group_services' group.id %}"
+class="flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm font-black
+{% if selected_group and selected_group.id == group.id %}
+border-loomera-primary bg-loomera-primarySoft text-loomera-primary
+{% else %}
+border-loomera-borderSoft
+{% endif %}">
+
 <span class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-loomera-bgSubtle">
-{% if group.group_image %}<img src="{% url 'services:group_service_image' group.id %}" class="h-full w-full object-cover">{% else %}<i class="fa-solid fa-spa"></i>{% endif %}
+
+{% if group.group_image %}
+<img src="{% url 'services:group_service_image' group.id %}"
+class="h-full w-full object-cover">
+{% else %}
+<i class="fa-solid fa-spa"></i>
+{% endif %}
+
 </span>
-<span>{{ group.group_title }}</span>
+
+<span>
+{{ group.group_title }}
+</span>
+
 </a>
+
 {% empty %}
-<p class="text-xs">دسته‌ای ثبت نشده است.</p>
+
+<p class="text-xs">
+دسته‌ای ثبت نشده است.
+</p>
+
 {% endfor %}
+
 </div>
+
 </section>
 </aside>
 
+
 <section class="min-w-0">
 {% if groups %}
-<nav class="sticky top-[64px] z-30 -mx-4 mb-4 flex gap-2 overflow-x-auto border-b border-loomera-borderSoft bg-loomera-bg/95 px-4 py-3 backdrop-blur lg:hidden [scrollbar-width:none]">
-<a href="{% url 'services:all_services' %}" class="shrink-0 rounded-full border px-4 py-2 text-xs font-black {% if not selected_group %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% endif %}">همه</a>
+
+<nav class="sticky top-[45px] z-40 -mx-4 mb-2 flex gap-2 overflow-x-auto border-y border-loomera-borderSoft bg-loomera-bg/95 px-4 py-2 backdrop-blur lg:hidden [scrollbar-width:none]">
+
+<a href="{% url 'services:all_services' %}"
+class="shrink-0 rounded-full border px-3 py-1.5 text-xs font-black
+{% if not selected_group %}
+border-loomera-primary bg-loomera-primarySoft text-loomera-primary
+{% else %}
+border-loomera-borderSoft bg-white
+{% endif %}">
+همه
+</a>
+
+
 {% for group in groups %}
-<a href="{% url 'services:group_services' group.id %}" class="shrink-0 rounded-full border px-4 py-2 text-xs font-black {% if selected_group and selected_group.id == group.id %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% endif %}">{{ group.group_title }}</a>
+
+<a href="{% url 'services:group_services' group.id %}"
+class="shrink-0 rounded-full border px-3 py-1.5 text-xs font-black
+{% if selected_group and selected_group.id == group.id %}
+border-loomera-primary bg-loomera-primarySoft text-loomera-primary
+{% else %}
+border-loomera-borderSoft bg-white
+{% endif %}">
+{{ group.group_title }}
+</a>
+
 {% endfor %}
+
 </nav>
+
 {% endif %}
+
+
 
 {% if subgroups %}
-<div class="mb-5 rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4">
-<h2 class="font-black">انتخاب جزئی‌تر</h2>
-<div class="mt-3 flex gap-2 overflow-x-auto">
+
+<div class="sticky top-[91px] z-30 -mx-4 mb-3 border-b border-loomera-borderSoft bg-loomera-bg/95 px-4 py-2 backdrop-blur lg:hidden">
+
+<div class="flex items-center gap-2 overflow-x-auto [scrollbar-width:none]">
+
+<span class="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-black text-loomera-textSecondary border border-loomera-borderSoft">
+گروه خدمات
+</span>
+
+
 {% for subgroup in subgroups %}
-<button type="button" data-subgroup-filter data-url="{% url 'services:get_service_of_subgroups' subgroup.id %}" class="shrink-0 rounded-full border px-4 py-2 text-xs font-black">{{ subgroup.group_title }}</button>
+
+<button type="button"
+data-subgroup-filter
+data-url="{% url 'services:get_service_of_subgroups' subgroup.id %}"
+class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-1.5 text-xs font-black">
+
+{{ subgroup.group_title }}
+
+</button>
+
 {% endfor %}
+
 </div>
+
 </div>
+
 {% endif %}
 
-<div id="servicesList" class="scroll-mt-24" data-services-list>
+
+
+<div id="servicesList"
+class="scroll-mt-24"
+data-services-list>
+
 {% include "services/partials/filtered_services.html" with services=services %}
-</div>
-</section>
+
 </div>
 
-<div id="priceListModal" class="fixed inset-0 z-[1200] hidden bg-black/45 px-4 py-5" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="priceListModalTitle">
+</section>
+
+</div>
+
+
+
+<div id="priceListModal"
+class="fixed inset-0 z-[1200] hidden bg-black/45 px-4 py-5"
+aria-hidden="true"
+role="dialog"
+aria-modal="true"
+aria-labelledby="priceListModalTitle">
+
 <div class="mx-auto flex min-h-full items-end sm:items-center">
+
 <div class="w-full rounded-[2rem] bg-white p-5 shadow-lm-elevated">
+
 <div class="flex items-center justify-between">
-<h2 id="priceListModalTitle" class="font-black">قیمت متخصص‌ها</h2>
-<button type="button" data-price-modal-close aria-label="بستن"><i class="fa-solid fa-xmark"></i></button>
+
+<h2 id="priceListModalTitle"
+class="font-black">
+قیمت متخصص‌ها
+</h2>
+
+
+<button type="button"
+data-price-modal-close
+aria-label="بستن">
+
+<i class="fa-solid fa-xmark"></i>
+
+</button>
+
 </div>
-<div data-price-modal-body class="mt-4">در حال بارگذاری...</div>
+
+
+<div data-price-modal-body class="mt-4">
+در حال بارگذاری...
 </div>
+
+
 </div>
+
 </div>
+
+</div>
+
 
 </main>
+
 {% endblock %}
