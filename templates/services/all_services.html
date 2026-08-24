@@ -36,16 +36,35 @@
     </div>
   </header>
 
-  <section class="mx-auto mt-3 w-full max-w-7xl px-4 lg:mt-8">
-    <div class="rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 shadow-lm-soft">
-      <p class="text-[11px] font-black text-loomera-primary">خدمات</p>
-      <h1 class="mt-1 text-lg font-black">
-        {% if selected_group %}{{ selected_group.group_title }}{% else %}همه خدمات{% endif %}
-      </h1>
-    </div>
-  </section>
+  {% if groups %}
+    <div class="sticky z-30 -mx-4 space-y-2 border-b border-loomera-borderSoft bg-loomera-bg/95 px-4 py-2 backdrop-blur lg:hidden" style="top: 118px">
+      <nav class="flex gap-2 overflow-x-auto [scrollbar-width:none]" aria-label="دسته‌بندی خدمات">
+        <a href="{% url 'services:all_services' %}"
+           class="shrink-0 rounded-full border px-3 py-1.5 text-xs font-black {% if not selected_group %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary{% endif %}">
+          همه
+        </a>
+        {% for group in groups %}
+          <a href="{% url 'services:group_services' group.id %}"
+             class="shrink-0 rounded-full border px-3 py-1.5 text-xs font-black {% if selected_group.id == group.id or selected_group.group_parent_id == group.id %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary{% endif %}">
+            {{ group.group_title }}
+          </a>
+        {% endfor %}
+      </nav>
 
-  <div class="mx-auto mt-3 w-full max-w-7xl px-4 sm:px-6 lg:grid lg:grid-cols-[240px_1fr] xl:px-0">
+      {% if subgroups %}
+        <nav class="flex gap-2 overflow-x-auto [scrollbar-width:none]" aria-label="زیرگروه خدمات">
+          {% for subgroup in subgroups %}
+            <a href="{% url 'services:group_services' subgroup.id %}"
+               class="shrink-0 rounded-full border px-3 py-1.5 text-xs font-black {% if selected_group.id == subgroup.id %}border-loomera-primary bg-loomera-primary text-white{% else %}border-loomera-borderSoft bg-loomera-bgSubtle text-loomera-textSecondary{% endif %}">
+              {{ subgroup.group_title }}
+            </a>
+          {% endfor %}
+        </nav>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="mx-auto mt-3 w-full max-w-7xl px-4 sm:px-6 lg:mt-8 lg:grid lg:grid-cols-[240px_1fr] xl:px-0">
 
     <aside class="hidden lg:block">
       <section class="sticky top-24 rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card">
@@ -54,7 +73,7 @@
         <div class="mt-4 grid gap-2">
           {% for group in groups %}
             <a href="{% url 'services:group_services' group.id %}"
-               class="flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm font-black {% if selected_group and selected_group.id == group.id %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% else %}border-loomera-borderSoft{% endif %}">
+               class="flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm font-black {% if selected_group.id == group.id or selected_group.group_parent_id == group.id %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% else %}border-loomera-borderSoft{% endif %}">
               <span class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-loomera-bgSubtle">
                 {% if group.group_image %}
                   <img src="{% url 'services:group_service_image' group.id %}" class="h-full w-full object-cover" alt="">
@@ -72,40 +91,7 @@
     </aside>
 
     <section class="min-w-0">
-      {% if groups %}
-        <nav class="sticky top-[45px] z-40 -mx-4 mb-2 flex gap-2 overflow-x-auto border-y border-loomera-borderSoft bg-loomera-bg/95 px-4 py-2 backdrop-blur lg:hidden [scrollbar-width:none]">
-          <a href="{% url 'services:all_services' %}"
-             class="shrink-0 rounded-full border px-3 py-1.5 text-xs font-black {% if not selected_group %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% else %}border-loomera-borderSoft bg-white{% endif %}">
-            همه
-          </a>
-          {% for group in groups %}
-            <a href="{% url 'services:group_services' group.id %}"
-               class="shrink-0 rounded-full border px-3 py-1.5 text-xs font-black {% if selected_group and selected_group.id == group.id %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% else %}border-loomera-borderSoft bg-white{% endif %}">
-              {{ group.group_title }}
-            </a>
-          {% endfor %}
-        </nav>
-      {% endif %}
-
-      {% if subgroups %}
-        <div class="sticky top-[91px] z-30 -mx-4 mb-3 border-b border-loomera-borderSoft bg-loomera-bg/95 px-4 py-2 backdrop-blur lg:hidden">
-          <div class="flex items-center gap-2 overflow-x-auto [scrollbar-width:none]">
-            <span class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-1.5 text-xs font-black text-loomera-textSecondary">
-              گروه خدمات
-            </span>
-            {% for subgroup in subgroups %}
-              <button type="button"
-                      data-subgroup-filter
-                      data-url="{% url 'services:get_service_of_subgroups' subgroup.id %}"
-                      class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-1.5 text-xs font-black">
-                {{ subgroup.group_title }}
-              </button>
-            {% endfor %}
-          </div>
-        </div>
-      {% endif %}
-
-      <div id="servicesList" class="scroll-mt-24" data-services-list>
+      <div id="servicesList" class="scroll-mt-28" data-services-list>
         {% include "services/partials/filtered_services.html" with services=services %}
       </div>
     </section>
@@ -132,4 +118,53 @@
   </div>
 
 </main>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const modal = document.getElementById("priceListModal");
+      const modalBody = modal ? modal.querySelector("[data-price-modal-body]") : null;
+      const modalClose = modal ? modal.querySelector("[data-price-modal-close]") : null;
+
+      function closePriceModal() {
+        if (!modal) return;
+        modal.classList.add("hidden");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+
+      document.addEventListener("click", async function (event) {
+        const trigger = event.target.closest("[data-price-list-url]");
+        if (!trigger || !modal || !modalBody) return;
+
+        event.preventDefault();
+        modal.classList.remove("hidden");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        modalBody.innerHTML = '<div class="rounded-3xl border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-6 text-center text-sm font-bold text-loomera-textMuted">در حال بارگذاری...</div>';
+
+        try {
+          const response = await fetch(trigger.dataset.priceListUrl, {
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+          });
+          if (!response.ok) throw new Error("request failed");
+          modalBody.innerHTML = await response.text();
+        } catch (error) {
+          modalBody.innerHTML = '<div class="rounded-3xl border border-red-100 bg-red-50 p-6 text-center text-sm font-black text-red-600">دریافت لیست قیمت ممکن نیست.</div>';
+        }
+      });
+
+      if (modalClose) modalClose.addEventListener("click", closePriceModal);
+      if (modal) {
+        modal.addEventListener("click", function (event) {
+          if (event.target === modal) closePriceModal();
+        });
+      }
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") closePriceModal();
+      });
+    });
+  </script>
 {% endblock %}
