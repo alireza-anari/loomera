@@ -28,16 +28,18 @@
 </div>
 </header>
 
-<section class="mx-auto mt-4 w-full max-w-7xl rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-7 lg:mt-8">
-<div class="max-w-3xl">
+<section class="mx-auto mt-4 w-full max-w-7xl rounded-[1.5rem] border border-loomera-borderSoft bg-white px-4 py-3 shadow-lm-card sm:px-5 lg:mt-8">
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+<div>
 <p class="text-xs font-black text-loomera-primary">خدمات</p>
-<h1 class="mt-2 text-2xl font-black sm:text-3xl">
+<h1 class="mt-1 text-xl font-black sm:text-2xl">
 {% if selected_group %}{{ selected_group.group_title }}{% else %}همه خدمات{% endif %}
 </h1>
-<p class="mt-3 text-sm leading-7 text-loomera-textSecondary">
-{% if selected_group.descriptions %}{{ selected_group.descriptions }}{% else %}خدمات مورد نیاز خود را انتخاب کنید و مجموعه مناسب را پیدا کنید.{% endif %}
+<p class="mt-2 hidden text-sm leading-6 text-loomera-textSecondary sm:block">
+{% if selected_group.descriptions %}{{ selected_group.descriptions }}{% else %}خدمات مورد نیاز خود را انتخاب کنید.{% endif %}
 </p>
-<a href="{% url 'search:search_page' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="mt-5 inline-flex rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white">
+</div>
+<a href="{% url 'search:search_page' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="inline-flex items-center justify-center rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white">
 جستجوی مجموعه
 </a>
 </div>
@@ -65,10 +67,10 @@
 
 <section class="min-w-0">
 {% if groups %}
-<nav class="mb-4 flex gap-2 overflow-x-auto lg:hidden [scrollbar-width:none]">
-<a href="{% url 'services:all_services' %}" class="shrink-0 rounded-full border px-4 py-2 text-xs font-black">همه</a>
+<nav class="sticky top-[64px] z-30 -mx-4 mb-4 flex gap-2 overflow-x-auto border-b border-loomera-borderSoft bg-loomera-bg/95 px-4 py-3 backdrop-blur lg:hidden [scrollbar-width:none]">
+<a href="{% url 'services:all_services' %}" class="shrink-0 rounded-full border px-4 py-2 text-xs font-black {% if not selected_group %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% endif %}">همه</a>
 {% for group in groups %}
-<a href="{% url 'services:group_services' group.id %}" class="shrink-0 rounded-full border px-4 py-2 text-xs font-black">{{ group.group_title }}</a>
+<a href="{% url 'services:group_services' group.id %}" class="shrink-0 rounded-full border px-4 py-2 text-xs font-black {% if selected_group and selected_group.id == group.id %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% endif %}">{{ group.group_title }}</a>
 {% endfor %}
 </nav>
 {% endif %}
