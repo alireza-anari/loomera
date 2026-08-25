@@ -1,20 +1,6 @@
 {% load humanize %}
 
-<div class="space-y-4">
-  <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-    <p class="text-xs font-black uppercase tracking-[.2em] text-loomera-primary">
-      {{ service.service_name }}
-    </p>
-
-    <h3 class="mt-1 text-lg font-black text-loomera-textPrimary">
-      انتخاب متخصص
-    </h3>
-
-    <p class="mt-2 text-xs leading-6 text-loomera-textMuted">
-      با انتخاب متخصص، مجموعه‌هایی نمایش داده می‌شوند که این متخصص برای همین خدمت در آن‌ها فعال است.
-    </p>
-  </div>
-
+<div class="space-y-3">
   {% if service_price_list %}
     <div class="grid gap-3">
       {% for item in service_price_list %}
