@@ -50,7 +50,9 @@
               </a>
               <button type="button"
                       data-price-list-url="{% url 'services:service_priceList' service.id %}"
-                      class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-xs font-black text-loomera-textSecondary transition hover:text-loomera-primary">
+                      data-service-name="{{ service.service_name }}"
+                      class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:text-loomera-primary">
+                <i class="fa-solid fa-tag text-[11px]" aria-hidden="true"></i>
                 قیمت‌ها
               </button>
             </div>
