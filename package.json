@@ -1,0 +1,14 @@
+{
+  "name": "loomera-ui",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -c ./tailwind.config.js -i ./static/css/global.css -o ./static/css/output.css --minify",
+    "watch:css": "tailwindcss -c ./tailwind.config.js -i ./static/css/global.css -o ./static/css/output.css --watch",
+    "build": "npm run build:css"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "3.4.17"
+  }
+}

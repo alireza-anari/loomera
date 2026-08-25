@@ -14,124 +14,149 @@
 {% endblock %}
 
 {% block content %}
-<main class="min-h-screen bg-loomera-bg pb-28 lg:pb-16" data-services-page>
+<main class="min-h-screen bg-loomera-bg pb-24 lg:pb-16" data-services-page data-services-tabs-version="tailwind-v1">
+  <header class="border-b border-loomera-borderSoft bg-white">
+    <div class="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 sm:py-7 xl:px-0">
+      <div class="flex items-center justify-between gap-4">
+        <div class="min-w-0">
+          <p class="text-xs font-black text-loomera-primary">خدمات لومرا</p>
+          <h1 class="mt-1 truncate text-2xl font-black text-loomera-textPrimary sm:text-3xl">
+            {% if selected_group %}{{ selected_group.group_title }}{% else %}خدمات زیبایی{% endif %}
+          </h1>
+        </div>
 
-  <div class="sticky top-0 z-50 lg:hidden">
-    <header class="border-b border-loomera-borderSoft bg-white/95 px-4 py-2 backdrop-blur">
-      <div class="flex items-center justify-between gap-3">
-        <a href="{% url 'salons:show_salons' %}"
-           class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-loomera-borderSoft bg-white"
-           aria-label="بازگشت">
-          <i class="fa-solid fa-chevron-right text-sm"></i>
-        </a>
-
-        <h1 class="truncate text-sm font-black">
-          {% if selected_group %}{{ selected_group.group_title }}{% else %}خدمات زیبایی{% endif %}
-        </h1>
-
-        <a href="{% url 'search:search_page' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}"
-           class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-loomera-borderSoft text-loomera-primary"
-           aria-label="جستجو">
-          <i class="fa-solid fa-magnifying-glass text-sm"></i>
+        <a
+          href="{% url 'search:search_page' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}"
+          class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 text-xs font-black text-loomera-primary transition hover:border-loomera-primary/30"
+        >
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <span class="hidden sm:inline">جستجو</span>
         </a>
       </div>
-    </header>
+    </div>
+  </header>
 
-    {% if groups %}
-      <div class="border-b border-loomera-borderSoft bg-loomera-bg/95 py-2.5 backdrop-blur">
-        <nav class="flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none]" aria-label="دسته‌بندی خدمات">
-          <a href="{% url 'services:all_services' %}"
-             class="shrink-0 rounded-full border px-3.5 py-2 text-xs font-black transition {% if not selected_group %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% else %}border-transparent bg-loomera-bgSubtle text-loomera-textSecondary{% endif %}">
-            همه
+  {% if groups %}
+    <div
+      class="sticky top-16 z-30 border-b border-loomera-borderSoft bg-white/95 shadow-lm-soft backdrop-blur lg:top-20"
+      data-service-tabs
+    >
+      <div class="mx-auto w-full max-w-7xl">
+
+        {# ردیف اول: فقط گروه‌های اصلی؛ view مقدار groups را با group_parent=None می‌سازد. #}
+        <nav
+          class="flex items-center gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-6 xl:px-0"
+          aria-label="گروه‌های اصلی خدمات"
+          data-service-tabs-row
+        >
+          <a
+            href="{% url 'services:all_services' %}"
+            class="shrink-0 rounded-full border px-4 py-2.5 text-xs font-black transition {% if not selected_group %}border-loomera-primary bg-loomera-primary text-white{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary hover:border-loomera-primary/30 hover:text-loomera-primary{% endif %}"
+            {% if not selected_group %}aria-current="page" data-active-service-tab{% endif %}
+          >
+            همه خدمات
           </a>
+
           {% for group in groups %}
-            <a href="{% url 'services:group_services' group.id %}"
-               class="shrink-0 rounded-full border px-3.5 py-2 text-xs font-black transition {% if selected_group.id == group.id or selected_group.group_parent_id == group.id %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% else %}border-transparent bg-loomera-bgSubtle text-loomera-textSecondary{% endif %}">
+            <a
+              href="{{ group.get_absolute_url }}"
+              class="shrink-0 rounded-full border px-4 py-2.5 text-xs font-black transition {% if selected_group.id == group.id or selected_group.group_parent_id == group.id %}border-loomera-primary bg-loomera-primary text-white{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary hover:border-loomera-primary/30 hover:text-loomera-primary{% endif %}"
+              {% if selected_group.id == group.id or selected_group.group_parent_id == group.id %}aria-current="page" data-active-service-tab{% endif %}
+            >
               {{ group.group_title }}
             </a>
           {% endfor %}
         </nav>
 
+        {# ردیف دوم: زیرگروه‌های مرتبط با گروه اصلی فعال. #}
         {% if selected_group and subgroups %}
-          <nav class="mt-2 flex gap-1.5 overflow-x-auto border-t border-loomera-borderSoft px-4 pt-2 [scrollbar-width:none]" aria-label="زیرگروه خدمات">
+          <nav
+            class="flex items-center gap-2 overflow-x-auto border-t border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-6 xl:px-0"
+            aria-label="زیرگروه‌های خدمات"
+            data-service-tabs-row
+          >
+            {% if selected_group.group_parent_id %}
+              {% for group in groups %}
+                {% if group.id == selected_group.group_parent_id %}
+                  <a
+                    href="{{ group.get_absolute_url }}"
+                    class="shrink-0 rounded-full border border-transparent bg-white px-3.5 py-2 text-[11px] font-black text-loomera-textSecondary transition hover:border-loomera-primary/20 hover:text-loomera-primary"
+                  >
+                    همه {{ group.group_title }}
+                  </a>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <a
+                href="{{ selected_group.get_absolute_url }}"
+                class="shrink-0 rounded-full border border-loomera-primary/20 bg-loomera-primarySoft px-3.5 py-2 text-[11px] font-black text-loomera-primary"
+                aria-current="page"
+                data-active-service-tab
+              >
+                همه {{ selected_group.group_title }}
+              </a>
+            {% endif %}
+
             {% for subgroup in subgroups %}
-              <a href="{% url 'services:group_services' subgroup.id %}"
-                 class="shrink-0 rounded-full px-3 py-1.5 text-[11px] font-black transition {% if selected_group.id == subgroup.id %}bg-loomera-primary text-white{% else %}bg-white text-loomera-textSecondary ring-1 ring-inset ring-loomera-borderSoft{% endif %}">
+              <a
+                href="{{ subgroup.get_absolute_url }}"
+                class="shrink-0 rounded-full border px-3.5 py-2 text-[11px] font-black transition {% if selected_group.id == subgroup.id %}border-loomera-primary bg-loomera-primary text-white{% else %}border-transparent bg-white text-loomera-textSecondary hover:border-loomera-primary/20 hover:text-loomera-primary{% endif %}"
+                {% if selected_group.id == subgroup.id %}aria-current="page" data-active-service-tab{% endif %}
+              >
                 {{ subgroup.group_title }}
               </a>
             {% endfor %}
           </nav>
         {% endif %}
       </div>
-    {% endif %}
-  </div>
+    </div>
+  {% endif %}
 
-  <div class="mx-auto mt-3 w-full max-w-7xl px-4 sm:px-6 lg:mt-8 lg:grid lg:grid-cols-[240px_1fr] xl:px-0">
+  <section class="mx-auto mt-4 w-full max-w-7xl px-4 sm:mt-6 sm:px-6 xl:px-0">
+    <div id="servicesList" class="scroll-mt-40 lg:scroll-mt-48" data-services-list>
+      {% include "services/partials/filtered_services.html" with services=services %}
+    </div>
+  </section>
 
-    <aside class="hidden lg:block">
-      <section class="sticky top-24 rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card">
-        <h2 class="text-base font-black">دسته‌بندی خدمات</h2>
-
-        <div class="mt-4 grid gap-2">
-          {% for group in groups %}
-            <a href="{% url 'services:group_services' group.id %}"
-               class="flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm font-black {% if selected_group.id == group.id or selected_group.group_parent_id == group.id %}border-loomera-primary bg-loomera-primarySoft text-loomera-primary{% else %}border-loomera-borderSoft{% endif %}">
-              <span class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-loomera-bgSubtle">
-                {% if group.group_image %}
-                  <img src="{% url 'services:group_service_image' group.id %}" class="h-full w-full object-cover" alt="">
-                {% else %}
-                  <i class="fa-solid fa-spa"></i>
-                {% endif %}
-              </span>
-              <span>{{ group.group_title }}</span>
-            </a>
-          {% empty %}
-            <p class="text-xs">دسته‌ای ثبت نشده است.</p>
-          {% endfor %}
-        </div>
-      </section>
-    </aside>
-
-    <section class="min-w-0">
-      <div id="servicesList" class="scroll-mt-28" data-services-list>
-        {% include "services/partials/filtered_services.html" with services=services %}
-      </div>
-    </section>
-
-  </div>
-
-  <div id="priceListModal"
-       class="fixed inset-0 z-[1200] hidden overflow-y-auto overscroll-contain bg-black/50 px-4 py-6 backdrop-blur-sm"
-       aria-hidden="true"
-       role="dialog"
-       aria-modal="true"
-       aria-labelledby="priceListModalTitle">
+  <div
+    id="priceListModal"
+    class="fixed inset-0 z-[1200] hidden overflow-y-auto overscroll-contain bg-black/50 px-0 py-0 backdrop-blur-sm sm:px-4 sm:py-6"
+    aria-hidden="true"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="priceListModalTitle"
+  >
     <div class="mx-auto flex min-h-full w-full max-w-lg items-end sm:items-center">
-      <div data-price-modal-card
-           style="max-height: 82dvh"
-           class="flex w-full translate-y-2 flex-col overflow-hidden rounded-t-[2rem] bg-white opacity-0 shadow-lm-elevated transition duration-300 ease-out sm:rounded-[2rem]">
-
-        <div class="flex shrink-0 items-center justify-between gap-3 border-b border-loomera-borderSoft px-5 py-4">
+      <div
+        data-price-modal-card
+        style="max-height: 86dvh"
+        class="flex w-full translate-y-2 flex-col overflow-hidden rounded-t-[1.75rem] bg-white opacity-0 shadow-lm-elevated transition duration-300 ease-out sm:rounded-[1.75rem]"
+      >
+        <div class="flex shrink-0 items-center justify-between gap-3 border-b border-loomera-borderSoft px-4 py-4 sm:px-5">
           <h2 id="priceListModalTitle" class="min-w-0">
             <span class="block text-base font-black text-loomera-textPrimary">قیمت متخصص‌ها</span>
             <span data-price-modal-service-name class="mt-0.5 block truncate text-xs font-bold text-loomera-primary"></span>
           </h2>
-          <button type="button"
-                  data-price-modal-close
-                  aria-label="بستن"
-                  class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft text-loomera-textMuted transition hover:text-loomera-primary">
-            <i class="fa-solid fa-xmark"></i>
+
+          <button
+            type="button"
+            data-price-modal-close
+            aria-label="بستن"
+            class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft text-loomera-textMuted transition hover:text-loomera-primary"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
           </button>
         </div>
 
-        <div data-price-modal-body
-             class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] [scrollbar-gutter:stable]">
+        <div
+          data-price-modal-body
+          class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-5 [scrollbar-gutter:stable]"
+        >
           در حال بارگذاری...
         </div>
       </div>
     </div>
   </div>
-
 </main>
 {% endblock %}
 
@@ -139,6 +164,19 @@
   {{ block.super }}
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll("[data-service-tabs-row]").forEach(function (row) {
+        const activeTab = row.querySelector("[data-active-service-tab]");
+        if (!activeTab) return;
+
+        requestAnimationFrame(function () {
+          activeTab.scrollIntoView({
+            behavior: "auto",
+            block: "nearest",
+            inline: "center"
+          });
+        });
+      });
+
       const modal = document.getElementById("priceListModal");
       const card = modal ? modal.querySelector("[data-price-modal-card]") : null;
       const modalBody = modal ? modal.querySelector("[data-price-modal-body]") : null;
@@ -150,6 +188,7 @@
         modal.classList.remove("hidden");
         modal.setAttribute("aria-hidden", "false");
         document.body.style.overflow = "hidden";
+
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
             card.classList.remove("opacity-0", "translate-y-2");
@@ -170,29 +209,38 @@
         if (!trigger || !modal || !modalBody) return;
 
         event.preventDefault();
-        if (modalServiceName) modalServiceName.textContent = trigger.dataset.serviceName || "";
-        modalBody.innerHTML = '<div class="rounded-3xl border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-6 text-center text-sm font-bold text-loomera-textMuted">در حال بارگذاری...</div>';
+
+        if (modalServiceName) {
+          modalServiceName.textContent = trigger.dataset.serviceName || "";
+        }
+
+        modalBody.innerHTML = '<div class="rounded-2xl border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle p-6 text-center text-sm font-bold text-loomera-textMuted">در حال بارگذاری...</div>';
         openPriceModal();
 
         try {
           const response = await fetch(trigger.dataset.priceListUrl, {
-            headers: { "X-Requested-With": "XMLHttpRequest" }
+            headers: {"X-Requested-With": "XMLHttpRequest"}
           });
+
           if (!response.ok) throw new Error("request failed");
           modalBody.innerHTML = await response.text();
         } catch (error) {
-          modalBody.innerHTML = '<div class="rounded-3xl border border-red-100 bg-red-50 p-6 text-center text-sm font-black text-red-600">دریافت لیست قیمت ممکن نیست.</div>';
+          modalBody.innerHTML = '<div class="rounded-2xl border border-red-100 bg-red-50 p-6 text-center text-sm font-black text-red-600">دریافت لیست قیمت ممکن نیست.</div>';
         }
       });
 
       if (modalClose) modalClose.addEventListener("click", closePriceModal);
+
       if (modal) {
         modal.addEventListener("click", function (event) {
           if (event.target === modal) closePriceModal();
         });
       }
+
       document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape" && modal && !modal.classList.contains("hidden")) closePriceModal();
+        if (event.key === "Escape" && modal && !modal.classList.contains("hidden")) {
+          closePriceModal();
+        }
       });
     });
   </script>
