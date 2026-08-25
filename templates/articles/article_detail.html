@@ -17,7 +17,6 @@
   <meta property="og:title" content="{{ article.effective_seo_title }}">
   <meta property="og:description" content="{{ article.effective_seo_description }}">
   <meta property="og:type" content="article">
-
   <script type="application/ld+json">{{ article_schema_json|safe }}</script>
   <script type="application/ld+json">{{ breadcrumb_schema_json|safe }}</script>
   {% if faq_schema_json %}<script type="application/ld+json">{{ faq_schema_json|safe }}</script>{% endif %}
@@ -30,45 +29,45 @@
 {% block content %}
 <main class="min-h-screen bg-loomera-bg pb-20">
   <article>
-    <header class="bg-white">
-      <div class="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center lg:py-12 xl:px-0">
-        <div>
-          <a href="{% url 'articles:magazine_home' %}" class="mb-5 inline-flex items-center gap-2 text-sm font-black text-loomera-primary">
+    <header class="border-b border-loomera-borderSoft bg-white">
+      <div class="mx-auto grid w-full max-w-5xl gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-center">
+        <div class="min-w-0">
+          <a href="{% url 'articles:magazine_home' %}" class="inline-flex items-center gap-2 text-xs font-black text-loomera-primary">
             <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
             مجله لومرا
           </a>
 
-          <div class="mb-4 flex flex-wrap items-center gap-2">
+          <div class="mt-4 flex flex-wrap items-center gap-2">
             {% if article.category %}
-              <a href="{{ article.category.get_absolute_url }}" class="rounded-full bg-loomera-primarySoft px-3 py-1 text-xs font-black text-loomera-primary">
+              <a href="{{ article.category.get_absolute_url }}" class="rounded-full bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primary">
                 {{ article.category.title }}
               </a>
             {% endif %}
-            <span class="rounded-full bg-loomera-bgSubtle px-3 py-1 text-xs font-black text-loomera-textMuted">
+            <span class="text-xs font-bold text-loomera-textMuted">
               {{ article.reading_time_minutes|fa_digits }} دقیقه مطالعه
             </span>
           </div>
 
-          <h1 class="text-3xl font-black leading-[1.6] text-loomera-textPrimary lg:text-5xl">
+          <h1 class="mt-3 text-2xl font-black leading-[1.6] text-loomera-textPrimary sm:text-3xl lg:text-4xl">
             {{ article.title }}
           </h1>
 
-          <p class="mt-4 max-w-3xl text-sm font-medium leading-8 text-loomera-textSecondary lg:text-base">
-            {{ public_article_summary|default:article.summary }}
-          </p>
+          {% if public_article_summary or article.summary %}
+            <p class="mt-3 max-w-3xl text-sm font-medium leading-8 text-loomera-textSecondary">
+              {{ public_article_summary|default:article.summary }}
+            </p>
+          {% endif %}
 
-          <div class="mt-6 flex flex-wrap items-center gap-3 text-sm font-bold text-loomera-textMuted">
+          <div class="mt-4 flex flex-wrap items-center gap-2 text-xs font-bold text-loomera-textMuted">
             <span>{{ article.author_display_name }}</span>
-            <span class="h-1 w-1 rounded-full bg-loomera-border"></span>
             {% if article.published_at %}
+              <span class="h-1 w-1 rounded-full bg-loomera-border"></span>
               <time datetime="{{ article.published_at|date:'c' }}">{{ article.published_at|article_jalali_long }}</time>
             {% endif %}
-            <span class="h-1 w-1 rounded-full bg-loomera-border"></span>
-            <span>{{ article.view_count|intcomma|fa_digits }} بازدید</span>
           </div>
         </div>
 
-        <div class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-loomera-primarySoft shadow-lm-elevated">
+        <div class="overflow-hidden rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-primarySoft">
           {% if article.cover_image %}
             <img src="{{ article.cover_image.url }}" alt="{{ article.title }}" class="aspect-[4/3] w-full object-cover">
           {% else %}
@@ -80,166 +79,169 @@
       </div>
     </header>
 
-    <div class="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px] xl:px-0">
-      <div class="min-w-0 space-y-6">
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:p-8">
-          <div class="prose prose-slate max-w-none prose-p:leading-8 prose-li:leading-8 prose-headings:font-black prose-headings:text-loomera-textPrimary">
-            {{ public_article_content|default:article.content|linebreaks }}
+    <div class="mx-auto w-full max-w-5xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+      <section class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-5 sm:p-7 lg:p-8">
+        <div class="prose prose-slate max-w-none prose-p:leading-8 prose-li:leading-8 prose-headings:font-black prose-headings:text-loomera-textPrimary">
+          {{ public_article_content|default:article.content|linebreaks }}
+        </div>
+      </section>
+
+      {% if article.gallery_images.all %}
+        <section aria-labelledby="article-gallery-title">
+          <h2 id="article-gallery-title" class="mb-3 text-lg font-black text-loomera-textPrimary">تصاویر مقاله</h2>
+          <div class="grid gap-3 sm:grid-cols-2">
+            {% for image in article.gallery_images.all %}
+              <figure class="overflow-hidden rounded-[1.25rem] border border-loomera-borderSoft bg-white">
+                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:image.caption }}" class="aspect-[4/3] w-full object-cover">
+                {% if image.caption %}
+                  <figcaption class="p-3 text-xs font-bold text-loomera-textMuted">{{ image.caption }}</figcaption>
+                {% endif %}
+              </figure>
+            {% endfor %}
           </div>
         </section>
+      {% endif %}
 
-        {% if article.gallery_images.all %}
-          <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:p-6">
-            <h2 class="text-xl font-black text-loomera-textPrimary">تصاویر مقاله</h2>
-            <div class="mt-4 grid gap-3 sm:grid-cols-2">
-              {% for image in article.gallery_images.all %}
-                <figure class="overflow-hidden rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle">
-                  <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:image.caption }}" class="aspect-[4/3] w-full object-cover">
-                  {% if image.caption %}
-                    <figcaption class="p-3 text-xs font-bold text-loomera-textMuted">{{ image.caption }}</figcaption>
-                  {% endif %}
-                </figure>
-              {% endfor %}
-            </div>
-          </section>
-        {% endif %}
-
-        {% if article.faqs.all %}
-          <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:p-6">
-            <h2 class="text-xl font-black text-loomera-textPrimary">سؤالات پرتکرار</h2>
-            <div class="mt-4 space-y-3">
-              {% for faq in article.faqs.all %}
-                {% if faq.is_active %}
-                  <details class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
-                    <summary class="cursor-pointer text-sm font-black text-loomera-textPrimary">
-                      {{ faq.question }}
-                    </summary>
-                    <p class="mt-3 text-sm leading-8 text-loomera-textMuted">{{ faq.answer }}</p>
-                  </details>
-                {% endif %}
-              {% endfor %}
-            </div>
-          </section>
-        {% endif %}
-
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card lg:p-6" data-content-report-section>
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p class="text-xs font-black uppercase tracking-[.25em] text-loomera-primary">Report</p>
-              <h2 class="mt-1 text-lg font-black text-loomera-textPrimary">گزارش محتوای نامناسب</h2>
-              <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
-                اگر این مقاله مشکل دارد، گزارش بده تا تیم لومرا بررسی کند.
-              </p>
-            </div>
-            {% if request.user.is_authenticated %}
-              <button type="button" class="inline-flex items-center justify-center gap-2 rounded-full border border-rose-100 bg-rose-50 px-5 py-3 text-sm font-black text-rose-600 transition hover:border-rose-200 hover:bg-rose-100" data-report-open>
-                <i class="fa-regular fa-flag" aria-hidden="true"></i>
-                گزارش مقاله
-              </button>
-            {% else %}
-              <a href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}" class="inline-flex items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-5 py-3 text-sm font-black text-loomera-primary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
-                ورود برای گزارش
-              </a>
-            {% endif %}
+      {% if article.faqs.all %}
+        <section class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-5 sm:p-6" aria-labelledby="article-faq-title">
+          <h2 id="article-faq-title" class="text-lg font-black text-loomera-textPrimary">سؤالات پرتکرار</h2>
+          <div class="mt-3 divide-y divide-loomera-borderSoft">
+            {% for faq in article.faqs.all %}
+              {% if faq.is_active %}
+                <details class="py-3 first:pt-0 last:pb-0">
+                  <summary class="cursor-pointer text-sm font-black leading-7 text-loomera-textPrimary">
+                    {{ faq.question }}
+                  </summary>
+                  <p class="mt-2 text-sm leading-8 text-loomera-textMuted">{{ faq.answer }}</p>
+                </details>
+              {% endif %}
+            {% endfor %}
           </div>
+        </section>
+      {% endif %}
+
+      {% if article.author_salon or article.related_services.all %}
+        <section class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 sm:p-5">
+          {% if article.author_salon %}
+            <div class="flex items-center justify-between gap-4">
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-loomera-textMuted">منتشرشده توسط</p>
+                <p class="mt-1 truncate text-sm font-black text-loomera-textPrimary">{{ article.author_salon.salon_name }}</p>
+              </div>
+              <a
+                href="{{ article.author_salon.get_absolute_url }}"
+                class="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft px-4 text-xs font-black text-loomera-primary"
+              >
+                مشاهده مجموعه
+              </a>
+            </div>
+          {% endif %}
+
+          {% if article.related_services.all %}
+            <div class="{% if article.author_salon %}mt-4 border-t border-loomera-borderSoft pt-4{% endif %}">
+              <p class="mb-2 text-xs font-bold text-loomera-textMuted">خدمات مرتبط</p>
+              <div class="flex flex-wrap gap-2">
+                {% for service in article.related_services.all %}
+                  <a
+                    href="{% url 'search:search_page' %}?q={{ service.service_name|urlencode }}"
+                    class="rounded-full bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primary"
+                  >
+                    {{ service.service_name }}
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        </section>
+      {% endif %}
+
+      {% if related_articles %}
+        <section aria-labelledby="related-articles-title">
+          <h2 id="related-articles-title" class="mb-3 text-lg font-black text-loomera-textPrimary">مقاله‌های مرتبط</h2>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {% for related in related_articles %}
+              {% include "articles/partials/article_card.html" with article=related compact_card=True %}
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+
+      <section class="border-t border-loomera-borderSoft pt-4" data-content-report-section>
+        <div class="flex items-center justify-between gap-4">
+          <p class="text-xs font-bold text-loomera-textMuted">مشکلی در این محتوا می‌بینی؟</p>
 
           {% if request.user.is_authenticated %}
-            <form method="post" action="{% url 'articles:content_report' 'article' article.id %}" class="mt-5 hidden rounded-3xl border border-rose-100 bg-rose-50/50 p-4" data-report-form>
-              {% csrf_token %}
-              <div class="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
-                <label class="block text-sm font-black text-loomera-textPrimary">
-                  دلیل گزارش
-                  <select name="reason" required class="mt-2 w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary focus:ring-2 focus:ring-loomera-primary/15">
-                    <option value="inappropriate">محتوای نامناسب</option>
-                    <option value="no_permission">تصویر یا محتوا بدون اجازه</option>
-                    <option value="misleading">گمراه‌کننده یا نادرست</option>
-                    <option value="personal_info">نمایش اطلاعات شخصی</option>
-                    <option value="off_platform">تبلیغ خارج از لومرا</option>
-                    <option value="copyright">نقض مالکیت محتوا</option>
-                    <option value="other">سایر</option>
-                  </select>
-                </label>
-                <label class="block text-sm font-black text-loomera-textPrimary">
-                  توضیح اختیاری
-                  <textarea name="description" rows="3" class="mt-2 w-full resize-none rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold leading-7 text-loomera-textPrimary outline-none transition focus:border-loomera-primary focus:ring-2 focus:ring-loomera-primary/15" placeholder="اگر لازم است، مشکل را کوتاه توضیح بده."></textarea>
-                </label>
-              </div>
-              <div class="mt-4 flex flex-wrap items-center gap-3">
-                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-rose-600 px-5 py-3 text-sm font-black text-white shadow-lm-soft transition hover:bg-rose-700">
-                  ثبت گزارش
-                </button>
-                <button type="button" class="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-black text-loomera-textMuted" data-report-cancel>
-                  انصراف
-                </button>
-                <p class="hidden text-sm font-bold" data-report-message></p>
-              </div>
-            </form>
-          {% endif %}
-        </section>
-
-        {% if related_articles %}
-          <section>
-            <div class="mb-4">
-              <p class="text-xs font-black uppercase tracking-[.25em] text-loomera-primary">Related</p>
-              <h2 class="mt-1 text-xl font-black text-loomera-textPrimary">مقاله‌های مرتبط</h2>
-            </div>
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {% for related in related_articles %}
-                {% include "articles/partials/article_card.html" with article=related %}
-              {% endfor %}
-            </div>
-          </section>
-        {% endif %}
-      </div>
-
-      <aside class="space-y-4 lg:sticky lg:top-24 lg:self-start">
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
-          <p class="text-xs font-black uppercase tracking-[.25em] text-loomera-primary">Author</p>
-          <h2 class="mt-2 text-lg font-black text-loomera-textPrimary">{{ article.author_display_name }}</h2>
-
-          {% if article.author_salon %}
-            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
-              این مقاله توسط مجموعه {{ article.author_salon.salon_name }} منتشر شده است.
-            </p>
-            <a href="{{ article.author_salon.get_absolute_url }}" class="mt-4 inline-flex w-full items-center justify-center rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white shadow-lm-soft">
-              مشاهده مجموعه
-            </a>
+            <button
+              type="button"
+              class="inline-flex shrink-0 items-center gap-2 px-2 py-2 text-xs font-black text-rose-600"
+              data-report-open
+            >
+              <i class="fa-regular fa-flag" aria-hidden="true"></i>
+              گزارش
+            </button>
           {% else %}
-            <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
-              محتوای آموزشی و تخصصی برای انتخاب بهتر خدمات زیبایی.
-            </p>
+            <a
+              href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}"
+              class="inline-flex shrink-0 items-center gap-2 px-2 py-2 text-xs font-black text-loomera-primary"
+            >
+              ورود برای گزارش
+            </a>
           {% endif %}
-        </section>
+        </div>
 
-        {% if article.related_services.all %}
-          <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
-            <p class="text-xs font-black uppercase tracking-[.25em] text-loomera-primary">Services</p>
-            <h2 class="mt-2 text-lg font-black text-loomera-textPrimary">خدمات مرتبط</h2>
+        {% if request.user.is_authenticated %}
+          <form
+            method="post"
+            action="{% url 'articles:content_report' 'article' article.id %}"
+            class="mt-4 hidden rounded-2xl border border-rose-100 bg-rose-50/50 p-4"
+            data-report-form
+          >
+            {% csrf_token %}
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="block text-xs font-black text-loomera-textPrimary">
+                دلیل گزارش
+                <select
+                  name="reason"
+                  required
+                  class="mt-2 h-12 w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary focus:ring-2 focus:ring-loomera-primary/15"
+                >
+                  <option value="inappropriate">محتوای نامناسب</option>
+                  <option value="no_permission">تصویر یا محتوا بدون اجازه</option>
+                  <option value="misleading">گمراه‌کننده یا نادرست</option>
+                  <option value="personal_info">نمایش اطلاعات شخصی</option>
+                  <option value="off_platform">تبلیغ خارج از لومرا</option>
+                  <option value="copyright">نقض مالکیت محتوا</option>
+                  <option value="other">سایر</option>
+                </select>
+              </label>
 
-            <div class="mt-4 space-y-2">
-              {% for service in article.related_services.all %}
-                <a href="{% url 'search:search_page' %}?q={{ service.service_name|urlencode }}" class="flex items-center justify-between gap-3 rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle px-4 py-3 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary">
-                  <span>{{ service.service_name }}</span>
-                  <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
-                </a>
-              {% endfor %}
+              <label class="block text-xs font-black text-loomera-textPrimary">
+                توضیح اختیاری
+                <textarea
+                  name="description"
+                  rows="3"
+                  class="mt-2 w-full resize-none rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold leading-7 text-loomera-textPrimary outline-none transition focus:border-loomera-primary focus:ring-2 focus:ring-loomera-primary/15"
+                  placeholder="اگر لازم است، مشکل را کوتاه توضیح بده."
+                ></textarea>
+              </label>
             </div>
-          </section>
-        {% endif %}
 
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-loomera-primary p-5 text-white shadow-lm-elevated">
-          <h2 class="text-lg font-black">آماده رزرو هستی؟</h2>
-          <p class="mt-2 text-sm leading-7 text-white/75">
-            مجموعه‌ها و متخصص‌های مرتبط را در لومرا پیدا کن و نوبت بگیر.
-          </p>
-          <a href="{% url 'search:search_page' %}" class="mt-4 inline-flex w-full items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary">
-            جستجوی خدمات
-          </a>
-        </section>
-      </aside>
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+              <button type="submit" class="inline-flex items-center justify-center rounded-full bg-rose-600 px-5 py-2.5 text-xs font-black text-white">
+                ثبت گزارش
+              </button>
+              <button type="button" class="inline-flex items-center justify-center rounded-full px-4 py-2.5 text-xs font-black text-loomera-textMuted" data-report-cancel>
+                انصراف
+              </button>
+              <p class="hidden text-xs font-bold" data-report-message></p>
+            </div>
+          </form>
+        {% endif %}
+      </section>
     </div>
   </article>
 </main>
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("[data-content-report-section]").forEach(function (section) {
@@ -247,23 +249,29 @@
       const form = section.querySelector("[data-report-form]");
       const cancel = section.querySelector("[data-report-cancel]");
       const message = section.querySelector("[data-report-message]");
+
       if (!form) return;
+
       open?.addEventListener("click", function () {
         form.classList.remove("hidden");
         open.classList.add("hidden");
         message?.classList.add("hidden");
       });
+
       cancel?.addEventListener("click", function () {
         form.classList.add("hidden");
         open?.classList.remove("hidden");
       });
+
       form.addEventListener("submit", function (event) {
         event.preventDefault();
         const button = form.querySelector("button[type='submit']");
+
         if (button) {
           button.disabled = true;
           button.textContent = "در حال ثبت...";
         }
+
         fetch(form.action, {
           method: "POST",
           credentials: "same-origin",
@@ -277,9 +285,11 @@
           .then(function () {
             if (message) {
               message.textContent = "گزارش ثبت شد و تیم لومرا بررسی می‌کند.";
-              message.className = "text-sm font-black text-emerald-600";
+              message.className = "text-xs font-black text-emerald-600";
             }
+
             form.reset();
+
             window.setTimeout(function () {
               form.classList.add("hidden");
               open?.classList.remove("hidden");
@@ -288,7 +298,7 @@
           .catch(function () {
             if (message) {
               message.textContent = "ثبت گزارش انجام نشد. دوباره تلاش کن.";
-              message.className = "text-sm font-black text-rose-600";
+              message.className = "text-xs font-black text-rose-600";
             }
           })
           .finally(function () {
