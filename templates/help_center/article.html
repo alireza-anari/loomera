@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} | مرکز راهنمای لومرا{% endblock %}
+{% block meta_description %}{{ article.summary }}{% endblock %}
+{% block body_attrs %}data-page="help-article"{% endblock %}
+
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-20 text-loomera-textPrimary">
+  <header class="border-b border-loomera-borderSoft bg-white">
+    <div class="mx-auto w-full max-w-4xl px-4 py-7 sm:px-6 sm:py-10 xl:px-0">
+      <a href="{% url 'help_center:home' %}" class="inline-flex items-center gap-2 text-xs font-black text-loomera-primary">
+        <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
+        مرکز راهنما
+      </a>
+      <h1 class="mt-3 text-2xl font-black leading-[1.6] sm:text-3xl">{{ article.title }}</h1>
+      <p class="mt-2 max-w-3xl text-sm leading-8 text-loomera-textMuted">{{ article.summary }}</p>
+    </div>
+  </header>
+
+  <div class="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-8 xl:px-0">
+    <article class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-5 sm:p-7">
+      <h2 class="text-base font-black">مراحل پیشنهادی</h2>
+      <ol class="mt-4 space-y-4">
+        {% for title, body in article.steps %}
+          <li class="flex gap-3">
+            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-xs font-black text-loomera-primary">{{ forloop.counter }}</span>
+            <div>
+              <h3 class="text-sm font-black">{{ title }}</h3>
+              <p class="mt-1 text-sm leading-7 text-loomera-textMuted">{{ body }}</p>
+            </div>
+          </li>
+        {% endfor %}
+      </ol>
+
+      {% if article.tips %}
+        <div class="mt-6 border-t border-loomera-borderSoft pt-5">
+          <h2 class="text-sm font-black">نکته‌ها</h2>
+          <div class="mt-3 space-y-2">
+            {% for tip in article.tips %}
+              <p class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-xs font-bold leading-6 text-loomera-textSecondary">
+                <i class="fa-solid fa-circle ml-2 text-[6px] text-loomera-primary" aria-hidden="true"></i>{{ tip }}
+              </p>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </article>
+
+    {% if related_articles %}
+      <section class="mt-7">
+        <h2 class="text-base font-black">راهنماهای مرتبط</h2>
+        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+          {% for related in related_articles %}
+            <a href="{% url 'help_center:article' related.slug %}" class="rounded-2xl border border-loomera-borderSoft bg-white p-4 transition hover:border-loomera-primary/25">
+              <strong class="text-sm font-black">{{ related.title }}</strong>
+              <p class="mt-1 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ related.summary }}</p>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

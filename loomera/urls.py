@@ -49,6 +49,7 @@ sitemaps = {
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("help/", include("apps.help_center.urls", namespace="help_center")),
     path("support/", SupportView.as_view(), name="support"),
     path("partners/", PartnerPageView.as_view(), name="partners"),
     path("join-loomera/", PartnerPageView.as_view(), name="join_loomera"),

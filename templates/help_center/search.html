@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}جستجو در مرکز راهنمای لومرا{% endblock %}
+{% block body_attrs %}data-page="help-search"{% endblock %}
+
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-20 text-loomera-textPrimary">
+  <header class="border-b border-loomera-borderSoft bg-white">
+    <div class="mx-auto w-full max-w-4xl px-4 py-7 sm:px-6 xl:px-0">
+      <a href="{% url 'help_center:home' %}" class="text-xs font-black text-loomera-primary">مرکز راهنما</a>
+      <h1 class="mt-2 text-2xl font-black">جستجو در راهنما</h1>
+      <form method="get" class="relative mt-4">
+        <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-loomera-textMuted" aria-hidden="true"></i>
+        <input name="q" value="{{ query }}" autofocus class="h-14 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle pr-11 pl-4 text-sm font-bold outline-none focus:border-loomera-primary/40" placeholder="سؤال یا موضوع را بنویس">
+      </form>
+    </div>
+  </header>
+
+  <section class="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 xl:px-0">
+    {% if query %}
+      <p class="mb-3 text-xs font-bold text-loomera-textMuted">نتایج برای «{{ query }}»</p>
+    {% endif %}
+
+    {% if results %}
+      <div class="overflow-hidden rounded-[1.5rem] border border-loomera-borderSoft bg-white">
+        {% for article in results %}
+          <a href="{% url 'help_center:article' article.slug %}" class="group block border-b border-loomera-borderSoft px-4 py-4 last:border-b-0 sm:px-5">
+            <h2 class="text-sm font-black group-hover:text-loomera-primary">{{ article.title }}</h2>
+            <p class="mt-1 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ article.summary }}</p>
+          </a>
+        {% endfor %}
+      </div>
+    {% elif query %}
+      <div class="rounded-[1.5rem] border border-dashed border-loomera-borderSoft bg-white px-5 py-9 text-center">
+        <p class="text-sm font-black">راهنمایی با این عبارت پیدا نشد</p>
+        <a href="{% url 'support' %}" class="mt-3 inline-flex text-xs font-black text-loomera-primary">ارسال درخواست پشتیبانی</a>
+      </div>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}
