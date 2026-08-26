@@ -1,268 +1,866 @@
-{% if user.is_authenticated %}
-  {% with current_path=request.path|default:"" %}
-    {% if dashboard_role or "/dashboards/" in current_path or "/accounts/customer" in current_path or "/accounts/addresses" in current_path or "/accounts/notification" in current_path or "/accounts/change_password" in current_path or "/accounts/delete-account" in current_path or "/orders/appointments" in current_path or "/orders/appointment" in current_path or "/orders/reservation" in current_path or "/payments/" in current_path %}
-      {% url "support" as support_url %}
-      {% url "accounts:customer_panel" as customer_panel_url %}
-      {% url "accounts:customerProfile" as customer_profile_url %}
-      {% url "accounts:customer_addresses" as customer_addresses_url %}
-      {% url "orders:appointments" as customer_appointments_url %}
-      {% url "payments:detail" as customer_wallet_url %}
+{% load static %}
+{% comment %}
+  Loomera Contextual Help Hub
 
-      {% url "dashboards:salon_manager_dashboard" as manager_home_url %}
-      {% url "dashboards:service_menu" as services_url %}
-      {% url "dashboards:team_member" as team_url %}
-      {% url "dashboards:online_booking" as online_booking_url %}
-      {% url "dashboards:salon_profile" as salon_profile_url %}
-      {% url "dashboards:workspace_settings" as workspace_settings_url %}
+  This partial is intentionally shared by both:
+  - base.html (customer/public shell)
+  - dashboard_template.html (manager/stylist dashboard shell)
 
-      {% url "dashboards:stylist_dashboard" as stylist_home_url %}
-      {% url "dashboards:stylist_appointments" as stylist_appointments_url %}
-      {% url "dashboards:stylist_schedule" as stylist_schedule_url %}
-      {% url "dashboards:stylist_finance" as stylist_finance_url %}
-      {% url "dashboards:stylist_profile" as stylist_profile_url %}
+  Page detection and guide content live in:
+  static/js/components/contextual_help_hub.js
+{% endcomment %}
 
-      <div
-        class="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] left-3 z-[80] sm:left-5 lg:bottom-6"
-        data-dashboard-help
-        data-help-storage-key="loomera.help.fab.seen"
-      >
-        <button
-          type="button"
-          class="group inline-flex h-14 w-14 items-center justify-center rounded-[22px] border border-loomera-primary/20 bg-white text-loomera-primaryText shadow-[0_18px_42px_rgba(57,46,92,0.22)] transition hover:-translate-y-0.5 hover:border-loomera-primary/40 hover:bg-loomera-primarySoft focus:outline-none focus:ring-4 focus:ring-loomera-primary/15"
-          aria-label="راهنمای این صفحه"
-          aria-controls="loomera-help-panel"
-          aria-expanded="false"
-          data-dashboard-help-toggle
-        >
-          <i class="fa-regular fa-circle-question text-xl transition group-hover:scale-110" aria-hidden="true"></i>
-        </button>
+<div
+  class="lm-context-help"
+  data-context-help-root
+  data-help-role="{{ dashboard_role|default:'' }}"
+  data-help-active-key="{{ dashboard_active_key|default:'' }}"
+  data-help-current-path="{{ request.path|default:'' }}"
+  data-help-support-url="{% url 'support' %}"
+  data-help-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+>
+  <button
+    type="button"
+    class="lm-context-help__fab"
+    data-context-help-toggle
+    aria-label="راهنمای این صفحه"
+    aria-haspopup="dialog"
+    aria-expanded="false"
+  >
+    <span class="lm-context-help__fab-glow" aria-hidden="true"></span>
+    <span class="lm-context-help__fab-icon" aria-hidden="true">
+      <i class="fa-regular fa-compass"></i>
+    </span>
+    <span class="lm-context-help__unseen-dot hidden" data-context-help-unseen aria-hidden="true"></span>
+  </button>
 
-        <section
-          id="loomera-help-panel"
-          class="absolute bottom-16 left-0 hidden w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/98 text-right shadow-[0_24px_80px_rgba(35,30,50,0.25)] backdrop-blur"
-          aria-label="راهنمای صفحه"
-          data-dashboard-help-panel
-        >
-          <div class="border-b border-loomera-borderSoft bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.12),transparent_48%),linear-gradient(180deg,#fff,#faf8ff)] p-4">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <p class="inline-flex items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-1 text-[11px] font-black text-loomera-primaryText">
-                  <i class="fa-solid fa-sparkles text-[10px]" aria-hidden="true"></i>
-                  <span>راهنمای سریع</span>
-                </p>
+  <div class="lm-context-help__tooltip" data-context-help-tooltip role="tooltip">
+    راهنمای این صفحه
+  </div>
 
-                <h2 class="mt-3 text-base font-black leading-7 text-loomera-textPrimary">
-                  {% if dashboard_role == "stylist" or "/dashboards/stylist" in current_path %}
-                    راهنمای داشبورد متخصص
-                  {% elif dashboard_role == "customer" or "/accounts/customer" in current_path or "/accounts/addresses" in current_path or "/accounts/notification" in current_path or "/orders/" in current_path or "/payments/" in current_path %}
-                    راهنمای حساب مشتری
-                  {% else %}
-                    راهنمای داشبورد مجموعه
-                  {% endif %}
-                </h2>
+  <section
+    class="lm-context-help__panel"
+    data-context-help-panel
+    role="dialog"
+    aria-modal="false"
+    aria-label="راهنمای این صفحه"
+    hidden
+  >
+    <header class="lm-context-help__panel-header">
+      <div class="lm-context-help__heading">
+        <span class="lm-context-help__heading-icon" data-context-help-icon aria-hidden="true">
+          <i class="fa-regular fa-compass"></i>
+        </span>
 
-                <p class="mt-1 text-xs font-semibold leading-6 text-loomera-textMuted">
-                  {% if page_meta.description %}
-                    {{ page_meta.description }}
-                  {% elif dashboard_role == "stylist" or "/dashboards/stylist" in current_path %}
-                    این بخش برای مدیریت نوبت‌ها، برنامه کاری و امور مالی متخصص است.
-                  {% elif dashboard_role == "customer" or "/accounts/customer" in current_path or "/orders/" in current_path or "/payments/" in current_path %}
-                    این بخش برای پیگیری رزروها، پروفایل، کیف پول و اعلان‌های شماست.
-                  {% else %}
-                    این بخش برای مدیریت خدمات، تیم، نوبت‌ها و آماده‌سازی مجموعه است.
-                  {% endif %}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textMuted transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
-                aria-label="بستن راهنما"
-                data-dashboard-help-close
-              >
-                <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
-              </button>
-            </div>
-          </div>
-
-          <div class="max-h-[62vh] overflow-y-auto p-4">
-            <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 p-3">
-              <p class="text-xs font-black text-loomera-textPrimary">از کجا شروع کنم؟</p>
-
-              <ul class="mt-3 space-y-2 text-xs leading-6 text-loomera-textSecondary">
-                {% if dashboard_role == "stylist" or "/dashboards/stylist" in current_path %}
-                  {% if "/appointments" in current_path %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اول نوبت‌های امروز و وضعیت هر نوبت را بررسی کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای جزئیات، وارد صفحه نوبت شو و خدمت، مشتری و وضعیت پرداخت را ببین.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر نوبت دستی لازم بود، از مسیر افزودن نوبت استفاده کن.</span></li>
-                  {% elif "/schedule" in current_path or "/time-off" in current_path %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برنامه کاری و مرخصی‌ها را دقیق ثبت کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بازه‌های کاری ناقص باعث کم‌شدن زمان‌های قابل رزرو می‌شود.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بعد از تغییر برنامه، مسیر رزرو را یک‌بار چک کن.</span></li>
-                  {% elif "/finance" in current_path or "/withdraw" in current_path %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>درآمد، تسویه‌ها و مانده قابل برداشت را مرور کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر مبلغی نامشخص است، جزئیات نوبت مربوط را بررسی کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>درخواست برداشت را فقط بعد از اطمینان از مانده ثبت کن.</span></li>
-                  {% else %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>نوبت‌های امروز را اول بررسی کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برنامه کاری و عدم حضورها را به‌روز نگه دار.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>پروفایل و نمونه‌کارها را کامل کن تا رزرو بهتر انجام شود.</span></li>
-                  {% endif %}
-
-                {% elif dashboard_role == "customer" or "/accounts/customer" in current_path or "/accounts/addresses" in current_path or "/accounts/notification" in current_path or "/orders/" in current_path or "/payments/" in current_path %}
-                  {% if "/orders/appointments" in current_path or "/orders/appointment" in current_path %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>نوبت‌های آینده و گذشته را از این بخش ببین.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای لغو، تغییر زمان یا پرداخت، وارد جزئیات همان نوبت شو.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بعد از انجام نوبت، نظر و امتیاز خودت را ثبت کن.</span></li>
-                  {% elif "/payments/" in current_path %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>مانده کیف پول و تراکنش‌ها را بررسی کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای شارژ کیف پول، مبلغ را با دقت انتخاب کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر پرداخت ناموفق بود، نتیجه پرداخت یا پشتیبانی را بررسی کن.</span></li>
-                  {% elif "/addresses" in current_path %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>آدرس‌های خودت را کامل و دقیق ثبت کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>یک آدرس پیش‌فرض انتخاب کن تا مراحل بعدی سریع‌تر شود.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>قبل از رزرو، شماره تماس و اطلاعات پروفایل را هم چک کن.</span></li>
-                  {% else %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>نوبت‌های خودت را از بخش رزروهای من پیگیری کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>پروفایل، شماره تماس و آدرس‌ها را کامل نگه دار.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای پرداخت‌ها و برگشت وجه، کیف پول را بررسی کن.</span></li>
-                  {% endif %}
-
-                {% else %}
-                  {% if dashboard_active_key == "overview" %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر راه‌اندازی کامل نیست، از «قدم بعدی» خانه داشبورد ادامه بده.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بعد نوبت‌های امروز و موارد در انتظار را بررسی کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر مجموعه تازه ساخته شده، خدمات، تیم و شیفت‌ها اولویت دارند.</span></li>
-                  {% elif dashboard_active_key == "services" or "/service" in current_path %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای هر خدمت، قیمت و مدت‌زمان واقعی ثبت کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>خدمات غیرفعال برای مشتری قابل رزرو نیستند.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بعد از ساخت خدمت، آن را به متخصص مناسب وصل کن.</span></li>
-                  {% elif dashboard_active_key == "team" or "/team" in current_path or "/stylist" in current_path %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>ابتدا متخصص فعال اضافه کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای هر متخصص، خدمات قابل ارائه را مشخص کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>بعد شیفت‌ها و عدم حضورها را ثبت کن.</span></li>
-                  {% elif dashboard_active_key == "appointments" or "/calendar" in current_path or "/booking" in current_path %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>نوبت‌ها را بر اساس تاریخ، وضعیت و متخصص بررسی کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای نوبت دستی، از دکمه ثبت رزرو استفاده کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>قبل از تغییر وضعیت، جزئیات پرداخت و خدمت را چک کن.</span></li>
-                  {% elif dashboard_active_key == "finance" or "/finance" in current_path or "/payout" in current_path %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>تنظیمات تسویه و سهم متخصص‌ها را دقیق بررسی کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>قبل از بستن مالی نوبت، مواد مصرفی و هزینه‌ها را ثبت کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>درخواست برداشت را با موجودی کیف پول تطبیق بده.</span></li>
-                  {% else %}
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اطلاعات صفحه را بررسی و موارد ناقص را تکمیل کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>اگر تغییر مهمی می‌دهی، مسیر مرتبط با رزرو یا گزارش را هم تست کن.</span></li>
-                    <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-loomera-primary"></span><span>برای سؤال یا خطا، از پشتیبانی استفاده کن.</span></li>
-                  {% endif %}
-                {% endif %}
-              </ul>
-            </div>
-
-            <div class="mt-3 grid gap-2">
-              {% if dashboard_role == "stylist" or "/dashboards/stylist" in current_path %}
-                <a href="{{ stylist_appointments_url|default:stylist_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
-                  <span>نوبت‌های من</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                </a>
-                <a href="{{ stylist_schedule_url|default:stylist_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
-                  <span>برنامه کاری من</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                </a>
-                <a href="{{ stylist_finance_url|default:stylist_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
-                  <span>مالی من</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                </a>
-              {% elif dashboard_role == "customer" or "/accounts/customer" in current_path or "/accounts/addresses" in current_path or "/accounts/notification" in current_path or "/orders/" in current_path or "/payments/" in current_path %}
-                <a href="{{ customer_appointments_url|default:customer_panel_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
-                  <span>رزروهای من</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                </a>
-                <a href="{{ customer_profile_url|default:customer_panel_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
-                  <span>پروفایل من</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                </a>
-                <a href="{{ customer_wallet_url|default:customer_panel_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
-                  <span>کیف پول</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                </a>
-              {% else %}
-                <a href="{{ services_url|default:manager_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
-                  <span>مدیریت خدمات</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                </a>
-                <a href="{{ team_url|default:manager_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
-                  <span>مدیریت تیم و شیفت‌ها</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                </a>
-                <a href="{{ online_booking_url|default:manager_home_url }}" class="inline-flex items-center justify-between rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2.5 text-xs font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
-                  <span>رزرو آنلاین</span>
-                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
-                </a>
-              {% endif %}
-            </div>
-
-            <a href="{{ support_url|default:'/support/' }}" class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-xs font-black text-white shadow-lm-soft transition hover:-translate-y-0.5 hover:bg-loomera-primaryHover">
-              <i class="fa-regular fa-life-ring text-sm" aria-hidden="true"></i>
-              <span>نیاز به کمک دارم</span>
-            </a>
-
-            <p class="mt-3 text-center text-[11px] font-semibold leading-5 text-loomera-textMuted">
-              این راهنما فقط توضیحی است و هیچ تغییری در اطلاعات شما ایجاد نمی‌کند.
-            </p>
-          </div>
-        </section>
+        <div class="lm-context-help__heading-copy">
+          <span class="lm-context-help__eyebrow">
+            <i class="fa-solid fa-sparkles" aria-hidden="true"></i>
+            راهنمای همین صفحه
+          </span>
+          <h2 data-context-help-title>راهنمای صفحه</h2>
+          <p data-context-help-subtitle></p>
+        </div>
       </div>
 
-      <script>
-        (function () {
-          const widgets = document.querySelectorAll("[data-dashboard-help]");
-          widgets.forEach(function (root) {
-            if (!root || root.dataset.bound === "true") return;
-            root.dataset.bound = "true";
+      <div class="lm-context-help__header-actions">
+        <div class="lm-context-help__menu-wrap">
+          <button
+            type="button"
+            class="lm-context-help__icon-btn"
+            data-context-help-menu-toggle
+            aria-label="گزینه‌های راهنما"
+            aria-expanded="false"
+          >
+            <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+          </button>
 
-            const toggle = root.querySelector("[data-dashboard-help-toggle]");
-            const panel = root.querySelector("[data-dashboard-help-panel]");
-            const closeBtn = root.querySelector("[data-dashboard-help-close]");
-            const storageKey = root.dataset.helpStorageKey || "loomera.help.fab.seen";
+          <div class="lm-context-help__menu" data-context-help-menu hidden>
+            <button type="button" data-context-help-reset-position>
+              <i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i>
+              بازنشانی جای دکمه
+            </button>
+            <button type="button" class="is-danger" data-context-help-hide>
+              <i class="fa-regular fa-eye-slash" aria-hidden="true"></i>
+              تا بارگذاری مجدد پنهان کن
+            </button>
+          </div>
+        </div>
 
-            if (!toggle || !panel) return;
+        <button
+          type="button"
+          class="lm-context-help__icon-btn"
+          data-context-help-close
+          aria-label="بستن راهنما"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
 
-            const setOpen = function (isOpen) {
-              panel.classList.toggle("hidden", !isOpen);
-              toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-            };
+    <div class="lm-context-help__panel-body">
+      <section class="lm-context-help__summary">
+        <p data-context-help-summary></p>
+      </section>
 
-            toggle.addEventListener("click", function () {
-              const isOpen = toggle.getAttribute("aria-expanded") === "true";
-              setOpen(!isOpen);
-              try {
-                window.localStorage.setItem(storageKey, "1");
-              } catch (error) {}
-            });
+      <div class="lm-context-help__tour-cta" data-context-help-tour-cta hidden>
+        <div>
+          <strong>تور کوتاه صفحه</strong>
+          <span>بخش‌های مهم را مستقیم روی خود صفحه ببین.</span>
+        </div>
+        <button type="button" data-context-help-start-tour>
+          شروع تور
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        </button>
+      </div>
 
-            if (closeBtn) {
-              closeBtn.addEventListener("click", function () {
-                setOpen(false);
-                try {
-                  window.localStorage.setItem(storageKey, "1");
-                } catch (error) {}
-              });
-            }
+      <section class="lm-context-help__section" data-context-help-steps-section>
+        <div class="lm-context-help__section-title">
+          <span>کارهای اصلی این صفحه</span>
+          <small data-context-help-step-count></small>
+        </div>
+        <ol class="lm-context-help__steps" data-context-help-steps></ol>
+      </section>
 
-            document.addEventListener("keydown", function (event) {
-              if (event.key === "Escape") {
-                setOpen(false);
-              }
-            });
+      <section class="lm-context-help__section" data-context-help-tips-section hidden>
+        <div class="lm-context-help__section-title">
+          <span>نکته‌های مهم</span>
+        </div>
+        <div class="lm-context-help__tips" data-context-help-tips></div>
+      </section>
+    </div>
 
-            document.addEventListener("click", function (event) {
-              if (!root.contains(event.target)) {
-                setOpen(false);
-              }
-            });
-          });
-        })();
-      </script>
-    {% endif %}
-  {% endwith %}
-{% endif %}
+    <footer class="lm-context-help__panel-footer">
+      <span class="lm-context-help__drag-hint">
+        <i class="fa-solid fa-up-down-left-right" aria-hidden="true"></i>
+        دکمه را بکش و هرجا راحتی قرار بده
+      </span>
+
+      <a href="{% url 'support' %}" data-context-help-support>
+        <i class="fa-regular fa-life-ring" aria-hidden="true"></i>
+        پشتیبانی
+      </a>
+    </footer>
+  </section>
+</div>
+
+<div class="lm-context-help__tour-layer" data-context-help-tour-layer hidden>
+  <div class="lm-context-help__spotlight" data-context-help-spotlight></div>
+
+  <section class="lm-context-help__tour-card" data-context-help-tour-card role="dialog" aria-modal="true">
+    <div class="lm-context-help__tour-progress">
+      <span data-context-help-tour-counter>۱ از ۱</span>
+      <div class="lm-context-help__tour-progress-track" aria-hidden="true">
+        <span data-context-help-tour-progress></span>
+      </div>
+      <button type="button" data-context-help-tour-close aria-label="بستن تور">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <h3 data-context-help-tour-title></h3>
+    <p data-context-help-tour-body></p>
+
+    <div class="lm-context-help__tour-actions">
+      <button type="button" class="secondary" data-context-help-tour-prev>
+        قبلی
+      </button>
+      <button type="button" class="primary" data-context-help-tour-next>
+        بعدی
+      </button>
+    </div>
+  </section>
+</div>
+
+<div class="lm-context-help__toast" data-context-help-toast hidden>
+  <span>راهنما تا بارگذاری مجدد پنهان شد.</span>
+  <button type="button" data-context-help-undo-hide>برگردان</button>
+</div>
+
+<style>
+  .lm-context-help {
+    --lm-help-size: 54px;
+    position: fixed;
+    left: 14px;
+    bottom: calc(5.65rem + env(safe-area-inset-bottom, 0px));
+    z-index: 82;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .lm-context-help.is-dragging {
+    transition: none !important;
+  }
+
+  .lm-context-help__fab {
+    position: relative;
+    display: inline-flex;
+    width: var(--lm-help-size);
+    height: var(--lm-help-size);
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(115, 92, 190, 0.22);
+    border-radius: 19px;
+    background: rgba(255, 255, 255, 0.97);
+    color: #735CBE;
+    cursor: grab;
+    box-shadow:
+      0 16px 36px rgba(57, 46, 92, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    outline: 0;
+    transition:
+      transform 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .lm-context-help__fab:active {
+    cursor: grabbing;
+  }
+
+  .lm-context-help__fab:hover {
+    transform: translateY(-2px);
+    border-color: rgba(115, 92, 190, 0.42);
+    box-shadow:
+      0 20px 44px rgba(57, 46, 92, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  }
+
+  .lm-context-help__fab:focus-visible {
+    box-shadow:
+      0 0 0 4px rgba(115, 92, 190, 0.14),
+      0 18px 40px rgba(57, 46, 92, 0.2);
+  }
+
+  .lm-context-help__fab-glow {
+    position: absolute;
+    inset: 5px;
+    border-radius: 15px;
+    background:
+      radial-gradient(circle at 28% 25%, rgba(255, 255, 255, 0.95), transparent 30%),
+      linear-gradient(145deg, rgba(115, 92, 190, 0.18), rgba(115, 92, 190, 0.04));
+  }
+
+  .lm-context-help__fab-icon {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+  }
+
+  .lm-context-help__unseen-dot {
+    position: absolute;
+    z-index: 2;
+    top: -3px;
+    right: -3px;
+    width: 11px;
+    height: 11px;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: #3AB7BF;
+    box-shadow: 0 4px 10px rgba(58, 183, 191, 0.35);
+  }
+
+  .lm-context-help__tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    width: max-content;
+    max-width: 180px;
+    padding: 7px 10px;
+    border: 1px solid #ECE8F2;
+    border-radius: 12px;
+    background: #fff;
+    color: #3A3650;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.5;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    box-shadow: 0 10px 26px rgba(35, 30, 50, 0.12);
+    transition: opacity 140ms ease, transform 140ms ease;
+  }
+
+  .lm-context-help__fab:hover + .lm-context-help__tooltip,
+  .lm-context-help__fab:focus-visible + .lm-context-help__tooltip {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .lm-context-help__panel {
+    position: fixed;
+    z-index: 90;
+    overflow: hidden;
+    width: min(368px, calc(100vw - 20px));
+    max-height: min(680px, calc(100dvh - 24px));
+    border: 1px solid #ECE8F2;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.985);
+    color: #29263A;
+    text-align: right;
+    box-shadow: 0 28px 80px rgba(35, 30, 50, 0.22);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .lm-context-help__panel[hidden] {
+    display: none !important;
+  }
+
+  .lm-context-help__panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid #ECE8F2;
+    background:
+      radial-gradient(circle at top right, rgba(115, 92, 190, 0.13), transparent 48%),
+      linear-gradient(180deg, #FFFFFF, #FBF9FF);
+  }
+
+  .lm-context-help__heading {
+    display: flex;
+    min-width: 0;
+    align-items: flex-start;
+    gap: 11px;
+  }
+
+  .lm-context-help__heading-icon {
+    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    background: #EEE8FA;
+    color: #735CBE;
+    font-size: 16px;
+  }
+
+  .lm-context-help__heading-copy {
+    min-width: 0;
+  }
+
+  .lm-context-help__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #735CBE;
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  .lm-context-help__heading h2 {
+    margin: 3px 0 0;
+    color: #29263A;
+    font-size: 16px;
+    font-weight: 900;
+    line-height: 1.7;
+  }
+
+  .lm-context-help__heading p {
+    margin: 1px 0 0;
+    color: #817B96;
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1.8;
+  }
+
+  .lm-context-help__header-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .lm-context-help__icon-btn {
+    display: inline-flex;
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ECE8F2;
+    border-radius: 12px;
+    background: #fff;
+    color: #817B96;
+    cursor: pointer;
+    transition: border-color 140ms ease, background 140ms ease, color 140ms ease;
+  }
+
+  .lm-context-help__icon-btn:hover {
+    border-color: rgba(115, 92, 190, 0.25);
+    background: #F7F3FF;
+    color: #735CBE;
+  }
+
+  .lm-context-help__menu-wrap {
+    position: relative;
+  }
+
+  .lm-context-help__menu {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    z-index: 4;
+    width: 190px;
+    overflow: hidden;
+    padding: 5px;
+    border: 1px solid #ECE8F2;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 16px 38px rgba(35, 30, 50, 0.16);
+  }
+
+  .lm-context-help__menu[hidden] {
+    display: none !important;
+  }
+
+  .lm-context-help__menu button {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 11px;
+    background: transparent;
+    color: #57526E;
+    cursor: pointer;
+    text-align: right;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .lm-context-help__menu button:hover {
+    background: #F7F6FA;
+  }
+
+  .lm-context-help__menu button.is-danger {
+    color: #B4234D;
+  }
+
+  .lm-context-help__menu button.is-danger:hover {
+    background: #FFF1F4;
+  }
+
+  .lm-context-help__panel-body {
+    max-height: min(520px, calc(100dvh - 210px));
+    overflow-y: auto;
+    padding: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: #D8D3E2 transparent;
+  }
+
+  .lm-context-help__summary {
+    padding: 12px 13px;
+    border: 1px solid rgba(115, 92, 190, 0.13);
+    border-radius: 18px;
+    background: #F9F7FD;
+  }
+
+  .lm-context-help__summary p {
+    margin: 0;
+    color: #57526E;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 2;
+  }
+
+  .lm-context-help__tour-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+    padding: 11px 12px;
+    border: 1px solid rgba(58, 183, 191, 0.2);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(58, 183, 191, 0.09), rgba(115, 92, 190, 0.06));
+  }
+
+  .lm-context-help__tour-cta[hidden] {
+    display: none !important;
+  }
+
+  .lm-context-help__tour-cta strong,
+  .lm-context-help__tour-cta span {
+    display: block;
+  }
+
+  .lm-context-help__tour-cta strong {
+    color: #29263A;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .lm-context-help__tour-cta span {
+    margin-top: 2px;
+    color: #817B96;
+    font-size: 10px;
+    font-weight: 650;
+    line-height: 1.7;
+  }
+
+  .lm-context-help__tour-cta button {
+    display: inline-flex;
+    min-height: 36px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 7px 11px;
+    border: 0;
+    border-radius: 999px;
+    background: #29263A;
+    color: #fff;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  .lm-context-help__section {
+    margin-top: 14px;
+  }
+
+  .lm-context-help__section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: #3A3650;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .lm-context-help__section-title small {
+    color: #9A94A9;
+    font-size: 9px;
+    font-weight: 800;
+  }
+
+  .lm-context-help__steps {
+    display: grid;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lm-context-help__steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 11px;
+    border: 1px solid #ECE8F2;
+    border-radius: 16px;
+    background: #fff;
+  }
+
+  .lm-context-help__step-number {
+    display: inline-flex;
+    width: 25px;
+    height: 25px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #EEE8FA;
+    color: #735CBE;
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  .lm-context-help__step-copy strong,
+  .lm-context-help__step-copy span {
+    display: block;
+  }
+
+  .lm-context-help__step-copy strong {
+    color: #3A3650;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1.8;
+  }
+
+  .lm-context-help__step-copy span {
+    margin-top: 1px;
+    color: #817B96;
+    font-size: 10px;
+    font-weight: 650;
+    line-height: 1.9;
+  }
+
+  .lm-context-help__tips {
+    display: grid;
+    gap: 6px;
+  }
+
+  .lm-context-help__tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 9px 10px;
+    border-radius: 14px;
+    background: #F7F6FA;
+    color: #6D677E;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.9;
+  }
+
+  .lm-context-help__tip i {
+    margin-top: 5px;
+    color: #3AB7BF;
+    font-size: 8px;
+  }
+
+  .lm-context-help__panel-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    border-top: 1px solid #ECE8F2;
+    background: #FCFBFE;
+  }
+
+  .lm-context-help__drag-hint {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    gap: 6px;
+    color: #9A94A9;
+    font-size: 9px;
+    font-weight: 700;
+  }
+
+  .lm-context-help__panel-footer a {
+    display: inline-flex;
+    min-height: 34px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 1px solid #ECE8F2;
+    border-radius: 999px;
+    background: #fff;
+    color: #735CBE;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  .lm-context-help__tour-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 1400;
+    pointer-events: auto;
+  }
+
+  .lm-context-help__tour-layer[hidden] {
+    display: none !important;
+  }
+
+  .lm-context-help__spotlight {
+    position: fixed;
+    z-index: 1;
+    border: 2px solid rgba(255, 255, 255, 0.98);
+    border-radius: 18px;
+    pointer-events: none;
+    box-shadow:
+      0 0 0 9999px rgba(24, 21, 34, 0.68),
+      0 0 0 5px rgba(115, 92, 190, 0.35),
+      0 14px 50px rgba(0, 0, 0, 0.28);
+    transition:
+      top 220ms ease,
+      left 220ms ease,
+      width 220ms ease,
+      height 220ms ease;
+  }
+
+  .lm-context-help__tour-card {
+    position: fixed;
+    z-index: 2;
+    width: min(340px, calc(100vw - 24px));
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.99);
+    color: #29263A;
+    box-shadow: 0 26px 80px rgba(0, 0, 0, 0.3);
+  }
+
+  .lm-context-help__tour-progress {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 9px;
+    color: #817B96;
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .lm-context-help__tour-progress-track {
+    height: 5px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #ECE8F2;
+  }
+
+  .lm-context-help__tour-progress-track span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #735CBE, #3AB7BF);
+    transition: width 180ms ease;
+  }
+
+  .lm-context-help__tour-progress button {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 9px;
+    background: #F7F6FA;
+    color: #817B96;
+    cursor: pointer;
+  }
+
+  .lm-context-help__tour-card h3 {
+    margin: 12px 0 0;
+    color: #29263A;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.8;
+  }
+
+  .lm-context-help__tour-card p {
+    margin: 5px 0 0;
+    color: #6D677E;
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 2;
+  }
+
+  .lm-context-help__tour-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 7px;
+    margin-top: 14px;
+  }
+
+  .lm-context-help__tour-actions button {
+    min-height: 38px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  .lm-context-help__tour-actions .secondary {
+    border: 1px solid #ECE8F2;
+    background: #fff;
+    color: #57526E;
+  }
+
+  .lm-context-help__tour-actions .primary {
+    border: 1px solid #735CBE;
+    background: #735CBE;
+    color: #fff;
+  }
+
+  .lm-context-help__toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(5.8rem + env(safe-area-inset-bottom, 0px));
+    z-index: 1500;
+    display: flex;
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    transform: translateX(-50%);
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border: 1px solid #ECE8F2;
+    border-radius: 999px;
+    background: #29263A;
+    color: #fff;
+    box-shadow: 0 18px 50px rgba(35, 30, 50, 0.24);
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  .lm-context-help__toast[hidden] {
+    display: none !important;
+  }
+
+  .lm-context-help__toast button {
+    border: 0;
+    background: transparent;
+    color: #B7F3F6;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  @media (min-width: 1024px) {
+    .lm-context-help {
+      bottom: 24px;
+      left: 24px;
+    }
+
+    .lm-context-help__toast {
+      bottom: 24px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .lm-context-help__panel {
+      left: 10px !important;
+      right: 10px !important;
+      top: auto !important;
+      bottom: calc(5.65rem + env(safe-area-inset-bottom, 0px)) !important;
+      width: auto;
+      max-height: min(74dvh, 620px);
+      border-radius: 26px;
+    }
+
+    .lm-context-help__panel-body {
+      max-height: calc(74dvh - 172px);
+    }
+
+    .lm-context-help__drag-hint {
+      display: none;
+    }
+
+    .lm-context-help__tour-card {
+      left: 12px !important;
+      right: 12px !important;
+      top: auto !important;
+      bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+      width: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lm-context-help__fab,
+    .lm-context-help__tooltip,
+    .lm-context-help__spotlight,
+    .lm-context-help__tour-progress-track span {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script type="module" src="{% static 'js/components/contextual_help_hub.js' %}?v=20260826-context-help-v2"></script>
