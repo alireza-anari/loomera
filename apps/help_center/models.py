@@ -131,7 +131,8 @@ class HelpPageContext(models.Model):
         db_index=True,
         verbose_name="نقش",
     )
-    path_pattern = models.CharField(max_length=500, verbose_name="Regex مسیر")
+    route_name = models.CharField(max_length=220, blank=True, default="", db_index=True, verbose_name="نام Route")
+    path_pattern = models.CharField(max_length=500, blank=True, default="", verbose_name="Regex مسیر")
     article = models.ForeignKey(
         HelpArticle,
         on_delete=models.PROTECT,
@@ -150,11 +151,21 @@ class HelpPageContext(models.Model):
         verbose_name = "زمینه صفحه"
         verbose_name_plural = "زمینه‌های صفحات"
         constraints = [
-            models.UniqueConstraint(fields=["role", "path_pattern"], name="hc_unique_role_path_pattern"),
+            models.UniqueConstraint(
+                fields=["role", "route_name"],
+                condition=~models.Q(route_name=""),
+                name="hc_unique_role_route_name",
+            ),
+            models.UniqueConstraint(
+                fields=["role", "path_pattern"],
+                condition=~models.Q(path_pattern=""),
+                name="hc_unique_role_path_pattern_nonempty",
+            ),
         ]
         indexes = [
             models.Index(fields=["role", "is_active", "-priority"], name="hc_ctx_role_active_prio"),
             models.Index(fields=["page_key", "is_active"], name="hc_ctx_key_active"),
+            models.Index(fields=["route_name", "is_active"], name="hc_ctx_route_active"),
         ]
 
     def __str__(self):
@@ -261,6 +272,7 @@ class HelpConversation(models.Model):
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.GUEST, db_index=True, verbose_name="نقش")
     page_key = models.CharField(max_length=140, blank=True, default="", db_index=True, verbose_name="کلید صفحه")
     page_path = models.CharField(max_length=500, blank=True, default="", verbose_name="مسیر صفحه")
+    page_route_name = models.CharField(max_length=220, blank=True, default="", db_index=True, verbose_name="نام Route صفحه")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE, db_index=True, verbose_name="وضعیت")
     support_ticket = models.ForeignKey(
         "main.SupportTicket",
@@ -284,6 +296,7 @@ class HelpConversation(models.Model):
             models.Index(fields=["user", "status", "-created_at"], name="hc_conv_user_status_time"),
             models.Index(fields=["role", "status", "-created_at"], name="hc_conv_role_status_time"),
             models.Index(fields=["page_key", "-created_at"], name="hc_conv_page_time"),
+            models.Index(fields=["page_route_name", "-created_at"], name="hc_conv_route_time"),
         ]
 
     def __str__(self):

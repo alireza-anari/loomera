@@ -183,6 +183,7 @@ function renderSources(box, sources = []) {
 async function getContext(root) {
   const url = new URL(root.dataset.contextUrl, window.location.origin);
   url.searchParams.set("path", root.dataset.currentPath || window.location.pathname);
+  url.searchParams.set("route", root.dataset.currentRoute || "");
   const response = await fetch(url, {
     credentials: "same-origin",
     headers: { "X-Requested-With": "XMLHttpRequest" },
@@ -205,6 +206,7 @@ async function sendChat(root, message, history, conversationId) {
       path: root.dataset.currentPath || window.location.pathname,
       history: history.slice(-6),
       conversation_id: conversationId,
+      route_name: root.dataset.currentRoute || "",
     }),
   });
   const payload = await response.json().catch(() => ({}));

@@ -147,7 +147,7 @@ def get_owned_conversation(request, public_id) -> Optional[HelpConversation]:
     return conversation if conversation.session_key_hash == session_hash else None
 
 
-def get_or_create_conversation(request, *, conversation_id=None, page_path: str, page_key: str):
+def get_or_create_conversation(request, *, conversation_id=None, page_path: str, page_key: str, route_name: str = ""):
     existing = get_owned_conversation(request, conversation_id)
     if existing:
         dirty = []
@@ -157,6 +157,9 @@ def get_or_create_conversation(request, *, conversation_id=None, page_path: str,
         if page_path and existing.page_path != page_path:
             existing.page_path = page_path[:500]
             dirty.append("page_path")
+        if route_name and existing.page_route_name != route_name:
+            existing.page_route_name = route_name[:220]
+            dirty.append("page_route_name")
         if dirty:
             dirty.append("updated_at")
             existing.save(update_fields=dirty)
@@ -169,14 +172,15 @@ def get_or_create_conversation(request, *, conversation_id=None, page_path: str,
             role=detect_user_role(request.user),
             page_key=page_key[:140],
             page_path=page_path[:500],
+            page_route_name=(route_name or "")[:220],
             status=HelpConversation.Status.ACTIVE,
         )
     except DB_ERRORS:
         return None
 
 
-def context_for_request(path: str, role: str) -> dict:
-    resolved = resolve_page_context(path, public_role(role))
+def context_for_request(path: str, role: str, route_name: str = "") -> dict:
+    resolved = resolve_page_context(path, public_role(role), route_name)
     article = resolved.get("article")
     if not article:
         return {
@@ -214,9 +218,9 @@ def _local_answer(docs: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def answer_help_question(*, question: str, page_path: str, role: str, history=None) -> dict:
+def answer_help_question(*, question: str, page_path: str, role: str, history=None, route_name: str = "") -> dict:
     cleaned_question = redact_sensitive(question).strip()
-    resolved = resolve_page_context(page_path, public_role(role))
+    resolved = resolve_page_context(page_path, public_role(role), route_name)
     page_key = resolved.get("page_key", "")
     docs = search_articles(
         cleaned_question,
@@ -357,6 +361,7 @@ def transcript_for_support(conversation: HelpConversation, limit: int = 12) -> s
         "این درخواست از دستیار راهنمای لومرا ایجاد شده است.",
         f"صفحه: {conversation.page_path or '-'}",
         f"کلید راهنما: {conversation.page_key or '-'}",
+        f"Route: {conversation.page_route_name or '-'}",
         "",
         "گفتگوی اخیر:",
     ]

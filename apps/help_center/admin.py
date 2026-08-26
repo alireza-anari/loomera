@@ -22,7 +22,7 @@ class HelpCategoryAdmin(admin.ModelAdmin):
 class HelpPageContextInline(admin.TabularInline):
     model = HelpPageContext
     extra = 0
-    fields = ("page_key", "role", "path_pattern", "priority", "is_active")
+    fields = ("page_key", "role", "route_name", "path_pattern", "priority", "is_active")
 
 
 @admin.register(HelpArticle)
@@ -46,10 +46,10 @@ class HelpArticleAdmin(admin.ModelAdmin):
 
 @admin.register(HelpPageContext)
 class HelpPageContextAdmin(admin.ModelAdmin):
-    list_display = ("page_key", "role", "article", "priority", "is_active", "path_pattern")
+    list_display = ("page_key", "role", "route_name", "article", "priority", "is_active", "path_pattern")
     list_filter = ("role", "is_active")
     list_editable = ("priority", "is_active")
-    search_fields = ("page_key", "path_pattern", "article__title", "article__key")
+    search_fields = ("page_key", "route_name", "path_pattern", "article__title", "article__key")
     autocomplete_fields = ("article",)
 
 
@@ -81,7 +81,7 @@ class HelpMessageInline(admin.TabularInline):
 
 @admin.register(HelpConversation)
 class HelpConversationAdmin(admin.ModelAdmin):
-    list_display = ("public_id", "role", "user", "page_key", "status", "support_ticket", "last_message_at", "created_at")
+    list_display = ("public_id", "role", "user", "page_key", "page_route_name", "status", "support_ticket", "last_message_at", "created_at")
     list_filter = ("role", "status", "created_at")
     search_fields = ("public_id", "page_key", "page_path", "user__mobile_number", "user__email")
     raw_id_fields = ("user", "support_ticket")

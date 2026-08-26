@@ -1,6 +1,6 @@
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'css/components/help_assistant.css' %}?v=20260826-2">
+<link rel="stylesheet" href="{% static 'css/components/help_assistant.css' %}?v=20260826-3">
 
 <div
   class="lm-help-assistant"
@@ -12,6 +12,7 @@
   data-help-url="{% url 'help_center:home' %}"
   data-support-url="{% url 'support' %}"
   data-current-path="{{ request.path|default:'/' }}"
+  data-current-route="{{ request.resolver_match.view_name|default:'' }}"
 >
   <div hidden>{% csrf_token %}</div>
 
@@ -98,4 +99,4 @@
   <button type="button">برگردان</button>
 </div>
 
-<script type="module" src="{% static 'js/components/help_assistant.js' %}?v=20260826-2"></script>
+<script type="module" src="{% static 'js/components/help_assistant.js' %}?v=20260826-3"></script>

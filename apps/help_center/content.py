@@ -237,9 +237,33 @@ def search_articles(query: str, *, role: str = "", page_key: str = "", limit: in
     return useful[:limit]
 
 
-def resolve_page_context(path: str, role: str) -> dict:
+def resolve_page_context(path: str, role: str, route_name: str = "") -> dict:
     clean_path = (path or "/").split("?", 1)[0]
     role_value = _role_value(role)
+    route_name = (route_name or "").strip()
+
+    if route_name:
+        try:
+            context = (
+                HelpPageContext.objects.select_related("article", "article__category")
+                .filter(is_active=True, article__is_published=True, route_name=route_name)
+                .filter(Q(role=Audience.ALL) | Q(role=role_value))
+                .order_by("-priority", "id")
+                .first()
+            )
+            if context:
+                article = article_to_dict(context.article)
+                prompts = [str(item).strip() for item in (context.quick_prompts or []) if str(item).strip()]
+                if not prompts:
+                    prompts = [step["title"] for step in article["steps"][:3]]
+                return {
+                    "page_key": context.page_key or article["key"],
+                    "article": article,
+                    "quick_prompts": prompts[:4],
+                    "route_name": route_name,
+                }
+        except DB_ERRORS:
+            pass
 
     try:
         contexts = (
@@ -250,7 +274,7 @@ def resolve_page_context(path: str, role: str) -> dict:
         )
         for context in contexts:
             try:
-                if re.search(context.path_pattern, clean_path):
+                if context.path_pattern and re.search(context.path_pattern, clean_path):
                     article = article_to_dict(context.article)
                     prompts = [
                         str(item).strip()
@@ -272,7 +296,7 @@ def resolve_page_context(path: str, role: str) -> dict:
     key = knowledge.resolve_page_key(clean_path, role_value)
     article = get_article_by_key(key)
     prompts = [step["title"] for step in (article or {}).get("steps", [])[:3]]
-    return {"page_key": key, "article": article, "quick_prompts": prompts}
+    return {"page_key": key, "article": article, "quick_prompts": prompts, "route_name": route_name}
 
 
 def related_articles(article: dict, limit: int = 4) -> list[dict]:

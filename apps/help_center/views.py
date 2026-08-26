@@ -112,7 +112,8 @@ def legal_detail(request, slug):
 def context_api(request):
     path = (request.GET.get("path") or "/")[:500]
     role = _role(request)
-    payload = context_for_request(path, role)
+    route_name = (request.GET.get("route") or "")[:220]
+    payload = context_for_request(path, role, route_name)
     payload["role"] = role
     return JsonResponse(payload)
 
@@ -146,11 +147,13 @@ def chat_api(request):
     role = _role(request)
     path = str(payload.get("path") or "/")[:500]
     history = payload.get("history") if isinstance(payload.get("history"), list) else []
+    route_name = str(payload.get("route_name") or "")[:220]
     result = answer_help_question(
         question=question,
         page_path=path,
         role=role,
         history=history,
+        route_name=route_name,
     )
 
     conversation = get_or_create_conversation(
@@ -158,6 +161,7 @@ def chat_api(request):
         conversation_id=payload.get("conversation_id"),
         page_path=path,
         page_key=result["page_key"],
+        route_name=route_name,
     )
     assistant_message = persist_exchange(
         conversation,
