@@ -7,6 +7,7 @@ from typing import Any
 from django.conf import settings
 
 from apps.notifications.models import (
+    NotificationAudienceRole,
     NotificationChannel,
     NotificationDelivery,
     NotificationDeliveryStatus,
@@ -145,7 +146,7 @@ def build_actionable_reply_markup(
 ) -> dict | None:
     """
     Build safe inline buttons from explicit notification metadata.
-    
+
     Invalid or incomplete specifications are ignored. URL buttons contain only the
     provided URL. Action and view buttons issue one-time action tokens bound to the
     provider, identity, recipient user, notification delivery, related object,
@@ -214,23 +215,83 @@ def build_actionable_reply_markup(
     return {"inline_keyboard": rows}
 
 
+def _decision_notification_text(delivery: NotificationDelivery) -> str:
+    notification = delivery.recipient.notification
+    role = str(delivery.recipient.audience_role or "")
+    related = notification.related_object
+
+    try:
+        from apps.orders.models import OrderDetail
+        from apps.salons.models import SalonMembership
+        from apps.stylists.models import StaffLeaveRequest, StaffScheduleRequest
+        from .bale_presenters import (
+            appointment_block,
+            leave_request_block,
+            membership_request_block,
+            schedule_request_block,
+        )
+    except Exception:
+        return ""
+
+    if isinstance(related, OrderDetail):
+        if role == NotificationAudienceRole.STYLIST:
+            if related.confirmation_status == OrderDetail.ConfirmationStatus.PENDING:
+                heading = "نوبت جدید برای تأیید"
+            elif related.service_completed_at:
+                heading = "خدمت انجام شد"
+            elif related.service_started_at:
+                heading = "خدمت در حال انجام"
+            elif related.customer_arrived_at:
+                heading = "مشتری رسیده"
+            else:
+                heading = str(notification.title or "نوبت").strip() or "نوبت"
+            return appointment_block(
+                related,
+                heading=heading,
+                include_salon=True,
+                include_status=True,
+            )
+        if role == NotificationAudienceRole.MANAGER:
+            heading = str(notification.title or "نوبت سالن").strip() or "نوبت سالن"
+            return appointment_block(
+                related,
+                heading=heading,
+                include_stylist=True,
+                include_salon=False,
+                include_status=True,
+            )
+
+    if role == NotificationAudienceRole.MANAGER:
+        if isinstance(related, SalonMembership):
+            return membership_request_block(related, heading="درخواست همکاری جدید")
+        if isinstance(related, StaffLeaveRequest):
+            return leave_request_block(related, heading="درخواست مرخصی")
+        if isinstance(related, StaffScheduleRequest):
+            return schedule_request_block(related, heading="درخواست برنامه کاری")
+    return ""
+
+
 def render_simple_notification_text(delivery: NotificationDelivery) -> str:
     notification = delivery.recipient.notification
-    parts: list[str] = []
-    title = str(notification.title or "").strip()
-    body = str(notification.body or "").strip()
+    rich_text = _decision_notification_text(delivery).strip()
     action_url = str(notification.action_url or "").strip()
 
-    if title:
-        parts.append(title)
-    if body:
-        parts.append(body)
-    if action_url:
-        parts.append(f"مشاهده در سایت: {action_url}")
-
-    text = "\n\n".join(parts).strip()
-    if not text:
-        text = "اعلان جدید Loomera"
+    if rich_text:
+        parts = [rich_text]
+        if action_url and not notification_action_specs(delivery):
+            parts.append(f"جزئیات در سایت: {action_url}")
+        text = "\n\n".join(parts)
+    else:
+        parts: list[str] = []
+        title = str(notification.title or "").strip()
+        body = str(notification.body or "").strip()
+        if title:
+            parts.append(title)
+        if body:
+            parts.append(body)
+        if action_url:
+            parts.append(f"جزئیات در سایت: {action_url}")
+        text = "\n\n".join(parts).strip() or "اعلان جدید Loomera"
 
     max_chars = int(
         getattr(settings, "MESSAGING_NOTIFICATION_TEXT_MAX_CHARS", 3500) or 3500
@@ -243,7 +304,7 @@ def render_simple_notification_text(delivery: NotificationDelivery) -> str:
 def messaging_delivery_preference_enabled(delivery: NotificationDelivery) -> bool:
     """
     Re-check the recipient messaging preference when queued work is processed.
-    
+
     Preferences may change after NotificationDelivery creation, and manually
     created rows must follow the same privacy policy. Critical notifications bypass
     opt-out consistently with the unified notification policy. Non-critical
@@ -327,7 +388,7 @@ def deliver_simple_notification(
 ) -> MessagingDeliveryResult:
     """
     Resolve and attempt one simple notification delivery through messaging.
-    
+
     The provider, latest user preference, global feature flags, provider outbound
     capability, and an active linked identity are checked before any API call.
     Unavailable setup returns pending-setup, explicit opt-out or disabled messaging
