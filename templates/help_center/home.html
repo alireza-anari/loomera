@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}مرکز راهنمای لومرا{% endblock %}
+{% block meta_description %}آموزش استفاده از لومرا برای مشتریان، متخصصان و مدیران مجموعه{% endblock %}
+{% block body_attrs %}data-page="help-center"{% endblock %}
+
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-20 text-loomera-textPrimary">
+  <header class="border-b border-loomera-borderSoft bg-white">
+    <div class="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 xl:px-0">
+      <p class="text-xs font-black text-loomera-primary">مرکز راهنمای لومرا</p>
+      <h1 class="mt-2 text-3xl font-black leading-[1.5] sm:text-4xl">چطور می‌تونیم کمکت کنیم؟</h1>
+      <p class="mt-2 max-w-2xl text-sm leading-7 text-loomera-textMuted">
+        آموزش‌های استفاده از لومرا، راهنمای رزرو، مدیریت مجموعه، حساب، پرداخت و قوانین.
+      </p>
+
+      <form action="{% url 'help_center:search' %}" method="get" class="relative mt-6 max-w-2xl">
+        <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-loomera-textMuted" aria-hidden="true"></i>
+        <input
+          type="search"
+          name="q"
+          autocomplete="off"
+          placeholder="مثلاً: چطور متخصص اضافه کنم؟"
+          class="h-14 w-full rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle pr-11 pl-4 text-sm font-bold outline-none transition focus:border-loomera-primary/40 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10"
+        >
+      </form>
+    </div>
+  </header>
+
+  <div class="mx-auto w-full max-w-6xl space-y-9 px-4 py-7 sm:px-6 sm:py-9 xl:px-0">
+    <section>
+      <h2 class="text-lg font-black">موضوع‌ها</h2>
+      <div class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {% for category in categories %}
+          <a href="{% url 'help_center:search' %}?q={{ category.title|urlencode }}" class="group rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 transition hover:border-loomera-primary/25">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+              <i class="{{ category.icon }}" aria-hidden="true"></i>
+            </span>
+            <h3 class="mt-3 text-sm font-black group-hover:text-loomera-primary">{{ category.title }}</h3>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ category.description }}</p>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+
+    {% if featured_articles %}
+      <section>
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="text-lg font-black">پیشنهاد برای شما</h2>
+          <span class="text-[11px] font-bold text-loomera-textMuted">براساس نقش فعلی حساب</span>
+        </div>
+        <div class="mt-3 overflow-hidden rounded-[1.5rem] border border-loomera-borderSoft bg-white">
+          {% for article in featured_articles %}
+            <a href="{% url 'help_center:article' article.slug %}" class="group flex items-center gap-3 border-b border-loomera-borderSoft px-4 py-4 last:border-b-0 sm:px-5">
+              <span class="min-w-0 flex-1">
+                <strong class="block text-sm font-black group-hover:text-loomera-primary">{{ article.title }}</strong>
+                <small class="mt-1 line-clamp-1 block text-[11px] font-bold text-loomera-textMuted">{{ article.summary }}</small>
+              </span>
+              <i class="fa-solid fa-chevron-left text-[10px] text-loomera-textMuted" aria-hidden="true"></i>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <section>
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-lg font-black">قوانین و اعتماد</h2>
+        <a href="{% url 'help_center:legal_index' %}" class="text-xs font-black text-loomera-primary">همه اسناد</a>
+      </div>
+      <div class="mt-3 grid gap-3 sm:grid-cols-3">
+        {% for document in legal_documents %}
+          <a href="{% url 'help_center:legal_detail' document.slug %}" class="rounded-2xl border border-loomera-borderSoft bg-white p-4 transition hover:border-loomera-primary/25">
+            <i class="fa-solid fa-shield-halved text-loomera-primary" aria-hidden="true"></i>
+            <strong class="mt-3 block text-sm font-black">{{ document.title }}</strong>
+            <small class="mt-1 block text-[10px] font-bold text-loomera-textMuted">نسخه {{ document.version }}</small>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-5 sm:flex sm:items-center sm:justify-between">
+      <div>
+        <h2 class="text-base font-black">جوابت رو پیدا نکردی؟</h2>
+        <p class="mt-1 text-xs leading-6 text-loomera-textMuted">درخواست پشتیبانی بفرست تا تیم لومرا موضوع را بررسی کند.</p>
+      </div>
+      <a href="{% url 'support' %}" class="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 text-sm font-black text-white sm:mt-0">
+        <i class="fa-regular fa-life-ring" aria-hidden="true"></i>
+        پشتیبانی
+      </a>
+    </section>
+
+    <button type="button" data-help-assistant-restore class="text-xs font-black text-loomera-primary">
+      نمایش دوباره دستیار شناور در این دستگاه
+    </button>
+  </div>
+</main>
+
+<script>
+  document.querySelector("[data-help-assistant-restore]")?.addEventListener("click", function () {
+    localStorage.removeItem("loomera.help-assistant.hidden");
+    window.location.reload();
+  });
+</script>
+{% endblock %}
