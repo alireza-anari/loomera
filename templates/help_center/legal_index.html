@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}قوانین و حریم خصوصی | لومرا{% endblock %}
+{% block body_attrs %}data-page="help-legal-index"{% endblock %}
+
+{% block content %}
+<main class="min-h-dvh bg-loomera-bg pb-20 text-loomera-textPrimary">
+  <header class="border-b border-loomera-borderSoft bg-white">
+    <div class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 xl:px-0">
+      <a href="{% url 'help_center:home' %}" class="text-xs font-black text-loomera-primary">مرکز راهنما</a>
+      <h1 class="mt-2 text-2xl font-black sm:text-3xl">قوانین، حریم خصوصی و اعتماد</h1>
+      <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
+        نسخه جاری اسناد رسمی و سیاست‌های مرتبط با استفاده از لومرا.
+      </p>
+    </div>
+  </header>
+
+  <div class="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 xl:px-0">
+    <div class="overflow-hidden rounded-[1.5rem] border border-loomera-borderSoft bg-white">
+      {% for document in legal_documents %}
+        <a href="{% url 'help_center:legal_detail' document.slug %}" class="group flex items-center gap-3 border-b border-loomera-borderSoft px-4 py-4 last:border-0 sm:px-5">
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
+            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+          </span>
+          <span class="min-w-0 flex-1">
+            <strong class="block text-sm font-black group-hover:text-loomera-primary">{{ document.title }}</strong>
+            <small class="mt-1 block text-[10px] font-bold text-loomera-textMuted">نسخه {{ document.version }}</small>
+          </span>
+          <i class="fa-solid fa-chevron-left text-[10px] text-loomera-textMuted" aria-hidden="true"></i>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</main>
+{% endblock %}
