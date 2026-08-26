@@ -187,29 +187,6 @@ def _handle_menu_callback(
     if menu_key == MENU_CUSTOMER_SEARCH:
         from apps.messaging.customer_bot import render_customer_salon_search
 
-        user = _identity_user(identity)
-        text, markup = render_customer_salon_search(user, base_url)
-        _send(
-            client,
-            provider=provider,
-            identity=identity,
-            chat_id=chat_id,
-            text=text,
-            reply_markup=markup,
-        )
-        return "customer_search"
-
-    if menu_key == MENU_HELP:
-        _send(
-            client,
-            provider=provider,
-            identity=identity,
-            chat_id=chat_id,
-            text=help_text(),
-            reply_markup=help_menu(base_url),
-        )
-        return "help_menu"
-
     user = _identity_user(identity)
     if not user:
         _send(
@@ -263,6 +240,17 @@ def _handle_menu_callback(
         )
         return "role_selector"
 
+    if menu_key == MENU_HELP:
+        _send(
+            client,
+            provider=provider,
+            identity=identity,
+            chat_id=chat_id,
+            text=help_text(),
+            reply_markup=help_menu(base_url),
+        )
+        return "help_menu"
+
     if menu_key == MENU_QUICK_LINKS:
         _send(
             client,
@@ -310,9 +298,7 @@ def _handle_menu_callback(
         )
 
         if menu_key == MENU_STYLIST_TODAY:
-            text, markup = render_stylist_today(
-                user, base_url, provider=provider, identity=identity
-            )
+            text, markup = render_stylist_today(user, base_url)
             result_key = "stylist_today"
         elif menu_key == MENU_STYLIST_SLOTS:
             text, markup = render_stylist_available_slots(user, base_url)
@@ -351,32 +337,22 @@ def _handle_menu_callback(
         from apps.messaging.promotion_bot import render_manager_promotion_pack
 
         if menu_key == MENU_MANAGER_TODAY:
-            text, markup = render_manager_today_calendar(
-                user, base_url, provider=provider, identity=identity
-            )
+            text, markup = render_manager_today_calendar(user, base_url)
             result_key = "manager_today"
         elif menu_key == MENU_MANAGER_SUMMARY:
-            text, markup = render_manager_today_summary(
-                user, base_url, provider=provider, identity=identity
-            )
+            text, markup = render_manager_today_summary(user, base_url)
             result_key = "manager_summary"
         elif menu_key == MENU_MANAGER_SHIFTS:
-            text, markup = render_manager_shifts_overview(
-                user, base_url, provider=provider, identity=identity
-            )
+            text, markup = render_manager_shifts_overview(user, base_url)
             result_key = "manager_shifts"
         elif menu_key == MENU_MANAGER_SLOTS:
-            text, markup = render_manager_available_slots(
-                user, base_url, provider=provider, identity=identity
-            )
+            text, markup = render_manager_available_slots(user, base_url)
             result_key = "manager_slots"
         elif menu_key == MENU_MANAGER_PROMOTION:
             text, markup = render_manager_promotion_pack(user, base_url)
             result_key = "manager_promotion"
         else:
-            text, markup = render_manager_pending_requests(
-                user, base_url, provider=provider, identity=identity
-            )
+            text, markup = render_manager_pending_requests(user, base_url)
             result_key = "manager_requests"
         _send(
             client,
