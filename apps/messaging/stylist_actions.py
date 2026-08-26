@@ -20,7 +20,13 @@ from apps.payments.finance import sync_settlement_for_order
 from apps.salons.models import SalonMembership, SalonMembershipStatus
 from apps.salons.membership import ensure_membership_permissions
 
-from .actions import MessagingActionContext, MessagingActionResult, register_messaging_action
+from .actions import (
+    MessagingActionContext,
+    MessagingActionResult,
+    build_action_callback_data,
+    issue_action_token,
+    register_messaging_action,
+)
 from .constants import MessagingActionStatus
 from .links import absolute_site_url
 
@@ -32,10 +38,10 @@ ACTION_COMPLETE_SERVICE = "stylist.service.complete"
 
 
 ACTION_LABELS = {
-    ACTION_CONFIRM_APPOINTMENT: "تایید نوبت",
+    ACTION_CONFIRM_APPOINTMENT: "تأیید نوبت",
     ACTION_REJECT_APPOINTMENT: "رد نوبت",
     ACTION_START_SERVICE: "شروع خدمت",
-    ACTION_COMPLETE_SERVICE: "اتمام خدمت",
+    ACTION_COMPLETE_SERVICE: "پایان خدمت",
 }
 
 
@@ -111,14 +117,36 @@ def _appointment_url(context: MessagingActionContext, detail: OrderDetail) -> st
 
 
 def _result_markup(context: MessagingActionContext, detail: OrderDetail) -> dict:
-    return {
-        "inline_keyboard": [
+    rows: list[list[dict]] = []
+    if detail.service_started_at and not detail.service_completed_at:
+        raw_token, _ = issue_action_token(
+            provider=context.provider,
+            identity=context.identity,
+            user=context.user,
+            related_object=detail,
+            action_key=ACTION_COMPLETE_SERVICE,
+            audience_role="stylist",
+            salon_id=detail.salon_id,
+            metadata={
+                "source": "stylist_action_result",
+                "order_detail_id": detail.pk,
+            },
+        )
+        rows.append(
             [
-                {"text": "مشاهده جزئیات", "url": _appointment_url(context, detail)},
-                {"text": "نوبت‌های امروز", "callback_data": "menu:stylist_today"},
+                {
+                    "text": "پایان خدمت",
+                    "callback_data": build_action_callback_data(raw_token),
+                }
             ]
+        )
+    rows.append(
+        [
+            {"text": "جزئیات نوبت", "url": _appointment_url(context, detail)},
+            {"text": "نوبت‌های امروز", "callback_data": "menu:stylist_today"},
         ]
-    }
+    )
+    return {"inline_keyboard": rows}
 
 
 def _apply_lightweight_stylist_lifecycle_action(detail: OrderDetail, action: str, *, actor=None) -> str:
@@ -162,7 +190,7 @@ def _apply_lightweight_stylist_lifecycle_action(detail: OrderDetail, action: str
         # confirm_order_detail when the whole multi-service order flips
         # from partial to fully confirmed.
 
-        return "این خدمت با موفقیت از سمت متخصص تایید شد."
+        return "نوبت تأیید شد."
 
     if action == "reject":
         if detail.confirmation_status == OrderDetail.ConfirmationStatus.CONFIRMED:
@@ -171,7 +199,7 @@ def _apply_lightweight_stylist_lifecycle_action(detail: OrderDetail, action: str
             raise ValidationError("این خدمت قبلاً رد شده است.")
 
         reject_order_detail(detail=detail, actor=actor, reason="رد شده توسط متخصص")
-        return "این نوبت رد و به‌صورت خودکار لغو شد. به مشتری و مدیر مجموعه اطلاع داده شد."
+        return "نوبت رد و لغو شد. به مشتری و مدیر سالن اطلاع داده شد."
 
     if action == "start_service":
         if not detail.customer_arrived_at:
@@ -191,7 +219,7 @@ def _apply_lightweight_stylist_lifecycle_action(detail: OrderDetail, action: str
             body=f"اجرای خدمت {detail.service.service_name if detail.service_id else ''} شروع شد.",
         )
 
-        return "شروع کار ثبت شد."
+        return "شروع خدمت ثبت شد."
 
     if action == "complete_service":
         complete_order_detail_service(detail=detail, actor=actor)
@@ -231,9 +259,9 @@ def _apply_lightweight_stylist_lifecycle_action(detail: OrderDetail, action: str
                 body=f"خدمت {detail.service.service_name if detail.service_id else ''} انجام شد. هنوز همه خدمات این رزرو کامل نشده‌اند.",
             )
 
-        return "پایان کار ثبت شد."
+        return "پایان خدمت ثبت شد."
 
-    raise ValidationError("این عملیات برای متخصص پشتیبانی نمی‌شود.")
+    raise ValidationError("این کار از داخل ربات قابل انجام نیست.")
 
 
 def _run_lifecycle_action(context: MessagingActionContext, *, action: str) -> MessagingActionResult:

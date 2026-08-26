@@ -135,7 +135,7 @@ def issue_action_token(
 ) -> tuple[str, MessagingToken]:
     """
     Issue a short-lived one-time token for a messaging callback action.
-    
+
     Provider, identity, and action key are mandatory. The raw token is returned
     only so it can be embedded in callback data; storage uses its hash together
     with user, related object, audience role, salon scope, and metadata. Issuing a
@@ -209,20 +209,20 @@ def _audit_without_token(
 
 def _message_for_error(error_code: str) -> str:
     messages = {
-        "missing_identity_user": "برای اجرای این دکمه باید حساب سایتت به ربات وصل باشد.",
-        "invalid_action_token": "این دکمه نامعتبر است یا دیگر قابل استفاده نیست.",
-        "token_revoked": "این دکمه لغو شده و دیگر قابل استفاده نیست.",
-        "token_expired": "مهلت استفاده از این دکمه تمام شده است.",
-        "token_already_used": "این دکمه قبلاً استفاده شده است و دوباره اجرا نمی‌شود.",
+        "missing_identity_user": "برای استفاده از این دکمه، اول حساب Loomera را به ربات وصل کن.",
+        "invalid_action_token": "این دکمه دیگر قابل استفاده نیست. منوی تازه را باز کن.",
+        "token_revoked": "این دکمه دیگر فعال نیست. منوی تازه را باز کن.",
+        "token_expired": "مهلت این دکمه تمام شده. منوی تازه را باز کن.",
+        "token_already_used": "این کار قبلاً انجام شده است.",
         "token_provider_mismatch": "این دکمه برای پیام‌رسان دیگری ساخته شده است.",
         "token_identity_mismatch": "این دکمه برای حساب بله دیگری ساخته شده است.",
         "token_user_mismatch": "این دکمه برای کاربر دیگری ساخته شده است.",
         "related_object_missing": "مورد مرتبط با این دکمه دیگر در دسترس نیست.",
-        "messaging_actions_disabled": "اجرای دکمه‌های عملیاتی ربات در این مرحله فعال نیست. لطفاً از سایت اقدام کن.",
-        "action_not_registered": "این اکشن هنوز در این مرحله فعال نشده است.",
-        "action_handler_failed": "اجرای اکشن ناموفق بود. لطفاً از سایت بررسی کن.",
-        "identity_not_linked": "برای اجرای این دکمه باید حساب بله‌ات به سایت متصل باشد.",
-        "identity_connection_inactive": "اتصال این حساب بله غیرفعال شده است. لطفاً دوباره از سایت حساب را وصل کن.",
+        "messaging_actions_disabled": "انجام این کار از داخل ربات موقتاً در دسترس نیست. از سایت اقدام کن.",
+        "action_not_registered": "این کار از داخل ربات در دسترس نیست.",
+        "action_handler_failed": "این کار انجام نشد. دوباره تلاش کن یا جزئیات را در سایت ببین.",
+        "identity_not_linked": "برای استفاده از این دکمه، حساب بله را به Loomera وصل کن.",
+        "identity_connection_inactive": "اتصال این حساب قطع شده. دوباره آن را از Loomera وصل کن.",
     }
     return messages.get(error_code, "اجرای اکشن ممکن نیست.")
 
@@ -248,7 +248,7 @@ def dispatch_messaging_action_callback(
 ) -> MessagingActionResult:
     """
     Validate and execute one messaging action callback at most once.
-    
+
     The transaction requires actions to be enabled, a linked identity with an
     active account connection, and an unused, unrevoked, unexpired action token
     bound to the current provider, identity, and user. The token row is locked and
@@ -472,7 +472,7 @@ def acknowledge_action(context: MessagingActionContext) -> MessagingActionResult
 
     return MessagingActionResult(
         status=MessagingActionStatus.SUCCEEDED,
-        user_message="دریافت شد ✅ این دکمه با توکن امن اجرا شد.",
+        user_message="انجام شد.",
         result={"action_key": context.action_key, "token_id": context.token.pk},
     )
 

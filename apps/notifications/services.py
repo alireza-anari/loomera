@@ -572,13 +572,13 @@ def _stylist_order_detail_messaging_actions(
                 {
                     "type": "action",
                     "key": ACTION_CONFIRM_APPOINTMENT,
-                    "label": "تایید",
+                    "label": "تأیید نوبت",
                     **common,
                 },
                 {
                     "type": "action",
                     "key": ACTION_REJECT_APPOINTMENT,
-                    "label": "رد",
+                    "label": "رد نوبت",
                     **common,
                 },
             ]
@@ -601,7 +601,7 @@ def _stylist_order_detail_messaging_actions(
                 {
                     "type": "action",
                     "key": ACTION_COMPLETE_SERVICE,
-                    "label": "اتمام خدمت",
+                    "label": "پایان خدمت",
                     **common,
                 },
             ]
@@ -660,21 +660,21 @@ def _manager_object_messaging_actions(
             {
                 "type": "action",
                 "key": ACTION_MANAGER_MEMBERSHIP_ACCEPT,
-                "label": "تایید",
+                "label": "پذیرش همکاری",
                 **common,
                 "metadata": metadata,
             },
             {
                 "type": "action",
                 "key": ACTION_MANAGER_MEMBERSHIP_REJECT,
-                "label": "رد",
+                "label": "رد درخواست",
                 **common,
                 "metadata": metadata,
             },
             {
                 "type": "view",
                 "key": ACTION_MANAGER_MEMBERSHIP_PROFILE,
-                "label": "مشاهده پروفایل",
+                "label": "پروفایل متخصص",
                 **common,
                 "metadata": metadata,
             },
@@ -695,7 +695,7 @@ def _manager_object_messaging_actions(
             {
                 "type": "action",
                 "key": ACTION_MANAGER_LEAVE_APPROVE,
-                "label": "تایید مرخصی",
+                "label": "تأیید مرخصی",
                 **common,
                 "metadata": metadata,
             },
@@ -723,14 +723,14 @@ def _manager_object_messaging_actions(
             {
                 "type": "action",
                 "key": ACTION_MANAGER_SCHEDULE_APPROVE,
-                "label": "تایید شیفت",
+                "label": "تأیید برنامه",
                 **common,
                 "metadata": metadata,
             },
             {
                 "type": "action",
                 "key": ACTION_MANAGER_SCHEDULE_REJECT,
-                "label": "رد شیفت",
+                "label": "رد برنامه",
                 **common,
                 "metadata": metadata,
             },

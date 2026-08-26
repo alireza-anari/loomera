@@ -53,18 +53,18 @@ ACTION_MANAGER_PENDING_REQUESTS = "manager.pending_requests"
 
 
 ACTION_LABELS = {
-    ACTION_MANAGER_MEMBERSHIP_ACCEPT: "تایید همکاری",
-    ACTION_MANAGER_MEMBERSHIP_REJECT: "رد همکاری",
-    ACTION_MANAGER_LEAVE_APPROVE: "تایید مرخصی",
+    ACTION_MANAGER_MEMBERSHIP_ACCEPT: "پذیرش همکاری",
+    ACTION_MANAGER_MEMBERSHIP_REJECT: "رد درخواست",
+    ACTION_MANAGER_LEAVE_APPROVE: "تأیید مرخصی",
     ACTION_MANAGER_LEAVE_REJECT: "رد مرخصی",
-    ACTION_MANAGER_SCHEDULE_APPROVE: "تایید شیفت",
-    ACTION_MANAGER_SCHEDULE_REJECT: "رد شیفت",
+    ACTION_MANAGER_SCHEDULE_APPROVE: "تأیید برنامه",
+    ACTION_MANAGER_SCHEDULE_REJECT: "رد برنامه",
     ACTION_MANAGER_SHIFTS_OVERVIEW: "بررسی شیفت‌ها",
     ACTION_MANAGER_TODAY_CALENDAR: "تقویم امروز",
     ACTION_MANAGER_TODAY_SUMMARY: "خلاصه امروز",
     ACTION_MANAGER_AVAILABLE_SLOTS: "وقت خالی متخصصان",
-    ACTION_MANAGER_MEMBERSHIP_PROFILE: "مشاهده پروفایل",
-    ACTION_MANAGER_PENDING_REQUESTS: "درخواست‌های در انتظار",
+    ACTION_MANAGER_MEMBERSHIP_PROFILE: "پروفایل متخصص",
+    ACTION_MANAGER_PENDING_REQUESTS: "درخواست‌های همکاری",
 }
 
 
@@ -127,7 +127,7 @@ def _manager_result_markup(context: MessagingActionContext, *, salon_id: int | N
         ])
     rows.append([
         {"text": "شیفت و مرخصی", "callback_data": "menu:manager_shifts"},
-        {"text": "درخواست‌های متخصصان", "callback_data": "menu:manager_requests"},
+        {"text": "درخواست‌های همکاری", "callback_data": "menu:manager_requests"},
     ])
     rows.append([{"text": "منوی مدیر", "callback_data": "menu:manager"}])
     return {"inline_keyboard": rows}
@@ -223,7 +223,7 @@ def _accept_membership_request(context: MessagingActionContext) -> MessagingActi
     _notify_stylist_membership_review(membership=membership, actor=context.user, accepted=True)
     return MessagingActionResult(
         status=MessagingActionStatus.SUCCEEDED,
-        user_message=f"درخواست همکاری {membership.stylist.get_fullName()} تایید شد. ✅",
+        user_message=f"همکاری {membership.stylist.get_fullName()} پذیرفته شد.",
         result={"membership_id": membership.pk, "salon_id": membership.salon_id, "status": membership.status},
         reply_markup=_manager_result_markup(context, salon_id=membership.salon_id),
     )
@@ -262,7 +262,7 @@ def _review_leave(context: MessagingActionContext, *, approved: bool) -> Messagi
         approved=approved,
         review_note="بررسی از ربات بله",
     )
-    action_label = "تایید" if approved else "رد"
+    action_label = "تأیید" if approved else "رد"
     return MessagingActionResult(
         status=MessagingActionStatus.SUCCEEDED,
         user_message=f"درخواست مرخصی {reviewed.stylist.get_fullName()} {action_label} شد.",
@@ -280,7 +280,7 @@ def _review_schedule(context: MessagingActionContext, *, approved: bool) -> Mess
         approved=approved,
         review_note="بررسی از ربات بله",
     )
-    action_label = "تایید" if approved else "رد"
+    action_label = "تأیید" if approved else "رد"
     return MessagingActionResult(
         status=MessagingActionStatus.SUCCEEDED,
         user_message=f"درخواست برنامه کاری {reviewed.stylist.get_fullName()} {action_label} شد.",
@@ -291,7 +291,14 @@ def _review_schedule(context: MessagingActionContext, *, approved: bool) -> Mess
 
 def _view_result(context: MessagingActionContext, renderer) -> MessagingActionResult:
     _manager_user_or_error(context)
-    text, markup = renderer(context.user, context.base_url, salon_id=context.salon_id, metadata=context.metadata)
+    text, markup = renderer(
+        context.user,
+        context.base_url,
+        salon_id=context.salon_id,
+        metadata=context.metadata,
+        provider=context.provider,
+        identity=context.identity,
+    )
     return MessagingActionResult(
         status=MessagingActionStatus.SUCCEEDED,
         user_message=text,
