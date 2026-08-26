@@ -169,11 +169,13 @@ def render_customer_salon_search(user, base_url: str, query: str = "") -> tuple[
         return text, {
             "inline_keyboard": [
                 [{"text": "جستجوی کامل در سایت", "url": _search_url(base_url, query)}],
-                [{"text": "منوی مشتری", "callback_data": "menu:customer"}, {"text": "پشتیبانی", "url": _support_url(base_url)}],
+                [{"text": "منوی اصلی", "callback_data": "menu:guest"}, {"text": "پشتیبانی", "url": _support_url(base_url)}],
             ]
         }
 
     parts = [title, ""]
+    back_callback = "menu:customer" if user else "menu:guest"
+    back_label = "منوی مشتری" if user else "منوی اصلی"
     rows: list[list[dict[str, Any]]] = []
     for index, salon in enumerate(salons, start=1):
         parts.extend(_salon_card_lines(salon, index))
@@ -187,7 +189,7 @@ def render_customer_salon_search(user, base_url: str, query: str = "") -> tuple[
     parts.append("برای رزرو کامل، پرداخت، تغییر زمان یا لغو مالی وارد سایت شو.")
     rows.append([
         {"text": "جستجوی کامل با فیلتر", "url": _search_url(base_url, query)},
-        {"text": "منوی مشتری", "callback_data": "menu:customer"},
+        {"text": back_label, "callback_data": back_callback},
     ])
     return "\n".join(parts).strip(), {"inline_keyboard": rows[:7]}
 
@@ -303,9 +305,8 @@ def render_customer_review_links(user, base_url: str) -> tuple[str, dict]:
 
 def render_customer_support(user, base_url: str) -> tuple[str, dict]:
     text = (
-        "پشتیبانی Loomera 💬\n"
-        "برای پیگیری مالی، حسابی یا لغو دارای اثر مالی، درخواست را از سایت ثبت کن تا سوابق و دسترسی‌ها کامل بررسی شوند.\n"
-        "برای سوال عمومی می‌توانی از صفحه پشتیبانی وارد شوی."
+        "اگر موضوعت مربوط به پرداخت، لغو یا حساب کاربری است، از صفحه پشتیبانی درخواست ثبت کن تا قابل پیگیری باشد.\n"
+        "برای سؤال‌های عمومی هم همان‌جا می‌توانی با پشتیبانی در تماس باشی."
     )
     return text, {
         "inline_keyboard": [
