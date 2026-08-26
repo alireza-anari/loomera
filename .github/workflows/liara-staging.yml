@@ -37,6 +37,7 @@ jobs:
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
           LIARA_APP_NAME: ${{ vars.LIARA_APP_NAME }}
+          BALE_BOT_TOKEN: ${{ secrets.BALE_BOT_TOKEN }}
         run: |
           set -euo pipefail
 
@@ -55,7 +56,28 @@ jobs:
             exit 1
           fi
 
+          if [ -z "$BALE_BOT_TOKEN" ]; then
+            echo "::error::BALE_BOT_TOKEN is not configured in staging environment."
+            exit 1
+          fi
+
           echo "Staging deployment target validated."
+
+      - name: Sync staging Bale bot token to Liara
+        env:
+          LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
+          LIARA_APP_NAME: ${{ vars.LIARA_APP_NAME }}
+          BALE_BOT_TOKEN: ${{ secrets.BALE_BOT_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          liara env set \
+            --app="$LIARA_APP_NAME" \
+            --api-token="$LIARA_TOKEN" \
+            --force \
+            "BALE_BOT_TOKEN=$BALE_BOT_TOKEN"
+
+          echo "Staging Bale bot token synced to Liara."
 
       - name: Prepare staging PostgreSQL dependency
         run: |
