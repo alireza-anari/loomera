@@ -16,6 +16,7 @@ from apps.help_center.models import (
 
 
 DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "production_docs.json"
+WORKFLOW_ACTIONS_FILE = Path(__file__).resolve().parents[2] / "data" / "workflow_actions.json"
 
 
 class Command(BaseCommand):
@@ -45,6 +46,16 @@ class Command(BaseCommand):
                 raise CommandError(f"production_docs.json must contain a list named {key!r}.")
         return payload
 
+    def _load_workflow_actions(self):
+        if not WORKFLOW_ACTIONS_FILE.exists():
+            return {}
+        try:
+            payload = json.loads(WORKFLOW_ACTIONS_FILE.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            raise CommandError(f"Invalid workflow_actions.json: {exc}") from exc
+        articles = payload.get("articles", {})
+        return articles if isinstance(articles, dict) else {}
+
     @staticmethod
     def _assign_and_save(obj, defaults):
         changed = []
@@ -73,7 +84,8 @@ class Command(BaseCommand):
             self._assign_and_save(obj, defaults)
         return obj, created
 
-    def _upsert_article(self, spec, category, *, refresh, sort_order):
+    def _upsert_article(self, spec, category, *, refresh, sort_order, workflow_actions=None):
+        workflow_spec = (workflow_actions or {}).get(spec["key"], {})
         defaults = {
             "key": spec["key"],
             "category": category,
@@ -86,7 +98,7 @@ class Command(BaseCommand):
             "source_refs": spec.get("source_refs", []),
             "summary": spec["summary"],
             "body": spec.get("body", ""),
-            "steps": spec.get("steps", []),
+            "steps": workflow_spec.get("steps", spec.get("steps", [])),
             "tips": spec.get("tips", []),
             "keywords": spec.get("keywords", ""),
             "sort_order": int(spec.get("sort_order", sort_order)),
@@ -169,6 +181,7 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         data = self._load_data()
+        workflow_actions = self._load_workflow_actions()
         refresh = bool(options["refresh_defaults"])
 
         category_map = {}
@@ -191,6 +204,7 @@ class Command(BaseCommand):
                 category,
                 refresh=refresh,
                 sort_order=index * 10,
+                workflow_actions=workflow_actions,
             )
             article_map[article.key] = article
             created_articles += int(created)
