@@ -1,7 +1,6 @@
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'css/components/help_assistant.css' %}?v=20260826-6">
-
+<link rel="stylesheet" href="{% static 'css/components/help_assistant.css' %}?v=20260827-10">
 <div
   class="lm-help-assistant"
   data-help-assistant
@@ -21,7 +20,7 @@
     type="button"
     class="lm-help-assistant__fab"
     data-help-fab
-    aria-label="باز کردن دستیار پشتیبانی لومرا"
+    aria-label="باز کردن لومی"
     aria-expanded="false"
   >
     <span class="lm-help-assistant__fab-icon" aria-hidden="true">
@@ -35,7 +34,7 @@
     data-help-panel
     hidden
     role="dialog"
-    aria-label="دستیار پشتیبانی لومرا"
+    aria-label="لومی، دستیار راهنمای لومرا"
   >
     <header class="lm-help-assistant__header">
       <div class="lm-help-assistant__identity">
@@ -43,10 +42,10 @@
           <i class="fa-solid fa-sparkles"></i>
         </span>
         <div class="lm-help-assistant__identity-copy">
-          <strong>دستیار پشتیبانی لومرا</strong>
+          <strong>لومی</strong>
           <small data-help-page-label>
             <span class="lm-help-assistant__online-dot"></span>
-            آنلاین · پاسخ براساس راهنمای لومرا
+            دستیار راهنمای لومرا
           </small>
         </div>
       </div>
@@ -54,9 +53,6 @@
       <div class="lm-help-assistant__header-actions">
         <button type="button" data-help-new-chat title="گفتگوی جدید" aria-label="شروع گفتگوی جدید">
           <i class="fa-solid fa-rotate-right"></i>
-        </button>
-        <button type="button" data-help-hide title="پنهان کردن دستیار" aria-label="پنهان کردن دستیار">
-          <i class="fa-regular fa-eye-slash"></i>
         </button>
         <button type="button" data-help-close title="بستن" aria-label="بستن">
           <i class="fa-solid fa-xmark"></i>
@@ -71,10 +67,8 @@
             <i class="fa-solid fa-sparkles"></i>
           </span>
           <div>
-            <strong>سلام، چه کمکی می‌تونم بکنم؟</strong>
-            <p data-help-context-summary>
-              هر سؤالی درباره کار با لومرا داری بپرس. جواب رو از راهنماهای رسمی پیدا می‌کنم و منبعش رو هم کنارش می‌ذارم.
-            </p>
+            <strong>سلام، من لومی‌ام.</strong>
+            <p data-help-context-summary>چه کاری می‌خوای انجام بدی؟</p>
           </div>
         </div>
         <div class="lm-help-assistant__prompts" data-help-prompts></div>
@@ -82,12 +76,8 @@
     </div>
 
     <div class="lm-help-assistant__handoff" data-help-handoff-box hidden>
-      <div>
-        <strong>هنوز به جواب نرسیدی؟</strong>
-        <small>همین گفتگو رو برای تیم پشتیبانی بفرست.</small>
-      </div>
       <button type="button" data-help-escalate>
-        <i class="fa-regular fa-life-ring" aria-hidden="true"></i>
+        <i class="fa-solid fa-headset" aria-hidden="true"></i>
         ارجاع به پشتیبانی
       </button>
     </div>
@@ -99,26 +89,14 @@
           maxlength="1200"
           data-help-input
           placeholder="پیامت رو بنویس..."
-          aria-label="پیام به دستیار پشتیبانی لومرا"
+          aria-label="پیام به لومی"
         ></textarea>
         <button type="submit" data-help-send aria-label="ارسال پیام">
-          <i class="fa-solid fa-arrow-up"></i>
+          <i class="fa-solid fa-paper-plane"></i>
         </button>
-      </div>
-      <div class="lm-help-assistant__composer-meta">
-        <span>Enter ارسال · Shift+Enter خط جدید</span>
-        <a href="{% url 'help_center:home' %}">
-          <i class="fa-regular fa-circle-question"></i>
-          مرکز راهنما
-        </a>
       </div>
     </form>
   </section>
 </div>
 
-<div class="lm-help-assistant__undo" data-help-undo hidden>
-  <span>دستیار پنهان شد</span>
-  <button type="button">برگردان</button>
-</div>
-
-<script type="module" src="{% static 'js/components/help_assistant.js' %}?v=20260826-6"></script>
+<script type="module" src="{% static 'js/components/help_assistant.js' %}?v=20260827-10"></script>

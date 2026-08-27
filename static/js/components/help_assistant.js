@@ -157,6 +157,103 @@ function appendTextWithCitations(container, text, sources = []) {
   }
 }
 
+function guideFromOptions(options = {}) {
+  return options.guide || options.sources?.find((source) => source?.guide)?.guide || null;
+}
+
+function guideCard(guide) {
+  if (!guide?.steps?.length) return null;
+
+  const card = document.createElement("section");
+  card.className = "lm-help-assistant__guide";
+  card.setAttribute("aria-label", guide.title || "مسیر انجام کار");
+
+  const header = document.createElement("div");
+  header.className = "lm-help-assistant__guide-header";
+  const title = document.createElement("strong");
+  title.textContent = guide.title || "مسیر انجام کار";
+  header.appendChild(title);
+
+  if (guide.required_role_label && guide.required_role !== "all") {
+    const role = document.createElement("span");
+    role.className = "lm-help-assistant__guide-role";
+    role.textContent = guide.role_matches
+      ? `برای ${guide.required_role_label}`
+      : `نیازمند نقش ${guide.required_role_label}`;
+    header.appendChild(role);
+  }
+  card.appendChild(header);
+
+  if (guide.required_role !== "all" && guide.role_matches === false) {
+    const note = document.createElement("p");
+    note.className = "lm-help-assistant__guide-role-note";
+    note.textContent = `این مسیر برای ${guide.required_role_label} است؛ لینک‌های عملیاتی برای نقش فعلی باز نمی‌شوند.`;
+    card.appendChild(note);
+  }
+
+  const flow = document.createElement("ol");
+  flow.className = "lm-help-assistant__flow";
+
+  guide.steps.forEach((step, index) => {
+    const item = document.createElement("li");
+    item.className = "lm-help-assistant__flow-step";
+    if (step.current_page) {
+      item.classList.add("lm-help-assistant__flow-step--current");
+    }
+
+    const marker = document.createElement("span");
+    marker.className = "lm-help-assistant__flow-marker";
+    marker.textContent = String(step.number || index + 1);
+
+    const copy = document.createElement("div");
+    copy.className = "lm-help-assistant__flow-copy";
+
+    const headingRow = document.createElement("div");
+    headingRow.className = "lm-help-assistant__flow-heading-row";
+
+    const heading = document.createElement(step.url ? "a" : "strong");
+    heading.className = "lm-help-assistant__flow-title";
+    heading.textContent = step.title || `مرحله ${index + 1}`;
+    if (step.url) heading.href = step.url;
+    headingRow.appendChild(heading);
+
+    if (step.contextual) {
+      const direct = document.createElement("span");
+      direct.className = "lm-help-assistant__flow-direct";
+      if (step.current_page) {
+        direct.classList.add("lm-help-assistant__flow-direct--current");
+      }
+      direct.textContent = step.badge_label || (step.current_page ? "صفحه فعلی" : "همین مورد");
+      direct.title = step.current_page
+        ? "این مرحله همان صفحه‌ای است که الان باز کرده‌ای"
+        : "این اقدام از اطلاعات واقعی صفحه فعلی ساخته شده";
+      headingRow.appendChild(direct);
+    }
+
+    copy.appendChild(headingRow);
+
+    if (step.body) {
+      const body = document.createElement("p");
+      body.textContent = step.body;
+      copy.appendChild(body);
+    }
+
+    if (step.url && step.link_label) {
+      const action = document.createElement("a");
+      action.href = step.url;
+      action.className = "lm-help-assistant__flow-action";
+      action.innerHTML = `<span>${step.link_label}</span><i class="fa-solid fa-arrow-up-left-from-square" aria-hidden="true"></i>`;
+      copy.appendChild(action);
+    }
+
+    item.append(marker, copy);
+    flow.appendChild(item);
+  });
+
+  card.appendChild(flow);
+  return card;
+}
+
 function feedbackRow(root, messageId) {
   if (!messageId) return null;
 
@@ -164,7 +261,7 @@ function feedbackRow(root, messageId) {
   row.className = "lm-help-assistant__feedback";
 
   const label = document.createElement("span");
-  label.textContent = "پاسخ مفید بود؟";
+  label.textContent = "مفید بود؟";
   row.appendChild(label);
 
   [
@@ -199,7 +296,7 @@ function feedbackRow(root, messageId) {
 
         row.querySelectorAll("button").forEach((item) => item.classList.remove("is-selected"));
         button.classList.add("is-selected");
-        label.textContent = "ممنون، ثبت شد";
+        label.textContent = "ثبت شد";
       } catch (_) {
         label.textContent = "ثبت بازخورد انجام نشد";
       }
@@ -217,7 +314,7 @@ function sourceDetails(sources = []) {
 
   const summary = document.createElement("summary");
   summary.innerHTML = `
-    <span><i class="fa-regular fa-book-open" aria-hidden="true"></i> منابع این پاسخ</span>
+    <span><i class="fa-regular fa-book-open" aria-hidden="true"></i> منابع</span>
     <span class="lm-help-assistant__source-count">${sources.length}</span>
   `;
   details.appendChild(summary);
@@ -264,7 +361,7 @@ function addMessage(container, role, text, options = {}) {
   row.className = `lm-help-assistant__message lm-help-assistant__message--${role}`;
   if (options.temporary) row.dataset.temporary = "1";
 
-  if (role === "assistant") {
+  if (role === "assistant" && !options.temporary) {
     const avatar = document.createElement("span");
     avatar.className = "lm-help-assistant__message-avatar";
     avatar.setAttribute("aria-hidden", "true");
@@ -275,22 +372,15 @@ function addMessage(container, role, text, options = {}) {
   const stack = document.createElement("div");
   stack.className = "lm-help-assistant__message-stack";
 
-  if (role === "assistant") {
-    const name = document.createElement("span");
-    name.className = "lm-help-assistant__message-name";
-    name.textContent = "دستیار پشتیبانی";
-    stack.appendChild(name);
-  }
-
   const bubble = document.createElement("div");
   bubble.className = "lm-help-assistant__bubble";
 
   if (options.temporary) {
     const typing = document.createElement("div");
     typing.className = "lm-help-assistant__typing-wrap";
+    typing.setAttribute("aria-label", "در حال آماده‌سازی پاسخ");
     typing.innerHTML = `
-      <span class="lm-help-assistant__typing"><span></span><span></span><span></span></span>
-      <span>دارم راهنماهای مرتبط رو بررسی می‌کنم…</span>
+      <span class="lm-help-assistant__typing" aria-hidden="true"><span></span><span></span><span></span></span>
     `;
     bubble.appendChild(typing);
   } else if (role === "assistant") {
@@ -302,6 +392,9 @@ function addMessage(container, role, text, options = {}) {
   stack.appendChild(bubble);
 
   if (role === "assistant" && !options.temporary) {
+    const guide = guideCard(guideFromOptions(options));
+    if (guide) stack.appendChild(guide);
+
     const details = sourceDetails(options.sources || []);
     if (details) stack.appendChild(details);
 
@@ -370,12 +463,13 @@ function init() {
   if (!root || root.dataset.bound === "1") return;
   root.dataset.bound = "1";
 
-  if (localStorage.getItem("loomera.help-assistant.hidden") === "1") root.hidden = true;
+  // Legacy versions allowed permanently hiding the assistant. The control no
+  // longer exists, so clear the old preference to avoid leaving Lومي invisible.
+  try { localStorage.removeItem("loomera.help-assistant.hidden"); } catch (_) {}
 
   const fab = root.querySelector("[data-help-fab]");
   const panel = root.querySelector("[data-help-panel]");
   const close = root.querySelector("[data-help-close]");
-  const hide = root.querySelector("[data-help-hide]");
   const newChat = root.querySelector("[data-help-new-chat]");
   const form = root.querySelector("[data-help-form]");
   const input = root.querySelector("[data-help-input]");
@@ -386,7 +480,6 @@ function init() {
   const summary = root.querySelector("[data-help-context-summary]");
   const pageLabel = root.querySelector("[data-help-page-label]");
   const dot = root.querySelector("[data-help-new-dot]");
-  const undo = document.querySelector("[data-help-undo]");
   const handoffBox = root.querySelector("[data-help-handoff-box]");
   const escalate = root.querySelector("[data-help-escalate]");
 
@@ -418,15 +511,16 @@ function init() {
 
     try {
       context = await getContext(root);
-      pageLabel.innerHTML = "";
-      const online = document.createElement("span");
-      online.className = "lm-help-assistant__online-dot";
-      pageLabel.appendChild(online);
-      pageLabel.append(document.createTextNode(context.title || "آنلاین · پاسخ براساس راهنمای لومرا"));
-
-      summary.textContent =
-        context.summary ||
-        "هر سؤالی درباره کار با لومرا داری بپرس. جواب رو از راهنماهای رسمی پیدا می‌کنم.";
+      // Header identity stays stable. Page context is used only for suggested
+      // prompts and retrieval, not as extra visual copy in the header.
+      if (pageLabel) {
+        pageLabel.innerHTML = "";
+        const online = document.createElement("span");
+        online.className = "lm-help-assistant__online-dot";
+        pageLabel.appendChild(online);
+        pageLabel.append(document.createTextNode("دستیار راهنمای لومرا"));
+      }
+      if (summary) summary.textContent = "چه کاری می‌خوای انجام بدی؟";
 
       prompts.innerHTML = "";
       (context.quick_prompts || []).slice(0, 3).forEach((text) => {
@@ -444,7 +538,9 @@ function init() {
       const seenKey = `loomera.help-assistant.seen.${context.page_key || "general"}.v3`;
       dot.hidden = localStorage.getItem(seenKey) === "1";
     } catch (_) {
-      pageLabel.textContent = "دستیار پشتیبانی لومرا";
+      if (pageLabel) {
+        pageLabel.innerHTML = '<span class="lm-help-assistant__online-dot"></span> دستیار راهنمای لومرا';
+      }
     }
   }
 
@@ -511,23 +607,6 @@ function init() {
     input.focus();
   });
 
-  hide?.addEventListener("click", () => {
-    closePanel();
-    root.hidden = true;
-    localStorage.setItem("loomera.help-assistant.hidden", "1");
-    if (undo) {
-      undo.hidden = false;
-      clearTimeout(root._undoTimer);
-      root._undoTimer = setTimeout(() => { undo.hidden = true; }, 7000);
-    }
-  });
-
-  undo?.querySelector("button")?.addEventListener("click", () => {
-    localStorage.removeItem("loomera.help-assistant.hidden");
-    root.hidden = false;
-    undo.hidden = true;
-  });
-
   input.addEventListener("input", () => autoGrow(input));
   input.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -562,6 +641,7 @@ function init() {
         root,
         messageId: payload.assistant_message_id,
         sources: payload.sources || [],
+        guide: payload.guide || null,
       });
       history.push({ role: "assistant", content: answer });
       handoffBox.hidden = false;
@@ -608,7 +688,7 @@ function init() {
         addMessage(
           messages,
           "assistant",
-          "گفتگو برای پشتیبانی ارسال شد. الان صفحه پیگیری درخواست رو باز می‌کنم.",
+          "برای پشتیبانی ارسال شد؛ صفحه پیگیری باز می‌شود.",
           { root }
         );
         setTimeout(() => { window.location.href = payload.ticket_url; }, 650);

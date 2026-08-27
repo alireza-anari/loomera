@@ -54,6 +54,22 @@ class HelpRetrievalTests(TestCase):
             body="زمان جدید را از ظرفیت‌های آزاد انتخاب کن.",
             keywords="رزرو نوبت تغییر زمان",
         )
+        stylist = HelpCategory.objects.create(
+            slug="test-stylist",
+            title="کار متخصص",
+            audience=Audience.STYLIST,
+        )
+        self.stylist_leave = HelpArticle.objects.create(
+            category=stylist,
+            key="stylist.test.leave",
+            slug="stylist-test-leave",
+            title="درخواست مرخصی متخصص",
+            audience=Audience.STYLIST,
+            article_type=ArticleType.WORKFLOW,
+            summary="متخصص می‌تواند درخواست مرخصی ثبت کند.",
+            body="درخواست مرخصی را ثبت کن و منتظر بررسی مدیر بمان.",
+            keywords="متخصص مرخصی درخواست",
+        )
 
     def test_normalizes_arabic_and_persian_forms(self):
         self.assertEqual(normalize_persian("كیف پول ۱۲۳"), "کیف پول 123")
@@ -86,3 +102,25 @@ class HelpRetrievalTests(TestCase):
         hits = retrieve_help_chunks("مشتری چطور زمان نوبتش را تغییر بدهد؟", role="manager", limit=3)
         self.assertTrue(hits)
         self.assertEqual(hits[0].article_key, self.customer_booking.key)
+
+    def test_cross_role_mode_can_find_manager_doc_for_customer_question(self):
+        hits = retrieve_help_chunks(
+            "چطور کد تخفیف بسازم؟",
+            role="customer",
+            limit=3,
+            allow_cross_role=True,
+        )
+        self.assertTrue(hits)
+        self.assertEqual(hits[0].article_key, self.coupon.key)
+        self.assertEqual(hits[0].audience, Audience.MANAGER)
+
+    def test_cross_role_mode_still_prefers_same_role_docs(self):
+        hits = retrieve_help_chunks(
+            "چطور درخواست مرخصی ثبت کنم؟",
+            role="stylist",
+            limit=3,
+            allow_cross_role=True,
+        )
+        self.assertTrue(hits)
+        self.assertEqual(hits[0].article_key, self.stylist_leave.key)
+        self.assertEqual(hits[0].audience, Audience.STYLIST)

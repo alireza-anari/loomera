@@ -58,8 +58,7 @@ STOP_WORDS = {
 CONCEPT_GROUPS = (
     ("متخصص", "استایلیست", "آرایشگر", "عضو تیم", "همکار"),
     ("رزرو", "نوبت", "وقت"),
-    ("شیفت", "برنامه کاری", "برنامه کار"),
-    ("ساعت کاری مجموعه", "ساعات کاری مجموعه", "ساعت سالن", "opening hours"),
+    ("شیفت", "برنامه کاری", "ساعت کاری", "برنامه کار"),
     ("مجموعه", "سالن"),
     ("خدمت", "سرویس"),
     ("مرخصی", "عدم حضور", "تایم آف", "time off"),
@@ -99,6 +98,9 @@ class RetrievalHit:
     slug: str
     title: str
     article_type: str
+    audience: str
+    steps: list
+    source_refs: list
     heading: str
     content: str
     score: float
@@ -152,8 +154,53 @@ def allowed_audiences(role: str) -> tuple[str, ...]:
     return (Audience.ALL,)
 
 
-def _audience_q(role: str):
-    return Q(article__audience__in=allowed_audiences(role))
+def retrieval_audiences(role: str, *, allow_cross_role: bool = False) -> tuple[str, ...]:
+    if allow_cross_role:
+        return (
+            Audience.ALL,
+            Audience.CUSTOMER,
+            Audience.STYLIST,
+            Audience.MANAGER,
+        )
+    return allowed_audiences(role)
+
+
+def _audience_q(role: str, *, allow_cross_role: bool = False):
+    return Q(article__audience__in=retrieval_audiences(role, allow_cross_role=allow_cross_role))
+
+
+def _audience_role_bonus(requester_role: str, article_audience: str, *, allow_cross_role: bool = False) -> float:
+    role = (requester_role or '').strip().lower()
+    audience = (article_audience or '').strip().lower()
+
+    if audience == Audience.ALL:
+        return 1.2
+
+    if not allow_cross_role:
+        return 1.8 if audience == role else 0.0
+
+    if audience == role:
+        return 3.5
+
+    # Guest/public questions should still prioritize customer-facing docs.
+    if role in ('guest', Audience.CUSTOMER) and audience == Audience.CUSTOMER:
+        return 2.0
+
+    # Cross-role retrieval is allowed for the chat assistant so it can explain
+    # how a feature works for another role, but the user's own role remains the
+    # first preference.
+    if role == Audience.MANAGER and audience == Audience.CUSTOMER:
+        return 1.6
+    if role == Audience.STYLIST and audience == Audience.CUSTOMER:
+        return 1.4
+    if role == Audience.CUSTOMER and audience in (Audience.MANAGER, Audience.STYLIST):
+        return 0.5
+    if role == Audience.STYLIST and audience == Audience.MANAGER:
+        return 0.9
+    if role == Audience.MANAGER and audience == Audience.STYLIST:
+        return 0.9
+
+    return 0.7
 
 
 def _field_score(query_norm: str, terms: set[str], text: str, *, exact_bonus: float, token_weight: float) -> float:
@@ -179,7 +226,6 @@ def _alias_phrase_bonus(query_norm: str, aliases: str) -> float:
         alias_tokens = tokenize(alias)
         if len(alias_tokens) < 2:
             continue
-
         if alias and alias in query_norm:
             best = max(best, min(12.0, 6.0 + len(alias_tokens) * 1.5))
             continue
@@ -199,6 +245,7 @@ def _score_chunk(
     role: str = "",
     page_key: str = "",
     use_page_context: bool = False,
+    allow_cross_role: bool = False,
 ) -> float:
     query_norm = normalize_persian(query)
     terms = _expanded_terms(query)
@@ -236,15 +283,52 @@ def _score_chunk(
     intent_surface = normalize_persian(
         " ".join((article.title, article.keywords, article.aliases))
     )
-    for intent in ("درخواست", "بررسی", "تایید", "رد", "لغو", "لینک", "گزارش", "رمز", "حذف", "تیکت", "اعلان", "حداقل", "حداکثر", "وصل", "قطع", "شارژ"):
+    for intent in (
+        "درخواست", "بررسی", "تایید", "رد", "لغو", "لینک", "گزارش",
+        "رمز", "حذف", "تیکت", "اعلان", "حداقل", "حداکثر",
+        "وصل", "قطع", "شارژ",
+    ):
         normalized_intent = normalize_persian(intent)
         if normalized_intent in query_norm and normalized_intent in intent_surface:
             score += 4.0
 
-    # Managers/stylists may intentionally retrieve customer-journey docs.
-    # Exact-role affinity is only a small tie-breaker when two docs are close.
+    # "وصل کردن بله" must not rank the disconnect guide just because both
+    # documents contain the word "اتصال".
+    if "وصل" in query_norm:
+        if any(token in intent_surface for token in ("وصل", "متصل")):
+            score += 5.0
+        if "قطع" in intent_surface or "لغو اتصال" in intent_surface:
+            score -= 7.0
+
+    if "قطع" in query_norm:
+        if "قطع" in intent_surface or "لغو اتصال" in intent_surface:
+            score += 5.0
+        if "وصل" in intent_surface and "قطع" not in intent_surface:
+            score -= 3.0
+
+    # If the requested service is explicitly NOT in the catalog, this is a
+    # service-request intent rather than "add an existing catalog service".
+    if "کاتالوگ" in query_norm and any(
+        phrase in query_norm
+        for phrase in ("نیست", "وجود نداره", "وجود ندارد", "پیدا نمیشه", "پیدا نمی")
+    ):
+        if "درخواست" in intent_surface:
+            score += 8.0
+        if "از کاتالوگ" in intent_surface and "درخواست" not in intent_surface:
+            score -= 4.0
+
+    # Exact-role affinity remains a tie-breaker in both modes.
     if role and article.audience == role:
         score += 3.0
+
+    # In cross-role chat mode, other-role documents stay searchable. The user's
+    # own role gets a small additional preference, but relevance still wins.
+    if allow_cross_role:
+        score += _audience_role_bonus(
+            role,
+            article.audience,
+            allow_cross_role=True,
+        )
 
     # Current page is NEVER a general retrieval boost. It is only used when the
     # user explicitly asks about "this page / here / this section".
@@ -264,6 +348,7 @@ def retrieve_help_chunks(
     page_key: str = "",
     limit: int = 5,
     min_score: float = 6.0,
+    allow_cross_role: bool = False,
 ) -> list[RetrievalHit]:
     question = str(query or "").strip()
     if not question:
@@ -274,7 +359,7 @@ def retrieve_help_chunks(
         qs = (
             HelpArticleChunk.objects.select_related("article", "article__category")
             .filter(article__is_published=True)
-            .filter(_audience_q(role))
+            .filter(_audience_q(role, allow_cross_role=allow_cross_role))
             .order_by("article_id", "position")
         )
         chunks = list(qs[:3000])
@@ -289,6 +374,7 @@ def retrieve_help_chunks(
                 role=role,
                 page_key=page_key,
                 use_page_context=use_page_context,
+                allow_cross_role=allow_cross_role,
             ),
             chunk,
         )
@@ -311,6 +397,9 @@ def retrieve_help_chunks(
                 slug=chunk.article.slug,
                 title=chunk.article.title,
                 article_type=chunk.article.article_type,
+                audience=chunk.article.audience,
+                steps=list(chunk.article.steps or []),
+                source_refs=list(chunk.article.source_refs or []),
                 heading=chunk.heading,
                 content=chunk.content,
                 score=round(score, 3),
