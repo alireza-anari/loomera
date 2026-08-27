@@ -12,6 +12,7 @@ urlpatterns = [
     path("legal/<slug:slug>/", views.legal_detail, name="legal_detail"),
     path("api/context/", views.context_api, name="context_api"),
     path("api/chat/", views.chat_api, name="chat_api"),
+    path("api/conversation/", views.conversation_api, name="conversation_api"),
     path("api/feedback/", views.feedback_api, name="feedback_api"),
     path("api/support-handoff/", views.support_handoff_api, name="support_handoff_api"),
 ]

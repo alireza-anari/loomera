@@ -1,0 +1,10 @@
+.lm-help-doc-body{color:#57526e;font-size:.875rem;line-height:2.05}
+.lm-help-doc-body h2{margin:1.75rem 0 .65rem;color:#29263a;font-size:1rem;font-weight:900;line-height:1.8}
+.lm-help-doc-body h2:first-child{margin-top:0}
+.lm-help-doc-body h3{margin:1.25rem 0 .5rem;color:#3d3850;font-size:.9rem;font-weight:900}
+.lm-help-doc-body p{margin:.55rem 0}
+.lm-help-doc-body strong{color:#3c355a;font-weight:900}
+.lm-help-doc-body ul,.lm-help-doc-body ol{margin:.6rem 0;padding-right:1.3rem}
+.lm-help-doc-body ul{list-style:disc}.lm-help-doc-body ol{list-style:decimal}
+.lm-help-doc-body li{margin:.35rem 0;padding-right:.2rem}
+.lm-help-doc-type{display:inline-flex;align-items:center;border-radius:999px;background:#f3efff;color:#6a54b2;padding:.28rem .65rem;font-size:.65rem;font-weight:900}

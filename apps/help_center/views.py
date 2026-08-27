@@ -68,7 +68,8 @@ def help_search(request):
 
 
 def help_article(request, slug):
-    article = get_article_by_slug(slug)
+    role = public_role(_role(request))
+    article = get_article_by_slug(slug, role=role)
     if not article:
         raise Http404
     return render(
@@ -177,6 +178,43 @@ def chat_api(request):
     result["conversation_id"] = str(conversation.public_id) if conversation else None
     result["assistant_message_id"] = str(assistant_message.public_id) if assistant_message else None
     return JsonResponse(result)
+
+
+@require_GET
+def conversation_api(request):
+    conversation = get_owned_conversation(
+        request,
+        (request.GET.get("conversation_id") or "").strip(),
+    )
+    if not conversation:
+        return JsonResponse({"error": "گفتگو پیدا نشد."}, status=404)
+
+    rows = list(
+        conversation.messages.order_by("-created_at", "-id")[:24]
+    )
+    rows.reverse()
+
+    messages = []
+    for item in rows:
+        if item.role not in {"user", "assistant"}:
+            continue
+        messages.append(
+            {
+                "role": item.role,
+                "content": item.content,
+                "message_id": str(item.public_id) if item.role == "assistant" else None,
+                "sources": item.sources if item.role == "assistant" else [],
+                "created_at": item.created_at.isoformat(),
+            }
+        )
+
+    return JsonResponse(
+        {
+            "conversation_id": str(conversation.public_id),
+            "status": conversation.status,
+            "messages": messages,
+        }
+    )
 
 
 @require_POST

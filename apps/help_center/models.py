@@ -14,6 +14,13 @@ class Audience(models.TextChoices):
     STYLIST = "stylist", "متخصص"
 
 
+class ArticleType(models.TextChoices):
+    GUIDE = "guide", "راهنما"
+    WORKFLOW = "workflow", "انجام کار"
+    TROUBLESHOOTING = "troubleshooting", "رفع مشکل"
+    FAQ = "faq", "پرسش پرتکرار"
+
+
 class HelpCategory(models.Model):
     slug = models.SlugField(max_length=100, unique=True, verbose_name="اسلاگ")
     title = models.CharField(max_length=160, verbose_name="عنوان")
@@ -72,6 +79,30 @@ class HelpArticle(models.Model):
         db_index=True,
         verbose_name="مخاطب",
     )
+    article_type = models.CharField(
+        max_length=24,
+        choices=ArticleType.choices,
+        default=ArticleType.GUIDE,
+        db_index=True,
+        verbose_name="نوع مقاله",
+    )
+    aliases = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="نام‌ها و عبارت‌های مشابه",
+        help_text="هر عبارت در یک خط؛ مثال: استایلیست، آرایشگر، عضو تیم",
+    )
+    is_featured = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name="پیشنهاد ویژه",
+    )
+    source_refs = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name="منابع داخلی مستند",
+        help_text="مسیر فایل/route/viewهایی که این راهنما از روی آن‌ها بازبینی شده است.",
+    )
     summary = models.TextField(verbose_name="خلاصه")
     body = models.TextField(
         blank=True,
@@ -111,6 +142,8 @@ class HelpArticle(models.Model):
         indexes = [
             models.Index(fields=["audience", "is_published", "sort_order"], name="hc_art_aud_pub_sort"),
             models.Index(fields=["category", "is_published", "sort_order"], name="hc_art_cat_pub_sort"),
+            models.Index(fields=["article_type", "is_published"], name="hc_art_type_pub"),
+            models.Index(fields=["audience", "is_featured", "is_published"], name="hc_art_aud_feat_pub"),
         ]
 
     def __str__(self):
@@ -120,6 +153,39 @@ class HelpArticle(models.Model):
         if self.is_published and self.published_at is None:
             self.published_at = timezone.now()
         super().save(*args, **kwargs)
+
+
+class HelpArticleChunk(models.Model):
+    article = models.ForeignKey(
+        HelpArticle,
+        on_delete=models.CASCADE,
+        related_name="chunks",
+        verbose_name="مقاله",
+    )
+    position = models.PositiveIntegerField(default=0, verbose_name="ترتیب")
+    heading = models.CharField(max_length=240, blank=True, default="", verbose_name="عنوان بخش")
+    content = models.TextField(verbose_name="متن بخش")
+    search_text = models.TextField(blank=True, default="", verbose_name="متن جستجو")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="ایجاد")
+    updated_at = models.DateTimeField(auto_now=True, db_index=True, verbose_name="بروزرسانی")
+
+    class Meta:
+        ordering = ["article_id", "position", "id"]
+        db_table = "HC_ArticleChunks"
+        verbose_name = "بخش قابل جستجوی راهنما"
+        verbose_name_plural = "بخش‌های قابل جستجوی راهنما"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["article", "position"],
+                name="hc_unique_article_chunk_position",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["article", "position"], name="hc_chunk_article_pos"),
+        ]
+
+    def __str__(self):
+        return f"{self.article.title} · {self.heading or self.position}"
 
 
 class HelpPageContext(models.Model):

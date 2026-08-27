@@ -1,8 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}مرکز راهنمای لومرا{% endblock %}
 {% block meta_description %}آموزش استفاده از لومرا برای مشتریان، متخصصان و مدیران مجموعه{% endblock %}
 {% block body_attrs %}data-page="help-center"{% endblock %}
+
+{% block head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/components/help_center.css' %}?v=20260826-1">{% endblock %}
 
 {% block content %}
 <main class="min-h-dvh bg-loomera-bg pb-20 text-loomera-textPrimary">

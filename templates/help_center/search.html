@@ -1,7 +1,10 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}جستجو در مرکز راهنمای لومرا{% endblock %}
 {% block body_attrs %}data-page="help-search"{% endblock %}
+
+{% block head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/components/help_center.css' %}?v=20260826-1">{% endblock %}
 
 {% block content %}
 <main class="min-h-dvh bg-loomera-bg pb-20 text-loomera-textPrimary">
@@ -25,7 +28,7 @@
       <div class="overflow-hidden rounded-[1.5rem] border border-loomera-borderSoft bg-white">
         {% for article in results %}
           <a href="{% url 'help_center:article' article.slug %}" class="group block border-b border-loomera-borderSoft px-4 py-4 last:border-b-0 sm:px-5">
-            <h2 class="text-sm font-black group-hover:text-loomera-primary">{{ article.title }}</h2>
+            <div class="flex items-center gap-2"><span class="lm-help-doc-type">{{ article.article_type_label }}</span><h2 class="text-sm font-black group-hover:text-loomera-primary">{{ article.title }}</h2></div>
             <p class="mt-1 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ article.summary }}</p>
           </a>
         {% endfor %}

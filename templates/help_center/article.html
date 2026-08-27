@@ -1,8 +1,11 @@
 {% extends "base.html" %}
+{% load static help_docs %}
 
 {% block title %}{{ article.title }} | مرکز راهنمای لومرا{% endblock %}
 {% block meta_description %}{{ article.summary }}{% endblock %}
 {% block body_attrs %}data-page="help-article"{% endblock %}
+
+{% block head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/components/help_center.css' %}?v=20260826-1">{% endblock %}
 
 {% block content %}
 <main class="min-h-dvh bg-loomera-bg pb-20 text-loomera-textPrimary">
@@ -12,7 +15,8 @@
         <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
         مرکز راهنما
       </a>
-      <h1 class="mt-3 text-2xl font-black leading-[1.6] sm:text-3xl">{{ article.title }}</h1>
+      <div class="mt-3"><span class="lm-help-doc-type">{{ article.article_type_label }}</span></div>
+      <h1 class="mt-2 text-2xl font-black leading-[1.6] sm:text-3xl">{{ article.title }}</h1>
       <p class="mt-2 max-w-3xl text-sm leading-8 text-loomera-textMuted">{{ article.summary }}</p>
     </div>
   </header>
@@ -20,7 +24,7 @@
   <div class="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-8 xl:px-0">
     <article class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-5 sm:p-7">
       {% if article.body %}
-        <div class="mb-6 text-sm leading-8 text-loomera-textSecondary">{{ article.body|linebreaks }}</div>
+        <div class="lm-help-doc-body mb-6">{{ article.body|render_help_markdown }}</div>
       {% endif %}
 
       {% if article.steps %}
@@ -50,6 +54,11 @@
           </div>
         </div>
       {% endif %}
+    <div class="mt-6 flex flex-wrap items-center gap-2 border-t border-loomera-borderSoft pt-4 text-[10px] font-bold text-loomera-textMuted">
+        <span><i class="fa-regular fa-clock ml-1" aria-hidden="true"></i>آخرین بروزرسانی: {{ article.updated_at|date:"Y/m/d" }}</span>
+        <span>•</span>
+        <span>این متن منبع پاسخ دستیار لومراست.</span>
+      </div>
     </article>
 
     {% if related_articles %}
