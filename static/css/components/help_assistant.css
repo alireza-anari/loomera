@@ -1301,3 +1301,381 @@ a.lm-help-assistant__flow-title:hover {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   Lومی v5.3.1 — mobile viewport hotfix
+   Keep this block LAST. It intentionally overrides every generic panel rule.
+   ========================================================================== */
+@media (max-width: 767px) {
+  .lm-help-assistant {
+    left: 12px !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: calc(5.35rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .lm-help-assistant__panel {
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+
+    width: 100vw !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    transform: none !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-sizing: border-box;
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+
+  .lm-help-assistant__header {
+    flex: 0 0 auto;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  }
+
+  .lm-help-assistant__messages {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .lm-help-assistant__handoff,
+  .lm-help-assistant__composer {
+    flex: 0 0 auto;
+  }
+
+  .lm-help-assistant__composer {
+    padding-bottom: calc(9px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body:has(.lm-help-assistant__panel:not([hidden])) {
+    overflow: hidden;
+  }
+}
+
+/* Slightly roomier centered card on tablets, without changing desktop. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .lm-help-assistant__panel {
+    left: 50% !important;
+    right: auto !important;
+    width: min(430px, calc(100vw - 32px)) !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+
+@media (max-width: 767px) {
+  body.lm-help-assistant-open {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+  }
+}
+
+/* ==========================================================================
+   Lومی v5.3.2 — mobile readability polish
+   ========================================================================== */
+.lm-help-assistant__answer-paragraph {
+  margin: 0;
+}
+.lm-help-assistant__answer-paragraph + .lm-help-assistant__answer-paragraph {
+  margin-top: .72rem;
+}
+.lm-help-assistant__answer-more {
+  margin-top: .65rem;
+  overflow: hidden;
+  border-top: 1px solid rgba(109, 85, 187, .09);
+}
+.lm-help-assistant__answer-more summary {
+  display: flex;
+  min-height: 36px;
+  cursor: pointer;
+  list-style: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .55rem .1rem .15rem;
+  color: var(--lm-primary);
+  font-weight: 850;
+}
+.lm-help-assistant__answer-more summary::-webkit-details-marker {
+  display: none;
+}
+.lm-help-assistant__answer-more summary i {
+  transition: transform .18s ease;
+}
+.lm-help-assistant__answer-more[open] summary i {
+  transform: rotate(180deg);
+}
+.lm-help-assistant__answer-more-body {
+  padding-top: .45rem;
+}
+
+@media (max-width: 767px) {
+  /* Reading area */
+  .lm-help-assistant__messages {
+    padding: 14px 12px 18px !important;
+    scroll-padding-bottom: 92px;
+  }
+
+  .lm-help-assistant__message {
+    gap: 0;
+    margin: 12px 0;
+  }
+
+  /* The avatar is useful on desktop but steals precious reading width on phone. */
+  .lm-help-assistant__message--assistant > .lm-help-assistant__message-avatar {
+    display: none;
+  }
+
+  .lm-help-assistant__message-stack,
+  .lm-help-assistant__message--assistant .lm-help-assistant__message-stack {
+    width: 100%;
+    max-width: 100% !important;
+  }
+
+  .lm-help-assistant__message--user .lm-help-assistant__message-stack {
+    width: auto;
+    max-width: 88% !important;
+  }
+
+  .lm-help-assistant__bubble {
+    padding: 12px 13px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 560;
+    line-height: 1.95;
+    letter-spacing: 0;
+  }
+
+  .lm-help-assistant__message--assistant .lm-help-assistant__bubble {
+    width: 100%;
+    border-radius: 15px;
+  }
+
+  .lm-help-assistant__message--user .lm-help-assistant__bubble {
+    padding: 10px 12px;
+    font-size: 13.5px;
+    line-height: 1.75;
+  }
+
+  .lm-help-assistant__answer-paragraph + .lm-help-assistant__answer-paragraph {
+    margin-top: .85rem;
+  }
+
+  .lm-help-assistant__answer-more summary {
+    min-height: 44px;
+    padding-top: .7rem;
+    font-size: 13px;
+  }
+
+  /* Inline citations remain available but no longer dominate the sentence. */
+  .lm-help-assistant__citation {
+    width: 16px;
+    height: 16px;
+    margin: 0 2px;
+    transform: translateY(-1px);
+    border-radius: 5px;
+    font-size: 7.5px;
+    opacity: .78;
+  }
+
+  /* Sources */
+  .lm-help-assistant__message-sources {
+    width: 100%;
+    margin-top: 8px;
+    border-radius: 13px;
+  }
+
+  .lm-help-assistant__message-sources summary {
+    min-height: 44px;
+    padding: 9px 11px;
+    font-size: 12.5px;
+  }
+
+  .lm-help-assistant__source-link {
+    min-height: 48px;
+    padding: 9px 10px;
+  }
+
+  .lm-help-assistant__source-copy strong {
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+
+  .lm-help-assistant__source-copy small {
+    font-size: 11px;
+    line-height: 1.55;
+  }
+
+  /* Feedback is easy to tap without becoming visually heavy. */
+  .lm-help-assistant__feedback {
+    min-height: 44px;
+    gap: 5px;
+    margin-top: 5px;
+    font-size: 12px;
+  }
+
+  .lm-help-assistant__feedback button {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    font-size: 14px;
+  }
+
+  /* Workflow readability */
+  .lm-help-assistant__guide {
+    width: 100%;
+    margin-top: 8px;
+    border-radius: 15px;
+  }
+
+  .lm-help-assistant__guide-header {
+    min-height: 46px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .lm-help-assistant__guide-role {
+    padding: 3px 7px;
+    font-size: 10px;
+  }
+
+  .lm-help-assistant__flow {
+    padding: 3px 9px 10px;
+  }
+
+  .lm-help-assistant__flow-step {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 8px;
+    padding-top: 9px;
+  }
+
+  .lm-help-assistant__flow-marker {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+
+  .lm-help-assistant__flow-step:not(:last-child)::after {
+    top: 2.15rem;
+    right: 13px;
+  }
+
+  .lm-help-assistant__flow-title {
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  .lm-help-assistant__flow-copy p {
+    margin-top: 3px;
+    font-size: 12px;
+    line-height: 1.72;
+  }
+
+  .lm-help-assistant__flow-direct {
+    padding: 2px 6px;
+    font-size: 9px;
+  }
+
+  .lm-help-assistant__flow-action {
+    min-height: 42px;
+    margin-top: 7px;
+    padding: 8px 11px;
+    border-radius: 11px;
+    font-size: 12.5px;
+  }
+
+  /* Header touch targets */
+  .lm-help-assistant__header-actions {
+    gap: 4px;
+  }
+
+  .lm-help-assistant__header-actions button {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    font-size: 15px;
+  }
+
+  .lm-help-assistant__avatar {
+    width: 44px;
+    height: 44px;
+  }
+
+  .lm-help-assistant__identity strong {
+    font-size: 14px;
+  }
+
+  .lm-help-assistant__identity small {
+    font-size: 10.5px;
+  }
+
+  /* Handoff only appears when it is useful; when visible it is finger-friendly. */
+  .lm-help-assistant__handoff {
+    padding: 7px 10px 4px;
+  }
+
+  .lm-help-assistant__handoff button {
+    min-height: 44px;
+    border-radius: 12px;
+    font-size: 12.5px;
+  }
+
+  /* Composer: 16px prevents unwanted mobile browser zoom on focus. */
+  .lm-help-assistant__composer {
+    padding: 8px 10px calc(9px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .lm-help-assistant__input-shell {
+    min-height: 52px;
+    padding: 4px 5px;
+    border-radius: 16px;
+  }
+
+  .lm-help-assistant__composer textarea {
+    min-height: 42px;
+    padding: 9px 10px;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .lm-help-assistant__composer [data-help-send] {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 13px;
+    font-size: 15px;
+  }
+
+  /* Loading remains deliberately quiet. */
+  .lm-help-assistant__message[data-temporary="1"] .lm-help-assistant__message-stack {
+    width: auto;
+    max-width: max-content !important;
+  }
+
+  .lm-help-assistant__message[data-temporary="1"] .lm-help-assistant__bubble {
+    width: auto;
+    min-width: 54px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lm-help-assistant__answer-more summary i {
+    transition: none;
+  }
+}
+
