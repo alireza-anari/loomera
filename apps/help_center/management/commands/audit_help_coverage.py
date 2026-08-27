@@ -57,6 +57,22 @@ BENCHMARKS = (
     ('customer', 'چطور اتصال بله رو قطع کنم؟', 'messaging.bale.disconnect'),
     ('customer', 'چطور تیکت پشتیبانی قبلیم رو پیگیری کنم؟', 'support.tickets.overview'),
     ('customer', 'چطور به تیکت پشتیبانی جواب بدم یا ببندمش؟', 'support.tickets.reply-close'),
+    ("manager", "پروفایل مجموعه رو از کجا کامل کنم؟", "manager.setup.overview"),
+    ("manager", "آدرس و موقعیت سالن رو چطور ثبت کنم؟", "manager.setup.location"),
+    ("manager", "چطور ساعت کاری مجموعه رو تنظیم کنم؟", "manager.setup.hours"),
+    ("manager", "چطور عکس کاور مجموعه رو عوض کنم؟", "manager.setup.gallery"),
+    ("manager", "خدمتی که می‌خوام تو کاتالوگ نیست چیکار کنم؟", "manager.services.request-new"),
+    ("manager", "چرا نمی‌تونم خدمت رو آرشیو کنم و میگه نوبت آینده داره؟", "manager.services.archive-blocked"),
+    ("manager", "گزارش‌های عملیاتی مجموعه رو از کجا ببینم؟", "manager.reports.overview"),
+    ("manager", "برای انتشار عکس مشتری تو محتوا رضایت لازمه؟", "manager.content.client-consent"),
+    ("manager", "آیا بخش محصولات و موجودی الان کامل کار می‌کنه؟", "manager.inventory.products-not-ready"),
+    ("manager", "انبارگردانی الان به stock ledger واقعی وصله؟", "manager.inventory.stocktakes-not-ready"),
+    ("stylist", "پروفایل حرفه‌ای خودم رو از کجا ویرایش کنم؟", "stylist.profile.manage"),
+    ("stylist", "چطور مشتری جدید اضافه کنم و بعد براش وقت بگیرم؟", "stylist.customers.add"),
+    ("stylist", "چطور برای مشتری خودم نوبت ثبت کنم؟", "stylist.booking.manual"),
+    ("customer", "چطور آدرس جدید به حسابم اضافه کنم؟", "customer.account.address-add"),
+    ("customer", "چطور خدمات مختلف لومرا رو پیدا کنم؟", "customer.discovery.services"),
+    ("customer", "چطور مجموعه و متخصص مناسب پیدا کنم؟", "customer.discovery.salons"),
 )
 
 

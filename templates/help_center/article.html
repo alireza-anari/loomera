@@ -1,79 +1,10 @@
-{% extends "base.html" %}
-{% load static help_docs %}
-
+{% extends "base.html" %}{% load static help_docs %}
 {% block title %}{{ article.title }} | مرکز راهنمای لومرا{% endblock %}
 {% block meta_description %}{{ article.summary }}{% endblock %}
-{% block body_attrs %}data-page="help-article"{% endblock %}
-
-{% block head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/components/help_center.css' %}?v=20260826-1">{% endblock %}
-
+{% block head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/components/help_center.css' %}?v=20260827-5">{% endblock %}
 {% block content %}
-<main class="min-h-dvh bg-loomera-bg pb-20 text-loomera-textPrimary">
-  <header class="border-b border-loomera-borderSoft bg-white">
-    <div class="mx-auto w-full max-w-4xl px-4 py-7 sm:px-6 sm:py-10 xl:px-0">
-      <a href="{% url 'help_center:home' %}" class="inline-flex items-center gap-2 text-xs font-black text-loomera-primary">
-        <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
-        مرکز راهنما
-      </a>
-      <div class="mt-3"><span class="lm-help-doc-type">{{ article.article_type_label }}</span></div>
-      <h1 class="mt-2 text-2xl font-black leading-[1.6] sm:text-3xl">{{ article.title }}</h1>
-      <p class="mt-2 max-w-3xl text-sm leading-8 text-loomera-textMuted">{{ article.summary }}</p>
-    </div>
-  </header>
-
-  <div class="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-8 xl:px-0">
-    <article class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-5 sm:p-7">
-      {% if article.body %}
-        <div class="lm-help-doc-body mb-6">{{ article.body|render_help_markdown }}</div>
-      {% endif %}
-
-      {% if article.steps %}
-        <h2 class="text-base font-black">مراحل پیشنهادی</h2>
-        <ol class="mt-4 space-y-4">
-          {% for step in article.steps %}
-            <li class="flex gap-3">
-              <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-xs font-black text-loomera-primary">{{ forloop.counter }}</span>
-              <div>
-                <h3 class="text-sm font-black">{{ step.title }}</h3>
-                <p class="mt-1 text-sm leading-7 text-loomera-textMuted">{{ step.body }}</p>
-              </div>
-            </li>
-          {% endfor %}
-        </ol>
-      {% endif %}
-
-      {% if article.tips %}
-        <div class="mt-6 border-t border-loomera-borderSoft pt-5">
-          <h2 class="text-sm font-black">نکته‌ها</h2>
-          <div class="mt-3 space-y-2">
-            {% for tip in article.tips %}
-              <p class="rounded-2xl bg-loomera-bgSubtle px-4 py-3 text-xs font-bold leading-6 text-loomera-textSecondary">
-                <i class="fa-solid fa-circle ml-2 text-[6px] text-loomera-primary" aria-hidden="true"></i>{{ tip }}
-              </p>
-            {% endfor %}
-          </div>
-        </div>
-      {% endif %}
-    <div class="mt-6 flex flex-wrap items-center gap-2 border-t border-loomera-borderSoft pt-4 text-[10px] font-bold text-loomera-textMuted">
-        <span><i class="fa-regular fa-clock ml-1" aria-hidden="true"></i>آخرین بروزرسانی: {{ article.updated_at|date:"Y/m/d" }}</span>
-        <span>•</span>
-        <span>این متن منبع پاسخ دستیار لومراست.</span>
-      </div>
-    </article>
-
-    {% if related_articles %}
-      <section class="mt-7">
-        <h2 class="text-base font-black">راهنماهای مرتبط</h2>
-        <div class="mt-3 grid gap-3 sm:grid-cols-2">
-          {% for related in related_articles %}
-            <a href="{% url 'help_center:article' related.slug %}" class="rounded-2xl border border-loomera-borderSoft bg-white p-4 transition hover:border-loomera-primary/25">
-              <strong class="text-sm font-black">{{ related.title }}</strong>
-              <p class="mt-1 line-clamp-2 text-xs leading-6 text-loomera-textMuted">{{ related.summary }}</p>
-            </a>
-          {% endfor %}
-        </div>
-      </section>
-    {% endif %}
-  </div>
-</main>
+<main class="lm-help-center min-h-dvh pb-20"><header class="lm-help-center__page-head"><div class="mx-auto max-w-5xl px-4 py-7 sm:px-6 xl:px-0"><nav class="lm-help-center__breadcrumbs"><a href="{% url 'help_center:home' %}">مرکز راهنما</a><i class="fa-solid fa-chevron-left"></i><a href="{% url 'help_center:category' article.category %}">{{ article.category_title }}</a></nav><div class="mt-4"><span class="lm-help-doc-type">{{ article.article_type_label }}</span></div><h1 class="mt-3 text-2xl font-black leading-[1.65]">{{ article.title }}</h1><p class="mt-2 max-w-3xl text-sm leading-8 text-loomera-textMuted">{{ article.summary }}</p></div></header>
+<div class="mx-auto grid max-w-5xl gap-6 px-4 py-7 sm:px-6 lg:grid-cols-[1fr_250px] xl:px-0"><div><article class="lm-help-center__document">{% if article.body %}<div class="lm-help-doc-body">{{ article.body|render_help_markdown }}</div>{% endif %}<div class="lm-help-center__document-meta"><span>بروزرسانی {{ article.updated_at|date:"Y/m/d" }}</span><span>منبع رسمی دستیار لومرا</span></div></article>{% if related_articles %}<section class="mt-7"><h2 class="font-black">راهنماهای مرتبط</h2><div class="mt-3 grid gap-3 sm:grid-cols-2">{% for related in related_articles %}<a href="{% url 'help_center:article' related.slug %}" class="lm-help-center__article-card"><span class="lm-help-doc-type">{{ related.article_type_label }}</span><strong>{{ related.title }}</strong><p>{{ related.summary }}</p></a>{% endfor %}</div></section>{% endif %}</div>
+<aside><div class="lm-help-center__aside-card"><strong>درباره این موضوع سؤال داری؟</strong><p>دستیار همین مستند و راهنماهای مرتبط رو بررسی می‌کنه.</p><button type="button" class="lm-help-center__button lm-help-center__button--primary w-full" data-help-open-assistant data-help-question="درباره «{{ article.title }}» بیشتر راهنماییم کن">از دستیار بپرس</button></div></aside></div></main>
+<script src="{% static 'js/components/help_center.js' %}?v=20260827-5" defer></script>
 {% endblock %}

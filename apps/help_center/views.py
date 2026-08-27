@@ -14,8 +14,13 @@ from apps.main.support_services import initialize_support_ticket
 
 from .content import (
     get_article_by_slug,
+    get_article_type_options,
     get_categories,
+    get_category,
     get_featured_articles,
+    get_recent_articles,
+    get_troubleshooting_articles,
+    list_articles,
     get_legal_document,
     get_legal_documents,
     legacy_legal_url,
@@ -51,7 +56,15 @@ def help_home(request):
             "categories": get_categories(role),
             "featured_articles": get_featured_articles(role, limit=8),
             "legal_documents": get_legal_documents(),
+            "troubleshooting_articles": get_troubleshooting_articles(role, limit=6),
+            "recent_articles": get_recent_articles(role, limit=6),
+            "article_types": get_article_type_options(),
             "help_role": role,
+            "help_role_label": {
+                "manager": "مدیر مجموعه",
+                "stylist": "متخصص",
+                "customer": "مشتری",
+            }.get(role, "همه کاربران"),
         },
     )
 
@@ -59,11 +72,53 @@ def help_home(request):
 def help_search(request):
     query = (request.GET.get("q") or "").strip()[:200]
     role = public_role(_role(request))
-    results = search_articles(query, role=role, limit=20) if query else []
+    category_slug = (request.GET.get("category") or "").strip()[:100]
+    article_type = (request.GET.get("type") or "").strip()[:24]
+
+    results = search_articles(
+        query,
+        role=role,
+        category_slug=category_slug,
+        article_type=article_type,
+        limit=30,
+    ) if (query or category_slug or article_type) else []
+
     return render(
         request,
         "help_center/search.html",
-        {"query": query, "results": results},
+        {
+            "query": query,
+            "results": results,
+            "categories": get_categories(role),
+            "article_types": get_article_type_options(),
+            "selected_category": category_slug,
+            "selected_type": article_type,
+        },
+    )
+
+
+def help_category(request, slug):
+    role = public_role(_role(request))
+    category = get_category(slug, role=role)
+    if not category:
+        raise Http404
+
+    article_type = (request.GET.get("type") or "").strip()[:24]
+    articles = list_articles(
+        role=role,
+        category_slug=slug,
+        article_type=article_type,
+        limit=100,
+    )
+    return render(
+        request,
+        "help_center/category.html",
+        {
+            "category": category,
+            "articles": articles,
+            "article_types": get_article_type_options(),
+            "selected_type": article_type,
+        },
     )
 
 

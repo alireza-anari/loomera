@@ -3,10 +3,10 @@ from __future__ import annotations
 import re
 
 from django.db import OperationalError, ProgrammingError
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.urls import NoReverseMatch, reverse
 
-from .models import Audience, HelpArticle, HelpCategory, HelpLegalDocument, HelpPageContext
+from .models import ArticleType, Audience, HelpArticle, HelpCategory, HelpLegalDocument, HelpPageContext
 from .retrieval import allowed_audiences, retrieve_help_chunks, unique_article_hits
 
 
@@ -58,15 +58,30 @@ def article_to_dict(article: HelpArticle) -> dict:
     }
 
 
+
 def get_categories(role: str) -> list[dict]:
+    role_value = _role_value(role)
     try:
         rows = list(
             HelpCategory.objects.filter(is_published=True)
-            .filter(_audience_q(role))
+            .filter(_audience_q(role_value))
             .order_by("sort_order", "title")
         )
+        counts = {
+            row["category_id"]: row["total"]
+            for row in (
+                HelpArticle.objects.filter(
+                    is_published=True,
+                    audience__in=allowed_audiences(role_value),
+                    category_id__in=[item.id for item in rows],
+                )
+                .values("category_id")
+                .annotate(total=Count("id"))
+            )
+        }
     except DB_ERRORS:
         return []
+
     return [
         {
             "slug": row.slug,
@@ -74,9 +89,73 @@ def get_categories(role: str) -> list[dict]:
             "description": row.description,
             "icon": row.icon,
             "audience": row.audience,
+            "article_count": counts.get(row.id, 0),
         }
         for row in rows
+        if counts.get(row.id, 0) > 0
     ]
+
+
+def get_category(slug: str, *, role: str = "") -> dict | None:
+    role_value = _role_value(role)
+    try:
+        row = (
+            HelpCategory.objects.filter(slug=slug, is_published=True)
+            .filter(_audience_q(role_value))
+            .first()
+        )
+        if not row:
+            return None
+        count = HelpArticle.objects.filter(
+            category=row,
+            is_published=True,
+            audience__in=allowed_audiences(role_value),
+        ).count()
+        return {
+            "slug": row.slug,
+            "title": row.title,
+            "description": row.description,
+            "icon": row.icon,
+            "audience": row.audience,
+            "article_count": count,
+        }
+    except DB_ERRORS:
+        return None
+
+
+def get_article_type_options() -> list[dict]:
+    return [{"value": value, "label": label} for value, label in ArticleType.choices]
+
+
+def list_articles(*, role: str = "", category_slug: str = "", article_type: str = "", limit: int = 100) -> list[dict]:
+    try:
+        qs = HelpArticle.objects.select_related("category").filter(
+            is_published=True,
+            audience__in=allowed_audiences(_role_value(role)),
+        )
+        if category_slug:
+            qs = qs.filter(category__slug=category_slug)
+        if article_type in ArticleType.values:
+            qs = qs.filter(article_type=article_type)
+        qs = qs.order_by("-is_featured", "sort_order", "title")[:limit]
+        return [article_to_dict(row) for row in qs]
+    except DB_ERRORS:
+        return []
+
+
+def get_troubleshooting_articles(role: str, limit: int = 6) -> list[dict]:
+    return list_articles(role=role, article_type=ArticleType.TROUBLESHOOTING, limit=limit)
+
+
+def get_recent_articles(role: str, limit: int = 6) -> list[dict]:
+    try:
+        qs = HelpArticle.objects.select_related("category").filter(
+            is_published=True,
+            audience__in=allowed_audiences(_role_value(role)),
+        ).order_by("-updated_at", "-id")[:limit]
+        return [article_to_dict(row) for row in qs]
+    except DB_ERRORS:
+        return []
 
 
 def get_featured_articles(role: str, limit: int = 8) -> list[dict]:
@@ -122,26 +201,55 @@ def get_article_by_key(key: str) -> dict | None:
         return None
 
 
-def search_articles(query: str, *, role: str = "", page_key: str = "", limit: int = 10) -> list[dict]:
+
+def search_articles(
+    query: str,
+    *,
+    role: str = "",
+    page_key: str = "",
+    category_slug: str = "",
+    article_type: str = "",
+    limit: int = 10,
+) -> list[dict]:
     if not str(query or "").strip():
-        return []
+        return list_articles(
+            role=role,
+            category_slug=category_slug,
+            article_type=article_type,
+            limit=limit,
+        )
+
     hits = unique_article_hits(
         retrieve_help_chunks(
             query,
             role=_role_value(role),
             page_key=page_key,
-            limit=max(limit * 2, 10),
+            limit=max(limit * 6, 30),
         ),
-        limit=limit,
+        limit=max(limit * 4, 20),
     )
     if not hits:
         return []
+
     article_ids = [hit.article_id for hit in hits]
     try:
         rows = HelpArticle.objects.select_related("category").in_bulk(article_ids)
     except DB_ERRORS:
         return []
-    return [article_to_dict(rows[hit.article_id]) for hit in hits if hit.article_id in rows]
+
+    results = []
+    for hit in hits:
+        row = rows.get(hit.article_id)
+        if not row:
+            continue
+        if category_slug and row.category.slug != category_slug:
+            continue
+        if article_type in ArticleType.values and row.article_type != article_type:
+            continue
+        results.append(article_to_dict(row))
+        if len(results) >= limit:
+            break
+    return results
 
 
 def resolve_page_context(path: str, role: str, route_name: str = "") -> dict:

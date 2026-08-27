@@ -1,5 +1,5 @@
 {
-  "version": "2026-08-27-docs-first-3",
+  "version": "2026-08-27-docs-first-4.2",
   "categories": [
     {
       "slug": "getting-started",
@@ -48,6 +48,22 @@
       "icon": "fa-solid fa-user-check",
       "audience": "stylist",
       "sort_order": 60
+    },
+    {
+      "slug": "manager",
+      "title": "مدیریت مجموعه",
+      "description": "مشتریان، گزارش‌های عملیاتی، محصولات و ابزارهای مدیریتی مجموعه.",
+      "icon": "fa-solid fa-store",
+      "audience": "manager",
+      "sort_order": 62
+    },
+    {
+      "slug": "content",
+      "title": "محتوا و انتشار",
+      "description": "مقاله، استوری، نمونه‌کار و الزامات انتشار محتوا.",
+      "icon": "fa-regular fa-newspaper",
+      "audience": "all",
+      "sort_order": 64
     },
     {
       "slug": "discounts",
@@ -195,8 +211,8 @@
       "article_type": "workflow",
       "summary": "خدمت را از کاتالوگ انتخاب کن و اطلاعات عملیاتی آن را برای همین مجموعه ثبت کن؛ اگر خدمت مناسب در کاتالوگ نیست می‌توانی درخواست خدمت جدید بدهی.",
       "body": "## مراحل\n1. از «منوی خدمات» وارد «افزودن خدمت» شو.\n2. خدمت استاندارد را از کاتالوگ انتخاب کن.\n3. اطلاعات لازم فرم را برای همین مجموعه کامل کن و ذخیره کن.\n4. بعد از ذخیره، لومرا تو را به منوی خدمات برمی‌گرداند و خدمت ایجادشده مشخص می‌شود.\n\n## اگر خدمت در کاتالوگ نیست\nاز مسیر «درخواست خدمت» استفاده کن. قبل از درخواست، کاتالوگ را با نام‌های نزدیک هم بررسی کن تا خدمت تکراری نسازی.\n\n## بعد از افزودن\nبرای رزرو واقعی، متخصص ارائه‌دهنده و برنامه کاری او را نیز بررسی کن.",
-      "keywords": "افزودن خدمت کاتالوگ درخواست خدمت جدید سرویس",
-      "aliases": "اضافه کردن سرویس\nخدمت جدید",
+      "keywords": "افزودن خدمت موجود کاتالوگ مجموعه قیمت مدت متخصص سرویس",
+      "aliases": "اضافه کردن سرویس موجود\nافزودن خدمت از کاتالوگ\nخدمت موجود را اضافه کنم",
       "is_featured": true,
       "source_refs": [
         "apps/dashboards/views.py:AddServicesView",
@@ -1378,6 +1394,365 @@
         "apps/main/views.py:SupportTicketReplyView",
         "apps/main/views.py:SupportTicketCloseView"
       ]
+    },
+    {
+      "key": "manager.setup.overview",
+      "slug": "manager-salon-setup-overview",
+      "title": "تکمیل پروفایل و آماده‌سازی مجموعه",
+      "audience": "manager",
+      "category": "getting-started",
+      "article_type": "guide",
+      "summary": "پروفایل مجموعه از اطلاعات پایه، موقعیت، ساعت کاری، تصاویر، ویژگی‌ها و توضیح مجموعه ساخته می‌شود و آمادگی رزرو آنلاین جدا بررسی می‌شود.",
+      "body": "## بخش‌های اصلی پروفایل\nصفحه پروفایل مجموعه وضعیت نام و شماره تماس، آدرس و موقعیت، ساعات کاری، تصاویر، ویژگی‌ها و توضیح معرفی را جدا نشان می‌دهد.\n\n## آمادگی رزرو\nکامل‌بودن پروفایل با آماده‌بودن رزرو آنلاین یک چیز نیست. برای رزرو باید خدمت قابل استفاده، عضو تیم مناسب و برنامه کاری هم آماده باشند.\n\nاگر صفحه پروفایل یک مورد را ناقص نشان می‌دهد، از همان کارت وارد ویرایش همان بخش شو.",
+      "keywords": "راه اندازی مجموعه پروفایل سالن آماده سازی رزرو نام آدرس ساعت کاری تصاویر",
+      "aliases": "شروع کار مدیر\nتکمیل سالن\nsetup salon\nپروفایل مجموعه ناقص",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonProfileView",
+        "apps/dashboards/readiness.py:build_salon_readiness_checklist"
+      ]
+    },
+    {
+      "key": "manager.setup.identity",
+      "slug": "manager-salon-name-phone",
+      "title": "ثبت نام و شماره تماس مجموعه",
+      "audience": "manager",
+      "category": "getting-started",
+      "article_type": "workflow",
+      "summary": "مرحله اطلاعات پایه برای ثبت نام مجموعه و شماره تماسی است که در پروفایل مجموعه استفاده می‌شود.",
+      "body": "## ثبت اطلاعات پایه\nاز بخش پروفایل مجموعه وارد «نام و شماره تماس» شو و فرم اطلاعات پایه را تکمیل کن.\n\nبعد از ذخیره موفق، لومرا دوباره وضعیت onboarding را بررسی می‌کند و اگر مرحله ضروری بعدی باقی مانده باشد به همان مرحله هدایت می‌شوی.\n\nاگر فرم ذخیره نشد، پیام خطای فیلدها را اصلاح کن؛ داده نامعتبر به مرحله بعد منتقل نمی‌شود.",
+      "keywords": "نام مجموعه شماره تماس اطلاعات پایه پروفایل مرحله اول",
+      "aliases": "اسم سالن رو عوض کنم\nشماره تماس مجموعه\nsalon identity",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonProfileCreatorStep1View",
+        "apps/salons/forms.py:SalonProfileStep1Form"
+      ]
+    },
+    {
+      "key": "manager.setup.location",
+      "slug": "manager-salon-location",
+      "title": "ثبت آدرس و موقعیت مجموعه",
+      "audience": "manager",
+      "category": "getting-started",
+      "article_type": "workflow",
+      "summary": "آدرس، منطقه و در صورت وجود مختصات نقشه در بخش موقعیت مجموعه ذخیره می‌شوند.",
+      "body": "## اطلاعات موقعیت\nاز پروفایل مجموعه وارد «آدرس و موقعیت» شو. اگر مختصات معتبر ثبت شوند، نقطه جغرافیایی مجموعه هم ذخیره می‌شود.\n\nمنطقه و نام محله نیز از اطلاعات فرم تکمیل می‌شوند. اگر ارائه‌دهنده نقشه در محیط فعال باشد، صفحه می‌تواند از قابلیت نقشه هم استفاده کند.\n\nآدرس ناقص یا مختصات نامعتبر را قبل از ذخیره اصلاح کن؛ موقعیت درست برای نمایش و مسیریابی مشتری مهم است.",
+      "keywords": "آدرس موقعیت نقشه منطقه محله لوکیشن مجموعه",
+      "aliases": "لوکیشن سالن\nآدرس مجموعه\nmap salon",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonProfileCreatorStep2View",
+        "apps/salons/forms.py:SalonProfileStep2Form"
+      ]
+    },
+    {
+      "key": "manager.setup.hours",
+      "slug": "manager-salon-opening-hours",
+      "title": "ثبت ساعات کاری مجموعه",
+      "audience": "manager",
+      "category": "getting-started",
+      "article_type": "workflow",
+      "summary": "ساعت‌های کاری مجموعه یکی از داده‌های پایه برای ساخت برنامه تیم و ظرفیت رزرو هستند.",
+      "body": "## ثبت روزهای کاری\nدر بخش ساعات کاری، روزهای باز و بازه کاری هر روز را مطابق فعالیت واقعی مجموعه ثبت کن.\n\nبعد از اعتبارسنجی موفق، اطلاعات ساعت کاری ذخیره می‌شوند. اگر خطایی در بازه‌ها وجود داشته باشد، همان فرم خطا را نشان می‌دهد.\n\nشیفت متخصص باید با ساعت کاری مجموعه سازگار باشد؛ بنابراین تغییر ساعت کاری می‌تواند روی برنامه‌ریزی بعدی تیم اثر بگذارد.",
+      "keywords": "ساعت کاری مجموعه ساعات کاری سالن روز باز ساعت باز بسته پروفایل مجموعه",
+      "aliases": "ساعت سالن\nopening hours\nروز کاری\nساعت کاری مجموعه\nتنظیم ساعت کاری مجموعه\nساعات کاری سالن",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonProfileCreatorStep3View",
+        "apps/salons/forms.py:SalonOpeningHoursForm"
+      ]
+    },
+    {
+      "key": "manager.setup.gallery",
+      "slug": "manager-salon-gallery",
+      "title": "مدیریت تصاویر و کاور مجموعه",
+      "audience": "manager",
+      "category": "getting-started",
+      "article_type": "workflow",
+      "summary": "برای پروفایل مجموعه می‌توانی تصاویر واقعی اضافه و یکی را به‌عنوان تصویر کاور انتخاب کنی.",
+      "body": "## تعداد تصویر\nجریان فعلی گالری مجموعه حداکثر ۳ تصویر را در این مرحله مدیریت می‌کند.\n\n## کاور\nاگر یک تصویر را کاور کنی، کاور قبلی از حالت کاور خارج و همان تصویر به banner مجموعه متصل می‌شود.\n\n## حذف تصویر کاور\nاگر تصویر کاور حذف شود، لومرا در صورت وجود تصویر دیگر اولین تصویر باقی‌مانده را به‌عنوان کاور قرار می‌دهد؛ اگر تصویری باقی نماند banner خالی می‌شود.",
+      "keywords": "تصاویر گالری کاور مجموعه عکس بنر حداکثر سه تصویر",
+      "aliases": "عکس سالن\nکاور مجموعه\ngallery salon",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonProfileCreatorStep6View",
+        "apps/dashboards/views.py:delete_salon_image"
+      ]
+    },
+    {
+      "key": "manager.services.request-new",
+      "slug": "manager-request-new-service",
+      "title": "درخواست افزودن خدمت جدید به کاتالوگ",
+      "audience": "manager",
+      "category": "services",
+      "article_type": "workflow",
+      "summary": "اگر خدمت موردنیاز در کاتالوگ موجود نیست، مدیر می‌تواند درخواست خدمت جدید را به شکل تیکت قابل پیگیری ثبت کند.",
+      "body": "## قبل از درخواست\nاول کاتالوگ و صفحه افزودن خدمت را بررسی کن تا خدمت مشابه از قبل موجود نباشد.\n\n## ثبت درخواست\nدرخواست از صفحه «درخواست خدمت» برای همین مدیر و همین مجموعه ثبت می‌شود و در دسته درخواست خدمت نگهداری می‌شود.\n\n## پیگیری\nتیکت‌های درخواست خدمت اخیر از همان صفحه قابل مشاهده‌اند. درخواست تکراری برای یک موضوع، رسیدگی را ساده‌تر نمی‌کند؛ همان درخواست قبلی را پیگیری کن.",
+      "keywords": "درخواست خدمت جدید کاتالوگ تیکت سرویس جدید مجموعه",
+      "aliases": "خدمتم تو کاتالوگ نیست\nrequest service\nاضافه کردن سرویس جدید\nکاتالوگ نیست\nخدمت در کاتالوگ نیست\nسرویس موردنظرم در کاتالوگ نیست",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:RequestServiceView",
+        "apps/main/models.py:SupportTicket"
+      ]
+    },
+    {
+      "key": "manager.services.edit",
+      "slug": "manager-edit-service",
+      "title": "ویرایش خدمت مجموعه",
+      "audience": "manager",
+      "category": "services",
+      "article_type": "workflow",
+      "summary": "قیمت، مدت و تنظیمات خدمت متعلق به مجموعه از صفحه ویرایش همان خدمت تغییر می‌کنند.",
+      "body": "## ویرایش خدمت مجموعه\nاز منوی خدمات، خدمت موردنظر را باز کن و داده‌های همان خدمت را تغییر بده.\n\n## حفاظت از کاتالوگ پلتفرم\nاگر یک داده قدیمی هنوز مستقیماً به خدمت کاتالوگ پلتفرم متصل باشد، لومرا قبل از ویرایش یک نسخه مخصوص همان مجموعه می‌سازد تا رکورد کاتالوگ عمومی با ویرایش مدیر تغییر نکند.\n\nبعد از ویرایش قیمت، مدت یا تیم ارائه‌دهنده، مسیر رزرو مشتری را دوباره تست کن.",
+      "keywords": "ویرایش خدمت قیمت مدت سرویس کاتالوگ مجموعه",
+      "aliases": "قیمت خدمت رو عوض کنم\nedit service\nمدت سرویس",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:EditServiceView",
+        "apps/services/forms.py:StylistServiceForm"
+      ]
+    },
+    {
+      "key": "manager.services.archive-blocked",
+      "slug": "manager-service-archive-blocked",
+      "title": "چرا نمی‌توانم خدمت را آرشیو کنم؟",
+      "audience": "manager",
+      "category": "services",
+      "article_type": "troubleshooting",
+      "summary": "اگر یک خدمت نوبت فعال یا آینده داشته باشد، لومرا برای جلوگیری از خراب‌شدن رزروها آرشیو آن را متوقف می‌کند.",
+      "body": "## علت مسدودشدن\nقبل از آرشیو، تعداد نوبت‌های فعال یا آینده همان خدمت در همین مجموعه بررسی می‌شود.\n\n## چه کار کنم؟\nاول نوبت‌های باقی‌مانده را انجام بده، جابه‌جا کن یا در صورت نیاز با دلیل مناسب لغو کن. بعد از تعیین تکلیف آن‌ها دوباره آرشیو را انجام بده.\n\nبرای خدمت کاتالوگی، خروج از منوی مجموعه رابطه آن خدمت با مجموعه را برمی‌دارد؛ برای خدمت مخصوص مجموعه، وضعیت خدمت غیرفعال می‌شود.",
+      "keywords": "آرشیو خدمت نمیشه نوبت آینده فعال سرویس حذف",
+      "aliases": "خدمت رو نمی‌تونم حذف کنم\narchive service blocked\nسرویس نوبت آینده دارد",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:archieve_service",
+        "apps/dashboards/views.py:_service_future_booking_block_message"
+      ]
+    },
+    {
+      "key": "manager.customers.overview",
+      "slug": "manager-customers-overview",
+      "title": "مشتریان مجموعه",
+      "audience": "manager",
+      "category": "manager",
+      "article_type": "guide",
+      "summary": "فهرست مشتریان مجموعه اطلاعات مراجعه، هزینه و نیاز احتمالی به پیگیری را برای مشتریان مرتبط با همان مجموعه جمع می‌کند.",
+      "body": "## چه مشتریانی اینجا هستند؟\nفهرست برای فضای همین مجموعه ساخته می‌شود و داده‌هایی مثل تعداد نوبت، مجموع پرداخت، آخرین مراجعه و تعداد یادداشت را کنار هم می‌گذارد.\n\n## برچسب‌های کمکی\nسیستم برای مرور سریع می‌تواند مشتری را براساس سابقه به حالت‌هایی مثل ارزشمند، فعال یا بدون رزرو دسته‌بندی نمایشی کند.\n\nبرای تصمیم درباره یک فرد، وارد جزئیات همان مشتری شو و فقط برچسب خلاصه را مبنای تصمیم قرار نده.",
+      "keywords": "مشتریان مجموعه سابقه مراجعه پرداخت آخرین مراجعه مشتری ارزشمند",
+      "aliases": "لیست مشتریان سالن\ncustomers manager\nمشتری فعال",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonsCustomersPageView",
+        "templates/dashboards/salonsCustomersPage.html"
+      ]
+    },
+    {
+      "key": "manager.reports.overview",
+      "slug": "manager-operational-reports",
+      "title": "گزارش‌های عملیاتی مجموعه",
+      "audience": "manager",
+      "category": "manager",
+      "article_type": "guide",
+      "summary": "صفحه گزارش‌ها داده‌های عملیاتی همین مجموعه را با فیلترهای خودش نمایش می‌دهد و خروجی CSV هم از همین گزارش ساخته می‌شود.",
+      "body": "## محدوده گزارش\nمدیر فقط گزارش مجموعه‌ای را می‌بیند که متعلق به حساب مدیر خودش است.\n\n## خروجی\nاگر خروجی CSV بخواهی، همان view گزارش با حالت export فایل را می‌سازد؛ بنابراین اول فیلترهای موردنیاز را در گزارش تنظیم کن.\n\nگزارش عملیاتی با «گزارش مالی» فرق دارد؛ برای تسویه‌ها و تراکنش‌ها از بخش مالی استفاده کن.",
+      "keywords": "گزارش مجموعه عملیاتی csv رزرو مشتری خروجی",
+      "aliases": "reports dashboard\nگزارش سالن\nخروجی گزارش",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:reports_view",
+        "apps/dashboards/reports_components.py:build_reports_context"
+      ]
+    },
+    {
+      "key": "manager.content.publish",
+      "slug": "manager-content-publishing",
+      "title": "مدیریت مقاله و استوری مجموعه",
+      "audience": "manager",
+      "category": "content",
+      "article_type": "workflow",
+      "summary": "مرکز محتوای مدیر برای ساخت و مدیریت مقاله‌ها و استوری‌های متعلق به همان مجموعه است.",
+      "body": "## پیش‌نیاز\nاگر پروفایل مجموعه تکمیل نشده باشد، ورود به مدیریت محتوا متوقف می‌شود و باید ابتدا پروفایل مجموعه را آماده کنی.\n\n## محتواهای اخیر\nصفحه مقاله‌ها و استوری‌های اخیر همین مجموعه را همراه فرم‌های ویرایش مدیریت می‌کند.\n\nقبل از انتشار، عنوان، متن، تصویر و ارتباط محتوا با مجموعه و خدمات واقعی را بررسی کن.",
+      "keywords": "محتوا مقاله استوری مجموعه انتشار مدیریت محتوا مدیر",
+      "aliases": "مجله سالن\nپست مجموعه\nmanager content",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/content_views.py:ManagerContentHubView",
+        "templates/dashboards/content_hub.html"
+      ]
+    },
+    {
+      "key": "manager.content.client-consent",
+      "slug": "manager-content-client-consent",
+      "title": "محتوای دارای تصویر یا هویت مشتری و رضایت انتشار",
+      "audience": "manager",
+      "category": "content",
+      "article_type": "troubleshooting",
+      "summary": "اگر مشتری در محتوا قابل‌شناسایی است، وضعیت رضایت مشتری باید در اطلاعات انتشار مشخص شود.",
+      "body": "## چه زمانی لازم است؟\nوقتی محتوا دارای مشتری قابل‌شناسایی باشد، فرم محتوا اجازه نمی‌دهد وضعیت رضایت مشتری خالی یا در حالت «نیازی نیست» باقی بماند.\n\n## مسئولیت انتشار\nجریان محتوا همچنین تأیید مسئولیت حرفه‌ای درباره اصالت و مجوز انتشار را بررسی می‌کند.\n\nاگر فرم روی رضایت مشتری خطا می‌دهد، محتوا را بدون تعیین وضعیت رضایت منتشر نکن.",
+      "keywords": "رضایت مشتری انتشار محتوا تصویر مشتری قابل شناسایی مجوز",
+      "aliases": "عکس مشتری تو محتوا\nconsent content\nاجازه انتشار",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/content_views.py:ManagerArticleForm.clean",
+        "apps/dashboards/content_views.py:ManagerStoryForm.clean"
+      ]
+    },
+    {
+      "key": "manager.inventory.products-not-ready",
+      "slug": "manager-products-inventory-not-ready",
+      "title": "وضعیت فعلی بخش محصولات",
+      "audience": "manager",
+      "category": "manager",
+      "article_type": "faq",
+      "summary": "بخش Products در staging فعلی بیشتر فضای آماده‌سازی است و inventory engine کامل هنوز فعال نشده است.",
+      "body": "## وضعیت فعلی\nصفحه محصولات صریحاً وضعیت inventory layer را «هنوز initialize نشده» و retail engine را «در حال آماده‌سازی» معرفی می‌کند.\n\n## نتیجه\nاز این صفحه انتظار ثبت و گردش کامل موجودی یا فروش محصول production-ready نداشته باش. سیگنال‌هایی که نمایش داده می‌شوند بیشتر از داده‌های فعلی خدمات و عملیات مجموعه ساخته شده‌اند.\n\nاگر برای موجودی واقعی نیاز عملیاتی داری، فعلاً این قابلیت را کامل‌شده فرض نکن.",
+      "keywords": "محصولات انبار inventory آماده نیست retail engine",
+      "aliases": "محصولات کار نمی‌کنه\nproducts workspace\nانبار کامل نیست",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:products",
+        "templates/dashboards/products.html"
+      ]
+    },
+    {
+      "key": "manager.inventory.stocktakes-not-ready",
+      "slug": "manager-stocktakes-not-ready",
+      "title": "وضعیت فعلی انبارگردانی",
+      "audience": "manager",
+      "category": "manager",
+      "article_type": "faq",
+      "summary": "جریان Stocktakes در staging فعلی setup-oriented است و هنوز به ثبت کامل محصول و stock ledger متصل نیست.",
+      "body": "## وضعیت فعلی\nخود صفحه انبارگردانی توضیح می‌دهد که جریان برای تجربه product-like آماده شده اما inventory engine هنوز کامل نشده است.\n\n## چه چیزی را نباید فرض کرد؟\nانبارگردانی فعلی را معادل سیستم قطعی شمارش، ledger و اصلاح موجودی production-ready در نظر نگیر.\n\nتا وقتی inventory engine کامل نشده، دستیار هم نباید برای عملیات موجودی قابلیت‌هایی را وعده بدهد که در محصول فعال نیستند.",
+      "keywords": "انبارگردانی stocktakes inventory ledger کامل نشده",
+      "aliases": "موجودی گیری کار نمی‌کنه\nstocktake\nشمارش انبار",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:stocktakes",
+        "templates/dashboards/stocktakes.html"
+      ]
+    },
+    {
+      "key": "stylist.profile.manage",
+      "slug": "stylist-manage-profile",
+      "title": "مدیریت پروفایل متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "workflow",
+      "summary": "پروفایل متخصص اطلاعات حساب، اطلاعات حرفه‌ای، اطلاعات اضطراری و نمونه‌کارها را در یک فضای کاری جمع می‌کند.",
+      "body": "## فرم‌های پروفایل\nصفحه پروفایل فرم اطلاعات کاربر، فرم پروفایل متخصص و اطلاعات اضطراری را با هم آماده می‌کند.\n\n## شماره موبایل\nدر این جریان ویرایش، فرم کاربر با امکان ویرایش موبایل غیرفعال ساخته می‌شود؛ بنابراین تغییرات این صفحه را با تغییر شماره ورود یکی ندان.\n\n## مجموعه فعال\nخلاصه حرفه‌ای، همکاری‌ها و نمونه‌کارها با زمینه متخصص و مجموعه فعال ساخته می‌شوند.",
+      "keywords": "پروفایل متخصص اطلاعات حرفه ای اضطراری نمونه کار مجموعه فعال",
+      "aliases": "پروفایل استایلیست\nstylist profile\nاطلاعات متخصص\nپروفایل حرفه‌ای خودم\nویرایش پروفایل حرفه‌ای\nپروفایل متخصص خودم",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistProfileView",
+        "apps/stylists/forms.py:StylistProfileForm"
+      ]
+    },
+    {
+      "key": "stylist.customers.add",
+      "slug": "stylist-add-customer",
+      "title": "افزودن مشتری توسط متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "workflow",
+      "summary": "متخصص می‌تواند در workflow خودش مشتری جدید ثبت کند و بعد به ثبت نوبت برگردد.",
+      "body": "## ثبت مشتری\nاز «افزودن مشتری» اطلاعات لازم را وارد کن. شماره موبایل تکراری پذیرفته نمی‌شود.\n\n## برگشت به ثبت نوبت\nاگر از جریان ثبت نوبت وارد افزودن مشتری شده باشی، بعد از ثبت موفق همان مشتری به آدرس بازگشت اضافه و برای ادامه workflow انتخاب می‌شود.\n\nلینک بازگشت فقط وقتی پذیرفته می‌شود که مقصد امن و متعلق به همین سایت باشد.",
+      "keywords": "افزودن مشتری متخصص شماره موبایل ثبت نوبت مشتری جدید",
+      "aliases": "مشتری جدید استایلیست\nstylist add customer\nثبت مشتری\nمشتری جدید اضافه کنم\nاضافه کردن مشتری جدید\nمشتری جدید ثبت کنم",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistAddCustomerView",
+        "apps/accounts/forms.py:AddCustomerForm"
+      ]
+    },
+    {
+      "key": "stylist.booking.manual",
+      "slug": "stylist-create-own-booking",
+      "title": "ثبت نوبت توسط متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "workflow",
+      "summary": "متخصص در صورت داشتن دسترسی می‌تواند برای خودش و مشتری یک نوبت در مجموعه فعال ثبت کند.",
+      "body": "## دسترسی\nاگر مجوز can_create_own_bookings برای همکاری فعال نباشد، ورود به ثبت نوبت متوقف می‌شود.\n\n## انتخاب‌ها\nفرم براساس متخصص و مجموعه فعال ساخته می‌شود و مشتری و خدمت از گزینه‌های مجاز همان زمینه انتخاب می‌شوند.\n\nاگر مشتری در فهرست نیست، از همان صفحه به جریان افزودن مشتری برو و بعد برگرد.",
+      "keywords": "ثبت نوبت متخصص مشتری مجموعه فعال دسترسی booking",
+      "aliases": "متخصص برای مشتری وقت بگیره\nstylist booking\nثبت وقت خودم\nبرای مشتری نوبت ثبت کنم\nبرای مشتری خودم نوبت ثبت کنم\nبرای مشتری وقت ثبت کنم",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistAddBookingView",
+        "apps/dashboards/forms.py:StylistSelfBookingForm"
+      ]
+    },
+    {
+      "key": "stylist.content.manage",
+      "slug": "stylist-content-management",
+      "title": "محتوای حرفه‌ای متخصص",
+      "audience": "stylist",
+      "category": "content",
+      "article_type": "workflow",
+      "summary": "فضای محتوای متخصص به متخصص فعلی و مجموعه فعال او وابسته است و بعضی وضعیت‌های محتوا قابل ویرایش‌اند.",
+      "body": "## زمینه همکاری\nصفحه ابتدا متخصص و مجموعه فعال را پیدا می‌کند. اگر مجموعه فعال از session مشخص نباشد، از عضویت فعال متخصص برای پیدا کردن زمینه استفاده می‌شود.\n\n## وضعیت‌های قابل ویرایش\nمحتوا در وضعیت‌هایی مثل پیش‌نویس، نیازمند اصلاح، ردشده یا منتظر بررسی می‌تواند در جریان ویرایش قرار بگیرد. عملیات حفاظت‌شده روی محتوای متعلق به خود متخصص اعمال می‌شوند.\n\nمحتوای حرفه‌ای باید متعلق به خود متخصص و در چارچوب مجوزهای انتشار باشد.",
+      "keywords": "محتوای متخصص نمونه کار مقاله استوری مجموعه فعال ویرایش",
+      "aliases": "محتوای من\nstylist content\nنمونه کار متخصص",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/content_views.py:StylistContentHubView",
+        "apps/stylists/models.py:StaffContentSubmission"
+      ]
+    },
+    {
+      "key": "customer.account.address-add",
+      "slug": "customer-add-address",
+      "title": "افزودن آدرس مشتری",
+      "audience": "customer",
+      "category": "account",
+      "article_type": "workflow",
+      "summary": "آدرس جدید از فرم آدرس حساب مشتری ثبت و به همان پروفایل مشتری متصل می‌شود.",
+      "body": "## ثبت آدرس\nاز «آدرس‌های من» وارد افزودن آدرس شو. شماره تماس فرم به‌صورت اولیه می‌تواند از شماره حساب پر شود.\n\nبعد از اعتبارسنجی موفق، آدرس با مالکیت همان مشتری ذخیره و کاربر به فهرست آدرس‌ها برمی‌گردد.\n\nاگر چند آدرس داری، آدرس پیش‌فرض در فهرست جدا مشخص می‌شود.",
+      "keywords": "افزودن آدرس مشتری نشانی تلفن آدرس پیش فرض",
+      "aliases": "آدرس جدید\nadd address customer\nنشانی من",
+      "is_featured": false,
+      "source_refs": [
+        "apps/accounts/views.py:CustomerAddressCreateView",
+        "apps/accounts/forms.py:CustomerAddressForm"
+      ]
+    },
+    {
+      "key": "customer.discovery.services",
+      "slug": "customer-find-services",
+      "title": "پیدا کردن خدمت مناسب",
+      "audience": "customer",
+      "category": "booking",
+      "article_type": "guide",
+      "summary": "فهرست خدمات امکان مرور همه خدمات یا محدودکردن آن‌ها براساس دسته را فراهم می‌کند و صفحه هر خدمت جزئیات همان خدمت را نشان می‌دهد.",
+      "body": "## مرور خدمات\nاز صفحه خدمات می‌توانی همه خدمات را ببینی یا از مسیر دسته/گروه وارد خدمات همان موضوع شوی.\n\n## جزئیات\nبا بازکردن صفحه یک خدمت، اطلاعات همان خدمت را قبل از ادامه مسیر انتخاب مجموعه و رزرو بررسی کن.\n\nبرای رزرو نهایی، فقط عنوان خدمت کافی نیست؛ ارائه‌دهنده، متخصص و زمان باید در مسیر رزرو قابل استفاده باشند.",
+      "keywords": "پیدا کردن خدمت خدمات دسته گروه سرویس مشتری رزرو",
+      "aliases": "چه خدمتی انتخاب کنم\nservices list\nجستجوی سرویس",
+      "is_featured": false,
+      "source_refs": [
+        "apps/services/urls.py:services:all_services",
+        "apps/services/urls.py:services:service_detail",
+        "apps/services/views.py:ServicesView"
+      ]
+    },
+    {
+      "key": "customer.discovery.salons",
+      "slug": "customer-find-salons",
+      "title": "پیدا کردن مجموعه و متخصص",
+      "audience": "customer",
+      "category": "booking",
+      "article_type": "guide",
+      "summary": "صفحات عمومی لومرا امکان مرور مجموعه‌ها، بازکردن پروفایل مجموعه و دیدن پروفایل متخصص‌های همان مجموعه را می‌دهند.",
+      "body": "## مجموعه‌ها\nاز فهرست مجموعه‌ها وارد صفحه عمومی مجموعه موردنظر شو و اطلاعات مراجعه و خدمات آن را بررسی کن.\n\n## متخصص\nپروفایل متخصص از داخل زمینه همان مجموعه قابل بازشدن است تا انتخاب متخصص با مجموعه درست انجام شود.\n\nبعد از مقایسه، رزرو را از خدمت و ارائه‌دهنده واقعی‌ای که می‌خواهی ادامه بده.",
+      "keywords": "پیدا کردن سالن مجموعه متخصص پروفایل عمومی رزرو مشتری",
+      "aliases": "مراکز زیبایی\nsalons list\nپیدا کردن آرایشگر",
+      "is_featured": false,
+      "source_refs": [
+        "apps/salons/urls.py:salons:show_salons",
+        "apps/salons/urls.py:salons:detail_salon_slug",
+        "apps/salons/urls.py:salons:stylist_profile_slug"
+      ]
     }
   ],
   "contexts": [
@@ -1765,6 +2140,198 @@
       "quick_prompts": [
         "چطور به این تیکت پاسخ بدهم؟",
         "چطور تیکت را ببندم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salon_profile",
+      "page_key": "manager.setup.overview",
+      "article_key": "manager.setup.overview",
+      "quick_prompts": [
+        "چه بخش‌هایی از پروفایل ناقصه؟",
+        "برای رزرو آنلاین چه چیزهایی لازمه؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salon_profile_creator_step1",
+      "page_key": "manager.setup.identity",
+      "article_key": "manager.setup.identity",
+      "quick_prompts": [
+        "نام و شماره مجموعه رو چطور ثبت کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salon_profile_creator_step2",
+      "page_key": "manager.setup.location",
+      "article_key": "manager.setup.location",
+      "quick_prompts": [
+        "آدرس و موقعیت رو چطور ثبت کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salon_profile_creator_step3",
+      "page_key": "manager.setup.hours",
+      "article_key": "manager.setup.hours",
+      "quick_prompts": [
+        "ساعت کاری مجموعه رو چطور تنظیم کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salon_profile_creator_step6",
+      "page_key": "manager.setup.gallery",
+      "article_key": "manager.setup.gallery",
+      "quick_prompts": [
+        "چطور تصویر کاور رو عوض کنم؟",
+        "چند تصویر می‌تونم اضافه کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:request_service",
+      "page_key": "manager.services.request-new",
+      "article_key": "manager.services.request-new",
+      "quick_prompts": [
+        "خدمت موردنظرم تو کاتالوگ نیست، چیکار کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:edit_service",
+      "page_key": "manager.services.edit",
+      "article_key": "manager.services.edit",
+      "quick_prompts": [
+        "قیمت یا مدت خدمت رو چطور عوض کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salons_customers_page",
+      "page_key": "manager.customers.overview",
+      "article_key": "manager.customers.overview",
+      "quick_prompts": [
+        "مشتری ارزشمند یعنی چی؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:reports_dashboard",
+      "page_key": "manager.reports.overview",
+      "article_key": "manager.reports.overview",
+      "quick_prompts": [
+        "گزارش‌ها رو چطور فیلتر کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:content_hub",
+      "page_key": "manager.content.publish",
+      "article_key": "manager.content.publish",
+      "quick_prompts": [
+        "برای عکس مشتری رضایت لازمه؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:products",
+      "page_key": "manager.inventory.products-not-ready",
+      "article_key": "manager.inventory.products-not-ready",
+      "quick_prompts": [
+        "آیا مدیریت موجودی این بخش کامل شده؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:stocktakes",
+      "page_key": "manager.inventory.stocktakes-not-ready",
+      "article_key": "manager.inventory.stocktakes-not-ready",
+      "quick_prompts": [
+        "آیا انبارگردانی الان کامل و عملیاتی است؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_profile",
+      "page_key": "stylist.profile.manage",
+      "article_key": "stylist.profile.manage",
+      "quick_prompts": [
+        "چه اطلاعاتی از پروفایلم اینجا قابل ویرایشه؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_add_customer",
+      "page_key": "stylist.customers.add",
+      "article_key": "stylist.customers.add",
+      "quick_prompts": [
+        "چطور مشتری جدید ثبت کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_add_booking",
+      "page_key": "stylist.booking.manual",
+      "article_key": "stylist.booking.manual",
+      "quick_prompts": [
+        "چطور برای مشتری نوبت ثبت کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_content",
+      "page_key": "stylist.content.manage",
+      "article_key": "stylist.content.manage",
+      "quick_prompts": [
+        "چه محتواهایی رو می‌تونم ویرایش کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "customer",
+      "route_name": "accounts:customer_address_add",
+      "page_key": "customer.account.address-add",
+      "article_key": "customer.account.address-add",
+      "quick_prompts": [
+        "چطور آدرس جدید ذخیره کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "all",
+      "route_name": "services:all_services",
+      "page_key": "customer.discovery.services",
+      "article_key": "customer.discovery.services",
+      "quick_prompts": [
+        "چطور خدمت مناسب پیدا کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "all",
+      "route_name": "salons:show_salons",
+      "page_key": "customer.discovery.salons",
+      "article_key": "customer.discovery.salons",
+      "quick_prompts": [
+        "چطور مجموعه و متخصص مناسب پیدا کنم؟"
       ],
       "priority": 100
     }

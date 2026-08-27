@@ -7,6 +7,7 @@ app_name = "help_center"
 urlpatterns = [
     path("", views.help_home, name="home"),
     path("search/", views.help_search, name="search"),
+    path("category/<slug:slug>/", views.help_category, name="category"),
     path("article/<slug:slug>/", views.help_article, name="article"),
     path("legal/", views.legal_index, name="legal_index"),
     path("legal/<slug:slug>/", views.legal_detail, name="legal_detail"),

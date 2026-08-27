@@ -11,7 +11,7 @@ class HelpProductionDocsFixtureTests(SimpleTestCase):
         cls.payload = json.loads(DATA_FILE.read_text(encoding="utf-8"))
 
     def test_fixture_has_broad_production_coverage(self):
-        self.assertGreaterEqual(len(self.payload["articles"]), 70)
+        self.assertGreaterEqual(len(self.payload["articles"]), 95)
         article_types = {item["article_type"] for item in self.payload["articles"]}
         self.assertTrue({"guide", "workflow", "troubleshooting", "faq"} <= article_types)
 
@@ -27,6 +27,13 @@ class HelpProductionDocsFixtureTests(SimpleTestCase):
                 self.assertTrue(item.get("source_refs"))
                 self.assertTrue((item.get("keywords") or "").strip())
                 self.assertTrue((item.get("summary") or "").strip())
+
+
+    def test_every_article_category_exists(self):
+        category_slugs = {item["slug"] for item in self.payload["categories"]}
+        for item in self.payload["articles"]:
+            with self.subTest(key=item["key"]):
+                self.assertIn(item["category"], category_slugs)
 
     def test_contexts_reference_existing_articles(self):
         keys = {item["key"] for item in self.payload["articles"]}

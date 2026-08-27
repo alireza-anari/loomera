@@ -58,7 +58,8 @@ STOP_WORDS = {
 CONCEPT_GROUPS = (
     ("متخصص", "استایلیست", "آرایشگر", "عضو تیم", "همکار"),
     ("رزرو", "نوبت", "وقت"),
-    ("شیفت", "برنامه کاری", "ساعت کاری", "برنامه کار"),
+    ("شیفت", "برنامه کاری", "برنامه کار"),
+    ("ساعت کاری مجموعه", "ساعات کاری مجموعه", "ساعت سالن", "opening hours"),
     ("مجموعه", "سالن"),
     ("خدمت", "سرویس"),
     ("مرخصی", "عدم حضور", "تایم آف", "time off"),
@@ -166,7 +167,39 @@ def _field_score(query_norm: str, terms: set[str], text: str, *, exact_bonus: fl
     return score
 
 
-def _score_chunk(chunk, query: str, *, page_key: str = "", use_page_context: bool = False) -> float:
+def _alias_phrase_bonus(query_norm: str, aliases: str) -> float:
+    """Reward curated user phrasings without treating them as answer evidence."""
+    if not query_norm:
+        return 0.0
+
+    query_tokens = set(tokenize(query_norm))
+    best = 0.0
+    for raw in str(aliases or "").splitlines():
+        alias = normalize_persian(raw)
+        alias_tokens = tokenize(alias)
+        if len(alias_tokens) < 2:
+            continue
+
+        if alias and alias in query_norm:
+            best = max(best, min(12.0, 6.0 + len(alias_tokens) * 1.5))
+            continue
+
+        overlap = len(set(alias_tokens) & query_tokens)
+        coverage = overlap / max(len(set(alias_tokens)), 1)
+        if len(alias_tokens) >= 3 and coverage >= 0.75:
+            best = max(best, 5.0 + coverage * 4.0)
+
+    return best
+
+
+def _score_chunk(
+    chunk,
+    query: str,
+    *,
+    role: str = "",
+    page_key: str = "",
+    use_page_context: bool = False,
+) -> float:
     query_norm = normalize_persian(query)
     terms = _expanded_terms(query)
     if not terms and not query_norm:
@@ -178,6 +211,7 @@ def _score_chunk(chunk, query: str, *, page_key: str = "", use_page_context: boo
     score += _field_score(query_norm, terms, chunk.heading, exact_bonus=10.0, token_weight=4.2)
     score += _field_score(query_norm, terms, article.keywords, exact_bonus=8.0, token_weight=3.6)
     score += _field_score(query_norm, terms, article.aliases, exact_bonus=8.0, token_weight=3.6)
+    score += _alias_phrase_bonus(query_norm, article.aliases)
     score += _field_score(query_norm, terms, chunk.content, exact_bonus=7.0, token_weight=2.0)
 
     searchable_tokens = set(tokenize(chunk.search_text))
@@ -202,10 +236,15 @@ def _score_chunk(chunk, query: str, *, page_key: str = "", use_page_context: boo
     intent_surface = normalize_persian(
         " ".join((article.title, article.keywords, article.aliases))
     )
-    for intent in ("درخواست", "بررسی", "تایید", "رد", "لینک", "گزارش", "رمز", "حذف", "تیکت", "اعلان"):
+    for intent in ("درخواست", "بررسی", "تایید", "رد", "لغو", "لینک", "گزارش", "رمز", "حذف", "تیکت", "اعلان", "حداقل", "حداکثر", "وصل", "قطع", "شارژ"):
         normalized_intent = normalize_persian(intent)
         if normalized_intent in query_norm and normalized_intent in intent_surface:
             score += 4.0
+
+    # Managers/stylists may intentionally retrieve customer-journey docs.
+    # Exact-role affinity is only a small tie-breaker when two docs are close.
+    if role and article.audience == role:
+        score += 3.0
 
     # Current page is NEVER a general retrieval boost. It is only used when the
     # user explicitly asks about "this page / here / this section".
@@ -247,6 +286,7 @@ def retrieve_help_chunks(
             _score_chunk(
                 chunk,
                 question,
+                role=role,
                 page_key=page_key,
                 use_page_context=use_page_context,
             ),

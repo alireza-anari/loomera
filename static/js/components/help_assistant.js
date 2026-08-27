@@ -635,6 +635,18 @@ function init() {
     }
   });
 
+  document.addEventListener("loomera:help:ask", async (event) => {
+    localStorage.removeItem("loomera.help-assistant.hidden");
+    root.hidden = false;
+    await openPanel();
+    const question = String(event.detail?.message || "").trim();
+    if (question) {
+      input.value = question;
+      autoGrow(input);
+    }
+    input.focus();
+  });
+
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !panel.hidden) closePanel();
   });
