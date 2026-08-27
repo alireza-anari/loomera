@@ -157,6 +157,52 @@ function appendTextWithCitations(container, text, sources = []) {
   }
 }
 
+function appendAnswerBlock(container, text, sources = []) {
+  const paragraph = document.createElement("p");
+  paragraph.className = "lm-help-assistant__answer-paragraph";
+  appendTextWithCitations(paragraph, text, sources);
+  container.appendChild(paragraph);
+}
+
+function renderAssistantAnswer(container, text, sources = []) {
+  const value = String(text || "").trim();
+  if (!value) return;
+
+  const blocks = value
+    .split(/\n{2,}/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  const mobile = matchMedia("(max-width:767px)").matches;
+  const collapsible = mobile && value.length > 720 && blocks.length >= 3;
+  const visibleCount = collapsible ? 2 : blocks.length;
+
+  blocks.slice(0, visibleCount).forEach((block) => {
+    appendAnswerBlock(container, block, sources);
+  });
+
+  if (!collapsible) return;
+
+  const details = document.createElement("details");
+  details.className = "lm-help-assistant__answer-more";
+
+  const summary = document.createElement("summary");
+  summary.innerHTML = `
+    <span>ادامه پاسخ</span>
+    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+  `;
+  details.appendChild(summary);
+
+  const body = document.createElement("div");
+  body.className = "lm-help-assistant__answer-more-body";
+  blocks.slice(visibleCount).forEach((block) => {
+    appendAnswerBlock(body, block, sources);
+  });
+
+  details.appendChild(body);
+  container.appendChild(details);
+}
+
 function guideFromOptions(options = {}) {
   return options.guide || options.sources?.find((source) => source?.guide)?.guide || null;
 }
@@ -297,6 +343,11 @@ function feedbackRow(root, messageId) {
         row.querySelectorAll("button").forEach((item) => item.classList.remove("is-selected"));
         button.classList.add("is-selected");
         label.textContent = "ثبت شد";
+
+        const handoff = root.querySelector("[data-help-handoff-box]");
+        if (handoff) {
+          handoff.hidden = button.dataset.rating !== "not_helpful";
+        }
       } catch (_) {
         label.textContent = "ثبت بازخورد انجام نشد";
       }
@@ -384,7 +435,7 @@ function addMessage(container, role, text, options = {}) {
     `;
     bubble.appendChild(typing);
   } else if (role === "assistant") {
-    appendTextWithCitations(bubble, text, options.sources || []);
+    renderAssistantAnswer(bubble, text, options.sources || []);
   } else {
     bubble.textContent = text;
   }
@@ -462,6 +513,13 @@ function init() {
   const root = document.querySelector(ROOT_SELECTOR);
   if (!root || root.dataset.bound === "1") return;
   root.dataset.bound = "1";
+
+  // The widget must be a direct child of <body>. A transformed/contained page
+  // ancestor can otherwise make position:fixed relative to that ancestor,
+  // which is especially visible on mobile responsive layouts.
+  if (root.parentElement !== document.body) {
+    document.body.appendChild(root);
+  }
 
   // Legacy versions allowed permanently hiding the assistant. The control no
   // longer exists, so clear the old preference to avoid leaving Lومي invisible.
@@ -571,7 +629,7 @@ function init() {
         history.push({ role: item.role, content: item.content });
       });
 
-      handoffBox.hidden = false;
+      handoffBox.hidden = true;
     } catch (_) {
       conversationId = null;
       setStoredConversationId(null);
@@ -580,6 +638,9 @@ function init() {
 
   async function openPanel() {
     panel.hidden = false;
+    if (matchMedia("(max-width:767px)").matches) {
+      document.body.classList.add("lm-help-assistant-open");
+    }
     fab.setAttribute("aria-expanded", "true");
     await Promise.all([loadContext(), hydrateConversation()]);
 
@@ -594,6 +655,7 @@ function init() {
   function closePanel() {
     panel.hidden = true;
     fab.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("lm-help-assistant-open");
   }
 
   fab.addEventListener("click", () => panel.hidden ? openPanel() : closePanel());
@@ -644,7 +706,8 @@ function init() {
         guide: payload.guide || null,
       });
       history.push({ role: "assistant", content: answer });
-      handoffBox.hidden = false;
+      const hasGroundedHelp = Boolean((payload.sources || []).length || payload.guide);
+      handoffBox.hidden = hasGroundedHelp;
     } catch (error) {
       typing.remove();
       addMessage(
@@ -655,6 +718,7 @@ function init() {
           : "الان نتونستم پاسخ رو دریافت کنم. یک‌بار دیگه امتحان کن؛ اگر ادامه داشت، همین گفتگو رو برای پشتیبانی بفرست.",
         { root }
       );
+      handoffBox.hidden = false;
     } finally {
       send.disabled = false;
       input.focus();
@@ -731,7 +795,14 @@ function init() {
     if (event.key === "Escape" && !panel.hidden) closePanel();
   });
 
-  window.addEventListener("resize", () => applyPosition(root));
+  window.addEventListener("resize", () => {
+    applyPosition(root);
+    if (!matchMedia("(max-width:767px)").matches) {
+      document.body.classList.remove("lm-help-assistant-open");
+    } else if (!panel.hidden) {
+      document.body.classList.add("lm-help-assistant-open");
+    }
+  });
   loadContext();
 }
 
