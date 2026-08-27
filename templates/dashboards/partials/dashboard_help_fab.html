@@ -1,12 +1,13 @@
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'css/components/help_assistant.css' %}?v=20260826-3">
+<link rel="stylesheet" href="{% static 'css/components/help_assistant.css' %}?v=20260826-6">
 
 <div
   class="lm-help-assistant"
   data-help-assistant
   data-context-url="{% url 'help_center:context_api' %}"
   data-chat-url="{% url 'help_center:chat_api' %}"
+  data-conversation-url="{% url 'help_center:conversation_api' %}"
   data-feedback-url="{% url 'help_center:feedback_api' %}"
   data-handoff-url="{% url 'help_center:support_handoff_api' %}"
   data-help-url="{% url 'help_center:home' %}"
@@ -20,29 +21,44 @@
     type="button"
     class="lm-help-assistant__fab"
     data-help-fab
-    aria-label="دستیار راهنمای لومرا"
+    aria-label="باز کردن دستیار پشتیبانی لومرا"
     aria-expanded="false"
   >
-    <span class="lm-help-assistant__spark" aria-hidden="true">✦</span>
-    <i class="fa-regular fa-message" aria-hidden="true"></i>
-    <span class="lm-help-assistant__dot" data-help-new-dot aria-hidden="true"></span>
+    <span class="lm-help-assistant__fab-icon" aria-hidden="true">
+      <i class="fa-regular fa-message"></i>
+    </span>
+    <span class="lm-help-assistant__fab-badge" data-help-new-dot aria-hidden="true"></span>
   </button>
 
-  <section class="lm-help-assistant__panel" data-help-panel hidden role="dialog" aria-label="دستیار لومرا">
+  <section
+    class="lm-help-assistant__panel"
+    data-help-panel
+    hidden
+    role="dialog"
+    aria-label="دستیار پشتیبانی لومرا"
+  >
     <header class="lm-help-assistant__header">
       <div class="lm-help-assistant__identity">
-        <span class="lm-help-assistant__avatar" aria-hidden="true"><i class="fa-solid fa-sparkles"></i></span>
-        <div>
-          <strong>دستیار لومرا</strong>
-          <small data-help-page-label>راهنمای همین صفحه</small>
+        <span class="lm-help-assistant__avatar" aria-hidden="true">
+          <i class="fa-solid fa-sparkles"></i>
+        </span>
+        <div class="lm-help-assistant__identity-copy">
+          <strong>دستیار پشتیبانی لومرا</strong>
+          <small data-help-page-label>
+            <span class="lm-help-assistant__online-dot"></span>
+            آنلاین · پاسخ براساس راهنمای لومرا
+          </small>
         </div>
       </div>
 
       <div class="lm-help-assistant__header-actions">
-        <button type="button" data-help-hide title="پنهان کردن در این دستگاه" aria-label="پنهان کردن دستیار">
+        <button type="button" data-help-new-chat title="گفتگوی جدید" aria-label="شروع گفتگوی جدید">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+        <button type="button" data-help-hide title="پنهان کردن دستیار" aria-label="پنهان کردن دستیار">
           <i class="fa-regular fa-eye-slash"></i>
         </button>
-        <button type="button" data-help-close aria-label="بستن">
+        <button type="button" data-help-close title="بستن" aria-label="بستن">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -50,53 +66,59 @@
 
     <div class="lm-help-assistant__messages" data-help-messages aria-live="polite">
       <div class="lm-help-assistant__welcome" data-help-welcome>
-        <span class="lm-help-assistant__welcome-icon"><i class="fa-solid fa-sparkles"></i></span>
-        <h2>چه کمکی از دستم برمیاد؟</h2>
-        <p data-help-context-summary>می‌تونی درباره همین صفحه یا بخش‌های مختلف لومرا از من بپرسی.</p>
+        <div class="lm-help-assistant__welcome-message">
+          <span class="lm-help-assistant__welcome-avatar" aria-hidden="true">
+            <i class="fa-solid fa-sparkles"></i>
+          </span>
+          <div>
+            <strong>سلام، چه کمکی می‌تونم بکنم؟</strong>
+            <p data-help-context-summary>
+              هر سؤالی درباره کار با لومرا داری بپرس. جواب رو از راهنماهای رسمی پیدا می‌کنم و منبعش رو هم کنارش می‌ذارم.
+            </p>
+          </div>
+        </div>
         <div class="lm-help-assistant__prompts" data-help-prompts></div>
       </div>
     </div>
 
-    <div class="lm-help-assistant__sources" data-help-sources hidden></div>
-
     <div class="lm-help-assistant__handoff" data-help-handoff-box hidden>
-      <span>
+      <div>
+        <strong>هنوز به جواب نرسیدی؟</strong>
+        <small>همین گفتگو رو برای تیم پشتیبانی بفرست.</small>
+      </div>
+      <button type="button" data-help-escalate>
         <i class="fa-regular fa-life-ring" aria-hidden="true"></i>
-        هنوز حل نشد؟
-      </span>
-      <button type="button" data-help-escalate>ارسال گفتگو به پشتیبانی</button>
+        ارجاع به پشتیبانی
+      </button>
     </div>
 
     <form class="lm-help-assistant__composer" data-help-form>
-      <textarea
-        rows="1"
-        maxlength="1200"
-        data-help-input
-        placeholder="سؤالت درباره لومرا رو بنویس..."
-        aria-label="پیام به دستیار لومرا"
-      ></textarea>
-      <button type="submit" data-help-send aria-label="ارسال پیام">
-        <i class="fa-solid fa-arrow-up"></i>
-      </button>
+      <div class="lm-help-assistant__input-shell">
+        <textarea
+          rows="1"
+          maxlength="1200"
+          data-help-input
+          placeholder="پیامت رو بنویس..."
+          aria-label="پیام به دستیار پشتیبانی لومرا"
+        ></textarea>
+        <button type="submit" data-help-send aria-label="ارسال پیام">
+          <i class="fa-solid fa-arrow-up"></i>
+        </button>
+      </div>
+      <div class="lm-help-assistant__composer-meta">
+        <span>Enter ارسال · Shift+Enter خط جدید</span>
+        <a href="{% url 'help_center:home' %}">
+          <i class="fa-regular fa-circle-question"></i>
+          مرکز راهنما
+        </a>
+      </div>
     </form>
-
-    <footer class="lm-help-assistant__footer">
-      <a href="{% url 'help_center:home' %}">
-        <i class="fa-regular fa-circle-question"></i>
-        مرکز راهنما
-      </a>
-      <a href="{% url 'help_center:legal_index' %}">
-        <i class="fa-solid fa-shield-halved"></i>
-        قوانین
-      </a>
-      <span>پاسخ‌های AI ممکن است خطا داشته باشند</span>
-    </footer>
   </section>
 </div>
 
 <div class="lm-help-assistant__undo" data-help-undo hidden>
-  <span>دستیار در این دستگاه پنهان شد</span>
+  <span>دستیار پنهان شد</span>
   <button type="button">برگردان</button>
 </div>
 
-<script type="module" src="{% static 'js/components/help_assistant.js' %}?v=20260826-3"></script>
+<script type="module" src="{% static 'js/components/help_assistant.js' %}?v=20260826-6"></script>

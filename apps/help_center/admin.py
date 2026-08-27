@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from .models import (
     HelpArticle,
+    HelpArticleChunk,
     HelpCategory,
     HelpConversation,
     HelpFeedback,
@@ -19,6 +20,18 @@ class HelpCategoryAdmin(admin.ModelAdmin):
     search_fields = ("title", "slug", "description")
 
 
+class HelpArticleChunkInline(admin.TabularInline):
+    model = HelpArticleChunk
+    extra = 0
+    can_delete = False
+    fields = ("position", "heading", "content")
+    readonly_fields = fields
+    ordering = ("position",)
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
 class HelpPageContextInline(admin.TabularInline):
     model = HelpPageContext
     extra = 0
@@ -27,21 +40,35 @@ class HelpPageContextInline(admin.TabularInline):
 
 @admin.register(HelpArticle)
 class HelpArticleAdmin(admin.ModelAdmin):
-    list_display = ("title", "key", "category", "audience", "sort_order", "is_published", "updated_at")
-    list_filter = ("audience", "is_published", "category")
-    list_editable = ("sort_order", "is_published")
-    search_fields = ("title", "key", "slug", "summary", "body", "keywords")
+    list_display = ("title", "article_type", "key", "category", "audience", "is_featured", "is_published", "updated_at")
+    list_filter = ("article_type", "audience", "is_featured", "is_published", "category")
+    list_editable = ("is_featured", "is_published")
+    search_fields = ("title", "key", "slug", "summary", "body", "keywords", "aliases")
     autocomplete_fields = ("category",)
     raw_id_fields = ("created_by", "updated_by")
     readonly_fields = ("created_at", "updated_at", "published_at")
     prepopulated_fields = {"slug": ("title",)}
-    inlines = (HelpPageContextInline,)
+    inlines = (HelpArticleChunkInline, HelpPageContextInline,)
 
     def save_model(self, request, obj, form, change):
         if not obj.pk and not obj.created_by_id:
             obj.created_by = request.user
         obj.updated_by = request.user
         super().save_model(request, obj, form, change)
+
+
+@admin.register(HelpArticleChunk)
+class HelpArticleChunkAdmin(admin.ModelAdmin):
+    list_display = ("article", "position", "heading", "updated_at")
+    list_filter = ("article__article_type", "article__audience")
+    search_fields = ("article__title", "article__key", "heading", "content", "search_text")
+    readonly_fields = ("article", "position", "heading", "content", "search_text", "created_at", "updated_at")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(HelpPageContext)

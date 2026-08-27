@@ -1,0 +1,2339 @@
+{
+  "version": "2026-08-27-docs-first-4.2",
+  "categories": [
+    {
+      "slug": "getting-started",
+      "title": "شروع کار",
+      "description": "مسیرهای اصلی و شناخت ساختار لومرا.",
+      "icon": "fa-solid fa-rocket",
+      "audience": "all",
+      "sort_order": 10
+    },
+    {
+      "slug": "booking",
+      "title": "رزرو و نوبت",
+      "description": "رزرو، زمان‌بندی، تغییر زمان و پیگیری نوبت.",
+      "icon": "fa-regular fa-calendar-check",
+      "audience": "all",
+      "sort_order": 20
+    },
+    {
+      "slug": "team",
+      "title": "تیم مجموعه",
+      "description": "افزودن متخصص، وضعیت همکاری و آماده‌سازی برای رزرو.",
+      "icon": "fa-solid fa-user-group",
+      "audience": "manager",
+      "sort_order": 30
+    },
+    {
+      "slug": "services",
+      "title": "خدمات مجموعه",
+      "description": "افزودن، فعال‌سازی و آماده‌سازی خدمات برای رزرو.",
+      "icon": "fa-solid fa-list-check",
+      "audience": "manager",
+      "sort_order": 40
+    },
+    {
+      "slug": "schedule",
+      "title": "برنامه کاری",
+      "description": "شیفت‌ها، برنامه منظم، مرخصی و ظرفیت رزرو.",
+      "icon": "fa-regular fa-calendar",
+      "audience": "manager",
+      "sort_order": 50
+    },
+    {
+      "slug": "stylist-work",
+      "title": "کار متخصص",
+      "description": "برنامه کاری، مرخصی، نوبت‌ها و درخواست‌های متخصص.",
+      "icon": "fa-solid fa-user-check",
+      "audience": "stylist",
+      "sort_order": 60
+    },
+    {
+      "slug": "manager",
+      "title": "مدیریت مجموعه",
+      "description": "مشتریان، گزارش‌های عملیاتی، محصولات و ابزارهای مدیریتی مجموعه.",
+      "icon": "fa-solid fa-store",
+      "audience": "manager",
+      "sort_order": 62
+    },
+    {
+      "slug": "content",
+      "title": "محتوا و انتشار",
+      "description": "مقاله، استوری، نمونه‌کار و الزامات انتشار محتوا.",
+      "icon": "fa-regular fa-newspaper",
+      "audience": "all",
+      "sort_order": 64
+    },
+    {
+      "slug": "discounts",
+      "title": "تخفیف‌ها و کمپین‌ها",
+      "description": "کد تخفیف، پیشنهاد خدمات و کمپین‌های مجموعه.",
+      "icon": "fa-solid fa-ticket",
+      "audience": "manager",
+      "sort_order": 65
+    },
+    {
+      "slug": "finance",
+      "title": "مالی مجموعه",
+      "description": "موجودی، برداشت، گزارش، هزینه، سهم متخصص و نهایی‌سازی مالی.",
+      "icon": "fa-solid fa-chart-line",
+      "audience": "manager",
+      "sort_order": 68
+    },
+    {
+      "slug": "payments",
+      "title": "پرداخت و کیف پول",
+      "description": "کیف پول، شارژ، تراکنش و وضعیت پرداخت.",
+      "icon": "fa-solid fa-wallet",
+      "audience": "customer",
+      "sort_order": 70
+    },
+    {
+      "slug": "account",
+      "title": "حساب کاربری",
+      "description": "پروفایل، تنظیمات و اطلاعات حساب.",
+      "icon": "fa-regular fa-user",
+      "audience": "customer",
+      "sort_order": 80
+    },
+    {
+      "slug": "communications",
+      "title": "اعلان‌ها و ارتباطات",
+      "description": "اعلان‌های داخل لومرا، اتصال بله و تنظیم پیام‌های عملیاتی و اختیاری.",
+      "icon": "fa-regular fa-bell",
+      "audience": "all",
+      "sort_order": 85
+    },
+    {
+      "slug": "support",
+      "title": "پشتیبانی",
+      "description": "مرکز راهنما و پیگیری مشکل از تیم پشتیبانی.",
+      "icon": "fa-regular fa-life-ring",
+      "audience": "all",
+      "sort_order": 90
+    }
+  ],
+  "articles": [
+    {
+      "key": "manager.team.overview",
+      "slug": "manager-team-overview",
+      "title": "مدیریت اعضای تیم",
+      "audience": "manager",
+      "category": "team",
+      "article_type": "guide",
+      "summary": "صفحه اعضای تیم برای دیدن وضعیت همکاری هر متخصص، خدمات متصل و نوبت‌های آینده اوست.",
+      "body": "## این بخش چه کاری انجام می‌دهد؟\nدر «اعضای تیم» می‌توانی اعضای مرتبط با مجموعه را ببینی و برای هر عضو وارد پروفایل، ویرایش اطلاعات یا تنظیمات همکاری شوی.\n\nدر کارت هر متخصص، لومرا وضعیت همکاری او در همین مجموعه را جدا از اطلاعات شخصی متخصص نگه می‌دارد. تعداد خدمات متصل و تعداد نوبت‌های آینده نیز برای تصمیم سریع‌تر مدیر نمایش داده می‌شود.\n\n## اقدام‌های رایج\n- افزودن متخصص جدید یا اتصال متخصص موجود به مجموعه.\n- بررسی جزئیات یک عضو و خدماتی که در همین مجموعه ارائه می‌دهد.\n- فعال یا متوقف‌کردن همکاری عضو در همین مجموعه.\n- رفتن به برنامه کاری برای تکمیل ظرفیت رزرو.",
+      "keywords": "تیم اعضا متخصص همکاری خدمات نوبت آینده",
+      "aliases": "اعضای تیم\nمدیریت متخصص‌ها\nهمکاران سالن",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:TeamMemberView",
+        "apps/dashboards/urls.py:dashboards:team_member"
+      ]
+    },
+    {
+      "key": "manager.team.add-stylist",
+      "slug": "manager-add-stylist",
+      "title": "افزودن متخصص به مجموعه",
+      "audience": "manager",
+      "category": "team",
+      "article_type": "workflow",
+      "summary": "مدیر می‌تواند متخصص جدید بسازد یا متخصص موجود را به مجموعه متصل کند و در همان جریان خدمات او را هم انتخاب کند.",
+      "body": "## قبل از شروع\nاگر مجموعه هنوز خدمت فعالی ندارد، بهتر است ابتدا منوی خدمات را کامل کنی. انتخاب خدمت هنگام افزودن متخصص اجباری نیست، اما برای آماده‌شدن سریع‌تر او برای رزرو توصیه می‌شود.\n\n## مراحل\n1. از بخش «اعضای تیم» وارد «افزودن متخصص» شو.\n2. اطلاعات حساب و پروفایل حرفه‌ای متخصص را وارد کن.\n3. در صورت نیاز، خدماتی را که این متخصص در همین مجموعه ارائه می‌دهد انتخاب کن.\n4. فرم را ذخیره کن.\n\n## بعد از ذخیره چه می‌شود؟\nلومرا همکاری متخصص با همین مجموعه را فعال می‌کند. اگر شماره موبایل متعلق به یک کاربر/متخصص موجود باشد، جریان افزودن می‌تواند همان حساب را به مجموعه متصل کند؛ لازم نیست حتماً حساب تکراری ساخته شود.\n\nمهم: اضافه‌شدن عضو به تیم به‌تنهایی به معنی «قابل رزرو شدن برای مشتری» نیست. برای رزرو عمومی باید وضعیت نمایش، خدمت قابل رزرو و برنامه کاری او هم آماده باشند. بعد از ثبت، این موارد را جداگانه بررسی کن.",
+      "keywords": "افزودن متخصص عضو تیم اتصال حساب موجود شماره موبایل خدمات",
+      "aliases": "اضافه کردن استایلیست\nاضافه کردن آرایشگر\nعضو جدید تیم",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:AddStylistView",
+        "apps/salons/membership.py:invite_or_attach_stylist",
+        "apps/dashboards/urls.py:dashboards:add_stylist"
+      ]
+    },
+    {
+      "key": "manager.team.stylist-not-bookable",
+      "slug": "stylist-not-bookable",
+      "title": "چرا متخصص برای رزرو مشتری نمایش داده نمی‌شود؟",
+      "audience": "manager",
+      "category": "team",
+      "article_type": "troubleshooting",
+      "summary": "برای قابل رزرو بودن متخصص، عضویت فعال به‌تنهایی کافی نیست؛ نمایش عمومی، خدمت قابل رزرو و برنامه کاری آینده هم باید برقرار باشند.",
+      "body": "## مواردی که لومرا بررسی می‌کند\nبرای اینکه یک عضو تیم در ظرفیت رزرو عمومی آماده باشد، این موارد را به‌ترتیب بررسی کن:\n\n1. **عضو و همکاری فعال باشند.** متخصص باید فعال باشد و وضعیت همکاری او در همین مجموعه «فعال» باشد.\n2. **پروفایل برای صفحات مجموعه قابل نمایش باشد.** اگر وضعیت نمایش متخصص غیرفعال باشد، او برای رزرو عمومی آماده محسوب نمی‌شود.\n3. **حداقل یک خدمت قابل رزرو به متخصص متصل باشد.** آن خدمت باید متعلق به همین مجموعه، فعال، دارای قیمت بیشتر از صفر و دارای مدت خدمت بیشتر از صفر باشد.\n4. **برنامه کاری جاری یا آینده وجود داشته باشد.** برنامه می‌تواند عمومی باشد یا مخصوص یکی از خدمات قابل رزرو همان متخصص.\n\n## اگر عضو اضافه شده ولی هنوز زمان ندارد\nاول از «ویرایش متخصص» اتصال خدمات را بررسی کن، بعد از «برنامه کاری تیم» برای او شیفت جاری یا آینده بساز. اگر همه موارد بالا درست بود ولی هنوز زمان نمایش داده نشد، مسیر رزرو مشتری را دوباره تست کن و در صورت ادامه مشکل تیکت پشتیبانی بساز.",
+      "keywords": "متخصص نمایش رزرو نمیاد قابل رزرو نیست بدون خدمت بدون شیفت visibility قیمت مدت",
+      "aliases": "استایلیست تو رزرو نیست\nآرایشگر نمایش داده نمیشه\nمتخصص زمان خالی ندارد\nعضو قابل رزرو نیست",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:_build_team_capacity_setup_workspace",
+        "apps/dashboards/urls.py:dashboards:scheduled_shifts"
+      ]
+    },
+    {
+      "key": "manager.team.pause-resume",
+      "slug": "manager-pause-team-member",
+      "title": "توقف یا فعال‌کردن همکاری متخصص در یک مجموعه",
+      "audience": "manager",
+      "category": "team",
+      "article_type": "workflow",
+      "summary": "وضعیت همکاری هر متخصص برای همان مجموعه قابل فعال یا متوقف‌شدن است.",
+      "body": "## تغییر وضعیت همکاری\nاز صفحه اعضای تیم، تغییر وضعیت عضو باعث جابه‌جایی وضعیت همکاری همان متخصص در همان مجموعه بین «فعال» و «متوقف» می‌شود.\n\nاگر همکاری را دوباره فعال کنی و رکورد متخصص غیرفعال باشد، لومرا متخصص را نیز فعال می‌کند.\n\n## نکته مهم\nتغییر وضعیت همکاری با حذف حساب متخصص فرق دارد. قبل از متوقف‌کردن همکاری، نوبت‌های آینده او را بررسی کن تا برنامه مشتریان بدون تصمیم باقی نماند.",
+      "keywords": "توقف همکاری فعال غیرفعال pause resume عضو تیم",
+      "aliases": "غیرفعال کردن متخصص\nفعال کردن متخصص\nتوقف همکاری",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:toggle_stylist_status",
+        "apps/dashboards/urls.py:dashboards:toggle_stylist_status"
+      ]
+    },
+    {
+      "key": "manager.services.overview",
+      "slug": "manager-service-menu",
+      "title": "منوی خدمات مجموعه",
+      "audience": "manager",
+      "category": "services",
+      "article_type": "guide",
+      "summary": "منوی خدمات مشخص می‌کند مجموعه چه خدماتی را ارائه می‌دهد و کدام خدمت برای رزروهای جدید فعال است.",
+      "body": "## در منوی خدمات چه چیزهایی مهم‌اند؟\nهر خدمت باید با واقعیت عملیاتی مجموعه هماهنگ باشد. وضعیت فعال/غیرفعال خدمت روی رزروهای جدید اثر دارد.\n\n## برای آماده‌بودن رزرو\nبرای خدمتی که قرار است در ظرفیت تیم استفاده شود، فعال‌بودن، قیمت معتبر و مدت خدمت معتبر مهم است. همچنین باید آن خدمت به متخصص ارائه‌دهنده متصل باشد.\n\nاگر خدمتی را غیرفعال کنی، در رزروهای جدید نمایش داده نمی‌شود. اگر خدمت فعال دارای رزرو آینده باشد، لومرا می‌تواند غیرفعال‌کردن آن را متوقف کند تا رزروهای آینده بدون بررسی رها نشوند.",
+      "keywords": "منوی خدمات فعال غیرفعال قیمت مدت رزرو آینده",
+      "aliases": "سرویس‌ها\nلیست خدمات سالن",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:ServiceMenuView",
+        "apps/dashboards/views.py:toggle_service_status",
+        "apps/dashboards/urls.py:dashboards:service_menu"
+      ]
+    },
+    {
+      "key": "manager.services.add",
+      "slug": "manager-add-service",
+      "title": "افزودن خدمت به مجموعه",
+      "audience": "manager",
+      "category": "services",
+      "article_type": "workflow",
+      "summary": "خدمت را از کاتالوگ انتخاب کن و اطلاعات عملیاتی آن را برای همین مجموعه ثبت کن؛ اگر خدمت مناسب در کاتالوگ نیست می‌توانی درخواست خدمت جدید بدهی.",
+      "body": "## مراحل\n1. از «منوی خدمات» وارد «افزودن خدمت» شو.\n2. خدمت استاندارد را از کاتالوگ انتخاب کن.\n3. اطلاعات لازم فرم را برای همین مجموعه کامل کن و ذخیره کن.\n4. بعد از ذخیره، لومرا تو را به منوی خدمات برمی‌گرداند و خدمت ایجادشده مشخص می‌شود.\n\n## اگر خدمت در کاتالوگ نیست\nاز مسیر «درخواست خدمت» استفاده کن. قبل از درخواست، کاتالوگ را با نام‌های نزدیک هم بررسی کن تا خدمت تکراری نسازی.\n\n## بعد از افزودن\nبرای رزرو واقعی، متخصص ارائه‌دهنده و برنامه کاری او را نیز بررسی کن.",
+      "keywords": "افزودن خدمت موجود کاتالوگ مجموعه قیمت مدت متخصص سرویس",
+      "aliases": "اضافه کردن سرویس موجود\nافزودن خدمت از کاتالوگ\nخدمت موجود را اضافه کنم",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:AddServicesView",
+        "apps/dashboards/views.py:RequestServiceView",
+        "apps/dashboards/urls.py:dashboards:add_service"
+      ]
+    },
+    {
+      "key": "manager.services.not-bookable",
+      "slug": "service-not-visible-in-booking",
+      "title": "چرا یک خدمت در رزرو قابل استفاده نیست؟",
+      "audience": "manager",
+      "category": "services",
+      "article_type": "troubleshooting",
+      "summary": "فعال‌بودن خود خدمت کافی نیست؛ قیمت، مدت، متخصص متصل و برنامه کاری مرتبط هم روی قابل رزرو بودن اثر دارند.",
+      "body": "## چک‌لیست رفع مشکل\n- خدمت باید متعلق به همین مجموعه و **فعال** باشد.\n- برای ظرفیت تیم، قیمت پایه باید بیشتر از صفر باشد.\n- مدت خدمت باید بیشتر از صفر باشد.\n- حداقل یک متخصص فعال و قابل نمایش در همین مجموعه باید آن خدمت را ارائه دهد.\n- آن متخصص باید برنامه کاری جاری یا آینده داشته باشد؛ برنامه عمومی یا برنامه مرتبط با همان خدمت قابل استفاده است.\n\nاگر یکی از این موارد ناقص باشد، مشتری ممکن است خدمت یا زمان قابل انتخاب مناسبی نبیند.",
+      "keywords": "خدمت رزرو نمایش نمیده سرویس فعال قیمت صفر مدت متخصص شیفت",
+      "aliases": "سرویس تو رزرو نیست\nخدمت قابل رزرو نیست",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:_build_team_capacity_setup_workspace",
+        "apps/dashboards/views.py:DashboardManualBookingAvailabilityView"
+      ]
+    },
+    {
+      "key": "manager.schedule.overview",
+      "slug": "manager-scheduled-shifts",
+      "title": "برنامه کاری تیم",
+      "audience": "manager",
+      "category": "schedule",
+      "article_type": "guide",
+      "summary": "صفحه برنامه کاری تیم، شیفت‌های متخصص‌ها، عدم حضورها و درخواست‌های برنامه/مرخصی را برای بازه هفتگی کنار هم نشان می‌دهد.",
+      "body": "## نمای هفتگی\nصفحه برنامه کاری به‌صورت پیش‌فرض هفته جاری را نمایش می‌دهد و می‌توانی شروع هفته دیگری را انتخاب کنی. فقط اعضای فعال مجموعه در این برنامه کاری بررسی می‌شوند.\n\nبرای هر متخصص، شیفت‌های ثبت‌شده و زمان‌های عدم حضور مربوط به بازه انتخابی خوانده می‌شوند. همچنین درخواست‌های برنامه کاری و مرخصی متخصص‌ها در همین حوزه مدیریتی قابل بررسی‌اند.\n\n## استفاده پیشنهادی\nقبل از انتشار ظرفیت یا تغییر برنامه، وضعیت خدمات قابل رزرو هر عضو و شیفت‌های آینده او را کنار هم بررسی کن.",
+      "keywords": "شیفت برنامه کاری تیم هفتگی درخواست برنامه مرخصی",
+      "aliases": "تقویم کاری تیم\nبرنامه متخصص‌ها",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:ScheduledShiftsView",
+        "apps/dashboards/urls.py:dashboards:scheduled_shifts"
+      ]
+    },
+    {
+      "key": "manager.schedule.regular",
+      "slug": "manager-set-regular-shifts",
+      "title": "تنظیم شیفت منظم متخصص",
+      "audience": "manager",
+      "category": "schedule",
+      "article_type": "workflow",
+      "summary": "برای یک متخصص می‌توانی الگوی هفتگی را در یک بازه تاریخی اعمال کنی؛ شیفت‌ها باید داخل ساعات کاری مجموعه و بدون هم‌پوشانی باشند.",
+      "body": "## از کجا وارد شوم؟\nاز صفحه «برنامه کاری»، کارت متخصص موردنظر را باز کن و دکمه «تنظیم برنامه منظم» را بزن.\n\n## پیش‌نیاز\nمجموعه باید ساعت کاری فعال داشته باشد. اگر ساعت کاری وجود نداشته باشد، ساخت شیفت منظم قابل اتکا نیست.\n\n## ثبت الگو\n1. در صفحه «تنظیم شیفت منظم» تاریخ شروع و پایان اعمال الگو را مشخص کن.\n2. برای روزهای باز مجموعه یک یا چند بازه زمانی تعریف کن.\n3. پایان هر بازه باید بعد از شروع باشد.\n4. بازه‌ها باید داخل ساعت کاری همان روز مجموعه باشند و با هم هم‌پوشانی نداشته باشند.\n5. ذخیره را انجام بده.\n\n## نکته مهم درباره ذخیره\nهنگام ذخیره شیفت منظم، برنامه‌های ثبت‌شده همان متخصص در همان مجموعه و همان بازه تاریخی ابتدا پاک می‌شوند و سپس الگوی جدید برای روزهای بازه ساخته می‌شود. قبل از جایگزینی یک بازه بزرگ، تنظیمات را با دقت مرور کن.",
+      "keywords": "شیفت منظم الگوی هفتگی بازه تاریخ ساعت کاری همپوشانی حذف برنامه قبلی",
+      "aliases": "شیفت ثابت\nبرنامه هفتگی\nساعت کاری متخصص",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:SetRegularShiftsView",
+        "apps/dashboards/urls.py:dashboards:set_regular_shifts",
+        "templates/dashboards/scheduled_shifts.html:تنظیم برنامه منظم",
+        "templates/dashboards/set_regular_shifts.html"
+      ]
+    },
+    {
+      "key": "manager.schedule.time-off",
+      "slug": "manager-add-time-off",
+      "title": "ثبت عدم حضور متخصص توسط مدیر",
+      "audience": "manager",
+      "category": "schedule",
+      "article_type": "workflow",
+      "summary": "مدیر می‌تواند برای یک تاریخ مشخص، عدم حضور متخصص را ثبت کند و در عدم حضور ساعتی، بخش‌های قابل استفاده شیفت حفظ می‌شوند.",
+      "body": "## ثبت عدم حضور\nاز برنامه کاری تیم، متخصص و روز موردنظر را انتخاب کن و وارد ثبت عدم حضور شو. گزینه‌های ساعت براساس ساعت کاری همان روز مجموعه ساخته می‌شوند.\n\nاگر عدم حضور فقط بخشی از یک شیفت باشد، لومرا می‌تواند شیفت موجود را اطراف بازه عدم حضور تقسیم کند؛ مثلاً شیفت 09:00 تا 17:00 با عدم حضور 12:00 تا 13:00 به دو بخش 09:00 تا 12:00 و 13:00 تا 17:00 تبدیل می‌شود.\n\nقبل از ثبت عدم حضور، نوبت‌های موجود همان بازه را نیز بررسی کن.",
+      "keywords": "عدم حضور مرخصی متخصص مدیر تایم آف شکستن شیفت",
+      "aliases": "time off\nمرخصی آرایشگر\nبستن ساعت متخصص",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:AddTimeOffView",
+        "apps/dashboards/urls.py:dashboards:add_time_off"
+      ]
+    },
+    {
+      "key": "manager.booking.manual",
+      "slug": "manager-manual-booking",
+      "title": "ثبت نوبت دستی توسط مدیر",
+      "audience": "manager",
+      "category": "booking",
+      "article_type": "workflow",
+      "summary": "مدیر می‌تواند از تقویم مجموعه برای مشتری نوبت ثبت کند؛ خدمت و متخصص باید به همین مجموعه مربوط باشند و متخصص آن خدمت را ارائه دهد.",
+      "body": "## مراحل کلی\n1. از تقویم مجموعه وارد «افزودن رزرو» شو.\n2. مشتری را انتخاب کن؛ اگر مشتری هنوز ثبت نشده، از همان جریان می‌توانی به افزودن مشتری بروی.\n3. خدمت و متخصص را انتخاب کن.\n4. زمان را از ظرفیت موجود انتخاب و فرم را ثبت کن.\n\n## کنترل‌های مهم\nخدمت باید برای همین مجموعه فعال باشد. متخصص نیز باید عضو همین مجموعه، فعال و ارائه‌دهنده خدمت انتخاب‌شده باشد.\n\n## نتیجه ثبت\nرزرو دستی مدیر به‌صورت تأییدشده ثبت می‌شود، روش پرداخت آن «پرداخت در مجموعه» است و در این جریان کارمزد پلتفرم اعمال نمی‌شود. سپس مدیر به جزئیات همان نوبت منتقل می‌شود.",
+      "keywords": "رزرو دستی افزودن نوبت مشتری مدیر تقویم پرداخت در مجموعه بدون کارمزد",
+      "aliases": "ثبت وقت دستی\nرزرو از داشبورد\nنوبت تلفنی",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:DashboardManualBookingView",
+        "apps/dashboards/views.py:DashboardManualBookingAvailabilityView",
+        "apps/dashboards/urls.py:dashboards:add_booking"
+      ]
+    },
+    {
+      "key": "stylist.schedule.overview",
+      "slug": "stylist-my-schedule",
+      "title": "برنامه و مرخصی متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "guide",
+      "summary": "متخصص از صفحه «برنامه و مرخصی من» شیفت‌های آینده، عدم حضورها و وضعیت درخواست‌های برنامه یا مرخصی را می‌بیند.",
+      "body": "## چه چیزهایی نمایش داده می‌شود؟\nلومرا شیفت‌های امروز به بعد را برای مجموعه فعال متخصص نمایش می‌دهد. عدم حضورهای ثبت‌شده و مرخصی‌های تأییدشده نیز در همان نما دیده می‌شوند.\n\nدرخواست‌های برنامه کاری و مرخصی، چه در انتظار بررسی و چه بررسی‌شده، برای پیگیری متخصص نگه داشته می‌شوند.\n\nاگر با چند مجموعه همکاری فعال داری، ابتدا مطمئن شو داشبورد روی مجموعه درست تنظیم شده است.",
+      "keywords": "متخصص برنامه من شیفت مرخصی درخواست مجموعه فعال",
+      "aliases": "برنامه کاری من\nشیفت‌های من",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistScheduleView",
+        "apps/dashboards/urls.py:dashboards:stylist_schedule"
+      ]
+    },
+    {
+      "key": "stylist.schedule.request",
+      "slug": "stylist-request-schedule",
+      "title": "درخواست برنامه کاری توسط متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "workflow",
+      "summary": "متخصص برنامه جدید را به‌صورت درخواست برای بررسی مدیر مجموعه ثبت می‌کند.",
+      "body": "## پیش‌نیاز\nبرای ثبت درخواست برنامه کاری باید یک مجموعه فعال در داشبورد متخصص انتخاب شده باشد.\n\n## ثبت درخواست\nتاریخ، ساعت شروع و پایان و در صورت نیاز خدمت مرتبط را وارد کن. پس از ثبت موفق، درخواست برای بررسی مدیر مجموعه ذخیره می‌شود و مستقیماً به شیفت قطعی تبدیل نمی‌شود.\n\nوضعیت درخواست را بعداً از صفحه «برنامه و مرخصی من» پیگیری کن.",
+      "keywords": "درخواست برنامه کاری متخصص مدیر بررسی شیفت",
+      "aliases": "درخواست شیفت\nثبت ساعت کاری توسط متخصص",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistAddScheduleView",
+        "apps/stylists/dashboard_services.py:create_schedule_request",
+        "apps/dashboards/urls.py:dashboards:stylist_add_schedule"
+      ]
+    },
+    {
+      "key": "stylist.leave.request",
+      "slug": "stylist-request-leave",
+      "title": "درخواست مرخصی توسط متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "workflow",
+      "summary": "مرخصی متخصص ابتدا به‌صورت درخواست ثبت می‌شود و برای بررسی مدیر مجموعه می‌رود.",
+      "body": "## پیش‌نیاز\nبرای ثبت درخواست مرخصی باید یک مجموعه فعال داشته باشی.\n\n## مراحل\n1. از «برنامه و مرخصی من» وارد «درخواست مرخصی» شو.\n2. تاریخ و در صورت نیاز ساعت شروع و پایان را مشخص کن.\n3. دلیل را در صورت نیاز وارد و درخواست را ثبت کن.\n\nدرخواست با تأیید خودکار ثبت نمی‌شود؛ برای بررسی مدیر مجموعه ارسال می‌شود. بعد از ثبت، لومرا تلاش می‌کند مدیر را نیز از درخواست جدید مطلع کند. وضعیت را از صفحه برنامه خودت پیگیری کن.",
+      "keywords": "مرخصی متخصص درخواست مدیر عدم حضور",
+      "aliases": "درخواست تایم آف\nleave request",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistAddTimeOffView",
+        "apps/stylists/dashboard_services.py:create_leave_request",
+        "apps/dashboards/urls.py:dashboards:stylist_add_time_off"
+      ]
+    },
+    {
+      "key": "stylist.appointments.overview",
+      "slug": "stylist-appointments",
+      "title": "نوبت‌های متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "guide",
+      "summary": "متخصص نوبت‌های مربوط به خودش را در مجموعه فعال می‌بیند و برای اقدام وارد جزئیات هر مراجعه می‌شود.",
+      "body": "## استفاده از فهرست نوبت‌ها\nفهرست نوبت‌ها برای مرور مراجعه‌های مرتبط با خود متخصص است. اگر با چند مجموعه همکاری داری، اطلاعات براساس مجموعه فعال داشبورد محدود می‌شود.\n\nبرای بررسی وضعیت مراجعه، مشتری، خدمت و اقدام‌های مجاز، جزئیات همان نوبت را باز کن. دسترسی به بعضی اطلاعات یا اقدام‌ها می‌تواند به مجوزهای همکاری متخصص در مجموعه وابسته باشد.",
+      "keywords": "نوبت متخصص مراجعه مشتری خدمت مجموعه فعال",
+      "aliases": "قرارهای من\nرزروهای من متخصص",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistAppointmentsView",
+        "apps/dashboards/views.py:_stylist_context_payload",
+        "apps/dashboards/urls.py:dashboards:stylist_appointments"
+      ]
+    },
+    {
+      "key": "customer.booking.flow",
+      "slug": "customer-booking-flow",
+      "title": "مراحل رزرو نوبت برای مشتری",
+      "audience": "customer",
+      "category": "booking",
+      "article_type": "workflow",
+      "summary": "مسیر رزرو مشتری از انتخاب متخصص برای هر خدمت، انتخاب تاریخ و ساعت، بازبینی رزرو و ثبت نهایی عبور می‌کند.",
+      "body": "## مسیر اصلی رزرو\n1. خدمت یا خدمات موردنظر را انتخاب کن.\n2. برای هر خدمت، متخصص مناسب را انتخاب کن.\n3. تاریخ و ساعت آزاد را انتخاب کن.\n4. در «پیش‌نمایش رزرو» جزئیات خدمت، متخصص، زمان و مبلغ را بررسی کن.\n5. از مرحله ثبت نهایی/تسویه ادامه بده.\n\nزمان آزاد براساس متخصص، خدمت و ظرفیت واقعی ساخته می‌شود. نزدیک ثبت نهایی نیز ظرفیت دوباره بررسی می‌شود تا یک زمان به دو رزرو قطعی اختصاص پیدا نکند.",
+      "keywords": "رزرو مشتری انتخاب متخصص تاریخ ساعت پیش نمایش checkout نهایی",
+      "aliases": "گرفتن وقت\nنوبت گرفتن\nرزرو سالن",
+      "is_featured": true,
+      "source_refs": [
+        "apps/orders/urls.py:orders:select_stylists",
+        "apps/orders/urls.py:orders:select_dateTime",
+        "apps/orders/urls.py:orders:reservation_preview",
+        "apps/orders/urls.py:orders:checkout"
+      ]
+    },
+    {
+      "key": "customer.booking.slot-taken",
+      "slug": "booking-slot-no-longer-free",
+      "title": "چرا زمان انتخاب‌شده موقع ثبت نهایی دیگر آزاد نیست؟",
+      "audience": "customer",
+      "category": "booking",
+      "article_type": "troubleshooting",
+      "summary": "لومرا هنگام نهایی‌کردن رزرو دوباره تداخل زمانی را بررسی می‌کند؛ ممکن است کاربر دیگری همان ظرفیت را زودتر قطعی کرده باشد.",
+      "body": "## علت پیام\nزمانی که انتخاب می‌کنی تا لحظه ثبت نهایی می‌تواند توسط کاربر دیگری قطعی شود. لومرا نزدیک مرز نهایی‌سازی دوباره رزروهای هم‌پوشان متخصص را بررسی می‌کند.\n\n## چه کار کنم؟\nاگر پیام می‌گوید زمان دیگر آزاد نیست، از همان صفحه یک زمان آزاد دیگر انتخاب کن. لازم نیست برای همان زمان چند بار ثبت نهایی را تکرار کنی.\n\nاین کنترل برای جلوگیری از ثبت هم‌زمان دو نوبت قطعی روی ظرفیت یک متخصص است.",
+      "keywords": "زمان آزاد نیست گرفته شد تداخل رزرو همزمان checkout",
+      "aliases": "اسلات پر شد\nوقت رو یکی گرفت\nزمان دیگه خالی نیست",
+      "is_featured": true,
+      "source_refs": [
+        "apps/orders/views.py:AppointmentCheckoutView"
+      ]
+    },
+    {
+      "key": "customer.booking.reschedule",
+      "slug": "customer-reschedule-appointment",
+      "title": "تغییر زمان نوبت مشتری",
+      "audience": "customer",
+      "category": "booking",
+      "article_type": "workflow",
+      "summary": "مشتری می‌تواند از جزئیات نوبت وارد انتخاب تاریخ و ساعت جدید شود؛ لومرا برای تغییر زمان از همان منطق انتخاب ظرفیت استفاده می‌کند.",
+      "body": "## تغییر زمان\nاز جزئیات نوبت خودت وارد «تغییر زمان» شو. صفحه انتخاب تاریخ و ساعت، آیتم‌های همان سفارش و متخصص‌های انتخاب‌شده را برای ساخت زمان جدید در نظر می‌گیرد.\n\nبعد از انتخاب زمان جدید، مرحله تأیید تغییر را کامل کن. تا قبل از تأیید نهایی، زمان جدید را قطعی فرض نکن.\n\nاگر زمان دلخواه نمایش داده نمی‌شود، ظرفیت متخصص و برنامه کاری همان روز را در نظر بگیر و زمان دیگری را بررسی کن.",
+      "keywords": "تغییر زمان جابجایی نوبت reschedule تاریخ ساعت",
+      "aliases": "عوض کردن وقت\nتغییر تاریخ رزرو",
+      "is_featured": true,
+      "source_refs": [
+        "apps/orders/views.py:RescheduleDateTimeView",
+        "apps/orders/views.py:RescheduleConfirmView",
+        "apps/orders/urls.py:orders:reschedule"
+      ]
+    },
+    {
+      "key": "customer.appointments.overview",
+      "slug": "customer-appointments",
+      "title": "نوبت‌های من",
+      "audience": "customer",
+      "category": "booking",
+      "article_type": "guide",
+      "summary": "فهرست نوبت‌های مشتری برای پیگیری رزروهای ثبت‌شده و رفتن به جزئیات هر مراجعه است.",
+      "body": "## پیگیری نوبت\nاز «نوبت‌های من» رزرو موردنظر را باز کن. صفحه جزئیات مرجع اصلی برای دیدن وضعیت همان نوبت و اقدام‌هایی مثل تغییر زمان، دریافت فایل تقویم یا مسیرهای پرداخت مرتبط است.\n\nبرای یک مشکل مشخص، همیشه از همان نوبت وارد جزئیات شو تا وضعیت و شناسه درست رزرو مبنای اقدام باشد.",
+      "keywords": "نوبت های من رزروها جزئیات پیگیری",
+      "aliases": "قرارهای من\nوقت‌های من",
+      "is_featured": false,
+      "source_refs": [
+        "apps/orders/urls.py:orders:appointments",
+        "apps/orders/urls.py:orders:appointment_detail"
+      ]
+    },
+    {
+      "key": "customer.wallet.overview",
+      "slug": "customer-wallet",
+      "title": "کیف پول مشتری",
+      "audience": "customer",
+      "category": "payments",
+      "article_type": "guide",
+      "summary": "صفحه کیف پول موجودی، تراکنش‌های اخیر و درخواست‌های برداشت اخیر را یکجا نشان می‌دهد.",
+      "body": "## صفحه کیف پول\nاگر برای حساب هنوز کیف پولی وجود نداشته باشد، لومرا هنگام بازکردن این صفحه آن را ایجاد می‌کند.\n\nدر صفحه اصلی کیف پول، آخرین تراکنش‌ها و آخرین درخواست‌های برداشت نمایش داده می‌شوند. برای تاریخچه کامل از بخش تراکنش‌ها استفاده کن.\n\nفعال‌بودن عملیات شارژ و برداشت به وضعیت پرداخت آنلاین پلتفرم وابسته است.",
+      "keywords": "کیف پول موجودی تراکنش برداشت مشتری",
+      "aliases": "wallet\nاعتبار حساب",
+      "is_featured": true,
+      "source_refs": [
+        "apps/payments/views.py:WalletDetailView",
+        "apps/payments/urls.py:payments:detail"
+      ]
+    },
+    {
+      "key": "customer.wallet.disabled",
+      "slug": "wallet-charge-withdraw-disabled",
+      "title": "چرا شارژ یا برداشت کیف پول غیرفعال است؟",
+      "audience": "customer",
+      "category": "payments",
+      "article_type": "troubleshooting",
+      "summary": "در نسخه‌ای که پرداخت آنلاین غیرفعال باشد، لومرا عملیات شارژ و برداشت کیف پول را هم غیرفعال نگه می‌دارد.",
+      "body": "## علت\nدر پیاده‌سازی فعلی، شارژ و برداشت کیف پول فقط وقتی فعال‌اند که قابلیت پرداخت آنلاین پلتفرم فعال باشد.\n\nاگر این قابلیت غیرفعال باشد، ورود به شارژ یا برداشت به صفحه کیف پول برمی‌گردد و پیام نسخه بتا نمایش داده می‌شود که پرداخت فعلاً در مجموعه انجام می‌شود.\n\nاین مورد با موجودی شخصی تو حل نمی‌شود و به تنظیم فعال‌بودن پرداخت آنلاین در خود پلتفرم مربوط است.",
+      "keywords": "شارژ برداشت غیرفعال نسخه بتا پرداخت آنلاین ONLINE_PAYMENT_ENABLED",
+      "aliases": "نمیتونم کیف پول شارژ کنم\nبرداشت کار نمیکنه",
+      "is_featured": true,
+      "source_refs": [
+        "apps/payments/views.py:_wallet_operations_enabled",
+        "apps/payments/views.py:_redirect_wallet_operation_disabled"
+      ]
+    },
+    {
+      "key": "customer.wallet.charge",
+      "slug": "wallet-charge-limits",
+      "title": "شارژ کیف پول؛ مبلغ و محدودیت‌ها",
+      "audience": "customer",
+      "category": "payments",
+      "article_type": "workflow",
+      "summary": "اگر عملیات کیف پول فعال باشد، مبلغ شارژ باید حداقل ۱۰٬۰۰۰ و حداکثر ۵۰٬۰۰۰٬۰۰۰ تومان باشد.",
+      "body": "## پیش‌نیاز\nشارژ کیف پول فقط وقتی در دسترس است که عملیات کیف پول/پرداخت آنلاین فعال باشد.\n\n## مبلغ شارژ\nلومرا چند مبلغ پیشنهادی نشان می‌دهد، اما می‌توانی مبلغ معتبر دیگری نیز وارد کنی. مبلغ کمتر از ۱۰٬۰۰۰ تومان یا بیشتر از ۵۰٬۰۰۰٬۰۰۰ تومان پذیرفته نمی‌شود.\n\nپس از ایجاد درخواست پرداخت، کاربر به درگاه تنظیم‌شده هدایت می‌شود. تا زمانی که بازگشت و تأیید درگاه موفق نشده، شارژ را نهایی فرض نکن.",
+      "keywords": "شارژ کیف پول حداقل 10000 حداکثر 50000000 درگاه",
+      "aliases": "افزایش موجودی\nشارژ اعتبار",
+      "is_featured": false,
+      "source_refs": [
+        "apps/payments/views.py:WalletChargeView",
+        "apps/payments/urls.py:payments:charge"
+      ]
+    },
+    {
+      "key": "customer.wallet.transactions",
+      "slug": "wallet-transactions",
+      "title": "تراکنش‌های کیف پول",
+      "audience": "customer",
+      "category": "payments",
+      "article_type": "guide",
+      "summary": "برای بررسی ورود و خروج موجودی، تاریخچه کامل تراکنش‌های کیف پول را باز کن.",
+      "body": "## پیدا کردن یک تراکنش\nاز صفحه کیف پول وارد «تراکنش‌ها» شو. تاریخچه کامل‌تر از پنج مورد اخیر صفحه اصلی در این بخش نمایش داده می‌شود.\n\nاگر مبلغی برایت نامشخص است، زمان، نوع تراکنش و عملیات مرتبط مثل شارژ یا پرداخت رزرو را با هم مقایسه کن. اگر همچنان اختلاف وجود داشت، جزئیات همان تراکنش و زمان وقوع را برای پشتیبانی توضیح بده؛ اطلاعات کارت یا رمز را ارسال نکن.",
+      "keywords": "تراکنش تاریخچه کیف پول مبلغ ورود خروج",
+      "aliases": "گردش حساب\nسوابق کیف پول",
+      "is_featured": false,
+      "source_refs": [
+        "apps/payments/views.py:WalletTransactionsView",
+        "apps/payments/urls.py:payments:transactions"
+      ]
+    },
+    {
+      "key": "customer.account.addresses",
+      "slug": "customer-addresses",
+      "title": "مدیریت آدرس‌های مشتری",
+      "audience": "customer",
+      "category": "account",
+      "article_type": "guide",
+      "summary": "مشتری می‌تواند چند آدرس ذخیره کند، آدرس جدید بسازد، آدرس موجود را ویرایش کند و آدرس پیش‌فرض را مشخص کند.",
+      "body": "## کارهای قابل انجام\nاز بخش آدرس‌ها می‌توانی فهرست نشانی‌های ذخیره‌شده را ببینی. برای هر آدرس مسیر جداگانه ویرایش، حذف و انتخاب به‌عنوان آدرس پیش‌فرض وجود دارد.\n\nبرای جلوگیری از سردرگمی، آدرس‌های قدیمی را به‌روز نگه دار و آدرس اصلی استفاده‌شده را به‌عنوان پیش‌فرض انتخاب کن.",
+      "keywords": "آدرس مشتری افزودن ویرایش حذف پیش فرض",
+      "aliases": "نشانی‌ها\nآدرس من",
+      "is_featured": false,
+      "source_refs": [
+        "apps/accounts/urls.py:accounts:customer_addresses",
+        "apps/accounts/urls.py:accounts:customer_address_add",
+        "apps/accounts/urls.py:accounts:customer_address_edit"
+      ]
+    },
+    {
+      "key": "support.contact",
+      "slug": "contact-support",
+      "title": "تماس با پشتیبانی لومرا",
+      "audience": "all",
+      "category": "support",
+      "article_type": "workflow",
+      "summary": "اگر پاسخ قطعی در مرکز راهنما پیدا نشد، درخواست پشتیبانی را با موضوع و جزئیات لازم ثبت کن.",
+      "body": "## قبل از ارسال\nاول عبارت مشکل را در مرکز راهنما جستجو کن. اگر راهنما کافی نبود، از فرم پشتیبانی یا تیکت استفاده کن.\n\n## در توضیح مشکل چه بنویسم؟\n- کاری که می‌خواستی انجام بدهی.\n- صفحه یا بخش مربوط.\n- پیام خطایی که دیدی، بدون اطلاعات حساس.\n- اگر مشکل به نوبت یا پرداخت مشخص مربوط است، همان مورد را از داخل حساب باز کن و اطلاعات لازم غیرحساس را ذکر کن.\n\nرمز عبور، کد تأیید و اطلاعات کامل کارت بانکی را در تیکت یا چت ارسال نکن.",
+      "keywords": "پشتیبانی تیکت مشکل کمک خطا",
+      "aliases": "ساپورت\nتماس با پشتیبانی",
+      "is_featured": true,
+      "source_refs": [
+        "apps/main/urls.py:main:support_ticket_list",
+        "apps/main/support_services.py:initialize_support_ticket"
+      ]
+    },
+    {
+      "key": "help.assistant.sources",
+      "slug": "assistant-uses-docs",
+      "title": "دستیار لومرا چطور پاسخ می‌دهد؟",
+      "audience": "all",
+      "category": "getting-started",
+      "article_type": "faq",
+      "summary": "دستیار شناور ابتدا در مستندات مجاز لومرا جستجو می‌کند و فقط منابع بازیابی‌شده را برای ساخت پاسخ به مدل هوش مصنوعی می‌دهد.",
+      "body": "## منبع پاسخ\nمنبع حقیقت دستیار، مقاله‌های منتشرشده مرکز راهنمای لومراست. صفحه‌ای که الان باز کرده‌ای فقط برای پیشنهاد سؤال‌های شروع استفاده می‌شود و نباید باعث شود سؤال نامرتبط با همان صفحه جواب داده شود.\n\nاگر برای سؤال منبع مرتبط کافی پیدا نشود، دستیار باید اعلام کند که در مستندات فعلی پاسخ قطعی وجود ندارد و از حدس‌زدن رفتار محصول خودداری کند.\n\nزیر پاسخ، منابعی که برای ساخت جواب بازیابی شده‌اند نمایش داده می‌شوند و می‌توانی مقاله کامل را باز کنی.",
+      "keywords": "دستیار هوش مصنوعی منابع مستندات رفرنس پاسخ",
+      "aliases": "چت بات\nAI\nمنبع جواب",
+      "is_featured": true,
+      "source_refs": [
+        "apps/help_center/retrieval.py:retrieve_help_chunks",
+        "apps/help_center/services.py:answer_help_question"
+      ]
+    },
+    {
+      "key": "manager.discounts.coupons",
+      "slug": "manager-coupons",
+      "title": "ساخت و مدیریت کد تخفیف",
+      "audience": "manager",
+      "category": "discounts",
+      "article_type": "workflow",
+      "summary": "در بخش کدهای تخفیف می‌توانی کدی بسازی که مشتری هنگام رزرو وارد کند و درصد، سقف مبلغ و بازه اعتبار آن را مشخص کنی.",
+      "body": "## ساخت کد جدید\nاز «مرکز مالی» وارد «کدهای تخفیف» شو و دکمه «ساخت کد» را بزن. فرم ساخت کد در همان صفحه باز می‌شود.\n\n## فیلدهای اصلی\n1. کد تخفیف؛ مثل FIRSTVISIT20. کد هنگام ذخیره به حروف بزرگ تبدیل می‌شود.\n2. درصد تخفیف؛ مقدار فرم بین ۱ تا ۱۰۰ است.\n3. سقف مبلغ تخفیف؛ مقدار صفر یعنی بدون سقف.\n4. شروع و پایان اعتبار؛ تاریخ پایان باید بعد از تاریخ شروع باشد. شروع از ابتدای روز و پایان تا انتهای روز محاسبه می‌شود.\n5. فعال باشد؛ اگر غیرفعال باشد مشتری نمی‌تواند از آن به‌عنوان کد فعال استفاده کند.\n\nکد برای همان مجموعه ذخیره می‌شود و کد تکراری در همان مجموعه پذیرفته نمی‌شود.\n\n## ویرایش و غیرفعال‌کردن\nاز همان صفحه می‌توانی یک کد را ویرایش یا وضعیت فعال آن را تغییر بدهی. عملیات حذف در داشبورد کد را از بین نمی‌برد؛ کد غیرفعال می‌شود تا سابقه آن باقی بماند.",
+      "keywords": "کد تخفیف کوپن درصد سقف تخفیف اعتبار فعال غیرفعال مالی مجموعه",
+      "aliases": "کوپن بسازم\nکد تخفیف ایجاد کنم\nتخفیف رزرو\ncoupon",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/payment_views.py:SalonCouponManagementView",
+        "apps/dashboards/payment_views.py:SalonCouponToggleView",
+        "apps/dashboards/payment_views.py:SalonCouponDeleteView",
+        "apps/discounts/forms.py:SalonCouponForm",
+        "apps/dashboards/urls.py:dashboards:finance_coupons",
+        "templates/dashboards/finance_coupons.html:ساخت کد"
+      ]
+    },
+    {
+      "key": "manager.discounts.baskets",
+      "slug": "manager-service-offers",
+      "title": "ساخت پیشنهاد تخفیف برای چند خدمت",
+      "audience": "manager",
+      "category": "discounts",
+      "article_type": "workflow",
+      "summary": "پیشنهاد خدمات یک درصد تخفیف مشترک را روی یک یا چند خدمت فعال مجموعه قرار می‌دهد؛ مشتری لازم نیست همه خدمات انتخاب‌شده را با هم رزرو کند.",
+      "body": "## ساخت پیشنهاد خدمات\nدر «تنظیمات مالی > پیشنهاد خدمات» عنوان، درصد تخفیف، سقف مبلغ، بازه اعتبار و خدمات شامل تخفیف را مشخص کن.\n\n## نکته‌های مهم\n- برای ساخت پیشنهاد حداقل یک خدمت باید انتخاب شود.\n- هنگام ساخت، فقط خدمات فعال مجموعه برای انتخاب نمایش داده می‌شوند؛ در ویرایش، خدماتی که قبلاً انتخاب شده‌اند هم قابل مشاهده می‌مانند.\n- تاریخ پایان باید بعد از تاریخ شروع باشد.\n- اگر برای فعال‌سازی پیشنهاد با تخفیف‌های فعال دیگر تعارض وجود داشته باشد، پیشنهاد ذخیره می‌شود اما فعال نمی‌شود و داشبورد پیام تعارض را نشان می‌دهد.\n\nاین نوع تخفیف برای زمانی مناسب است که می‌خواهی چند خدمت مستقل تحت یک پیشنهاد مشترک باشند.",
+      "keywords": "پیشنهاد خدمات تخفیف چند خدمت سبد تخفیف درصد سقف تعارض",
+      "aliases": "بسته تخفیف\nتخفیف روی چند سرویس\nپیشنهاد چند خدمت",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/payment_views.py:SalonDiscountBasketManagementView",
+        "apps/discounts/forms.py:SalonDiscountBasketForm",
+        "apps/discounts/activation_rules.py:find_basket_activation_conflicts",
+        "apps/dashboards/urls.py:dashboards:finance_baskets"
+      ]
+    },
+    {
+      "key": "manager.discounts.campaigns",
+      "slug": "manager-discount-campaigns",
+      "title": "ساخت کمپین تخفیف",
+      "audience": "manager",
+      "category": "discounts",
+      "article_type": "workflow",
+      "summary": "کمپین برای گروه‌کردن کدهای تخفیف و پیشنهادهای خدمات در یک بازه زمانی مشخص استفاده می‌شود.",
+      "body": "## ساخت کمپین\nدر «تنظیمات مالی > کمپین‌ها» عنوان، تاریخ شروع و پایان و مواردی را که باید عضو کمپین باشند انتخاب کن.\n\n## قواعد فرم\n- عنوان کمپین در همان مجموعه نباید با یک کمپین غیرآرشیوی دیگر تکراری باشد.\n- تاریخ پایان باید بعد از تاریخ شروع باشد.\n- حداقل یک کد تخفیف یا یک پیشنهاد خدمات باید به کمپین اضافه شود.\n- فقط کدها و پیشنهادهای متعلق به همان مجموعه در فرم انتخاب می‌شوند.\n\nاگر هم کد تخفیف و هم پیشنهاد خدمات انتخاب کنی، نوع کمپین به‌صورت ترکیبی ثبت می‌شود.",
+      "keywords": "کمپین تخفیف کد پیشنهاد خدمات تاریخ شروع پایان ترکیبی",
+      "aliases": "کمپین بسازم\nکمپین کوپن\nکمپین پیشنهاد خدمات",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/payment_views.py:SalonDiscountCampaignManagementView",
+        "apps/discounts/forms.py:SalonDiscountCampaignForm",
+        "apps/dashboards/urls.py:dashboards:finance_campaigns"
+      ]
+    },
+    {
+      "key": "manager.team.invite-stylist",
+      "slug": "manager-invite-stylist",
+      "title": "دعوت متخصص به همکاری",
+      "audience": "manager",
+      "category": "team",
+      "article_type": "workflow",
+      "summary": "با شماره موبایل برای متخصص دعوت همکاری ثبت کن؛ اگر متخصص هنوز ثبت‌نام نکرده باشد دعوت می‌تواند تا ثبت‌نام او منتظر بماند.",
+      "body": "## ثبت دعوت\nدر «اعضای تیم» شماره موبایل متخصص را وارد کن. اگر کاربری با همان شماره و پروفایل متخصص وجود داشته باشد، دعوت به همان متخصص متصل می‌شود.\n\n## اگر هنوز ثبت‌نام نکرده باشد\nدعوت با شماره موبایل نگه داشته می‌شود و بعد از ثبت‌نام متخصص با همان شماره قابل مشاهده است.\n\n## مواردی که دعوت تازه ساخته نمی‌شود\nاگر متخصص همین حالا عضو فعال مجموعه باشد، دعوت جدید ساخته نمی‌شود. اگر قبلاً خودش درخواست همکاری داده باشد، همان درخواست را تأیید یا رد کن؛ دعوت تازه جای درخواست منتظر را نمی‌گیرد.",
+      "keywords": "دعوت متخصص همکاری شماره موبایل عضو تیم ثبت نام دعوت نامه",
+      "aliases": "دعوت همکار\ninvite stylist\nدعوت آرایشگر\nمتخصص هنوز ثبت نام نکرده",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:_create_manager_stylist_invite",
+        "apps/dashboards/urls.py:dashboards:create_stylist_invite"
+      ]
+    },
+    {
+      "key": "manager.team.cancel-invite",
+      "slug": "manager-cancel-stylist-invite",
+      "title": "لغو دعوت همکاری متخصص",
+      "audience": "manager",
+      "category": "team",
+      "article_type": "workflow",
+      "summary": "دعوتی که هنوز در وضعیت دعوت است را از اعضای تیم لغو کن.",
+      "body": "## چه دعوتی قابل لغو است؟\nلغو برای عضوی انجام می‌شود که دعوت همکاری او هنوز در وضعیت «دعوت‌شده» است.\n\n## بعد از لغو\nوضعیت دعوت به «لغوشده توسط مجموعه» تغییر می‌کند و اگر دعوت به متخصص ثبت‌شده متصل باشد، اعلان لغو برای او ساخته می‌شود. لغو دعوت با پایان همکاری عضو فعال فرق دارد.",
+      "keywords": "لغو دعوت همکاری کنسل دعوت متخصص دعوت شده",
+      "aliases": "کنسل دعوت متخصص\nپس گرفتن دعوت\nلغو invite",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:_cancel_manager_stylist_invite",
+        "apps/dashboards/urls.py:dashboards:cancel_stylist_invite"
+      ]
+    },
+    {
+      "key": "manager.team.review-request",
+      "slug": "manager-review-membership-request",
+      "title": "بررسی درخواست همکاری متخصص",
+      "audience": "manager",
+      "category": "team",
+      "article_type": "workflow",
+      "summary": "درخواست همکاری متخصص با همین مجموعه را تأیید یا رد کن.",
+      "body": "## درخواست قابل بررسی\nفقط درخواست مربوط به همین مجموعه و متخصص که هنوز در وضعیت «منتظر پذیرش» است قابل اقدام است.\n\n## تأیید یا رد\nبا تأیید، عضویت متخصص برای همین مجموعه فعال و دسترسی‌های همکاری او تکمیل می‌شود. با رد، همکاری فعال نمی‌شود. نتیجه برای متخصص اعلان می‌شود.",
+      "keywords": "درخواست همکاری متخصص تایید رد پذیرش عضویت تیم",
+      "aliases": "قبول درخواست متخصص\nرد درخواست همکاری\nmembership request",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:ManagerMembershipRequestActionView",
+        "apps/dashboards/urls.py:dashboards:membership_request_action"
+      ]
+    },
+    {
+      "key": "manager.team.end-collaboration",
+      "slug": "manager-end-stylist-collaboration",
+      "title": "پایان همکاری متخصص با مجموعه",
+      "audience": "manager",
+      "category": "team",
+      "article_type": "workflow",
+      "summary": "همکاری یک عضو فعال را فقط وقتی پایان بده که نوبت فعال یا آینده‌ای برای این همکاری باقی نمانده باشد.",
+      "body": "## قبل از پایان همکاری\nلومرا بررسی می‌کند متخصص هنوز عضو فعال همین مجموعه باشد و نوبت فعال یا آینده‌ای برای این همکاری باقی نمانده باشد.\n\n## بعد از پایان همکاری\nعضویت همین مجموعه از حالت فعال خارج و دسترسی‌های مربوط به این همکاری بسته می‌شوند. حساب شخصی متخصص حذف نمی‌شود.",
+      "keywords": "پایان همکاری متخصص قطع همکاری حذف از تیم بستن دسترسی پایان اتمام تموم کردن حذف متخصص از تیم",
+      "aliases": "اتمام همکاری\nقطع همکاری آرایشگر\nremove stylist from salon\nتموم کردن همکاری\nاتمام همکاری متخصص\nحذف متخصص از تیم",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:ManagerEndStylistCollaborationView",
+        "apps/dashboards/views.py:_close_membership_access"
+      ]
+    },
+    {
+      "key": "manager.team.end-collaboration-blocked",
+      "slug": "manager-cannot-end-stylist-collaboration",
+      "title": "چرا نمی‌توانم همکاری متخصص را پایان بدهم؟",
+      "audience": "manager",
+      "category": "team",
+      "article_type": "troubleshooting",
+      "summary": "نوبت فعال یا آینده می‌تواند پایان همکاری متخصص را متوقف کند.",
+      "body": "## علت رایج\nاگر برای این همکاری نوبت فعال یا آینده وجود داشته باشد، لومرا اجازه پایان همکاری نمی‌دهد.\n\n## راه‌حل\nاول نوبت‌های آینده متخصص را تعیین تکلیف کن؛ آن‌ها باید انجام، جابه‌جا یا در صورت نیاز لغو شوند. بعد دوباره پایان همکاری را انجام بده.",
+      "keywords": "پایان همکاری نمیشه نوبت آینده فعال متخصص خطا قطع همکاری",
+      "aliases": "نمی‌تونم متخصص رو حذف کنم\nپایان همکاری خطا میده\nمتخصص نوبت آینده دارد",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:_active_future_appointment_count_for_membership",
+        "apps/dashboards/views.py:_membership_future_appointment_block_message"
+      ]
+    },
+    {
+      "key": "manager.schedule.review-request",
+      "slug": "manager-review-schedule-request",
+      "title": "تأیید یا رد درخواست برنامه کاری متخصص",
+      "audience": "manager",
+      "category": "schedule",
+      "article_type": "workflow",
+      "summary": "درخواست برنامه کاری منتظر متخصص را از برنامه کاری تیم بررسی کن.",
+      "body": "## بررسی درخواست\nفقط درخواست برنامه‌ای که هنوز «منتظر بررسی» است قابل تأیید یا رد است.\n\n## نتیجه\nبا تأیید، شیفت‌های تأییدشده برای همین مجموعه ساخته می‌شوند. با رد، برنامه درخواستی به شیفت‌های مجموعه اضافه نمی‌شود. یادداشت بررسی را در صورت نیاز ثبت کن.",
+      "keywords": "درخواست برنامه کاری تایید رد شیفت متخصص مدیر",
+      "aliases": "تایید درخواست شیفت\nقبول برنامه متخصص\nرد برنامه کاری",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:ManagerStaffScheduleRequestActionView",
+        "apps/stylists/dashboard_services.py:review_schedule_request"
+      ]
+    },
+    {
+      "key": "manager.schedule.review-leave",
+      "slug": "manager-review-leave-request",
+      "title": "تأیید یا رد درخواست مرخصی متخصص",
+      "audience": "manager",
+      "category": "schedule",
+      "article_type": "workflow",
+      "summary": "درخواست مرخصی منتظر متخصص را برای همین مجموعه تأیید یا رد کن.",
+      "body": "## درخواست قابل بررسی\nفقط درخواست مرخصی همین مجموعه که هنوز «منتظر بررسی» است قابل اقدام است.\n\n## نتیجه\nمدیر می‌تواند درخواست را تأیید یا رد و یادداشت بررسی ثبت کند. نتیجه برای متخصص اعلان می‌شود. برای غیبت‌ای که مدیر مستقیم ثبت می‌کند از جریان ثبت عدم حضور استفاده کن.",
+      "keywords": "درخواست مرخصی تایید رد متخصص عدم حضور مدیر بررسی درخواست مرخصی تایید رد قبول درخواست",
+      "aliases": "قبول مرخصی متخصص\nرد مرخصی\nleave request approve\nبررسی درخواست مرخصی متخصص\nتایید درخواست مرخصی\nرد درخواست مرخصی",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:ManagerStaffLeaveRequestActionView",
+        "apps/stylists/dashboard_services.py:review_leave_request"
+      ]
+    },
+    {
+      "key": "manager.schedule.edit-day",
+      "slug": "manager-edit-stylist-day-schedule",
+      "title": "ویرایش برنامه یک روز متخصص",
+      "audience": "manager",
+      "category": "schedule",
+      "article_type": "workflow",
+      "summary": "شیفت‌های یک تاریخ مشخص متخصص را بر اساس ساعت کاری همان روز مجموعه ویرایش کن.",
+      "body": "## ویرایش روز\nاز برنامه کاری تیم روز و متخصص را باز کن. ساعت‌های قابل انتخاب بر اساس ساعت کاری باز همان روز مجموعه ساخته می‌شوند.\n\n## ثبت ردیف\nشروع و پایان هر ردیف باید کامل باشند. انتخاب خدمت اختیاری است؛ اگر خدمت انتخاب می‌شود باید برای همان مجموعه و متخصص معتبر باشد.",
+      "keywords": "ویرایش روز برنامه متخصص شیفت یک روز ساعت شروع پایان",
+      "aliases": "تغییر شیفت یک روز\nبرنامه روزانه متخصص\nedit day schedule",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:EditStylistDayScheduleView",
+        "apps/dashboards/urls.py:dashboards:edit_day_schedule"
+      ]
+    },
+    {
+      "key": "manager.booking.online-overview",
+      "slug": "manager-online-booking-overview",
+      "title": "رزرو آنلاین و لینک سریع مجموعه",
+      "audience": "manager",
+      "category": "booking",
+      "article_type": "guide",
+      "summary": "لینک رزرو را برای مجموعه، خدمت، متخصص یا ترکیب دقیق‌تر خدمت/متخصص/زمان بساز.",
+      "body": "## حالت‌های لینک\nمقصد لینک می‌تواند صفحه مجموعه، یک خدمت، یک متخصص، خدمت + متخصص یا خدمت + متخصص + زمان مشخص باشد.\n\n## داده‌های معتبر\nفقط خدمات فعال با مدت معتبر و متخصص‌های فعال در گزینه‌ها می‌آیند. زمان‌های حالت دقیق از همان موتور ظرفیت رزرو مشتری گرفته می‌شوند.",
+      "keywords": "رزرو آنلاین لینک سریع مجموعه خدمت متخصص زمان QR",
+      "aliases": "quick link\nلینک رزرو\nرزرو مستقیم سالن",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:OnlineBookingView",
+        "apps/dashboards/views.py:OnlineBookingQuickLinkOptionsView"
+      ]
+    },
+    {
+      "key": "manager.booking.quick-link-create",
+      "slug": "manager-create-booking-quick-link",
+      "title": "ساخت لینک مستقیم رزرو",
+      "audience": "manager",
+      "category": "booking",
+      "article_type": "workflow",
+      "summary": "یک مقصد مشخص انتخاب کن تا مشتری با مراحل کمتری وارد رزرو شود.",
+      "body": "## انتخاب مقصد\nمشخص کن لینک برای مجموعه، خدمت، متخصص، خدمت + متخصص یا خدمت + متخصص + زمان است.\n\n## لینک زمان‌دار\nبرای حالت زمان مشخص، تاریخ و ساعت باید از ظرفیت فعلی همان خدمت و متخصص انتخاب شوند. بعد از ساخت، لینک را مثل مشتری تست کن و سپس QR یا نسخه چاپی را منتشر کن.",
+      "keywords": "ساخت لینک رزرو مستقیم quick link خدمت متخصص زمان مشخص",
+      "aliases": "لینک رزرو بسازم\nلینک مستقیم متخصص\nلینک وقت",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:OnlineBookingView",
+        "apps/orders/quick_links.py:create_booking_quick_link"
+      ]
+    },
+    {
+      "key": "manager.booking.quick-link-no-time",
+      "slug": "manager-quick-link-no-availability",
+      "title": "چرا برای لینک رزرو زمان نمایش داده نمی‌شود؟",
+      "audience": "manager",
+      "category": "booking",
+      "article_type": "troubleshooting",
+      "summary": "زمان‌های لینک سریع از ظرفیت واقعی رزرو گرفته می‌شوند؛ نبود ظرفیت معتبر یعنی ساعت قابل انتخاب نمایش داده نمی‌شود.",
+      "body": "## خدمت و متخصص را بررسی کن\nخدمت باید فعال و دارای مدت معتبر باشد. متخصص هم باید همان خدمت را در مجموعه ارائه دهد و برنامه کاری قابل استفاده داشته باشد.\n\n## موتور ظرفیت مشترک\nبرای حالت خدمت + متخصص + زمان، زمان‌ها از موتور اصلی ظرفیت رزرو مشتری می‌آیند؛ داشبورد زمانی را پیشنهاد نمی‌دهد که مسیر مشتری ردش کند.",
+      "keywords": "لینک رزرو زمان ندارد ظرفیت quick link متخصص خدمت شیفت لینک رزرو متخصص ساعت آزاد زمان نمایش داده نمیشه availability",
+      "aliases": "زمان لینک نمایش داده نمیشه\nquick link availability\nلینک رزرو بدون ساعت\nلینک رزرو متخصص ساعت آزاد نداره\nبرای لینک رزرو زمان نمیاد",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:OnlineBookingQuickLinkOptionsView",
+        "apps/orders/booking_utils.py:get_available_slots_for_service"
+      ]
+    },
+    {
+      "key": "manager.appointments.overview",
+      "slug": "manager-appointments-management",
+      "title": "مدیریت نوبت‌های مجموعه",
+      "audience": "manager",
+      "category": "booking",
+      "article_type": "guide",
+      "summary": "وضعیت عملیاتی و مالی هر رزرو را از تقویم و جزئیات همان نوبت پیگیری کن.",
+      "body": "## چرخه نوبت\nنوبت می‌تواند از انتظار تأیید متخصص و تأیید او تا رسیدن مشتری، اجرای خدمت، پایان خدمت، تسویه، نظرسنجی، لغو یا عدم حضور پیش برود.\n\n## اقدام‌ها وابسته به وضعیت‌اند\nهمه دکمه‌ها همیشه نمایش داده نمی‌شوند. اول وضعیت فعلی و خط زمانی رزرو را ببین و بعد اقدام مجاز همان مرحله را انجام بده.",
+      "keywords": "مدیریت نوبت مدیر وضعیت رزرو لغو تسویه حضوری تقویم",
+      "aliases": "جزئیات نوبت مدیر\nوضعیت رزرو سالن\nappointment manager",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/appointment_management.py:get_order_status_meta",
+        "apps/dashboards/appointment_management.py:get_allowed_partner_actions"
+      ]
+    },
+    {
+      "key": "manager.appointments.cancel",
+      "slug": "manager-cancel-appointment",
+      "title": "لغو نوبت توسط مدیر مجموعه",
+      "audience": "manager",
+      "category": "booking",
+      "article_type": "workflow",
+      "summary": "مدیر فقط برای نوبت امروز یا آینده و قبل از مراحل اجرایی/نهایی می‌تواند رزرو را لغو کند.",
+      "body": "## چه زمانی لغو مجاز است؟\nلغو مدیر برای رزروی که وارد رسیدن مشتری، اجرای خدمت، پایان خدمت، تسویه، نظرسنجی، عدم حضور یا لغو نشده و تاریخ آن گذشته نیست قابل انجام است.\n\n## بعد از لغو\nلغو مالی سفارش اجرا می‌شود و اگر مبلغ قابل‌برگشت وجود داشته باشد محاسبه می‌شود. افراد مرتبط از نتیجه مطلع می‌شوند.",
+      "keywords": "لغو نوبت مدیر کنسل رزرو مجموعه استرداد آینده",
+      "aliases": "مدیر نوبت رو لغو کنه\nکنسل وقت مشتری\ncancel appointment",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/appointment_management.py:get_allowed_partner_actions",
+        "apps/dashboards/appointment_management.py:_cancel_order_by_manager_with_notifications"
+      ]
+    },
+    {
+      "key": "manager.appointments.mark-paid",
+      "slug": "manager-mark-pay-in-salon-paid",
+      "title": "ثبت تسویه پرداخت در مجموعه",
+      "audience": "manager",
+      "category": "booking",
+      "article_type": "workflow",
+      "summary": "بعد از دریافت واقعی وجه حضوری و وقتی رزرو در مرحله تسویه مجموعه است، دریافت وجه را ثبت کن.",
+      "body": "## شرط اقدام\n«ثبت تسویه در مجموعه» فقط وقتی مجاز است که مرحله فعلی رزرو pay-in-salon pending باشد.\n\n## بعد از ثبت\nپرداخت سفارش نهایی و تسویه مالی همگام می‌شود و مسیر بازخورد مشتری آماده می‌شود. این اقدام را فقط بعد از دریافت واقعی وجه انجام بده.",
+      "keywords": "پرداخت در مجموعه ثبت تسویه دریافت وجه مدیر حضوری",
+      "aliases": "دریافت وجه شد\nتسویه حضوری\nmark paid salon",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/appointment_management.py:apply_partner_appointment_action",
+        "apps/dashboards/appointment_management.py:get_allowed_partner_actions"
+      ]
+    },
+    {
+      "key": "manager.finance.overview",
+      "slug": "manager-finance-overview",
+      "title": "مرکز مالی مجموعه",
+      "audience": "manager",
+      "category": "finance",
+      "article_type": "guide",
+      "summary": "خلاصه تسویه‌ها، کیف پول مجموعه، برداشت‌ها، سهم متخصص‌ها، تخفیف و سود را از یک نقطه ببین.",
+      "body": "## چه چیزهایی جمع می‌شوند؟\nمرکز مالی خلاصه تسویه رزروها، مانده کیف پول مجموعه، درخواست‌های برداشت مجموعه و متخصص‌ها، تخفیف‌ها و داده‌های نهایی‌شده هزینه و سود را برای همین مجموعه جمع می‌کند.\n\n## برای اختلاف عدد\nخلاصه را نقطه شروع بدان و برای جزئیات وارد گزارش مالی، پول مجموعه، هزینه و سهم یا گزارش سود شو.",
+      "keywords": "مرکز مالی مجموعه درآمد تسویه کیف پول برداشت سود سهم متخصص",
+      "aliases": "امور مالی سالن\nfinance hub\nپول مجموعه",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/payment_views.py:SalonFinanceHubView",
+        "apps/dashboards/urls.py:dashboards:finance_hub"
+      ]
+    },
+    {
+      "key": "manager.finance.payout-destination",
+      "slug": "manager-payout-destination",
+      "title": "ثبت حساب مقصد برداشت مجموعه",
+      "audience": "manager",
+      "category": "finance",
+      "article_type": "workflow",
+      "summary": "شماره شبا و اطلاعات مقصد برداشت مجموعه را در بخش پول مجموعه ذخیره کن.",
+      "body": "## اطلاعات مقصد\nفرم مقصد اطلاعات بانکی مثل شبا، نام صاحب حساب و بانک را روی پروفایل مالی همین مجموعه نگه می‌دارد.\n\n## ارتباط با برداشت\nدرخواست برداشت از مقصد ذخیره‌شده مجموعه استفاده می‌کند؛ قبل از برداشت اطلاعات مقصد را بازبینی کن.",
+      "keywords": "حساب مقصد برداشت شبا صاحب حساب بانک مجموعه",
+      "aliases": "شماره شبا سالن\nحساب تسویه\npayout iban",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/payment_views.py:SalonPayoutSettingsView",
+        "apps/dashboards/payment_views.py:SalonFinanceWithdrawView"
+      ]
+    },
+    {
+      "key": "manager.finance.withdraw",
+      "slug": "manager-salon-withdraw",
+      "title": "درخواست برداشت موجودی مجموعه",
+      "audience": "manager",
+      "category": "finance",
+      "article_type": "workflow",
+      "summary": "درخواست برداشت را با مقصد ذخیره‌شده و در محدوده مانده قابل برداشت ثبت کن.",
+      "body": "## پیش‌نیاز\nحساب مقصد باید درست ذخیره شده و مبلغ با مانده قابل برداشت سازگار باشد.\n\n## ثبت درخواست\nلومرا کیف پول مالی مجموعه را قفل و درخواست برداشت را برای بررسی مالی پلتفرم ثبت می‌کند. اگر مبلغ یا مقصد معتبر نباشد درخواست ساخته نمی‌شود.",
+      "keywords": "برداشت مجموعه کیف پول مالی مبلغ شبا درخواست تسویه",
+      "aliases": "برداشت پول سالن\nدرخواست واریز مجموعه\nsalon withdraw",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/payment_views.py:SalonFinanceWithdrawView",
+        "apps/dashboards/urls.py:dashboards:finance_withdraw"
+      ]
+    },
+    {
+      "key": "manager.finance.withdraw-cancel",
+      "slug": "manager-cancel-salon-withdraw",
+      "title": "لغو درخواست برداشت مجموعه",
+      "audience": "manager",
+      "category": "finance",
+      "article_type": "workflow",
+      "summary": "اگر وضعیت درخواست اجازه بدهد، برداشت مجموعه را لغو کن تا مبلغ رزروشده به مانده قابل برداشت برگردد.",
+      "body": "## نتیجه لغو\nدر لغو موفق، درخواست برداشت لغو و مبلغ آن دوباره به موجودی قابل برداشت کیف پول مجموعه برمی‌گردد.\n\nاگر وضعیت درخواست دیگر اجازه لغو ندهد، عملیات انجام نمی‌شود.",
+      "keywords": "لغو برداشت مجموعه برگشت موجودی درخواست واریز",
+      "aliases": "کنسل برداشت سالن\nپس گرفتن درخواست برداشت",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/payment_views.py:SalonFinanceWithdrawCancelView",
+        "apps/dashboards/urls.py:dashboards:finance_withdraw_cancel"
+      ]
+    },
+    {
+      "key": "manager.finance.reports",
+      "slug": "manager-finance-reports",
+      "title": "گزارش مالی و فیلتر تسویه‌ها",
+      "audience": "manager",
+      "category": "finance",
+      "article_type": "guide",
+      "summary": "تسویه‌های مجموعه را با فیلتر تاریخ، روش پرداخت و وضعیت تسویه بررسی و در صورت نیاز CSV بگیر.",
+      "body": "## فیلتر گزارش\nتاریخ شروع و پایان، روش پرداخت و وضعیت تسویه را محدود کن. گزارش فقط داده‌های همین مجموعه را بررسی می‌کند.\n\n## خروجی\nبرای فایل CSV از خروجی همین گزارش استفاده کن تا فیلترهای انتخاب‌شده روی داده خروجی هم اعمال شوند.",
+      "keywords": "گزارش مالی تسویه فیلتر تاریخ روش پرداخت خروجی csv",
+      "aliases": "گزارش درآمد سالن\nfinance report\nتسویه ها",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/payment_views.py:SalonFinanceReportsView",
+        "apps/dashboards/payment_views.py:SalonFinanceReportsExportCsvView"
+      ]
+    },
+    {
+      "key": "manager.finance.cost-center",
+      "slug": "manager-cost-center",
+      "title": "هزینه و سهم؛ مواد و قانون سهم متخصص",
+      "audience": "manager",
+      "category": "finance",
+      "article_type": "guide",
+      "summary": "مواد مصرفی، الگوی مصرف خدمت و قوانین سهم متخصص را در مرکز هزینه مدیریت کن.",
+      "body": "## مواد و الگو\nمواد مصرفی با هزینه واحد نگهداری می‌شوند و می‌توان برای هر خدمت الگوی مصرف فعال ساخت.\n\n## سهم متخصص\nقانون سهم می‌تواند برای خدمت و متخصص تعریف شود. غیرفعال‌کردن ماده، الگو یا قانون برای حفظ سابقه مالی به معنی حذف تاریخچه نیست.",
+      "keywords": "هزینه سهم متخصص مواد مصرفی الگو کمیسیون قانون سهم",
+      "aliases": "مرکز هزینه\ncommission rule\nمواد خدمات",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/finance_cost_views.py:SalonCostCenterView",
+        "apps/dashboards/finance_settings_views.py:SalonFinanceMaterialSettingsView"
+      ]
+    },
+    {
+      "key": "manager.finance.appointment-materials",
+      "slug": "manager-appointment-material-usage",
+      "title": "ثبت مواد مصرفی یک نوبت",
+      "audience": "manager",
+      "category": "finance",
+      "article_type": "workflow",
+      "summary": "مصرف واقعی مواد هر خدمت رزرو را قبل از نهایی‌سازی مالی ثبت یا اصلاح کن.",
+      "body": "## صفحه مصرف مواد\nمصرف‌های ثبت‌شده، الگوهای فعال همان خدمت و جمع هزینه مواد نوبت نمایش داده می‌شوند.\n\n## ثبت درست\nماده باید متعلق به همین مجموعه و برای نوبت معتبر باشد. مصرف واقعی را پیش از قطعی‌کردن مالی بازبینی کن.",
+      "keywords": "مواد مصرفی نوبت هزینه ماده خدمت ثبت مصرف",
+      "aliases": "مصرف مواد مشتری\nmaterial usage\nهزینه مواد نوبت",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/finance_cost_views.py:AppointmentMaterialUsageView"
+      ]
+    },
+    {
+      "key": "manager.finance.finalize-appointment",
+      "slug": "manager-finalize-appointment-finance",
+      "title": "نهایی‌کردن مالی نوبت",
+      "audience": "manager",
+      "category": "finance",
+      "article_type": "workflow",
+      "summary": "بعد از تکمیل خدمت، سهم متخصص و مجموعه را برای یک خدمت یا کل سفارش نهایی کن.",
+      "body": "## یک خدمت\nنهایی‌سازی جزئی فقط برای خدمت تکمیل‌شده انجام می‌شود و snapshot مالی همان خدمت را قطعی می‌کند.\n\n## کل سفارش\nوقتی همه خدمات رزرو تکمیل شده باشند، می‌توان مالی همه خدمات سفارش را یکجا نهایی کرد. قبل از آن مواد مصرفی و قانون سهم را بررسی کن.",
+      "keywords": "نهایی سازی مالی نوبت سهم متخصص سهم مجموعه پایان خدمت",
+      "aliases": "قطعی کردن مالی\nfinalize finance\nمحاسبه سهم نوبت",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/finance_cost_views.py:ManagerFinalizeAppointmentFinanceView"
+      ]
+    },
+    {
+      "key": "manager.finance.profit-report",
+      "slug": "manager-profit-report",
+      "title": "گزارش سود مجموعه",
+      "audience": "manager",
+      "category": "finance",
+      "article_type": "guide",
+      "summary": "سود را بر اساس snapshotهای مالی، هزینه مواد و سهم متخصص بررسی کن.",
+      "body": "## وقتی عدد سود عجیب است\nاول وضعیت نهایی‌شدن مالی خدمت، مواد مصرفی و قانون سهم متخصص را بررسی کن. خدمت قطعی‌ای که موادش نیاز به بازبینی داشته باشد می‌تواند در گزارش هشدار بگیرد.\n\nاصلاح عدد باید در منبع اصلی داده انجام شود، نه داخل گزارش.",
+      "keywords": "گزارش سود مجموعه درآمد هزینه مواد سهم متخصص مالی قطعی",
+      "aliases": "profit report\nسود سالن\nچرا سود اشتباهه",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/finance_cost_views.py:SalonProfitReportView"
+      ]
+    },
+    {
+      "key": "manager.finance.stylist-wallets",
+      "slug": "manager-stylist-wallets",
+      "title": "درآمد و کیف پول متخصص‌های مجموعه",
+      "audience": "manager",
+      "category": "finance",
+      "article_type": "guide",
+      "summary": "مانده و سهم مالی اعضای فعلی و متخصص‌های سابق دارای سابقه مالی را ببین.",
+      "body": "## چرا متخصص سابق دیده می‌شود؟\nتاریخچه مالی حفظ می‌شود. اگر متخصص سابق snapshot، تراکنش یا درخواست برداشت مرتبط داشته باشد، ممکن است بعد از خروج از تیم هم در سابقه مالی دیده شود.\n\nبرای هر متخصص مانده قابل برداشت، مبالغ در انتظار و سهم‌های ثبت‌شده را بررسی کن.",
+      "keywords": "کیف پول متخصص درآمد سهم مانده قابل برداشت سابقه مالی",
+      "aliases": "درآمد اعضای تیم\nstylist wallet\nمتخصص سابق مالی",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/finance_cost_views.py:SalonStylistWalletsView"
+      ]
+    },
+    {
+      "key": "manager.finance.review-stylist-withdrawal",
+      "slug": "manager-review-stylist-withdrawal",
+      "title": "بررسی درخواست دریافت درآمد متخصص",
+      "audience": "manager",
+      "category": "finance",
+      "article_type": "workflow",
+      "summary": "درخواست دریافت متخصص را برای همین مجموعه تأیید، رد یا در وضعیت مجاز لغو کن.",
+      "body": "## تأیید\nمی‌توان درخواست را با یادداشت و در صورت وجود رسید واریز تأیید کرد؛ نتیجه برای متخصص اعلان می‌شود.\n\n## رد\nدر رد درخواست، مبلغ رزروشده به کیف پول متخصص برمی‌گردد و نتیجه به او اطلاع داده می‌شود. اقدام فقط روی درخواست همین مجموعه انجام می‌شود.",
+      "keywords": "درخواست دریافت درآمد متخصص تایید رد برداشت رسید واریز",
+      "aliases": "برداشت متخصصان\nتایید تسویه متخصص\nرد درخواست درآمد",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/finance_withdrawal_views.py:ManagerStylistWithdrawalRequestsView"
+      ]
+    },
+    {
+      "key": "stylist.finance.overview",
+      "slug": "stylist-finance-overview",
+      "title": "مالی متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "guide",
+      "summary": "درآمد و مسیر دریافت سهم متخصص برای مجموعه فعال را بررسی کن.",
+      "body": "## مجموعه فعال\nداده‌های کاری متخصص به مجموعه فعال او مرتبط‌اند. قبل از بررسی مالی مطمئن شو مجموعه درست انتخاب شده است.\n\nبرای دریافت پول از مسیر «درخواست دریافت درآمد» مانده و درخواست‌های همان مجموعه را ببین.",
+      "keywords": "مالی متخصص درآمد سهم کیف پول مجموعه فعال",
+      "aliases": "درآمد من\nمالی استایلیست\nstylist finance",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistFinanceView"
+      ]
+    },
+    {
+      "key": "stylist.finance.withdraw",
+      "slug": "stylist-withdrawal-request",
+      "title": "درخواست دریافت درآمد توسط متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "workflow",
+      "summary": "از مانده کیف پول مربوط به مجموعه فعال درخواست دریافت درآمد ثبت کن.",
+      "body": "## ثبت درخواست\nفرم برداشت با کیف پول متخصص و مجموعه فعال اعتبارسنجی می‌شود. درخواست موفق برای بررسی مدیر همان مجموعه ارسال می‌شود.\n\n## نتیجه بررسی\nتأیید یا رد مدیر در وضعیت درخواست و اعلان متخصص منعکس می‌شود. در رد، مبلغ رزروشده طبق منطق برداشت به کیف پول برمی‌گردد.",
+      "keywords": "درخواست دریافت درآمد متخصص برداشت کیف پول مدیر بررسی مجموعه فعال",
+      "aliases": "برداشت درآمد متخصص\nدرخواست واریز استایلیست\nstylist withdrawal",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/finance_withdrawal_views.py:StylistWithdrawalRequestsView"
+      ]
+    },
+    {
+      "key": "stylist.booking.detail",
+      "slug": "stylist-appointment-detail",
+      "title": "جزئیات نوبت متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "guide",
+      "summary": "نوبت‌های مربوط به خودت و مجموعه فعال را با جزئیات مشتری، خدمت، مواد و وضعیت مالی ببین.",
+      "body": "## دسترسی\nمتخصص فقط نوبت‌هایی را می‌بیند که به خودش مربوط‌اند و در صورت انتخاب مجموعه فعال، در همان مجموعه باشند.\n\nمصرف مواد همان خدمت و snapshot مالی در زمینه نوبت قابل مشاهده‌اند. نهایی‌سازی مالی به تکمیل خدمت و وضعیت مالی وابسته است.",
+      "keywords": "جزئیات نوبت متخصص مشتری خدمت مواد مالی مجموعه فعال",
+      "aliases": "نوبت من متخصص\nappointment detail stylist\nجزئیات مراجعه",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistAppointmentDetailView"
+      ]
+    },
+    {
+      "key": "stylist.booking.quick-links",
+      "slug": "stylist-booking-quick-links",
+      "title": "لینک رزرو متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "workflow",
+      "summary": "برای مجموعه فعال خودت لینک رزروی بساز که به خودت محدود باشد.",
+      "body": "## محدوده لینک\nلینک متخصص در زمینه همان متخصص، مجموعه فعال و سازنده لینک مدیریت می‌شود.\n\nبعد از ساخت، لینک را از جزئیات بازبینی و در صورت نیاز QR یا قالب چاپی بگیر. پیش از انتشار مثل مشتری تستش کن.",
+      "keywords": "لینک رزرو متخصص quick link qr مجموعه فعال",
+      "aliases": "لینک وقت من\nQR متخصص\nstylist quick link",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistQuickLinksView"
+      ]
+    },
+    {
+      "key": "customer.booking.cancel",
+      "slug": "customer-cancel-appointment",
+      "title": "لغو نوبت توسط مشتری",
+      "audience": "customer",
+      "category": "booking",
+      "article_type": "workflow",
+      "summary": "اگر قواعد نوبت اجازه بدهند، صاحب همان حساب می‌تواند رزرو خودش را لغو کند.",
+      "body": "## امکان لغو\nفقط صاحب رزرو می‌تواند اقدام کند و لومرا قبل از لغو قواعد قابل‌لغوبودن نوبت را بررسی می‌کند. اگر دیگر قابل لغو نباشد، پیام راهنمای تماس با مجموعه نمایش داده می‌شود.\n\n## بعد از لغو\nبخش مالی لغو هماهنگ می‌شود و در صورت وجود مبلغ قابل‌برگشت، مقدار آن محاسبه می‌شود.",
+      "keywords": "لغو نوبت مشتری کنسل رزرو برگشت وجه امکان لغو",
+      "aliases": "وقت رو کنسل کنم\nلغو قرار\ncancel booking customer",
+      "is_featured": false,
+      "source_refs": [
+        "apps/orders/views.py:CancelAppointmentView",
+        "apps/payments/finance.py:cancel_order_with_financials"
+      ]
+    },
+    {
+      "key": "customer.booking.pay-in-salon",
+      "slug": "customer-pay-in-salon-settlement",
+      "title": "تسویه آنلاین رزرو «پرداخت در مجموعه»",
+      "audience": "customer",
+      "category": "booking",
+      "article_type": "workflow",
+      "summary": "پرداخت آنلاین تکمیلی برای رزرو پرداخت‌درمجموعه فقط بعد از پایان خدمت و در وضعیت مجاز ممکن است.",
+      "body": "## ثبت دریافت حضوری\nمشتری دریافت وجه نقدی را تأیید نمی‌کند؛ ثبت دریافت حضوری از سمت مجموعه انجام می‌شود.\n\n## پرداخت آنلاین تکمیلی\nاگر روش رزرو «پرداخت در مجموعه» بوده، خدمت پایان یافته، رزرو لغو نشده و مالی نهایی نشده باشد، مسیر پرداخت آنلاین تکمیلی می‌تواند فعال شود.",
+      "keywords": "پرداخت در مجموعه تسویه آنلاین بعد خدمت مشتری حضوری",
+      "aliases": "بعد از سالن آنلاین پرداخت کنم\npay in salon settlement\nپرداخت حضوری",
+      "is_featured": false,
+      "source_refs": [
+        "apps/orders/views.py:PayInSalonSettlementView"
+      ]
+    },
+    {
+      "key": "customer.payment.pending-review",
+      "slug": "customer-payment-pending-review",
+      "title": "پرداخت نامشخص یا در انتظار بررسی",
+      "audience": "customer",
+      "category": "payments",
+      "article_type": "troubleshooting",
+      "summary": "وقتی نتیجه پرداخت قطعی نیست، دوباره پرداخت نکن تا وضعیت همان تراکنش مشخص شود.",
+      "body": "## اگر نتیجه نامشخص است\nتا مشخص‌شدن وضعیت همان تراکنش، دوباره پرداخت نکن. اگر مبلغ از حساب کم شده باشد، نتیجه می‌تواند بعد از بررسی درگاه یا بررسی خودکار مشخص شود.\n\nاگر بعد از زمان معقول وضعیت روشن نشد، شماره رزرو یا تیکت را برای پشتیبانی بفرست؛ اطلاعات کارت یا رمز را ارسال نکن.",
+      "keywords": "پرداخت نامشخص کسر مبلغ در انتظار بررسی دوباره پرداخت نکن",
+      "aliases": "پول کم شد ولی رزرو نشد\nپرداخت pending\nوضعیت درگاه نامعلوم",
+      "is_featured": false,
+      "source_refs": [
+        "apps/payments/views.py:_appointment_payment_pending_review_context",
+        "apps/payments/views.py:AppointmentPaymentResultView"
+      ]
+    },
+    {
+      "key": "customer.payment.expired",
+      "slug": "customer-payment-timeout-expired",
+      "title": "مهلت پرداخت تمام شده و زمان رزرو آزاد شده",
+      "audience": "customer",
+      "category": "payments",
+      "article_type": "troubleshooting",
+      "summary": "پرداخت منقضی باعث می‌شود نگه‌داشت زمان قبلی پایان یابد و برای رزرو دوباره زمان آزاد جدید انتخاب شود.",
+      "body": "## چه اتفاقی افتاده؟\nپرداخت منقضی از حالت انتظار خارج می‌شود و زمان رزرو قبلی دوباره در ظرفیت قابل استفاده قرار می‌گیرد.\n\n## اقدام بعدی\nبرای رزرو دوباره یک زمان آزاد جدید انتخاب کن. اگر مبلغی کم شده، بدون ساخت پرداخت تکراری وضعیت همان تراکنش را پیگیری کن.",
+      "keywords": "مهلت پرداخت تمام شد رزرو آزاد زمان پرداخت منقضی",
+      "aliases": "پرداخت دیر شد\nوقت آزاد شد\nexpired checkout",
+      "is_featured": false,
+      "source_refs": [
+        "apps/payments/views.py:_appointment_payment_expired_checkout_context",
+        "apps/payments/views.py:AppointmentPaymentResultView"
+      ]
+    },
+    {
+      "key": "customer.wallet.withdraw",
+      "slug": "customer-wallet-withdraw",
+      "title": "برداشت از کیف پول مشتری",
+      "audience": "customer",
+      "category": "payments",
+      "article_type": "workflow",
+      "summary": "اگر عملیات کیف پول فعال باشد، درخواست برداشت را با مقصد بانکی و در محدوده مبلغ مجاز ثبت کن.",
+      "body": "## مقصد برداشت\nاگر مقصد بانکی کامل قبلی داشته باشی، آخرین مقصد ذخیره‌شده می‌تواند استفاده شود؛ در غیر این صورت اطلاعات مقصد را وارد کن.\n\n## مبلغ\nحداقل و حداکثر از تنظیمات کیف پول نمایش داده می‌شوند و مبلغ باید با مانده قابل برداشت سازگار باشد. اگر عملیات کیف پول غیرفعال باشد، برداشت در دسترس نیست.",
+      "keywords": "برداشت کیف پول مشتری شبا مقصد بانکی حداقل حداکثر",
+      "aliases": "برداشت اعتبار\nwallet withdrawal\nواریز کیف پول به حساب",
+      "is_featured": false,
+      "source_refs": [
+        "apps/payments/views.py:WalletWithdrawView",
+        "apps/payments/views.py:_wallet_operations_enabled"
+      ]
+    },
+    {
+      "key": "customer.account.settings",
+      "slug": "customer-account-settings",
+      "title": "تنظیمات حساب مشتری",
+      "audience": "customer",
+      "category": "account",
+      "article_type": "guide",
+      "summary": "از تنظیمات به پروفایل، آدرس‌ها، ارتباطات، امنیت و کنترل‌های حساب برو.",
+      "body": "## بخش‌های اصلی\nپروفایل و آدرس‌ها اطلاعات شخصی را مدیریت می‌کنند؛ تغییر رمز و تنظیم کانال‌های اعلان مسیرهای جدا دارند.\n\nحذف حساب هم جریان مستقل با تأیید هویت و بررسی موانع عملیاتی دارد. هر تغییر را در صفحه تخصصی خودش انجام بده.",
+      "keywords": "تنظیمات حساب مشتری پروفایل آدرس رمز ارتباطات حذف حساب",
+      "aliases": "تنظیمات من\ncustomer settings\nمدیریت حساب",
+      "is_featured": false,
+      "source_refs": [
+        "apps/accounts/views.py:CustomerSettingsView"
+      ]
+    },
+    {
+      "key": "customer.account.profile-edit",
+      "slug": "customer-edit-profile",
+      "title": "ویرایش پروفایل مشتری",
+      "audience": "customer",
+      "category": "account",
+      "article_type": "workflow",
+      "summary": "اطلاعات حساب و پروفایل مشتری را از فرم ویرایش پروفایل به‌روزرسانی کن.",
+      "body": "## ویرایش\nفرم با اطلاعات فعلی پر می‌شود. بعد از اعتبارسنجی موفق، تغییرات ذخیره و کاربر به صفحه پروفایل برمی‌گردد.\n\nاگر فرم خطا دارد، پیام همان فیلد را اصلاح و دوباره ذخیره کن.",
+      "keywords": "ویرایش پروفایل مشتری نام اطلاعات تصویر حساب",
+      "aliases": "اطلاعاتم رو عوض کنم\nedit profile\nپروفایل من",
+      "is_featured": false,
+      "source_refs": [
+        "apps/accounts/views.py:CustomerUpdateProfileView"
+      ]
+    },
+    {
+      "key": "customer.account.password",
+      "slug": "customer-change-password",
+      "title": "تغییر یا بازیابی رمز عبور",
+      "audience": "customer",
+      "category": "account",
+      "article_type": "workflow",
+      "summary": "برای تغییر رمز در حساب، رمز فعلی لازم است؛ در بازیابی رمز، اول باید کد تأیید معتبر داشته باشی.",
+      "body": "## وقتی وارد حساب هستی\nتغییر رمز به تأیید رمز فعلی نیاز دارد.\n\n## وقتی رمز را فراموش کرده‌ای\nجریان بازیابی و تأیید کد را کامل کن. مجوز بازیابی زمان‌دار است؛ اگر منقضی شود باید دوباره کد بگیری.",
+      "keywords": "تغییر رمز عبور فراموشی رمز بازیابی کد تایید پسورد",
+      "aliases": "پسورد رو عوض کنم\nرمزم یادم رفته\nchange password",
+      "is_featured": false,
+      "source_refs": [
+        "apps/accounts/views.py:ChangePasswordView",
+        "apps/accounts/views.py:_get_valid_password_reset_session"
+      ]
+    },
+    {
+      "key": "customer.account.delete",
+      "slug": "customer-delete-account",
+      "title": "حذف حساب مشتری و موانع آن",
+      "audience": "customer",
+      "category": "account",
+      "article_type": "workflow",
+      "summary": "حذف حساب چندمرحله‌ای است و در صورت وجود مانع عملیاتی، ابتدا باید آن مانع رفع شود.",
+      "body": "## قبل از حذف\nلومرا موانع عملیاتی را بررسی می‌کند. اگر مانعی وجود داشته باشد حذف انجام نمی‌شود و باید همان موارد را تعیین تکلیف کنی.\n\n## تأیید و نتیجه\nرمز عبور باید درست باشد. در حذف موفق، حساب غیرفعال و داده شخصی ناشناس‌سازی می‌شود و شماره موبایل قبلی برای ثبت‌نام دوباره آزاد می‌شود.",
+      "keywords": "حذف حساب مشتری بستن اکانت رمز مانع ناشناس سازی شماره موبایل",
+      "aliases": "پاک کردن حساب\ndelete account\nاکانتم رو ببندم",
+      "is_featured": false,
+      "source_refs": [
+        "apps/accounts/views.py:DeleteAccountView",
+        "apps/accounts/views.py:_get_account_deletion_blockers",
+        "apps/accounts/views.py:_anonymize_account_for_deletion"
+      ]
+    },
+    {
+      "key": "customer.account.notifications",
+      "slug": "customer-notification-center",
+      "title": "اعلان‌های داخل لومرا برای مشتری",
+      "audience": "customer",
+      "category": "communications",
+      "article_type": "guide",
+      "summary": "اعلان‌های حساب را بر اساس خوانده‌شده/نشده و دسته مرور و مدیریت کن.",
+      "body": "## فهرست اعلان‌ها\nاعلان‌های حساب جاری از جدید به قدیم نمایش داده می‌شوند و قابل فیلتر هستند.\n\n## خوانده‌شدن\nمی‌توان یک اعلان یا همه اعلان‌های خوانده‌نشده را علامت‌گذاری کرد. تنظیم کانال دریافت پیام با این مرکز فرق دارد و در تنظیمات ارتباطات انجام می‌شود.",
+      "keywords": "اعلان مشتری خوانده نشده نوتیفیکیشن مرکز اعلان",
+      "aliases": "پیام های لومرا\nnotifications customer\nاعلان‌ها",
+      "is_featured": false,
+      "source_refs": [
+        "apps/accounts/views.py:CustomerNotificationsView",
+        "apps/accounts/views.py:mark_customer_notification_read",
+        "apps/accounts/views.py:mark_all_customer_notifications_read"
+      ]
+    },
+    {
+      "key": "customer.communications.settings",
+      "slug": "customer-communication-settings",
+      "title": "اعلان‌ها و ارتباطات مشتری",
+      "audience": "customer",
+      "category": "communications",
+      "article_type": "workflow",
+      "summary": "پیام‌های نوبت و بازاریابی را برای ایمیل، پیامک و در صورت آماده‌بودن بله جدا تنظیم کن.",
+      "body": "## کانال‌ها\nایمیل و پیامک برای پیام‌های نوبت و پیام‌های بازاریابی جدا ذخیره می‌شوند.\n\n## بله\nبرای دریافت پیام بله، هم ترجیح مربوط باید روشن باشد و هم حساب بله به لومرا متصل باشد. واتساپ در این صفحه به‌عنوان کانال فعال محصول ارائه نمی‌شود.",
+      "keywords": "اعلان ارتباطات مشتری ایمیل پیامک بله عملیاتی بازاریابی پیام نوبت تبلیغاتی تنظیم پیام بازاریابی",
+      "aliases": "تنظیم پیام ها\nnotification settings\nپیام نوبت بله\nتنظیم پیام نوبت و تبلیغاتی\nپیام های نوبت و تبلیغاتی",
+      "is_featured": false,
+      "source_refs": [
+        "apps/accounts/customer_communication_views.py:CustomerCommunicationSettingsView"
+      ]
+    },
+    {
+      "key": "manager.communications.settings",
+      "slug": "manager-communication-settings",
+      "title": "اعلان‌ها و اتصال بله برای مدیر",
+      "audience": "manager",
+      "category": "communications",
+      "article_type": "workflow",
+      "summary": "پیام‌های عملیاتی و بازاریابی نقش مدیر را جدا تنظیم و اتصال بله را مدیریت کن.",
+      "body": "## دو نوع پیام\nپیام‌های عملیاتی و بازاریابی مدیر مستقل از هم روشن یا خاموش می‌شوند.\n\n## اتصال بله\nفعال‌کردن ترجیح پیام به‌تنهایی اتصال نمی‌سازد. اگر بله متصل نیست، از گزینه اتصال همین صفحه وارد جریان اتصال شو. این تنظیمات فقط برای نقش مدیر است.",
+      "keywords": "اعلان مدیر بله پیام عملیاتی بازاریابی اتصال ربات",
+      "aliases": "پیام های مدیر\nmanager bale\nاعلان مجموعه",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/manager_settings_views.py:ManagerCommunicationSettingsView"
+      ]
+    },
+    {
+      "key": "stylist.communications.settings",
+      "slug": "stylist-communication-settings",
+      "title": "اعلان‌ها و اتصال بله برای متخصص",
+      "audience": "stylist",
+      "category": "communications",
+      "article_type": "workflow",
+      "summary": "پیام‌های عملیاتی و بازاریابی نقش متخصص را جدا تنظیم کن.",
+      "body": "## تنظیم نقش متخصص\nترجیحات پیام با audience متخصص ذخیره می‌شوند و از تنظیم مدیر یا مشتری جدا هستند.\n\nاگر بله متصل نیست، از لینک اتصال استفاده کن. بعد از اتصال، سوییچ‌ها نوع پیام مجاز برای همین نقش را کنترل می‌کنند.",
+      "keywords": "اعلان متخصص بله پیام عملیاتی بازاریابی اتصال",
+      "aliases": "پیام های استایلیست\nstylist bale\nنوتیف متخصص",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/manager_settings_views.py:StylistCommunicationSettingsView"
+      ]
+    },
+    {
+      "key": "messaging.bale.connect",
+      "slug": "connect-bale-to-loomera",
+      "title": "اتصال حساب بله به لومرا",
+      "audience": "all",
+      "category": "communications",
+      "article_type": "workflow",
+      "summary": "اتصال بله با توکن موقت و یک‌بارمصرف شروع می‌شود و شناسه چت بله را به حساب لومرا پیوند می‌دهد.",
+      "body": "## شروع اتصال\nوقتی بله در محیط آماده باشد، لومرا توکن اتصال زمان‌دار می‌سازد و کاربر را به لینک شروع ربات هدایت می‌کند.\n\n## امنیت\nتوکن یک‌بارمصرف و زمان‌دار است. اتصال فقط شناسه چت را به حساب احراز‌شده وصل می‌کند و به‌تنهایی عملیات حساس ربات را فعال نمی‌کند.",
+      "keywords": "اتصال بله ربات حساب توکن یکبار مصرف لینک پیام رسان",
+      "aliases": "وصل کردن بله\nربات بله\nconnect bale",
+      "is_featured": false,
+      "source_refs": [
+        "apps/messaging/views.py:MessagingBaleQuickConnectView",
+        "apps/messaging/views.py:MessagingStatusView"
+      ]
+    },
+    {
+      "key": "messaging.bale.disconnect",
+      "slug": "disconnect-bale-from-loomera",
+      "title": "قطع اتصال بله از حساب لومرا",
+      "audience": "all",
+      "category": "communications",
+      "article_type": "workflow",
+      "summary": "اتصال بله متعلق به حساب خودت را غیرفعال کن.",
+      "body": "## قطع اتصال\nعملیات فقط روی شناسه بله متعلق به کاربر واردشده انجام می‌شود.\n\n## بعد از قطع\nاتصال ربات بله غیرفعال می‌شود. برای دریافت دوباره پیام بله باید جریان اتصال را دوباره انجام بدهی.",
+      "keywords": "قطع اتصال بله حذف ربات disconnect پیام رسان",
+      "aliases": "بله رو قطع کنم\nunlink bale\nحذف اتصال پیام رسان",
+      "is_featured": false,
+      "source_refs": [
+        "apps/messaging/views.py:MessagingDisconnectView"
+      ]
+    },
+    {
+      "key": "support.tickets.overview",
+      "slug": "support-tickets-overview",
+      "title": "پیگیری تیکت‌های پشتیبانی",
+      "audience": "all",
+      "category": "support",
+      "article_type": "guide",
+      "summary": "تیکت‌های متعلق به حساب خودت را از فهرست پشتیبانی پیگیری کن.",
+      "body": "## فهرست درخواست‌ها\nتیکت‌های حساب جاری بر اساس آخرین تغییر مرتب می‌شوند. برای دیدن گفتگو وارد جزئیات همان تیکت شو.\n\n## حریم درخواست\nکاربر فقط تیکت متعلق به خودش را باز می‌کند و پیام‌های عمومی همان گفتگو را می‌بیند. برای یک مشکل موجود، ادامه همان تیکت بهتر از ساخت تیکت تکراری است.",
+      "keywords": "تیکت پشتیبانی پیگیری درخواست پیام پاسخ وضعیت",
+      "aliases": "درخواست های پشتیبانی\nsupport ticket\nپیگیری ساپورت",
+      "is_featured": false,
+      "source_refs": [
+        "apps/main/views.py:SupportTicketListView",
+        "apps/main/views.py:SupportTicketDetailView"
+      ]
+    },
+    {
+      "key": "support.tickets.reply-close",
+      "slug": "support-ticket-reply-close",
+      "title": "پاسخ‌دادن یا بستن تیکت پشتیبانی",
+      "audience": "all",
+      "category": "support",
+      "article_type": "workflow",
+      "summary": "تا وقتی تیکت باز است پاسخ بده و بعد از حل موضوع آن را ببند.",
+      "body": "## پاسخ\nفقط تیکت باز اجازه پیام تازه دارد؛ متن و در صورت نیاز فایل مجاز به همان گفتگو اضافه می‌شود.\n\n## بستن\nصاحب تیکت می‌تواند آن را ببندد. اطلاعات محرمانه مثل رمز عبور، کد تأیید یا اطلاعات کامل کارت را داخل تیکت نفرست.",
+      "keywords": "پاسخ تیکت بستن تیکت پشتیبانی پیام فایل بسته شده",
+      "aliases": "جواب ساپورت\nclose ticket\nتیکت رو ببندم",
+      "is_featured": false,
+      "source_refs": [
+        "apps/main/views.py:SupportTicketReplyView",
+        "apps/main/views.py:SupportTicketCloseView"
+      ]
+    },
+    {
+      "key": "manager.setup.overview",
+      "slug": "manager-salon-setup-overview",
+      "title": "تکمیل پروفایل و آماده‌سازی مجموعه",
+      "audience": "manager",
+      "category": "getting-started",
+      "article_type": "guide",
+      "summary": "پروفایل مجموعه از اطلاعات پایه، موقعیت، ساعت کاری، تصاویر، ویژگی‌ها و توضیح مجموعه ساخته می‌شود و آمادگی رزرو آنلاین جدا بررسی می‌شود.",
+      "body": "## بخش‌های اصلی پروفایل\nصفحه پروفایل مجموعه وضعیت نام و شماره تماس، آدرس و موقعیت، ساعات کاری، تصاویر، ویژگی‌ها و توضیح معرفی را جدا نشان می‌دهد.\n\n## آمادگی رزرو\nکامل‌بودن پروفایل با آماده‌بودن رزرو آنلاین یک چیز نیست. برای رزرو باید خدمت قابل استفاده، عضو تیم مناسب و برنامه کاری هم آماده باشند.\n\nاگر صفحه پروفایل یک مورد را ناقص نشان می‌دهد، از همان کارت وارد ویرایش همان بخش شو.",
+      "keywords": "راه اندازی مجموعه پروفایل سالن آماده سازی رزرو نام آدرس ساعت کاری تصاویر",
+      "aliases": "شروع کار مدیر\nتکمیل سالن\nsetup salon\nپروفایل مجموعه ناقص",
+      "is_featured": true,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonProfileView",
+        "apps/dashboards/readiness.py:build_salon_readiness_checklist"
+      ]
+    },
+    {
+      "key": "manager.setup.identity",
+      "slug": "manager-salon-name-phone",
+      "title": "ثبت نام و شماره تماس مجموعه",
+      "audience": "manager",
+      "category": "getting-started",
+      "article_type": "workflow",
+      "summary": "مرحله اطلاعات پایه برای ثبت نام مجموعه و شماره تماسی است که در پروفایل مجموعه استفاده می‌شود.",
+      "body": "## ثبت اطلاعات پایه\nاز بخش پروفایل مجموعه وارد «نام و شماره تماس» شو و فرم اطلاعات پایه را تکمیل کن.\n\nبعد از ذخیره موفق، لومرا دوباره وضعیت onboarding را بررسی می‌کند و اگر مرحله ضروری بعدی باقی مانده باشد به همان مرحله هدایت می‌شوی.\n\nاگر فرم ذخیره نشد، پیام خطای فیلدها را اصلاح کن؛ داده نامعتبر به مرحله بعد منتقل نمی‌شود.",
+      "keywords": "نام مجموعه شماره تماس اطلاعات پایه پروفایل مرحله اول",
+      "aliases": "اسم سالن رو عوض کنم\nشماره تماس مجموعه\nsalon identity",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonProfileCreatorStep1View",
+        "apps/salons/forms.py:SalonProfileStep1Form"
+      ]
+    },
+    {
+      "key": "manager.setup.location",
+      "slug": "manager-salon-location",
+      "title": "ثبت آدرس و موقعیت مجموعه",
+      "audience": "manager",
+      "category": "getting-started",
+      "article_type": "workflow",
+      "summary": "آدرس، منطقه و در صورت وجود مختصات نقشه در بخش موقعیت مجموعه ذخیره می‌شوند.",
+      "body": "## اطلاعات موقعیت\nاز پروفایل مجموعه وارد «آدرس و موقعیت» شو. اگر مختصات معتبر ثبت شوند، نقطه جغرافیایی مجموعه هم ذخیره می‌شود.\n\nمنطقه و نام محله نیز از اطلاعات فرم تکمیل می‌شوند. اگر ارائه‌دهنده نقشه در محیط فعال باشد، صفحه می‌تواند از قابلیت نقشه هم استفاده کند.\n\nآدرس ناقص یا مختصات نامعتبر را قبل از ذخیره اصلاح کن؛ موقعیت درست برای نمایش و مسیریابی مشتری مهم است.",
+      "keywords": "آدرس موقعیت نقشه منطقه محله لوکیشن مجموعه",
+      "aliases": "لوکیشن سالن\nآدرس مجموعه\nmap salon",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonProfileCreatorStep2View",
+        "apps/salons/forms.py:SalonProfileStep2Form"
+      ]
+    },
+    {
+      "key": "manager.setup.hours",
+      "slug": "manager-salon-opening-hours",
+      "title": "ثبت ساعات کاری مجموعه",
+      "audience": "manager",
+      "category": "getting-started",
+      "article_type": "workflow",
+      "summary": "ساعت‌های کاری مجموعه یکی از داده‌های پایه برای ساخت برنامه تیم و ظرفیت رزرو هستند.",
+      "body": "## ثبت روزهای کاری\nدر بخش ساعات کاری، روزهای باز و بازه کاری هر روز را مطابق فعالیت واقعی مجموعه ثبت کن.\n\nبعد از اعتبارسنجی موفق، اطلاعات ساعت کاری ذخیره می‌شوند. اگر خطایی در بازه‌ها وجود داشته باشد، همان فرم خطا را نشان می‌دهد.\n\nشیفت متخصص باید با ساعت کاری مجموعه سازگار باشد؛ بنابراین تغییر ساعت کاری می‌تواند روی برنامه‌ریزی بعدی تیم اثر بگذارد.",
+      "keywords": "ساعت کاری مجموعه ساعات کاری سالن روز باز ساعت باز بسته پروفایل مجموعه",
+      "aliases": "ساعت سالن\nopening hours\nروز کاری\nساعت کاری مجموعه\nتنظیم ساعت کاری مجموعه\nساعات کاری سالن",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonProfileCreatorStep3View",
+        "apps/salons/forms.py:SalonOpeningHoursForm"
+      ]
+    },
+    {
+      "key": "manager.setup.gallery",
+      "slug": "manager-salon-gallery",
+      "title": "مدیریت تصاویر و کاور مجموعه",
+      "audience": "manager",
+      "category": "getting-started",
+      "article_type": "workflow",
+      "summary": "برای پروفایل مجموعه می‌توانی تصاویر واقعی اضافه و یکی را به‌عنوان تصویر کاور انتخاب کنی.",
+      "body": "## تعداد تصویر\nجریان فعلی گالری مجموعه حداکثر ۳ تصویر را در این مرحله مدیریت می‌کند.\n\n## کاور\nاگر یک تصویر را کاور کنی، کاور قبلی از حالت کاور خارج و همان تصویر به banner مجموعه متصل می‌شود.\n\n## حذف تصویر کاور\nاگر تصویر کاور حذف شود، لومرا در صورت وجود تصویر دیگر اولین تصویر باقی‌مانده را به‌عنوان کاور قرار می‌دهد؛ اگر تصویری باقی نماند banner خالی می‌شود.",
+      "keywords": "تصاویر گالری کاور مجموعه عکس بنر حداکثر سه تصویر",
+      "aliases": "عکس سالن\nکاور مجموعه\ngallery salon",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonProfileCreatorStep6View",
+        "apps/dashboards/views.py:delete_salon_image"
+      ]
+    },
+    {
+      "key": "manager.services.request-new",
+      "slug": "manager-request-new-service",
+      "title": "درخواست افزودن خدمت جدید به کاتالوگ",
+      "audience": "manager",
+      "category": "services",
+      "article_type": "workflow",
+      "summary": "اگر خدمت موردنیاز در کاتالوگ موجود نیست، مدیر می‌تواند درخواست خدمت جدید را به شکل تیکت قابل پیگیری ثبت کند.",
+      "body": "## قبل از درخواست\nاول کاتالوگ و صفحه افزودن خدمت را بررسی کن تا خدمت مشابه از قبل موجود نباشد.\n\n## ثبت درخواست\nدرخواست از صفحه «درخواست خدمت» برای همین مدیر و همین مجموعه ثبت می‌شود و در دسته درخواست خدمت نگهداری می‌شود.\n\n## پیگیری\nتیکت‌های درخواست خدمت اخیر از همان صفحه قابل مشاهده‌اند. درخواست تکراری برای یک موضوع، رسیدگی را ساده‌تر نمی‌کند؛ همان درخواست قبلی را پیگیری کن.",
+      "keywords": "درخواست خدمت جدید کاتالوگ تیکت سرویس جدید مجموعه",
+      "aliases": "خدمتم تو کاتالوگ نیست\nrequest service\nاضافه کردن سرویس جدید\nکاتالوگ نیست\nخدمت در کاتالوگ نیست\nسرویس موردنظرم در کاتالوگ نیست",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:RequestServiceView",
+        "apps/main/models.py:SupportTicket"
+      ]
+    },
+    {
+      "key": "manager.services.edit",
+      "slug": "manager-edit-service",
+      "title": "ویرایش خدمت مجموعه",
+      "audience": "manager",
+      "category": "services",
+      "article_type": "workflow",
+      "summary": "قیمت، مدت و تنظیمات خدمت متعلق به مجموعه از صفحه ویرایش همان خدمت تغییر می‌کنند.",
+      "body": "## ویرایش خدمت مجموعه\nاز منوی خدمات، خدمت موردنظر را باز کن و داده‌های همان خدمت را تغییر بده.\n\n## حفاظت از کاتالوگ پلتفرم\nاگر یک داده قدیمی هنوز مستقیماً به خدمت کاتالوگ پلتفرم متصل باشد، لومرا قبل از ویرایش یک نسخه مخصوص همان مجموعه می‌سازد تا رکورد کاتالوگ عمومی با ویرایش مدیر تغییر نکند.\n\nبعد از ویرایش قیمت، مدت یا تیم ارائه‌دهنده، مسیر رزرو مشتری را دوباره تست کن.",
+      "keywords": "ویرایش خدمت قیمت مدت سرویس کاتالوگ مجموعه",
+      "aliases": "قیمت خدمت رو عوض کنم\nedit service\nمدت سرویس",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:EditServiceView",
+        "apps/services/forms.py:StylistServiceForm"
+      ]
+    },
+    {
+      "key": "manager.services.archive-blocked",
+      "slug": "manager-service-archive-blocked",
+      "title": "چرا نمی‌توانم خدمت را آرشیو کنم؟",
+      "audience": "manager",
+      "category": "services",
+      "article_type": "troubleshooting",
+      "summary": "اگر یک خدمت نوبت فعال یا آینده داشته باشد، لومرا برای جلوگیری از خراب‌شدن رزروها آرشیو آن را متوقف می‌کند.",
+      "body": "## علت مسدودشدن\nقبل از آرشیو، تعداد نوبت‌های فعال یا آینده همان خدمت در همین مجموعه بررسی می‌شود.\n\n## چه کار کنم؟\nاول نوبت‌های باقی‌مانده را انجام بده، جابه‌جا کن یا در صورت نیاز با دلیل مناسب لغو کن. بعد از تعیین تکلیف آن‌ها دوباره آرشیو را انجام بده.\n\nبرای خدمت کاتالوگی، خروج از منوی مجموعه رابطه آن خدمت با مجموعه را برمی‌دارد؛ برای خدمت مخصوص مجموعه، وضعیت خدمت غیرفعال می‌شود.",
+      "keywords": "آرشیو خدمت نمیشه نوبت آینده فعال سرویس حذف",
+      "aliases": "خدمت رو نمی‌تونم حذف کنم\narchive service blocked\nسرویس نوبت آینده دارد",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:archieve_service",
+        "apps/dashboards/views.py:_service_future_booking_block_message"
+      ]
+    },
+    {
+      "key": "manager.customers.overview",
+      "slug": "manager-customers-overview",
+      "title": "مشتریان مجموعه",
+      "audience": "manager",
+      "category": "manager",
+      "article_type": "guide",
+      "summary": "فهرست مشتریان مجموعه اطلاعات مراجعه، هزینه و نیاز احتمالی به پیگیری را برای مشتریان مرتبط با همان مجموعه جمع می‌کند.",
+      "body": "## چه مشتریانی اینجا هستند؟\nفهرست برای فضای همین مجموعه ساخته می‌شود و داده‌هایی مثل تعداد نوبت، مجموع پرداخت، آخرین مراجعه و تعداد یادداشت را کنار هم می‌گذارد.\n\n## برچسب‌های کمکی\nسیستم برای مرور سریع می‌تواند مشتری را براساس سابقه به حالت‌هایی مثل ارزشمند، فعال یا بدون رزرو دسته‌بندی نمایشی کند.\n\nبرای تصمیم درباره یک فرد، وارد جزئیات همان مشتری شو و فقط برچسب خلاصه را مبنای تصمیم قرار نده.",
+      "keywords": "مشتریان مجموعه سابقه مراجعه پرداخت آخرین مراجعه مشتری ارزشمند",
+      "aliases": "لیست مشتریان سالن\ncustomers manager\nمشتری فعال",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:SalonsCustomersPageView",
+        "templates/dashboards/salonsCustomersPage.html"
+      ]
+    },
+    {
+      "key": "manager.reports.overview",
+      "slug": "manager-operational-reports",
+      "title": "گزارش‌های عملیاتی مجموعه",
+      "audience": "manager",
+      "category": "manager",
+      "article_type": "guide",
+      "summary": "صفحه گزارش‌ها داده‌های عملیاتی همین مجموعه را با فیلترهای خودش نمایش می‌دهد و خروجی CSV هم از همین گزارش ساخته می‌شود.",
+      "body": "## محدوده گزارش\nمدیر فقط گزارش مجموعه‌ای را می‌بیند که متعلق به حساب مدیر خودش است.\n\n## خروجی\nاگر خروجی CSV بخواهی، همان view گزارش با حالت export فایل را می‌سازد؛ بنابراین اول فیلترهای موردنیاز را در گزارش تنظیم کن.\n\nگزارش عملیاتی با «گزارش مالی» فرق دارد؛ برای تسویه‌ها و تراکنش‌ها از بخش مالی استفاده کن.",
+      "keywords": "گزارش مجموعه عملیاتی csv رزرو مشتری خروجی",
+      "aliases": "reports dashboard\nگزارش سالن\nخروجی گزارش",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:reports_view",
+        "apps/dashboards/reports_components.py:build_reports_context"
+      ]
+    },
+    {
+      "key": "manager.content.publish",
+      "slug": "manager-content-publishing",
+      "title": "مدیریت مقاله و استوری مجموعه",
+      "audience": "manager",
+      "category": "content",
+      "article_type": "workflow",
+      "summary": "مرکز محتوای مدیر برای ساخت و مدیریت مقاله‌ها و استوری‌های متعلق به همان مجموعه است.",
+      "body": "## پیش‌نیاز\nاگر پروفایل مجموعه تکمیل نشده باشد، ورود به مدیریت محتوا متوقف می‌شود و باید ابتدا پروفایل مجموعه را آماده کنی.\n\n## محتواهای اخیر\nصفحه مقاله‌ها و استوری‌های اخیر همین مجموعه را همراه فرم‌های ویرایش مدیریت می‌کند.\n\nقبل از انتشار، عنوان، متن، تصویر و ارتباط محتوا با مجموعه و خدمات واقعی را بررسی کن.",
+      "keywords": "محتوا مقاله استوری مجموعه انتشار مدیریت محتوا مدیر",
+      "aliases": "مجله سالن\nپست مجموعه\nmanager content",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/content_views.py:ManagerContentHubView",
+        "templates/dashboards/content_hub.html"
+      ]
+    },
+    {
+      "key": "manager.content.client-consent",
+      "slug": "manager-content-client-consent",
+      "title": "محتوای دارای تصویر یا هویت مشتری و رضایت انتشار",
+      "audience": "manager",
+      "category": "content",
+      "article_type": "troubleshooting",
+      "summary": "اگر مشتری در محتوا قابل‌شناسایی است، وضعیت رضایت مشتری باید در اطلاعات انتشار مشخص شود.",
+      "body": "## چه زمانی لازم است؟\nوقتی محتوا دارای مشتری قابل‌شناسایی باشد، فرم محتوا اجازه نمی‌دهد وضعیت رضایت مشتری خالی یا در حالت «نیازی نیست» باقی بماند.\n\n## مسئولیت انتشار\nجریان محتوا همچنین تأیید مسئولیت حرفه‌ای درباره اصالت و مجوز انتشار را بررسی می‌کند.\n\nاگر فرم روی رضایت مشتری خطا می‌دهد، محتوا را بدون تعیین وضعیت رضایت منتشر نکن.",
+      "keywords": "رضایت مشتری انتشار محتوا تصویر مشتری قابل شناسایی مجوز",
+      "aliases": "عکس مشتری تو محتوا\nconsent content\nاجازه انتشار",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/content_views.py:ManagerArticleForm.clean",
+        "apps/dashboards/content_views.py:ManagerStoryForm.clean"
+      ]
+    },
+    {
+      "key": "manager.inventory.products-not-ready",
+      "slug": "manager-products-inventory-not-ready",
+      "title": "وضعیت فعلی بخش محصولات",
+      "audience": "manager",
+      "category": "manager",
+      "article_type": "faq",
+      "summary": "بخش Products در staging فعلی بیشتر فضای آماده‌سازی است و inventory engine کامل هنوز فعال نشده است.",
+      "body": "## وضعیت فعلی\nصفحه محصولات صریحاً وضعیت inventory layer را «هنوز initialize نشده» و retail engine را «در حال آماده‌سازی» معرفی می‌کند.\n\n## نتیجه\nاز این صفحه انتظار ثبت و گردش کامل موجودی یا فروش محصول production-ready نداشته باش. سیگنال‌هایی که نمایش داده می‌شوند بیشتر از داده‌های فعلی خدمات و عملیات مجموعه ساخته شده‌اند.\n\nاگر برای موجودی واقعی نیاز عملیاتی داری، فعلاً این قابلیت را کامل‌شده فرض نکن.",
+      "keywords": "محصولات انبار inventory آماده نیست retail engine",
+      "aliases": "محصولات کار نمی‌کنه\nproducts workspace\nانبار کامل نیست",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:products",
+        "templates/dashboards/products.html"
+      ]
+    },
+    {
+      "key": "manager.inventory.stocktakes-not-ready",
+      "slug": "manager-stocktakes-not-ready",
+      "title": "وضعیت فعلی انبارگردانی",
+      "audience": "manager",
+      "category": "manager",
+      "article_type": "faq",
+      "summary": "جریان Stocktakes در staging فعلی setup-oriented است و هنوز به ثبت کامل محصول و stock ledger متصل نیست.",
+      "body": "## وضعیت فعلی\nخود صفحه انبارگردانی توضیح می‌دهد که جریان برای تجربه product-like آماده شده اما inventory engine هنوز کامل نشده است.\n\n## چه چیزی را نباید فرض کرد؟\nانبارگردانی فعلی را معادل سیستم قطعی شمارش، ledger و اصلاح موجودی production-ready در نظر نگیر.\n\nتا وقتی inventory engine کامل نشده، دستیار هم نباید برای عملیات موجودی قابلیت‌هایی را وعده بدهد که در محصول فعال نیستند.",
+      "keywords": "انبارگردانی stocktakes inventory ledger کامل نشده",
+      "aliases": "موجودی گیری کار نمی‌کنه\nstocktake\nشمارش انبار",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:stocktakes",
+        "templates/dashboards/stocktakes.html"
+      ]
+    },
+    {
+      "key": "stylist.profile.manage",
+      "slug": "stylist-manage-profile",
+      "title": "مدیریت پروفایل متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "workflow",
+      "summary": "پروفایل متخصص اطلاعات حساب، اطلاعات حرفه‌ای، اطلاعات اضطراری و نمونه‌کارها را در یک فضای کاری جمع می‌کند.",
+      "body": "## فرم‌های پروفایل\nصفحه پروفایل فرم اطلاعات کاربر، فرم پروفایل متخصص و اطلاعات اضطراری را با هم آماده می‌کند.\n\n## شماره موبایل\nدر این جریان ویرایش، فرم کاربر با امکان ویرایش موبایل غیرفعال ساخته می‌شود؛ بنابراین تغییرات این صفحه را با تغییر شماره ورود یکی ندان.\n\n## مجموعه فعال\nخلاصه حرفه‌ای، همکاری‌ها و نمونه‌کارها با زمینه متخصص و مجموعه فعال ساخته می‌شوند.",
+      "keywords": "پروفایل متخصص اطلاعات حرفه ای اضطراری نمونه کار مجموعه فعال",
+      "aliases": "پروفایل استایلیست\nstylist profile\nاطلاعات متخصص\nپروفایل حرفه‌ای خودم\nویرایش پروفایل حرفه‌ای\nپروفایل متخصص خودم",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistProfileView",
+        "apps/stylists/forms.py:StylistProfileForm"
+      ]
+    },
+    {
+      "key": "stylist.customers.add",
+      "slug": "stylist-add-customer",
+      "title": "افزودن مشتری توسط متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "workflow",
+      "summary": "متخصص می‌تواند در workflow خودش مشتری جدید ثبت کند و بعد به ثبت نوبت برگردد.",
+      "body": "## ثبت مشتری\nاز «افزودن مشتری» اطلاعات لازم را وارد کن. شماره موبایل تکراری پذیرفته نمی‌شود.\n\n## برگشت به ثبت نوبت\nاگر از جریان ثبت نوبت وارد افزودن مشتری شده باشی، بعد از ثبت موفق همان مشتری به آدرس بازگشت اضافه و برای ادامه workflow انتخاب می‌شود.\n\nلینک بازگشت فقط وقتی پذیرفته می‌شود که مقصد امن و متعلق به همین سایت باشد.",
+      "keywords": "افزودن مشتری متخصص شماره موبایل ثبت نوبت مشتری جدید",
+      "aliases": "مشتری جدید استایلیست\nstylist add customer\nثبت مشتری\nمشتری جدید اضافه کنم\nاضافه کردن مشتری جدید\nمشتری جدید ثبت کنم",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistAddCustomerView",
+        "apps/accounts/forms.py:AddCustomerForm"
+      ]
+    },
+    {
+      "key": "stylist.booking.manual",
+      "slug": "stylist-create-own-booking",
+      "title": "ثبت نوبت توسط متخصص",
+      "audience": "stylist",
+      "category": "stylist-work",
+      "article_type": "workflow",
+      "summary": "متخصص در صورت داشتن دسترسی می‌تواند برای خودش و مشتری یک نوبت در مجموعه فعال ثبت کند.",
+      "body": "## دسترسی\nاگر مجوز can_create_own_bookings برای همکاری فعال نباشد، ورود به ثبت نوبت متوقف می‌شود.\n\n## انتخاب‌ها\nفرم براساس متخصص و مجموعه فعال ساخته می‌شود و مشتری و خدمت از گزینه‌های مجاز همان زمینه انتخاب می‌شوند.\n\nاگر مشتری در فهرست نیست، از همان صفحه به جریان افزودن مشتری برو و بعد برگرد.",
+      "keywords": "ثبت نوبت متخصص مشتری مجموعه فعال دسترسی booking",
+      "aliases": "متخصص برای مشتری وقت بگیره\nstylist booking\nثبت وقت خودم\nبرای مشتری نوبت ثبت کنم\nبرای مشتری خودم نوبت ثبت کنم\nبرای مشتری وقت ثبت کنم",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/views.py:StylistAddBookingView",
+        "apps/dashboards/forms.py:StylistSelfBookingForm"
+      ]
+    },
+    {
+      "key": "stylist.content.manage",
+      "slug": "stylist-content-management",
+      "title": "محتوای حرفه‌ای متخصص",
+      "audience": "stylist",
+      "category": "content",
+      "article_type": "workflow",
+      "summary": "فضای محتوای متخصص به متخصص فعلی و مجموعه فعال او وابسته است و بعضی وضعیت‌های محتوا قابل ویرایش‌اند.",
+      "body": "## زمینه همکاری\nصفحه ابتدا متخصص و مجموعه فعال را پیدا می‌کند. اگر مجموعه فعال از session مشخص نباشد، از عضویت فعال متخصص برای پیدا کردن زمینه استفاده می‌شود.\n\n## وضعیت‌های قابل ویرایش\nمحتوا در وضعیت‌هایی مثل پیش‌نویس، نیازمند اصلاح، ردشده یا منتظر بررسی می‌تواند در جریان ویرایش قرار بگیرد. عملیات حفاظت‌شده روی محتوای متعلق به خود متخصص اعمال می‌شوند.\n\nمحتوای حرفه‌ای باید متعلق به خود متخصص و در چارچوب مجوزهای انتشار باشد.",
+      "keywords": "محتوای متخصص نمونه کار مقاله استوری مجموعه فعال ویرایش",
+      "aliases": "محتوای من\nstylist content\nنمونه کار متخصص",
+      "is_featured": false,
+      "source_refs": [
+        "apps/dashboards/content_views.py:StylistContentHubView",
+        "apps/stylists/models.py:StaffContentSubmission"
+      ]
+    },
+    {
+      "key": "customer.account.address-add",
+      "slug": "customer-add-address",
+      "title": "افزودن آدرس مشتری",
+      "audience": "customer",
+      "category": "account",
+      "article_type": "workflow",
+      "summary": "آدرس جدید از فرم آدرس حساب مشتری ثبت و به همان پروفایل مشتری متصل می‌شود.",
+      "body": "## ثبت آدرس\nاز «آدرس‌های من» وارد افزودن آدرس شو. شماره تماس فرم به‌صورت اولیه می‌تواند از شماره حساب پر شود.\n\nبعد از اعتبارسنجی موفق، آدرس با مالکیت همان مشتری ذخیره و کاربر به فهرست آدرس‌ها برمی‌گردد.\n\nاگر چند آدرس داری، آدرس پیش‌فرض در فهرست جدا مشخص می‌شود.",
+      "keywords": "افزودن آدرس مشتری نشانی تلفن آدرس پیش فرض",
+      "aliases": "آدرس جدید\nadd address customer\nنشانی من",
+      "is_featured": false,
+      "source_refs": [
+        "apps/accounts/views.py:CustomerAddressCreateView",
+        "apps/accounts/forms.py:CustomerAddressForm"
+      ]
+    },
+    {
+      "key": "customer.discovery.services",
+      "slug": "customer-find-services",
+      "title": "پیدا کردن خدمت مناسب",
+      "audience": "customer",
+      "category": "booking",
+      "article_type": "guide",
+      "summary": "فهرست خدمات امکان مرور همه خدمات یا محدودکردن آن‌ها براساس دسته را فراهم می‌کند و صفحه هر خدمت جزئیات همان خدمت را نشان می‌دهد.",
+      "body": "## مرور خدمات\nاز صفحه خدمات می‌توانی همه خدمات را ببینی یا از مسیر دسته/گروه وارد خدمات همان موضوع شوی.\n\n## جزئیات\nبا بازکردن صفحه یک خدمت، اطلاعات همان خدمت را قبل از ادامه مسیر انتخاب مجموعه و رزرو بررسی کن.\n\nبرای رزرو نهایی، فقط عنوان خدمت کافی نیست؛ ارائه‌دهنده، متخصص و زمان باید در مسیر رزرو قابل استفاده باشند.",
+      "keywords": "پیدا کردن خدمت خدمات دسته گروه سرویس مشتری رزرو",
+      "aliases": "چه خدمتی انتخاب کنم\nservices list\nجستجوی سرویس",
+      "is_featured": false,
+      "source_refs": [
+        "apps/services/urls.py:services:all_services",
+        "apps/services/urls.py:services:service_detail",
+        "apps/services/views.py:ServicesView"
+      ]
+    },
+    {
+      "key": "customer.discovery.salons",
+      "slug": "customer-find-salons",
+      "title": "پیدا کردن مجموعه و متخصص",
+      "audience": "customer",
+      "category": "booking",
+      "article_type": "guide",
+      "summary": "صفحات عمومی لومرا امکان مرور مجموعه‌ها، بازکردن پروفایل مجموعه و دیدن پروفایل متخصص‌های همان مجموعه را می‌دهند.",
+      "body": "## مجموعه‌ها\nاز فهرست مجموعه‌ها وارد صفحه عمومی مجموعه موردنظر شو و اطلاعات مراجعه و خدمات آن را بررسی کن.\n\n## متخصص\nپروفایل متخصص از داخل زمینه همان مجموعه قابل بازشدن است تا انتخاب متخصص با مجموعه درست انجام شود.\n\nبعد از مقایسه، رزرو را از خدمت و ارائه‌دهنده واقعی‌ای که می‌خواهی ادامه بده.",
+      "keywords": "پیدا کردن سالن مجموعه متخصص پروفایل عمومی رزرو مشتری",
+      "aliases": "مراکز زیبایی\nsalons list\nپیدا کردن آرایشگر",
+      "is_featured": false,
+      "source_refs": [
+        "apps/salons/urls.py:salons:show_salons",
+        "apps/salons/urls.py:salons:detail_salon_slug",
+        "apps/salons/urls.py:salons:stylist_profile_slug"
+      ]
+    }
+  ],
+  "contexts": [
+    {
+      "role": "manager",
+      "route_name": "dashboards:team_member",
+      "page_key": "manager.team.overview",
+      "article_key": "manager.team.overview",
+      "quick_prompts": [
+        "چطور متخصص جدید اضافه کنم؟",
+        "چرا یک متخصص قابل رزرو نیست؟",
+        "چطور همکاری متخصص را متوقف کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:add_stylist",
+      "page_key": "manager.team.add-stylist",
+      "article_key": "manager.team.add-stylist",
+      "quick_prompts": [
+        "برای افزودن متخصص چه چیزهایی لازم است؟",
+        "انتخاب خدمات متخصص اجباری است؟",
+        "بعد از افزودن متخصص چه کاری انجام بدهم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:service_menu",
+      "page_key": "manager.services.overview",
+      "article_key": "manager.services.overview",
+      "quick_prompts": [
+        "چطور خدمت جدید اضافه کنم؟",
+        "چرا یک خدمت در رزرو نمایش داده نمی‌شود؟",
+        "غیرفعال کردن خدمت چه اثری دارد؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:scheduled_shifts",
+      "page_key": "manager.schedule.overview",
+      "article_key": "manager.schedule.overview",
+      "quick_prompts": [
+        "چطور شیفت منظم بسازم؟",
+        "چرا متخصص ظرفیت رزرو ندارد؟",
+        "چطور عدم حضور ثبت کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:add_booking",
+      "page_key": "manager.booking.manual",
+      "article_key": "manager.booking.manual",
+      "quick_prompts": [
+        "چطور نوبت دستی ثبت کنم؟",
+        "چرا متخصص برای این خدمت قابل انتخاب نیست؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_schedule",
+      "page_key": "stylist.schedule.overview",
+      "article_key": "stylist.schedule.overview",
+      "quick_prompts": [
+        "چطور درخواست برنامه کاری ثبت کنم؟",
+        "چطور درخواست مرخصی بدهم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "customer",
+      "route_name": "orders:appointments",
+      "page_key": "customer.appointments.overview",
+      "article_key": "customer.appointments.overview",
+      "quick_prompts": [
+        "چطور زمان نوبتم را تغییر بدهم؟",
+        "جزئیات نوبتم را از کجا ببینم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "customer",
+      "route_name": "payments:detail",
+      "page_key": "customer.wallet.overview",
+      "article_key": "customer.wallet.overview",
+      "quick_prompts": [
+        "چرا شارژ کیف پول غیرفعال است؟",
+        "حداقل و حداکثر شارژ چقدر است؟",
+        "تراکنش‌ها را از کجا ببینم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "customer",
+      "route_name": "accounts:customer_addresses",
+      "page_key": "customer.account.addresses",
+      "article_key": "customer.account.addresses",
+      "quick_prompts": [
+        "چطور آدرس جدید اضافه کنم؟",
+        "چطور آدرس پیش‌فرض را تغییر بدهم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:finance_coupons",
+      "page_key": "manager.discounts.coupons",
+      "article_key": "manager.discounts.coupons",
+      "quick_prompts": [
+        "چطور کد تخفیف بسازم؟",
+        "سقف مبلغ تخفیف یعنی چی؟",
+        "چطور کد را غیرفعال کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:finance_baskets",
+      "page_key": "manager.discounts.baskets",
+      "article_key": "manager.discounts.baskets",
+      "quick_prompts": [
+        "چطور روی چند خدمت تخفیف بگذارم؟",
+        "چرا پیشنهاد ذخیره شد ولی فعال نشد؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:finance_campaigns",
+      "page_key": "manager.discounts.campaigns",
+      "article_key": "manager.discounts.campaigns",
+      "quick_prompts": [
+        "چطور کمپین تخفیف بسازم؟",
+        "کمپین باید چه مواردی داشته باشد؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:online_booking",
+      "page_key": "manager.booking.online-overview",
+      "article_key": "manager.booking.online-overview",
+      "quick_prompts": [
+        "چطور لینک رزرو مستقیم بسازم؟",
+        "چرا برای لینک زمان نمایش داده نمی‌شود؟",
+        "چه نوع لینک‌هایی می‌توانم بسازم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:appointment_detail",
+      "page_key": "manager.appointments.overview",
+      "article_key": "manager.appointments.overview",
+      "quick_prompts": [
+        "چه اقدام‌هایی برای این نوبت مجاز است؟",
+        "چطور نوبت را لغو کنم؟",
+        "چه زمانی تسویه در مجموعه را ثبت کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:finance_hub",
+      "page_key": "manager.finance.overview",
+      "article_key": "manager.finance.overview",
+      "quick_prompts": [
+        "مانده مجموعه از کجا می‌آید؟",
+        "چطور درخواست برداشت بدهم؟",
+        "گزارش سود را از کجا ببینم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:payout_settings",
+      "page_key": "manager.finance.payout-destination",
+      "article_key": "manager.finance.payout-destination",
+      "quick_prompts": [
+        "چطور حساب مقصد را ثبت کنم؟",
+        "چطور برداشت مجموعه ثبت کنم؟",
+        "می‌توانم برداشت را لغو کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:finance_reports",
+      "page_key": "manager.finance.reports",
+      "article_key": "manager.finance.reports",
+      "quick_prompts": [
+        "چطور گزارش مالی را فیلتر کنم؟",
+        "خروجی CSV را از کجا بگیرم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:finance_cost_center",
+      "page_key": "manager.finance.cost-center",
+      "article_key": "manager.finance.cost-center",
+      "quick_prompts": [
+        "چطور مواد مصرفی تعریف کنم؟",
+        "قانون سهم متخصص چیست؟",
+        "چطور الگوی مصرف خدمت بسازم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:finance_profit_report",
+      "page_key": "manager.finance.profit-report",
+      "article_key": "manager.finance.profit-report",
+      "quick_prompts": [
+        "چرا سود یک خدمت عجیب است؟",
+        "چه داده‌هایی روی سود اثر دارند؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:finance_stylist_wallets",
+      "page_key": "manager.finance.stylist-wallets",
+      "article_key": "manager.finance.stylist-wallets",
+      "quick_prompts": [
+        "درآمد هر متخصص را از کجا ببینم؟",
+        "چرا متخصص سابق هنوز در مالی دیده می‌شود؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:finance_stylist_withdrawals",
+      "page_key": "manager.finance.review-stylist-withdrawal",
+      "article_key": "manager.finance.review-stylist-withdrawal",
+      "quick_prompts": [
+        "چطور درخواست دریافت متخصص را تأیید کنم؟",
+        "اگر درخواست را رد کنم چه می‌شود؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:manager_communication_settings",
+      "page_key": "manager.communications.settings",
+      "article_key": "manager.communications.settings",
+      "quick_prompts": [
+        "چطور بله را برای مدیر وصل کنم؟",
+        "پیام عملیاتی و بازاریابی چه فرقی دارند؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_finance",
+      "page_key": "stylist.finance.overview",
+      "article_key": "stylist.finance.overview",
+      "quick_prompts": [
+        "چطور درآمدم را دریافت کنم؟",
+        "چرا باید مجموعه فعال انتخاب کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_withdrawals",
+      "page_key": "stylist.finance.withdraw",
+      "article_key": "stylist.finance.withdraw",
+      "quick_prompts": [
+        "چطور درخواست دریافت درآمد بدهم؟",
+        "چه کسی درخواست را بررسی می‌کند؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_appointment_detail",
+      "page_key": "stylist.booking.detail",
+      "article_key": "stylist.booking.detail",
+      "quick_prompts": [
+        "اطلاعات این نوبت چیست؟",
+        "مواد و مالی این نوبت را از کجا ببینم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_quick_links",
+      "page_key": "stylist.booking.quick-links",
+      "article_key": "stylist.booking.quick-links",
+      "quick_prompts": [
+        "چطور لینک رزرو خودم را بسازم؟",
+        "QR لینک را از کجا بگیرم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_communication_settings",
+      "page_key": "stylist.communications.settings",
+      "article_key": "stylist.communications.settings",
+      "quick_prompts": [
+        "چطور بله را وصل کنم؟",
+        "اعلان‌های متخصص را چطور تنظیم کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "customer",
+      "route_name": "payments:withdraw",
+      "page_key": "customer.wallet.withdraw",
+      "article_key": "customer.wallet.withdraw",
+      "quick_prompts": [
+        "چطور از کیف پول برداشت کنم؟",
+        "مقصد بانکی ذخیره‌شده چیست؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "customer",
+      "route_name": "accounts:customer_settings",
+      "page_key": "customer.account.settings",
+      "article_key": "customer.account.settings",
+      "quick_prompts": [
+        "چطور پروفایلم را ویرایش کنم؟",
+        "چطور رمز را عوض کنم؟",
+        "چطور اعلان‌ها را تنظیم کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "customer",
+      "route_name": "accounts:customer_communication_settings",
+      "page_key": "customer.communications.settings",
+      "article_key": "customer.communications.settings",
+      "quick_prompts": [
+        "چطور پیام‌های نوبت را تنظیم کنم؟",
+        "چطور بله را وصل کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "customer",
+      "route_name": "accounts:notifications",
+      "page_key": "customer.account.notifications",
+      "article_key": "customer.account.notifications",
+      "quick_prompts": [
+        "چطور همه اعلان‌ها را خوانده‌شده کنم؟",
+        "تنظیم کانال پیام کجاست؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "all",
+      "route_name": "messaging:status",
+      "page_key": "messaging.bale.connect",
+      "article_key": "messaging.bale.connect",
+      "quick_prompts": [
+        "چطور بله را به لومرا وصل کنم؟",
+        "توکن اتصال چطور کار می‌کند؟",
+        "چطور اتصال را قطع کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "all",
+      "route_name": "main:support_ticket_list",
+      "page_key": "support.tickets.overview",
+      "article_key": "support.tickets.overview",
+      "quick_prompts": [
+        "چطور تیکت قبلی را پیگیری کنم؟",
+        "برای مشکل جدید تیکت تازه بسازم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "all",
+      "route_name": "main:support_ticket_detail",
+      "page_key": "support.tickets.reply-close",
+      "article_key": "support.tickets.reply-close",
+      "quick_prompts": [
+        "چطور به این تیکت پاسخ بدهم؟",
+        "چطور تیکت را ببندم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salon_profile",
+      "page_key": "manager.setup.overview",
+      "article_key": "manager.setup.overview",
+      "quick_prompts": [
+        "چه بخش‌هایی از پروفایل ناقصه؟",
+        "برای رزرو آنلاین چه چیزهایی لازمه؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salon_profile_creator_step1",
+      "page_key": "manager.setup.identity",
+      "article_key": "manager.setup.identity",
+      "quick_prompts": [
+        "نام و شماره مجموعه رو چطور ثبت کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salon_profile_creator_step2",
+      "page_key": "manager.setup.location",
+      "article_key": "manager.setup.location",
+      "quick_prompts": [
+        "آدرس و موقعیت رو چطور ثبت کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salon_profile_creator_step3",
+      "page_key": "manager.setup.hours",
+      "article_key": "manager.setup.hours",
+      "quick_prompts": [
+        "ساعت کاری مجموعه رو چطور تنظیم کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salon_profile_creator_step6",
+      "page_key": "manager.setup.gallery",
+      "article_key": "manager.setup.gallery",
+      "quick_prompts": [
+        "چطور تصویر کاور رو عوض کنم؟",
+        "چند تصویر می‌تونم اضافه کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:request_service",
+      "page_key": "manager.services.request-new",
+      "article_key": "manager.services.request-new",
+      "quick_prompts": [
+        "خدمت موردنظرم تو کاتالوگ نیست، چیکار کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:edit_service",
+      "page_key": "manager.services.edit",
+      "article_key": "manager.services.edit",
+      "quick_prompts": [
+        "قیمت یا مدت خدمت رو چطور عوض کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:salons_customers_page",
+      "page_key": "manager.customers.overview",
+      "article_key": "manager.customers.overview",
+      "quick_prompts": [
+        "مشتری ارزشمند یعنی چی؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:reports_dashboard",
+      "page_key": "manager.reports.overview",
+      "article_key": "manager.reports.overview",
+      "quick_prompts": [
+        "گزارش‌ها رو چطور فیلتر کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:content_hub",
+      "page_key": "manager.content.publish",
+      "article_key": "manager.content.publish",
+      "quick_prompts": [
+        "برای عکس مشتری رضایت لازمه؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:products",
+      "page_key": "manager.inventory.products-not-ready",
+      "article_key": "manager.inventory.products-not-ready",
+      "quick_prompts": [
+        "آیا مدیریت موجودی این بخش کامل شده؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "manager",
+      "route_name": "dashboards:stocktakes",
+      "page_key": "manager.inventory.stocktakes-not-ready",
+      "article_key": "manager.inventory.stocktakes-not-ready",
+      "quick_prompts": [
+        "آیا انبارگردانی الان کامل و عملیاتی است؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_profile",
+      "page_key": "stylist.profile.manage",
+      "article_key": "stylist.profile.manage",
+      "quick_prompts": [
+        "چه اطلاعاتی از پروفایلم اینجا قابل ویرایشه؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_add_customer",
+      "page_key": "stylist.customers.add",
+      "article_key": "stylist.customers.add",
+      "quick_prompts": [
+        "چطور مشتری جدید ثبت کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_add_booking",
+      "page_key": "stylist.booking.manual",
+      "article_key": "stylist.booking.manual",
+      "quick_prompts": [
+        "چطور برای مشتری نوبت ثبت کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "stylist",
+      "route_name": "dashboards:stylist_content",
+      "page_key": "stylist.content.manage",
+      "article_key": "stylist.content.manage",
+      "quick_prompts": [
+        "چه محتواهایی رو می‌تونم ویرایش کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "customer",
+      "route_name": "accounts:customer_address_add",
+      "page_key": "customer.account.address-add",
+      "article_key": "customer.account.address-add",
+      "quick_prompts": [
+        "چطور آدرس جدید ذخیره کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "all",
+      "route_name": "services:all_services",
+      "page_key": "customer.discovery.services",
+      "article_key": "customer.discovery.services",
+      "quick_prompts": [
+        "چطور خدمت مناسب پیدا کنم؟"
+      ],
+      "priority": 100
+    },
+    {
+      "role": "all",
+      "route_name": "salons:show_salons",
+      "page_key": "customer.discovery.salons",
+      "article_key": "customer.discovery.salons",
+      "quick_prompts": [
+        "چطور مجموعه و متخصص مناسب پیدا کنم؟"
+      ],
+      "priority": 100
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+*** loomera/urls.py
+--- loomera/urls.py
+@@
+ urlpatterns = [
+     path("admin/", admin.site.urls),
++    path("help/", include("apps.help_center.urls", namespace="help_center")),
+     path("support/", SupportView.as_view(), name="support"),

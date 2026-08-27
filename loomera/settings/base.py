@@ -1282,19 +1282,61 @@ HELP_AI_ENABLED = env.bool(
     default=True,
 )
 
+HELP_AI_PROVIDER = (
+    env(
+        "HELP_AI_PROVIDER",
+        default="groq",
+    )
+    .strip()
+    .lower()
+)
+
 GROQ_API_KEY = env(
     "GROQ_API_KEY",
     default="",
 ).strip()
 
+OPENROUTER_API_KEY = env(
+    "OPENROUTER_API_KEY",
+    default="",
+).strip()
+
+HELP_AI_API_KEY = env(
+    "HELP_AI_API_KEY",
+    default="",
+).strip()
+
+HELP_AI_BASE_URL = (
+    env(
+        "HELP_AI_BASE_URL",
+        default="",
+    )
+    .strip()
+    .rstrip("/")
+)
+
+HELP_AI_SITE_URL = (
+    env(
+        "HELP_AI_SITE_URL",
+        default=PUBLIC_BASE_URL,
+    )
+    .strip()
+    .rstrip("/")
+)
+
 HELP_AI_MODEL = env(
     "HELP_AI_MODEL",
-    default="qwen/qwen3-32b",
+    default="",
 ).strip()
 
 HELP_AI_TIMEOUT_SECONDS = env.int(
     "HELP_AI_TIMEOUT_SECONDS",
-    default=12,
+    default=15,
+)
+
+HELP_AI_MAX_COMPLETION_TOKENS = env.int(
+    "HELP_AI_MAX_COMPLETION_TOKENS",
+    default=750,
 )
 
 HELP_CHAT_GUEST_LIMIT = env.int(

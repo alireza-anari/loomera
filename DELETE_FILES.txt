@@ -1,0 +1,7 @@
+Remove these tracked prototype files after copying the refactor package:
+
+static/js/components/contextual_help_hub.js
+apps/help_center/knowledge.py
+apps/help_center/page_catalog.py
+
+Do NOT delete any existing apps/help_center/migrations/*.py files.
