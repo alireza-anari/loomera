@@ -542,9 +542,9 @@ def _stylist_order_detail_messaging_actions(
     try:
         from apps.orders.models import OrderDetail
         from apps.messaging.stylist_actions import (
-            ACTION_COMPLETE_SERVICE,
+            ACTION_COMPLETE_SERVICE_PREVIEW,
             ACTION_CONFIRM_APPOINTMENT,
-            ACTION_REJECT_APPOINTMENT,
+            ACTION_REJECT_APPOINTMENT_PREVIEW,
             ACTION_START_SERVICE,
         )
     except Exception:
@@ -577,7 +577,7 @@ def _stylist_order_detail_messaging_actions(
                 },
                 {
                     "type": "action",
-                    "key": ACTION_REJECT_APPOINTMENT,
+                    "key": ACTION_REJECT_APPOINTMENT_PREVIEW,
                     "label": "رد نوبت",
                     **common,
                 },
@@ -600,7 +600,7 @@ def _stylist_order_detail_messaging_actions(
             return [
                 {
                     "type": "action",
-                    "key": ACTION_COMPLETE_SERVICE,
+                    "key": ACTION_COMPLETE_SERVICE_PREVIEW,
                     "label": "پایان خدمت",
                     **common,
                 },
@@ -622,14 +622,14 @@ def _manager_object_messaging_actions(
     try:
         from apps.messaging.manager_actions import (
             ACTION_MANAGER_AVAILABLE_SLOTS,
-            ACTION_MANAGER_LEAVE_APPROVE,
-            ACTION_MANAGER_LEAVE_REJECT,
-            ACTION_MANAGER_MEMBERSHIP_ACCEPT,
+            ACTION_MANAGER_LEAVE_APPROVE_PREVIEW,
+            ACTION_MANAGER_LEAVE_REJECT_PREVIEW,
+            ACTION_MANAGER_MEMBERSHIP_ACCEPT_PREVIEW,
             ACTION_MANAGER_MEMBERSHIP_PROFILE,
-            ACTION_MANAGER_MEMBERSHIP_REJECT,
+            ACTION_MANAGER_MEMBERSHIP_REJECT_PREVIEW,
             ACTION_MANAGER_PENDING_REQUESTS,
-            ACTION_MANAGER_SCHEDULE_APPROVE,
-            ACTION_MANAGER_SCHEDULE_REJECT,
+            ACTION_MANAGER_SCHEDULE_APPROVE_PREVIEW,
+            ACTION_MANAGER_SCHEDULE_REJECT_PREVIEW,
             ACTION_MANAGER_SHIFTS_OVERVIEW,
             ACTION_MANAGER_TODAY_CALENDAR,
             ACTION_MANAGER_TODAY_SUMMARY,
@@ -659,14 +659,14 @@ def _manager_object_messaging_actions(
         return [
             {
                 "type": "action",
-                "key": ACTION_MANAGER_MEMBERSHIP_ACCEPT,
+                "key": ACTION_MANAGER_MEMBERSHIP_ACCEPT_PREVIEW,
                 "label": "پذیرش همکاری",
                 **common,
                 "metadata": metadata,
             },
             {
                 "type": "action",
-                "key": ACTION_MANAGER_MEMBERSHIP_REJECT,
+                "key": ACTION_MANAGER_MEMBERSHIP_REJECT_PREVIEW,
                 "label": "رد درخواست",
                 **common,
                 "metadata": metadata,
@@ -694,14 +694,14 @@ def _manager_object_messaging_actions(
         return [
             {
                 "type": "action",
-                "key": ACTION_MANAGER_LEAVE_APPROVE,
+                "key": ACTION_MANAGER_LEAVE_APPROVE_PREVIEW,
                 "label": "تأیید مرخصی",
                 **common,
                 "metadata": metadata,
             },
             {
                 "type": "action",
-                "key": ACTION_MANAGER_LEAVE_REJECT,
+                "key": ACTION_MANAGER_LEAVE_REJECT_PREVIEW,
                 "label": "رد مرخصی",
                 **common,
                 "metadata": metadata,
@@ -722,14 +722,14 @@ def _manager_object_messaging_actions(
         return [
             {
                 "type": "action",
-                "key": ACTION_MANAGER_SCHEDULE_APPROVE,
+                "key": ACTION_MANAGER_SCHEDULE_APPROVE_PREVIEW,
                 "label": "تأیید برنامه",
                 **common,
                 "metadata": metadata,
             },
             {
                 "type": "action",
-                "key": ACTION_MANAGER_SCHEDULE_REJECT,
+                "key": ACTION_MANAGER_SCHEDULE_REJECT_PREVIEW,
                 "label": "رد برنامه",
                 **common,
                 "metadata": metadata,

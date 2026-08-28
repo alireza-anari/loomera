@@ -34,6 +34,7 @@ from .menus import (
     MENU_MANAGER_SLOTS,
     MENU_MANAGER_SUMMARY,
     MENU_MANAGER_TODAY,
+    MENU_MANAGER_SALON,
     connected_text,
     disconnected_required_text,
     guest_main_menu,
@@ -41,6 +42,8 @@ from .menus import (
     help_menu,
     help_text,
     menu_for_role,
+    manager_menu,
+    manager_menu_text,
     menu_for_user,
     quick_links_menu,
     quick_links_text,
@@ -166,6 +169,21 @@ def _handle_menu_callback(
     chat_id = parsed.chat_id or getattr(identity, "chat_id", "")
     callback_data = parsed.callback_data or ""
     menu_key = callback_data[len(MENU_CALLBACK_PREFIX) :].strip()
+    scoped_salon_id = None
+    if ":" in menu_key:
+        base_key, _, raw_scope = menu_key.partition(":")
+        manager_scoped_keys = {
+            MENU_MANAGER_SALON,
+            MENU_MANAGER_TODAY,
+            MENU_MANAGER_SUMMARY,
+            MENU_MANAGER_SHIFTS,
+            MENU_MANAGER_SLOTS,
+            MENU_MANAGER_REQUESTS,
+            MENU_MANAGER_PROMOTION,
+        }
+        if base_key in manager_scoped_keys and raw_scope.isdigit():
+            menu_key = base_key
+            scoped_salon_id = int(raw_scope)
 
     if parsed.callback_query_id:
         client.answer_callback_query(
@@ -333,6 +351,36 @@ def _handle_menu_callback(
         )
         return result_key
 
+    if menu_key == MENU_MANAGER_SALON:
+        from apps.messaging.roles import detect_user_bot_roles
+        from apps.messaging.manager_bot import manager_salons
+
+        context = detect_user_bot_roles(user)
+        role = context.get_role("manager")
+        salons = manager_salons(user)
+        selected = next(
+            (salon for salon in salons if scoped_salon_id and int(salon.pk) == scoped_salon_id),
+            None,
+        )
+        if role is None or selected is None:
+            text, markup = menu_for_role(base_url, user, "manager")
+            result_key = "manager_salon_invalid"
+        else:
+            text = manager_menu_text(
+                user, role, selected_salon_name=selected.salon_name
+            )
+            markup = manager_menu(base_url, role, salon_id=selected.pk)
+            result_key = f"manager_salon:{selected.pk}"
+        _send(
+            client,
+            provider=provider,
+            identity=identity,
+            chat_id=chat_id,
+            text=text,
+            reply_markup=markup,
+        )
+        return result_key
+
     if menu_key in {
         MENU_MANAGER_TODAY,
         MENU_MANAGER_SUMMARY,
@@ -352,30 +400,32 @@ def _handle_menu_callback(
 
         if menu_key == MENU_MANAGER_TODAY:
             text, markup = render_manager_today_calendar(
-                user, base_url, provider=provider, identity=identity
+                user, base_url, salon_id=scoped_salon_id, provider=provider, identity=identity
             )
             result_key = "manager_today"
         elif menu_key == MENU_MANAGER_SUMMARY:
             text, markup = render_manager_today_summary(
-                user, base_url, provider=provider, identity=identity
+                user, base_url, salon_id=scoped_salon_id, provider=provider, identity=identity
             )
             result_key = "manager_summary"
         elif menu_key == MENU_MANAGER_SHIFTS:
             text, markup = render_manager_shifts_overview(
-                user, base_url, provider=provider, identity=identity
+                user, base_url, salon_id=scoped_salon_id, provider=provider, identity=identity
             )
             result_key = "manager_shifts"
         elif menu_key == MENU_MANAGER_SLOTS:
             text, markup = render_manager_available_slots(
-                user, base_url, provider=provider, identity=identity
+                user, base_url, salon_id=scoped_salon_id, provider=provider, identity=identity
             )
             result_key = "manager_slots"
         elif menu_key == MENU_MANAGER_PROMOTION:
-            text, markup = render_manager_promotion_pack(user, base_url)
+            text, markup = render_manager_promotion_pack(
+                user, base_url, salon_id=scoped_salon_id
+            )
             result_key = "manager_promotion"
         else:
             text, markup = render_manager_pending_requests(
-                user, base_url, provider=provider, identity=identity
+                user, base_url, salon_id=scoped_salon_id, provider=provider, identity=identity
             )
             result_key = "manager_requests"
         _send(
@@ -417,9 +467,17 @@ def _handle_action_callback(
     )
 
     if parsed.callback_query_id:
+        if result.status in {"succeeded"}:
+            callback_text = (
+                "جزئیات آماده شد."
+                if (result.result or {}).get("preview")
+                else "انجام شد."
+            )
+        else:
+            callback_text = (result.user_message or "انجام نشد.")[:180]
         client.answer_callback_query(
             callback_query_id=parsed.callback_query_id,
-            text=result.user_message,
+            text=callback_text,
             show_alert=result.status not in {"succeeded"},
         )
 

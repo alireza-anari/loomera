@@ -89,9 +89,9 @@ def _stylist_action_button(*, provider, identity, user, detail: OrderDetail, act
 
 def _stylist_today_rows(*, user, base_url: str, appointments: list[OrderDetail], provider=None, identity=None) -> list[list[dict]]:
     from .stylist_actions import (
-        ACTION_COMPLETE_SERVICE,
+        ACTION_COMPLETE_SERVICE_PREVIEW,
         ACTION_CONFIRM_APPOINTMENT,
-        ACTION_REJECT_APPOINTMENT,
+        ACTION_REJECT_APPOINTMENT_PREVIEW,
         ACTION_START_SERVICE,
     )
 
@@ -112,7 +112,7 @@ def _stylist_today_rows(*, user, base_url: str, appointments: list[OrderDetail],
                 identity=identity,
                 user=user,
                 detail=detail,
-                action_key=ACTION_REJECT_APPOINTMENT,
+                action_key=ACTION_REJECT_APPOINTMENT_PREVIEW,
                 label=f"رد نوبت {to_persian_digits(index)}",
             )
             action_row = [button for button in (confirm, reject) if button]
@@ -137,7 +137,7 @@ def _stylist_today_rows(*, user, base_url: str, appointments: list[OrderDetail],
                 identity=identity,
                 user=user,
                 detail=detail,
-                action_key=ACTION_COMPLETE_SERVICE,
+                action_key=ACTION_COMPLETE_SERVICE_PREVIEW,
                 label=f"پایان خدمت {to_persian_digits(index)}",
             )
             if complete:

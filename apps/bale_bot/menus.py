@@ -21,6 +21,7 @@ MENU_STYLIST_SLOTS = "stylist_slots"
 MENU_STYLIST_BOOKING_LINK = "stylist_booking_link"
 MENU_STYLIST_PROMOTION = "stylist_promotion"
 MENU_MANAGER_TODAY = "manager_today"
+MENU_MANAGER_SALON = "manager_salon"
 MENU_MANAGER_SUMMARY = "manager_summary"
 MENU_MANAGER_SHIFTS = "manager_shifts"
 MENU_MANAGER_SLOTS = "manager_slots"
@@ -47,6 +48,19 @@ def _callback(value: str) -> str:
 
 def _role_callback(role_key: str) -> str:
     return _callback(role_key)
+
+
+def _manager_callback(menu_key: str, salon_id: int | None = None) -> str:
+    if salon_id:
+        return _callback(f"{menu_key}:{int(salon_id)}")
+    return _callback(menu_key)
+
+
+def _manager_role_salons(role) -> list[dict]:
+    if not role:
+        return []
+    salons = role.metadata.get("salons") or []
+    return [item for item in salons if isinstance(item, dict) and item.get("id")]
 
 
 def user_display_name(user) -> str:
@@ -215,11 +229,17 @@ def customer_menu(base_url: str) -> dict:
 
 
 def stylist_menu_text(user, role=None) -> str:
-    parts = [f"{user_display_name(user)}، کارهای امروزت از همین‌جا در دسترس است."]
+    parts = [f"{user_display_name(user)}، کارهای امروزت اینجاست."]
     if role:
-        active_count = role.metadata.get("active_salon_count") or 0
-        pending_count = role.metadata.get("pending_invite_count") or 0
-        parts.append(f"سالن فعال: {active_count} | دعوت در انتظار: {pending_count}")
+        today_count = role.metadata.get("today_appointment_count") or 0
+        pending_count = role.metadata.get("today_pending_count") or 0
+        in_progress_count = role.metadata.get("today_in_progress_count") or 0
+        parts.append(
+            f"امروز: {today_count} نوبت | منتظر تأیید: {pending_count} | در حال انجام: {in_progress_count}"
+        )
+        invite_count = role.metadata.get("pending_invite_count") or 0
+        if invite_count:
+            parts.append(f"دعوت همکاری در انتظار: {invite_count}")
     return "\n".join(parts)
 
 def stylist_menu(base_url: str) -> dict:
@@ -248,49 +268,104 @@ def stylist_menu(base_url: str) -> dict:
         ]
     }
 
-def manager_menu_text(user, role=None) -> str:
-    parts = [f"{user_display_name(user)}، وضعیت سالن و درخواست‌های مهم را از اینجا می‌بینی."]
+def manager_menu_text(user, role=None, *, selected_salon_name: str = "") -> str:
+    if selected_salon_name:
+        parts = [f"{user_display_name(user)}، {selected_salon_name}"]
+    else:
+        parts = [f"{user_display_name(user)}، وضعیت سالن و کارهای باز اینجاست."]
     if role:
+        today_count = role.metadata.get("today_appointment_count") or 0
+        open_count = role.metadata.get("open_staff_request_count") or 0
+        if selected_salon_name:
+            parts.append("برای جزئیات امروز یا درخواست‌ها یکی از گزینه‌های زیر را بزن.")
+        else:
+            parts.append(f"امروز: {today_count} نوبت | درخواست باز تیم: {open_count}")
         salon_count = role.metadata.get("salon_count") or 0
-        active_count = role.metadata.get("active_salon_count") or 0
-        parts.append(f"سالن‌ها: {salon_count} | فعال: {active_count}")
+        if salon_count > 1 and not selected_salon_name:
+            parts.append(f"تعداد سالن‌های تحت مدیریت: {salon_count}")
     return "\n".join(parts)
 
-def manager_menu(base_url: str, role=None) -> dict:
-    first_salon_id = role.metadata.get("first_salon_id") if role else None
+
+def manager_salon_selector_text(user, role=None) -> str:
+    salons = _manager_role_salons(role)
+    if not salons:
+        return manager_menu_text(user, role)
+    return (
+        f"{user_display_name(user)}، کدام سالن را می‌خواهی بررسی کنی؟\n"
+        "بعد از انتخاب، خلاصه امروز و درخواست‌های همان سالن را می‌بینی."
+    )
+
+
+def manager_salon_selector_menu(base_url: str, role=None) -> dict:
+    rows: list[list[dict[str, Any]]] = []
+    for salon in _manager_role_salons(role):
+        label = str(salon.get("name") or "سالن")
+        if not salon.get("is_active", True):
+            label += " (غیرفعال)"
+        rows.append(
+            [
+                {
+                    "text": label[:60],
+                    "callback_data": _manager_callback(
+                        MENU_MANAGER_SALON, int(salon["id"])
+                    ),
+                }
+            ]
+        )
+    rows.extend(
+        [
+            [{"text": "تغییر نقش", "callback_data": _callback(MENU_MAIN)}],
+            [{"text": "پشتیبانی", "url": _url(base_url, "support")}],
+        ]
+    )
+    return {"inline_keyboard": rows}
+
+
+def manager_menu(base_url: str, role=None, *, salon_id: int | None = None) -> dict:
+    if salon_id is None and role:
+        salon_id = role.metadata.get("first_salon_id")
     calendar_url = _safe_url(base_url, "dashboards:salon_manager_dashboard")
     reports_url = _safe_url(base_url, "dashboards:salon_manager_dashboard")
-    if first_salon_id:
-        calendar_url = _safe_url(base_url, "dashboards:appointment_calendar", salon_id=first_salon_id)
-        reports_url = _safe_url(base_url, "dashboards:reports_dashboard", salon_id=first_salon_id)
+    if salon_id:
+        calendar_url = _safe_url(base_url, "dashboards:appointment_calendar", salon_id=salon_id)
+        reports_url = _safe_url(base_url, "dashboards:reports_dashboard", salon_id=salon_id)
 
+    scoped = lambda key: _manager_callback(key, salon_id)
     return {
         "inline_keyboard": [
             [
-                {"text": "امروز سالن", "callback_data": _callback(MENU_MANAGER_TODAY)},
-                {"text": "خلاصه امروز", "callback_data": _callback(MENU_MANAGER_SUMMARY)},
+                {"text": "امروز سالن", "callback_data": scoped(MENU_MANAGER_TODAY)},
+                {"text": "خلاصه امروز", "callback_data": scoped(MENU_MANAGER_SUMMARY)},
             ],
             [
-                {"text": "درخواست‌های همکاری", "callback_data": _callback(MENU_MANAGER_REQUESTS)},
+                {"text": "درخواست‌های همکاری", "callback_data": scoped(MENU_MANAGER_REQUESTS)},
             ],
             [
-                {"text": "شیفت و مرخصی", "callback_data": _callback(MENU_MANAGER_SHIFTS)},
-                {"text": "وقت خالی متخصصان", "callback_data": _callback(MENU_MANAGER_SLOTS)},
+                {"text": "شیفت و مرخصی", "callback_data": scoped(MENU_MANAGER_SHIFTS)},
+                {"text": "وقت خالی متخصصان", "callback_data": scoped(MENU_MANAGER_SLOTS)},
             ],
             [
                 {"text": "تقویم کامل", "url": calendar_url},
                 {"text": "گزارش سالن", "url": reports_url},
             ],
             [
-                {"text": "متن و لینک تبلیغ", "callback_data": _callback(MENU_MANAGER_PROMOTION)},
+                {"text": "متن و لینک تبلیغ", "callback_data": scoped(MENU_MANAGER_PROMOTION)},
                 {"text": "داشبورد مدیر", "url": _safe_url(base_url, "dashboards:salon_manager_dashboard")},
             ],
             [
-                {"text": "تغییر نقش", "callback_data": _callback(MENU_MAIN)},
+                {
+                    "text": "انتخاب سالن" if len(_manager_role_salons(role)) > 1 else "تغییر نقش",
+                    "callback_data": (
+                        _callback(BotRoleKey.MANAGER)
+                        if len(_manager_role_salons(role)) > 1
+                        else _callback(MENU_MAIN)
+                    ),
+                },
                 {"text": "پشتیبانی", "url": _url(base_url, "support")},
             ],
         ]
     }
+
 
 def quick_links_text() -> str:
     return "دسترسی‌های سریع"
@@ -363,7 +438,15 @@ def menu_for_user(base_url: str, user) -> tuple[str, dict]:
     if role.key == BotRoleKey.STYLIST:
         return stylist_menu_text(user, role), stylist_menu(base_url)
     if role.key == BotRoleKey.MANAGER:
-        return manager_menu_text(user, role), manager_menu(base_url, role)
+        salons = _manager_role_salons(role)
+        if len(salons) > 1:
+            return manager_salon_selector_text(user, role), manager_salon_selector_menu(base_url, role)
+        selected_name = str(salons[0].get("name") or "") if salons else ""
+        selected_id = int(salons[0]["id"]) if salons else role.metadata.get("first_salon_id")
+        return (
+            manager_menu_text(user, role, selected_salon_name=selected_name),
+            manager_menu(base_url, role, salon_id=selected_id),
+        )
     return role_summary_text(context), role_selector_menu(base_url, context)
 
 
@@ -377,7 +460,15 @@ def menu_for_role(base_url: str, user, role_key: str) -> tuple[str, dict]:
     if role.key == BotRoleKey.STYLIST:
         return stylist_menu_text(user, role), stylist_menu(base_url)
     if role.key == BotRoleKey.MANAGER:
-        return manager_menu_text(user, role), manager_menu(base_url, role)
+        salons = _manager_role_salons(role)
+        if len(salons) > 1:
+            return manager_salon_selector_text(user, role), manager_salon_selector_menu(base_url, role)
+        selected_name = str(salons[0].get("name") or "") if salons else ""
+        selected_id = int(salons[0]["id"]) if salons else role.metadata.get("first_salon_id")
+        return (
+            manager_menu_text(user, role, selected_salon_name=selected_name),
+            manager_menu(base_url, role, salon_id=selected_id),
+        )
     return role_summary_text(context), role_selector_menu(base_url, context)
 
 

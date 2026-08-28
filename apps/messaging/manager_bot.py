@@ -38,6 +38,12 @@ def _fallback_url(base_url: str, path: str) -> str:
     return absolute_site_url(base_url, path)
 
 
+def _menu_callback(key: str, salon_id: int | None = None) -> str:
+    if salon_id:
+        return f"menu:{key}:{int(salon_id)}"
+    return f"menu:{key}"
+
+
 def _manager_profile(user):
     return getattr(user, "salon_manager_profile", None) if user else None
 
@@ -81,14 +87,21 @@ def _customer_name(detail: OrderDetail) -> str:
 
 def _manager_base_markup(base_url: str, salon: Salon | None = None) -> dict:
     rows: list[list[dict]] = []
+    salon_id = salon.pk if salon else None
     if salon:
+        rows.append(
+            [
+                {"text": "خلاصه امروز", "callback_data": _menu_callback("manager_summary", salon_id)},
+                {"text": "امروز سالن", "callback_data": _menu_callback("manager_today", salon_id)},
+            ]
+        )
         rows.append([
             {"text": "تقویم کامل", "url": _fallback_url(base_url, f"/dashboards/calendar/salon/{salon.pk}/")},
             {"text": "گزارش کامل", "url": _fallback_url(base_url, f"/dashboards/reports/salon/{salon.pk}/")},
         ])
     rows.append([
-        {"text": "شیفت و مرخصی", "url": _fallback_url(base_url, "/dashboards/scheduled_shifts/")},
-        {"text": "تیم سالن", "url": _fallback_url(base_url, "/dashboards/team_member/")},
+        {"text": "شیفت و مرخصی", "callback_data": _menu_callback("manager_shifts", salon_id)},
+        {"text": "درخواست‌های همکاری", "callback_data": _menu_callback("manager_requests", salon_id)},
     ])
     rows.append([{"text": "منوی مدیر", "callback_data": "menu:manager"}])
     return {"inline_keyboard": rows}
@@ -118,13 +131,13 @@ def _manager_action_button(*, provider, identity, user, related_object, action_k
 
 def _request_action_rows(*, user, provider, identity, item, kind: str, index: int) -> list[list[dict]]:
     from .manager_actions import (
-        ACTION_MANAGER_LEAVE_APPROVE,
-        ACTION_MANAGER_LEAVE_REJECT,
-        ACTION_MANAGER_MEMBERSHIP_ACCEPT,
+        ACTION_MANAGER_LEAVE_APPROVE_PREVIEW,
+        ACTION_MANAGER_LEAVE_REJECT_PREVIEW,
+        ACTION_MANAGER_MEMBERSHIP_ACCEPT_PREVIEW,
         ACTION_MANAGER_MEMBERSHIP_PROFILE,
-        ACTION_MANAGER_MEMBERSHIP_REJECT,
-        ACTION_MANAGER_SCHEDULE_APPROVE,
-        ACTION_MANAGER_SCHEDULE_REJECT,
+        ACTION_MANAGER_MEMBERSHIP_REJECT_PREVIEW,
+        ACTION_MANAGER_SCHEDULE_APPROVE_PREVIEW,
+        ACTION_MANAGER_SCHEDULE_REJECT_PREVIEW,
     )
 
     number = to_persian_digits(index)
@@ -133,12 +146,12 @@ def _request_action_rows(*, user, provider, identity, item, kind: str, index: in
         metadata = {"membership_id": item.pk}
         accept = _manager_action_button(
             provider=provider, identity=identity, user=user, related_object=item,
-            action_key=ACTION_MANAGER_MEMBERSHIP_ACCEPT,
+            action_key=ACTION_MANAGER_MEMBERSHIP_ACCEPT_PREVIEW,
             label=f"پذیرش همکاری {number}", salon_id=item.salon_id, metadata=metadata,
         )
         reject = _manager_action_button(
             provider=provider, identity=identity, user=user, related_object=item,
-            action_key=ACTION_MANAGER_MEMBERSHIP_REJECT,
+            action_key=ACTION_MANAGER_MEMBERSHIP_REJECT_PREVIEW,
             label=f"رد درخواست {number}", salon_id=item.salon_id, metadata=metadata,
         )
         profile = _manager_action_button(
@@ -155,12 +168,12 @@ def _request_action_rows(*, user, provider, identity, item, kind: str, index: in
         metadata = {"leave_request_id": item.pk}
         approve = _manager_action_button(
             provider=provider, identity=identity, user=user, related_object=item,
-            action_key=ACTION_MANAGER_LEAVE_APPROVE,
+            action_key=ACTION_MANAGER_LEAVE_APPROVE_PREVIEW,
             label=f"تأیید مرخصی {number}", salon_id=item.salon_id, metadata=metadata,
         )
         reject = _manager_action_button(
             provider=provider, identity=identity, user=user, related_object=item,
-            action_key=ACTION_MANAGER_LEAVE_REJECT,
+            action_key=ACTION_MANAGER_LEAVE_REJECT_PREVIEW,
             label=f"رد مرخصی {number}", salon_id=item.salon_id, metadata=metadata,
         )
         decision = [button for button in (approve, reject) if button]
@@ -170,12 +183,12 @@ def _request_action_rows(*, user, provider, identity, item, kind: str, index: in
         metadata = {"schedule_request_id": item.pk}
         approve = _manager_action_button(
             provider=provider, identity=identity, user=user, related_object=item,
-            action_key=ACTION_MANAGER_SCHEDULE_APPROVE,
+            action_key=ACTION_MANAGER_SCHEDULE_APPROVE_PREVIEW,
             label=f"تأیید برنامه {number}", salon_id=item.salon_id, metadata=metadata,
         )
         reject = _manager_action_button(
             provider=provider, identity=identity, user=user, related_object=item,
-            action_key=ACTION_MANAGER_SCHEDULE_REJECT,
+            action_key=ACTION_MANAGER_SCHEDULE_REJECT_PREVIEW,
             label=f"رد برنامه {number}", salon_id=item.salon_id, metadata=metadata,
         )
         decision = [button for button in (approve, reject) if button]
@@ -267,10 +280,10 @@ def render_manager_today_summary(
     ]
     markup = {
         "inline_keyboard": [
-            [{"text": "درخواست‌های همکاری", "callback_data": "menu:manager_requests"}],
+            [{"text": "درخواست‌های همکاری", "callback_data": _menu_callback("manager_requests", salon.pk)}],
             [
-                {"text": "شیفت و مرخصی", "callback_data": "menu:manager_shifts"},
-                {"text": "امروز سالن", "callback_data": "menu:manager_today"},
+                {"text": "شیفت و مرخصی", "callback_data": _menu_callback("manager_shifts", salon.pk)},
+                {"text": "امروز سالن", "callback_data": _menu_callback("manager_today", salon.pk)},
             ],
             [{"text": "منوی مدیر", "callback_data": "menu:manager"}],
         ]
@@ -335,6 +348,7 @@ def render_manager_shifts_overview(
     rows.extend(
         [
             [{"text": "مدیریت کامل شیفت‌ها", "url": _fallback_url(base_url, "/dashboards/scheduled_shifts/")}],
+            [{"text": "خلاصه امروز", "callback_data": _menu_callback("manager_summary", salon.pk)}],
             [{"text": "منوی مدیر", "callback_data": "menu:manager"}],
         ]
     )
@@ -383,7 +397,8 @@ def render_manager_pending_requests(
 
     rows.extend(
         [
-            [{"text": "شیفت و مرخصی", "callback_data": "menu:manager_shifts"}],
+            [{"text": "شیفت و مرخصی", "callback_data": _menu_callback("manager_shifts", salon.pk)}],
+            [{"text": "خلاصه امروز", "callback_data": _menu_callback("manager_summary", salon.pk)}],
             [{"text": "منوی مدیر", "callback_data": "menu:manager"}],
         ]
     )
@@ -437,7 +452,7 @@ def render_manager_membership_profile(
     rows.extend(
         [
             [{"text": "تیم سالن در سایت", "url": _fallback_url(base_url, "/dashboards/team_member/")}],
-            [{"text": "درخواست‌های همکاری", "callback_data": "menu:manager_requests"}],
+            [{"text": "درخواست‌های همکاری", "callback_data": _menu_callback("manager_requests", salon.pk)}],
         ]
     )
     return "\n".join(lines), {"inline_keyboard": rows}

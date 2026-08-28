@@ -25,9 +25,20 @@ from apps.stylists.models import (
     StaffScheduleRequest,
 )
 
-from .actions import MessagingActionContext, MessagingActionResult, register_messaging_action
+from .actions import (
+    MessagingActionContext,
+    MessagingActionResult,
+    build_action_callback_data,
+    issue_action_token,
+    register_messaging_action,
+)
 from .constants import MessagingActionStatus
 from .links import absolute_site_url
+from .bale_presenters import (
+    leave_request_block,
+    membership_request_block,
+    schedule_request_block,
+)
 from .manager_bot import (
     render_manager_membership_profile,
     render_manager_pending_requests,
@@ -44,6 +55,12 @@ ACTION_MANAGER_LEAVE_APPROVE = "manager.leave.approve"
 ACTION_MANAGER_LEAVE_REJECT = "manager.leave.reject"
 ACTION_MANAGER_SCHEDULE_APPROVE = "manager.schedule.approve"
 ACTION_MANAGER_SCHEDULE_REJECT = "manager.schedule.reject"
+ACTION_MANAGER_MEMBERSHIP_ACCEPT_PREVIEW = "manager.membership.accept.preview"
+ACTION_MANAGER_MEMBERSHIP_REJECT_PREVIEW = "manager.membership.reject.preview"
+ACTION_MANAGER_LEAVE_APPROVE_PREVIEW = "manager.leave.approve.preview"
+ACTION_MANAGER_LEAVE_REJECT_PREVIEW = "manager.leave.reject.preview"
+ACTION_MANAGER_SCHEDULE_APPROVE_PREVIEW = "manager.schedule.approve.preview"
+ACTION_MANAGER_SCHEDULE_REJECT_PREVIEW = "manager.schedule.reject.preview"
 ACTION_MANAGER_SHIFTS_OVERVIEW = "manager.shifts.overview"
 ACTION_MANAGER_TODAY_CALENDAR = "manager.today.calendar"
 ACTION_MANAGER_TODAY_SUMMARY = "manager.today.summary"
@@ -59,6 +76,12 @@ ACTION_LABELS = {
     ACTION_MANAGER_LEAVE_REJECT: "رد مرخصی",
     ACTION_MANAGER_SCHEDULE_APPROVE: "تأیید برنامه",
     ACTION_MANAGER_SCHEDULE_REJECT: "رد برنامه",
+    ACTION_MANAGER_MEMBERSHIP_ACCEPT_PREVIEW: "بررسی پذیرش همکاری",
+    ACTION_MANAGER_MEMBERSHIP_REJECT_PREVIEW: "بررسی رد همکاری",
+    ACTION_MANAGER_LEAVE_APPROVE_PREVIEW: "بررسی تأیید مرخصی",
+    ACTION_MANAGER_LEAVE_REJECT_PREVIEW: "بررسی رد مرخصی",
+    ACTION_MANAGER_SCHEDULE_APPROVE_PREVIEW: "بررسی تأیید برنامه",
+    ACTION_MANAGER_SCHEDULE_REJECT_PREVIEW: "بررسی رد برنامه",
     ACTION_MANAGER_SHIFTS_OVERVIEW: "بررسی شیفت‌ها",
     ACTION_MANAGER_TODAY_CALENDAR: "تقویم امروز",
     ACTION_MANAGER_TODAY_SUMMARY: "خلاصه امروز",
@@ -120,14 +143,15 @@ def _calendar_url(context: MessagingActionContext, salon_id: int) -> str:
 
 def _manager_result_markup(context: MessagingActionContext, *, salon_id: int | None = None, section: str = "main") -> dict:
     rows = []
+    suffix = f":{int(salon_id)}" if salon_id else ""
     if salon_id:
         rows.append([
-            {"text": "تقویم امروز", "callback_data": "menu:manager_today"},
+            {"text": "امروز سالن", "callback_data": f"menu:manager_today{suffix}"},
             {"text": "تقویم کامل", "url": _calendar_url(context, salon_id)},
         ])
     rows.append([
-        {"text": "شیفت و مرخصی", "callback_data": "menu:manager_shifts"},
-        {"text": "درخواست‌های همکاری", "callback_data": "menu:manager_requests"},
+        {"text": "شیفت و مرخصی", "callback_data": f"menu:manager_shifts{suffix}"},
+        {"text": "درخواست‌های همکاری", "callback_data": f"menu:manager_requests{suffix}"},
     ])
     rows.append([{"text": "منوی مدیر", "callback_data": "menu:manager"}])
     return {"inline_keyboard": rows}
@@ -158,6 +182,116 @@ def _get_schedule_request(context: MessagingActionContext) -> StaffScheduleReque
     if not request_id:
         raise ValidationError("درخواست برنامه کاری مرتبط با این دکمه پیدا نشد.")
     return StaffScheduleRequest.objects.select_related("salon__salon_manager__user", "stylist__user", "service").get(pk=request_id)
+
+
+def _preview_confirm_button(
+    context: MessagingActionContext,
+    *,
+    related_object,
+    action_key: str,
+    label: str,
+    salon_id: int,
+    metadata: dict,
+) -> dict:
+    raw_token, _ = issue_action_token(
+        provider=context.provider,
+        identity=context.identity,
+        user=context.user,
+        notification_delivery=context.token.notification_delivery,
+        related_object=related_object,
+        action_key=action_key,
+        audience_role="manager",
+        salon_id=salon_id,
+        metadata={"source": "manager_decision_preview", **metadata},
+    )
+    return {"text": label, "callback_data": build_action_callback_data(raw_token)}
+
+
+def _manager_decision_preview(
+    context: MessagingActionContext,
+    *,
+    kind: str,
+    approved: bool | None = None,
+) -> MessagingActionResult:
+    if kind == "membership":
+        item = _get_membership(context)
+        _check_manager_salon_scope(context, item.salon)
+        if item.status != SalonMembershipStatus.PENDING_ACCEPTANCE:
+            raise ValidationError("این درخواست همکاری قبلاً بررسی شده است.")
+        target_action = (
+            ACTION_MANAGER_MEMBERSHIP_ACCEPT
+            if approved
+            else ACTION_MANAGER_MEMBERSHIP_REJECT
+        )
+        confirm_label = "بله، همکاری را بپذیر" if approved else "بله، درخواست را رد کن"
+        heading = "پذیرش این همکاری؟" if approved else "رد این درخواست همکاری؟"
+        text = membership_request_block(item, heading=heading)
+        note = (
+            "با پذیرش، متخصص به تیم فعال سالن اضافه می‌شود و دسترسی‌های همکاری برای او فعال می‌شود."
+            if approved
+            else "با رد، این درخواست بسته می‌شود و نتیجه برای متخصص ارسال می‌شود."
+        )
+        metadata = {"membership_id": item.pk}
+        back_key = "manager_requests"
+    elif kind == "leave":
+        item = _get_leave_request(context)
+        _check_manager_salon_scope(context, item.salon)
+        if item.status != StaffLeaveRequest.Status.PENDING:
+            raise ValidationError("این درخواست مرخصی قبلاً بررسی شده است.")
+        target_action = ACTION_MANAGER_LEAVE_APPROVE if approved else ACTION_MANAGER_LEAVE_REJECT
+        confirm_label = "بله، مرخصی را تأیید کن" if approved else "بله، مرخصی را رد کن"
+        heading = "تأیید این مرخصی؟" if approved else "رد این مرخصی؟"
+        text = leave_request_block(item, heading=heading)
+        note = (
+            "اگر در این بازه نوبت ثبت شده، قبل از تأیید مطمئن شو پوشش آن مشخص است."
+            if approved
+            else "با رد، درخواست بسته می‌شود و نتیجه برای متخصص ثبت خواهد شد."
+        )
+        metadata = {"leave_request_id": item.pk}
+        back_key = "manager_shifts"
+    elif kind == "schedule":
+        item = _get_schedule_request(context)
+        _check_manager_salon_scope(context, item.salon)
+        if item.status != StaffScheduleRequest.Status.PENDING:
+            raise ValidationError("این درخواست برنامه کاری قبلاً بررسی شده است.")
+        target_action = ACTION_MANAGER_SCHEDULE_APPROVE if approved else ACTION_MANAGER_SCHEDULE_REJECT
+        confirm_label = "بله، برنامه را تأیید کن" if approved else "بله، برنامه را رد کن"
+        heading = "تأیید این برنامه کاری؟" if approved else "رد این برنامه کاری؟"
+        text = schedule_request_block(item, heading=heading)
+        note = (
+            "با تأیید، این برنامه برای متخصص ثبت می‌شود."
+            if approved
+            else "با رد، این درخواست بسته می‌شود و برنامه تغییری نمی‌کند."
+        )
+        metadata = {"schedule_request_id": item.pk}
+        back_key = "manager_shifts"
+    else:
+        raise ValidationError("این تصمیم از داخل ربات قابل بررسی نیست.")
+
+    confirm = _preview_confirm_button(
+        context,
+        related_object=item,
+        action_key=target_action,
+        label=confirm_label,
+        salon_id=item.salon_id,
+        metadata=metadata,
+    )
+    suffix = f":{int(item.salon_id)}"
+    return MessagingActionResult(
+        status=MessagingActionStatus.SUCCEEDED,
+        user_message=f"{text}\n\n{note}",
+        result={
+            "preview": True,
+            "target_action": target_action,
+            "salon_id": item.salon_id,
+        },
+        reply_markup={
+            "inline_keyboard": [
+                [confirm],
+                [{"text": "انصراف", "callback_data": f"menu:{back_key}{suffix}"}],
+            ]
+        },
+    )
 
 
 def _notify_stylist_membership_review(*, membership: SalonMembership, actor, accepted: bool) -> None:
@@ -367,6 +501,54 @@ def manager_schedule_reject_action(context: MessagingActionContext) -> Messaging
         return MessagingActionResult(status=MessagingActionStatus.FAILED, user_message=text, error_message=text, result={"error_code": "manager_schedule_reject_failed", "message": text})
 
 
+def manager_membership_accept_preview_action(context: MessagingActionContext) -> MessagingActionResult:
+    try:
+        return _manager_decision_preview(context, kind="membership", approved=True)
+    except Exception as exc:
+        text = _validation_text(exc)
+        return MessagingActionResult(status=MessagingActionStatus.FAILED, user_message=text, error_message=text, result={"error_code": "manager_membership_preview_failed", "message": text})
+
+
+def manager_membership_reject_preview_action(context: MessagingActionContext) -> MessagingActionResult:
+    try:
+        return _manager_decision_preview(context, kind="membership", approved=False)
+    except Exception as exc:
+        text = _validation_text(exc)
+        return MessagingActionResult(status=MessagingActionStatus.FAILED, user_message=text, error_message=text, result={"error_code": "manager_membership_preview_failed", "message": text})
+
+
+def manager_leave_approve_preview_action(context: MessagingActionContext) -> MessagingActionResult:
+    try:
+        return _manager_decision_preview(context, kind="leave", approved=True)
+    except Exception as exc:
+        text = _validation_text(exc)
+        return MessagingActionResult(status=MessagingActionStatus.FAILED, user_message=text, error_message=text, result={"error_code": "manager_leave_preview_failed", "message": text})
+
+
+def manager_leave_reject_preview_action(context: MessagingActionContext) -> MessagingActionResult:
+    try:
+        return _manager_decision_preview(context, kind="leave", approved=False)
+    except Exception as exc:
+        text = _validation_text(exc)
+        return MessagingActionResult(status=MessagingActionStatus.FAILED, user_message=text, error_message=text, result={"error_code": "manager_leave_preview_failed", "message": text})
+
+
+def manager_schedule_approve_preview_action(context: MessagingActionContext) -> MessagingActionResult:
+    try:
+        return _manager_decision_preview(context, kind="schedule", approved=True)
+    except Exception as exc:
+        text = _validation_text(exc)
+        return MessagingActionResult(status=MessagingActionStatus.FAILED, user_message=text, error_message=text, result={"error_code": "manager_schedule_preview_failed", "message": text})
+
+
+def manager_schedule_reject_preview_action(context: MessagingActionContext) -> MessagingActionResult:
+    try:
+        return _manager_decision_preview(context, kind="schedule", approved=False)
+    except Exception as exc:
+        text = _validation_text(exc)
+        return MessagingActionResult(status=MessagingActionStatus.FAILED, user_message=text, error_message=text, result={"error_code": "manager_schedule_preview_failed", "message": text})
+
+
 def manager_shifts_overview_action(context: MessagingActionContext) -> MessagingActionResult:
     return _view_result(context, render_manager_shifts_overview)
 
@@ -399,6 +581,12 @@ def register_manager_messaging_actions() -> None:
         ACTION_MANAGER_LEAVE_REJECT: manager_leave_reject_action,
         ACTION_MANAGER_SCHEDULE_APPROVE: manager_schedule_approve_action,
         ACTION_MANAGER_SCHEDULE_REJECT: manager_schedule_reject_action,
+        ACTION_MANAGER_MEMBERSHIP_ACCEPT_PREVIEW: manager_membership_accept_preview_action,
+        ACTION_MANAGER_MEMBERSHIP_REJECT_PREVIEW: manager_membership_reject_preview_action,
+        ACTION_MANAGER_LEAVE_APPROVE_PREVIEW: manager_leave_approve_preview_action,
+        ACTION_MANAGER_LEAVE_REJECT_PREVIEW: manager_leave_reject_preview_action,
+        ACTION_MANAGER_SCHEDULE_APPROVE_PREVIEW: manager_schedule_approve_preview_action,
+        ACTION_MANAGER_SCHEDULE_REJECT_PREVIEW: manager_schedule_reject_preview_action,
         ACTION_MANAGER_SHIFTS_OVERVIEW: manager_shifts_overview_action,
         ACTION_MANAGER_TODAY_CALENDAR: manager_today_calendar_action,
         ACTION_MANAGER_TODAY_SUMMARY: manager_today_summary_action,

@@ -338,7 +338,7 @@ class MessagingNotificationDeliveryStage5Tests(TestCase):
         self.assertEqual(log.status, MessagingMessageStatus.SKIPPED)
         self.assertEqual(log.identity, identity)
         self.assertIn("یادآوری نوبت", log.text)
-        self.assertIn("مشاهده در سایت", log.text)
+        self.assertIn(delivery.recipient.notification.action_url, log.text)
         self.assertNotIn("reply_markup", log.payload)
 
     @override_settings(

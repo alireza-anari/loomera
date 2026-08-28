@@ -111,6 +111,40 @@ def detect_user_bot_roles(user) -> UserBotRoleContext:
                 "active_salon_count": _safe_count(active_memberships),
                 "pending_invite_count": _safe_count(pending_memberships),
             }
+            try:
+                from django.utils import timezone
+                from apps.orders.models import OrderDetail
+
+                today = timezone.localdate()
+                today_items = OrderDetail.objects.filter(
+                    stylist=stylist,
+                    date=today,
+                    order__status__in=["pending", "confirmed", "paid"],
+                )
+                metadata.update(
+                    {
+                        "today_appointment_count": _safe_count(today_items),
+                        "today_pending_count": _safe_count(
+                            today_items.filter(
+                                confirmation_status=OrderDetail.ConfirmationStatus.PENDING
+                            )
+                        ),
+                        "today_in_progress_count": _safe_count(
+                            today_items.filter(
+                                service_started_at__isnull=False,
+                                service_completed_at__isnull=True,
+                            )
+                        ),
+                    }
+                )
+            except Exception:
+                metadata.update(
+                    {
+                        "today_appointment_count": 0,
+                        "today_pending_count": 0,
+                        "today_in_progress_count": 0,
+                    }
+                )
         except Exception:
             metadata = {"active_salon_count": 0, "pending_invite_count": 0}
         roles.append(
@@ -130,13 +164,69 @@ def detect_user_bot_roles(user) -> UserBotRoleContext:
             from apps.salons.models import Salon
 
             salons = Salon.objects.filter(salon_manager=manager)
+            ordered_salons = list(
+                salons.order_by("-is_active", "salon_name", "id").values(
+                    "id", "salon_name", "is_active"
+                )
+            )
+            salon_ids = [item["id"] for item in ordered_salons]
             metadata = {
-                "salon_count": _safe_count(salons),
-                "active_salon_count": _safe_count(salons.filter(is_active=True)),
-                "first_salon_id": salons.order_by("id").values_list("id", flat=True).first(),
+                "salon_count": len(ordered_salons),
+                "active_salon_count": sum(1 for item in ordered_salons if item["is_active"]),
+                "first_salon_id": ordered_salons[0]["id"] if ordered_salons else None,
+                "salons": [
+                    {
+                        "id": item["id"],
+                        "name": item["salon_name"],
+                        "is_active": bool(item["is_active"]),
+                    }
+                    for item in ordered_salons
+                ],
             }
+            try:
+                from django.utils import timezone
+                from apps.orders.models import OrderDetail
+                from apps.stylists.models import StaffLeaveRequest, StaffScheduleRequest
+                from apps.salons.models import SalonMembership, SalonMembershipStatus
+
+                today = timezone.localdate()
+                today_items = OrderDetail.objects.filter(
+                    salon_id__in=salon_ids,
+                    date=today,
+                    order__status__in=["pending", "confirmed", "paid"],
+                )
+                membership_pending = SalonMembership.objects.filter(
+                    salon_id__in=salon_ids,
+                    status=SalonMembershipStatus.PENDING_ACCEPTANCE,
+                    stylist__isnull=False,
+                )
+                leave_pending = StaffLeaveRequest.objects.filter(
+                    salon_id__in=salon_ids,
+                    status=StaffLeaveRequest.Status.PENDING,
+                )
+                schedule_pending = StaffScheduleRequest.objects.filter(
+                    salon_id__in=salon_ids,
+                    status=StaffScheduleRequest.Status.PENDING,
+                )
+                metadata.update(
+                    {
+                        "today_appointment_count": _safe_count(today_items),
+                        "open_staff_request_count": (
+                            _safe_count(membership_pending)
+                            + _safe_count(leave_pending)
+                            + _safe_count(schedule_pending)
+                        ),
+                    }
+                )
+            except Exception:
+                metadata.update(
+                    {
+                        "today_appointment_count": 0,
+                        "open_staff_request_count": 0,
+                    }
+                )
         except Exception:
-            metadata = {"salon_count": 0, "active_salon_count": 0, "first_salon_id": None}
+            metadata = {"salon_count": 0, "active_salon_count": 0, "first_salon_id": None, "salons": [], "today_appointment_count": 0, "open_staff_request_count": 0}
         roles.append(
             UserBotRole(
                 key=BotRoleKey.MANAGER,

@@ -29,12 +29,15 @@ from .actions import (
 )
 from .constants import MessagingActionStatus
 from .links import absolute_site_url
+from .bale_presenters import appointment_block
 
 
 ACTION_CONFIRM_APPOINTMENT = "stylist.appointment.confirm"
 ACTION_REJECT_APPOINTMENT = "stylist.appointment.reject"
 ACTION_START_SERVICE = "stylist.service.start"
 ACTION_COMPLETE_SERVICE = "stylist.service.complete"
+ACTION_REJECT_APPOINTMENT_PREVIEW = "stylist.appointment.reject.preview"
+ACTION_COMPLETE_SERVICE_PREVIEW = "stylist.service.complete.preview"
 
 
 ACTION_LABELS = {
@@ -42,6 +45,8 @@ ACTION_LABELS = {
     ACTION_REJECT_APPOINTMENT: "رد نوبت",
     ACTION_START_SERVICE: "شروع خدمت",
     ACTION_COMPLETE_SERVICE: "پایان خدمت",
+    ACTION_REJECT_APPOINTMENT_PREVIEW: "بررسی رد نوبت",
+    ACTION_COMPLETE_SERVICE_PREVIEW: "بررسی پایان خدمت",
 }
 
 
@@ -124,7 +129,7 @@ def _result_markup(context: MessagingActionContext, detail: OrderDetail) -> dict
             identity=context.identity,
             user=context.user,
             related_object=detail,
-            action_key=ACTION_COMPLETE_SERVICE,
+            action_key=ACTION_COMPLETE_SERVICE_PREVIEW,
             audience_role="stylist",
             salon_id=detail.salon_id,
             metadata={
@@ -147,6 +152,77 @@ def _result_markup(context: MessagingActionContext, detail: OrderDetail) -> dict
         ]
     )
     return {"inline_keyboard": rows}
+
+
+def _stylist_decision_preview(
+    context: MessagingActionContext, *, decision: str
+) -> MessagingActionResult:
+    detail = _get_detail(context)
+    _check_stylist_scope(context, detail)
+
+    if getattr(detail.order, "status", "") == "cancelled":
+        raise ValidationError("این رزرو لغو شده است.")
+
+    if decision == "reject":
+        if detail.confirmation_status != OrderDetail.ConfirmationStatus.PENDING:
+            raise ValidationError("این نوبت دیگر در وضعیت انتظار تأیید نیست.")
+        target_action = ACTION_REJECT_APPOINTMENT
+        heading = "رد این نوبت؟"
+        note = "با رد نوبت، این خدمت لغو می‌شود و نتیجه برای مشتری و مدیر سالن ارسال خواهد شد."
+        confirm_label = "بله، نوبت را رد کن"
+    elif decision == "complete":
+        if not detail.service_started_at:
+            raise ValidationError("شروع این خدمت هنوز ثبت نشده است.")
+        if detail.service_completed_at:
+            raise ValidationError("پایان این خدمت قبلاً ثبت شده است.")
+        target_action = ACTION_COMPLETE_SERVICE
+        heading = "پایان خدمت ثبت شود؟"
+        note = "بعد از ثبت پایان، خدمت انجام‌شده محسوب می‌شود و ادامه مراحل تسویه یا ثبت نظر بر اساس وضعیت رزرو انجام می‌شود."
+        confirm_label = "بله، پایان خدمت را ثبت کن"
+    else:
+        raise ValidationError("این تصمیم از داخل ربات قابل بررسی نیست.")
+
+    raw_token, _ = issue_action_token(
+        provider=context.provider,
+        identity=context.identity,
+        user=context.user,
+        notification_delivery=context.token.notification_delivery,
+        related_object=detail,
+        action_key=target_action,
+        audience_role="stylist",
+        salon_id=detail.salon_id,
+        metadata={
+            "source": "stylist_decision_preview",
+            "order_detail_id": detail.pk,
+        },
+    )
+    text = appointment_block(
+        detail,
+        heading=heading,
+        include_salon=True,
+        include_status=True,
+    )
+    return MessagingActionResult(
+        status=MessagingActionStatus.SUCCEEDED,
+        user_message=f"{text}\n\n{note}",
+        result={
+            "preview": True,
+            "target_action": target_action,
+            "order_detail_id": detail.pk,
+            "salon_id": detail.salon_id,
+        },
+        reply_markup={
+            "inline_keyboard": [
+                [
+                    {
+                        "text": confirm_label,
+                        "callback_data": build_action_callback_data(raw_token),
+                    }
+                ],
+                [{"text": "انصراف", "callback_data": "menu:stylist_today"}],
+            ]
+        },
+    )
 
 
 def _apply_lightweight_stylist_lifecycle_action(detail: OrderDetail, action: str, *, actor=None) -> str:
@@ -322,12 +398,54 @@ def complete_service_action(context: MessagingActionContext) -> MessagingActionR
     return _run_lifecycle_action(context, action="complete_service")
 
 
+def reject_appointment_preview_action(context: MessagingActionContext) -> MessagingActionResult:
+    try:
+        return _stylist_decision_preview(context, decision="reject")
+    except OrderDetail.DoesNotExist:
+        return MessagingActionResult(
+            status=MessagingActionStatus.FAILED,
+            user_message="نوبت مرتبط با این دکمه دیگر در دسترس نیست.",
+            result={"error_code": "order_detail_missing"},
+            error_message="order_detail_missing",
+        )
+    except Exception as exc:
+        text = _validation_text(exc)
+        return MessagingActionResult(
+            status=MessagingActionStatus.FAILED,
+            user_message=text,
+            result={"error_code": "stylist_preview_failed", "message": text},
+            error_message=text,
+        )
+
+
+def complete_service_preview_action(context: MessagingActionContext) -> MessagingActionResult:
+    try:
+        return _stylist_decision_preview(context, decision="complete")
+    except OrderDetail.DoesNotExist:
+        return MessagingActionResult(
+            status=MessagingActionStatus.FAILED,
+            user_message="نوبت مرتبط با این دکمه دیگر در دسترس نیست.",
+            result={"error_code": "order_detail_missing"},
+            error_message="order_detail_missing",
+        )
+    except Exception as exc:
+        text = _validation_text(exc)
+        return MessagingActionResult(
+            status=MessagingActionStatus.FAILED,
+            user_message=text,
+            result={"error_code": "stylist_preview_failed", "message": text},
+            error_message=text,
+        )
+
+
 def register_stylist_messaging_actions() -> None:
     handlers: dict[str, Any] = {
         ACTION_CONFIRM_APPOINTMENT: confirm_appointment_action,
         ACTION_REJECT_APPOINTMENT: reject_appointment_action,
         ACTION_START_SERVICE: start_service_action,
         ACTION_COMPLETE_SERVICE: complete_service_action,
+        ACTION_REJECT_APPOINTMENT_PREVIEW: reject_appointment_preview_action,
+        ACTION_COMPLETE_SERVICE_PREVIEW: complete_service_preview_action,
     }
     for key, handler in handlers.items():
         try:

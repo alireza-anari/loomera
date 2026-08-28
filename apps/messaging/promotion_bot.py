@@ -463,7 +463,7 @@ def render_manager_promotion_pack(user, base_url: str, *, salon_id: int | None =
     rows.extend([
         [
             {"text": "مدیریت لینک‌ها", "url": _manager_quick_links_url(base_url)},
-            {"text": "وقت خالی متخصصان", "callback_data": "menu:manager_slots"},
+            {"text": "وقت خالی متخصصان", "callback_data": f"menu:manager_slots:{salon.pk}"},
         ],
         [
             {"text": "محتوا و تبلیغ سایت", "url": _content_dashboard_url(base_url)},
