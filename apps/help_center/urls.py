@@ -16,8 +16,18 @@ urlpatterns = [
     path("api/feedback/", views.feedback_api, name="feedback_api"),
     path("api/support-handoff/", views.support_handoff_api, name="support_handoff_api"),
     path(
+        "api/actions/assistant/",
+        action_views.assistant_action_api,
+        name="assistant_action_api",
+    ),
+    path(
         "api/actions/customer-discovery/",
         action_views.customer_discovery_api,
         name="customer_discovery_api",
+    ),
+    path(
+        "api/actions/customer-booking/",
+        action_views.customer_booking_api,
+        name="customer_booking_api",
     ),
 ]

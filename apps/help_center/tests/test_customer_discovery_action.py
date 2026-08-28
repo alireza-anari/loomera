@@ -74,6 +74,24 @@ class CustomerDiscoveryActionTests(TestCase):
         self.assertTrue(result["handled"])
         self.assertIsNone(result["action_state"])
 
+    def test_ordinal_result_selection_starts_booking_request(self):
+        result = run_customer_discovery(
+            "اولی",
+            state={
+                "mode": "customer_discovery",
+                "service_id": self.service.pk,
+                "service_name": self.service.service_name,
+                "awaiting": "",
+                "result_salons": [
+                    {"salon_id": 44, "catalog_service_id": self.service.pk},
+                    {"salon_id": 55, "catalog_service_id": self.service.pk},
+                ],
+            },
+        )
+        self.assertTrue(result["handled"])
+        self.assertEqual(result["kind"], "discovery_select_result")
+        self.assertEqual(result["booking_request"]["salon_id"], 44)
+
     def test_short_unrelated_help_topic_escapes_pending_discovery(self):
         result = run_customer_discovery(
             "رمزم یادم رفته",

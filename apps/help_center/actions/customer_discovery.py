@@ -302,6 +302,7 @@ def _search_intent(question: str, state: dict | None = None) -> bool:
         return True
 
     refinement_terms = (
+        "اولی", "دومی", "سومی", "چهارمی", "گزینه اول", "گزینه دوم", "گزینه سوم", "گزینه چهارم",
         "امروز", "فردا", "پس فردا", "صبح", "ظهر", "بعدازظهر", "عصر", "شب",
         "بودجه", "قیمت", "تومان", "تومن", "هزار", "میلیون", "زیر", "حداکثر",
         "بدون محدودیت", "همه محله", "همه محدوده", "نزدیک من", "اطراف من",
@@ -361,7 +362,7 @@ def _filter_chips(spec: DiscoveryInput) -> list[dict]:
     return chips
 
 
-def _result_payload(salon, *, distance_supported: bool) -> dict:
+def _result_payload(salon, *, distance_supported: bool, catalog_service_id: int | None = None) -> dict:
     image_url = ""
     try:
         if salon.banner_image:
@@ -373,6 +374,7 @@ def _result_payload(salon, *, distance_supported: bool) -> dict:
     return {
         "id": salon.pk,
         "name": salon.salon_name,
+        "catalog_service_id": catalog_service_id,
         "location": getattr(salon, "search_location_label", "") or (salon.address or ""),
         "price": int(price) if price is not None else None,
         "rating": round(float(getattr(salon, "avg_score", 0) or 0), 1),
@@ -400,6 +402,25 @@ def _clarification(*, answer: str, state: dict, suggestions=None, request_locati
     }
 
 
+
+def _selected_result_from_message(question: str, state: dict) -> dict | None:
+    results = state.get("result_salons") if isinstance(state.get("result_salons"), list) else []
+    if not results:
+        return None
+    text = _normalized(question)
+    mapping = (
+        (0, ("اولی", "گزینه اول", "اولین گزینه", "همون اولی")),
+        (1, ("دومی", "گزینه دوم", "دومین گزینه", "همون دومی")),
+        (2, ("سومی", "گزینه سوم", "سومین گزینه", "همون سومی")),
+        (3, ("چهارمی", "گزینه چهارم", "چهارمین گزینه", "همون چهارمی")),
+    )
+    for index, phrases in mapping:
+        if any(_normalized(phrase) in text for phrase in phrases) and index < len(results):
+            item = results[index]
+            if isinstance(item, dict) and item.get("salon_id"):
+                return item
+    return None
+
 def run_customer_discovery(
     question: str,
     *,
@@ -420,6 +441,23 @@ def run_customer_discovery(
             "action_state": None,
             "filters": [],
             "results": [],
+            "suggestions": [],
+            "request_location": False,
+        }
+
+    selected_result = _selected_result_from_message(question, state)
+    if selected_result:
+        return {
+            "handled": True,
+            "kind": "discovery_select_result",
+            "answer": "حتماً؛ بریم متخصص و زمان آزاد همین مجموعه رو انتخاب کنیم.",
+            "action_state": state,
+            "booking_request": {
+                "salon_id": selected_result.get("salon_id"),
+                "catalog_service_id": selected_result.get("catalog_service_id") or state.get("service_id"),
+            },
+            "results": [],
+            "filters": [],
             "suggestions": [],
             "request_location": False,
         }
@@ -505,7 +543,14 @@ def run_customer_discovery(
     search_data = search_salons(filters)
     salons = list(search_data.get("salons") or [])[:4]
     distance_supported = bool(search_data.get("distance_supported"))
-    results = [_result_payload(item, distance_supported=distance_supported) for item in salons]
+    results = [
+        _result_payload(
+            item,
+            distance_supported=distance_supported,
+            catalog_service_id=spec.service_id,
+        )
+        for item in salons
+    ]
 
     search_url = reverse("search:search_page")
     if params:
@@ -524,7 +569,16 @@ def run_customer_discovery(
             "handled": True,
             "kind": "discovery_results",
             "answer": answer,
-            "action_state": spec.as_state(),
+            "action_state": {
+                **spec.as_state(),
+                "result_salons": [
+                    {
+                        "salon_id": item["id"],
+                        "catalog_service_id": spec.service_id,
+                    }
+                    for item in results
+                ],
+            },
             "filters": _filter_chips(spec),
             "results": results,
             "search_url": search_url,

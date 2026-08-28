@@ -1,12 +1,14 @@
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'css/components/help_assistant.css' %}?v=20260827-12">
+<link rel="stylesheet" href="{% static 'css/components/help_assistant.css' %}?v=20260828-21">
 <div
   class="lm-help-assistant"
   data-help-assistant
   data-context-url="{% url 'help_center:context_api' %}"
   data-chat-url="{% url 'help_center:chat_api' %}"
+  data-assistant-action-url="{% url 'help_center:assistant_action_api' %}"
   data-customer-discovery-url="{% url 'help_center:customer_discovery_api' %}"
+  data-customer-booking-url="{% url 'help_center:customer_booking_api' %}"
   data-conversation-url="{% url 'help_center:conversation_api' %}"
   data-feedback-url="{% url 'help_center:feedback_api' %}"
   data-handoff-url="{% url 'help_center:support_handoff_api' %}"
@@ -100,4 +102,4 @@
   </section>
 </div>
 
-<script type="module" src="{% static 'js/components/help_assistant.js' %}?v=20260827-12"></script>
+<script type="module" src="{% static 'js/components/help_assistant.js' %}?v=20260828-21"></script>
