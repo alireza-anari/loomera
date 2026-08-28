@@ -1301,3 +1301,683 @@ a.lm-help-assistant__flow-title:hover {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   Lومی v5.3.1 — mobile viewport hotfix
+   Keep this block LAST. It intentionally overrides every generic panel rule.
+   ========================================================================== */
+@media (max-width: 767px) {
+  .lm-help-assistant {
+    left: 12px !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: calc(5.35rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .lm-help-assistant__panel {
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+
+    width: 100vw !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    transform: none !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-sizing: border-box;
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+
+  .lm-help-assistant__header {
+    flex: 0 0 auto;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  }
+
+  .lm-help-assistant__messages {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .lm-help-assistant__handoff,
+  .lm-help-assistant__composer {
+    flex: 0 0 auto;
+  }
+
+  .lm-help-assistant__composer {
+    padding-bottom: calc(9px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body:has(.lm-help-assistant__panel:not([hidden])) {
+    overflow: hidden;
+  }
+}
+
+/* Slightly roomier centered card on tablets, without changing desktop. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .lm-help-assistant__panel {
+    left: 50% !important;
+    right: auto !important;
+    width: min(430px, calc(100vw - 32px)) !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+
+@media (max-width: 767px) {
+  body.lm-help-assistant-open {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+  }
+}
+
+/* ==========================================================================
+   Lومی v5.3.2 — mobile readability polish
+   ========================================================================== */
+.lm-help-assistant__answer-paragraph {
+  margin: 0;
+}
+.lm-help-assistant__answer-paragraph + .lm-help-assistant__answer-paragraph {
+  margin-top: .72rem;
+}
+.lm-help-assistant__answer-more {
+  margin-top: .65rem;
+  overflow: hidden;
+  border-top: 1px solid rgba(109, 85, 187, .09);
+}
+.lm-help-assistant__answer-more summary {
+  display: flex;
+  min-height: 36px;
+  cursor: pointer;
+  list-style: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .55rem .1rem .15rem;
+  color: var(--lm-primary);
+  font-weight: 850;
+}
+.lm-help-assistant__answer-more summary::-webkit-details-marker {
+  display: none;
+}
+.lm-help-assistant__answer-more summary i {
+  transition: transform .18s ease;
+}
+.lm-help-assistant__answer-more[open] summary i {
+  transform: rotate(180deg);
+}
+.lm-help-assistant__answer-more-body {
+  padding-top: .45rem;
+}
+
+@media (max-width: 767px) {
+  /* Reading area */
+  .lm-help-assistant__messages {
+    padding: 14px 12px 18px !important;
+    scroll-padding-bottom: 92px;
+  }
+
+  .lm-help-assistant__message {
+    gap: 0;
+    margin: 12px 0;
+  }
+
+  /* The avatar is useful on desktop but steals precious reading width on phone. */
+  .lm-help-assistant__message--assistant > .lm-help-assistant__message-avatar {
+    display: none;
+  }
+
+  .lm-help-assistant__message-stack,
+  .lm-help-assistant__message--assistant .lm-help-assistant__message-stack {
+    width: 100%;
+    max-width: 100% !important;
+  }
+
+  .lm-help-assistant__message--user .lm-help-assistant__message-stack {
+    width: auto;
+    max-width: 88% !important;
+  }
+
+  .lm-help-assistant__bubble {
+    padding: 12px 13px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 560;
+    line-height: 1.95;
+    letter-spacing: 0;
+  }
+
+  .lm-help-assistant__message--assistant .lm-help-assistant__bubble {
+    width: 100%;
+    border-radius: 15px;
+  }
+
+  .lm-help-assistant__message--user .lm-help-assistant__bubble {
+    padding: 10px 12px;
+    font-size: 13.5px;
+    line-height: 1.75;
+  }
+
+  .lm-help-assistant__answer-paragraph + .lm-help-assistant__answer-paragraph {
+    margin-top: .85rem;
+  }
+
+  .lm-help-assistant__answer-more summary {
+    min-height: 44px;
+    padding-top: .7rem;
+    font-size: 13px;
+  }
+
+  /* Inline citations remain available but no longer dominate the sentence. */
+  .lm-help-assistant__citation {
+    width: 16px;
+    height: 16px;
+    margin: 0 2px;
+    transform: translateY(-1px);
+    border-radius: 5px;
+    font-size: 7.5px;
+    opacity: .78;
+  }
+
+  /* Sources */
+  .lm-help-assistant__message-sources {
+    width: 100%;
+    margin-top: 8px;
+    border-radius: 13px;
+  }
+
+  .lm-help-assistant__message-sources summary {
+    min-height: 44px;
+    padding: 9px 11px;
+    font-size: 12.5px;
+  }
+
+  .lm-help-assistant__source-link {
+    min-height: 48px;
+    padding: 9px 10px;
+  }
+
+  .lm-help-assistant__source-copy strong {
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+
+  .lm-help-assistant__source-copy small {
+    font-size: 11px;
+    line-height: 1.55;
+  }
+
+  /* Feedback is easy to tap without becoming visually heavy. */
+  .lm-help-assistant__feedback {
+    min-height: 44px;
+    gap: 5px;
+    margin-top: 5px;
+    font-size: 12px;
+  }
+
+  .lm-help-assistant__feedback button {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    font-size: 14px;
+  }
+
+  /* Workflow readability */
+  .lm-help-assistant__guide {
+    width: 100%;
+    margin-top: 8px;
+    border-radius: 15px;
+  }
+
+  .lm-help-assistant__guide-header {
+    min-height: 46px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .lm-help-assistant__guide-role {
+    padding: 3px 7px;
+    font-size: 10px;
+  }
+
+  .lm-help-assistant__flow {
+    padding: 3px 9px 10px;
+  }
+
+  .lm-help-assistant__flow-step {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 8px;
+    padding-top: 9px;
+  }
+
+  .lm-help-assistant__flow-marker {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+
+  .lm-help-assistant__flow-step:not(:last-child)::after {
+    top: 2.15rem;
+    right: 13px;
+  }
+
+  .lm-help-assistant__flow-title {
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  .lm-help-assistant__flow-copy p {
+    margin-top: 3px;
+    font-size: 12px;
+    line-height: 1.72;
+  }
+
+  .lm-help-assistant__flow-direct {
+    padding: 2px 6px;
+    font-size: 9px;
+  }
+
+  .lm-help-assistant__flow-action {
+    min-height: 42px;
+    margin-top: 7px;
+    padding: 8px 11px;
+    border-radius: 11px;
+    font-size: 12.5px;
+  }
+
+  /* Header touch targets */
+  .lm-help-assistant__header-actions {
+    gap: 4px;
+  }
+
+  .lm-help-assistant__header-actions button {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    font-size: 15px;
+  }
+
+  .lm-help-assistant__avatar {
+    width: 44px;
+    height: 44px;
+  }
+
+  .lm-help-assistant__identity strong {
+    font-size: 14px;
+  }
+
+  .lm-help-assistant__identity small {
+    font-size: 10.5px;
+  }
+
+  /* Handoff only appears when it is useful; when visible it is finger-friendly. */
+  .lm-help-assistant__handoff {
+    padding: 7px 10px 4px;
+  }
+
+  .lm-help-assistant__handoff button {
+    min-height: 44px;
+    border-radius: 12px;
+    font-size: 12.5px;
+  }
+
+  /* Composer: 16px prevents unwanted mobile browser zoom on focus. */
+  .lm-help-assistant__composer {
+    padding: 8px 10px calc(9px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .lm-help-assistant__input-shell {
+    min-height: 52px;
+    padding: 4px 5px;
+    border-radius: 16px;
+  }
+
+  .lm-help-assistant__composer textarea {
+    min-height: 42px;
+    padding: 9px 10px;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .lm-help-assistant__composer [data-help-send] {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 13px;
+    font-size: 15px;
+  }
+
+  /* Loading remains deliberately quiet. */
+  .lm-help-assistant__message[data-temporary="1"] .lm-help-assistant__message-stack {
+    width: auto;
+    max-width: max-content !important;
+  }
+
+  .lm-help-assistant__message[data-temporary="1"] .lm-help-assistant__bubble {
+    width: auto;
+    min-width: 54px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lm-help-assistant__answer-more summary i {
+    transition: none;
+  }
+}
+
+
+/* ==========================================================================
+   Lumi Actions v1 — customer discovery cards
+   ========================================================================== */
+.lm-help-assistant__discovery {
+  width: min(100%, 360px);
+  margin-top: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(109, 85, 187, .12);
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(47, 199, 162, .055), transparent 28%),
+    #fff;
+  box-shadow: 0 5px 18px rgba(44, 35, 62, .035);
+}
+
+.lm-help-assistant__discovery-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 9px 9px 3px;
+}
+
+.lm-help-assistant__discovery-chip {
+  display: inline-flex;
+  min-height: 27px;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  background: #f7f4fc;
+  padding: 4px 7px;
+  color: #625879;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.lm-help-assistant__discovery-chip i {
+  color: var(--lm-secondary-deep, #1fa780);
+  font-size: 8px;
+}
+
+.lm-help-assistant__discovery-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 9px 10px;
+}
+
+.lm-help-assistant__discovery-suggestions button {
+  min-height: 34px;
+  cursor: pointer;
+  border: 1px solid rgba(109, 85, 187, .15);
+  border-radius: 11px;
+  background: #fff;
+  padding: 6px 9px;
+  color: var(--lm-primary, #6d55bb);
+  font: inherit;
+  font-size: 9.5px;
+  font-weight: 850;
+}
+
+.lm-help-assistant__discovery-suggestions button:hover {
+  border-color: rgba(47, 199, 162, .32);
+  background: var(--lm-secondary-soft, #e8faf5);
+  color: var(--lm-secondary-deep, #1fa780);
+}
+
+.lm-help-assistant__discovery-location {
+  display: flex;
+  width: calc(100% - 18px);
+  min-height: 42px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 9px;
+  border: 1px solid rgba(47, 199, 162, .28);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fff, #fbfffd);
+  padding: 8px 10px;
+  color: var(--lm-secondary-deep, #1fa780);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.lm-help-assistant__discovery-location > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.lm-help-assistant__discovery-results {
+  display: grid;
+  gap: 7px;
+  padding: 8px;
+}
+
+.lm-help-assistant__discovery-result {
+  overflow: hidden;
+  border: 1px solid #ece8f1;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.lm-help-assistant__discovery-result-top {
+  display: grid;
+  grid-template-columns: 48px 20px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  padding: 8px;
+}
+
+.lm-help-assistant__discovery-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 11px;
+  object-fit: cover;
+  background: #f4f1f8;
+}
+
+.lm-help-assistant__discovery-image--placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, var(--lm-primary-soft, #f2edff), var(--lm-secondary-soft, #e8faf5));
+  color: var(--lm-primary, #6d55bb);
+}
+
+.lm-help-assistant__discovery-rank {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: var(--lm-primary-soft, #f2edff);
+  color: var(--lm-primary, #6d55bb);
+  font-size: 8px;
+  font-weight: 950;
+}
+
+.lm-help-assistant__discovery-result-copy {
+  min-width: 0;
+}
+
+.lm-help-assistant__discovery-result-copy strong,
+.lm-help-assistant__discovery-result-copy small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lm-help-assistant__discovery-result-copy strong {
+  color: #2d2936;
+  font-size: 10.5px;
+  font-weight: 950;
+}
+
+.lm-help-assistant__discovery-result-copy small {
+  margin-top: 2px;
+  color: #89828e;
+  font-size: 8.5px;
+}
+
+.lm-help-assistant__discovery-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  padding: 0 8px 8px;
+  color: #6f6877;
+  font-size: 8.5px;
+  font-weight: 750;
+}
+
+.lm-help-assistant__discovery-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lm-help-assistant__discovery-meta i {
+  color: var(--lm-secondary-deep, #1fa780);
+}
+
+.lm-help-assistant__discovery-meta .fa-star {
+  color: #e8a317;
+}
+
+.lm-help-assistant__discovery-availability {
+  width: 100%;
+  color: var(--lm-secondary-deep, #1fa780);
+}
+
+.lm-help-assistant__discovery-result-action {
+  display: flex;
+  min-height: 35px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px solid #f0edf3;
+  background: #fcfbfd;
+  padding: 7px 9px;
+  color: var(--lm-primary, #6d55bb);
+  font-size: 9px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.lm-help-assistant__discovery-result-action:hover {
+  background: linear-gradient(90deg, rgba(109,85,187,.04), rgba(47,199,162,.05));
+}
+
+.lm-help-assistant__discovery-all {
+  display: flex;
+  min-height: 39px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-top: 1px solid rgba(109, 85, 187, .09);
+  color: var(--lm-primary, #6d55bb);
+  font-size: 9px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+@media (max-width: 767px) {
+  .lm-help-assistant__discovery {
+    width: 100%;
+    margin-top: 9px;
+    border-radius: 15px;
+  }
+
+  .lm-help-assistant__discovery-filters {
+    gap: 6px;
+    padding: 10px 10px 4px;
+  }
+
+  .lm-help-assistant__discovery-chip {
+    min-height: 31px;
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  .lm-help-assistant__discovery-location {
+    min-height: 48px;
+    font-size: 13px;
+  }
+
+  .lm-help-assistant__discovery-suggestions button {
+    min-height: 42px;
+    padding: 8px 11px;
+    font-size: 12px;
+  }
+
+  .lm-help-assistant__discovery-results {
+    gap: 9px;
+    padding: 9px;
+  }
+
+  .lm-help-assistant__discovery-result-top {
+    grid-template-columns: 58px 24px minmax(0, 1fr);
+    gap: 8px;
+    padding: 9px;
+  }
+
+  .lm-help-assistant__discovery-image {
+    width: 58px;
+    height: 58px;
+    border-radius: 12px;
+  }
+
+  .lm-help-assistant__discovery-rank {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .lm-help-assistant__discovery-result-copy strong {
+    font-size: 13.5px;
+  }
+
+  .lm-help-assistant__discovery-result-copy small {
+    margin-top: 3px;
+    font-size: 11.5px;
+  }
+
+  .lm-help-assistant__discovery-meta {
+    gap: 7px 11px;
+    padding: 0 9px 9px;
+    font-size: 11.5px;
+  }
+
+  .lm-help-assistant__discovery-result-action,
+  .lm-help-assistant__discovery-all {
+    min-height: 46px;
+    padding: 9px 11px;
+    font-size: 12.5px;
+  }
+}
