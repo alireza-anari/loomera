@@ -800,6 +800,129 @@ def handle_bale_update_stage10(
         )
         return "customer_appointments_text"
 
+    stylist_today_phrases = {
+        "نوبت های امروز",
+        "نوبت‌های امروز",
+        "نوبت امروز",
+        "برنامه امروز من",
+        "کارهای امروز من",
+        "امروز متخصص",
+    }
+    stylist_slot_phrases = {
+        "وقت خالی",
+        "وقت های خالی",
+        "وقت‌های خالی",
+        "زمان آزاد",
+        "زمان های آزاد",
+        "زمان‌های آزاد",
+    }
+    stylist_booking_phrases = {
+        "لینک رزرو",
+        "لینک رزرو من",
+        "رزرو من",
+    }
+    manager_summary_phrases = {
+        "خلاصه امروز",
+        "خلاصه سالن",
+        "وضعیت امروز سالن",
+        "وضعیت سالن",
+        "گزارش امروز",
+    }
+    manager_request_phrases = {
+        "درخواست همکاری",
+        "درخواست های همکاری",
+        "درخواست‌های همکاری",
+        "همکاری های جدید",
+        "همکاری‌های جدید",
+    }
+    manager_shift_phrases = {
+        "شیفت و مرخصی",
+        "درخواست مرخصی",
+        "مرخصی ها",
+        "مرخصی‌ها",
+        "درخواست برنامه کاری",
+        "برنامه کاری تیم",
+    }
+
+    if normalized_text in (
+        stylist_today_phrases | stylist_slot_phrases | stylist_booking_phrases
+        | manager_summary_phrases | manager_request_phrases | manager_shift_phrases
+    ):
+        user = _identity_user(identity)
+        if not user:
+            _send(
+                client,
+                provider=provider,
+                identity=identity,
+                chat_id=chat_id,
+                text=disconnected_required_text(),
+                reply_markup=guest_main_menu(base_url),
+            )
+            return "operator_text_requires_connection"
+
+        from apps.messaging.roles import BotRoleKey, detect_user_bot_roles
+
+        context = detect_user_bot_roles(user)
+        if normalized_text in stylist_today_phrases and context.has_role(BotRoleKey.STYLIST):
+            from apps.messaging.stylist_bot import render_stylist_today
+
+            text, markup = render_stylist_today(
+                user, base_url, provider=provider, identity=identity
+            )
+            result_key = "stylist_today_text"
+        elif normalized_text in stylist_slot_phrases and context.has_role(BotRoleKey.STYLIST):
+            from apps.messaging.stylist_bot import render_stylist_available_slots
+
+            text, markup = render_stylist_available_slots(user, base_url)
+            result_key = "stylist_slots_text"
+        elif normalized_text in stylist_booking_phrases and context.has_role(BotRoleKey.STYLIST):
+            from apps.messaging.stylist_bot import render_stylist_booking_link
+
+            text, markup = render_stylist_booking_link(user, base_url)
+            result_key = "stylist_booking_link_text"
+        elif normalized_text in (manager_summary_phrases | manager_request_phrases | manager_shift_phrases) and context.has_role(BotRoleKey.MANAGER):
+            from apps.messaging.manager_bot import (
+                manager_salons,
+                render_manager_pending_requests,
+                render_manager_shifts_overview,
+                render_manager_today_summary,
+            )
+
+            salons = manager_salons(user)
+            if len(salons) != 1:
+                text, markup = menu_for_role(base_url, user, BotRoleKey.MANAGER)
+                result_key = "manager_text_choose_salon"
+            else:
+                salon_id = salons[0].pk
+                if normalized_text in manager_summary_phrases:
+                    text, markup = render_manager_today_summary(
+                        user, base_url, salon_id=salon_id, provider=provider, identity=identity
+                    )
+                    result_key = "manager_summary_text"
+                elif normalized_text in manager_request_phrases:
+                    text, markup = render_manager_pending_requests(
+                        user, base_url, salon_id=salon_id, provider=provider, identity=identity
+                    )
+                    result_key = "manager_requests_text"
+                else:
+                    text, markup = render_manager_shifts_overview(
+                        user, base_url, salon_id=salon_id, provider=provider, identity=identity
+                    )
+                    result_key = "manager_shifts_text"
+        else:
+            text, markup = menu_for_user(base_url, user)
+            result_key = "operator_text_wrong_role"
+
+        _send(
+            client,
+            provider=provider,
+            identity=identity,
+            chat_id=chat_id,
+            text=text,
+            reply_markup=markup,
+        )
+        return result_key
+
     if normalized_text in {
         "تبلیغ",
         "استوری",
@@ -865,7 +988,29 @@ def handle_bale_update_stage10(
             base_url=base_url,
         )
 
-    return "ignored_unknown_message"
+    user = _identity_user(identity)
+    if user:
+        text, markup = menu_for_user(base_url, user)
+        text = f"این پیام را متوجه نشدم. از گزینه‌های زیر انتخاب کن.\n\n{text}"
+        _send(
+            client,
+            provider=provider,
+            identity=identity,
+            chat_id=chat_id,
+            text=text,
+            reply_markup=markup,
+        )
+        return "unknown_message_menu"
+
+    _send(
+        client,
+        provider=provider,
+        identity=identity,
+        chat_id=chat_id,
+        text="این پیام را متوجه نشدم. از گزینه‌های زیر انتخاب کن.",
+        reply_markup=guest_main_menu(base_url),
+    )
+    return "unknown_guest_message_menu"
 
 
 def handle_bale_update_stage11(

@@ -112,6 +112,97 @@ def appointment_block(
     return "\n".join(lines)
 
 
+
+
+def order_payment_label(order) -> str:
+    if bool(getattr(order, "is_paid", False)):
+        return "پرداخت شده"
+    method = str(getattr(order, "selected_payment_method", "") or "")
+    if method == "pay_in_salon":
+        return "پرداخت در مجموعه"
+    if method == "wallet":
+        return "در انتظار پرداخت کیف پول"
+    if method == "online":
+        return "در انتظار پرداخت آنلاین"
+    return "در انتظار پرداخت"
+
+
+def customer_appointment_block(detail, *, heading: str = "") -> str:
+    lines: list[str] = []
+    if heading:
+        lines.append(heading)
+    lines.extend(
+        [
+            f"سالن: {_clean(getattr(getattr(detail, 'salon', None), 'salon_name', ''), 'سالن')}",
+            f"خدمت: {_clean(getattr(getattr(detail, 'service', None), 'service_name', ''))}",
+            f"متخصص: {stylist_name(getattr(detail, 'stylist', None))}",
+            f"تاریخ: {format_jalali_with_weekday(detail.date) if getattr(detail, 'date', None) else 'ثبت نشده'}",
+            f"ساعت: {appointment_time_label(detail)}",
+            f"مبلغ: {format_money(getattr(detail, 'price', 0))}",
+            f"وضعیت: {appointment_status_label(detail)}",
+            f"پرداخت: {order_payment_label(getattr(detail, 'order', None))}",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def customer_order_block(order, *, heading: str = "") -> str:
+    try:
+        details = list(
+            order.order_details1.select_related("service", "stylist__user", "salon")
+            .order_by("date", "time", "id")[:4]
+        )
+    except Exception:
+        details = []
+
+    if len(details) == 1:
+        return customer_appointment_block(details[0], heading=heading)
+
+    lines: list[str] = []
+    if heading:
+        lines.append(heading)
+    lines.append(
+        f"سالن: {_clean(getattr(getattr(order, 'salon', None), 'salon_name', ''), 'سالن')}"
+    )
+    if details:
+        services = "، ".join(
+            dict.fromkeys(
+                _clean(getattr(getattr(item, "service", None), "service_name", ""), "خدمت")
+                for item in details
+            )
+        )
+        stylists = "، ".join(
+            dict.fromkeys(stylist_name(getattr(item, "stylist", None)) for item in details)
+        )
+        first = details[0]
+        lines.extend(
+            [
+                f"خدمات: {services}",
+                f"متخصص: {stylists}",
+                f"تاریخ: {format_jalali_with_weekday(first.date) if first.date else 'ثبت نشده'}",
+                f"شروع: {format_time_fa(first.time) if first.time else 'ثبت نشده'}",
+            ]
+        )
+    amount = getattr(order, "total_amount", 0) or 0
+    if not amount:
+        try:
+            amount = order.get_order_total_price()
+        except Exception:
+            amount = 0
+    try:
+        status = order.get_status_display()
+    except Exception:
+        status = _clean(getattr(order, "status", ""))
+    lines.extend(
+        [
+            f"مبلغ: {format_money(amount)}",
+            f"وضعیت رزرو: {_clean(status)}",
+            f"پرداخت: {order_payment_label(order)}",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def overlapping_appointment_count(*, salon_id, stylist_id, date_value, start_time=None, end_time=None) -> int:
     if not salon_id or not stylist_id or not date_value:
         return 0
@@ -149,6 +240,7 @@ def leave_request_block(item, *, heading: str = "درخواست مرخصی") -> 
     lines = [
         heading,
         f"متخصص: {stylist_name(item.stylist)}",
+        f"سالن: {_clean(getattr(getattr(item, 'salon', None), 'salon_name', ''), 'سالن')}",
         f"تاریخ: {format_jalali_with_weekday(item.date)}",
         f"ساعت: {time_label}",
         f"دلیل: {_clean(item.reason, 'بدون توضیح')}",
@@ -157,6 +249,13 @@ def leave_request_block(item, *, heading: str = "درخواست مرخصی") -> 
         lines.append(f"نوبت ثبت‌شده در این بازه: {to_persian_digits(conflicts)}")
     else:
         lines.append("نوبت ثبت‌شده در این بازه: ندارد")
+    try:
+        lines.append(f"وضعیت: {item.get_status_display()}")
+    except Exception:
+        pass
+    review_note = _clean(getattr(item, "review_note", ""), "")
+    if review_note:
+        lines.append(f"نظر مدیر: {review_note}")
     return "\n".join(lines)
 
 
@@ -172,6 +271,7 @@ def schedule_request_block(item, *, heading: str = "درخواست برنامه 
     lines = [
         heading,
         f"متخصص: {stylist_name(item.stylist)}",
+        f"سالن: {_clean(getattr(getattr(item, 'salon', None), 'salon_name', ''), 'سالن')}",
         f"خدمت: {service_name}",
         f"تاریخ: {format_jalali_with_weekday(item.date)}",
         f"ساعت: {format_time_fa(item.start_time)} تا {format_time_fa(item.end_time)}",
@@ -181,6 +281,13 @@ def schedule_request_block(item, *, heading: str = "درخواست برنامه 
         lines.append(f"نوبت ثبت‌شده در این بازه: {to_persian_digits(conflicts)}")
     else:
         lines.append("نوبت ثبت‌شده در این بازه: ندارد")
+    try:
+        lines.append(f"وضعیت: {item.get_status_display()}")
+    except Exception:
+        pass
+    review_note = _clean(getattr(item, "review_note", ""), "")
+    if review_note:
+        lines.append(f"نظر مدیر: {review_note}")
     return "\n".join(lines)
 
 

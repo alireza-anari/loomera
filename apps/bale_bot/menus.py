@@ -232,11 +232,14 @@ def stylist_menu_text(user, role=None) -> str:
     parts = [f"{user_display_name(user)}، کارهای امروزت اینجاست."]
     if role:
         today_count = role.metadata.get("today_appointment_count") or 0
-        pending_count = role.metadata.get("today_pending_count") or 0
+        ready_count = role.metadata.get("today_ready_count") or 0
         in_progress_count = role.metadata.get("today_in_progress_count") or 0
+        cash_pending_count = role.metadata.get("today_cash_pending_count") or 0
         parts.append(
-            f"امروز: {today_count} نوبت | منتظر تأیید: {pending_count} | در حال انجام: {in_progress_count}"
+            f"امروز: {today_count} نوبت | آماده شروع: {ready_count} | در حال انجام: {in_progress_count}"
         )
+        if cash_pending_count:
+            parts.append(f"منتظر ثبت دریافت وجه: {cash_pending_count}")
         invite_count = role.metadata.get("pending_invite_count") or 0
         if invite_count:
             parts.append(f"دعوت همکاری در انتظار: {invite_count}")
@@ -394,11 +397,11 @@ def quick_links_menu(base_url: str) -> dict:
 
 def help_text() -> str:
     return (
-        "این ربات برای کارهای سریع Loomera است.\n\n"
-        "مشتری: پیدا کردن سالن و دیدن نوبت‌ها\n"
-        "متخصص: نوبت‌های امروز، تأیید یا رد نوبت، شروع و پایان خدمت\n"
+        "این ربات برای کارهای روزمره Loomera است.\n\n"
+        "مشتری: پیدا کردن سالن، دیدن نوبت‌ها و پیگیری اعلان‌ها\n"
+        "متخصص: نوبت‌های امروز، شروع و پایان خدمت، ثبت عدم حضور، لغو در صورت عدم امکان و ثبت دریافت وجه\n"
         "مدیر: وضعیت امروز سالن، درخواست همکاری، مرخصی و برنامه کاری\n\n"
-        "کارهای مالی و تغییرات پیچیده رزرو همچنان در سایت انجام می‌شود."
+        "برای تغییرات پیچیده رزرو یا مواردی که نیاز به فرم کامل دارند، ربات لینک همان بخش را در سایت می‌دهد."
     )
 
 def help_menu(base_url: str) -> dict:

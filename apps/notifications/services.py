@@ -234,13 +234,14 @@ def _should_deliver_bale_immediately(
     metadata = dict(notification.metadata or {})
     has_actions = bool(metadata.get("messaging_actions"))
     stylist_simple = bool(metadata.get("messaging_stylist_simple"))
+    customer_simple = bool(metadata.get("messaging_customer_simple"))
 
     is_important = notification.priority in {
         NotificationPriority.HIGH,
         NotificationPriority.CRITICAL,
     }
 
-    return has_actions or stylist_simple or is_important
+    return has_actions or stylist_simple or customer_simple or is_important
 
 
 def _deliver_bale_delivery_safely(
@@ -544,11 +545,12 @@ def _customer_simple_bale_delivery_enabled(
 def _stylist_simple_bale_delivery_enabled(
     *, role: str, notification, related_object, event_type: str
 ) -> bool:
-    """Keep specialist appointment notices on Bale even without an action.
+    """Keep day-to-day specialist notices on Bale even without an action.
 
-    Booking creation is auto-confirmed before notifications are generated. A
-    future appointment may therefore have no immediate lifecycle button, but the
-    specialist still needs the notification itself.
+    A specialist must see new bookings and operational updates even when the
+    current state has no button. Staff workflow updates (manager invitations,
+    leave reviews and schedule reviews) are also useful in Bale because they
+    affect the specialist's working day.
     """
 
     if str(role or "") != NotificationAudienceRole.STYLIST:
@@ -558,30 +560,44 @@ def _stylist_simple_bale_delivery_enabled(
     if metadata.get("messaging_disable_bale"):
         return False
 
+    category = str(getattr(notification, "category", "") or "")
+    event_text = str(event_type or "").lower()
+
     try:
         from apps.orders.models import Order, OrderDetail
+        from apps.salons.models import SalonMembership
+        from apps.stylists.models import StaffLeaveRequest, StaffScheduleRequest
 
-        if not isinstance(related_object, (Order, OrderDetail)):
-            return False
+        if isinstance(related_object, (Order, OrderDetail)):
+            if category in {NotificationCategory.BOOKING, NotificationCategory.PAYMENT}:
+                return True
+            return any(
+                keyword in event_text
+                for keyword in (
+                    "appointment",
+                    "booking",
+                    "reservation",
+                    "service_",
+                    "payment",
+                    "no_show",
+                    "client_late",
+                    "review_",
+                    "cancel",
+                )
+            )
+
+        if isinstance(
+            related_object,
+            (SalonMembership, StaffLeaveRequest, StaffScheduleRequest),
+        ):
+            return category == NotificationCategory.STAFF or any(
+                keyword in event_text
+                for keyword in ("staff_", "invite", "membership", "collaboration")
+            )
     except Exception:
         return False
 
-    category = str(getattr(notification, "category", "") or "")
-    if category == NotificationCategory.BOOKING:
-        return True
-
-    event_text = str(event_type or "").lower()
-    return any(
-        keyword in event_text
-        for keyword in (
-            "appointment",
-            "booking",
-            "reservation",
-            "service_",
-            "no_show",
-            "client_late",
-        )
-    )
+    return False
 
 
 def _stylist_order_detail_messaging_actions(
@@ -601,9 +617,12 @@ def _stylist_order_detail_messaging_actions(
     try:
         from apps.orders.models import OrderDetail
         from apps.messaging.stylist_actions import (
+            ACTION_CONFIRM_CASH_PAYMENT_PREVIEW,
             ACTION_COMPLETE_SERVICE_PREVIEW,
+            ACTION_NO_SHOW_PREVIEW,
             ACTION_REJECT_APPOINTMENT_PREVIEW,
             ACTION_START_SERVICE,
+            _no_show_is_available,
         )
     except Exception:
         return []
@@ -614,11 +633,34 @@ def _stylist_order_detail_messaging_actions(
     detail = related_object
     try:
         order_status = getattr(getattr(detail, "order", None), "status", "")
+        order = getattr(detail, "order", None)
+        if (
+            order_status == "completed"
+            and getattr(order, "selected_payment_method", "") == "pay_in_salon"
+            and not bool(getattr(order, "is_paid", False))
+        ):
+            common = {
+                "audience_role": NotificationAudienceRole.STYLIST,
+                "salon_id": detail.salon_id,
+                "metadata": {
+                    "order_detail_id": detail.pk,
+                    "source": "appointment_notification",
+                },
+            }
+            return [
+                {
+                    "type": "action",
+                    "key": ACTION_CONFIRM_CASH_PAYMENT_PREVIEW,
+                    "label": "دریافت وجه شد",
+                    **common,
+                }
+            ]
+
         if order_status in {"cancelled", "completed", "no_show", "disputed"}:
             return []
         if detail.confirmation_status == OrderDetail.ConfirmationStatus.REJECTED:
             return []
-        if detail.service_completed_at or detail.no_show_pending_at or detail.no_show_confirmed_at:
+        if detail.service_completed_at or detail.no_show_confirmed_at:
             return []
 
         common = {
@@ -629,6 +671,16 @@ def _stylist_order_detail_messaging_actions(
                 "source": "appointment_notification",
             },
         }
+
+        if detail.no_show_pending_at and not detail.no_show_confirmed_at:
+            return [
+                {
+                    "type": "action",
+                    "key": ACTION_NO_SHOW_PREVIEW,
+                    "label": "تکمیل وضعیت عدم حضور",
+                    **common,
+                }
+            ]
 
         if detail.service_started_at:
             return [
@@ -651,7 +703,16 @@ def _stylist_order_detail_messaging_actions(
                 }
             )
 
-        if not detail.customer_arrived_at:
+        if _no_show_is_available(detail):
+            actions.append(
+                {
+                    "type": "action",
+                    "key": ACTION_NO_SHOW_PREVIEW,
+                    "label": "مشتری نیامد",
+                    **common,
+                }
+            )
+        elif not detail.customer_arrived_at:
             actions.append(
                 {
                     "type": "action",

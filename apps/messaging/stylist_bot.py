@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import time as dt_time, timedelta
 
 from django.conf import settings
 from django.urls import NoReverseMatch, reverse
@@ -89,17 +89,37 @@ def _stylist_action_button(*, provider, identity, user, detail: OrderDetail, act
 
 def _stylist_today_rows(*, user, base_url: str, appointments: list[OrderDetail], provider=None, identity=None) -> list[list[dict]]:
     from .stylist_actions import (
+        ACTION_CONFIRM_CASH_PAYMENT_PREVIEW,
         ACTION_COMPLETE_SERVICE_PREVIEW,
+        ACTION_NO_SHOW_PREVIEW,
         ACTION_REJECT_APPOINTMENT_PREVIEW,
         ACTION_START_SERVICE,
+        _no_show_is_available,
     )
 
     rows: list[list[dict]] = []
     today = timezone.localdate()
-    for index, detail in enumerate(appointments[:4], start=1):
+    for index, detail in enumerate(appointments, start=1):
         action_row: list[dict] = []
 
-        if detail.service_started_at and not detail.service_completed_at:
+        order = detail.order
+        if (
+            order.selected_payment_method == "pay_in_salon"
+            and (order.service_completed_at or order.status == "completed")
+            and not order.is_paid
+            and order.status not in {"cancelled", "no_show", "disputed"}
+        ):
+            cash = _stylist_action_button(
+                provider=provider,
+                identity=identity,
+                user=user,
+                detail=detail,
+                action_key=ACTION_CONFIRM_CASH_PAYMENT_PREVIEW,
+                label=f"دریافت وجه {to_persian_digits(index)}",
+            )
+            if cash:
+                action_row = [cash]
+        elif detail.service_started_at and not detail.service_completed_at:
             complete = _stylist_action_button(
                 provider=provider,
                 identity=identity,
@@ -113,33 +133,51 @@ def _stylist_today_rows(*, user, base_url: str, appointments: list[OrderDetail],
         elif (
             detail.confirmation_status != OrderDetail.ConfirmationStatus.REJECTED
             and not detail.service_completed_at
-            and not detail.no_show_pending_at
             and not detail.no_show_confirmed_at
         ):
             start_button = None
-            reject_button = None
+            exception_button = None
 
-            if not detail.date or detail.date <= today:
-                start_button = _stylist_action_button(
+            if detail.no_show_pending_at:
+                exception_button = _stylist_action_button(
                     provider=provider,
                     identity=identity,
                     user=user,
                     detail=detail,
-                    action_key=ACTION_START_SERVICE,
-                    label=f"شروع خدمت {to_persian_digits(index)}",
+                    action_key=ACTION_NO_SHOW_PREVIEW,
+                    label=f"تکمیل عدم حضور {to_persian_digits(index)}",
                 )
+            else:
+                if not detail.date or detail.date <= today:
+                    start_button = _stylist_action_button(
+                        provider=provider,
+                        identity=identity,
+                        user=user,
+                        detail=detail,
+                        action_key=ACTION_START_SERVICE,
+                        label=f"شروع خدمت {to_persian_digits(index)}",
+                    )
 
-            if not detail.customer_arrived_at and not detail.service_started_at:
-                reject_button = _stylist_action_button(
-                    provider=provider,
-                    identity=identity,
-                    user=user,
-                    detail=detail,
-                    action_key=ACTION_REJECT_APPOINTMENT_PREVIEW,
-                    label=f"امکان انجام ندارم {to_persian_digits(index)}",
-                )
+                if _no_show_is_available(detail):
+                    exception_button = _stylist_action_button(
+                        provider=provider,
+                        identity=identity,
+                        user=user,
+                        detail=detail,
+                        action_key=ACTION_NO_SHOW_PREVIEW,
+                        label=f"مشتری نیامد {to_persian_digits(index)}",
+                    )
+                elif not detail.customer_arrived_at and not detail.service_started_at:
+                    exception_button = _stylist_action_button(
+                        provider=provider,
+                        identity=identity,
+                        user=user,
+                        detail=detail,
+                        action_key=ACTION_REJECT_APPOINTMENT_PREVIEW,
+                        label=f"امکان انجام ندارم {to_persian_digits(index)}",
+                    )
 
-            action_row = [button for button in (start_button, reject_button) if button]
+            action_row = [button for button in (start_button, exception_button) if button]
 
         if action_row:
             rows.append(action_row)
@@ -167,16 +205,82 @@ def render_stylist_today(
 
     today = timezone.localdate()
     appointments = list(
-        OrderDetail.objects.select_related("order__customer__user", "service", "salon")
-        .filter(stylist=stylist, date=today, order__status__in=ACTIVE_ORDER_STATUSES)
-        .order_by("time", "id")[:6]
+        OrderDetail.objects.select_related("order__customer__user", "order", "service", "salon")
+        .filter(stylist=stylist, date=today)
+        .order_by("time", "id")[:8]
     )
+
+    def _priority(detail: OrderDetail):
+        order = detail.order
+        if detail.service_started_at and not detail.service_completed_at:
+            bucket = 0
+        elif detail.no_show_pending_at and not detail.no_show_confirmed_at:
+            bucket = 1
+        elif (
+            order.selected_payment_method == "pay_in_salon"
+            and order.status == "completed"
+            and not order.is_paid
+        ):
+            bucket = 2
+        else:
+            bucket = 3
+        return (bucket, detail.time or dt_time.max, detail.pk)
+
+    appointments.sort(key=_priority)
 
     title = f"نوبت‌های امروز — {format_jalali_numeric(today)}"
     if not appointments:
         text = f"{title}\n\nامروز نوبت فعالی نداری."
     else:
+        in_progress = sum(1 for item in appointments if item.service_started_at and not item.service_completed_at)
+        completed = sum(1 for item in appointments if item.service_completed_at)
+        cash_pending = sum(
+            1
+            for item in appointments
+            if item.order.selected_payment_method == "pay_in_salon"
+            and item.order.status == "completed"
+            and not item.order.is_paid
+        )
+        no_show_pending = sum(
+            1
+            for item in appointments
+            if item.no_show_pending_at and not item.no_show_confirmed_at
+        )
         blocks = [title]
+        summary_parts = []
+        if in_progress:
+            summary_parts.append(f"در حال انجام: {to_persian_digits(in_progress)}")
+        if no_show_pending:
+            summary_parts.append(f"عدم حضور نیازمند تصمیم: {to_persian_digits(no_show_pending)}")
+        if cash_pending:
+            summary_parts.append(f"منتظر ثبت دریافت وجه: {to_persian_digits(cash_pending)}")
+        if completed:
+            summary_parts.append(f"انجام‌شده: {to_persian_digits(completed)}")
+        if summary_parts:
+            blocks.append(" | ".join(summary_parts))
+
+        now_time = timezone.localtime().time()
+        next_appointment = next(
+            (
+                item
+                for item in sorted(appointments, key=lambda value: (value.time or dt_time.max, value.pk))
+                if not item.service_started_at
+                and not item.service_completed_at
+                and not item.no_show_pending_at
+                and not item.no_show_confirmed_at
+                and item.time
+                and item.time >= now_time
+            ),
+            None,
+        )
+        if next_appointment is not None:
+            blocks.append(
+                "نوبت بعدی: "
+                f"{format_time_fa(next_appointment.time)}، "
+                f"{getattr(next_appointment.service, 'service_name', 'خدمت')} برای "
+                f"{getattr(next_appointment.order.customer, 'get_fullName', lambda: 'مشتری')()}"
+            )
+
         for index, detail in enumerate(appointments, start=1):
             blocks.append(
                 appointment_block(

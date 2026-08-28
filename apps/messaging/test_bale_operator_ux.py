@@ -1,4 +1,5 @@
-from datetime import time, timedelta
+from datetime import datetime, time, timedelta
+from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -125,12 +126,17 @@ class BaleOperatorUxTests(TestCase):
         from .stylist_bot import render_stylist_today
 
         self._appointment(confirmation_status=OrderDetail.ConfirmationStatus.CONFIRMED)
-        text, markup = render_stylist_today(
-            self.stylist_user,
-            "https://staging.loomera.ir",
-            provider=self.bale,
-            identity=self.stylist_identity,
+        fixed_now = timezone.make_aware(
+            datetime.combine(timezone.localdate(), time(15, 0)),
+            timezone.get_current_timezone(),
         )
+        with patch("apps.messaging.stylist_actions.timezone.now", return_value=fixed_now):
+            text, markup = render_stylist_today(
+                self.stylist_user,
+                "https://staging.loomera.ir",
+                provider=self.bale,
+                identity=self.stylist_identity,
+            )
 
         self.assertIn("علی مشتری", text)
         self.assertIn("رنگ ریشه", text)

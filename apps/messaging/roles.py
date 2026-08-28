@@ -113,20 +113,31 @@ def detect_user_bot_roles(user) -> UserBotRoleContext:
             }
             try:
                 from django.utils import timezone
+                from django.db.models import Q
                 from apps.orders.models import OrderDetail
 
                 today = timezone.localdate()
-                today_items = OrderDetail.objects.filter(
+                all_today_items = OrderDetail.objects.filter(
                     stylist=stylist,
                     date=today,
-                    order__status__in=["pending", "confirmed", "paid"],
+                )
+                today_items = all_today_items.filter(
+                    Q(order__status__in=["pending", "confirmed", "paid"])
+                    | Q(
+                        order__status="completed",
+                        order__selected_payment_method="pay_in_salon",
+                        order__is_paid=False,
+                    )
                 )
                 metadata.update(
                     {
-                        "today_appointment_count": _safe_count(today_items),
-                        "today_pending_count": _safe_count(
+                        "today_appointment_count": _safe_count(all_today_items),
+                        "today_ready_count": _safe_count(
                             today_items.filter(
-                                confirmation_status=OrderDetail.ConfirmationStatus.PENDING
+                                service_started_at__isnull=True,
+                                service_completed_at__isnull=True,
+                                no_show_pending_at__isnull=True,
+                                no_show_confirmed_at__isnull=True,
                             )
                         ),
                         "today_in_progress_count": _safe_count(
@@ -135,14 +146,22 @@ def detect_user_bot_roles(user) -> UserBotRoleContext:
                                 service_completed_at__isnull=True,
                             )
                         ),
+                        "today_cash_pending_count": _safe_count(
+                            today_items.filter(
+                                order__status="completed",
+                                order__selected_payment_method="pay_in_salon",
+                                order__is_paid=False,
+                            )
+                        ),
                     }
                 )
             except Exception:
                 metadata.update(
                     {
                         "today_appointment_count": 0,
-                        "today_pending_count": 0,
+                        "today_ready_count": 0,
                         "today_in_progress_count": 0,
+                        "today_cash_pending_count": 0,
                     }
                 )
         except Exception:
@@ -193,7 +212,6 @@ def detect_user_bot_roles(user) -> UserBotRoleContext:
                 today_items = OrderDetail.objects.filter(
                     salon_id__in=salon_ids,
                     date=today,
-                    order__status__in=["pending", "confirmed", "paid"],
                 )
                 membership_pending = SalonMembership.objects.filter(
                     salon_id__in=salon_ids,

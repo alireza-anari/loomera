@@ -179,6 +179,8 @@ def run_bale_final_readiness_check(*, strict: bool = False):
             "Run python manage.py bale_webhook_admin --set first as dry-run.",
             "Run python manage.py bale_webhook_admin --set --apply only on staging.",
             "Enable MESSAGING_OUTBOUND_ENABLED=True only after queue/provider checks are clean.",
+            "Set MESSAGING_ACTIONS_ENABLED=True for the full manager/stylist operational UX.",
+            "Run the Bale operator regression tests and one real end-to-end booking on staging.",
             "Run python manage.py bale_final_readiness_check --strict.",
         ],
         "production_policy": [

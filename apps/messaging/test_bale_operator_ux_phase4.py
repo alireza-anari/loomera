@@ -1,4 +1,5 @@
-from datetime import time, timedelta
+from datetime import datetime, time, timedelta
+from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -148,12 +149,17 @@ class BaleOperatorUxPhase4Tests(TestCase):
 
         from .stylist_bot import render_stylist_today
 
-        text, markup = render_stylist_today(
-            self.stylist_user,
-            "https://staging.loomera.ir",
-            provider=self.bale,
-            identity=self.identity,
+        fixed_now = timezone.make_aware(
+            datetime.combine(timezone.localdate(), time(15, 0)),
+            timezone.get_current_timezone(),
         )
+        with patch("apps.messaging.stylist_actions.timezone.now", return_value=fixed_now):
+            text, markup = render_stylist_today(
+                self.stylist_user,
+                "https://staging.loomera.ir",
+                provider=self.bale,
+                identity=self.identity,
+            )
 
         self.assertIn("رنگ ریشه", text)
         buttons = [button for row in markup["inline_keyboard"] for button in row]
@@ -161,6 +167,30 @@ class BaleOperatorUxPhase4Tests(TestCase):
         self.assertFalse(any("تأیید نوبت" in label for label in labels))
         self.assertTrue(any("شروع خدمت" in label for label in labels))
         self.assertTrue(any("امکان انجام ندارم" in label for label in labels))
+
+    def test_today_menu_switches_exception_to_no_show_after_threshold(self):
+        _, detail = self._appointment()
+
+        from .stylist_bot import render_stylist_today
+
+        fixed_now = timezone.make_aware(
+            datetime.combine(timezone.localdate(), time(17, 0)),
+            timezone.get_current_timezone(),
+        )
+        with patch("apps.messaging.stylist_actions.timezone.now", return_value=fixed_now):
+            text, markup = render_stylist_today(
+                self.stylist_user,
+                "https://staging.loomera.ir",
+                provider=self.bale,
+                identity=self.identity,
+            )
+
+        self.assertIn("رنگ ریشه", text)
+        buttons = [button for row in markup["inline_keyboard"] for button in row]
+        labels = [button["text"] for button in buttons]
+        self.assertTrue(any("شروع خدمت" in label for label in labels))
+        self.assertTrue(any("مشتری نیامد" in label for label in labels))
+        self.assertFalse(any("امکان انجام ندارم" in label for label in labels))
 
     def test_cancel_preview_accepts_auto_confirmed_booking(self):
         _, detail = self._appointment()

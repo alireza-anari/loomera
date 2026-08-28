@@ -276,6 +276,15 @@ def run_messaging_qa_check(*, strict=False):
             hint="برای فعال‌سازی بله مقدار bale را در providerهای مجاز قرار بده.",
         )
 
+    if bale_enabled and outbound_enabled and not actions_enabled:
+        _add_issue(
+            issues,
+            code="BALE_ACTIONS_DISABLED_FOR_LIVE_BOT",
+            severity="error" if strict else "warning",
+            message="ربات بله و ارسال خروجی فعال‌اند اما اکشن‌های عملیاتی خاموش هستند.",
+            hint="بعد از تست webhook و صف، برای تجربه کامل مدیر و متخصص MESSAGING_ACTIONS_ENABLED=True تنظیم کن.",
+        )
+
     if outbound_enabled and not token_configured:
         _add_issue(
             issues,

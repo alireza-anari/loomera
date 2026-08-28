@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 from django.conf import settings
-from django.db.models import Count, Sum
+from django.db.models import Sum
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 
@@ -213,8 +213,8 @@ def render_manager_today_calendar(
     today = timezone.localdate()
     appointments = list(
         OrderDetail.objects.select_related("order__customer__user", "service", "stylist__user", "salon")
-        .filter(salon=salon, date=today, order__status__in=ACTIVE_ORDER_STATUSES)
-        .order_by("time", "id")[:6]
+        .filter(salon=salon, date=today)
+        .order_by("time", "id")[:8]
     )
     title = f"امروز {salon.salon_name} — {format_jalali_numeric(today)}"
     if not appointments:
@@ -250,11 +250,35 @@ def render_manager_today_summary(
     today = timezone.localdate()
     qs = OrderDetail.objects.filter(salon=salon, date=today).select_related("order")
     active_qs = qs.filter(order__status__in=ACTIVE_ORDER_STATUSES)
-    summary = active_qs.aggregate(count=Count("id"), revenue=Sum("price"))
-    confirmed = active_qs.filter(confirmation_status=OrderDetail.ConfirmationStatus.CONFIRMED).count()
-    pending = active_qs.filter(confirmation_status=OrderDetail.ConfirmationStatus.PENDING).count()
+    in_progress = active_qs.filter(
+        service_started_at__isnull=False,
+        service_completed_at__isnull=True,
+    ).count()
+    ready = active_qs.filter(
+        service_started_at__isnull=True,
+        service_completed_at__isnull=True,
+        no_show_pending_at__isnull=True,
+        no_show_confirmed_at__isnull=True,
+    ).count()
+    completed = qs.filter(service_completed_at__isnull=False).count()
     cancelled = qs.filter(order__status="cancelled").count()
+    no_show = qs.filter(order__status="no_show").count()
+    no_show_pending = qs.filter(
+        no_show_pending_at__isnull=False,
+        no_show_confirmed_at__isnull=True,
+    ).count()
+    cash_pending = qs.filter(
+        order__status="completed",
+        order__selected_payment_method="pay_in_salon",
+        order__is_paid=False,
+    ).count()
     paid = qs.filter(order__is_paid=True).count()
+    operational_value = (
+        qs.exclude(order__status__in=["cancelled", "no_show", "disputed"])
+        .aggregate(revenue=Sum("price"))
+        .get("revenue")
+        or 0
+    )
     leave_pending = StaffLeaveRequest.objects.filter(salon=salon, status=StaffLeaveRequest.Status.PENDING).count()
     schedule_pending = StaffScheduleRequest.objects.filter(salon=salon, status=StaffScheduleRequest.Status.PENDING).count()
     membership_pending = SalonMembership.objects.filter(
@@ -262,21 +286,24 @@ def render_manager_today_summary(
         status=SalonMembershipStatus.PENDING_ACCEPTANCE,
         stylist__isnull=False,
     ).count()
-    waiting_total = pending + leave_pending + schedule_pending + membership_pending
+    staff_waiting = leave_pending + schedule_pending + membership_pending
+    operational_attention = no_show_pending + cash_pending
 
     lines = [
         f"خلاصه امروز {salon.salon_name} — {format_jalali_numeric(today)}",
         "",
-        f"موارد باز: {to_persian_digits(waiting_total)}",
-        f"• نوبت منتظر تأیید متخصص: {to_persian_digits(pending)}",
-        f"• درخواست همکاری: {to_persian_digits(membership_pending)}",
-        f"• برنامه کاری: {to_persian_digits(schedule_pending)}",
-        f"• مرخصی: {to_persian_digits(leave_pending)}",
-        "",
-        f"نوبت فعال امروز: {to_persian_digits(summary.get('count') or 0)}",
-        f"تأییدشده: {to_persian_digits(confirmed)} | لغوشده: {to_persian_digits(cancelled)}",
+        f"نوبت‌های امروز: {to_persian_digits(qs.count())}",
+        f"آماده شروع: {to_persian_digits(ready)} | در حال انجام: {to_persian_digits(in_progress)}",
+        f"پایان‌یافته: {to_persian_digits(completed)} | لغوشده: {to_persian_digits(cancelled)} | عدم حضور: {to_persian_digits(no_show)}",
         f"پرداخت ثبت‌شده: {to_persian_digits(paid)}",
-        f"مبلغ نوبت‌های امروز: {to_persian_digits(format(int(summary.get('revenue') or 0), ','))} تومان",
+        f"ارزش نوبت‌های قابل انجام امروز: {to_persian_digits(format(int(operational_value), ','))} تومان",
+        "",
+        f"نیازمند پیگیری عملیاتی: {to_persian_digits(operational_attention)}",
+        f"• عدم حضور در انتظار تصمیم: {to_persian_digits(no_show_pending)}",
+        f"• دریافت وجه حضوری ثبت‌نشده: {to_persian_digits(cash_pending)}",
+        "",
+        f"درخواست‌های تیم: {to_persian_digits(staff_waiting)}",
+        f"• همکاری: {to_persian_digits(membership_pending)} | برنامه کاری: {to_persian_digits(schedule_pending)} | مرخصی: {to_persian_digits(leave_pending)}",
     ]
     markup = {
         "inline_keyboard": [

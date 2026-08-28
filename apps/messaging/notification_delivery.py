@@ -221,17 +221,26 @@ def _decision_notification_text(delivery: NotificationDelivery) -> str:
     related = notification.related_object
 
     try:
-        from apps.orders.models import OrderDetail
+        from apps.orders.models import Order, OrderDetail
         from apps.salons.models import SalonMembership
         from apps.stylists.models import StaffLeaveRequest, StaffScheduleRequest
         from .bale_presenters import (
             appointment_block,
+            customer_appointment_block,
+            customer_order_block,
             leave_request_block,
             membership_request_block,
             schedule_request_block,
         )
     except Exception:
         return ""
+
+    if role == NotificationAudienceRole.CUSTOMER:
+        heading = str(notification.title or "نوبت شما").strip() or "نوبت شما"
+        if isinstance(related, OrderDetail):
+            return customer_appointment_block(related, heading=heading)
+        if isinstance(related, Order):
+            return customer_order_block(related, heading=heading)
 
     if isinstance(related, OrderDetail):
         if role == NotificationAudienceRole.STYLIST:
@@ -260,6 +269,13 @@ def _decision_notification_text(delivery: NotificationDelivery) -> str:
                 include_salon=False,
                 include_status=True,
             )
+
+    if role == NotificationAudienceRole.STYLIST:
+        heading = str(notification.title or "به‌روزرسانی کاری").strip() or "به‌روزرسانی کاری"
+        if isinstance(related, StaffLeaveRequest):
+            return leave_request_block(related, heading=heading)
+        if isinstance(related, StaffScheduleRequest):
+            return schedule_request_block(related, heading=heading)
 
     if role == NotificationAudienceRole.MANAGER:
         if isinstance(related, SalonMembership):
