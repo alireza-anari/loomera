@@ -90,48 +90,16 @@ def _stylist_action_button(*, provider, identity, user, detail: OrderDetail, act
 def _stylist_today_rows(*, user, base_url: str, appointments: list[OrderDetail], provider=None, identity=None) -> list[list[dict]]:
     from .stylist_actions import (
         ACTION_COMPLETE_SERVICE_PREVIEW,
-        ACTION_CONFIRM_APPOINTMENT,
         ACTION_REJECT_APPOINTMENT_PREVIEW,
         ACTION_START_SERVICE,
     )
 
     rows: list[list[dict]] = []
+    today = timezone.localdate()
     for index, detail in enumerate(appointments[:4], start=1):
         action_row: list[dict] = []
-        if detail.confirmation_status == OrderDetail.ConfirmationStatus.PENDING:
-            confirm = _stylist_action_button(
-                provider=provider,
-                identity=identity,
-                user=user,
-                detail=detail,
-                action_key=ACTION_CONFIRM_APPOINTMENT,
-                label=f"تأیید نوبت {to_persian_digits(index)}",
-            )
-            reject = _stylist_action_button(
-                provider=provider,
-                identity=identity,
-                user=user,
-                detail=detail,
-                action_key=ACTION_REJECT_APPOINTMENT_PREVIEW,
-                label=f"رد نوبت {to_persian_digits(index)}",
-            )
-            action_row = [button for button in (confirm, reject) if button]
-        elif (
-            detail.confirmation_status == OrderDetail.ConfirmationStatus.CONFIRMED
-            and detail.customer_arrived_at
-            and not detail.service_started_at
-        ):
-            start = _stylist_action_button(
-                provider=provider,
-                identity=identity,
-                user=user,
-                detail=detail,
-                action_key=ACTION_START_SERVICE,
-                label=f"شروع خدمت {to_persian_digits(index)}",
-            )
-            if start:
-                action_row = [start]
-        elif detail.service_started_at and not detail.service_completed_at:
+
+        if detail.service_started_at and not detail.service_completed_at:
             complete = _stylist_action_button(
                 provider=provider,
                 identity=identity,
@@ -142,6 +110,36 @@ def _stylist_today_rows(*, user, base_url: str, appointments: list[OrderDetail],
             )
             if complete:
                 action_row = [complete]
+        elif (
+            detail.confirmation_status != OrderDetail.ConfirmationStatus.REJECTED
+            and not detail.service_completed_at
+            and not detail.no_show_pending_at
+            and not detail.no_show_confirmed_at
+        ):
+            start_button = None
+            reject_button = None
+
+            if not detail.date or detail.date <= today:
+                start_button = _stylist_action_button(
+                    provider=provider,
+                    identity=identity,
+                    user=user,
+                    detail=detail,
+                    action_key=ACTION_START_SERVICE,
+                    label=f"شروع خدمت {to_persian_digits(index)}",
+                )
+
+            if not detail.customer_arrived_at and not detail.service_started_at:
+                reject_button = _stylist_action_button(
+                    provider=provider,
+                    identity=identity,
+                    user=user,
+                    detail=detail,
+                    action_key=ACTION_REJECT_APPOINTMENT_PREVIEW,
+                    label=f"امکان انجام ندارم {to_persian_digits(index)}",
+                )
+
+            action_row = [button for button in (start_button, reject_button) if button]
 
         if action_row:
             rows.append(action_row)

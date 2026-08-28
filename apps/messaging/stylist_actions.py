@@ -9,6 +9,7 @@ from apps.orders.models import OrderDetail
 from apps.orders.appointment_lifecycle import (
     confirm_order_detail,
     reject_order_detail,
+    mark_customer_arrived as mark_order_detail_customer_arrived,
     start_service as start_order_detail_service,
     complete_service as complete_order_detail_service,
 )
@@ -16,7 +17,7 @@ from apps.orders.lifecycle import (
     mark_review_requested,
     notify_operational_milestone,
 )
-from apps.payments.finance import sync_settlement_for_order
+from apps.payments.finance import finalize_order_financials, sync_settlement_for_order
 from apps.salons.models import SalonMembership, SalonMembershipStatus
 from apps.salons.membership import ensure_membership_permissions
 
@@ -45,7 +46,7 @@ ACTION_LABELS = {
     ACTION_REJECT_APPOINTMENT: "رد نوبت",
     ACTION_START_SERVICE: "شروع خدمت",
     ACTION_COMPLETE_SERVICE: "پایان خدمت",
-    ACTION_REJECT_APPOINTMENT_PREVIEW: "بررسی رد نوبت",
+    ACTION_REJECT_APPOINTMENT_PREVIEW: "بررسی لغو نوبت",
     ACTION_COMPLETE_SERVICE_PREVIEW: "بررسی پایان خدمت",
 }
 
@@ -164,12 +165,16 @@ def _stylist_decision_preview(
         raise ValidationError("این رزرو لغو شده است.")
 
     if decision == "reject":
-        if detail.confirmation_status != OrderDetail.ConfirmationStatus.PENDING:
-            raise ValidationError("این نوبت دیگر در وضعیت انتظار تأیید نیست.")
+        if detail.confirmation_status == OrderDetail.ConfirmationStatus.REJECTED:
+            raise ValidationError("این نوبت قبلاً لغو شده است.")
+        if detail.customer_arrived_at or detail.service_started_at or detail.service_completed_at:
+            raise ValidationError("بعد از شروع فرایند خدمت، این نوبت از این مسیر قابل لغو نیست.")
+        if detail.no_show_pending_at or detail.no_show_confirmed_at:
+            raise ValidationError("برای این نوبت وضعیت عدم حضور ثبت شده است.")
         target_action = ACTION_REJECT_APPOINTMENT
-        heading = "رد این نوبت؟"
-        note = "با رد نوبت، این خدمت لغو می‌شود و نتیجه برای مشتری و مدیر سالن ارسال خواهد شد."
-        confirm_label = "بله، نوبت را رد کن"
+        heading = "این نوبت لغو شود؟"
+        note = "اگر امکان انجام این نوبت را نداری، با تأیید این گزینه رزرو لغو می‌شود و به مشتری و مدیر مجموعه اطلاع داده خواهد شد."
+        confirm_label = "بله، نوبت را لغو کن"
     elif decision == "complete":
         if not detail.service_started_at:
             raise ValidationError("شروع این خدمت هنوز ثبت نشده است.")
@@ -269,19 +274,41 @@ def _apply_lightweight_stylist_lifecycle_action(detail: OrderDetail, action: str
         return "نوبت تأیید شد."
 
     if action == "reject":
-        if detail.confirmation_status == OrderDetail.ConfirmationStatus.CONFIRMED:
-            raise ValidationError("خدمت تایید شده را از این بخش نمی‌توان رد کرد.")
         if detail.confirmation_status == OrderDetail.ConfirmationStatus.REJECTED:
-            raise ValidationError("این خدمت قبلاً رد شده است.")
+            raise ValidationError("این نوبت قبلاً لغو شده است.")
+        if detail.customer_arrived_at or detail.service_started_at or detail.service_completed_at:
+            raise ValidationError("بعد از شروع فرایند خدمت، این نوبت از این مسیر قابل لغو نیست.")
+        if detail.no_show_pending_at or detail.no_show_confirmed_at:
+            raise ValidationError("برای این نوبت وضعیت عدم حضور ثبت شده است.")
 
-        reject_order_detail(detail=detail, actor=actor, reason="رد شده توسط متخصص")
-        return "نوبت رد و لغو شد. به مشتری و مدیر سالن اطلاع داده شد."
+        reject_order_detail(
+            detail=detail,
+            actor=actor,
+            reason="متخصص اعلام کرد امکان انجام این نوبت را ندارد",
+        )
+        return "نوبت لغو شد و به مشتری و مدیر مجموعه اطلاع داده شد."
 
     if action == "start_service":
-        if not detail.customer_arrived_at:
-            raise ValidationError("ابتدا باید رسیدن مشتری ثبت شود.")
         if detail.service_started_at:
             raise ValidationError("شروع این خدمت قبلاً ثبت شده است.")
+        if detail.service_completed_at:
+            raise ValidationError("این خدمت قبلاً پایان یافته است.")
+        if detail.no_show_pending_at or detail.no_show_confirmed_at:
+            raise ValidationError("برای این نوبت وضعیت عدم حضور ثبت شده است.")
+
+        # Booking finalization auto-confirms normal rows. Legacy pending rows are
+        # normalized on the first operational action, exactly like the website.
+        if detail.confirmation_status == OrderDetail.ConfirmationStatus.PENDING:
+            confirm_order_detail(detail=detail, actor=actor, auto=True)
+            detail.refresh_from_db()
+
+        if detail.confirmation_status != OrderDetail.ConfirmationStatus.CONFIRMED:
+            raise ValidationError("این نوبت در وضعیت قابل شروع نیست.")
+
+        # Starting service is also the check-in action in the current fast flow.
+        if not detail.customer_arrived_at:
+            mark_order_detail_customer_arrived(detail=detail, actor=actor)
+            detail.refresh_from_db()
 
         start_order_detail_service(detail=detail, actor=actor)
         detail.refresh_from_db()
@@ -291,11 +318,11 @@ def _apply_lightweight_stylist_lifecycle_action(detail: OrderDetail, action: str
         notify_operational_milestone(
             order,
             event_type="service_started",
-            title="انجام کار شروع شد",
+            title="انجام خدمت شروع شد",
             body=f"اجرای خدمت {detail.service.service_name if detail.service_id else ''} شروع شد.",
         )
 
-        return "شروع خدمت ثبت شد."
+        return "خدمت شروع شد."
 
     if action == "complete_service":
         complete_order_detail_service(detail=detail, actor=actor)
@@ -311,11 +338,26 @@ def _apply_lightweight_stylist_lifecycle_action(detail: OrderDetail, action: str
             latest_payment = order.payment_order.order_by("-id").first()
             sync_settlement_for_order(order, payment=latest_payment)
 
+            finance_finalized = True
+            try:
+                finalize_order_financials(
+                    order,
+                    payment=latest_payment,
+                    recorded_by=actor,
+                    require_all_completed=True,
+                )
+            except Exception:
+                finance_finalized = False
+
             notify_operational_milestone(
                 order,
                 event_type="service_completed",
                 title="خدمت به پایان رسید",
-                body="همه خدمات این رزرو انجام شدند. اکنون مواد مصرفی باید ثبت و محاسبات مالی نهایی شود.",
+                body=(
+                    "همه خدمات این رزرو انجام شدند و محاسبات مالی به‌صورت خودکار نهایی شد."
+                    if finance_finalized
+                    else "همه خدمات این رزرو انجام شدند. محاسبات مالی برای بررسی بیشتر در جزئیات باقی مانده است."
+                ),
             )
 
             if order.selected_payment_method == "pay_in_salon" and not order.is_paid:
@@ -323,7 +365,7 @@ def _apply_lightweight_stylist_lifecycle_action(detail: OrderDetail, action: str
                     order,
                     event_type="pay_in_salon_pending",
                     title="رزرو آماده تسویه در مجموعه است",
-                    body="خدمت کامل شده و مشتری می‌تواند پرداخت نقدی را تایید کند یا آنلاین بپردازد.",
+                    body="خدمت کامل شده است. پس از دریافت وجه، متخصص می‌تواند پرداخت حضوری را با «دریافت وجه شد» نهایی کند.",
                 )
             else:
                 mark_review_requested(order)

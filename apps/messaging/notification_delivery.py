@@ -235,14 +235,14 @@ def _decision_notification_text(delivery: NotificationDelivery) -> str:
 
     if isinstance(related, OrderDetail):
         if role == NotificationAudienceRole.STYLIST:
-            if related.confirmation_status == OrderDetail.ConfirmationStatus.PENDING:
-                heading = "نوبت جدید برای تأیید"
-            elif related.service_completed_at:
+            if related.service_completed_at:
                 heading = "خدمت انجام شد"
             elif related.service_started_at:
                 heading = "خدمت در حال انجام"
             elif related.customer_arrived_at:
                 heading = "مشتری رسیده"
+            elif str(notification.event_type or "") in {"booking_created", "booking_paid"}:
+                heading = "نوبت جدید برای شما ثبت شد"
             else:
                 heading = str(notification.title or "نوبت").strip() or "نوبت"
             return appointment_block(

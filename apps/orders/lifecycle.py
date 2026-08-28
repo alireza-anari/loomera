@@ -687,11 +687,7 @@ def notify_manager_and_stylists_for_booking(order: Order, *, event_type: str):
         if not stylist or stylist.pk in notified_stylist_ids:
             continue
         notified_stylist_ids.add(stylist.pk)
-        stylist_title = (
-            "رزرو جدید نیازمند تایید شماست"
-            if not order.stylist_approved
-            else "رزرو جدید برای شما ثبت شد"
-        )
+        stylist_title = "نوبت جدید برای شما ثبت شد"
         stylist_body = f"{customer_name} برای {item.service.service_name if item.service_id else 'خدمت'} در {meta_label or 'برنامه رزرو'} به شما تخصیص داده شد."
         create_notification(
             order=order,

@@ -152,7 +152,9 @@ class BaleOperatorUxPhase3Tests(TestCase):
             ACTION_REJECT_APPOINTMENT_PREVIEW,
         )
 
-        detail = self._appointment()
+        detail = self._appointment(
+            confirmation_status=OrderDetail.ConfirmationStatus.CONFIRMED
+        )
         raw_token, _ = issue_action_token(
             provider=self.bale,
             identity=self.stylist_identity,
@@ -175,9 +177,9 @@ class BaleOperatorUxPhase3Tests(TestCase):
         self.assertEqual(result.status, MessagingActionStatus.SUCCEEDED)
         self.assertTrue(result.result.get("preview"))
         self.assertEqual(
-            detail.confirmation_status, OrderDetail.ConfirmationStatus.PENDING
+            detail.confirmation_status, OrderDetail.ConfirmationStatus.CONFIRMED
         )
-        self.assertIn("رد این نوبت؟", result.user_message)
+        self.assertIn("این نوبت لغو شود؟", result.user_message)
         self.assertTrue(
             MessagingToken.objects.filter(
                 purpose=MessagingTokenPurpose.ACTION,

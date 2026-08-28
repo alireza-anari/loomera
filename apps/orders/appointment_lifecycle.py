@@ -157,6 +157,7 @@ def _ensure_dashboard_notification(
             )
             from apps.notifications.services import (
                 _customer_simple_bale_delivery_enabled,
+                _stylist_simple_bale_delivery_enabled,
                 _manager_default_messaging_actions,
                 _stylist_order_detail_messaging_actions,
                 notification_preference_enabled,
@@ -250,6 +251,14 @@ def _ensure_dashboard_notification(
                 event_type=event_type,
             ):
                 notification_metadata["messaging_customer_simple"] = True
+                should_queue_bale = True
+            elif _stylist_simple_bale_delivery_enabled(
+                role=role_value,
+                notification=notification,
+                related_object=detail,
+                event_type=event_type,
+            ):
+                notification_metadata["messaging_stylist_simple"] = True
                 should_queue_bale = True
 
             if notification_metadata != (notification.metadata or {}):

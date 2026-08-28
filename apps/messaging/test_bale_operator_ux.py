@@ -124,7 +124,7 @@ class BaleOperatorUxTests(TestCase):
     def test_stylist_today_shows_decision_data_and_action_buttons(self):
         from .stylist_bot import render_stylist_today
 
-        self._appointment()
+        self._appointment(confirmation_status=OrderDetail.ConfirmationStatus.CONFIRMED)
         text, markup = render_stylist_today(
             self.stylist_user,
             "https://staging.loomera.ir",
@@ -136,8 +136,9 @@ class BaleOperatorUxTests(TestCase):
         self.assertIn("رنگ ریشه", text)
         self.assertIn("۴۵۰,۰۰۰ تومان", text)
         buttons = [button for row in markup["inline_keyboard"] for button in row]
-        self.assertTrue(any("تأیید نوبت" in button["text"] for button in buttons))
-        self.assertTrue(any("رد نوبت" in button["text"] for button in buttons))
+        self.assertFalse(any("تأیید نوبت" in button["text"] for button in buttons))
+        self.assertTrue(any("شروع خدمت" in button["text"] for button in buttons))
+        self.assertTrue(any("امکان انجام ندارم" in button["text"] for button in buttons))
         self.assertGreaterEqual(
             MessagingToken.objects.filter(
                 purpose=MessagingTokenPurpose.ACTION,
@@ -173,9 +174,9 @@ class BaleOperatorUxTests(TestCase):
         self.assertTrue(any("رد مرخصی" in button["text"] for button in buttons))
 
     def test_stylist_notification_is_rendered_as_decision_card(self):
-        detail = self._appointment()
+        detail = self._appointment(confirmation_status=OrderDetail.ConfirmationStatus.CONFIRMED)
         notification = Notification.objects.create(
-            event_type="stylist_booking_pending",
+            event_type="booking_created",
             title="اعلان رزرو",
             body="یک رزرو جدید دارید.",
             related_object=detail,
@@ -193,7 +194,7 @@ class BaleOperatorUxTests(TestCase):
 
         text = render_simple_notification_text(delivery)
 
-        self.assertIn("نوبت جدید برای تأیید", text)
+        self.assertIn("نوبت جدید برای شما ثبت شد", text)
         self.assertIn("مشتری: علی مشتری", text)
         self.assertIn("خدمت: رنگ ریشه", text)
         self.assertNotIn("یک رزرو جدید دارید", text)
