@@ -1,5 +1,6 @@
 const ROOT_SELECTOR = "[data-help-assistant]";
 const CONVERSATION_STORAGE_KEY = "loomera.help-assistant.conversation.v3";
+const ACTION_STORAGE_KEY = "loomera.help-assistant.action-state.v1";
 
 function csrfToken(root) {
   return (
@@ -21,6 +22,35 @@ function setStoredConversationId(value) {
     if (value) sessionStorage.setItem(CONVERSATION_STORAGE_KEY, value);
     else sessionStorage.removeItem(CONVERSATION_STORAGE_KEY);
   } catch (_) {}
+}
+
+function getStoredActionState() {
+  try {
+    const raw = sessionStorage.getItem(ACTION_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function setStoredActionState(value) {
+  try {
+    if (value && typeof value === "object") {
+      sessionStorage.setItem(ACTION_STORAGE_KEY, JSON.stringify(value));
+    } else {
+      sessionStorage.removeItem(ACTION_STORAGE_KEY);
+    }
+  } catch (_) {}
+}
+
+function formatToman(value) {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return "";
+  try {
+    return `${new Intl.NumberFormat("fa-IR").format(amount)} تومان`;
+  } catch (_) {
+    return `${amount.toLocaleString()} تومان`;
+  }
 }
 
 function positionKey() {
@@ -407,6 +437,142 @@ function sourceDetails(sources = []) {
   return details;
 }
 
+function discoveryCard(payload = {}) {
+  if (!payload?.handled) return null;
+
+  const card = document.createElement("section");
+  card.className = "lm-help-assistant__discovery";
+  card.setAttribute("aria-label", "نتایج جستجوی لومی");
+
+  if (Array.isArray(payload.filters) && payload.filters.length) {
+    const filters = document.createElement("div");
+    filters.className = "lm-help-assistant__discovery-filters";
+    payload.filters.forEach((item) => {
+      const chip = document.createElement("span");
+      chip.className = "lm-help-assistant__discovery-chip";
+      const icon = document.createElement("i");
+      icon.className = `fa-solid fa-${item.icon || "check"}`;
+      icon.setAttribute("aria-hidden", "true");
+      const label = document.createElement("span");
+      label.textContent = item.label || "";
+      chip.append(icon, label);
+      filters.appendChild(chip);
+    });
+    card.appendChild(filters);
+  }
+
+  if (payload.request_location) {
+    const location = document.createElement("button");
+    location.type = "button";
+    location.className = "lm-help-assistant__discovery-location";
+    location.dataset.lumiLocation = "1";
+    location.innerHTML = `
+      <span><i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i> استفاده از موقعیت من</span>
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    `;
+    card.appendChild(location);
+  }
+
+  if (Array.isArray(payload.suggestions) && payload.suggestions.length) {
+    const suggestions = document.createElement("div");
+    suggestions.className = "lm-help-assistant__discovery-suggestions";
+    payload.suggestions.forEach((item) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.lumiMessage = item.message || item.label || "";
+      button.textContent = item.label || item.message || "";
+      suggestions.appendChild(button);
+    });
+    card.appendChild(suggestions);
+  }
+
+  if (Array.isArray(payload.results) && payload.results.length) {
+    const list = document.createElement("div");
+    list.className = "lm-help-assistant__discovery-results";
+
+    payload.results.forEach((result, index) => {
+      const item = document.createElement("article");
+      item.className = "lm-help-assistant__discovery-result";
+
+      const top = document.createElement("div");
+      top.className = "lm-help-assistant__discovery-result-top";
+
+      if (result.image_url) {
+        const image = document.createElement("img");
+        image.className = "lm-help-assistant__discovery-image";
+        image.src = result.image_url;
+        image.alt = "";
+        image.loading = "lazy";
+        top.appendChild(image);
+      } else {
+        const placeholder = document.createElement("span");
+        placeholder.className = "lm-help-assistant__discovery-image lm-help-assistant__discovery-image--placeholder";
+        placeholder.innerHTML = '<i class="fa-solid fa-store" aria-hidden="true"></i>';
+        top.appendChild(placeholder);
+      }
+
+      const copy = document.createElement("div");
+      copy.className = "lm-help-assistant__discovery-result-copy";
+      const rank = document.createElement("span");
+      rank.className = "lm-help-assistant__discovery-rank";
+      rank.textContent = String(index + 1);
+      const title = document.createElement("strong");
+      title.textContent = result.name || "مجموعه";
+      const location = document.createElement("small");
+      location.textContent = result.location || "";
+      copy.append(title);
+      if (result.location) copy.append(location);
+      top.append(rank, copy);
+      item.appendChild(top);
+
+      const meta = document.createElement("div");
+      meta.className = "lm-help-assistant__discovery-meta";
+      if (result.price !== null && result.price !== undefined) {
+        const price = document.createElement("span");
+        price.innerHTML = `<i class="fa-solid fa-wallet" aria-hidden="true"></i> از ${formatToman(result.price)}`;
+        meta.appendChild(price);
+      }
+      if (result.distance_km !== null && result.distance_km !== undefined) {
+        const distance = document.createElement("span");
+        distance.innerHTML = `<i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${result.distance_km} کیلومتر`;
+        meta.appendChild(distance);
+      }
+      if (Number(result.rating) > 0) {
+        const rating = document.createElement("span");
+        rating.innerHTML = `<i class="fa-solid fa-star" aria-hidden="true"></i> ${result.rating}`;
+        meta.appendChild(rating);
+      }
+      if (result.availability) {
+        const availability = document.createElement("span");
+        availability.className = "lm-help-assistant__discovery-availability";
+        availability.innerHTML = `<i class="fa-regular fa-clock" aria-hidden="true"></i> ${result.availability}`;
+        meta.appendChild(availability);
+      }
+      if (meta.childElementCount) item.appendChild(meta);
+
+      if (result.url) {
+        const action = document.createElement("a");
+        action.className = "lm-help-assistant__discovery-result-action";
+        action.href = result.url;
+        action.innerHTML = '<span>مشاهده و رزرو</span><i class="fa-solid fa-chevron-left" aria-hidden="true"></i>';
+        item.appendChild(action);
+      }
+      list.appendChild(item);
+    });
+    card.appendChild(list);
+  }
+
+  if (payload.search_url) {
+    const all = document.createElement("a");
+    all.className = "lm-help-assistant__discovery-all";
+    all.href = payload.search_url;
+    all.innerHTML = `<span>${payload.search_label || "مشاهده همه نتایج"}</span><i class="fa-solid fa-arrow-up-left-from-square" aria-hidden="true"></i>`;
+    card.appendChild(all);
+  }
+
+  return card.childElementCount ? card : null;
+}
+
 function addMessage(container, role, text, options = {}) {
   const row = document.createElement("div");
   row.className = `lm-help-assistant__message lm-help-assistant__message--${role}`;
@@ -446,6 +612,9 @@ function addMessage(container, role, text, options = {}) {
     const guide = guideCard(guideFromOptions(options));
     if (guide) stack.appendChild(guide);
 
+    const discovery = discoveryCard(options.discovery || null);
+    if (discovery) stack.appendChild(discovery);
+
     const details = sourceDetails(options.sources || []);
     if (details) stack.appendChild(details);
 
@@ -484,6 +653,49 @@ async function getConversation(root, conversationId) {
   if (response.status === 404) return null;
   if (!response.ok) throw new Error("conversation");
   return response.json();
+}
+
+async function sendCustomerDiscovery(root, message, actionState, coordinates = null) {
+  if (!root.dataset.customerDiscoveryUrl) return { handled: false };
+  const body = {
+    message,
+    action_state: actionState || null,
+  };
+  if (coordinates) {
+    body.latitude = coordinates.latitude;
+    body.longitude = coordinates.longitude;
+  }
+
+  const response = await fetch(root.dataset.customerDiscoveryUrl, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrfToken(root),
+      "X-Requested-With": "XMLHttpRequest",
+    },
+    body: JSON.stringify(body),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error || "discovery");
+  return payload;
+}
+
+function requestBrowserLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("مرورگرت دسترسی به موقعیت مکانی رو پشتیبانی نمی‌کنه. نام محله رو بنویس."));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => resolve({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      }),
+      () => reject(new Error("دسترسی موقعیت داده نشد. نام محله یا محدوده رو بنویس.")),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  });
 }
 
 async function sendChat(root, message, history, conversationId) {
@@ -546,6 +758,8 @@ function init() {
   let history = [];
   let context = null;
   let conversationId = getStoredConversationId();
+  let actionState = getStoredActionState();
+  let actionCoordinates = null;
 
   applyPosition(root);
   bindDrag(root, fab);
@@ -554,6 +768,9 @@ function init() {
     history = [];
     conversationId = null;
     setStoredConversationId(null);
+    actionState = null;
+    actionCoordinates = null;
+    setStoredActionState(null);
     conversationHydrated = true;
 
     messages.querySelectorAll(".lm-help-assistant__message").forEach((item) => item.remove());
@@ -677,6 +894,51 @@ function init() {
     }
   });
 
+  root.addEventListener("click", async (event) => {
+    const messageButton = event.target.closest("[data-lumi-message]");
+    if (messageButton && root.contains(messageButton)) {
+      input.value = messageButton.dataset.lumiMessage || "";
+      autoGrow(input);
+      form.requestSubmit();
+      return;
+    }
+
+    const locationButton = event.target.closest("[data-lumi-location]");
+    if (!locationButton || !root.contains(locationButton) || send.disabled) return;
+
+    locationButton.disabled = true;
+    const original = locationButton.innerHTML;
+    locationButton.innerHTML = '<span><i class="fa-solid fa-spinner fa-spin"></i> دریافت موقعیت…</span>';
+    try {
+      const coordinates = await requestBrowserLocation();
+      actionCoordinates = coordinates;
+      const typing = addMessage(messages, "assistant", "", { temporary: true });
+      const payload = await sendCustomerDiscovery(
+        root,
+        "از موقعیت من استفاده کن",
+        actionState,
+        coordinates
+      );
+      typing.remove();
+      if (!payload.handled) throw new Error("discovery");
+      if (Object.prototype.hasOwnProperty.call(payload, "action_state")) {
+        actionState = payload.action_state;
+      }
+      setStoredActionState(actionState);
+      addMessage(messages, "assistant", payload.answer || "نتیجه جستجو آماده است.", {
+        root,
+        discovery: payload,
+      });
+      history.push({ role: "assistant", content: payload.answer || "نتیجه جستجو آماده است." });
+      handoffBox.hidden = true;
+    } catch (error) {
+      addMessage(messages, "assistant", error.message || "نتونستم موقعیت رو دریافت کنم. نام محله رو بنویس.", { root });
+    } finally {
+      locationButton.disabled = false;
+      locationButton.innerHTML = original;
+    }
+  });
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const text = input.value.trim();
@@ -692,6 +954,23 @@ function init() {
     const typing = addMessage(messages, "assistant", "", { temporary: true });
 
     try {
+      const actionPayload = await sendCustomerDiscovery(root, text, actionState, actionCoordinates);
+      if (actionPayload?.handled) {
+        typing.remove();
+        if (Object.prototype.hasOwnProperty.call(actionPayload, "action_state")) {
+          actionState = actionPayload.action_state;
+        }
+        setStoredActionState(actionState);
+        const actionAnswer = actionPayload.answer || "نتیجه جستجو آماده است.";
+        addMessage(messages, "assistant", actionAnswer, {
+          root,
+          discovery: actionPayload,
+        });
+        history.push({ role: "assistant", content: actionAnswer });
+        handoffBox.hidden = true;
+        return;
+      }
+
       const payload = await sendChat(root, text, history, conversationId);
       typing.remove();
 
