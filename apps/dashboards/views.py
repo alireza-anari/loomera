@@ -5395,6 +5395,38 @@ def _build_created_stylist_setup_handoff(*, request, salon):
     }
 
 
+UPCOMING_ACTIVE_ORDER_STATUSES = ("pending", "confirmed", "paid")
+
+
+def _active_upcoming_appointment_q(*, prefix="", now=None):
+    # Shared definition of an active future appointment for dashboard surfaces.
+    local_now = timezone.localtime(now or timezone.now())
+    today = local_now.date()
+    current_time = local_now.time()
+    field_prefix = f"{prefix}__" if prefix else ""
+
+    future_time = (
+        Q(**{f"{field_prefix}date__gt": today})
+        | Q(
+            **{
+                f"{field_prefix}date": today,
+                f"{field_prefix}time__gt": current_time,
+            }
+        )
+    )
+    active_status = Q(
+        **{
+            f"{field_prefix}order__status__in": UPCOMING_ACTIVE_ORDER_STATUSES,
+        }
+    )
+    not_rejected = ~Q(
+        **{
+            f"{field_prefix}confirmation_status": OrderDetail.ConfirmationStatus.REJECTED,
+        }
+    )
+    return future_time & active_status & not_rejected
+
+
 TEAM_MEMBER_SERVICES_ATTR = "_team_member_salon_services"
 
 
@@ -5442,16 +5474,9 @@ def _build_team_member_stylists_queryset(salon):
             upcoming_count=Count(
                 "order_details_stylist",
                 filter=(
-                    Q(
-                        order_details_stylist__salon=salon,
-                        order_details_stylist__date__gte=(timezone.localdate()),
-                    )
-                    & ~Q(
-                        order_details_stylist__order__status__in=[
-                            "cancelled",
-                            "completed",
-                            "no_show",
-                        ]
+                    Q(order_details_stylist__salon=salon)
+                    & _active_upcoming_appointment_q(
+                        prefix="order_details_stylist",
                     )
                 ),
                 distinct=True,
@@ -5516,9 +5541,8 @@ class TeamMemberView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
                 OrderDetail.objects.filter(
                     salon=salon,
                     stylist=stylist,
-                    date__gte=timezone.localdate(),
                 )
-                .exclude(order__status__in=["cancelled", "completed", "no_show"])
+                .filter(_active_upcoming_appointment_q())
                 .count()
             )
 
@@ -6121,9 +6145,8 @@ class StylistOverviewView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, 
             OrderDetail.objects.filter(
                 salon=salon,
                 stylist=stylist,
-                date__gte=timezone.localdate(),
             )
-            .exclude(order__status="cancelled")
+            .filter(_active_upcoming_appointment_q())
             .select_related("service", "order__customer__user")
             .order_by("date", "time", "id")[:5]
         )
