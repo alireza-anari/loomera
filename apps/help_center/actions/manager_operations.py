@@ -17,6 +17,7 @@ from apps.stylists.dashboard_services import review_leave_request, review_schedu
 from apps.stylists.models import StaffLeaveRequest, StaffScheduleRequest
 
 from .common import date_label, issue_confirmation, normalize_text, resolve_current_path, serialize_time
+from .work_queries import is_manager_read_query_candidate, run_manager_read_query
 
 CANCEL_TERMS = ("بیخیال", "بی خیال", "بی‌خیال", "ولش کن", "انصراف")
 INVITE_TERMS = ("دعوت", "اضافه", "متخصص جدید", "عضو جدید")
@@ -359,6 +360,14 @@ def run_manager_operation(request, message: str, state: dict | None, *, current_
     current_result = _run_current_appointment(request, message, current_path)
     if current_result is not None:
         return current_result
+
+    if is_manager_read_query_candidate(message):
+        read_result = run_manager_read_query(
+            salon=_manager_salon(request),
+            message=message,
+        )
+        if read_result is not None:
+            return read_result
 
     pending = _pending_requests(request, message)
     if pending is not None:

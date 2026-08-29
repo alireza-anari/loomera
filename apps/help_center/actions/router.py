@@ -17,7 +17,13 @@ from .stylist_operations import (
     run_stylist_leave,
     run_stylist_payout,
     run_stylist_schedule,
+    run_stylist_read_operation,
 )
+from .work_queries import (
+    is_manager_read_query_candidate,
+    is_stylist_read_query_candidate,
+)
+
 
 CAPABILITY_TERMS = (
     "چه کارهایی میتونی",
@@ -77,6 +83,8 @@ def _capabilities(request) -> dict:
                 "role": "stylist",
                 "title": "برای متخصص",
                 "items": [
+                    "دیدن نوبت‌های امروز و فردا و نوبت بعدی",
+                    "دیدن برنامه کاری و ساعت پایان کار",
                     "ساخت درخواست برنامه کاری برای یک یا چند روز",
                     "ثبت درخواست مرخصی روزانه یا ساعتی",
                     "رفتن مستقیم به درآمد و درخواست برداشت",
@@ -93,6 +101,8 @@ def _capabilities(request) -> dict:
                 "role": "manager",
                 "title": "برای مدیر مجموعه",
                 "items": [
+                    "دیدن نوبت‌های امروز و فردا و نوبت بعدی متخصص",
+                    "دیدن برنامه کاری، متخصص‌های فعال و خدمات مجموعه",
                     "دیدن و تأیید یا رد درخواست برنامه کاری و مرخصی تیم",
                     "دعوت متخصص جدید با شماره موبایل",
                     "لغو نوبت یا ثبت پرداخت روی نوبتی که صفحه‌اش باز است",
@@ -209,6 +219,10 @@ def is_assistant_action_candidate(request, *, message: str = "", action_state: d
     state = action_state or {}
     if state.get("mode") in {"stylist_schedule", "stylist_leave", "stylist_payout", "manager_invite"}:
         return True
+    if "manager" in roles and is_manager_read_query_candidate(message):
+        return True
+    if "stylist" in roles and is_stylist_read_query_candidate(message):
+        return True
     if is_stylist_operation_candidate(message, action_state, has_stylist_role="stylist" in roles):
         return True
     if "stylist" in roles and "برداشت" in text:
@@ -250,6 +264,10 @@ def run_assistant_action(request, *, message: str, action_state: dict | None, cu
             return result
 
     if "stylist" in roles:
+        if is_stylist_read_query_candidate(message):
+            read_result = run_stylist_read_operation(request, message)
+            if read_result is not None:
+                return read_result
         if is_stylist_operation_candidate(message, state, has_stylist_role=True):
             if any(term in text for term in ("مرخصی", "آف", "عدم حضور")) or state.get("mode") == "stylist_leave":
                 return run_stylist_leave(request, message, state)

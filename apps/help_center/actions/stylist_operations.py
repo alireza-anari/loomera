@@ -25,6 +25,7 @@ from .common import (
     parse_time_range,
     serialize_time,
 )
+from .work_queries import run_stylist_read_query
 
 SCHEDULE_TERMS = (
     "برنامه کاری",
@@ -65,6 +66,15 @@ def _ctx(request):
     if ctx.salon is None:
         raise ValidationError("برای این کار ابتدا باید یک مجموعه فعال در داشبورد متخصص داشته باشی.")
     return ctx
+
+def run_stylist_read_operation(request, message: str) -> dict | None:
+    ctx = _ctx(request)
+    return run_stylist_read_query(
+        salon=ctx.salon,
+        stylist=ctx.stylist,
+        message=message,
+    )
+
 
 
 def _service_match(*, salon, stylist, text: str, existing_id=None):
