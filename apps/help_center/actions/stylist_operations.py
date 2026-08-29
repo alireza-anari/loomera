@@ -73,9 +73,8 @@ def run_stylist_read_operation(request, message: str) -> dict | None:
         salon=ctx.salon,
         stylist=ctx.stylist,
         message=message,
+        can_view_clients=ctx.can("can_view_own_clients", default=False),
     )
-
-
 
 def _service_match(*, salon, stylist, text: str, existing_id=None):
     services = list(

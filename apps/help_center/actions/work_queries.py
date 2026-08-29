@@ -359,7 +359,13 @@ def run_manager_read_query(
 
 
 def run_stylist_read_query(
-    *, salon, stylist, message: str, today: date | None = None, now: datetime | None = None
+    *,
+    salon,
+    stylist,
+    message: str,
+    today: date | None = None,
+    now: datetime | None = None,
+    can_view_clients: bool = True,
 ) -> dict | None:
     if not is_stylist_read_query_candidate(message):
         return None
@@ -368,6 +374,17 @@ def run_stylist_read_query(
     today = today or timezone.localdate()
     target = _target_date(message, today=today)
     day_word = _day_word(target, today=today)
+    appointment_query = any(
+        term in text for term in ("نوبت", "مشتری", "مشتری بعدی")
+    )
+    if appointment_query and not can_view_clients:
+        return _notice(
+            "برای دیدن نوبت‌ها و اطلاعات مشتری‌ها در این مجموعه دسترسی لازم رو نداری.",
+            result={
+                "type": "permission_denied",
+                "permission": "can_view_own_clients",
+            },
+        )
 
     if any(term in text for term in ("نوبت", "مشتری بعدی")) and (
         "بعدی" in text or "بعدیم" in text or "مشتری بعدی" in text
@@ -426,3 +443,4 @@ def run_stylist_read_query(
         )
 
     return None
+

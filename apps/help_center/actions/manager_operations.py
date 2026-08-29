@@ -24,18 +24,55 @@ INVITE_TERMS = ("دعوت", "اضافه", "متخصص جدید", "عضو جدی�
 INVITE_ACTION_TERMS = ("کن", "بفرست", "اضافه", "دعوت", "میخوام", "می خوام", "می‌خوام")
 
 
-def _manager_salon(request) -> Salon:
-    if not getattr(request.user, "is_authenticated", False) or not hasattr(request.user, "salon_manager_profile"):
+def _manager_salon(
+    request,
+    *,
+    message: str = "",
+    salon_id=None,
+) -> Salon:
+    if not getattr(request.user, "is_authenticated", False) or not hasattr(
+        request.user, "salon_manager_profile"
+    ):
         raise ValidationError("این عملیات از حساب مدیر مجموعه انجام می‌شود.")
-    salon = (
+
+    queryset = (
         Salon.objects.select_related("salon_manager__user")
         .filter(salon_manager__user=request.user)
-        .first()
+        .order_by("pk")
     )
-    if salon is None:
-        raise ValidationError("برای این حساب، مجموعه‌ای پیدا نشد.")
-    return salon
 
+    if salon_id:
+        salon = queryset.filter(pk=salon_id).first()
+        if salon is None:
+            raise ValidationError("این عملیات برای یکی از مجموعه‌های این حساب معتبر نیست.")
+        return salon
+
+    salons = list(queryset[:25])
+    if not salons:
+        raise ValidationError("برای این حساب، مجموعه‌ای پیدا نشد.")
+    if len(salons) == 1:
+        return salons[0]
+
+    text = normalize_text(message)
+    if text:
+        matches = [
+            salon
+            for salon in salons
+            if normalize_text(salon.salon_name)
+            and normalize_text(salon.salon_name) in text
+        ]
+        if len(matches) == 1:
+            return matches[0]
+        if len(matches) > 1:
+            raise ValidationError(
+                "چند مجموعه با این عبارت پیدا کردم. نام کامل مجموعه رو بگو تا اشتباه انتخاب نکنم."
+            )
+
+    names = "، ".join(salon.salon_name for salon in salons[:6])
+    raise ValidationError(
+        "چند مجموعه برای این حساب داری. نام مجموعه رو در درخواستت بگو تا اشتباه انتخاب نکنم."
+        + (f" مجموعه‌ها: {names}" if names else "")
+    )
 
 def _mobile_from_message(message: str) -> str:
     raw = str(message or "").translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
@@ -51,7 +88,10 @@ def _role_title_from_message(message: str) -> str:
     return (match.group(1).strip() if match else "")[:60]
 
 
-def _current_manager_appointment(request, current_path: str) -> tuple[Salon, OrderDetail] | None:
+def _current_manager_appointment(
+    request,
+    current_path: str,
+) -> tuple[Salon, OrderDetail] | None:
     match = resolve_current_path(current_path)
     if not match or match.view_name not in {
         "dashboards:appointment_detail",
@@ -61,7 +101,7 @@ def _current_manager_appointment(request, current_path: str) -> tuple[Salon, Ord
     appointment_id = match.kwargs.get("appointment_id")
     if not appointment_id:
         return None
-    salon = _manager_salon(request)
+
     item = (
         OrderDetail.objects.select_related(
             "order",
@@ -69,14 +109,17 @@ def _current_manager_appointment(request, current_path: str) -> tuple[Salon, Ord
             "service",
             "stylist__user",
             "salon",
+            "salon__salon_manager__user",
         )
-        .filter(pk=appointment_id, salon=salon)
+        .filter(
+            pk=appointment_id,
+            salon__salon_manager__user=request.user,
+        )
         .first()
     )
     if item is None:
         return None
-    return salon, item
-
+    return item.salon, item
 
 def _appointment_rows(item: OrderDetail) -> list[dict]:
     customer = getattr(getattr(item.order, "customer", None), "user", None)
@@ -236,7 +279,7 @@ def _pending_requests(request, message: str) -> dict | None:
     asks_pending = any(term in text for term in ("نشون", "نشان", "ببین", "بررسی", "در انتظار", "جدید"))
     if not asks_requests or not asks_pending:
         return None
-    salon = _manager_salon(request)
+    salon = _manager_salon(request, message=message)
 
     rows: list[dict] = []
     if "مرخصی" in text:
@@ -281,10 +324,14 @@ def _pending_requests(request, message: str) -> dict | None:
         },
     }
 
-
 def _invite_state(request, message: str, state: dict | None) -> dict:
-    salon = _manager_salon(request)
-    state = dict(state or {}) if (state or {}).get("mode") == "manager_invite" else {"mode": "manager_invite"}
+    previous = dict(state or {}) if (state or {}).get("mode") == "manager_invite" else {}
+    salon = (
+        _manager_salon(request, salon_id=previous.get("salon_id"))
+        if previous.get("salon_id")
+        else _manager_salon(request, message=message)
+    )
+    state = previous or {"mode": "manager_invite"}
     mobile = _mobile_from_message(message)
     if mobile:
         state["mobile_number"] = mobile
@@ -295,9 +342,8 @@ def _invite_state(request, message: str, state: dict | None) -> dict:
     state["salon_name"] = salon.salon_name
     return state
 
-
 def _invite_preview(request, state: dict) -> dict:
-    salon = _manager_salon(request)
+    salon = _manager_salon(request, salon_id=state.get("salon_id"))
     if str(state.get("salon_id")) != str(salon.pk):
         raise ValidationError("مجموعه تغییر کرده. دعوت متخصص را دوباره آماده کن.")
     mobile = normalize_mobile(state.get("mobile_number") or "")
@@ -342,7 +388,6 @@ def _invite_preview(request, state: dict) -> dict:
         "cancel_label": "انصراف",
     }
 
-
 def run_manager_operation(request, message: str, state: dict | None, *, current_path: str = "") -> dict | None:
     text = normalize_text(message)
     state = state or {}
@@ -363,7 +408,7 @@ def run_manager_operation(request, message: str, state: dict | None, *, current_
 
     if is_manager_read_query_candidate(message):
         read_result = run_manager_read_query(
-            salon=_manager_salon(request),
+            salon=_manager_salon(request, message=message),
             message=message,
         )
         if read_result is not None:
@@ -441,7 +486,7 @@ def run_manager_operation(request, message: str, state: dict | None, *, current_
                 },
             }
         if "تقویم" in text or any(term in text for term in ("نوبت های مجموعه", "نوبت‌های مجموعه", "رزروهای مجموعه")):
-            salon = _manager_salon(request)
+            salon = _manager_salon(request, message=message)
             return {
                 "handled": True,
                 "kind": "action_link",
@@ -456,11 +501,10 @@ def run_manager_operation(request, message: str, state: dict | None, *, current_
 
     return None
 
-
 def execute_manager_confirmation(request, payload: dict) -> dict:
     action = str(payload.get("action") or "")
     data = payload.get("data") or {}
-    salon = _manager_salon(request)
+    salon = _manager_salon(request, salon_id=data.get("salon_id"))
     if str(data.get("salon_id")) != str(salon.pk):
         raise ValidationError("این عملیات برای مجموعه فعلی معتبر نیست.")
 
@@ -612,3 +656,4 @@ def execute_manager_confirmation(request, payload: dict) -> dict:
         }
 
     raise ValidationError("عملیات مدیر معتبر نیست.")
+
