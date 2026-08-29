@@ -13,6 +13,11 @@ function csrfToken(root) {
   );
 }
 
+function lumiApiError(response, payload, fallback) {
+  if (response.status >= 500) return fallback;
+  return payload?.error || fallback;
+}
+
 function getStoredConversationId() {
   try { return sessionStorage.getItem(CONVERSATION_STORAGE_KEY) || null; } catch (_) { return null; }
 }
@@ -1095,7 +1100,7 @@ async function sendAssistantAction(root, { message = "", actionState = null, com
     }),
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || "عملیات انجام نشد.");
+  if (!response.ok) throw new Error(lumiApiError(response, payload, "الان نتونستم این کار رو انجام بدم. دوباره امتحان کن."));
   return payload;
 }
 
@@ -1132,7 +1137,10 @@ async function postOperationalEndpoint(root, payload) {
   });
   const body = await response.json().catch(() => ({}));
   if (!response.ok || body.success === false) {
-    throw new Error(body.error || "عملیات انجام نشد.");
+    const fallback = response.status >= 500
+      ? "نتونستم نتیجه این عملیات رو با اطمینان تأیید کنم. قبل از تکرار، وضعیت فعلی رو بررسی کن."
+      : "عملیات انجام نشد.";
+    throw new Error(lumiApiError(response, body, fallback));
   }
   return {
     handled: true,
@@ -1170,7 +1178,7 @@ async function sendCustomerDiscovery(root, message, actionState, coordinates = n
     body: JSON.stringify(body),
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || "discovery");
+  if (!response.ok) throw new Error(lumiApiError(response, payload, "الان نتونستم جستجو رو انجام بدم. دوباره امتحان کن."));
   return payload;
 }
 
@@ -1192,7 +1200,7 @@ async function sendCustomerBooking(root, action, actionState, extra = {}) {
     }),
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || "رزرو انجام نشد.");
+  if (!response.ok) throw new Error(lumiApiError(response, payload, "الان نتونستم اطلاعات رزرو رو دریافت کنم. دوباره امتحان کن."));
   return payload;
 }
 
@@ -1256,7 +1264,7 @@ async function sendChat(root, message, history, conversationId) {
   });
 
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || "chat");
+  if (!response.ok) throw new Error(lumiApiError(response, payload, "الان نتونستم پاسخ بدم. دوباره امتحان کن."));
   return payload;
 }
 
