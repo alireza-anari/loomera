@@ -2415,3 +2415,49 @@ button.lm-help-assistant__discovery-result-action { width: 100%; cursor: pointer
     font-size: 12.5px;
   }
 }
+
+/* Lumi Beta UX: explicit recoverable error state. */
+.lm-help-assistant__message--error .lm-help-assistant__bubble {
+  border-color: #f0cfd7;
+  background: #fff8fa;
+  color: #704553;
+}
+
+.lm-help-assistant__retry {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 7px 10px;
+  border: 1px solid rgba(110, 85, 187, .22);
+  border-radius: 10px;
+  background: #fff;
+  color: #654fb1;
+  cursor: pointer;
+  font: inherit;
+  font-size: 8.5px;
+  font-weight: 900;
+}
+
+.lm-help-assistant__retry:hover {
+  background: #f6f2ff;
+}
+
+.lm-help-assistant__retry:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.lm-help-assistant__composer[aria-busy="true"] .lm-help-assistant__input-shell {
+  opacity: .82;
+}
+
+@media (max-width: 767px) {
+  .lm-help-assistant__retry {
+    min-height: 42px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+}

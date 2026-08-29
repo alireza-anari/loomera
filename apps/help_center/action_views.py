@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-
+import logging
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -20,6 +20,24 @@ from .actions.router import (
     is_assistant_action_candidate,
     run_assistant_action,
 )
+
+
+logger = logging.getLogger(__name__)
+
+
+def _unexpected_action_error_response(*, uncertain_write: bool = False):
+    if uncertain_write:
+        message = (
+            "نتونستم نتیجه این عملیات رو با اطمینان تأیید کنم. "
+            "قبل از تکرار، وضعیت فعلی رو بررسی کن."
+        )
+    else:
+        message = "الان نتونستم این کار رو انجام بدم. دوباره امتحان کن."
+    return JsonResponse(
+        {"error": message},
+        status=500,
+        json_dumps_params={"ensure_ascii": False},
+    )
 
 
 def _consume_action_limit(request) -> bool:
@@ -76,12 +94,16 @@ def customer_discovery_api(request):
             status=429,
         )
 
-    result = run_customer_discovery(
-        message,
-        state=action_state,
-        latitude=payload.get("latitude"),
-        longitude=payload.get("longitude"),
-    )
+    try:
+        result = run_customer_discovery(
+            message,
+            state=action_state,
+            latitude=payload.get("latitude"),
+            longitude=payload.get("longitude"),
+        )
+    except Exception:
+        logger.exception("Unexpected Lumi customer discovery failure")
+        return _unexpected_action_error_response()
     return JsonResponse(result, json_dumps_params={"ensure_ascii": False})
 
 
@@ -110,13 +132,16 @@ def customer_booking_api(request):
 
     try:
         result = run_customer_booking_action(request, payload)
-    except Exception as exc:
-        from django.core.exceptions import ValidationError
-
-        if isinstance(exc, ValidationError):
-            messages = getattr(exc, "messages", None) or [str(exc)]
-            return JsonResponse({"error": messages[0]}, status=400, json_dumps_params={"ensure_ascii": False})
-        raise
+    except ValidationError as exc:
+        messages = getattr(exc, "messages", None) or [str(exc)]
+        return JsonResponse(
+            {"error": messages[0]},
+            status=400,
+            json_dumps_params={"ensure_ascii": False},
+        )
+    except Exception:
+        logger.exception("Unexpected Lumi customer booking action failure")
+        return _unexpected_action_error_response()
     return JsonResponse(result, json_dumps_params={"ensure_ascii": False})
 
 
@@ -201,5 +226,8 @@ def assistant_action_api(request):
             )
     except ValidationError as exc:
         return _validation_error_response(exc)
+    except Exception:
+        logger.exception("Unexpected Lumi assistant action failure")
+        return _unexpected_action_error_response(uncertain_write=(command == "execute"))
 
     return JsonResponse(result, json_dumps_params={"ensure_ascii": False})
