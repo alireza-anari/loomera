@@ -18,6 +18,31 @@ function lumiApiError(response, payload, fallback) {
   return payload?.error || fallback;
 }
 
+
+function lumiRequestError(error, fallback) {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return "اتصال اینترنت قطع شده. بعد از وصل شدن دوباره امتحان کن.";
+  }
+  if (error?.name === "AbortError") {
+    return "دریافت پاسخ بیشتر از حد معمول طول کشید. دوباره امتحان کن.";
+  }
+  const message = String(error?.message || "").trim();
+  if (!message || /failed to fetch|networkerror|load failed|network request failed/i.test(message)) {
+    return "ارتباط با لومی برقرار نشد. اتصال اینترنت رو بررسی کن و دوباره امتحان کن.";
+  }
+  return message || fallback;
+}
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = 30000) {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
 function getStoredConversationId() {
   try { return sessionStorage.getItem(CONVERSATION_STORAGE_KEY) || null; } catch (_) { return null; }
 }
@@ -995,6 +1020,7 @@ function operationalCard(payload = {}) {
 function addMessage(container, role, text, options = {}) {
   const row = document.createElement("div");
   row.className = `lm-help-assistant__message lm-help-assistant__message--${role}`;
+  if (options.error) row.classList.add("lm-help-assistant__message--error");
   if (options.temporary) row.dataset.temporary = "1";
 
   if (role === "assistant" && !options.temporary) {
@@ -1026,6 +1052,15 @@ function addMessage(container, role, text, options = {}) {
   }
 
   stack.appendChild(bubble);
+
+  if (role === "assistant" && !options.temporary && options.retryMessage) {
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.className = "lm-help-assistant__retry";
+    retry.dataset.lumiRetryMessage = String(options.retryMessage);
+    retry.innerHTML = '<i class="fa-solid fa-rotate-right" aria-hidden="true"></i><span>دوباره امتحان</span>';
+    stack.appendChild(retry);
+  }
 
   if (role === "assistant" && !options.temporary) {
     const guide = guideCard(guideFromOptions(options));
@@ -1082,7 +1117,7 @@ async function getConversation(root, conversationId) {
 
 async function sendAssistantAction(root, { message = "", actionState = null, command = "message", confirmationToken = "", choiceToken = "" } = {}) {
   if (!root.dataset.assistantActionUrl) return { handled: false };
-  const response = await fetch(root.dataset.assistantActionUrl, {
+  const requestOptions = {
     method: "POST",
     credentials: "same-origin",
     headers: {
@@ -1098,7 +1133,10 @@ async function sendAssistantAction(root, { message = "", actionState = null, com
       confirmation_token: confirmationToken || "",
       choice_token: choiceToken || "",
     }),
-  });
+  };
+  const response = command === "execute"
+    ? await fetch(root.dataset.assistantActionUrl, requestOptions)
+    : await fetchWithTimeout(root.dataset.assistantActionUrl, requestOptions);
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(lumiApiError(response, payload, "الان نتونستم این کار رو انجام بدم. دوباره امتحان کن."));
   return payload;
@@ -1167,7 +1205,7 @@ async function sendCustomerDiscovery(root, message, actionState, coordinates = n
     body.longitude = coordinates.longitude;
   }
 
-  const response = await fetch(root.dataset.customerDiscoveryUrl, {
+  const response = await fetchWithTimeout(root.dataset.customerDiscoveryUrl, {
     method: "POST",
     credentials: "same-origin",
     headers: {
@@ -1182,10 +1220,9 @@ async function sendCustomerDiscovery(root, message, actionState, coordinates = n
   return payload;
 }
 
-
 async function sendCustomerBooking(root, action, actionState, extra = {}) {
   if (!root.dataset.customerBookingUrl) throw new Error("مسیر رزرو لومی در دسترس نیست.");
-  const response = await fetch(root.dataset.customerBookingUrl, {
+  const response = await fetchWithTimeout(root.dataset.customerBookingUrl, {
     method: "POST",
     credentials: "same-origin",
     headers: {
@@ -1246,7 +1283,7 @@ function requestBrowserLocation() {
 }
 
 async function sendChat(root, message, history, conversationId) {
-  const response = await fetch(root.dataset.chatUrl, {
+  const response = await fetchWithTimeout(root.dataset.chatUrl, {
     method: "POST",
     credentials: "same-origin",
     headers: {
@@ -1442,6 +1479,18 @@ function init() {
   });
 
   root.addEventListener("click", async (event) => {
+    const retryButton = event.target.closest("[data-lumi-retry-message]");
+    if (retryButton && root.contains(retryButton) && !send.disabled) {
+      const retryMessage = String(retryButton.dataset.lumiRetryMessage || "").trim();
+      if (!retryMessage) return;
+      retryButton.disabled = true;
+      retryButton.closest(".lm-help-assistant__message")?.remove();
+      form.dataset.lumiRetryMessage = retryMessage;
+      input.value = retryMessage;
+      autoGrow(input);
+      form.requestSubmit();
+      return;
+    }
     const messageButton = event.target.closest("[data-lumi-message]");
     if (messageButton && root.contains(messageButton)) {
       input.value = messageButton.dataset.lumiMessage || "";
@@ -1468,7 +1517,7 @@ function init() {
         history.push({ role: "assistant", content: answer });
       } catch (error) {
         typing.remove();
-        addMessage(messages, "assistant", error.message || "انتخاب انجام نشد. دوباره تلاش کن.", { root });
+        addMessage(messages, "assistant", lumiRequestError(error, "انتخاب انجام نشد. دوباره تلاش کن."), { root, error: true });
       } finally {
         choiceButton.disabled = false;
       }
@@ -1510,7 +1559,7 @@ function init() {
         handoffBox.hidden = true;
       } catch (error) {
         typing.remove();
-        addMessage(messages, "assistant", error.message || "عملیات انجام نشد. دوباره تلاش کن.", { root });
+        addMessage(messages, "assistant", lumiRequestError(error, "عملیات انجام نشد. دوباره تلاش کن."), { root, error: true });
       } finally {
         confirmActionButton.disabled = false;
       }
@@ -1544,7 +1593,7 @@ function init() {
         history.push({ role: "assistant", content: payload.answer || "متخصص‌ها آماده‌اند." });
       } catch (error) {
         typing.remove();
-        addMessage(messages, "assistant", error.message || "نتونستم متخصص‌ها رو دریافت کنم.", { root });
+        addMessage(messages, "assistant", lumiRequestError(error, "نتونستم متخصص‌ها رو دریافت کنم."), { root, error: true });
       } finally {
         salonButton.disabled = false;
       }
@@ -1566,7 +1615,7 @@ function init() {
         history.push({ role: "assistant", content: payload.answer || "زمان‌های آزاد آماده‌اند." });
       } catch (error) {
         typing.remove();
-        addMessage(messages, "assistant", error.message || "نتونستم زمان‌های آزاد رو دریافت کنم.", { root });
+        addMessage(messages, "assistant", lumiRequestError(error, "نتونستم زمان‌های آزاد رو دریافت کنم."), { root, error: true });
       } finally {
         stylistButton.disabled = false;
       }
@@ -1589,7 +1638,7 @@ function init() {
         history.push({ role: "assistant", content: payload.answer || "جزئیات رزرو آماده است." });
       } catch (error) {
         typing.remove();
-        addMessage(messages, "assistant", error.message || "این زمان دیگه قابل رزرو نیست.", { root });
+        addMessage(messages, "assistant", lumiRequestError(error, "این زمان دیگه قابل رزرو نیست."), { root, error: true });
       } finally {
         slotButton.disabled = false;
       }
@@ -1608,7 +1657,7 @@ function init() {
         addMessage(messages, "assistant", payload.answer || "نزدیک‌ترین زمان‌ها رو پیدا کردم.", { root, booking: payload });
       } catch (error) {
         typing.remove();
-        addMessage(messages, "assistant", error.message || "زمان دیگری پیدا نشد.", { root });
+        addMessage(messages, "assistant", lumiRequestError(error, "زمان دیگری پیدا نشد."), { root, error: true });
       } finally {
         relaxButton.disabled = false;
       }
@@ -1630,7 +1679,7 @@ function init() {
         addMessage(messages, "assistant", "متخصص دیگه‌ای انتخاب کن.", { root, booking: payload });
       } catch (error) {
         typing.remove();
-        addMessage(messages, "assistant", error.message || "نتونستم فهرست متخصص‌ها رو تازه کنم.", { root });
+        addMessage(messages, "assistant", lumiRequestError(error, "نتونستم فهرست متخصص‌ها رو تازه کنم."), { root, error: true });
       }
       return;
     }
@@ -1643,7 +1692,7 @@ function init() {
         setStoredActionState(null);
         addMessage(messages, "assistant", payload.answer || "رزرو لغو شد.", { root });
       } catch (error) {
-        addMessage(messages, "assistant", error.message || "نتونستم فرایند رو پاک کنم.", { root });
+        addMessage(messages, "assistant", lumiRequestError(error, "نتونستم فرایند رو پاک کنم."), { root, error: true });
       }
       return;
     }
@@ -1685,7 +1734,7 @@ function init() {
       history.push({ role: "assistant", content: payload.answer || "نتیجه جستجو آماده است." });
       handoffBox.hidden = true;
     } catch (error) {
-      addMessage(messages, "assistant", error.message || "نتونستم موقعیت رو دریافت کنم. نام محله رو بنویس.", { root });
+      addMessage(messages, "assistant", lumiRequestError(error, "نتونستم موقعیت رو دریافت کنم. نام محله رو بنویس."), { root, error: true });
     } finally {
       locationButton.disabled = false;
       locationButton.innerHTML = original;
@@ -1697,13 +1746,20 @@ function init() {
     const text = input.value.trim();
     if (!text || send.disabled) return;
 
+    const retryMessage = String(form.dataset.lumiRetryMessage || "").trim();
+    const isRetry = Boolean(retryMessage && retryMessage === text);
+    delete form.dataset.lumiRetryMessage;
+
     welcome.hidden = true;
-    addMessage(messages, "user", text);
-    history.push({ role: "user", content: text });
+    if (!isRetry) {
+      addMessage(messages, "user", text);
+      history.push({ role: "user", content: text });
+    }
 
     input.value = "";
     autoGrow(input);
     send.disabled = true;
+    form.setAttribute("aria-busy", "true");
     const typing = addMessage(messages, "assistant", "", { temporary: true });
 
     try {
@@ -1779,17 +1835,20 @@ function init() {
       handoffBox.hidden = hasGroundedHelp;
     } catch (error) {
       typing.remove();
+      const fallback = "الان نتونستم پاسخ رو دریافت کنم. دوباره امتحان کن؛ اگر ادامه داشت، همین گفتگو رو برای پشتیبانی بفرست.";
+      const message = error?.message === "chat"
+        ? fallback
+        : lumiRequestError(error, fallback);
       addMessage(
         messages,
         "assistant",
-        error.message && error.message !== "chat"
-          ? error.message
-          : "الان نتونستم پاسخ رو دریافت کنم. یک‌بار دیگه امتحان کن؛ اگر ادامه داشت، همین گفتگو رو برای پشتیبانی بفرست.",
-        { root }
+        message,
+        { root, error: true, retryMessage: text }
       );
       handoffBox.hidden = false;
     } finally {
       send.disabled = false;
+      form.removeAttribute("aria-busy");
       input.focus();
     }
   });
@@ -1841,7 +1900,7 @@ function init() {
 
       throw new Error(payload.error || "ارجاع گفتگو انجام نشد.");
     } catch (error) {
-      addMessage(messages, "assistant", error.message || "ارجاع گفتگو انجام نشد.", { root });
+      addMessage(messages, "assistant", lumiRequestError(error, "ارجاع گفتگو انجام نشد."), { root, error: true });
     } finally {
       escalate.disabled = false;
       escalate.innerHTML = original;
