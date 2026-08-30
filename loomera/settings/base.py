@@ -224,6 +224,11 @@ TELEGRAM_BOT_API_BASE_URL = env(
     "TELEGRAM_BOT_API_BASE_URL", default="https://api.telegram.org/bot"
 ).strip()
 TELEGRAM_BOT_REQUEST_TIMEOUT = env.int("TELEGRAM_BOT_REQUEST_TIMEOUT", default=10)
+TELEGRAM_RELAY_URL = (
+    env("TELEGRAM_RELAY_URL", default="").strip().rstrip("/")
+)
+TELEGRAM_RELAY_SECRET = env("TELEGRAM_RELAY_SECRET", default="").strip()
+
 TELEGRAM_BOT_USERNAME = env("TELEGRAM_BOT_USERNAME", default="").strip().lstrip("@")
 TELEGRAM_WEBHOOK_SECRET = env("TELEGRAM_WEBHOOK_SECRET", default="").strip()
 TELEGRAM_WEBHOOK_MAX_BYTES = env.int("TELEGRAM_WEBHOOK_MAX_BYTES", default=256 * 1024)
