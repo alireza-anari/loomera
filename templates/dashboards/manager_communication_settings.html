@@ -3,405 +3,298 @@
 {% block title %}اعلان‌ها و ارتباطات{% endblock %}
 
 {% block content %}
-  <section class="min-w-0 max-w-full space-y-4 overflow-visible"
-           data-dashboard-page="communication-settings"
-           data-dashboard-workspace-root>
+<section class="min-w-0 max-w-full space-y-4 overflow-visible"
+         data-dashboard-page="communication-settings"
+         data-dashboard-workspace-root>
 
-    <header class="rounded-[24px] border border-loomera-borderSoft bg-white px-4 py-3.5 shadow-lm-card sm:px-5 sm:py-4">
+  <header class="rounded-[24px] border border-loomera-borderSoft bg-white px-4 py-3.5 shadow-lm-card sm:px-5 sm:py-4">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+        <i class="fa-regular fa-bell" aria-hidden="true"></i>
+      </span>
+      <div class="min-w-0">
+        <h1 class="text-xl font-black text-loomera-textPrimary sm:text-2xl">اعلان‌ها و ارتباطات</h1>
+        <p class="mt-1 text-xs font-bold leading-6 text-loomera-textMuted">
+          {{ communication_description }}
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <div class="lm-task-tabs-anchor"
+       data-lm-task-tabs-anchor="communication-settings"
+       data-lm-task-tabs-label="بخش‌های اعلان‌ها و ارتباطات"
+       aria-label="بخش‌های اعلان‌ها و ارتباطات"></div>
+
+  <section id="communication-settings-notifications"
+           class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+           data-dashboard-workspace-panel
+           data-lm-direct-section
+           data-lm-task-panel="communication-settings"
+           data-lm-task-key="notifications"
+           data-lm-task-label="پیام‌ها"
+           data-lm-task-order="1">
+    <header data-lm-direct-section-header
+            class="border-b border-loomera-borderSoft bg-white/95 px-4 py-4 sm:px-5 lg:px-6">
       <div class="flex items-center gap-3">
-
-        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-          <i class="fa-regular fa-bell" aria-hidden="true"></i>
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+          <i class="fa-solid fa-message" aria-hidden="true"></i>
         </span>
-
-        <div class="min-w-0">
-          <h1 class="text-xl font-black text-loomera-textPrimary sm:text-2xl">
-            اعلان‌ها و ارتباطات
-          </h1>
-
-          <p class="mt-1 line-clamp-2 text-xs font-bold leading-6 text-loomera-textMuted">
-            {{ communication_description }}
-          </p>
+        <div>
+          <p class="text-[11px] font-black text-loomera-primaryText">پیام‌های {{ communication_role_label }}</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">انتخاب کانال‌های پیام‌رسان</h2>
         </div>
-
       </div>
     </header>
 
+    <form method="post" class="space-y-4 p-4 sm:p-5 lg:p-6" data-communication-notification-form>
+      {% csrf_token %}
 
-    <div class="lm-task-tabs-anchor"
-         data-lm-task-tabs-anchor="communication-settings"
-         data-lm-task-tabs-label="بخش‌های اعلان‌ها و ارتباطات"
-         aria-label="بخش‌های اعلان‌ها و ارتباطات"></div>
+      <p class="text-xs font-bold leading-6 text-loomera-textMuted">
+        بله و تلگرام مستقل از هم هستند. خاموش کردن یک پیام‌رسان، ارسال همان پیام‌رسان را متوقف می‌کند؛
+        اعلان‌های داخلی لومرا مستقل باقی می‌مانند.
+      </p>
 
-
-    <section id="communication-settings-notifications"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             data-lm-direct-section
-             data-lm-task-panel="communication-settings"
-             data-lm-task-key="notifications"
-             data-lm-task-label="پیام‌ها"
-             data-lm-task-order="1">
-
-      <header data-lm-direct-section-header
-              class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
-
-        <div class="flex min-w-0 items-center gap-3">
-
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-            <i class="fa-solid fa-message" aria-hidden="true"></i>
-          </span>
-
-          <div class="min-w-0">
-            <p class="text-[11px] font-black text-loomera-primaryText">
-              پیام‌های {{ communication_role_label }}
-            </p>
-
-            <h2 id="communication-notification-title"
-                class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">
-              پیام‌های بله
-            </h2>
-          </div>
-
-        </div>
-
-
-        <span class="inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-black {% if bale_connected %}bg-emerald-50 text-emerald-700{% else %}bg-loomera-bgSubtle text-loomera-textMuted{% endif %}">
-
-          <span class="h-2 w-2 rounded-full {% if bale_connected %}bg-emerald-500{% else %}bg-loomera-textMuted/40{% endif %}"
-                aria-hidden="true"></span>
-
-          {% if bale_connected %}
-            بله متصل است
-          {% elif bale_ready %}
-            بله متصل نیست
-          {% else %}
-            بله در دسترس نیست
-          {% endif %}
-
-        </span>
-
-      </header>
-
-
-      <form method="post"
-            class="space-y-4 p-4 sm:p-5 lg:p-6"
-            data-communication-notification-form>
-
-        {% csrf_token %}
-
-        <p class="text-xs font-bold leading-6 text-loomera-textMuted">
-          انتخاب کن کدام پیام‌های مربوط به نقش {{ communication_role_label }} در بله برایت ارسال شوند.
-          اعلان‌های داخل داشبورد و پیام‌های امنیتی ضروری مستقل هستند.
-        </p>
-
-
-        <div class="space-y-3">
-
-          <label class="lm-provider-switch-row flex cursor-pointer items-center justify-between gap-4 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 transition hover:border-loomera-primary/20 hover:bg-white">
-
-            <span class="min-w-0">
-              <span class="block text-sm font-black text-loomera-textPrimary">
-                پیام‌های کاری
+      <div class="grid gap-4 lg:grid-cols-2">
+        <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/45 p-4">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
               </span>
-
-              <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">
-                رزرو، پرداخت، امور مالی، مرخصی، همکاری، پشتیبانی و رویدادهای کاری.
-              </span>
-            </span>
-
-
-            <span class="flex shrink-0 items-center gap-2">
-
-              <input type="checkbox"
-                     name="bale_operational"
-                     value="1"
-                     class="lm-provider-switch-input sr-only"
-                     role="switch"
-                     {% if operational_enabled %}checked{% endif %}>
-
-              <span class="lm-provider-switch-track" aria-hidden="true">
-                <span class="lm-provider-switch-thumb"></span>
-              </span>
-
-              <span class="lm-provider-switch-state min-w-12 text-left text-xs font-black">
-                <span class="lm-provider-switch-state-off text-loomera-textMuted">
-                  خاموش
-                </span>
-
-                <span class="lm-provider-switch-state-on text-loomera-primaryText">
-                  روشن
-                </span>
-              </span>
-
-            </span>
-
-          </label>
-
-
-          <label class="lm-provider-switch-row flex cursor-pointer items-center justify-between gap-4 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 transition hover:border-loomera-primary/20 hover:bg-white">
-
-            <span class="min-w-0">
-              <span class="block text-sm font-black text-loomera-textPrimary">
-                پیام‌های تبلیغاتی
-              </span>
-
-              <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">
-                پیشنهادها، کمپین‌ها و پیام‌های بازاریابی غیرضروری.
-              </span>
-            </span>
-
-
-            <span class="flex shrink-0 items-center gap-2">
-
-              <input type="checkbox"
-                     name="bale_marketing"
-                     value="1"
-                     class="lm-provider-switch-input sr-only"
-                     role="switch"
-                     {% if marketing_enabled %}checked{% endif %}>
-
-              <span class="lm-provider-switch-track" aria-hidden="true">
-                <span class="lm-provider-switch-thumb"></span>
-              </span>
-
-              <span class="lm-provider-switch-state min-w-12 text-left text-xs font-black">
-
-                <span class="lm-provider-switch-state-off text-loomera-textMuted">
-                  خاموش
-                </span>
-
-                <span class="lm-provider-switch-state-on text-loomera-primaryText">
-                  روشن
-                </span>
-
-              </span>
-
-            </span>
-
-          </label>
-
-        </div>
-
-
-        <div class="flex flex-col gap-2 border-t border-loomera-borderSoft pt-4 sm:flex-row sm:items-center sm:justify-between">
-
-          <a href="{{ notification_center_url }}"
-             class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
-
-            <i class="fa-regular fa-bell text-xs" aria-hidden="true"></i>
-            <span>مشاهده اعلان‌ها</span>
-
-          </a>
-
-
-          <button type="submit"
-                  class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-xs font-black text-white shadow-[0_10px_24px_rgba(115,92,190,0.18)] transition hover:opacity-95">
-
-            <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i>
-            <span>ذخیره تغییرات</span>
-
-          </button>
-
-        </div>
-
-      </form>
-
-    </section>
-
-
-    <section id="communication-settings-bale"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel
-             data-lm-direct-section
-             data-lm-task-panel="communication-settings"
-             data-lm-task-key="bale"
-             data-lm-task-label="اتصال بله"
-             data-lm-task-order="2"
-             data-bale-connection>
-
-      <header data-lm-direct-section-header
-              class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 sm:px-5 lg:px-6 lg:py-4">
-
-        <div class="flex min-w-0 items-center gap-3">
-
-
-          <!-- Bale icon -->
-          <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft"
-                aria-hidden="true">
-
-            <svg viewBox="0 0 48 48"
-                 class="h-8 w-8"
-                 xmlns="http://www.w3.org/2000/svg"
-                 focusable="false">
-
-              <defs>
-                <linearGradient id="baleIconGradient"
-                                x1="7"
-                                y1="42"
-                                x2="41"
-                                y2="8"
-                                gradientUnits="userSpaceOnUse">
-                  <stop offset="0" stop-color="#4A2383"/>
-                  <stop offset="0.48" stop-color="#247C91"/>
-                  <stop offset="1" stop-color="#52D4A7"/>
-                </linearGradient>
-              </defs>
-
-              <path
-                d="M9 12.5C9 8.7 12.9 6.4 16.1 8.4L20.2 11C23.1 9.2 26.5 8.2 30.1 8.2C39.5 8.2 45 15.2 45 23.5C45 34.3 37.1 42 26.3 42C15.7 42 8 34.9 8 24.1V12.5H9Z"
-                fill="url(#baleIconGradient)"/>
-
-              <path
-                d="M16.8 24.1L22.4 29.6L33.6 18.3"
-                fill="none"
-                stroke="white"
-                stroke-width="5.2"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-
-            </svg>
-
-          </span>
-
-
-          <div class="min-w-0">
-
-            <p class="text-[11px] font-black text-loomera-primaryText">
-              پیام‌رسان
-            </p>
-
-            <h2 id="bale-connection-title"
-                class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">
-              اتصال حساب بله
-            </h2>
-
-          </div>
-
-        </div>
-
-      </header>
-
-
-      <div class="space-y-4 p-4 sm:p-5 lg:p-6">
-
-        {% if bale_connected %}
-
-          <div class="rounded-[22px] border border-emerald-200 bg-emerald-50/70 p-4">
-
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
-              <div class="min-w-0">
-
-                <div class="flex items-center gap-2">
-
-                  <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                    <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
-                  </span>
-
-                  <p class="text-sm font-black text-emerald-800">
-                    حساب بله متصل است
-                  </p>
-
-                </div>
-
-
-                <p class="mt-2 text-xs leading-6 text-emerald-800/80">
-
-                  {% if bale_connection.identity.display_name %}
-                    {{ bale_connection.identity.display_name }}
-
-                  {% elif bale_connection.identity.username %}
-                    {{ bale_connection.identity.username }}
-
-                  {% else %}
-                    اتصال فعال بله
-                  {% endif %}
-
-                  {% if bale_connection.connected_at %}
-                    · متصل از {{ bale_connection.connected_at|date:"Y/m/d" }}
-                  {% endif %}
-
+              <div>
+                <p class="text-sm font-black text-loomera-textPrimary">بله</p>
+                <p class="mt-1 text-[11px] font-bold text-loomera-textMuted">
+                  {% if bale_connected %}متصل{% elif bale_ready %}متصل نیست{% else %}در دسترس نیست{% endif %}
                 </p>
-
               </div>
-
-
-              <form method="post"
-                    action="{% url 'messaging:disconnect' bale_connection.identity.id %}"
-                    onsubmit="return confirm('اتصال بله از این حساب قطع شود؟');">
-
-                {% csrf_token %}
-
-                <input type="hidden"
-                       name="next"
-                       value="{{ request.path }}">
-
-                <button type="submit"
-                        class="inline-flex min-h-10 w-full items-center justify-center rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-black text-rose-700 transition hover:bg-rose-50 sm:w-auto">
-                  قطع اتصال
-                </button>
-
-              </form>
-
             </div>
-
           </div>
 
+          <div class="space-y-3">
+            <label class="lm-provider-switch-row flex cursor-pointer items-center justify-between gap-4 rounded-[20px] border border-loomera-borderSoft bg-white p-3">
+              <span>
+                <span class="block text-sm font-black text-loomera-textPrimary">پیام‌های کاری</span>
+                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">رزرو، پرداخت، مرخصی، همکاری و رویدادهای کاری.</span>
+              </span>
+              <span class="flex shrink-0 items-center gap-2">
+                <input type="checkbox" name="bale_operational" value="1"
+                       class="lm-provider-switch-input sr-only" role="switch"
+                       {% if bale_operational %}checked{% endif %}>
+                <span class="lm-provider-switch-track" aria-hidden="true"><span class="lm-provider-switch-thumb"></span></span>
+                <span class="lm-provider-switch-state min-w-12 text-left text-xs font-black">
+                  <span class="lm-provider-switch-state-off text-loomera-textMuted">خاموش</span>
+                  <span class="lm-provider-switch-state-on text-loomera-primaryText">روشن</span>
+                </span>
+              </span>
+            </label>
 
-        {% elif bale_ready %}
+            <label class="lm-provider-switch-row flex cursor-pointer items-center justify-between gap-4 rounded-[20px] border border-loomera-borderSoft bg-white p-3">
+              <span>
+                <span class="block text-sm font-black text-loomera-textPrimary">پیام‌های تبلیغاتی</span>
+                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">پیشنهادها و پیام‌های بازاریابی اختیاری.</span>
+              </span>
+              <span class="flex shrink-0 items-center gap-2">
+                <input type="checkbox" name="bale_marketing" value="1"
+                       class="lm-provider-switch-input sr-only" role="switch"
+                       {% if bale_marketing %}checked{% endif %}>
+                <span class="lm-provider-switch-track" aria-hidden="true"><span class="lm-provider-switch-thumb"></span></span>
+                <span class="lm-provider-switch-state min-w-12 text-left text-xs font-black">
+                  <span class="lm-provider-switch-state-off text-loomera-textMuted">خاموش</span>
+                  <span class="lm-provider-switch-state-on text-loomera-primaryText">روشن</span>
+                </span>
+              </span>
+            </label>
+          </div>
+        </article>
 
-          <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4">
-
-            <p class="text-sm font-black text-loomera-textPrimary">
-              هنوز حساب بله متصل نشده است
-            </p>
-
-            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-              برای دریافت پیام‌های فعال‌شده، حساب بله را به همین حساب لومرا متصل کن.
-            </p>
-
-
-            <a href="{{ bale_connect_url }}"
-               class="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-xs font-black text-white shadow-[0_10px_24px_rgba(115,92,190,0.18)] transition hover:opacity-95 sm:w-auto">
-
-              <i class="fa-solid fa-link text-[10px]" aria-hidden="true"></i>
-              <span>اتصال به بله</span>
-
-            </a>
-
+        <article class="rounded-[24px] border border-sky-100 bg-sky-50/40 p-4">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sky-600 shadow-sm">
+                <i class="fa-brands fa-telegram" aria-hidden="true"></i>
+              </span>
+              <div>
+                <p class="text-sm font-black text-loomera-textPrimary">تلگرام</p>
+                <p class="mt-1 text-[11px] font-bold text-loomera-textMuted">
+                  {% if telegram_connected %}متصل{% elif telegram_ready %}متصل نیست{% else %}در دسترس نیست{% endif %}
+                </p>
+              </div>
+            </div>
           </div>
 
+          <div class="space-y-3">
+            <label class="lm-provider-switch-row flex cursor-pointer items-center justify-between gap-4 rounded-[20px] border border-sky-100 bg-white p-3">
+              <span>
+                <span class="block text-sm font-black text-loomera-textPrimary">پیام‌های کاری</span>
+                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">رزرو، تغییر زمان، لغو و رویدادهای کاری.</span>
+              </span>
+              <span class="flex shrink-0 items-center gap-2">
+                <input type="checkbox" name="telegram_operational" value="1"
+                       class="lm-provider-switch-input sr-only" role="switch"
+                       {% if telegram_operational %}checked{% endif %}>
+                <span class="lm-provider-switch-track" aria-hidden="true"><span class="lm-provider-switch-thumb"></span></span>
+                <span class="lm-provider-switch-state min-w-12 text-left text-xs font-black">
+                  <span class="lm-provider-switch-state-off text-loomera-textMuted">خاموش</span>
+                  <span class="lm-provider-switch-state-on text-loomera-primaryText">روشن</span>
+                </span>
+              </span>
+            </label>
 
-        {% else %}
-
-          <div class="rounded-[22px] border border-amber-200 bg-amber-50 p-4">
-
-            <p class="text-sm font-black text-amber-900">
-              اتصال بله فعلاً در دسترس نیست
-            </p>
-
-            <p class="mt-1 text-xs leading-6 text-amber-800">
-              انتخاب‌های پیام‌ها را می‌توانی ذخیره کنی؛ بعد از فعال‌شدن بله همین تنظیمات استفاده می‌شوند.
-            </p>
-
+            <label class="lm-provider-switch-row flex cursor-pointer items-center justify-between gap-4 rounded-[20px] border border-sky-100 bg-white p-3">
+              <span>
+                <span class="block text-sm font-black text-loomera-textPrimary">پیام‌های تبلیغاتی</span>
+                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">پیشنهادها و پیام‌های بازاریابی اختیاری.</span>
+              </span>
+              <span class="flex shrink-0 items-center gap-2">
+                <input type="checkbox" name="telegram_marketing" value="1"
+                       class="lm-provider-switch-input sr-only" role="switch"
+                       {% if telegram_marketing %}checked{% endif %}>
+                <span class="lm-provider-switch-track" aria-hidden="true"><span class="lm-provider-switch-thumb"></span></span>
+                <span class="lm-provider-switch-state min-w-12 text-left text-xs font-black">
+                  <span class="lm-provider-switch-state-off text-loomera-textMuted">خاموش</span>
+                  <span class="lm-provider-switch-state-on text-loomera-primaryText">روشن</span>
+                </span>
+              </span>
+            </label>
           </div>
-
-        {% endif %}
-
-
-        <div class="flex justify-end border-t border-loomera-borderSoft pt-4">
-
-          <a href="{{ messaging_privacy_url }}"
-             class="text-xs font-black text-loomera-primaryText transition hover:text-loomera-primary">
-            حریم خصوصی پیام‌رسان‌ها
-          </a>
-
-        </div>
-
+        </article>
       </div>
 
-    </section>
-
+      <div class="flex flex-col gap-2 border-t border-loomera-borderSoft pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <a href="{{ notification_center_url }}"
+           class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
+          <i class="fa-regular fa-bell text-xs" aria-hidden="true"></i>
+          <span>مشاهده اعلان‌ها</span>
+        </a>
+        <button type="submit"
+                class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-xs font-black text-white shadow-[0_10px_24px_rgba(115,92,190,0.18)] transition hover:opacity-95">
+          <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i>
+          <span>ذخیره تغییرات</span>
+        </button>
+      </div>
+    </form>
   </section>
+
+  <section id="communication-settings-messaging"
+           class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+           data-dashboard-workspace-panel
+           data-lm-direct-section
+           data-lm-task-panel="communication-settings"
+           data-lm-task-key="messaging"
+           data-lm-task-label="اتصال پیام‌رسان‌ها"
+           data-lm-task-order="2">
+    <header data-lm-direct-section-header
+            class="border-b border-loomera-borderSoft bg-white/95 px-4 py-4 sm:px-5 lg:px-6">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+          <i class="fa-solid fa-link" aria-hidden="true"></i>
+        </span>
+        <div>
+          <p class="text-[11px] font-black text-loomera-primaryText">پیام‌رسان</p>
+          <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">اتصال حساب‌ها</h2>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid gap-4 p-4 sm:p-5 lg:grid-cols-2 lg:p-6">
+      <article class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/45 p-4">
+        <div class="mb-4 flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+          </span>
+          <div>
+            <p class="text-sm font-black text-loomera-textPrimary">بله</p>
+            <p class="mt-1 text-[11px] font-bold text-loomera-textMuted">
+              {% if bale_connected %}حساب متصل است{% elif bale_ready %}آماده اتصال{% else %}در دسترس نیست{% endif %}
+            </p>
+          </div>
+        </div>
+
+        {% if bale_connected %}
+          <div class="rounded-[20px] border border-emerald-200 bg-emerald-50/70 p-4">
+            <p class="text-sm font-black text-emerald-800">حساب بله متصل است</p>
+            <p class="mt-2 text-xs leading-6 text-emerald-800/80">
+              {% firstof bale_connection.identity.display_name bale_connection.identity.username "اتصال فعال بله" %}
+              {% if bale_connection.connected_at %} · متصل از {{ bale_connection.connected_at|date:"Y/m/d" }}{% endif %}
+            </p>
+            <form method="post"
+                  action="{% url 'messaging:disconnect' bale_connection.identity.id %}"
+                  class="mt-4"
+                  onsubmit="return confirm('اتصال بله از این حساب قطع شود؟');">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <button type="submit"
+                      class="inline-flex min-h-10 w-full items-center justify-center rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-black text-rose-700 transition hover:bg-rose-50">
+                قطع اتصال
+              </button>
+            </form>
+          </div>
+        {% elif bale_ready %}
+          <a href="{{ bale_connect_url }}"
+             class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-xs font-black text-white">
+            <i class="fa-solid fa-link text-[10px]" aria-hidden="true"></i>
+            اتصال به بله
+          </a>
+        {% else %}
+          <p class="rounded-[20px] border border-amber-200 bg-amber-50 p-4 text-xs font-bold leading-6 text-amber-800">
+            اتصال بله فعلاً در دسترس نیست.
+          </p>
+        {% endif %}
+      </article>
+
+      <article class="rounded-[24px] border border-sky-100 bg-sky-50/40 p-4">
+        <div class="mb-4 flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-sky-600 shadow-sm">
+            <i class="fa-brands fa-telegram" aria-hidden="true"></i>
+          </span>
+          <div>
+            <p class="text-sm font-black text-loomera-textPrimary">تلگرام</p>
+            <p class="mt-1 text-[11px] font-bold text-loomera-textMuted">
+              {% if telegram_connected %}حساب متصل است{% elif telegram_ready %}آماده اتصال{% else %}در دسترس نیست{% endif %}
+            </p>
+          </div>
+        </div>
+
+        {% if telegram_connected %}
+          <div class="rounded-[20px] border border-emerald-200 bg-emerald-50/70 p-4">
+            <p class="text-sm font-black text-emerald-800">حساب تلگرام متصل است</p>
+            <p class="mt-2 text-xs leading-6 text-emerald-800/80">
+              {% firstof telegram_connection.identity.display_name telegram_connection.identity.username "اتصال فعال تلگرام" %}
+              {% if telegram_connection.connected_at %} · متصل از {{ telegram_connection.connected_at|date:"Y/m/d" }}{% endif %}
+            </p>
+            <form method="post"
+                  action="{% url 'messaging:disconnect' telegram_connection.identity.id %}"
+                  class="mt-4"
+                  onsubmit="return confirm('اتصال تلگرام از این حساب قطع شود؟');">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <button type="submit"
+                      class="inline-flex min-h-10 w-full items-center justify-center rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-black text-rose-700 transition hover:bg-rose-50">
+                قطع اتصال
+              </button>
+            </form>
+          </div>
+        {% elif telegram_ready %}
+          <a href="{{ telegram_connect_url }}"
+             class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-sky-600 px-5 py-2 text-xs font-black text-white transition hover:bg-sky-700">
+            <i class="fa-brands fa-telegram text-xs" aria-hidden="true"></i>
+            اتصال به تلگرام
+          </a>
+        {% else %}
+          <p class="rounded-[20px] border border-amber-200 bg-amber-50 p-4 text-xs font-bold leading-6 text-amber-800">
+            اتصال تلگرام فعلاً در دسترس نیست.
+          </p>
+        {% endif %}
+      </article>
+    </div>
+
+    <div class="flex justify-end border-t border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
+      <a href="{{ messaging_privacy_url }}"
+         class="text-xs font-black text-loomera-primaryText transition hover:text-loomera-primary">
+        حریم خصوصی پیام‌رسان‌ها
+      </a>
+    </div>
+  </section>
+</section>
 {% endblock %}
