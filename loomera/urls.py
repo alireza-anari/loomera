@@ -92,6 +92,10 @@ urlpatterns = [
     path(
         "messaging/webhooks/bale/", include("apps.bale_bot.urls", namespace="bale_bot")
     ),
+    path(
+        "messaging/webhooks/telegram/",
+        include("apps.telegram_bot.urls", namespace="telegram_bot"),
+    ),
     path("messaging/", include("apps.messaging.urls", namespace="messaging")),
     path("platform/", include("apps.platform_admin.urls", namespace="platform_admin")),
     path("magazine/", include("apps.articles.urls", namespace="articles")),

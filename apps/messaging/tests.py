@@ -485,7 +485,7 @@ class MessagingActionDispatcherStage6Tests(TestCase):
         )
 
         self.assertEqual(result.status, MessagingActionStatus.DENIED)
-        self.assertIn("حساب بله دیگری", result.user_message)
+        self.assertIn("حساب پیام‌رسان دیگری", result.user_message)
         token.refresh_from_db()
         self.assertIsNone(token.used_at)
 
@@ -935,10 +935,7 @@ class MessagingPrivacyPreferencesStage11Tests(TestCase):
         )
         self.assertFalse(messaging_delivery_preference_enabled(delivery))
 
-    def test_critical_messaging_delivery_ignores_opt_out(self):
-        from apps.messaging.notification_delivery import (
-            messaging_delivery_preference_enabled,
-        )
+    def test_critical_external_messaging_respects_opt_out(self):
         from apps.messaging.preferences import STREAM_OPERATIONAL, set_stream_enabled
         from apps.notifications.services import create_notification
 
@@ -966,11 +963,12 @@ class MessagingPrivacyPreferencesStage11Tests(TestCase):
         recipient = NotificationRecipient.objects.get(
             notification=notification, user=self.user
         )
-        delivery = NotificationDelivery.objects.get(
-            recipient=recipient, channel=NotificationChannel.BALE
+        self.assertFalse(
+            NotificationDelivery.objects.filter(
+                recipient=recipient,
+                channel=NotificationChannel.BALE,
+            ).exists()
         )
-
-        self.assertTrue(messaging_delivery_preference_enabled(delivery))
 
     def test_preferences_page_writes_unified_notification_preferences(self):
         self.client.force_login(self.user)

@@ -53,10 +53,15 @@ def provider_allowed(provider_key: str) -> bool:
 
 
 def _should_auto_activate_provider(provider_key: str) -> bool:
-    return (
-        str(provider_key or "") == str(MessagingProviderKey.BALE)
+    provider_key = str(provider_key or "")
+    enabled_setting = {
+        str(MessagingProviderKey.BALE): "BALE_BOT_ENABLED",
+        str(MessagingProviderKey.TELEGRAM): "TELEGRAM_BOT_ENABLED",
+    }.get(provider_key)
+    return bool(
+        enabled_setting
         and messaging_enabled()
-        and bool(getattr(settings, "BALE_BOT_ENABLED", False))
+        and bool(getattr(settings, enabled_setting, False))
         and provider_allowed(provider_key)
     )
 

@@ -81,12 +81,20 @@ def guest_welcome_text(display_name: str = "") -> str:
         "از همین‌جا می‌توانی سالن پیدا کنی. اگر حساب Loomera داری، آن را وصل کن تا نوبت‌ها و کارهای روزانه‌ات هم داخل ربات در دسترس باشد."
     )
 
-def guest_main_menu(base_url: str) -> dict:
+def guest_main_menu(base_url: str, provider_key: str = "bale") -> dict:
+    provider_key = str(provider_key or "bale").strip().lower() or "bale"
     return {
         "inline_keyboard": [
             [
                 {"text": "پیدا کردن سالن", "callback_data": _callback(MENU_CUSTOMER_SEARCH)},
-                {"text": "وصل کردن حساب Loomera", "url": _url(base_url, "messaging:bale_quick_connect")},
+                {
+                    "text": "وصل کردن حساب Loomera",
+                    "url": _url(
+                        base_url,
+                        "messaging:provider_quick_connect",
+                        provider_key=provider_key,
+                    ),
+                },
             ],
             [
                 {"text": "جستجوی کامل در سایت", "url": _url(base_url, "salons:show_salons")},
@@ -482,8 +490,8 @@ def token_error_text(error_code: str) -> str:
         "token_already_used": "این لینک قبلاً استفاده شده است.",
         "token_expired": "مهلت این لینک تمام شده است.",
         "token_missing_user": "حساب مربوط به این لینک پیدا نشد.",
-        "token_provider_mismatch": "این لینک برای بله ساخته نشده است.",
-        "identity_already_linked_to_another_user": "این حساب بله قبلاً به یک حساب دیگر وصل شده است.",
+        "token_provider_mismatch": "این لینک برای پیام‌رسان دیگری ساخته شده است.",
+        "identity_already_linked_to_another_user": "این حساب پیام‌رسان قبلاً به یک حساب دیگر وصل شده است.",
     }
     return messages.get(error_code, "اتصال انجام نشد. از Loomera یک لینک اتصال تازه بگیر.")
 
@@ -500,4 +508,4 @@ def disconnected_text() -> str:
     return "اتصال حساب قطع شد. اگر دوباره خواستی اعلان‌ها و کارهای حسابت را اینجا ببینی، یک لینک اتصال تازه از Loomera باز کن."
 
 def already_disconnected_text() -> str:
-    return "این حساب بله الان به Loomera وصل نیست. برای اتصال، لینک اتصال را از Loomera باز کن."
+    return "این حساب پیام‌رسان الان به Loomera وصل نیست. برای اتصال، لینک اتصال را از Loomera باز کن."

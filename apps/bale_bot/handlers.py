@@ -127,7 +127,10 @@ def _show_guest_menu(
         identity=identity,
         chat_id=chat_id,
         text=guest_welcome_text(display_name),
-        reply_markup=guest_main_menu(base_url),
+        reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
     )
     return "guest_menu"
 
@@ -236,7 +239,10 @@ def _handle_menu_callback(
             identity=identity,
             chat_id=chat_id,
             text=disconnected_required_text(),
-            reply_markup=guest_main_menu(base_url),
+            reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
         )
         return "menu_requires_connection"
 
@@ -262,7 +268,10 @@ def _handle_menu_callback(
             identity=identity,
             chat_id=chat_id,
             text=disconnected_required_text(),
-            reply_markup=guest_main_menu(base_url),
+            reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
         )
         return "menu_requires_connection"
 
@@ -502,7 +511,10 @@ def _handle_disconnect_command(
             identity=identity,
             chat_id=chat_id,
             text=already_disconnected_text(),
-            reply_markup=guest_main_menu(base_url),
+            reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
         )
         return "already_disconnected"
 
@@ -515,13 +527,16 @@ def _handle_disconnect_command(
         identity=identity,
         chat_id=chat_id,
         text=disconnected_text(),
-        reply_markup=guest_main_menu(base_url),
+        reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
     )
     return "disconnected"
 
 
 def handle_bale_update_stage10(
-    *, parsed: ParsedBaleUpdate, identity, provider, base_url: str = ""
+    *, parsed: ParsedBaleUpdate, identity, provider, base_url: str = "", client=None
 ) -> str:
     """
     Stage 10 dispatcher.
@@ -536,7 +551,7 @@ def handle_bale_update_stage10(
     Every product-changing handler still re-checks object ownership, salon scope
     and permissions before changing anything.
     """
-    client = BaleBotClient()
+    client = client or BaleBotClient()
     chat_id = parsed.chat_id or getattr(identity, "chat_id", "")
     if not chat_id:
         return "ignored_missing_chat"
@@ -566,7 +581,10 @@ def handle_bale_update_stage10(
             chat_id=chat_id,
             text=unsupported_action_text(),
             reply_markup=(
-                guest_main_menu(base_url)
+                guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            )
                 if not getattr(identity, "user_id", None)
                 else menu_for_user(base_url, identity.user)[1]
             ),
@@ -613,7 +631,10 @@ def handle_bale_update_stage10(
                 connection, token = connect_identity_with_raw_token(
                     identity=identity,
                     raw_token=connect_token,
-                    metadata={"provider": "bale", "start_payload": payload},
+                    metadata={
+                        "provider": str(getattr(provider, "key", "") or ""),
+                        "start_payload": payload,
+                    },
                 )
             except ValueError as exc:
                 _send(
@@ -622,7 +643,10 @@ def handle_bale_update_stage10(
                     identity=identity,
                     chat_id=chat_id,
                     text=token_error_text(str(exc)),
-                    reply_markup=guest_main_menu(base_url),
+                    reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
                 )
                 return f"connect_failed:{exc}"
 
@@ -643,7 +667,10 @@ def handle_bale_update_stage10(
                 identity=identity,
                 chat_id=chat_id,
                 text=unknown_start_payload_text(),
-                reply_markup=guest_main_menu(base_url),
+                reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
             )
             return "unknown_payload"
 
@@ -689,7 +716,10 @@ def handle_bale_update_stage10(
                 identity=identity,
                 chat_id=chat_id,
                 text=disconnected_required_text(),
-                reply_markup=guest_main_menu(base_url),
+                reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
             )
             return "promotion_requires_connection"
 
@@ -783,7 +813,10 @@ def handle_bale_update_stage10(
                 identity=identity,
                 chat_id=chat_id,
                 text=disconnected_required_text(),
-                reply_markup=guest_main_menu(base_url),
+                reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
             )
             return "appointments_requires_connection"
 
@@ -856,7 +889,10 @@ def handle_bale_update_stage10(
                 identity=identity,
                 chat_id=chat_id,
                 text=disconnected_required_text(),
-                reply_markup=guest_main_menu(base_url),
+                reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
             )
             return "operator_text_requires_connection"
 
@@ -938,7 +974,10 @@ def handle_bale_update_stage10(
                 identity=identity,
                 chat_id=chat_id,
                 text=disconnected_required_text(),
-                reply_markup=guest_main_menu(base_url),
+                reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
             )
             return "promotion_requires_connection"
 
@@ -1008,16 +1047,23 @@ def handle_bale_update_stage10(
         identity=identity,
         chat_id=chat_id,
         text="این پیام را متوجه نشدم. از گزینه‌های زیر انتخاب کن.",
-        reply_markup=guest_main_menu(base_url),
+        reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
     )
     return "unknown_guest_message_menu"
 
 
 def handle_bale_update_stage11(
-    *, parsed: ParsedBaleUpdate, identity, provider, base_url: str = ""
+    *, parsed: ParsedBaleUpdate, identity, provider, base_url: str = "", client=None
 ) -> str:
     return handle_bale_update_stage10(
-        parsed=parsed, identity=identity, provider=provider, base_url=base_url
+        parsed=parsed,
+        identity=identity,
+        provider=provider,
+        base_url=base_url,
+        client=client,
     )
 
 

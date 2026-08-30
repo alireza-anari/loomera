@@ -12,7 +12,11 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from .constants import MessagingConnectionStatus, MessagingProviderKey, MessagingTokenPurpose
-from .links import build_bale_start_payload, build_bale_start_url
+from .links import (
+    build_bale_start_payload,
+    build_bale_start_url,
+    build_provider_start_url,
+)
 from .models import MessagingAccountConnection, MessagingIdentity, MessagingProvider
 from .preferences import (
     build_messaging_preference_rows,
@@ -158,6 +162,71 @@ class MessagingBaleQuickConnectView(LoginRequiredMixin, View):
         return redirect(start_url)
 
 
+class MessagingProviderQuickConnectView(LoginRequiredMixin, View):
+    BETA_PROVIDERS = {
+        str(MessagingProviderKey.BALE): ("بله", "BALE_BOT_ENABLED"),
+        str(MessagingProviderKey.TELEGRAM): ("تلگرام", "TELEGRAM_BOT_ENABLED"),
+    }
+
+    def _safe_next_url(self, request) -> str:
+        next_url = str(request.GET.get("next") or "").strip()
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
+            return next_url
+        return reverse("messaging:preferences")
+
+    def get(self, request, provider_key: str, *args, **kwargs):
+        provider_key = str(provider_key or "").strip().lower()
+        config = self.BETA_PROVIDERS.get(provider_key)
+        fallback_url = self._safe_next_url(request)
+        if config is None:
+            messages.warning(request, "این پیام‌رسان برای اتصال Beta فعال نیست.", "warning")
+            return redirect(fallback_url)
+
+        label, enabled_setting = config
+        ensure_default_providers()
+        provider = MessagingProvider.objects.filter(key=provider_key).first()
+        ready = bool(
+            messaging_enabled()
+            and bool(getattr(settings, enabled_setting, False))
+            and provider is not None
+            and provider.is_active
+            and provider_allowed(provider_key)
+        )
+        if not ready:
+            messages.warning(
+                request, f"اتصال ربات {label} هنوز برای این محیط فعال نیست.", "warning"
+            )
+            return redirect(fallback_url)
+
+        ttl_minutes = max(
+            1, int(getattr(settings, "MESSAGING_CONNECT_TOKEN_TTL_MINUTES", 30))
+        )
+        raw_token, _token = issue_messaging_token(
+            purpose=MessagingTokenPurpose.CONNECT_ACCOUNT,
+            provider=provider,
+            user=request.user,
+            expires_in=timedelta(minutes=ttl_minutes),
+            metadata={
+                "source": "messaging_provider_quick_connect",
+                "provider": provider_key,
+                "next": fallback_url,
+            },
+        )
+        start_url = build_provider_start_url(provider_key, raw_token)
+        if not start_url:
+            messages.warning(
+                request,
+                f"لینک شروع ربات {label} ساخته نشد. نام کاربری ربات را بررسی کن.",
+                "warning",
+            )
+            return redirect(reverse("messaging:preferences"))
+        return redirect(start_url)
+
+
 class MessagingPreferencesView(LoginRequiredMixin, View):
     template_name = "messaging/preferences.html"
 
@@ -221,8 +290,14 @@ class MessagingDisconnectView(LoginRequiredMixin, View):
             MessagingIdentity.objects.select_related("provider", "user"),
             pk=identity_id,
             user=request.user,
-            provider__key=MessagingProviderKey.BALE,
+            provider__key__in=[
+                MessagingProviderKey.BALE,
+                MessagingProviderKey.TELEGRAM,
+            ],
         )
+        provider_title = identity.provider.title or identity.provider.key
         disconnect_identity(identity)
-        messages.success(request, "اتصال ربات بله با حساب شما قطع شد.", "success")
+        messages.success(
+            request, f"اتصال {provider_title} با حساب شما قطع شد.", "success"
+        )
         return redirect(self._safe_next_url(request))

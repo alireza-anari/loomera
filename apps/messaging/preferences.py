@@ -10,7 +10,8 @@ from apps.notifications.models import (
     NotificationPreference,
 )
 
-from .constants import MessagingProviderKey
+from .constants import MessagingConnectionStatus, MessagingProviderKey
+from .models import MessagingAccountConnection
 from .roles import ROLE_LABELS, detect_user_bot_roles
 
 
@@ -30,8 +31,6 @@ MARKETING_CATEGORIES: tuple[str, ...] = (NotificationCategory.MARKETING,)
 MESSAGING_CHANNELS: tuple[str, ...] = (
     NotificationChannel.BALE.value,
     NotificationChannel.TELEGRAM.value,
-    NotificationChannel.WHATSAPP.value,
-    NotificationChannel.RUBIKA.value,
 )
 
 CHANNEL_PROVIDER_KEY = {
@@ -42,10 +41,8 @@ CHANNEL_PROVIDER_KEY = {
 }
 
 CHANNEL_DESCRIPTIONS = {
-    NotificationChannel.BALE: "ربات بله؛ اولین کانال فعال پیام‌رسان Loomera.",
-    NotificationChannel.TELEGRAM: "آماده برای فاز بعد؛ تا زمان اضافه‌شدن adapter واقعی ارسال نمی‌شود.",
-    NotificationChannel.WHATSAPP: "کانال آینده/در انتظار provider رسمی و تنظیمات ارسال.",
-    NotificationChannel.RUBIKA: "آماده برای فاز بعد؛ فعلاً ارسال واقعی ندارد.",
+    NotificationChannel.BALE: "اعلان‌ها و اکشن‌های Loomera در ربات بله.",
+    NotificationChannel.TELEGRAM: "اعلان‌ها و اکشن‌های Loomera در ربات تلگرام.",
 }
 
 STREAM_OPERATIONAL = "operational"
@@ -66,6 +63,8 @@ class MessagingPreferenceRow:
     operational_enabled: bool
     marketing_enabled: bool
     is_currently_connectable: bool = False
+    is_connected: bool = False
+    connected_identity_id: int | None = None
 
 
 def normalize_bool(value) -> bool:
@@ -121,6 +120,21 @@ def set_stream_enabled(*, user, channel: str, stream: str, enabled: bool, audien
 
 def build_messaging_preference_rows(user, *, audience_role: str = "", active_provider_keys: Iterable[str] = ()) -> list[MessagingPreferenceRow]:
     active_provider_set = {str(item) for item in active_provider_keys or []}
+    active_connections = (
+        MessagingAccountConnection.objects.select_related("identity", "provider")
+        .filter(
+            user=user,
+            status=MessagingConnectionStatus.ACTIVE,
+            provider__key__in=[
+                MessagingProviderKey.BALE, MessagingProviderKey.TELEGRAM
+            ],
+        )
+        .order_by("-connected_at", "-id")
+    )
+    connection_by_provider = {}
+    for connection in active_connections:
+        connection_by_provider.setdefault(str(connection.provider.key), connection)
+
     rows: list[MessagingPreferenceRow] = []
     for channel in MESSAGING_CHANNELS:
         channel_key = channel_value(channel)
@@ -144,6 +158,12 @@ def build_messaging_preference_rows(user, *, audience_role: str = "", active_pro
                     audience_role=audience_role,
                 ),
                 is_currently_connectable=provider_key in active_provider_set,
+                is_connected=provider_key in connection_by_provider,
+                connected_identity_id=(
+                    connection_by_provider[provider_key].identity_id
+                    if provider_key in connection_by_provider
+                    else None
+                ),
             )
         )
     return rows
