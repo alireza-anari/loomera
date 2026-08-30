@@ -24,7 +24,7 @@
           </h1>
 
           <p class="mt-1 max-w-xl text-xs font-bold leading-6 text-loomera-textMuted sm:text-sm">
-            کانال دریافت یادآوری نوبت‌ها و پیام‌های اختیاری را انتخاب کن.
+            کانال دریافت یادآوری نوبت‌ها و پیام‌های اختیاری را انتخاب کن. تنظیم پیام‌رسان برای نقش {{ audience_role_label }} اعمال می‌شود.
           </p>
         </div>
 
@@ -166,12 +166,50 @@
               </span>
             </span>
           </label>
+          <label class="lm-provider-switch-row flex cursor-pointer items-center justify-between gap-4 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 transition hover:border-sky-200 hover:bg-white">
+            <span class="min-w-0">
+              <span class="flex flex-wrap items-center gap-2">
+                <i class="fa-brands fa-telegram w-4 text-center text-sm text-sky-600" aria-hidden="true"></i>
+                <span class="text-sm font-black text-loomera-textPrimary">تلگرام</span>
+                {% if telegram_connected %}
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-black text-emerald-700">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                    متصل
+                  </span>
+                {% elif telegram_ready %}
+                  <span class="rounded-full bg-white px-2 py-1 text-[9px] font-black text-loomera-textMuted">متصل نیست</span>
+                {% else %}
+                  <span class="rounded-full bg-amber-50 px-2 py-1 text-[9px] font-black text-amber-700">در دسترس نیست</span>
+                {% endif %}
+              </span>
+              <span class="mt-1 block pr-6 text-xs leading-6 text-loomera-textMuted">
+                دریافت نوبت، تغییر زمان و لغو در ربات تلگرام لومرا
+              </span>
+            </span>
+            <span class="flex shrink-0 items-center gap-2">
+              <input
+                type="checkbox"
+                name="telegram_operational"
+                value="1"
+                class="lm-provider-switch-input sr-only"
+                role="switch"
+                {% if telegram_operational %}checked{% endif %}
+              >
+              <span class="lm-provider-switch-track" aria-hidden="true">
+                <span class="lm-provider-switch-thumb"></span>
+              </span>
+              <span class="lm-provider-switch-state min-w-12 text-left text-xs font-black">
+                <span class="lm-provider-switch-state-off text-loomera-textMuted">خاموش</span>
+                <span class="lm-provider-switch-state-on text-loomera-primaryText">روشن</span>
+              </span>
+            </span>
+          </label>
         </div>
 
         <div class="border-t border-loomera-borderSoft bg-loomera-bgSubtle/40 px-4 py-3 sm:px-5">
           <p class="flex items-start gap-2 text-[11px] font-bold leading-6 text-loomera-textMuted">
             <i class="fa-solid fa-shield-halved mt-1 shrink-0 text-[10px] text-loomera-primary" aria-hidden="true"></i>
-            پیام‌های امنیتی ضروری ممکن است مستقل از این انتخاب‌ها ارسال شوند.
+            خاموش کردن بله یا تلگرام، ارسال همان پیام‌رسان را متوقف می‌کند؛ اعلان‌های داخلی لومرا مستقل باقی می‌مانند.
           </p>
         </div>
       </section>
@@ -291,6 +329,34 @@
               </span>
             </span>
           </label>
+          <label class="lm-provider-switch-row flex cursor-pointer items-center justify-between gap-4 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-4 transition hover:border-sky-200 hover:bg-white">
+            <span class="min-w-0">
+              <span class="flex items-center gap-2">
+                <i class="fa-brands fa-telegram w-4 text-center text-sm text-sky-600" aria-hidden="true"></i>
+                <span class="text-sm font-black text-loomera-textPrimary">تلگرام</span>
+              </span>
+              <span class="mt-1 block pr-6 text-xs leading-6 text-loomera-textMuted">
+                پیشنهادها و خبرهای اختیاری در ربات تلگرام
+              </span>
+            </span>
+            <span class="flex shrink-0 items-center gap-2">
+              <input
+                type="checkbox"
+                name="telegram_marketing"
+                value="1"
+                class="lm-provider-switch-input sr-only"
+                role="switch"
+                {% if telegram_marketing %}checked{% endif %}
+              >
+              <span class="lm-provider-switch-track" aria-hidden="true">
+                <span class="lm-provider-switch-thumb"></span>
+              </span>
+              <span class="lm-provider-switch-state min-w-12 text-left text-xs font-black">
+                <span class="lm-provider-switch-state-off text-loomera-textMuted">خاموش</span>
+                <span class="lm-provider-switch-state-on text-loomera-primaryText">روشن</span>
+              </span>
+            </span>
+          </label>
         </div>
       </section>
 
@@ -389,6 +455,85 @@
         </div>
       </section>
 
+      <section
+        class="overflow-hidden rounded-[26px] border border-sky-100 bg-white shadow-lm-card"
+        aria-labelledby="telegram-connection-title"
+      >
+        <header class="flex items-center gap-3 border-b border-sky-100 px-4 py-4 sm:px-5">
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-sky-600">
+            <i class="fa-brands fa-telegram" aria-hidden="true"></i>
+          </span>
+          <div>
+            <h2 id="telegram-connection-title" class="text-base font-black text-loomera-textPrimary sm:text-lg">
+              اتصال تلگرام
+            </h2>
+            <p class="mt-0.5 text-[11px] font-bold text-loomera-textMuted sm:text-xs">
+              مدیریت اتصال ربات تلگرام لومرا
+            </p>
+          </div>
+        </header>
+        <div class="p-4 sm:p-5">
+          {% if telegram_connected %}
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex min-w-0 items-center gap-3">
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                  <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-sm font-black text-loomera-textPrimary">حساب تلگرام متصل است</p>
+                  <p class="mt-1 truncate text-[11px] font-bold text-loomera-textMuted">
+                    {% firstof telegram_connection.identity.display_name telegram_connection.identity.username "اتصال فعال تلگرام" %}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="submit"
+                formaction="{% url 'messaging:disconnect' telegram_connection.identity.id %}"
+                formmethod="post"
+                name="next"
+                value="{{ request.path }}"
+                onclick="return confirm('اتصال تلگرام از این حساب قطع شود؟');"
+                class="inline-flex min-h-10 items-center justify-center rounded-full border border-rose-200 bg-white px-4 text-xs font-black text-rose-700 transition hover:bg-rose-50"
+              >
+                قطع اتصال
+              </button>
+            </div>
+          {% elif telegram_ready %}
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex min-w-0 items-center gap-3">
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-50 text-sky-600">
+                  <i class="fa-brands fa-telegram text-sm" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="text-sm font-black text-loomera-textPrimary">هنوز حساب تلگرام متصل نشده است</p>
+                  <p class="mt-1 text-[11px] font-bold leading-6 text-loomera-textMuted">
+                    اتصال حساب برای دریافت پیام‌های فعال‌شده لازم است.
+                  </p>
+                </div>
+              </div>
+              <a
+                href="{{ telegram_connect_url }}"
+                class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-sky-600 px-5 text-xs font-black text-white transition hover:bg-sky-700"
+              >
+                <i class="fa-brands fa-telegram text-xs" aria-hidden="true"></i>
+                اتصال به تلگرام
+              </a>
+            </div>
+          {% else %}
+            <div class="flex items-start gap-3 rounded-[20px] bg-amber-50/80 p-4">
+              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-amber-700">
+                <i class="fa-solid fa-circle-info text-xs" aria-hidden="true"></i>
+              </span>
+              <div>
+                <p class="text-sm font-black text-amber-900">اتصال تلگرام فعلاً در دسترس نیست</p>
+                <p class="mt-1 text-xs leading-6 text-amber-800">
+                  تنظیم اعلان‌ها ذخیره می‌شود و بعد از فعال‌شدن Provider قابل استفاده است.
+                </p>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </section>
       <div class="flex flex-col-reverse gap-3 border-t border-loomera-borderSoft pt-5 sm:flex-row sm:items-center">
         <a
           href="{{ messaging_privacy_url }}"
