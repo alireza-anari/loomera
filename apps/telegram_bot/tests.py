@@ -1,6 +1,7 @@
 from datetime import timedelta
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -179,3 +180,62 @@ class TelegramOutboundPreferenceTests(TestCase):
         self.assertEqual(deliver_simple_notification(self.delivery(NotificationChannel.BALE)).status, "sent")
         telegram_mock.assert_called_once()
         bale_mock.assert_called_once()
+
+
+class TelegramRelayClientTests(TestCase):
+    @override_settings(
+        TELEGRAM_RELAY_URL="https://relay.example.workers.dev",
+        TELEGRAM_RELAY_SECRET="relay-test-secret",
+        LOOMERA_USER_AGENT="Loomera-Test/1.0",
+    )
+    @patch("apps.telegram_bot.client.request.urlopen")
+    def test_relay_hides_bot_token_and_sends_secret_header(self, urlopen_mock):
+        response = MagicMock()
+        response.read.return_value = b'{"ok": true, "result": {"id": 1}}'
+        response.__enter__.return_value = response
+        response.__exit__.return_value = False
+        urlopen_mock.return_value = response
+
+        client = TelegramBotClient(
+            token="123456:bot-token-must-not-appear-in-relay-url"
+        )
+        result = client.get_me()
+
+        self.assertTrue(result["ok"])
+        request_obj = urlopen_mock.call_args.args[0]
+        self.assertEqual(
+            request_obj.full_url,
+            "https://relay.example.workers.dev/getMe",
+        )
+        self.assertNotIn("123456", request_obj.full_url)
+        self.assertEqual(
+            request_obj.get_header("X-loomera-relay-secret"),
+            "relay-test-secret",
+        )
+        self.assertEqual(
+            request_obj.get_header("User-agent"),
+            "Loomera-Test/1.0",
+        )
+
+    @override_settings(
+        TELEGRAM_RELAY_URL="https://relay.example.workers.dev",
+        TELEGRAM_RELAY_SECRET="",
+    )
+    def test_relay_fails_closed_without_secret(self):
+        client = TelegramBotClient(token="123456:test-token")
+        with self.assertRaises(ImproperlyConfigured):
+            client.get_me()
+
+    @override_settings(
+        TELEGRAM_RELAY_URL="",
+        TELEGRAM_RELAY_SECRET="",
+    )
+    def test_direct_mode_remains_available(self):
+        client = TelegramBotClient(
+            token="123456:test-token",
+            api_base_url="https://api.telegram.org/bot",
+        )
+        self.assertEqual(
+            client._method_url("getMe"),
+            "https://api.telegram.org/bot123456:test-token/getMe",
+        )

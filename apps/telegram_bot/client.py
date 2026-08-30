@@ -25,27 +25,70 @@ class TelegramBotApiError(RuntimeError):
 class TelegramBotClient:
     """Thin Telegram Bot API adapter; Loomera domain logic stays in apps.messaging."""
 
-    def __init__(self, *, token=None, api_base_url=None, timeout=None):
+    def __init__(
+        self,
+        *,
+        token=None,
+        api_base_url=None,
+        timeout=None,
+        relay_url=None,
+        relay_secret=None,
+    ):
         self.token = (
             token if token is not None else getattr(settings, "TELEGRAM_BOT_TOKEN", "")
         ).strip()
         self.api_base_url = (
             api_base_url
-            or getattr(settings, "TELEGRAM_BOT_API_BASE_URL", "https://api.telegram.org/bot")
+            or getattr(
+                settings,
+                "TELEGRAM_BOT_API_BASE_URL",
+                "https://api.telegram.org/bot",
+            )
         ).rstrip("/")
-        self.timeout = timeout or int(getattr(settings, "TELEGRAM_BOT_REQUEST_TIMEOUT", 10))
+        self.relay_url = (
+            relay_url
+            if relay_url is not None
+            else getattr(settings, "TELEGRAM_RELAY_URL", "")
+        ).strip().rstrip("/")
+        self.relay_secret = (
+            relay_secret
+            if relay_secret is not None
+            else getattr(settings, "TELEGRAM_RELAY_SECRET", "")
+        ).strip()
+        self.timeout = timeout or int(
+            getattr(settings, "TELEGRAM_BOT_REQUEST_TIMEOUT", 10)
+        )
 
     def _method_url(self, method_name: str) -> str:
+        if self.relay_url:
+            return f"{self.relay_url}/{method_name}"
         if not self.token:
             raise ImproperlyConfigured("TELEGRAM_BOT_TOKEN is not configured.")
         return f"{self.api_base_url}{self.token}/{method_name}"
+
+    def _request_headers(self) -> dict[str, str]:
+        headers = {
+            "Content-Type": "application/json; charset=utf-8",
+            "User-Agent": str(
+                getattr(settings, "LOOMERA_USER_AGENT", "Loomera/1.0")
+                or "Loomera/1.0"
+            ),
+        }
+        if self.relay_url:
+            if not self.relay_secret:
+                raise ImproperlyConfigured(
+                    "TELEGRAM_RELAY_SECRET is required when "
+                    "TELEGRAM_RELAY_URL is configured."
+                )
+            headers["X-Loomera-Relay-Secret"] = self.relay_secret
+        return headers
 
     def request(self, method_name: str, payload: dict[str, Any] | None = None):
         body = json.dumps(payload or {}, ensure_ascii=False).encode("utf-8")
         req = request.Request(
             self._method_url(method_name),
             data=body,
-            headers={"Content-Type": "application/json; charset=utf-8"},
+            headers=self._request_headers(),
             method="POST",
         )
         try:
