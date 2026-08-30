@@ -27,7 +27,10 @@ from ...models import (
     MessagingProvider,
     MessagingWebhookEvent,
 )
-from ...notification_delivery import bale_outbound_queue_ready
+from ...notification_delivery import (
+    bale_outbound_queue_ready,
+    telegram_outbound_queue_ready,
+)
 from ...services import ensure_default_providers, provider_allowed
 
 
@@ -106,25 +109,28 @@ def _add_issue(
     )
 
 
-def _webhook_reverse_info():
+def _webhook_reverse_info_for(namespace: str):
     try:
-        path = reverse("bale_bot:webhook")
+        path = reverse(f"{namespace}:webhook")
     except NoReverseMatch as exc:
         return {
             "reverse_ok": False,
             "path": "",
+            "absolute_url": "",
             "error": str(exc),
         }
 
     base_url = _public_base_url()
-    absolute_url = f"{base_url}{path}" if base_url else ""
-
     return {
         "reverse_ok": True,
         "path": path,
-        "absolute_url": absolute_url,
+        "absolute_url": f"{base_url}{path}" if base_url else "",
         "error": "",
     }
+
+
+def _webhook_reverse_info():
+    return _webhook_reverse_info_for("bale_bot")
 
 
 def _provider_snapshot(provider: MessagingProvider | None):
@@ -555,8 +561,112 @@ def run_messaging_qa_check(*, strict=False):
     }
 
 
+# Telegram Beta extension; mature Bale checks above remain unchanged.
+_run_bale_only_messaging_qa_check = run_messaging_qa_check
+
+
+def _telegram_webhook_reverse_info():
+    return _webhook_reverse_info_for("telegram_bot")
+
+
+def _channel_queue_snapshot(channel):
+    return {
+        "queued": NotificationDelivery.objects.filter(channel=channel, status=NotificationDeliveryStatus.QUEUED).count(),
+        "failed": NotificationDelivery.objects.filter(channel=channel, status=NotificationDeliveryStatus.FAILED).count(),
+        "pending_setup": NotificationDelivery.objects.filter(channel=channel, status=NotificationDeliveryStatus.PENDING_SETUP).count(),
+    }
+
+
+def run_messaging_qa_check(*, strict=False):
+    result = _run_bale_only_messaging_qa_check(strict=strict)
+    issues = list(result["issues"])
+    telegram_enabled = _setting_bool("TELEGRAM_BOT_ENABLED")
+    token_configured = bool(_setting_str("TELEGRAM_BOT_TOKEN"))
+    secret_configured = bool(_setting_str("TELEGRAM_WEBHOOK_SECRET"))
+    outbound_enabled = _setting_bool("MESSAGING_OUTBOUND_ENABLED")
+    messaging_is_enabled = _setting_bool("MESSAGING_ENABLED")
+    actions_enabled = _setting_bool("MESSAGING_ACTIONS_ENABLED")
+    telegram_allowed = provider_allowed(MessagingProviderKey.TELEGRAM)
+    ensure_default_providers()
+    provider = MessagingProvider.objects.filter(key=MessagingProviderKey.TELEGRAM).first()
+    queue_ready = telegram_outbound_queue_ready()
+    webhook = _telegram_webhook_reverse_info()
+
+    def add(code, message, hint="", *, blocking=False):
+        issues.append({
+            "code": code,
+            "severity": "error" if (blocking and strict) else "warning",
+            "message": message, "hint": hint,
+        })
+
+    if telegram_enabled and not messaging_is_enabled:
+        add("TELEGRAM_ENABLED_WITH_MESSAGING_DISABLED", "TELEGRAM_BOT_ENABLED روشن است اما MESSAGING_ENABLED خاموش است.")
+    if telegram_enabled and not telegram_allowed:
+        add("TELEGRAM_PROVIDER_NOT_ALLOWED", "telegram در MESSAGING_ALLOWED_PROVIDERS نیست.", blocking=True)
+    if telegram_enabled and outbound_enabled and not token_configured:
+        add("TELEGRAM_TOKEN_MISSING_FOR_OUTBOUND", "TELEGRAM_BOT_TOKEN تنظیم نشده است.", "توکن فقط در secret/env باشد.", blocking=True)
+    if telegram_enabled and not secret_configured:
+        add("TELEGRAM_WEBHOOK_SECRET_MISSING", "TELEGRAM_WEBHOOK_SECRET تنظیم نشده است.", blocking=True)
+    if telegram_enabled and outbound_enabled and not actions_enabled:
+        add("TELEGRAM_ACTIONS_DISABLED_FOR_LIVE_BOT", "تلگرام live است اما MESSAGING_ACTIONS_ENABLED خاموش است.", blocking=True)
+    if telegram_enabled and not webhook["reverse_ok"]:
+        add("TELEGRAM_WEBHOOK_REVERSE_FAILED", "telegram_bot:webhook reverse نمی‌شود.", blocking=True)
+    if provider is None:
+        add("TELEGRAM_PROVIDER_MISSING", "provider تلگرام در دیتابیس وجود ندارد.", blocking=True)
+    else:
+        if telegram_enabled and not provider.is_active:
+            add("TELEGRAM_PROVIDER_INACTIVE", "provider تلگرام inactive است.", blocking=True)
+        if telegram_enabled and outbound_enabled and not provider.supports_outbound:
+            add("TELEGRAM_PROVIDER_OUTBOUND_UNSUPPORTED", "provider تلگرام supports_outbound ندارد.", blocking=True)
+        if telegram_enabled and not provider.supports_webhook:
+            add("TELEGRAM_PROVIDER_WEBHOOK_UNSUPPORTED", "provider تلگرام supports_webhook ندارد.", blocking=True)
+
+    max_bytes = _setting_int("TELEGRAM_WEBHOOK_MAX_BYTES", 0)
+    if telegram_enabled and (max_bytes <= 0 or max_bytes > 1024 * 1024):
+        add("TELEGRAM_WEBHOOK_MAX_BYTES_UNSAFE", "TELEGRAM_WEBHOOK_MAX_BYTES امن نیست.")
+    timeout = _setting_int("TELEGRAM_BOT_REQUEST_TIMEOUT", 0)
+    if telegram_enabled and (timeout <= 0 or timeout > 30):
+        add("TELEGRAM_BOT_REQUEST_TIMEOUT_UNSAFE", "TELEGRAM_BOT_REQUEST_TIMEOUT مناسب نیست.")
+    if telegram_enabled and outbound_enabled and telegram_allowed and token_configured and not queue_ready:
+        add("TELEGRAM_QUEUE_NOT_READY", "صف خروجی تلگرام ready نیست.", blocking=True)
+
+    webhook_counts = _bale_webhook_snapshot(provider)
+    message_counts = _bale_message_log_snapshot(provider)
+    action_counts = _messaging_action_snapshot(provider)
+    if webhook_counts["failed"] > 0:
+        add("TELEGRAM_FAILED_WEBHOOK_EVENTS_EXIST", "webhook شکست‌خورده تلگرام وجود دارد.")
+    if message_counts["outbound_failed"] > 0:
+        add("TELEGRAM_FAILED_OUTBOUND_MESSAGES_EXIST", "پیام خروجی ناموفق تلگرام وجود دارد.")
+    if action_counts["started"] > 0:
+        add("TELEGRAM_STARTED_ACTIONS_EXIST", "اکشن نیمه‌کاره تلگرام وجود دارد.")
+
+    result["issues"] = issues
+    result["summary"] = {
+        "ok": not issues, "strict": bool(strict), "issue_count": len(issues),
+        "error_count": len([i for i in issues if i["severity"] == "error"]),
+        "warning_count": len([i for i in issues if i["severity"] == "warning"]),
+    }
+    result["settings"].update({
+        "telegram_bot_enabled": telegram_enabled,
+        "telegram_bot_token_configured": token_configured,
+        "telegram_webhook_secret_configured": secret_configured,
+    })
+    result["provider"].update({
+        "telegram_allowed": telegram_allowed, "telegram": _provider_snapshot(provider),
+    })
+    result["telegram_webhook"] = webhook
+    result["queue"].update({
+        "telegram_outbound_queue_ready": bool(queue_ready),
+        "telegram": _channel_queue_snapshot(NotificationChannel.TELEGRAM),
+    })
+    result["webhook_events"]["telegram"] = webhook_counts
+    result["message_logs"]["telegram"] = message_counts
+    result["actions"]["telegram"] = action_counts
+    return result
+
+
 class Command(BaseCommand):
-    help = "Run messaging/Bale configuration and readiness checks without printing secrets."
+    help = "Run Messaging/Bale/Telegram readiness checks without printing secrets."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -581,7 +691,7 @@ class Command(BaseCommand):
         else:
             summary = result["summary"]
 
-            self.stdout.write("=== Messaging / Bale QA Check ===")
+            self.stdout.write("=== Messaging / Bale / Telegram QA Check ===")
             self.stdout.write(f"strict={strict}")
             self.stdout.write(f"issues={summary['issue_count']}")
             self.stdout.write(f"errors={summary['error_count']}")
@@ -627,6 +737,34 @@ class Command(BaseCommand):
             self.stdout.write(f"  message_logs={result['message_logs']['bale']}")
             self.stdout.write(f"  actions={result['actions']['bale']}")
             self.stdout.write("")
+            self.stdout.write("Telegram:")
+            self.stdout.write(
+                f"  TELEGRAM_BOT_ENABLED={settings_snapshot['telegram_bot_enabled']}"
+            )
+            self.stdout.write(
+                "  TELEGRAM_BOT_TOKEN configured="
+                f"{settings_snapshot['telegram_bot_token_configured']}"
+            )
+            self.stdout.write(
+                "  TELEGRAM_WEBHOOK_SECRET configured="
+                f"{settings_snapshot['telegram_webhook_secret_configured']}"
+            )
+            self.stdout.write(
+                f"  provider_allowed={result['provider']['telegram_allowed']}"
+            )
+            self.stdout.write(f"  provider={result['provider']['telegram']}")
+            self.stdout.write(f"  webhook={result['telegram_webhook']}")
+            self.stdout.write(
+                "  outbound_queue_ready="
+                f"{result['queue']['telegram_outbound_queue_ready']}"
+            )
+            self.stdout.write(f"  deliveries={result['queue']['telegram']}")
+            self.stdout.write(
+                f"  webhook_events={result['webhook_events']['telegram']}"
+            )
+            self.stdout.write(f"  message_logs={result['message_logs']['telegram']}")
+            self.stdout.write(f"  actions={result['actions']['telegram']}")
+            self.stdout.write("")
 
             issues = result["issues"]
             if issues:
@@ -641,10 +779,10 @@ class Command(BaseCommand):
                         self.stdout.write(self.style.WARNING(line))
             else:
                 self.stdout.write(
-                    self.style.SUCCESS("No messaging/Bale QA issues found.")
+                    self.style.SUCCESS("No Messaging/Bale/Telegram QA issues found.")
                 )
 
         if result["issues"] and strict:
             raise CommandError(
-                "Messaging/Bale QA check failed because --strict treats warnings as blocking issues."
+                "Messaging/Bale/Telegram QA check failed because --strict treats warnings as blocking issues."
             )

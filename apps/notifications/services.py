@@ -152,7 +152,10 @@ def notification_preference_enabled(
     if channel in {NotificationChannel.DASHBOARD, NotificationChannel.SYSTEM}:
         return True
 
-    if priority == NotificationPriority.CRITICAL:
+    if (
+        priority == NotificationPriority.CRITICAL
+        and channel not in {NotificationChannel.BALE, NotificationChannel.TELEGRAM}
+    ):
         return True
 
     qs = NotificationPreference.objects.filter(user=user, channel=channel)
@@ -216,12 +219,23 @@ def _normalize_recipients(
     return specs
 
 
+def _append_enabled_beta_messaging_channels(channels: list[str]) -> None:
+    if not bool(getattr(settings, "MESSAGING_ENABLED", False)):
+        return
+    for channel, setting_name in (
+        (NotificationChannel.BALE, "BALE_BOT_ENABLED"),
+        (NotificationChannel.TELEGRAM, "TELEGRAM_BOT_ENABLED"),
+    ):
+        if bool(getattr(settings, setting_name, False)) and channel not in channels:
+            channels.append(channel)
+
+
 def _should_deliver_bale_immediately(
     *,
     notification,
     channel: str,
 ) -> bool:
-    if channel != NotificationChannel.BALE:
+    if channel not in {NotificationChannel.BALE, NotificationChannel.TELEGRAM}:
         return False
 
     if not getattr(
@@ -255,7 +269,7 @@ def _deliver_bale_delivery_safely(
         deliver_queued_delivery_by_id(delivery_id)
     except Exception:
         logger.exception(
-            "Immediate Bale notification delivery failed " "| delivery=%s",
+            "Immediate messaging notification delivery failed " "| delivery=%s",
             delivery_id,
         )
 
@@ -381,8 +395,7 @@ def create_notification(
                 current_metadata["messaging_actions"] = manager_actions
                 notification.metadata = current_metadata
                 notification.save(update_fields=["metadata"])
-            if NotificationChannel.BALE not in channels_for_recipient:
-                channels_for_recipient.append(NotificationChannel.BALE)
+            _append_enabled_beta_messaging_channels(channels_for_recipient)
 
         if _customer_simple_bale_delivery_enabled(
             role=spec.audience_role,
@@ -395,8 +408,7 @@ def create_notification(
                 current_metadata["messaging_customer_simple"] = True
                 notification.metadata = current_metadata
                 notification.save(update_fields=["metadata"])
-            if NotificationChannel.BALE not in channels_for_recipient:
-                channels_for_recipient.append(NotificationChannel.BALE)
+            _append_enabled_beta_messaging_channels(channels_for_recipient)
 
         if _stylist_simple_bale_delivery_enabled(
             role=spec.audience_role,
@@ -409,8 +421,7 @@ def create_notification(
                 current_metadata["messaging_stylist_simple"] = True
                 notification.metadata = current_metadata
                 notification.save(update_fields=["metadata"])
-            if NotificationChannel.BALE not in channels_for_recipient:
-                channels_for_recipient.append(NotificationChannel.BALE)
+            _append_enabled_beta_messaging_channels(channels_for_recipient)
 
         for channel in tuple(channels_for_recipient):
             if not notification_preference_enabled(
@@ -1038,8 +1049,7 @@ def sync_legacy_appointment_notification(appointment_notification):
     channels = [channel]
     if messaging_actions:
         metadata["messaging_actions"] = messaging_actions
-        if NotificationChannel.BALE not in channels:
-            channels.append(NotificationChannel.BALE)
+        _append_enabled_beta_messaging_channels(channels)
 
     if not metadata.get("messaging_disable_bale") and str(role or "") == NotificationAudienceRole.STYLIST:
         try:
@@ -1047,8 +1057,7 @@ def sync_legacy_appointment_notification(appointment_notification):
 
             if isinstance(related_object, (Order, OrderDetail)):
                 metadata["messaging_stylist_simple"] = True
-                if NotificationChannel.BALE not in channels:
-                    channels.append(NotificationChannel.BALE)
+                _append_enabled_beta_messaging_channels(channels)
         except Exception:
             pass
 

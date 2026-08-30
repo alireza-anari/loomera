@@ -215,13 +215,13 @@ def _message_for_error(error_code: str) -> str:
         "token_expired": "مهلت این دکمه تمام شده. منوی تازه را باز کن.",
         "token_already_used": "این کار قبلاً انجام شده است.",
         "token_provider_mismatch": "این دکمه برای پیام‌رسان دیگری ساخته شده است.",
-        "token_identity_mismatch": "این دکمه برای حساب بله دیگری ساخته شده است.",
+        "token_identity_mismatch": "این دکمه برای حساب پیام‌رسان دیگری ساخته شده است.",
         "token_user_mismatch": "این دکمه برای کاربر دیگری ساخته شده است.",
         "related_object_missing": "مورد مرتبط با این دکمه دیگر در دسترس نیست.",
         "messaging_actions_disabled": "انجام این کار از داخل ربات موقتاً در دسترس نیست. از سایت اقدام کن.",
         "action_not_registered": "این کار از داخل ربات در دسترس نیست.",
         "action_handler_failed": "این کار انجام نشد. دوباره تلاش کن یا جزئیات را در سایت ببین.",
-        "identity_not_linked": "برای استفاده از این دکمه، حساب بله را به Loomera وصل کن.",
+        "identity_not_linked": "برای استفاده از این دکمه، حساب پیام‌رسان را به Loomera وصل کن.",
         "identity_connection_inactive": "اتصال این حساب قطع شده. دوباره آن را از Loomera وصل کن.",
     }
     return messages.get(error_code, "اجرای اکشن ممکن نیست.")

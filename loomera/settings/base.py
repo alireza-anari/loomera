@@ -216,6 +216,18 @@ BALE_POLLING_ENABLED = env.bool("BALE_POLLING_ENABLED", default=False)
 BALE_POLLING_LIMIT = env.int("BALE_POLLING_LIMIT", default=100)
 BALE_POLLING_TIMEOUT_SECONDS = env.int("BALE_POLLING_TIMEOUT_SECONDS", default=0)
 BALE_POLLING_LOCK_TTL_SECONDS = env.int("BALE_POLLING_LOCK_TTL_SECONDS", default=120)
+TELEGRAM_BOT_ENABLED = env.bool("TELEGRAM_BOT_ENABLED", default=False)
+if TELEGRAM_BOT_ENABLED and "telegram" not in MESSAGING_ALLOWED_PROVIDERS:
+    MESSAGING_ALLOWED_PROVIDERS.append("telegram")
+TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="").strip()
+TELEGRAM_BOT_API_BASE_URL = env(
+    "TELEGRAM_BOT_API_BASE_URL", default="https://api.telegram.org/bot"
+).strip()
+TELEGRAM_BOT_REQUEST_TIMEOUT = env.int("TELEGRAM_BOT_REQUEST_TIMEOUT", default=10)
+TELEGRAM_BOT_USERNAME = env("TELEGRAM_BOT_USERNAME", default="").strip().lstrip("@")
+TELEGRAM_WEBHOOK_SECRET = env("TELEGRAM_WEBHOOK_SECRET", default="").strip()
+TELEGRAM_WEBHOOK_MAX_BYTES = env.int("TELEGRAM_WEBHOOK_MAX_BYTES", default=256 * 1024)
+
 MESSAGING_PUBLIC_BASE_URL = (
     env("MESSAGING_PUBLIC_BASE_URL", default="").strip().rstrip("/")
 )
@@ -272,6 +284,7 @@ INSTALLED_APPS = [
     "apps.notifications.apps.NotificationsConfig",
     "apps.messaging.apps.MessagingConfig",
     "apps.bale_bot.apps.BaleBotConfig",
+    "apps.telegram_bot.apps.TelegramBotConfig",
     "apps.platform_admin.apps.PlatformAdminConfig",
     "apps.analytics.apps.AnalyticsConfig",
     "apps.api.apps.ApiConfig",

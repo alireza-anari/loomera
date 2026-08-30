@@ -90,15 +90,15 @@
       "source": "apps/messaging/notification_delivery.py",
       "qualname": "messaging_delivery_preference_enabled",
       "kind": "function",
-      "executable_sha256": "cfa11588853b74efb15f733aad5e0d0ca7b32581f8b0d1809a69718e944b985f",
-      "documentation_sha256": "7bfec4cdaa8cabc3035fd03f3ccaa4428731bdd4be65dbd637653b14da9085a2"
+      "executable_sha256": "853b204e8e2a1331d625d3103e170cd361f37bcf55953a7ca9668303f8794bae",
+      "documentation_sha256": "ce2c8b124ce2879b95515fbea61297c134485e35f0210a99ba00080848ca0c41"
     },
     {
       "source": "apps/messaging/notification_delivery.py",
       "qualname": "deliver_simple_notification",
       "kind": "function",
-      "executable_sha256": "a11358dd3b14c024926ed1cea8ce8ab4e1637f19833ad73d245a6ac0cffd2cb4",
-      "documentation_sha256": "88367836efc0524e0e292790e105ef6423a684f2b99aba6a12817f2d22c15cab"
+      "executable_sha256": "60a2a6a8fe5ccb25f4b15b53a3c7da0bd628927d9df640a0922d230d8cce4617",
+      "documentation_sha256": "1aba566d2c7b2803186c83df82e55c3236053882b234cfe38b39041fcde83669"
     }
   ]
 }

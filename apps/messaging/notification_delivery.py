@@ -57,45 +57,45 @@ def messaging_notification_channels() -> set[str]:
     return set(CHANNEL_PROVIDER_MAP.keys())
 
 
-def bale_outbound_queue_ready() -> bool:
-    """Return True only when queued Bale deliveries may be consumed safely.
-
-    This prevents the notification worker from turning queued Bale deliveries
-    into SKIPPED/PENDING_SETUP before the bot is fully configured for real
-    outbound delivery in local/staging/production.
-    """
-
-    if not messaging_enabled():
+def provider_outbound_queue_ready(provider_key: str) -> bool:
+    provider_key = str(provider_key or "")
+    config = {
+        str(MessagingProviderKey.BALE): ("BALE_BOT_ENABLED", "BALE_BOT_TOKEN"),
+        str(MessagingProviderKey.TELEGRAM): ("TELEGRAM_BOT_ENABLED", "TELEGRAM_BOT_TOKEN"),
+    }.get(provider_key)
+    if not config or not messaging_enabled() or not messaging_outbound_enabled():
         return False
-    if not bool(getattr(settings, "BALE_BOT_ENABLED", False)):
+    enabled_setting, token_setting = config
+    if not bool(getattr(settings, enabled_setting, False)):
         return False
-    if not messaging_outbound_enabled():
+    if not str(getattr(settings, token_setting, "") or "").strip():
         return False
-    if not str(getattr(settings, "BALE_BOT_TOKEN", "") or "").strip():
+    if not provider_allowed(provider_key):
         return False
-    if not provider_allowed(MessagingProviderKey.BALE):
-        return False
-
     ensure_default_providers()
     provider = (
-        MessagingProvider.objects.filter(key=MessagingProviderKey.BALE)
+        MessagingProvider.objects.filter(key=provider_key)
         .only("is_active", "supports_outbound")
         .first()
     )
     return bool(provider and provider.is_active and provider.supports_outbound)
 
 
+def bale_outbound_queue_ready() -> bool:
+    return provider_outbound_queue_ready(MessagingProviderKey.BALE)
+
+
+def telegram_outbound_queue_ready() -> bool:
+    return provider_outbound_queue_ready(MessagingProviderKey.TELEGRAM)
+
+
 def queue_processable_messaging_channels() -> list[str]:
-    """Return messaging channels that the queue worker may touch now.
-
-    Bale deliveries must stay queued until the bot is fully ready for outbound
-    sending. This is important because the global notification cron may already
-    be running in beta/staging while Bale is still being configured.
-    """
-
-    if not bale_outbound_queue_ready():
-        return []
-    return [NotificationChannel.BALE]
+    channels = []
+    if bale_outbound_queue_ready():
+        channels.append(NotificationChannel.BALE)
+    if telegram_outbound_queue_ready():
+        channels.append(NotificationChannel.TELEGRAM)
+    return channels
 
 
 def notification_action_specs(delivery: NotificationDelivery) -> list[dict[str, Any]]:
@@ -322,16 +322,19 @@ def messaging_delivery_preference_enabled(delivery: NotificationDelivery) -> boo
     Re-check the recipient messaging preference when queued work is processed.
 
     Preferences may change after NotificationDelivery creation, and manually
-    created rows must follow the same privacy policy. Critical notifications bypass
-    opt-out consistently with the unified notification policy. Non-critical
-    preferences are resolved from the most specific audience-role and event rule
-    toward generic category defaults. Missing preference rows preserve the default
-    enabled behavior.
+    created rows must follow the same privacy policy. External Bale and Telegram
+    deliveries respect explicit opt-out even for critical notifications; critical
+    internal channels may still follow the unified notification policy. Preferences
+    are resolved from the most specific audience-role and event rule toward generic
+    category defaults. Missing preference rows preserve the default enabled behavior.
     """
 
     recipient = delivery.recipient
     notification = recipient.notification
-    if notification.priority == NotificationPriority.CRITICAL:
+    if (
+        notification.priority == NotificationPriority.CRITICAL
+        and delivery.channel not in {NotificationChannel.BALE, NotificationChannel.TELEGRAM}
+    ):
         return True
 
     qs = NotificationPreference.objects.filter(
@@ -408,8 +411,8 @@ def deliver_simple_notification(
     The provider, latest user preference, global feature flags, provider outbound
     capability, and an active linked identity are checked before any API call.
     Unavailable setup returns pending-setup, explicit opt-out or disabled messaging
-    returns skipped, and an unsupported adapter also remains pending-setup. Bale
-    messages use safe text rendering and optional tokenized reply markup; the
+    returns skipped, and an unsupported adapter also remains pending-setup. Bale and
+    Telegram messages use safe text rendering and optional tokenized reply markup; the
     resulting message-log status is mapped to the NotificationDelivery status
     returned to the queue processor. This function returns a delivery result but
     does not itself persist the queue row transition or retry policy.
@@ -480,14 +483,18 @@ def deliver_simple_notification(
         )
 
     text = render_simple_notification_text(delivery)
-
-    if provider.key == MessagingProviderKey.BALE:
-        from apps.bale_bot.client import BaleBotClient
+    if provider.key in {MessagingProviderKey.BALE, MessagingProviderKey.TELEGRAM}:
+        if provider.key == MessagingProviderKey.BALE:
+            from apps.bale_bot.client import BaleBotClient
+            client = BaleBotClient()
+        else:
+            from apps.telegram_bot.client import TelegramBotClient
+            client = TelegramBotClient()
 
         reply_markup = build_actionable_reply_markup(
             delivery, provider=provider, identity=identity
         )
-        message_log = BaleBotClient().send_message(
+        message_log = client.send_message(
             provider=provider,
             identity=identity,
             notification_delivery=delivery,
@@ -500,8 +507,7 @@ def deliver_simple_notification(
             "provider": provider.key,
             "identity_id": identity.pk,
             "messaging_message_log_id": getattr(message_log, "pk", None),
-            "external_message_id": getattr(message_log, "external_message_id", "")
-            or "",
+            "external_message_id": getattr(message_log, "external_message_id", "") or "",
             "outbound_enabled": messaging_outbound_enabled(),
         }
         error = getattr(message_log, "error_message", "") or ""

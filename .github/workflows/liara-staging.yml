@@ -38,9 +38,10 @@ jobs:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
           LIARA_APP_NAME: ${{ vars.LIARA_APP_NAME }}
           BALE_BOT_TOKEN: ${{ secrets.BALE_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_WEBHOOK_SECRET: ${{ secrets.TELEGRAM_WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
-
           if [ -z "$LIARA_TOKEN" ]; then
             echo "::error::LIARA_API_TOKEN is not configured."
             exit 1
@@ -55,29 +56,49 @@ jobs:
             echo "::error::Staging deployment target must be loomera-staging."
             exit 1
           fi
-
           if [ -z "$BALE_BOT_TOKEN" ]; then
             echo "::error::BALE_BOT_TOKEN is not configured in staging environment."
+            exit 1
+          fi
+          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "::error::TELEGRAM_BOT_TOKEN is not configured in staging environment."
+            exit 1
+          fi
+          if [ -z "$TELEGRAM_WEBHOOK_SECRET" ]; then
+            echo "::error::TELEGRAM_WEBHOOK_SECRET is not configured in staging environment."
             exit 1
           fi
 
           echo "Staging deployment target validated."
 
-      - name: Sync staging Bale bot token to Liara
+      - name: Sync staging messaging secrets to Liara
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
           LIARA_APP_NAME: ${{ vars.LIARA_APP_NAME }}
           BALE_BOT_TOKEN: ${{ secrets.BALE_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_WEBHOOK_SECRET: ${{ secrets.TELEGRAM_WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
-
           liara env set \
             --app="$LIARA_APP_NAME" \
             --api-token="$LIARA_TOKEN" \
             --force \
             "BALE_BOT_TOKEN=$BALE_BOT_TOKEN"
 
-          echo "Staging Bale bot token synced to Liara."
+          liara env set \
+            --app="$LIARA_APP_NAME" \
+            --api-token="$LIARA_TOKEN" \
+            --force \
+            "TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN"
+
+          liara env set \
+            --app="$LIARA_APP_NAME" \
+            --api-token="$LIARA_TOKEN" \
+            --force \
+            "TELEGRAM_WEBHOOK_SECRET=$TELEGRAM_WEBHOOK_SECRET"
+
+          echo "Staging messaging secrets synced to Liara."
 
       - name: Prepare staging PostgreSQL dependency
         run: |
