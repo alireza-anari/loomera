@@ -212,6 +212,40 @@ BALE_WEBHOOK_ALLOW_PATH_TOKEN = env.bool(
     default=False,
 )
 BALE_WEBHOOK_MAX_BYTES = env.int("BALE_WEBHOOK_MAX_BYTES", default=256 * 1024)
+
+# INSTAGRAM / LUMI DM BETA FOUNDATION
+# Default OFF until Meta setup, QA, and a real Professional Account smoke pass.
+# Instagram is inbound-first: Lumi may reply only to customer-initiated DMs.
+INSTAGRAM_ENABLED = env.bool("INSTAGRAM_ENABLED", default=False)
+INSTAGRAM_MESSAGING_ENABLED = env.bool("INSTAGRAM_MESSAGING_ENABLED", default=False)
+
+INSTAGRAM_APP_ID = env("INSTAGRAM_APP_ID", default="").strip()
+INSTAGRAM_APP_SECRET = env("INSTAGRAM_APP_SECRET", default="").strip()
+INSTAGRAM_REDIRECT_URI = env("INSTAGRAM_REDIRECT_URI", default="").strip()
+INSTAGRAM_WEBHOOK_VERIFY_TOKEN = env(
+    "INSTAGRAM_WEBHOOK_VERIFY_TOKEN", default=""
+).strip()
+INSTAGRAM_TOKEN_ENCRYPTION_KEY = env(
+    "INSTAGRAM_TOKEN_ENCRYPTION_KEY", default=""
+).strip()
+
+INSTAGRAM_REQUEST_TIMEOUT = env.int("INSTAGRAM_REQUEST_TIMEOUT", default=10)
+INSTAGRAM_WEBHOOK_MAX_BYTES = env.int(
+    "INSTAGRAM_WEBHOOK_MAX_BYTES", default=256 * 1024
+)
+INSTAGRAM_OAUTH_STATE_TTL_SECONDS = env.int(
+    "INSTAGRAM_OAUTH_STATE_TTL_SECONDS", default=600
+)
+
+# Current Instagram API with Instagram Login permission names.
+INSTAGRAM_LOGIN_SCOPES = env.list(
+    "INSTAGRAM_LOGIN_SCOPES",
+    default=[
+        "instagram_business_basic",
+        "instagram_business_manage_messages",
+    ],
+)
+
 BALE_POLLING_ENABLED = env.bool("BALE_POLLING_ENABLED", default=False)
 BALE_POLLING_LIMIT = env.int("BALE_POLLING_LIMIT", default=100)
 BALE_POLLING_TIMEOUT_SECONDS = env.int("BALE_POLLING_TIMEOUT_SECONDS", default=0)
@@ -289,6 +323,7 @@ INSTALLED_APPS = [
     "apps.notifications.apps.NotificationsConfig",
     "apps.messaging.apps.MessagingConfig",
     "apps.bale_bot.apps.BaleBotConfig",
+    "apps.instagram_integration.apps.InstagramIntegrationConfig",
     "apps.telegram_bot.apps.TelegramBotConfig",
     "apps.platform_admin.apps.PlatformAdminConfig",
     "apps.analytics.apps.AnalyticsConfig",
