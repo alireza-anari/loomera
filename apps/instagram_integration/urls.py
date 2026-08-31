@@ -9,6 +9,11 @@ app_name = "instagram_integration"
 urlpatterns = [
     path("webhook/", instagram_webhook, name="webhook"),
     path(
+        "settings/<str:context_kind>/<int:salon_id>/",
+        views.connection_settings,
+        name="connection_settings",
+    ),
+    path(
         "oauth/start/<str:context_kind>/<int:salon_id>/",
         views.oauth_start,
         name="oauth_start",

@@ -14696,6 +14696,26 @@ class WorkspaceSettingsHubView(LoginRequiredMixin, View):
             request_path=request.path,
         )
 
+        settings_groups = self._settings_groups()
+        salon = _get_manager_salon(request.user)
+        if salon is not None:
+            for group in settings_groups:
+                if group.get("key") == "notifications":
+                    group.setdefault("items", []).append(
+                        {
+                            "title": "Instagram و Lumi",
+                            "description": "اتصال دایرکت Instagram و دستیار Lumi",
+                            "url": reverse(
+                                "instagram_integration:connection_settings",
+                                kwargs={
+                                    "context_kind": "salon",
+                                    "salon_id": salon.pk,
+                                },
+                            ),
+                            "icon": "fa-brands fa-instagram",
+                        }
+                    )
+                    break
         context.update(
             {
                 "hide_dashboard_header": True,
@@ -14710,7 +14730,7 @@ class WorkspaceSettingsHubView(LoginRequiredMixin, View):
                         "url": reverse("dashboards:home"),
                     },
                 },
-                "workspace_settings_groups": self._settings_groups(),
+                "workspace_settings_groups": settings_groups,
                 "workspace_settings_legal_links": [
                     {
                         "label": "حریم خصوصی",
@@ -14795,6 +14815,23 @@ class StylistSettingsHubView(StylistDashboardGuardMixin, View):
                 ]
             }
         )
+        for group in context.get("stylist_settings_groups", []):
+            if group.get("key") == "communications":
+                group.setdefault("items", []).append(
+                    {
+                        "title": "Instagram و Lumi",
+                        "description": "اتصال دایرکت Instagram همین متخصص در این مجموعه",
+                        "icon": "fa-brands fa-instagram",
+                        "url": reverse(
+                            "instagram_integration:connection_settings",
+                            kwargs={
+                                "context_kind": "stylist",
+                                "salon_id": salon.pk,
+                            },
+                        ),
+                    }
+                )
+                break
         context.update(_stylist_context_payload(ctx))
         return render(request, self.template_name, context)
 

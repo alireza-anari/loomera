@@ -1,13 +1,18 @@
 from django.contrib import messages
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
+from apps.dashboards.layout import build_dashboard_context
 
-from .models import InstagramAccountConnection
+from .models import (
+    InstagramAccountConnection,
+    InstagramConnectionStatus,
+)
 from .subscriptions import (
     InstagramWebhookSubscriptionError,
     subscribe_professional_account,
@@ -37,6 +42,94 @@ def _context_connection(context):
         salon=context.salon,
         stylist=context.stylist,
     ).first()
+
+
+@login_required
+@require_GET
+def connection_settings(request, context_kind, salon_id):
+    context_owner = resolve_context_for_user(
+        user=request.user,
+        salon_id=salon_id,
+        context_kind=context_kind,
+    )
+    connection = _context_connection(context_owner)
+
+    if context_owner.kind == "stylist":
+        dashboard_context = build_dashboard_context(
+            request.user,
+            sidebar_active="my_settings",
+            page_title="Instagram و Lumi",
+            request_path=request.path,
+            role="stylist",
+            salon_override=context_owner.salon,
+            stylist_override=context_owner.stylist,
+        )
+        return_url = reverse("dashboards:stylist_settings")
+    else:
+        dashboard_context = build_dashboard_context(
+            request.user,
+            nav_active="home",
+            sidebar_active="settings",
+            page_title="Instagram و Lumi",
+            request_path=request.path,
+        )
+        return_url = reverse("dashboards:workspace_settings")
+
+    feature_ready = bool(
+        getattr(settings, "INSTAGRAM_ENABLED", False)
+        and getattr(settings, "INSTAGRAM_MESSAGING_ENABLED", False)
+    )
+    connection_ready = bool(
+        connection is not None
+        and connection.status == InstagramConnectionStatus.CONNECTED
+        and connection.webhook_subscribed_at is not None
+        and connection.is_context_active()
+    )
+
+    if connection is None:
+        status_label = "متصل نشده"
+    elif connection_ready:
+        status_label = "متصل و آماده دریافت پیام"
+    elif connection.status == InstagramConnectionStatus.NEEDS_REAUTH:
+        status_label = "نیاز به اتصال مجدد"
+    elif connection.status == InstagramConnectionStatus.DISCONNECTED:
+        status_label = "قطع شده"
+    else:
+        status_label = "اتصال نیاز به بررسی دارد"
+
+    dashboard_context.update(
+        {
+            "hide_dashboard_header": True,
+            "hide_dashboard_top_nav": True,
+            "instagram_context_kind": context_owner.kind,
+            "instagram_salon": context_owner.salon,
+            "instagram_stylist": context_owner.stylist,
+            "instagram_connection": connection,
+            "instagram_connection_ready": connection_ready,
+            "instagram_status_label": status_label,
+            "instagram_feature_ready": feature_ready,
+            "instagram_connect_url": reverse(
+                "instagram_integration:oauth_start",
+                kwargs={
+                    "context_kind": context_owner.kind,
+                    "salon_id": context_owner.salon.pk,
+                },
+            ),
+            "instagram_disconnect_url": reverse(
+                "instagram_integration:disconnect",
+                kwargs={
+                    "context_kind": context_owner.kind,
+                    "salon_id": context_owner.salon.pk,
+                },
+            ),
+            "instagram_return_url": return_url,
+        }
+    )
+    return render(
+        request,
+        "instagram_integration/settings.html",
+        dashboard_context,
+    )
 
 
 @login_required
