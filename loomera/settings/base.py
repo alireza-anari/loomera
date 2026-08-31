@@ -237,6 +237,21 @@ INSTAGRAM_OAUTH_STATE_TTL_SECONDS = env.int(
     "INSTAGRAM_OAUTH_STATE_TTL_SECONDS", default=600
 )
 
+# OAuth endpoints are configurable so Meta Dashboard/API changes do not require
+# a code release. Defaults match the current Instagram Login flow.
+INSTAGRAM_OAUTH_AUTHORIZE_URL = env(
+    "INSTAGRAM_OAUTH_AUTHORIZE_URL",
+    default="https://www.instagram.com/oauth/authorize",
+).strip()
+INSTAGRAM_OAUTH_TOKEN_URL = env(
+    "INSTAGRAM_OAUTH_TOKEN_URL",
+    default="https://api.instagram.com/oauth/access_token",
+).strip()
+INSTAGRAM_GRAPH_BASE_URL = env(
+    "INSTAGRAM_GRAPH_BASE_URL",
+    default="https://graph.instagram.com",
+).strip()
+
 # Current Instagram API with Instagram Login permission names.
 INSTAGRAM_LOGIN_SCOPES = env.list(
     "INSTAGRAM_LOGIN_SCOPES",

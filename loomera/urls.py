@@ -97,6 +97,7 @@ urlpatterns = [
         include("apps.telegram_bot.urls", namespace="telegram_bot"),
     ),
     path("messaging/", include("apps.messaging.urls", namespace="messaging")),
+    path("instagram/", include("apps.instagram_integration.urls", namespace="instagram_integration")),
     path("platform/", include("apps.platform_admin.urls", namespace="platform_admin")),
     path("magazine/", include("apps.articles.urls", namespace="articles")),
 ]
