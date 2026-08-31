@@ -113,7 +113,7 @@ class InstagramSendApiTests(TestCase):
         args, kwargs = post.call_args
         self.assertEqual(
             args[0],
-            "https://graph.instagram.com/v24.0/ig-business-123/messages",
+            "https://graph.instagram.com/v24.0/me/messages",
         )
         self.assertEqual(
             kwargs["json"]["recipient"]["id"],

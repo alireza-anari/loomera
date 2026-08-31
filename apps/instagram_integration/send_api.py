@@ -36,11 +36,14 @@ def _send_runtime_enabled():
 
 
 def _messages_endpoint(connection):
+    # Instagram Login Send API identifies the Professional Account from the
+    # Instagram User access token. Keep `connection` in the signature because
+    # dispatch has already enforced its Loomera Salon/Stylist context.
     base = str(settings.INSTAGRAM_GRAPH_BASE_URL).rstrip("/")
     version = str(
         getattr(settings, "INSTAGRAM_GRAPH_API_VERSION", "v24.0") or "v24.0"
     ).strip().strip("/")
-    return f"{base}/{version}/{connection.instagram_account_id}/messages"
+    return f"{base}/{version}/me/messages"
 
 
 def _mark_connection_needs_reauth(connection):
