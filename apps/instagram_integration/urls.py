@@ -1,11 +1,13 @@
 from django.urls import path
 
 from . import views
+from .webhook import instagram_webhook
 
 
 app_name = "instagram_integration"
 
 urlpatterns = [
+    path("webhook/", instagram_webhook, name="webhook"),
     path(
         "oauth/start/<str:context_kind>/<int:salon_id>/",
         views.oauth_start,

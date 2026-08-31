@@ -148,3 +148,63 @@ class InstagramAccountConnection(models.Model):
         self.status = InstagramConnectionStatus.DISCONNECTED
         self.disconnected_at = timezone.now()
         self.clear_access_token()
+
+
+class InstagramInboundMessageStatus(models.TextChoices):
+    RECEIVED = "received", "Received"
+    PROCESSING = "processing", "Processing"
+    PROCESSED = "processed", "Processed"
+    FAILED = "failed", "Failed"
+
+
+class InstagramInboundMessage(models.Model):
+    """
+    Minimal persisted inbound Instagram DM.
+
+    The raw Meta webhook payload is intentionally NOT stored. We retain only the
+    fields needed for deduplication, routing, and the later Lumi processing step.
+    """
+
+    connection = models.ForeignKey(
+        InstagramAccountConnection,
+        on_delete=models.CASCADE,
+        related_name="inbound_messages",
+    )
+    provider_message_id = models.CharField(
+        max_length=255,
+        unique=True,
+        db_index=True,
+    )
+    sender_igsid = models.CharField(max_length=128, db_index=True)
+    recipient_instagram_account_id = models.CharField(max_length=64, db_index=True)
+    message_text = models.TextField(blank=True, default="")
+    provider_timestamp_ms = models.BigIntegerField(null=True, blank=True)
+
+    status = models.CharField(
+        max_length=32,
+        choices=InstagramInboundMessageStatus.choices,
+        default=InstagramInboundMessageStatus.RECEIVED,
+        db_index=True,
+    )
+    received_at = models.DateTimeField(auto_now_add=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "instagram_inbound_messages"
+        ordering = ["received_at", "id"]
+        indexes = [
+            models.Index(
+                fields=["connection", "status"],
+                name="ig_msg_conn_status",
+            ),
+            models.Index(
+                fields=["sender_igsid", "received_at"],
+                name="ig_msg_sender_time",
+            ),
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.provider_message_id} -> "
+            f"instagram:{self.recipient_instagram_account_id}"
+        )
