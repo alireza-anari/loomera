@@ -54,3 +54,4 @@ boto3==1.35.99
 fpdf2==2.8.7
 uharfbuzz==0.56.0
 brotli==1.2.0
+cryptography==50.0.1
