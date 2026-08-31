@@ -180,6 +180,12 @@ class InstagramInboundMessage(models.Model):
     message_text = models.TextField(blank=True, default="")
     provider_timestamp_ms = models.BigIntegerField(null=True, blank=True)
 
+    # Public-business Lumi draft only; never customer/private appointment data.
+    lumi_disposition = models.CharField(max_length=32, blank=True, default="")
+    lumi_reply_text = models.TextField(blank=True, default="")
+    lumi_facts = models.JSONField(default=dict, blank=True)
+    requires_human = models.BooleanField(default=False)
+
     status = models.CharField(
         max_length=32,
         choices=InstagramInboundMessageStatus.choices,
