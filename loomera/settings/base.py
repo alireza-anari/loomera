@@ -218,6 +218,7 @@ BALE_WEBHOOK_MAX_BYTES = env.int("BALE_WEBHOOK_MAX_BYTES", default=256 * 1024)
 # Instagram is inbound-first: Lumi may reply only to customer-initiated DMs.
 INSTAGRAM_ENABLED = env.bool("INSTAGRAM_ENABLED", default=False)
 INSTAGRAM_MESSAGING_ENABLED = env.bool("INSTAGRAM_MESSAGING_ENABLED", default=False)
+INSTAGRAM_SEND_ENABLED = env.bool("INSTAGRAM_SEND_ENABLED", default=False)
 
 INSTAGRAM_APP_ID = env("INSTAGRAM_APP_ID", default="").strip()
 INSTAGRAM_APP_SECRET = env("INSTAGRAM_APP_SECRET", default="").strip()
@@ -250,6 +251,10 @@ INSTAGRAM_OAUTH_TOKEN_URL = env(
 INSTAGRAM_GRAPH_BASE_URL = env(
     "INSTAGRAM_GRAPH_BASE_URL",
     default="https://graph.instagram.com",
+).strip()
+INSTAGRAM_GRAPH_API_VERSION = env(
+    "INSTAGRAM_GRAPH_API_VERSION",
+    default="v24.0",
 ).strip()
 
 # Current Instagram API with Instagram Login permission names.

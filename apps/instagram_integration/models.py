@@ -150,6 +150,14 @@ class InstagramAccountConnection(models.Model):
         self.clear_access_token()
 
 
+class InstagramReplySendStatus(models.TextChoices):
+    PENDING = "pending", "Pending"
+    SENDING = "sending", "Sending"
+    SENT = "sent", "Sent"
+    FAILED = "failed", "Failed"
+    SUPPRESSED = "suppressed", "Suppressed"
+
+
 class InstagramInboundMessageStatus(models.TextChoices):
     RECEIVED = "received", "Received"
     PROCESSING = "processing", "Processing"
@@ -185,6 +193,21 @@ class InstagramInboundMessage(models.Model):
     lumi_reply_text = models.TextField(blank=True, default="")
     lumi_facts = models.JSONField(default=dict, blank=True)
     requires_human = models.BooleanField(default=False)
+
+    reply_send_status = models.CharField(
+        max_length=32,
+        choices=InstagramReplySendStatus.choices,
+        default=InstagramReplySendStatus.PENDING,
+        db_index=True,
+    )
+    reply_provider_message_id = models.CharField(
+        max_length=255, blank=True, default=""
+    )
+    reply_send_attempts = models.PositiveIntegerField(default=0)
+    reply_last_error_code = models.CharField(
+        max_length=64, blank=True, default=""
+    )
+    reply_sent_at = models.DateTimeField(null=True, blank=True)
 
     status = models.CharField(
         max_length=32,
