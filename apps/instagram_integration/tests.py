@@ -100,3 +100,24 @@ class InstagramConfigurationCheckTests(SimpleTestCase):
         )
         with self.settings(**config):
             self.assertEqual(check_instagram_configuration(), [])
+
+    def test_auto_reply_requires_real_celery_worker_mode(self):
+        config = dict(VALID)
+        config.update(
+            INSTAGRAM_SEND_ENABLED=True,
+            INSTAGRAM_AUTO_REPLY_ENABLED=True,
+            LOOMERA_ENABLE_CELERY=False,
+            CELERY_TASK_ALWAYS_EAGER=True,
+        )
+        with self.settings(**config):
+            self.assertIn("instagram.E012", self._ids())
+
+    def test_auto_reply_requires_send_flag(self):
+        config = dict(VALID)
+        config.update(
+            INSTAGRAM_SEND_ENABLED=False,
+            INSTAGRAM_AUTO_REPLY_ENABLED=True,
+        )
+        with self.settings(**config):
+            self.assertIn("instagram.E011", self._ids())
+

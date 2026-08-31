@@ -48,6 +48,41 @@ def check_instagram_configuration():
             )
         )
 
+    send_enabled = bool(getattr(settings, "INSTAGRAM_SEND_ENABLED", False))
+    auto_reply_enabled = bool(
+        getattr(settings, "INSTAGRAM_AUTO_REPLY_ENABLED", False)
+    )
+
+    if send_enabled and not messaging_enabled:
+        errors.append(
+            _error(
+                "Instagram sending cannot be enabled while messaging is disabled.",
+                "Enable INSTAGRAM_MESSAGING_ENABLED first.",
+                "instagram.E010",
+            )
+        )
+
+    if auto_reply_enabled and not send_enabled:
+        errors.append(
+            _error(
+                "Instagram auto reply requires outbound sending.",
+                "Enable INSTAGRAM_SEND_ENABLED first.",
+                "instagram.E011",
+            )
+        )
+
+    if auto_reply_enabled and (
+        not bool(getattr(settings, "LOOMERA_ENABLE_CELERY", False))
+        or bool(getattr(settings, "CELERY_TASK_ALWAYS_EAGER", False))
+    ):
+        errors.append(
+            _error(
+                "Instagram auto reply requires an asynchronous Celery worker.",
+                "Enable Celery worker mode before Auto Reply.",
+                "instagram.E012",
+            )
+        )
+
     # Default OFF must be startup-safe and require no Instagram secrets.
     if not enabled:
         return errors

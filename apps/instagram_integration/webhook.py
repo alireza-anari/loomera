@@ -14,6 +14,7 @@ from .models import (
     InstagramConnectionStatus,
     InstagramInboundMessage,
 )
+from .tasks import enqueue_instagram_inbound_message
 
 
 def _messaging_runtime_enabled():
@@ -127,7 +128,7 @@ def _ingest_message_event(*, entry_account_id, event):
 
     try:
         with transaction.atomic():
-            _, created = InstagramInboundMessage.objects.get_or_create(
+            inbound, created = InstagramInboundMessage.objects.get_or_create(
                 provider_message_id=provider_message_id,
                 defaults={
                     "connection": connection,
@@ -139,6 +140,13 @@ def _ingest_message_event(*, entry_account_id, event):
                     ),
                 },
             )
+            if created:
+                transaction.on_commit(
+                    lambda inbound_id=inbound.pk: enqueue_instagram_inbound_message(
+                        inbound_id
+                    ),
+                    robust=True,
+                )
     except IntegrityError:
         # Concurrent duplicate delivery: the unique provider_message_id is the
         # final idempotency boundary.
