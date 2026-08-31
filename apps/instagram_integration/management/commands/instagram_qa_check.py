@@ -234,6 +234,12 @@ class Command(BaseCommand):
                 f"  id={connection.pk} @{label} context={context}"
             )
 
+            if connection.webhook_subscribed_at is None:
+                error(
+                    "READY.E013",
+                    f"Connection {connection.pk} is not marked as subscribed to Meta webhooks.",
+                )
+
             if not connection.is_context_active():
                 error(
                     "READY.E008",

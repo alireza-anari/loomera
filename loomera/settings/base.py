@@ -257,6 +257,10 @@ INSTAGRAM_GRAPH_API_VERSION = env(
     "INSTAGRAM_GRAPH_API_VERSION",
     default="v24.0",
 ).strip()
+INSTAGRAM_WEBHOOK_SUBSCRIBED_FIELDS = env.list(
+    "INSTAGRAM_WEBHOOK_SUBSCRIBED_FIELDS",
+    default=["messages"],
+)
 
 # Current Instagram API with Instagram Login permission names.
 INSTAGRAM_LOGIN_SCOPES = env.list(

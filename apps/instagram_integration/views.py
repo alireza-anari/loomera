@@ -4,9 +4,15 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from .models import InstagramAccountConnection
+from .subscriptions import (
+    InstagramWebhookSubscriptionError,
+    subscribe_professional_account,
+    unsubscribe_professional_account,
+)
 from .oauth import (
     InstagramOAuthStateError,
     InstagramProviderError,
@@ -82,6 +88,11 @@ def oauth_callback(request):
     try:
         result = exchange_code_for_connection(code=code)
 
+        subscribe_professional_account(
+            account_id=result.account_id,
+            access_token=result.access_token,
+        )
+
         conflicting = InstagramAccountConnection.objects.filter(
             instagram_account_id=result.account_id,
         ).first()
@@ -111,9 +122,14 @@ def oauth_callback(request):
         connection.token_expires_at = expiry_from_result(result)
         connection.set_access_token(result.access_token)
         connection.mark_connected()
+        connection.webhook_subscribed_at = timezone.now()
         connection.save()
 
-    except (InstagramProviderError, ValidationError):
+    except (
+        InstagramProviderError,
+        InstagramWebhookSubscriptionError,
+        ValidationError,
+    ):
         messages.error(
             request,
             "اتصال اینستاگرام انجام نشد. تنظیمات حساب یا دسترسی‌های Meta را بررسی کنید.",
@@ -141,7 +157,17 @@ def disconnect(request, context_kind, salon_id):
         messages.info(request, "حساب اینستاگرامی برای قطع اتصال وجود ندارد.")
         return redirect(_dashboard_url(context))
 
+    try:
+        token = connection.get_access_token()
+    except Exception:
+        token = ""
+
+    unsubscribe_professional_account(
+        account_id=connection.instagram_account_id,
+        access_token=token,
+    )
     connection.mark_disconnected()
+    connection.webhook_subscribed_at = None
     connection.save()
 
     messages.success(request, "اتصال اینستاگرام قطع شد.")

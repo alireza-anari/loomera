@@ -185,6 +185,22 @@ def check_instagram_configuration():
             )
         )
 
+    subscribed_fields = set(
+        str(item).strip()
+        for item in getattr(
+            settings, "INSTAGRAM_WEBHOOK_SUBSCRIBED_FIELDS", ["messages"]
+        )
+        if str(item).strip()
+    )
+    if messaging_enabled and "messages" not in subscribed_fields:
+        errors.append(
+            _error(
+                "Instagram messaging webhook subscription must include messages.",
+                "Add messages to INSTAGRAM_WEBHOOK_SUBSCRIBED_FIELDS.",
+                "instagram.E013",
+            )
+        )
+
     return errors
 
 

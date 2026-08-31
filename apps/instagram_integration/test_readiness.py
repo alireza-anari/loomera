@@ -72,6 +72,7 @@ class InstagramReadinessCommandTests(TestCase):
                 "instagram_business_manage_messages",
             ],
             token_expires_at=timezone.now() + timedelta(days=30),
+            webhook_subscribed_at=timezone.now(),
         )
         connection.set_access_token("ready-secret-token")
         connection.mark_connected()

@@ -9,6 +9,7 @@ from apps.salons.models import Salon, SalonMembership, SalonMembershipStatus
 
 from .models import InstagramAccountConnection, InstagramConnectionStatus
 from .oauth import InstagramOAuthResult, exchange_code_for_connection
+from .subscriptions import InstagramWebhookSubscriptionError
 
 
 FERNET_TEST_KEY = "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
@@ -225,7 +226,10 @@ class InstagramOAuthViewTests(TestCase):
         self.assertEqual(second.status_code, 302)
         self.assertEqual(provider.call_count, 1)
 
-    def test_salon_callback_persists_encrypted_token(self):
+    @patch(
+        "apps.instagram_integration.views.subscribe_professional_account"
+    )
+    def test_salon_callback_persists_encrypted_token(self, subscribe):
         response = self._start(
             self.manager_user,
             "salon",
@@ -272,7 +276,10 @@ class InstagramOAuthViewTests(TestCase):
             "plaintext-must-not-remain",
         )
 
-    def test_stylist_callback_keeps_stylist_and_salon_context(self):
+    @patch(
+        "apps.instagram_integration.views.subscribe_professional_account"
+    )
+    def test_stylist_callback_keeps_stylist_and_salon_context(self, subscribe):
         response = self._start(
             self.stylist_user,
             "stylist",
@@ -375,6 +382,96 @@ class InstagramOAuthViewTests(TestCase):
             InstagramConnectionStatus.DISCONNECTED,
         )
         self.assertEqual(connection.encrypted_access_token, "")
+
+
+
+    @patch(
+        "apps.instagram_integration.views.subscribe_professional_account"
+    )
+    @patch(
+        "apps.instagram_integration.views.exchange_code_for_connection"
+    )
+    def test_oauth_subscribes_connected_account_to_messages(
+        self,
+        exchange,
+        subscribe,
+    ):
+        response = self._start(
+            self.manager_user,
+            "salon",
+            self.salon_a,
+        )
+        state = self._state(response)
+
+        exchange.return_value = InstagramOAuthResult(
+            account_id="ig-subscribe-test",
+            username="subscribe_test",
+            access_token="subscription-secret",
+            expires_in=3600,
+            scopes=(
+                "instagram_business_basic",
+                "instagram_business_manage_messages",
+            ),
+        )
+
+        callback = self.client.get(
+            reverse("instagram_integration:oauth_callback"),
+            {"state": state, "code": "good"},
+        )
+
+        self.assertEqual(callback.status_code, 302)
+        subscribe.assert_called_once_with(
+            account_id="ig-subscribe-test",
+            access_token="subscription-secret",
+        )
+        connection = InstagramAccountConnection.objects.get(
+            instagram_account_id="ig-subscribe-test"
+        )
+        self.assertIsNotNone(connection.webhook_subscribed_at)
+
+    @patch(
+        "apps.instagram_integration.views.subscribe_professional_account"
+    )
+    @patch(
+        "apps.instagram_integration.views.exchange_code_for_connection"
+    )
+    def test_subscription_failure_prevents_half_connected_account(
+        self,
+        exchange,
+        subscribe,
+    ):
+        response = self._start(
+            self.manager_user,
+            "salon",
+            self.salon_a,
+        )
+        state = self._state(response)
+
+        exchange.return_value = InstagramOAuthResult(
+            account_id="ig-subscribe-fail",
+            username="subscribe_fail",
+            access_token="subscription-secret",
+            expires_in=3600,
+            scopes=(
+                "instagram_business_basic",
+                "instagram_business_manage_messages",
+            ),
+        )
+        subscribe.side_effect = InstagramWebhookSubscriptionError(
+            "subscription failed"
+        )
+
+        callback = self.client.get(
+            reverse("instagram_integration:oauth_callback"),
+            {"state": state, "code": "good"},
+        )
+
+        self.assertEqual(callback.status_code, 302)
+        self.assertFalse(
+            InstagramAccountConnection.objects.filter(
+                instagram_account_id="ig-subscribe-fail"
+            ).exists()
+        )
 
 
 @override_settings(**BASE_SETTINGS)
