@@ -10,161 +10,31 @@
 {% block head %}
 {{ block.super }}
 <style>
-:root {
-  --lm-intro-header: 72px;
-  --lm-intro-purple: #6947c6;
-  --lm-intro-purple-dark: #432786;
-  --lm-intro-purple-soft: #f2edff;
-  --lm-intro-lilac: #e8ddff;
-  --lm-intro-green: #a7c8a1;
-  --lm-intro-ink: #282039;
-  --lm-intro-muted: #766d84;
-  --lm-intro-bg: #fbfaff;
-}
-
-body[data-page="home"] { overflow-x: hidden; background: var(--lm-intro-bg); }
-body[data-page="home"] .lm-shell-desktop-site-header {
-  position: fixed; inset: 0 0 auto; z-index: 100; width: 100%;
-  background: rgba(255,255,255,.90); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-  border-bottom: 1px solid rgba(105,71,198,.10);
-}
-body[data-page="home"] .lm-home-main-shell { width:100%; max-width:none; margin:0; padding:0; }
-
-.lm-intro { width:100%; overflow:clip; color:var(--lm-intro-ink); background:
-  radial-gradient(circle at 8% 16%, rgba(218,202,255,.38), transparent 28%),
-  radial-gradient(circle at 92% 66%, rgba(210,231,205,.24), transparent 25%), var(--lm-intro-bg); }
-.lm-intro * { box-sizing:border-box; }
-.lm-intro__story { position:relative; min-height:610vh; }
-.lm-intro__stage { position:sticky; top:var(--lm-intro-header); z-index:2; height:calc(100vh - var(--lm-intro-header)); min-height:650px; display:grid; place-items:center; padding:26px clamp(18px,4vw,72px); overflow:hidden; }
-.lm-intro__stage::before,.lm-intro__stage::after { content:""; position:absolute; pointer-events:none; border-radius:999px; filter:blur(3px); }
-.lm-intro__stage::before { width:360px;height:360px;left:-130px;top:-170px;background:rgba(221,207,255,.36); }
-.lm-intro__stage::after { width:460px;height:460px;right:-220px;bottom:-260px;background:rgba(210,231,205,.25); }
-.lm-intro__slides { position:relative; z-index:1; width:min(1210px,100%); height:min(690px,calc(100vh - var(--lm-intro-header) - 40px)); min-height:540px; }
-.lm-intro__slide { position:absolute; inset:0; display:grid; grid-template-columns:minmax(0,1fr) minmax(360px,1.04fr); align-items:center; gap:clamp(28px,5vw,78px); padding:clamp(25px,4vw,60px); border:1px solid rgba(105,71,198,.09); border-radius:clamp(28px,4vw,48px); background:rgba(255,255,255,.82); box-shadow:0 30px 90px rgba(73,51,118,.11); opacity:0; transform:translateY(24px) scale(.985); pointer-events:none; transition:opacity .58s ease,transform .68s cubic-bezier(.2,.7,.2,1); will-change:opacity,transform; }
-.lm-intro__slide.is-active { opacity:1; transform:none; pointer-events:auto; }
-.lm-intro__slide--hero { grid-template-columns:minmax(0,1fr) minmax(430px,1.08fr); overflow:hidden; background:#fff; }
-.lm-intro__slide--services { grid-template-columns:.86fr 1.14fr; }
-.lm-intro__slide--salons { grid-template-columns:.82fr 1.18fr; }
-.lm-intro__slide--manager { grid-template-columns:1.02fr .98fr; background:linear-gradient(135deg,#fff,#f6f0ff 68%,#fbfff9); overflow:hidden; }
-.lm-intro__slide--lumi { grid-template-columns:1fr 1fr; background:linear-gradient(135deg,#faf7ff,#f0e8ff 62%,#fbfdf9); }
-.lm-intro__slide--cta { display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; background:linear-gradient(135deg,#fdfbff,#eee5ff 58%,#f9fdf7); }
-
-.lm-intro__copy { position:relative; z-index:2; max-width:620px; }
-.lm-intro__eyebrow { display:inline-flex; align-items:center; gap:8px; margin:0 0 16px; padding:8px 13px; border-radius:999px; background:var(--lm-intro-purple-soft); color:var(--lm-intro-purple); font-size:13px; font-weight:800; }
-.lm-intro__eyebrow::before { content:""; width:7px;height:7px;border-radius:50%;background:var(--lm-intro-green);box-shadow:0 0 0 5px rgba(167,200,161,.16); }
-.lm-intro h1,.lm-intro h2 { margin:0; letter-spacing:-.035em; line-height:1.25; font-weight:900; }
-.lm-intro h1 { font-size:clamp(34px,4.25vw,62px); }
-.lm-intro h2 { font-size:clamp(29px,3.25vw,48px); }
-.lm-intro__accent { color:var(--lm-intro-purple); }
-.lm-intro__green { color:#79a574; }
-.lm-intro__lead { max-width:570px; margin:20px 0 0; color:var(--lm-intro-muted); font-size:clamp(15px,1.3vw,18px); line-height:2; }
-.lm-intro__actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
-.lm-intro__btn { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:49px; padding:0 21px; border-radius:15px; text-decoration:none; font-weight:800; transition:transform .2s ease,box-shadow .2s ease; }
-.lm-intro__btn:hover { transform:translateY(-2px); }
-.lm-intro__btn--primary { color:#fff; background:linear-gradient(135deg,var(--lm-intro-purple),#8061d8); box-shadow:0 13px 28px rgba(105,71,198,.24); }
-.lm-intro__btn--secondary { color:var(--lm-intro-purple); background:#fff; border:1px solid rgba(105,71,198,.18); }
-.lm-intro__brand { margin-bottom:18px; }
-.lm-intro__brand img { max-width:150px; height:auto; }
-
-.lm-intro__visual { position:relative; min-height:420px; height:100%; display:flex; align-items:center; justify-content:center; }
-.lm-intro__hero-image { width:100%; height:100%; min-height:430px; object-fit:cover; border-radius:34px; box-shadow:0 24px 60px rgba(69,51,93,.16); }
-.lm-intro__floating-card { position:absolute; right:-15px; bottom:25px; max-width:245px; padding:15px 17px; border-radius:18px; background:rgba(255,255,255,.95); border:1px solid rgba(105,71,198,.1); box-shadow:0 16px 40px rgba(68,48,103,.14); backdrop-filter:blur(14px); }
-.lm-intro__floating-card strong,.lm-intro__floating-card span { display:block; }
-.lm-intro__floating-card strong { color:var(--lm-intro-purple); font-size:15px; }
-.lm-intro__floating-card span { margin-top:5px; color:var(--lm-intro-muted); font-size:12px; line-height:1.8; }
-
-.lm-intro__search { display:grid; grid-template-columns:1fr auto; gap:8px; max-width:620px; margin-top:25px; padding:7px; border:1px solid rgba(105,71,198,.12); border-radius:17px; background:#fff; box-shadow:0 12px 35px rgba(80,57,120,.08); }
-.lm-intro__search input { min-width:0; height:45px; border:0; outline:0; padding:0 13px; color:var(--lm-intro-ink); background:transparent; font-family:inherit; }
-.lm-intro__search button { width:48px; height:45px; border:0; border-radius:13px; color:#fff; background:var(--lm-intro-purple); cursor:pointer; }
-.lm-intro__chips { display:flex; flex-wrap:wrap; gap:9px; margin-top:13px; }
-.lm-intro__chip { padding:8px 13px; border:1px solid rgba(105,71,198,.13); border-radius:999px; background:#fff; color:#5d526d; font-size:11px; text-decoration:none; }
-
-.lm-intro__service-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
-.lm-intro__service { display:flex; align-items:center; gap:13px; min-height:105px; padding:15px; border-radius:20px; background:#fff; border:1px solid rgba(105,71,198,.09); text-decoration:none; color:var(--lm-intro-ink); box-shadow:0 10px 30px rgba(74,55,108,.06); }
-.lm-intro__service-media { width:62px;height:62px;flex:0 0 62px;display:grid;place-items:center;overflow:hidden;border-radius:18px;background:var(--lm-intro-purple-soft);color:var(--lm-intro-purple); }
-.lm-intro__service-media img { width:100%;height:100%;object-fit:cover; }
-.lm-intro__service strong,.lm-intro__service span { display:block; }
-.lm-intro__service strong { font-size:14px; }
-.lm-intro__service span { margin-top:5px; color:var(--lm-intro-muted); font-size:11px; }
-
-.lm-intro__salons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; }
-.lm-intro__salon { overflow:hidden; border-radius:21px; background:#fff; border:1px solid rgba(105,71,198,.09); box-shadow:0 12px 32px rgba(74,55,108,.07); }
-.lm-intro__salon-image { width:100%; height:185px; object-fit:cover; background:linear-gradient(135deg,#eee8fa,#faf8ff); }
-.lm-intro__salon-body { padding:13px 15px 16px; }
-.lm-intro__salon-title { font-weight:900; font-size:14px; }
-.lm-intro__salon-meta { margin-top:6px; color:var(--lm-intro-muted); font-size:11px; }
-.lm-intro__rating { float:left; color:#a67c18; }
-.lm-intro__rating i { font-size:10px; }
-
-.lm-intro__manager-visual { position:relative; width:100%; min-height:420px; display:flex; align-items:center; justify-content:center; }
-.lm-intro__dashboard { width:min(590px,100%); overflow:hidden; border:1px solid rgba(105,71,198,.12); border-radius:25px; background:rgba(255,255,255,.94); box-shadow:0 25px 60px rgba(76,51,125,.14); transform:perspective(1200px) rotateY(4deg); }
-.lm-intro__dashboard-top { display:flex; align-items:center; justify-content:space-between; padding:14px 17px; border-bottom:1px solid #eee9f7; }
-.lm-intro__dashboard-brand { display:flex; align-items:center; gap:8px; color:var(--lm-intro-purple); font-weight:900; font-size:12px; }
-.lm-intro__dashboard-brand-mark { width:27px;height:27px;display:grid;place-items:center;border-radius:9px;background:var(--lm-intro-purple-soft); }
-.lm-intro__dashboard-body { display:grid; grid-template-columns:145px 1fr; min-height:315px; }
-.lm-intro__dashboard-side { padding:16px 10px; border-left:1px solid #eee9f7; background:#fcfbff; }
-.lm-intro__dashboard-side span { display:flex;align-items:center;gap:7px;padding:10px 8px;border-radius:9px;color:#766c84;font-size:10px; }
-.lm-intro__dashboard-side span:first-child { color:var(--lm-intro-purple);background:var(--lm-intro-purple-soft);font-weight:800; }
-.lm-intro__dashboard-main { padding:18px; }
-.lm-intro__dashboard-title { font-size:15px;font-weight:900; }
-.lm-intro__dashboard-cards { display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px; }
-.lm-intro__mini { padding:12px;border:1px solid #eee9f7;border-radius:13px;background:#fff; }
-.lm-intro__mini small,.lm-intro__mini strong { display:block; }
-.lm-intro__mini small { color:#8b8198;font-size:9px; }
-.lm-intro__mini strong { margin-top:7px;color:var(--lm-intro-purple);font-size:17px; }
-.lm-intro__chart { position:relative;height:120px;margin-top:12px;padding:13px;border:1px solid #eee9f7;border-radius:14px;background:linear-gradient(180deg,#fff,#faf7ff); }
-.lm-intro__bars { height:100%;display:flex;align-items:flex-end;justify-content:space-around;gap:8px; }
-.lm-intro__bar { width:12%;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,#8a6be0,#d8cafa); }
-.lm-intro__bar:nth-child(1){height:38%}.lm-intro__bar:nth-child(2){height:56%}.lm-intro__bar:nth-child(3){height:45%}.lm-intro__bar:nth-child(4){height:73%}.lm-intro__bar:nth-child(5){height:62%}.lm-intro__bar:nth-child(6){height:88%}.lm-intro__bar:nth-child(7){height:76%}
-.lm-intro__manager-points { display:grid; gap:10px; margin-top:25px; }
-.lm-intro__manager-point { display:flex; gap:10px; align-items:flex-start; color:#5f566b; font-size:12px; line-height:1.9; }
-.lm-intro__manager-point i { width:24px;height:24px;display:grid;place-items:center;flex:0 0 24px;border-radius:8px;color:var(--lm-intro-purple);background:var(--lm-intro-purple-soft); }
-
-.lm-intro__lumi-wrap { position:relative; display:flex;align-items:center;justify-content:center;min-height:430px; }
-.lm-intro__lumi-orb { position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff 0,#e9dcff 38%,#cbb5ff 70%,rgba(203,181,255,0) 72%);filter:drop-shadow(0 25px 45px rgba(99,67,174,.18)); }
-.lm-intro__lumi-bot { position:relative;z-index:1;width:145px;height:125px;border-radius:52px 52px 42px 42px;background:linear-gradient(145deg,#fff,#d9cbff);border:3px solid #fff;box-shadow:inset 0 -12px 25px rgba(105,71,198,.12),0 18px 30px rgba(75,49,132,.15); }
-.lm-intro__lumi-bot::before { content:"";position:absolute;left:27px;right:27px;top:27px;height:51px;border-radius:24px;background:#332152;box-shadow:0 0 25px rgba(105,71,198,.35); }
-.lm-intro__lumi-bot::after { content:"◡";position:absolute;left:0;right:0;top:30px;text-align:center;color:#bca3ff;font-size:35px;font-weight:900; }
-.lm-intro__lumi-ear { position:absolute;z-index:0;top:42px;width:25px;height:48px;border-radius:14px;background:#bba5f5; }
-.lm-intro__lumi-ear--r { right:-14px; }.lm-intro__lumi-ear--l { left:-14px; }
-.lm-intro__lumi-card { position:absolute;z-index:2;right:2%;bottom:32px;width:min(270px,75%);padding:15px;border-radius:19px;background:rgba(255,255,255,.95);border:1px solid rgba(105,71,198,.10);box-shadow:0 18px 40px rgba(72,48,117,.14); }
-.lm-intro__lumi-card strong { color:var(--lm-intro-purple);font-size:13px; }.lm-intro__lumi-message{margin-top:9px;padding:10px;border-radius:12px;background:#faf7ff;color:#554b63;font-size:10px;}.lm-intro__lumi-actions{display:grid;gap:6px;margin-top:8px}.lm-intro__lumi-actions span{padding:7px;border-radius:9px;background:var(--lm-intro-purple-soft);color:var(--lm-intro-purple);font-size:9px;}
-
-.lm-intro__cta-logo { width:76px;height:76px;display:grid;place-items:center;margin-bottom:19px;border-radius:25px;background:#fff;box-shadow:0 15px 35px rgba(83,53,169,.12); }
-.lm-intro__cta-logo img { width:50px;height:50px;object-fit:contain; }
-.lm-intro__cta .lm-intro__lead { margin-inline:auto; }
-
-.lm-intro__progress { position:absolute;z-index:4;bottom:17px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.84);border:1px solid rgba(105,71,198,.1);box-shadow:0 10px 25px rgba(74,55,108,.07);backdrop-filter:blur(12px); }
-.lm-intro__dot { width:7px;height:7px;border-radius:50%;background:#d9d0e8;transition:width .35s ease,background .35s ease; }
-.lm-intro__dot.is-active { width:24px;background:var(--lm-intro-purple);border-radius:999px; }
-.lm-intro__step { position:relative;height:100vh;min-height:650px;pointer-events:none; }
-.lm-intro__step:first-child { margin-top:-100vh; }
-.lm-intro__after { position:relative;z-index:5;min-height:100px;display:grid;place-items:center;padding:25px 20px 70px;background:var(--lm-intro-bg); }
-.lm-intro__after span { color:var(--lm-intro-muted);font-size:11px; }
-
-@media (max-width:900px) {
-  :root { --lm-intro-header:60px; }
-  .lm-intro__stage { min-height:700px;height:calc(100svh - var(--lm-intro-header));padding:14px; }
-  .lm-intro__slides { height:calc(100svh - var(--lm-intro-header) - 28px);min-height:0; }
-  .lm-intro__slide,.lm-intro__slide--hero,.lm-intro__slide--services,.lm-intro__slide--salons,.lm-intro__slide--manager,.lm-intro__slide--lumi { grid-template-columns:1fr;overflow-y:auto;gap:18px;padding:22px; }
-  .lm-intro__visual,.lm-intro__manager-visual,.lm-intro__lumi-wrap { min-height:235px;height:280px; }
-  .lm-intro__hero-image { min-height:260px; }
-  .lm-intro__copy { max-width:none; }
-  .lm-intro h1 { font-size:clamp(30px,8vw,46px); }.lm-intro h2{font-size:clamp(26px,7vw,40px);}
-  .lm-intro__service-grid { grid-template-columns:1fr 1fr; }.lm-intro__service{min-height:82px;padding:10px;}.lm-intro__service-media{width:46px;height:46px;flex-basis:46px;border-radius:14px;}.lm-intro__service span{display:none;}
-  .lm-intro__salon-image{height:120px;}.lm-intro__dashboard{transform:none;}.lm-intro__dashboard-body{min-height:245px;}.lm-intro__dashboard-side{display:none;}.lm-intro__dashboard-main{padding:13px;}.lm-intro__dashboard-cards{gap:6px;}.lm-intro__mini{padding:9px;}.lm-intro__mini strong{font-size:14px;}
-  .lm-intro__lumi-card{right:5%;bottom:10px;}.lm-intro__progress{bottom:8px;}
-}
-@media (max-width:560px) {
-  .lm-intro__slide { border-radius:23px;padding:17px; }
-  .lm-intro__visual { order:-1;height:190px;min-height:190px; }.lm-intro__hero-image{min-height:190px;border-radius:20px;}
-  .lm-intro__floating-card{right:7px;bottom:7px;max-width:190px;padding:10px 12px;}.lm-intro__floating-card span{font-size:10px;}
-  .lm-intro__lead{font-size:13px;line-height:1.9;}.lm-intro__actions{margin-top:18px;}.lm-intro__btn{min-height:44px;padding-inline:15px;font-size:12px;}
-  .lm-intro__service-grid{gap:7px;}.lm-intro__service{gap:8px;}.lm-intro__service strong{font-size:11px;}.lm-intro__service-media{width:40px;height:40px;flex-basis:40px;}
-  .lm-intro__salons{gap:8px;}.lm-intro__salon-image{height:92px;}.lm-intro__salon-body{padding:8px;}.lm-intro__salon-title{font-size:10px;}.lm-intro__salon-meta{font-size:9px;}
-  .lm-intro__dashboard-top{padding:10px;}.lm-intro__dashboard-body{min-height:205px;}.lm-intro__chart{height:85px;}.lm-intro__dashboard-title{font-size:12px;}.lm-intro__mini strong{font-size:12px;}.lm-intro__manager-point{font-size:10px;}.lm-intro__manager-points{margin-top:15px;}
-  .lm-intro__lumi-wrap{height:190px;min-height:190px;}.lm-intro__lumi-orb{width:200px;height:200px;}.lm-intro__lumi-bot{width:105px;height:90px;}.lm-intro__lumi-bot::before{left:20px;right:20px;top:20px;height:39px;}.lm-intro__lumi-bot::after{top:21px;font-size:27px;}.lm-intro__lumi-card{width:205px;padding:10px;}.lm-intro__lumi-message{font-size:9px;}.lm-intro__lumi-actions span{font-size:8px;}
-}
+:root{--lm-h:72px;--lm-purple:#6947c6;--lm-purple-dark:#432786;--lm-soft:#f2edff;--lm-green:#a7c8a1;--lm-ink:#282039;--lm-muted:#766d84;--lm-bg:#fbfaff}
+body[data-page="home"]{overflow-x:hidden;background:var(--lm-bg)}
+body[data-page="home"] .lm-shell-desktop-site-header{position:fixed;inset:0 0 auto;z-index:100;width:100%;background:rgba(255,255,255,.9);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(105,71,198,.1)}
+body[data-page="home"] .lm-home-main-shell{width:100%;max-width:none;margin:0;padding:0}
+.lm-intro{width:100%;overflow:clip;color:var(--lm-ink);background:radial-gradient(circle at 7% 15%,rgba(218,202,255,.4),transparent 27%),radial-gradient(circle at 94% 72%,rgba(210,231,205,.28),transparent 24%),var(--lm-bg)}
+.lm-intro *{box-sizing:border-box}.lm-intro__story{position:relative}.lm-intro__stage{position:sticky;top:var(--lm-h);z-index:2;height:calc(100vh - var(--lm-h));min-height:640px;display:grid;place-items:center;padding:24px clamp(16px,4vw,72px);overflow:hidden}
+.lm-intro__stage:before,.lm-intro__stage:after{content:"";position:absolute;pointer-events:none;border-radius:999px;filter:blur(4px)}.lm-intro__stage:before{width:380px;height:380px;left:-160px;top:-180px;background:rgba(221,207,255,.38)}.lm-intro__stage:after{width:470px;height:470px;right:-230px;bottom:-280px;background:rgba(210,231,205,.26)}
+.lm-intro__slides{position:relative;z-index:1;width:min(1220px,100%);height:min(700px,calc(100vh - var(--lm-h) - 36px));min-height:530px}
+.lm-intro__slide{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(380px,1.05fr);align-items:center;gap:clamp(26px,5vw,76px);padding:clamp(24px,4vw,60px);border:1px solid rgba(105,71,198,.09);border-radius:clamp(26px,4vw,46px);background:rgba(255,255,255,.84);box-shadow:0 30px 90px rgba(73,51,118,.11);opacity:0;transform:translateY(26px) scale(.985);pointer-events:none;transition:opacity .55s ease,transform .68s cubic-bezier(.2,.7,.2,1);will-change:opacity,transform}
+.lm-intro__slide.is-active{opacity:1;transform:none;pointer-events:auto}.lm-intro__slide--hero{grid-template-columns:minmax(0,1fr) minmax(430px,1.08fr);overflow:hidden;background:#fff}.lm-intro__slide--services{grid-template-columns:.86fr 1.14fr}.lm-intro__slide--salons{grid-template-columns:.82fr 1.18fr}.lm-intro__slide--manager{grid-template-columns:1.05fr .95fr;overflow:hidden;background:linear-gradient(135deg,#fff,#f5efff 66%,#fbfff9)}.lm-intro__slide--lumi{grid-template-columns:1fr 1fr;background:linear-gradient(135deg,#faf7ff,#f0e8ff 62%,#fbfdf9)}.lm-intro__slide--cta{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg,#fdfbff,#eee5ff 58%,#f9fdf7)}
+.lm-intro__copy{position:relative;z-index:2;max-width:620px}.lm-intro__eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;padding:8px 13px;border-radius:999px;background:var(--lm-soft);color:var(--lm-purple);font-size:13px;font-weight:800}.lm-intro__eyebrow:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lm-green);box-shadow:0 0 0 5px rgba(167,200,161,.16)}
+.lm-intro h1,.lm-intro h2{margin:0;letter-spacing:-.035em;line-height:1.25;font-weight:900}.lm-intro h1{font-size:clamp(34px,4.25vw,62px)}.lm-intro h2{font-size:clamp(29px,3.25vw,48px)}.lm-intro__accent{color:var(--lm-purple)}.lm-intro__lead{max-width:570px;margin:20px 0 0;color:var(--lm-muted);font-size:clamp(15px,1.3vw,18px);line-height:2}
+.lm-intro__actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.lm-intro__btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:49px;padding:0 21px;border-radius:15px;text-decoration:none;font-weight:800;transition:transform .2s ease,box-shadow .2s ease}.lm-intro__btn:hover{transform:translateY(-2px)}.lm-intro__btn--primary{color:#fff;background:linear-gradient(135deg,var(--lm-purple),#8061d8);box-shadow:0 13px 28px rgba(105,71,198,.24)}.lm-intro__btn--secondary{color:var(--lm-purple);background:#fff;border:1px solid rgba(105,71,198,.18)}
+.lm-intro__brand{margin-bottom:18px}.lm-intro__brand img{max-width:150px;height:auto}.lm-intro__visual{position:relative;min-height:420px;height:100%;display:flex;align-items:center;justify-content:center}.lm-intro__hero-image{width:100%;height:100%;min-height:430px;object-fit:cover;border-radius:34px;box-shadow:0 24px 60px rgba(69,51,93,.16)}.lm-intro__floating-card{position:absolute;right:-12px;bottom:24px;max-width:245px;padding:15px 17px;border-radius:18px;background:rgba(255,255,255,.96);border:1px solid rgba(105,71,198,.1);box-shadow:0 16px 40px rgba(68,48,103,.14);backdrop-filter:blur(14px)}.lm-intro__floating-card strong,.lm-intro__floating-card span{display:block}.lm-intro__floating-card strong{color:var(--lm-purple);font-size:15px}.lm-intro__floating-card span{margin-top:5px;color:var(--lm-muted);font-size:12px;line-height:1.8}
+.lm-intro__search{display:grid;grid-template-columns:1fr auto;gap:8px;max-width:620px;margin-top:25px;padding:7px;border:1px solid rgba(105,71,198,.12);border-radius:17px;background:#fff;box-shadow:0 12px 35px rgba(80,57,120,.08)}.lm-intro__search input{min-width:0;height:45px;border:0;outline:0;padding:0 13px;color:var(--lm-ink);background:transparent;font-family:inherit}.lm-intro__search button{width:48px;height:45px;border:0;border-radius:13px;color:#fff;background:var(--lm-purple);cursor:pointer}.lm-intro__chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}.lm-intro__chip{padding:8px 13px;border:1px solid rgba(105,71,198,.13);border-radius:999px;background:#fff;color:#5d526d;font-size:11px;text-decoration:none}
+.lm-intro__service-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.lm-intro__service{display:flex;align-items:center;gap:13px;min-height:105px;padding:15px;border-radius:20px;background:#fff;border:1px solid rgba(105,71,198,.09);text-decoration:none;color:var(--lm-ink);box-shadow:0 10px 30px rgba(74,55,108,.06);transition:transform .2s ease,box-shadow .2s ease}.lm-intro__service:hover{transform:translateY(-3px);box-shadow:0 15px 34px rgba(74,55,108,.1)}.lm-intro__service-media{width:62px;height:62px;flex:0 0 62px;display:grid;place-items:center;overflow:hidden;border-radius:18px;background:var(--lm-soft);color:var(--lm-purple)}.lm-intro__service-media img{width:100%;height:100%;object-fit:cover}.lm-intro__service strong,.lm-intro__service span{display:block}.lm-intro__service strong{font-size:14px}.lm-intro__service span{margin-top:5px;color:var(--lm-muted);font-size:11px}
+.lm-intro__salons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.lm-intro__salon{overflow:hidden;border-radius:21px;background:#fff;border:1px solid rgba(105,71,198,.09);box-shadow:0 12px 32px rgba(74,55,108,.07)}.lm-intro__salon a{color:inherit;text-decoration:none}.lm-intro__salon-image{width:100%;height:185px;object-fit:cover;background:linear-gradient(135deg,#eee8fa,#faf8ff)}.lm-intro__salon-body{padding:13px 15px 16px}.lm-intro__salon-title{font-weight:900;font-size:14px}.lm-intro__salon-meta{margin-top:6px;color:var(--lm-muted);font-size:11px}.lm-intro__rating{float:left;color:#a67c18}.lm-intro__rating i{font-size:10px}
+.lm-intro__manager-visual{position:relative;width:100%;min-height:430px;display:flex;align-items:center;justify-content:center}.lm-intro__dashboard{position:relative;width:min(600px,100%);overflow:hidden;border:1px solid rgba(105,71,198,.14);border-radius:25px;background:rgba(255,255,255,.96);box-shadow:0 28px 70px rgba(76,51,125,.16);transform:perspective(1200px) rotateY(4deg)}.lm-intro__dashboard:before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 45%,rgba(255,255,255,.55) 50%,transparent 55%);transform:translateX(-120%);animation:lmShine 5s ease-in-out infinite;pointer-events:none}.lm-intro__dashboard-top{display:flex;align-items:center;justify-content:space-between;padding:14px 17px;border-bottom:1px solid #eee9f7}.lm-intro__dashboard-brand{display:flex;align-items:center;gap:8px;color:var(--lm-purple);font-weight:900;font-size:12px}.lm-intro__dashboard-brand img{width:82px;height:auto}.lm-intro__preview-label{padding:5px 9px;border-radius:999px;background:#faf8ff;color:#8a7b9d;font-size:9px}.lm-intro__dashboard-body{display:grid;grid-template-columns:145px 1fr;min-height:315px}.lm-intro__dashboard-side{padding:16px 10px;border-left:1px solid #eee9f7;background:#fcfbff}.lm-intro__dashboard-side span{display:flex;align-items:center;gap:7px;padding:10px 8px;border-radius:9px;color:#766c84;font-size:10px}.lm-intro__dashboard-side span:first-child{color:var(--lm-purple);background:var(--lm-soft);font-weight:800}.lm-intro__dashboard-main{padding:18px}.lm-intro__dashboard-title{font-size:15px;font-weight:900}.lm-intro__dashboard-subtitle{margin-top:5px;color:#8b8198;font-size:9px}.lm-intro__dashboard-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}.lm-intro__mini{padding:12px;border:1px solid #eee9f7;border-radius:13px;background:#fff}.lm-intro__mini small{display:block;color:#8b8198;font-size:9px}.lm-intro__mini strong{display:block;margin-top:7px;color:var(--lm-purple);font-size:13px}.lm-intro__schedule{display:grid;grid-template-columns:1.05fr .95fr;gap:10px;margin-top:12px}.lm-intro__panel{padding:12px;border:1px solid #eee9f7;border-radius:14px;background:linear-gradient(180deg,#fff,#faf7ff)}.lm-intro__panel-title{font-size:9px;font-weight:800;color:#645873}.lm-intro__event{display:flex;align-items:center;gap:8px;margin-top:9px;padding:8px;border-radius:10px;background:#fff}.lm-intro__event i{width:25px;height:25px;display:grid;place-items:center;border-radius:8px;background:var(--lm-soft);color:var(--lm-purple);font-size:10px}.lm-intro__event span{font-size:8px;color:#766c84}.lm-intro__service-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f0ebf7;color:#766c84;font-size:8px}.lm-intro__service-row:last-child{border-bottom:0}.lm-intro__service-row b{color:#5a4c6d;font-size:9px}
+.lm-intro__manager-points{display:grid;gap:10px;margin-top:25px}.lm-intro__manager-point{display:flex;gap:10px;align-items:flex-start;color:#5f566b;font-size:12px;line-height:1.9}.lm-intro__manager-point i{width:24px;height:24px;display:grid;place-items:center;flex:0 0 24px;border-radius:8px;color:var(--lm-purple);background:var(--lm-soft)}
+.lm-intro__lumi-wrap{position:relative;display:flex;align-items:center;justify-content:center;min-height:430px}.lm-intro__lumi-orb{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff 0,#e9dcff 38%,#cbb5ff 70%,rgba(203,181,255,0) 72%);filter:drop-shadow(0 25px 45px rgba(99,67,174,.18));animation:lmFloat 5s ease-in-out infinite}.lm-intro__lumi-bot{position:relative;z-index:1;width:145px;height:125px;border-radius:52px 52px 42px 42px;background:linear-gradient(145deg,#fff,#d9cbff);border:3px solid #fff;box-shadow:inset 0 -12px 25px rgba(105,71,198,.12),0 18px 30px rgba(75,49,132,.15)}.lm-intro__lumi-bot:before{content:"";position:absolute;left:27px;right:27px;top:27px;height:51px;border-radius:24px;background:#332152;box-shadow:0 0 25px rgba(105,71,198,.35)}.lm-intro__lumi-bot:after{content:"◡";position:absolute;left:0;right:0;top:30px;text-align:center;color:#bca3ff;font-size:35px;font-weight:900}.lm-intro__lumi-ear{position:absolute;z-index:0;top:42px;width:25px;height:48px;border-radius:14px;background:#bba5f5}.lm-intro__lumi-ear--r{right:-14px}.lm-intro__lumi-ear--l{left:-14px}.lm-intro__lumi-card{position:absolute;z-index:2;right:2%;bottom:30px;width:min(270px,75%);padding:15px;border-radius:19px;background:rgba(255,255,255,.96);border:1px solid rgba(105,71,198,.1);box-shadow:0 18px 40px rgba(72,48,117,.14)}.lm-intro__lumi-card strong{color:var(--lm-purple);font-size:13px}.lm-intro__lumi-message{margin-top:9px;padding:10px;border-radius:12px;background:#faf7ff;color:#554b63;font-size:10px}.lm-intro__lumi-actions{display:grid;gap:6px;margin-top:8px}.lm-intro__lumi-actions span{padding:7px;border-radius:9px;background:var(--lm-soft);color:var(--lm-purple);font-size:9px}
+.lm-intro__cta-logo{width:76px;height:76px;display:grid;place-items:center;margin-bottom:19px;border-radius:25px;background:#fff;box-shadow:0 15px 35px rgba(83,53,169,.12)}.lm-intro__cta-logo img{width:50px;height:50px;object-fit:contain}.lm-intro__cta .lm-intro__lead{margin-inline:auto}.lm-intro__progress{position:absolute;z-index:4;bottom:17px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.86);border:1px solid rgba(105,71,198,.1);box-shadow:0 10px 25px rgba(74,55,108,.07);backdrop-filter:blur(12px)}.lm-intro__dot{width:7px;height:7px;border:0;padding:0;border-radius:50%;background:#d9d0e8;transition:width .35s ease,background .35s ease;cursor:pointer}.lm-intro__dot.is-active{width:24px;background:var(--lm-purple);border-radius:999px}.lm-intro__step{position:relative;height:100vh;min-height:640px;pointer-events:none}.lm-intro__after{position:relative;z-index:5;min-height:100px;display:grid;place-items:center;padding:25px 20px 70px;background:var(--lm-bg)}.lm-intro__after span{color:var(--lm-muted);font-size:11px}
+@keyframes lmFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}@keyframes lmShine{0%,65%,100%{transform:translateX(-120%)}82%{transform:translateX(120%)}}
+@media(prefers-reduced-motion:reduce){.lm-intro__slide{transition:none}.lm-intro__lumi-orb,.lm-intro__dashboard:before{animation:none}.lm-intro__btn,.lm-intro__service{transition:none}}
+@media(max-width:900px){:root{--lm-h:60px}.lm-intro__stage{min-height:700px;height:calc(100svh - var(--lm-h));padding:14px}.lm-intro__slides{height:calc(100svh - var(--lm-h) - 28px);min-height:0}.lm-intro__slide,.lm-intro__slide--hero,.lm-intro__slide--services,.lm-intro__slide--salons,.lm-intro__slide--manager,.lm-intro__slide--lumi{grid-template-columns:1fr;overflow-y:auto;gap:18px;padding:22px}.lm-intro__visual,.lm-intro__manager-visual,.lm-intro__lumi-wrap{min-height:235px;height:280px}.lm-intro__hero-image{min-height:260px}.lm-intro__copy{max-width:none}.lm-intro h1{font-size:clamp(30px,8vw,46px)}.lm-intro h2{font-size:clamp(26px,7vw,40px)}.lm-intro__service-grid{grid-template-columns:1fr 1fr}.lm-intro__service{min-height:82px;padding:10px}.lm-intro__service-media{width:46px;height:46px;flex-basis:46px;border-radius:14px}.lm-intro__service span{display:none}.lm-intro__salon-image{height:120px}.lm-intro__dashboard{transform:none}.lm-intro__dashboard-body{min-height:245px}.lm-intro__dashboard-side{display:none}.lm-intro__dashboard-main{padding:13px}.lm-intro__schedule{gap:6px}.lm-intro__dashboard-cards{gap:6px}.lm-intro__mini{padding:9px}.lm-intro__lumi-card{right:5%;bottom:10px}.lm-intro__progress{bottom:8px}}
+@media(max-width:560px){.lm-intro__slide{border-radius:23px;padding:17px}.lm-intro__visual{order:-1;height:190px;min-height:190px}.lm-intro__hero-image{min-height:190px;border-radius:20px}.lm-intro__floating-card{right:7px;bottom:7px;max-width:190px;padding:10px 12px}.lm-intro__floating-card span{font-size:10px}.lm-intro__lead{font-size:13px;line-height:1.9}.lm-intro__actions{margin-top:18px}.lm-intro__btn{min-height:44px;padding-inline:15px;font-size:12px}.lm-intro__service-grid{gap:7px}.lm-intro__service{gap:8px}.lm-intro__service strong{font-size:11px}.lm-intro__service-media{width:40px;height:40px;flex-basis:40px}.lm-intro__salons{gap:8px}.lm-intro__salon-image{height:92px}.lm-intro__salon-body{padding:8px}.lm-intro__salon-title{font-size:10px}.lm-intro__salon-meta{font-size:9px}.lm-intro__dashboard-top{padding:10px}.lm-intro__dashboard-body{min-height:205px}.lm-intro__schedule{grid-template-columns:1fr}.lm-intro__schedule .lm-intro__panel:nth-child(2){display:none}.lm-intro__dashboard-title{font-size:12px}.lm-intro__mini strong{font-size:11px}.lm-intro__manager-point{font-size:10px}.lm-intro__manager-points{margin-top:15px}.lm-intro__lumi-wrap{height:190px;min-height:190px}.lm-intro__lumi-orb{width:200px;height:200px}.lm-intro__lumi-bot{width:105px;height:90px}.lm-intro__lumi-bot:before{left:20px;right:20px;top:20px;height:39px}.lm-intro__lumi-bot:after{top:21px;font-size:27px}.lm-intro__lumi-card{width:205px;padding:10px}.lm-intro__lumi-message{font-size:9px}.lm-intro__lumi-actions span{font-size:8px}}
 </style>
 {% endblock %}
 
@@ -175,131 +45,51 @@ body[data-page="home"] .lm-home-main-shell { width:100%; max-width:none; margin:
       <div class="lm-intro__slides">
         <article class="lm-intro__slide lm-intro__slide--hero is-active" data-intro-slide="0">
           <div class="lm-intro__copy">
-            <div class="lm-intro__brand">
-              {% include "partials/brand/logo.html" with logo_variant="header" logo_size="md" %}
-            </div>
+            <div class="lm-intro__brand">{% include "partials/brand/logo.html" with logo_variant="header" logo_size="md" %}</div>
             <span class="lm-intro__eyebrow">تجربه‌ای متفاوت برای زیبایی</span>
             <h1>مدیریت و رزرو <span class="lm-intro__accent">هوشمند</span><br>خدمات زیبایی</h1>
             <p class="lm-intro__lead">با Loomera، مجموعه مورد نظر، خدمات و متخصص دلخواهتان را پیدا کنید و نوبت خود را ساده و آرام رزرو کنید.</p>
-            <form action="{% url 'search:search_page' %}" method="get" class="lm-intro__search">
-              <input name="q" type="search" placeholder="نام مجموعه، خدمات یا متخصص را جستجو کنید..." aria-label="جستجوی مجموعه، خدمات یا متخصص">
-              <button type="submit" aria-label="جستجو"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </form>
-            <div class="lm-intro__chips">
-              {% for category in service_categories|slice:":4" %}
-                <a class="lm-intro__chip" href="{{ category.services_url }}">{{ category.label }}</a>
-              {% empty %}
-                <span class="lm-intro__chip">سالن زیبایی</span><span class="lm-intro__chip">پوست و مو</span><span class="lm-intro__chip">آرایش</span>
-              {% endfor %}
-            </div>
+            <form action="{% url 'search:search_page' %}" method="get" class="lm-intro__search"><input name="q" type="search" placeholder="نام مجموعه، خدمات یا متخصص را جستجو کنید..." aria-label="جستجوی مجموعه، خدمات یا متخصص"><button type="submit" aria-label="جستجو"><i class="fa-solid fa-magnifying-glass"></i></button></form>
+            <div class="lm-intro__chips">{% for category in service_categories|slice:":4" %}<a class="lm-intro__chip" href="{{ category.services_url }}">{{ category.label }}</a>{% empty %}<span class="lm-intro__chip">سالن زیبایی</span><span class="lm-intro__chip">پوست و مو</span><span class="lm-intro__chip">آرایش</span>{% endfor %}</div>
           </div>
-          <div class="lm-intro__visual">
-            <img class="lm-intro__hero-image" src="{% static 'images/home/home-hero-portrait-reference.png' %}" alt="فضای لوکس یک مجموعه زیبایی">
-            <div class="lm-intro__floating-card"><strong>یک انتخاب، یک تجربه</strong><span>مجموعه، خدمات و زمان مناسب خود را در یک مسیر ساده پیدا کنید.</span></div>
-          </div>
+          <div class="lm-intro__visual"><img class="lm-intro__hero-image" src="{% static 'images/home/home-hero-portrait-reference.png' %}" alt="فضای لوکس یک مجموعه زیبایی"><div class="lm-intro__floating-card"><strong>یک انتخاب، یک تجربه</strong><span>مجموعه، خدمات و زمان مناسب خود را در یک مسیر ساده پیدا کنید.</span></div></div>
         </article>
 
         <article class="lm-intro__slide lm-intro__slide--services" data-intro-slide="1">
-          <div class="lm-intro__copy">
-            <span class="lm-intro__eyebrow">خدمات Loomera</span>
-            <h2>هر آنچه برای <span class="lm-intro__accent">زیبایی</span> نیاز دارید</h2>
-            <p class="lm-intro__lead">دسته‌بندی‌ها را سریع ببینید، وارد صفحه خدمات شوید و انتخابتان را بدون پیچیدگی ادامه دهید.</p>
-            <div class="lm-intro__actions"><a href="{% url 'services:all_services' %}" class="lm-intro__btn lm-intro__btn--primary">مشاهده همه خدمات <i class="fa-solid fa-arrow-left"></i></a></div>
-          </div>
-          <div class="lm-intro__service-grid">
-            {% for category in service_categories|slice:":6" %}
-              <a class="lm-intro__service" href="{{ category.services_url }}">
-                <span class="lm-intro__service-media">
-                  {% if category.image_url %}<img src="{{ category.image_url }}" alt="">{% else %}<i class="fa-solid fa-spa"></i>{% endif %}
-                </span>
-                <span><strong>{{ category.label }}</strong><span>{{ category.services_count_label|default:'مشاهده خدمات' }}</span></span>
-              </a>
-            {% empty %}
-              <a class="lm-intro__service" href="{% url 'services:all_services' %}"><span class="lm-intro__service-media"><i class="fa-solid fa-spa"></i></span><span><strong>زیبایی</strong><span>مشاهده خدمات</span></span></a>
-              <a class="lm-intro__service" href="{% url 'services:all_services' %}"><span class="lm-intro__service-media"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span><strong>آرایش</strong><span>مشاهده خدمات</span></span></a>
-            {% endfor %}
-          </div>
+          <div class="lm-intro__copy"><span class="lm-intro__eyebrow">خدمات Loomera</span><h2>هر آنچه برای <span class="lm-intro__accent">زیبایی</span> نیاز دارید</h2><p class="lm-intro__lead">دسته‌بندی‌ها را سریع ببینید، وارد صفحه خدمات شوید و انتخابتان را بدون پیچیدگی ادامه دهید.</p><div class="lm-intro__actions"><a href="{% url 'services:all_services' %}" class="lm-intro__btn lm-intro__btn--primary">مشاهده همه خدمات <i class="fa-solid fa-arrow-left"></i></a></div></div>
+          <div class="lm-intro__service-grid">{% for category in service_categories|slice:":6" %}<a class="lm-intro__service" href="{{ category.services_url }}"><span class="lm-intro__service-media">{% if category.image_url %}<img src="{{ category.image_url }}" alt="">{% else %}<i class="fa-solid fa-spa"></i>{% endif %}</span><span><strong>{{ category.label }}</strong><span>{{ category.services_count_label|default:'مشاهده خدمات' }}</span></span></a>{% empty %}<a class="lm-intro__service" href="{% url 'services:all_services' %}"><span class="lm-intro__service-media"><i class="fa-solid fa-spa"></i></span><span><strong>زیبایی</strong><span>مشاهده خدمات</span></span></a><a class="lm-intro__service" href="{% url 'services:all_services' %}"><span class="lm-intro__service-media"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span><strong>آرایش</strong><span>مشاهده خدمات</span></span></a>{% endfor %}</div>
         </article>
 
         <article class="lm-intro__slide lm-intro__slide--salons" data-intro-slide="2">
-          <div class="lm-intro__copy">
-            <span class="lm-intro__eyebrow">مجموعه‌های ویژه</span>
-            <h2>بهترین‌ها را<br><span class="lm-intro__accent">در یک نگاه</span></h2>
-            <p class="lm-intro__lead">مجموعه‌های فعال Loomera را ببینید، تجربه‌ها و امتیازها را مقایسه کنید و انتخاب مطمئن‌تری داشته باشید.</p>
-            <div class="lm-intro__actions"><a href="{% url 'salons:show_salons' %}" class="lm-intro__btn lm-intro__btn--primary">مشاهده همه مجموعه‌ها <i class="fa-solid fa-arrow-left"></i></a></div>
-          </div>
-          <div class="lm-intro__salons">
-            {% for salon in featured_salons %}
-              <article class="lm-intro__salon">
-                <a href="{{ salon.get_absolute_url }}">
-                  <div>{% if salon.banner_image %}<img class="lm-intro__salon-image" src="{{ salon.banner_image.url }}" alt="{{ salon.salon_name }}">{% else %}<div class="lm-intro__salon-image"></div>{% endif %}</div>
-                  <div class="lm-intro__salon-body"><div class="lm-intro__salon-title">{{ salon.salon_name }}</div><div class="lm-intro__salon-meta">{{ salon.neighborhood.name|default:'تهران' }} <span class="lm-intro__rating">{% if salon.avg_score %}{{ salon.avg_score|floatformat:1 }}{% else %}—{% endif %} <i class="fa-solid fa-star"></i></span></div></div>
-                </a>
-              </article>
-            {% empty %}
-              <div class="lm-intro__salon"><div class="lm-intro__salon-image"></div><div class="lm-intro__salon-body"><div class="lm-intro__salon-title">مجموعه‌های منتخب Loomera</div><div class="lm-intro__salon-meta">به‌زودی</div></div></div>
-              <div class="lm-intro__salon"><div class="lm-intro__salon-image"></div><div class="lm-intro__salon-body"><div class="lm-intro__salon-title">مجموعه خود را معرفی کنید</div><div class="lm-intro__salon-meta">ثبت مجموعه در Loomera</div></div></div>
-            {% endfor %}
-          </div>
+          <div class="lm-intro__copy"><span class="lm-intro__eyebrow">مجموعه‌های ویژه</span><h2>بهترین‌ها را<br><span class="lm-intro__accent">در یک نگاه</span></h2><p class="lm-intro__lead">مجموعه‌های فعال Loomera را ببینید، تجربه‌ها و امتیازها را مقایسه کنید و انتخاب مطمئن‌تری داشته باشید.</p><div class="lm-intro__actions"><a href="{% url 'salons:show_salons' %}" class="lm-intro__btn lm-intro__btn--primary">مشاهده همه مجموعه‌ها <i class="fa-solid fa-arrow-left"></i></a></div></div>
+          <div class="lm-intro__salons">{% for salon in featured_salons %}<article class="lm-intro__salon"><a href="{{ salon.get_absolute_url }}"><div>{% if salon.banner_image %}<img class="lm-intro__salon-image" src="{{ salon.banner_image.url }}" alt="{{ salon.salon_name }}">{% else %}<div class="lm-intro__salon-image"></div>{% endif %}</div><div class="lm-intro__salon-body"><div class="lm-intro__salon-title">{{ salon.salon_name }}</div><div class="lm-intro__salon-meta">{{ salon.neighborhood.name|default:'تهران' }} <span class="lm-intro__rating">{% if salon.avg_score %}{{ salon.avg_score|floatformat:1 }}{% else %}—{% endif %} <i class="fa-solid fa-star"></i></span></div></div></a></article>{% empty %}<div class="lm-intro__salon"><div class="lm-intro__salon-image"></div><div class="lm-intro__salon-body"><div class="lm-intro__salon-title">مجموعه‌های منتخب Loomera</div><div class="lm-intro__salon-meta">به‌زودی</div></div></div><div class="lm-intro__salon"><div class="lm-intro__salon-image"></div><div class="lm-intro__salon-body"><div class="lm-intro__salon-title">مجموعه خود را معرفی کنید</div><div class="lm-intro__salon-meta">ثبت مجموعه در Loomera</div></div></div>{% endfor %}</div>
         </article>
 
         <article class="lm-intro__slide lm-intro__slide--manager" data-intro-slide="3">
           <div class="lm-intro__manager-visual">
             <div class="lm-intro__dashboard" aria-hidden="true">
-              <div class="lm-intro__dashboard-top"><div class="lm-intro__dashboard-brand"><span class="lm-intro__dashboard-brand-mark"><i class="fa-solid fa-leaf"></i></span> Loomera</div><span style="font-size:10px;color:#887d95">داشبورد مدیریت</span></div>
+              <div class="lm-intro__dashboard-top"><div class="lm-intro__dashboard-brand">{% include "partials/brand/logo.html" with logo_variant="header" logo_size="sm" %}</div><span class="lm-intro__preview-label">نمونه محیط مدیریت</span></div>
               <div class="lm-intro__dashboard-body">
                 <aside class="lm-intro__dashboard-side"><span><i class="fa-solid fa-chart-line"></i> نمای کلی</span><span><i class="fa-regular fa-calendar"></i> نوبت‌ها</span><span><i class="fa-solid fa-scissors"></i> خدمات</span><span><i class="fa-solid fa-users"></i> مشتریان</span><span><i class="fa-solid fa-bullhorn"></i> بازاریابی</span></aside>
-                <div class="lm-intro__dashboard-main"><div class="lm-intro__dashboard-title">مدیریت مجموعه شما</div><div class="lm-intro__dashboard-cards"><div class="lm-intro__mini"><small>نوبت‌ها</small><strong>امروز</strong></div><div class="lm-intro__mini"><small>خدمات</small><strong>مدیریت</strong></div><div class="lm-intro__mini"><small>مشتریان</small><strong>پیگیری</strong></div></div><div class="lm-intro__chart"><div class="lm-intro__bars"><i class="lm-intro__bar"></i><i class="lm-intro__bar"></i><i class="lm-intro__bar"></i><i class="lm-intro__bar"></i><i class="lm-intro__bar"></i><i class="lm-intro__bar"></i><i class="lm-intro__bar"></i></div></div></div>
+                <div class="lm-intro__dashboard-main"><div class="lm-intro__dashboard-title">مدیریت مجموعه شما</div><div class="lm-intro__dashboard-subtitle">همه ابزارهای ضروری، در یک محیط یکپارچه</div><div class="lm-intro__dashboard-cards"><div class="lm-intro__mini"><small>نوبت‌ها</small><strong>برنامه‌ریزی</strong></div><div class="lm-intro__mini"><small>خدمات</small><strong>مدیریت</strong></div><div class="lm-intro__mini"><small>تیم</small><strong>هماهنگی</strong></div></div><div class="lm-intro__schedule"><div class="lm-intro__panel"><div class="lm-intro__panel-title">برنامه امروز</div><div class="lm-intro__event"><i class="fa-regular fa-calendar-check"></i><span>مشاهده و مدیریت نوبت‌ها</span></div><div class="lm-intro__event"><i class="fa-solid fa-user-group"></i><span>پیگیری مشتریان و تیم</span></div></div><div class="lm-intro__panel"><div class="lm-intro__panel-title">خدمات مجموعه</div><div class="lm-intro__service-row"><b>خدمات</b><span>ویرایش و قیمت‌گذاری</span></div><div class="lm-intro__service-row"><b>تیم</b><span>مدیریت متخصصان</span></div><div class="lm-intro__service-row"><b>معرفی</b><span>دیده‌شدن در Loomera</span></div></div></div></div>
               </div>
             </div>
           </div>
-          <div class="lm-intro__copy">
-            <span class="lm-intro__eyebrow">ویژه مدیران سالن و کلینیک</span>
-            <h2>کسب‌وکار خود را<br><span class="lm-intro__accent">هوشمندتر مدیریت کنید</span></h2>
-            <p class="lm-intro__lead">Loomera فقط برای مشتری نیست؛ یک مسیر حرفه‌ای برای مدیریت نوبت‌ها، خدمات، مشتریان و رشد مجموعه شماست.</p>
-            <div class="lm-intro__manager-points">
-              <div class="lm-intro__manager-point"><i class="fa-regular fa-calendar-check"></i><span>مدیریت متمرکز نوبت‌ها و برنامه کاری</span></div>
-              <div class="lm-intro__manager-point"><i class="fa-solid fa-chart-line"></i><span>گزارش و تحلیل عملکرد مجموعه</span></div>
-              <div class="lm-intro__manager-point"><i class="fa-solid fa-bullhorn"></i><span>معرفی خدمات و جذب مشتری جدید</span></div>
-            </div>
-            <div class="lm-intro__actions"><a href="{% url 'accounts:register' %}" class="lm-intro__btn lm-intro__btn--primary">ثبت مجموعه و شروع رایگان <i class="fa-solid fa-arrow-left"></i></a></div>
-          </div>
+          <div class="lm-intro__copy"><span class="lm-intro__eyebrow">ویژه مدیران سالن و کلینیک</span><h2>کسب‌وکار خود را<br><span class="lm-intro__accent">هوشمندتر مدیریت کنید</span></h2><p class="lm-intro__lead">Loomera فقط برای مشتری نیست؛ ابزارهای لازم برای مدیریت نوبت‌ها، خدمات، تیم و رشد مجموعه را یکجا در اختیار شما می‌گذارد.</p><div class="lm-intro__manager-points"><div class="lm-intro__manager-point"><i class="fa-regular fa-calendar-check"></i><span>نوبت‌ها و برنامه کاری را منظم و متمرکز مدیریت کنید.</span></div><div class="lm-intro__manager-point"><i class="fa-solid fa-scissors"></i><span>خدمات و متخصصان مجموعه را ساده‌تر مدیریت و معرفی کنید.</span></div><div class="lm-intro__manager-point"><i class="fa-solid fa-bullhorn"></i><span>حضور حرفه‌ای‌تری در Loomera بسازید و مشتری جدید جذب کنید.</span></div></div><div class="lm-intro__actions"><a href="{% url 'dashboards:salon_profile_creator_step1' %}" class="lm-intro__btn lm-intro__btn--primary">ثبت مجموعه و شروع کنید <i class="fa-solid fa-arrow-left"></i></a></div></div>
         </article>
 
         <article class="lm-intro__slide lm-intro__slide--lumi" data-intro-slide="4">
-          <div class="lm-intro__lumi-wrap">
-            <div class="lm-intro__lumi-orb"></div>
-            <div class="lm-intro__lumi-bot"><span class="lm-intro__lumi-ear lm-intro__lumi-ear--l"></span><span class="lm-intro__lumi-ear lm-intro__lumi-ear--r"></span></div>
-            <div class="lm-intro__lumi-card"><strong>Lumi · دستیار هوشمند Loomera</strong><div class="lm-intro__lumi-message">سلام! چطور می‌توانم برای پیدا کردن بهترین گزینه کمکتان کنم؟</div><div class="lm-intro__lumi-actions"><span>پیشنهاد خدمات مناسب</span><span>بهترین زمان‌های خالی</span><span>پرسش درباره نوبت‌ها</span></div></div>
-          </div>
-          <div class="lm-intro__copy">
-            <span class="lm-intro__eyebrow">دستیار هوشمند Loomera</span>
-            <h2><span class="lm-intro__accent">Lumi</span><br>همیشه آماده کمک</h2>
-            <p class="lm-intro__lead">Lumi کمک می‌کند خدمات، مجموعه‌ها و زمان مناسب را سریع‌تر پیدا کنید و تجربه‌ای شخصی‌تر داشته باشید.</p>
-            <div class="lm-intro__actions"><a href="{% url 'search:search_page' %}" class="lm-intro__btn lm-intro__btn--secondary">شروع جستجو با Loomera <i class="fa-solid fa-arrow-left"></i></a></div>
-          </div>
+          <div class="lm-intro__lumi-wrap"><div class="lm-intro__lumi-orb"></div><div class="lm-intro__lumi-bot"><span class="lm-intro__lumi-ear lm-intro__lumi-ear--l"></span><span class="lm-intro__lumi-ear lm-intro__lumi-ear--r"></span></div><div class="lm-intro__lumi-card"><strong>Lumi · دستیار هوشمند Loomera</strong><div class="lm-intro__lumi-message">سلام! چطور می‌توانم برای پیدا کردن بهترین گزینه کمکتان کنم؟</div><div class="lm-intro__lumi-actions"><span>پیشنهاد خدمات مناسب</span><span>بهترین زمان‌های خالی</span><span>پرسش درباره نوبت‌ها</span></div></div></div>
+          <div class="lm-intro__copy"><span class="lm-intro__eyebrow">دستیار هوشمند Loomera</span><h2><span class="lm-intro__accent">Lumi</span><br>همیشه آماده کمک</h2><p class="lm-intro__lead">Lumi کمک می‌کند خدمات، مجموعه‌ها و زمان مناسب را سریع‌تر پیدا کنید و تجربه‌ای شخصی‌تر داشته باشید.</p><div class="lm-intro__actions"><a href="{% url 'search:search_page' %}" class="lm-intro__btn lm-intro__btn--secondary">شروع جستجو با Loomera <i class="fa-solid fa-arrow-left"></i></a></div></div>
         </article>
 
         <article class="lm-intro__slide lm-intro__slide--cta" data-intro-slide="5">
-          <div class="lm-intro__cta-logo">{% include "partials/brand/logo.html" with logo_variant="header" logo_size="md" %}</div>
-          <span class="lm-intro__eyebrow">Loomera</span>
-          <h2>زیبایی را <span class="lm-intro__accent">هوشمند</span> تجربه کنید</h2>
-          <p class="lm-intro__lead">همین حالا جستجو کنید، مجموعه مناسب را پیدا کنید یا کسب‌وکار زیبایی خود را به Loomera بسپارید.</p>
-          <div class="lm-intro__actions"><a href="{% url 'search:search_page' %}" class="lm-intro__btn lm-intro__btn--primary">جستجوی مجموعه‌ها <i class="fa-solid fa-arrow-left"></i></a><a href="{% url 'accounts:register' %}" class="lm-intro__btn lm-intro__btn--secondary">ثبت مجموعه</a></div>
+          <div class="lm-intro__cta-logo">{% include "partials/brand/logo.html" with logo_variant="header" logo_size="md" %}</div><span class="lm-intro__eyebrow">Loomera</span><h2>زیبایی را <span class="lm-intro__accent">هوشمند</span> تجربه کنید</h2><p class="lm-intro__lead">همین حالا جستجو کنید، مجموعه مناسب را پیدا کنید یا کسب‌وکار زیبایی خود را به Loomera بسپارید.</p><div class="lm-intro__actions"><a href="{% url 'search:search_page' %}" class="lm-intro__btn lm-intro__btn--primary">جستجوی مجموعه‌ها <i class="fa-solid fa-arrow-left"></i></a><a href="{% url 'dashboards:salon_profile_creator_step1' %}" class="lm-intro__btn lm-intro__btn--secondary">ثبت مجموعه</a></div>
         </article>
       </div>
-
-      <div class="lm-intro__progress" aria-label="مراحل معرفی Loomera">
-        <span class="lm-intro__dot is-active" data-intro-dot="0"></span><span class="lm-intro__dot" data-intro-dot="1"></span><span class="lm-intro__dot" data-intro-dot="2"></span><span class="lm-intro__dot" data-intro-dot="3"></span><span class="lm-intro__dot" data-intro-dot="4"></span><span class="lm-intro__dot" data-intro-dot="5"></span>
-      </div>
+      <div class="lm-intro__progress" aria-label="مراحل معرفی Loomera">{% for i in "012345" %}<button class="lm-intro__dot{% if forloop.first %} is-active{% endif %}" type="button" data-intro-dot="{{ i }}" aria-label="مرحله {{ forloop.counter }}"></button>{% endfor %}</div>
     </div>
-
-    <div class="lm-intro__step" data-intro-step="0"></div>
-    <div class="lm-intro__step" data-intro-step="1"></div>
-    <div class="lm-intro__step" data-intro-step="2"></div>
-    <div class="lm-intro__step" data-intro-step="3"></div>
-    <div class="lm-intro__step" data-intro-step="4"></div>
-    <div class="lm-intro__step" data-intro-step="5"></div>
+    <div class="lm-intro__step" data-intro-step="0"></div><div class="lm-intro__step" data-intro-step="1"></div><div class="lm-intro__step" data-intro-step="2"></div><div class="lm-intro__step" data-intro-step="3"></div><div class="lm-intro__step" data-intro-step="4"></div><div class="lm-intro__step" data-intro-step="5"></div>
   </div>
   <div class="lm-intro__after"><span>اسکرول کنید · تجربه Loomera ادامه دارد</span></div>
 </section>
@@ -308,34 +98,14 @@ body[data-page="home"] .lm-home-main-shell { width:100%; max-width:none; margin:
 {% block js %}
 {{ block.super }}
 <script>
-(function () {
-  const root = document.querySelector('[data-lm-intro]');
-  if (!root) return;
-  const steps = [...root.querySelectorAll('[data-intro-step]')];
-  const slides = [...root.querySelectorAll('[data-intro-slide]')];
-  const dots = [...root.querySelectorAll('[data-intro-dot]')];
-  if (!steps.length || !slides.length) return;
-
-  let active = 0;
-  const setActive = (index) => {
-    const next = Math.max(0, Math.min(slides.length - 1, index));
-    if (next === active && slides[next].classList.contains('is-active')) return;
-    active = next;
-    slides.forEach((slide, i) => slide.classList.toggle('is-active', i === active));
-    dots.forEach((dot, i) => dot.classList.toggle('is-active', i === active));
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-    if (visible) setActive(Number(visible.target.dataset.introStep));
-  }, { rootMargin: '-38% 0px -38% 0px', threshold: [0, .25, .5, .75, 1] });
-
-  steps.forEach((step) => observer.observe(step));
-  dots.forEach((dot) => dot.addEventListener('click', () => {
-    const index = Number(dot.dataset.introDot);
-    steps[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }));
-
+(function(){
+  const root=document.querySelector('[data-lm-intro]');if(!root)return;
+  const steps=[...root.querySelectorAll('[data-intro-step]')],slides=[...root.querySelectorAll('[data-intro-slide]')],dots=[...root.querySelectorAll('[data-intro-dot]')];if(!steps.length||!slides.length)return;
+  let active=0;
+  const setActive=index=>{const next=Math.max(0,Math.min(slides.length-1,index));if(next===active&&slides[next].classList.contains('is-active'))return;active=next;slides.forEach((slide,i)=>slide.classList.toggle('is-active',i===active));dots.forEach((dot,i)=>dot.classList.toggle('is-active',i===active));};
+  const observer=new IntersectionObserver(entries=>{const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(visible)setActive(Number(visible.target.dataset.introStep));},{rootMargin:'-38% 0px -38% 0px',threshold:[0,.25,.5,.75,1]});
+  steps.forEach(step=>observer.observe(step));
+  dots.forEach(dot=>dot.addEventListener('click',()=>{const index=Number(dot.dataset.introDot);steps[index]?.scrollIntoView({behavior:'smooth',block:'center'});}));
   setActive(0);
 })();
 </script>
