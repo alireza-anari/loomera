@@ -5,90 +5,134 @@
 {% block main_class %}lm-home-main-shell{% endblock %}
 {% block body_attrs %}data-page="home"{% endblock %}
 {% block title %}Loomera | انتخاب و رزرو خدمات زیبایی{% endblock %}
-{% block meta_description %}Loomera انتخاب مرکز، متخصص و خدمت مناسب را ساده‌تر می‌کند تا رزرو خدمات زیبایی، مراقبتی و wellness آرام‌تر و مطمئن‌تر باشد.{% endblock %}
+{% block meta_description %}Loomera انتخاب مرکز، متخصص و خدمت مناسب را ساده‌تر می‌کند تا رزرو خدمات زیبایی و مراقبتی آرام‌تر و مطمئن‌تر باشد.{% endblock %}
 
 {% block head %}
 {{ block.super }}
 <style>
-:root{--lh-p:#735cbe;--lh-p2:#8b72d5;--lh-l:#f3eefb;--lh-s:#a9c9a4;--lh-ink:#292637;--lh-muted:#746d7d;--lh-line:#e8e3ee;--lh-bg:#f4f3f7;--lh-header:64px}
-body[data-page="home"]{background:var(--lh-bg);overflow-x:hidden}
+:root{--lh-purple:#735cbe;--lh-purple-2:#8d73d9;--lh-purple-3:#efe8fb;--lh-sage:#a9c9a4;--lh-ink:#29263a;--lh-muted:#777080;--lh-line:#ebe6f1;--lh-canvas:#f0eff1;--lh-white:#fff;--lh-header:64px}
+body[data-page="home"]{margin:0;background:var(--lh-canvas);overflow-x:hidden}
 body[data-page="home"] .lm-home-main-shell{width:100%;max-width:none;margin:0;padding:0}
-body[data-page="home"] .lm-shell-desktop-site-header{position:fixed;inset:0 0 auto;z-index:100;background:rgba(255,255,255,.9);border-bottom:1px solid rgba(46,42,60,.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+body[data-page="home"] .lm-shell-desktop-site-header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(41,38,58,.06)}
 body[data-page="home"] .lm-app-bottom-nav-surface{display:none!important}
-.lm-home{background:var(--lh-bg);color:var(--lh-ink);overflow:clip}.lm-home *{box-sizing:border-box}
-.lm-home__stage{position:sticky;top:var(--lh-header);height:calc(100svh - var(--lh-header));min-height:640px;display:grid;place-items:center;padding:30px 28px;z-index:2;background:linear-gradient(180deg,#f5f4f8 0%,#efedf3 100%);overflow:hidden}
-.lm-home__scene{width:min(1360px,100%);height:min(790px,calc(100svh - var(--lh-header) - 55px));min-height:570px;position:relative;perspective:1600px}
-.lm-home__window{position:absolute;inset:0;border:1px solid rgba(50,45,67,.08);border-radius:28px;background:#fff;box-shadow:0 34px 100px rgba(49,42,67,.16),0 10px 25px rgba(49,42,67,.06);overflow:hidden}
-.lm-home__window-top{height:38px;display:flex;align-items:center;gap:7px;padding:0 15px;background:#fcfbfd;border-bottom:1px solid #eeeaf2}.lm-home__traffic{display:flex;gap:6px}.lm-home__traffic i{display:block;width:7px;height:7px;border-radius:50%;background:#ded9e3}.lm-home__window-label{font-size:8px;color:#aaa3b0;margin-inline:auto;letter-spacing:.01em}.lm-home__window-body{position:relative;height:calc(100% - 38px);overflow:hidden;background:#fff}
-.lm-home__slide{position:absolute;inset:0;padding:48px 74px;opacity:0;visibility:hidden;transform:translateY(26px) scale(.985);filter:blur(3px);transition:opacity .65s ease,transform .85s cubic-bezier(.18,.75,.2,1),filter .65s ease,visibility 0s linear .65s}.lm-home__slide.is-active{opacity:1;visibility:visible;transform:none;filter:none;z-index:4;transition-delay:0s}
-.lm-home__nav{position:absolute;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;border-bottom:1px solid rgba(46,42,60,.045);background:rgba(255,255,255,.88);backdrop-filter:blur(14px);z-index:10}.lm-home__nav-brand img{height:25px;width:auto}.lm-home__nav-links{display:flex;align-items:center;gap:22px;direction:rtl;font-size:9px;color:#777181}.lm-home__nav-links span:first-child{color:var(--lh-ink);font-weight:900}.lm-home__nav-actions{display:flex;align-items:center;gap:8px;direction:rtl;font-size:8px}.lm-home__nav-sign{color:#777181}.lm-home__nav-cta{padding:8px 12px;border-radius:9px;color:#fff;background:#1e1c23;font-weight:900}
-.lm-home h1,.lm-home h2{margin:0;font-weight:900;letter-spacing:-.05em;line-height:1.08}.lm-home h1{font-size:clamp(42px,5.4vw,72px)}.lm-home h2{font-size:clamp(34px,4vw,54px)}.lm-home__purple{color:var(--lh-p)}.lm-home__eyebrow{display:inline-flex;align-items:center;gap:7px;width:max-content;padding:8px 11px;border-radius:999px;background:var(--lh-l);color:var(--lh-p);font-size:9px;font-weight:900}.lm-home__eyebrow:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--lh-s)}.lm-home__lead{max-width:520px;margin:17px 0 0;color:var(--lh-muted);font-size:clamp(12px,1vw,15px);line-height:2}.lm-home__actions{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:8px;margin-top:21px}.lm-home__btn{min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 16px;border-radius:11px;text-decoration:none;font-size:9px;font-weight:900}.lm-home__btn--primary{background:var(--lh-p);color:#fff;box-shadow:0 10px 22px rgba(115,92,190,.18)}.lm-home__btn--dark{background:#1d1b21;color:#fff}.lm-home__btn--outline{background:#fff;color:#5f5869;border:1px solid #ddd7e7}
-.lm-home__hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:44px;padding-top:90px!important}.lm-home__hero-copy{direction:rtl;text-align:center;display:flex;flex-direction:column;align-items:center}.lm-home__hero-copy .lm-home__lead{margin-inline:auto;max-width:480px}.lm-home__hero-copy .lm-home__actions{justify-content:center}.lm-home__hero-visual{position:relative;min-height:360px;display:grid;place-items:center}.lm-home__hero-core{width:150px;height:150px;border-radius:34px;background:linear-gradient(145deg,#a98ee8,#735cbe);box-shadow:0 30px 55px rgba(115,92,190,.25);display:grid;place-items:center;color:#fff;font-size:32px;transform:rotate(-4deg);animation:lhFloat 4.3s ease-in-out infinite}.lm-home__float{position:absolute;width:90px;height:90px;border-radius:20px;border:1px solid #ece7f0;background:#fff;box-shadow:0 18px 36px rgba(46,42,60,.11);display:grid;place-items:center;overflow:hidden}.lm-home__float img{width:100%;height:100%;object-fit:cover}.lm-home__float i{font-size:20px;color:var(--lh-p)}.lm-home__float--a{left:10%;top:10%;transform:rotate(-8deg)}.lm-home__float--b{left:21%;bottom:13%;transform:rotate(6deg)}.lm-home__float--c{right:11%;top:16%;transform:rotate(8deg)}.lm-home__float--d{right:18%;bottom:10%;transform:rotate(-7deg)}
-.lm-home__feature{display:grid;place-items:center}.lm-home__feature-inner{width:min(1120px,100%);height:100%;display:grid;grid-template-columns:1fr 1.18fr;gap:48px;align-items:center;direction:ltr}.lm-home__feature-copy{direction:rtl;text-align:right}.lm-home__feature-copy .lm-home__lead{max-width:420px}.lm-home__bullet-list{display:grid;gap:9px;margin-top:20px}.lm-home__bullet{display:flex;align-items:center;gap:9px;font-size:9px;color:#645d6e}.lm-home__bullet i{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:var(--lh-l);color:var(--lh-p)}
-.lm-home__dashboard{border:1px solid #ebe6f0;border-radius:22px;background:#fff;box-shadow:0 24px 55px rgba(54,45,72,.12);overflow:hidden;direction:rtl}.lm-home__dashbar{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid #eeeaf2;font-size:8px;font-weight:900}.lm-home__dash-date{font-weight:500;color:#918a97;background:#faf8fc;border-radius:7px;padding:5px 7px}.lm-home__dashmain{display:grid;grid-template-columns:1fr 90px;min-height:315px}.lm-home__dcontent{padding:14px}.lm-home__cards{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.lm-home__card{padding:10px;border:1px solid #eeeaf3;border-radius:10px}.lm-home__card small{display:block;color:#938c9a;font-size:7px}.lm-home__card b{display:block;margin-top:5px;color:var(--lh-p);font-size:10px}.lm-home__calendar{margin-top:10px;border:1px solid #eeeaf3;border-radius:12px;overflow:hidden}.lm-home__calhead,.lm-home__calrow{display:grid;grid-template-columns:55px repeat(5,1fr)}.lm-home__calhead{background:#fbf9fd}.lm-home__calhead span,.lm-home__calrow>span{padding:7px 3px;text-align:center;border-left:1px solid #f0edf3;color:#918a97;font-size:6px}.lm-home__calrow{min-height:40px}.lm-home__event{margin:2px;padding:5px;border-radius:7px;background:#eee7fb;color:#65569a;font-size:6px}.lm-home__event--green{background:#edf6eb;color:#587256}.lm-home__dashside{padding:10px 7px;background:#fbf9fd;border-left:1px solid #eeeaf3}.lm-home__dashside span{display:block;padding:8px;border-radius:8px;color:#7d7684;font-size:7px}.lm-home__dashside span:first-child{background:#f0e9fb;color:var(--lh-p);font-weight:900}
-.lm-home__team{display:grid;place-items:center}.lm-home__team-inner{width:min(1120px,100%);display:grid;grid-template-columns:1fr 1fr;gap:38px;align-items:center;direction:ltr}.lm-home__team-image{height:420px;border-radius:24px;background:#f5f1fa;overflow:hidden;box-shadow:0 25px 55px rgba(57,48,76,.11);position:relative}.lm-home__team-image img{width:100%;height:100%;object-fit:cover;object-position:center}.lm-home__team-image:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.2))}.lm-home__team-copy{direction:rtl;text-align:right}.lm-home__team-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}.lm-home__mini{padding:11px;border:1px solid #ece7f1;border-radius:12px;background:#fff;font-size:8px;color:#686171}.lm-home__mini i{display:block;color:var(--lh-p);font-size:14px;margin-bottom:7px}
-.lm-home__lumi{display:grid;place-items:center;background:linear-gradient(140deg,#fff,#faf8fc)}.lm-home__lumi-inner{width:min(930px,100%);display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;direction:ltr}.lm-home__lumi-copy{direction:rtl;text-align:right}.lm-home__lumi-visual{display:grid;place-items:center;min-height:370px;position:relative}.lm-home__orb{width:170px;height:170px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff 0 7%,#d9cdf5 22%,#8d75d8 57%,#735cbe 100%);box-shadow:0 0 0 18px rgba(180,154,230,.1),0 35px 70px rgba(115,92,190,.25);animation:lhFloat 4s ease-in-out infinite}.lm-home__chat{position:absolute;right:2%;bottom:18px;width:230px;padding:11px;border-radius:16px;border:1px solid #e6dff0;background:rgba(255,255,255,.96);box-shadow:0 18px 45px rgba(60,48,80,.15);direction:rtl}.lm-home__chat b{font-size:9px}.lm-home__chat p{margin:7px 0 0;padding:8px;border-radius:9px;background:#f5f1fb;color:#6d6478;font-size:7px}.lm-home__chat-row{display:flex;gap:5px;margin-top:6px}.lm-home__chat-row span{padding:5px 7px;border-radius:7px;background:#f1ebfa;color:#6c5aa3;font-size:6px}
-.lm-home__reminder{display:grid;place-items:center}.lm-home__reminder-inner{width:min(1040px,100%);display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;direction:ltr}.lm-home__phone-wrap{display:grid;place-items:center;height:100%;min-height:410px;background:linear-gradient(150deg,#faf8fd,#f3eefb);border-radius:24px;overflow:hidden}.lm-home__phone{height:390px;max-width:70%;object-fit:contain;filter:drop-shadow(0 28px 38px rgba(49,37,70,.18))}.lm-home__reminder-copy{direction:rtl;text-align:right}
-.lm-home__final{display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 30% 15%,rgba(180,154,230,.18),transparent 30%),linear-gradient(145deg,#fff,#f5effb 65%,#f4f8f2)}.lm-home__final-inner{max-width:740px}.lm-home__final-logo{width:66px;height:66px;display:grid;place-items:center;margin:0 auto 17px;border-radius:20px;background:#fff;box-shadow:0 18px 38px rgba(65,53,89,.1)}.lm-home__final-logo img{width:46px}.lm-home__final .lm-home__actions{justify-content:center}
-.lm-home__progress{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:6px;z-index:20}.lm-home__dot{width:6px;height:6px;border:0;border-radius:50%;background:#d4cfda;padding:0;cursor:pointer;transition:.25s}.lm-home__dot.is-active{width:22px;border-radius:99px;background:var(--lh-p)}.lm-home__hint{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);font-size:8px;color:#9a93a2;white-space:nowrap}
-.lm-home__step{height:100vh;min-height:640px;pointer-events:none;position:relative}
-@keyframes lhFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.lm-home__slide.is-active .lm-home__hero-copy,.lm-home__slide.is-active .lm-home__feature-copy,.lm-home__slide.is-active .lm-home__team-copy,.lm-home__slide.is-active .lm-home__lumi-copy,.lm-home__slide.is-active .lm-home__reminder-copy,.lm-home__slide.is-active .lm-home__final-inner{animation:lhCopy .7s cubic-bezier(.16,.72,.2,1) both}.lm-home__slide.is-active .lm-home__hero-visual,.lm-home__slide.is-active .lm-home__dashboard,.lm-home__slide.is-active .lm-home__team-image,.lm-home__slide.is-active .lm-home__lumi-visual,.lm-home__slide.is-active .lm-home__phone-wrap{animation:lhVisual .85s cubic-bezier(.16,.72,.2,1) both}@keyframes lhCopy{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}@keyframes lhVisual{from{opacity:0;transform:translateY(16px) scale(.975)}to{opacity:1;transform:none}}
-@media(prefers-reduced-motion:reduce){.lm-home__slide{transition:none;filter:none}.lm-home__slide.is-active .lm-home__hero-copy,.lm-home__slide.is-active .lm-home__feature-copy,.lm-home__slide.is-active .lm-home__team-copy,.lm-home__slide.is-active .lm-home__lumi-copy,.lm-home__slide.is-active .lm-home__reminder-copy,.lm-home__slide.is-active .lm-home__final-inner,.lm-home__slide.is-active .lm-home__hero-visual,.lm-home__slide.is-active .lm-home__dashboard,.lm-home__slide.is-active .lm-home__team-image,.lm-home__slide.is-active .lm-home__lumi-visual,.lm-home__slide.is-active .lm-home__phone-wrap{animation:none}.lm-home__hero-core,.lm-home__orb{animation:none}}
-@media(max-width:900px){:root{--lh-header:60px}.lm-home__stage{min-height:720px;padding:14px 10px}.lm-home__scene{height:calc(100svh - var(--lh-header) - 28px);min-height:650px}.lm-home__window{border-radius:21px}.lm-home__window-top{height:30px}.lm-home__nav{height:49px;padding:0 14px}.lm-home__nav-links{gap:10px;font-size:7px}.lm-home__nav-actions{font-size:6px}.lm-home__nav-cta{padding:6px 8px}.lm-home__slide{padding:78px 25px 28px}.lm-home__hero,.lm-home__feature-inner,.lm-home__team-inner,.lm-home__lumi-inner,.lm-home__reminder-inner{grid-template-columns:1fr;gap:18px}.lm-home__hero{padding-top:72px!important}.lm-home__hero-visual{min-height:245px;order:-1}.lm-home__hero-core{width:104px;height:104px;border-radius:25px;font-size:23px}.lm-home__float{width:68px;height:68px;border-radius:15px}.lm-home__feature{display:block}.lm-home__feature-inner{height:auto}.lm-home__feature-copy{order:2}.lm-home__dashboard{order:1}.lm-home__dashmain{min-height:245px;grid-template-columns:1fr}.lm-home__dashside{display:none}.lm-home__team-image{height:230px;order:-1}.lm-home__team-copy{padding-bottom:12px}.lm-home__team-grid{margin-top:12px}.lm-home__lumi-visual{min-height:240px}.lm-home__orb{width:120px;height:120px}.lm-home__chat{width:190px;right:0;bottom:0}.lm-home__phone-wrap{min-height:235px}.lm-home__phone{height:230px}.lm-home h1{font-size:clamp(32px,10vw,49px)}.lm-home h2{font-size:clamp(27px,8vw,40px)}.lm-home__lead{font-size:10px;line-height:1.9}.lm-home__nav-brand img{height:21px}.lm-home__window-label{display:none}}
-@media(max-width:560px){.lm-home__nav-links span:nth-child(n+4),.lm-home__nav-sign{display:none}.lm-home__slide{padding:70px 18px 20px}.lm-home__hero{padding-top:63px!important}.lm-home__hero-visual{min-height:205px}.lm-home__feature{padding-top:70px}.lm-home__team-image{height:190px}.lm-home__team-grid{grid-template-columns:1fr}.lm-home__lumi-visual{min-height:200px}.lm-home__final-inner{padding:0 5px}.lm-home__hint{display:none}}
+.lm-story{position:relative;background:var(--lh-canvas);color:var(--lh-ink);overflow:clip}
+.lm-story *{box-sizing:border-box}
+.lm-story__stage{position:sticky;top:var(--lh-header);height:calc(100svh - var(--lh-header));min-height:650px;padding:24px 32px;display:grid;place-items:center;z-index:2}
+.lm-story__canvas{position:relative;width:min(1360px,100%);height:min(760px,calc(100svh - var(--lh-header) - 42px));min-height:560px;border-radius:28px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.92);box-shadow:0 25px 80px rgba(44,39,57,.12);overflow:hidden;isolation:isolate}
+.lm-story__canvas:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 14% 16%,rgba(188,170,232,.14),transparent 23%),radial-gradient(circle at 88% 77%,rgba(169,201,164,.10),transparent 24%);pointer-events:none}
+.lm-story__nav{position:absolute;top:0;left:0;right:0;height:58px;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(255,255,255,.83);border-bottom:1px solid rgba(43,38,54,.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.lm-story__nav-links{display:flex;align-items:center;gap:22px;font-size:10px;color:#726b79}.lm-story__nav-links a{color:inherit;text-decoration:none}.lm-story__nav-brand{display:flex;align-items:center;gap:12px}.lm-story__nav-brand img{width:auto;max-width:116px;height:auto}.lm-story__nav-cta{padding:8px 13px;border-radius:10px;color:#fff!important;background:var(--lh-purple);font-weight:800;box-shadow:0 8px 20px rgba(115,92,190,.17)}
+.lm-story__scenes{position:absolute;inset:58px 0 0;overflow:hidden}
+.lm-scene{position:absolute;inset:0;display:grid;place-items:center;opacity:0;visibility:hidden;pointer-events:none}
+.lm-scene.is-active{visibility:visible;pointer-events:auto}
+.lm-scene__inner{position:relative;width:min(1170px,92%);height:90%;margin:auto}
+.lm-scene__label{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--lh-purple-3);color:var(--lh-purple);font-size:10px;font-weight:900}.lm-scene__label:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lh-sage);box-shadow:0 0 0 4px rgba(169,201,164,.15)}
+.lm-scene h1,.lm-scene h2{margin:0;font-weight:900;letter-spacing:-.045em;line-height:1.22}.lm-scene h1{font-size:clamp(42px,5vw,72px)}.lm-scene h2{font-size:clamp(34px,4vw,54px)}.lm-scene__accent{color:var(--lh-purple)}.lm-scene__lead{max-width:620px;margin:15px 0 0;color:var(--lh-muted);font-size:clamp(14px,1.2vw,17px);line-height:2}
+/* hero */
+.lm-scene--hero .lm-scene__inner{display:grid;place-items:center;text-align:center;padding-top:20px}.lm-hero__copy{position:relative;z-index:7;max-width:670px}.lm-hero__logo{width:145px;margin:0 auto 18px}.lm-hero__logo img{width:100%;height:auto}.lm-hero__actions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:24px}.lm-btn{min-height:46px;padding:0 20px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:13px;text-decoration:none;font-size:11px;font-weight:900}.lm-btn--primary{color:#fff;background:var(--lh-purple);box-shadow:0 13px 28px rgba(115,92,190,.2)}.lm-btn--soft{color:var(--lh-purple);background:#fff;border:1px solid #ddd4eb}
+.lm-float{position:absolute;z-index:5;display:grid;place-items:center;border-radius:17px;background:#fff;border:1px solid rgba(115,92,190,.09);box-shadow:0 20px 40px rgba(53,42,74,.11)}.lm-float--brand{left:8%;top:28%;width:88px;height:88px}.lm-float--brand img{width:56px}.lm-float--calendar{left:23%;top:10%;width:54px;height:54px;color:var(--lh-purple);background:#f6f1fc}.lm-float--bell{right:19%;top:13%;width:52px;height:52px;color:#557253;background:#f2f8f0}.lm-float--search{right:8%;top:31%;width:86px;height:86px;color:var(--lh-purple);background:#faf8fd}.lm-float--profile{left:14%;bottom:22%;width:64px;height:64px;overflow:hidden}.lm-float--profile img{width:100%;height:100%;object-fit:cover}.lm-float--service{right:9%;bottom:20%;width:76px;height:76px;color:#8b5c8f;background:#fbf4fa}.lm-connect{position:absolute;z-index:1;left:8%;right:8%;top:36%;height:1px;background:linear-gradient(90deg,transparent,rgba(115,92,190,.17) 16%,rgba(115,92,190,.12) 50%,rgba(115,92,190,.17) 84%,transparent);transform:scaleX(.72)}
+/* capabilities */
+.lm-scene--cap .lm-scene__inner{text-align:center;padding-top:28px}.lm-scene--cap h2{margin-top:12px}.lm-cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px;text-align:right}.lm-cap-card{min-height:230px;padding:24px;border:1px solid rgba(74,65,87,.07);border-radius:20px;background:rgba(255,255,255,.93);box-shadow:0 18px 40px rgba(53,42,74,.07);position:relative;overflow:hidden}.lm-cap-card:after{content:"";position:absolute;left:-25px;bottom:-50px;width:130px;height:130px;border-radius:50%;background:rgba(115,92,190,.06)}.lm-cap-card__icon{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:var(--lh-purple-3);color:var(--lh-purple);font-size:17px}.lm-cap-card h3{margin:20px 0 0;font-size:18px;font-weight:900}.lm-cap-card p{margin:8px 0 0;color:var(--lh-muted);font-size:11px;line-height:1.9}.lm-cap-card__mini{position:absolute;left:20px;bottom:20px;width:92px;height:58px;border-radius:13px;background:#faf8fd;border:1px solid #eee8f4;display:grid;place-items:center;color:#8c8393;font-size:8px}.lm-cap-card:nth-child(2) .lm-cap-card__mini{left:auto;right:20px}.lm-cap-card:nth-child(3) .lm-cap-card__mini{left:20px}
+/* manager */
+.lm-scene--manager .lm-scene__inner{display:grid;grid-template-columns:.9fr 1.1fr;gap:58px;align-items:center;direction:ltr}.lm-manager-copy{direction:rtl;text-align:right}.lm-manager-copy .lm-scene__lead{max-width:475px}.lm-manager-points{display:grid;gap:10px;margin-top:20px}.lm-manager-point{display:flex;align-items:center;gap:9px;color:#625b6d;font-size:10px}.lm-manager-point i{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:var(--lh-purple-3);color:var(--lh-purple)}
+.lm-dashboard{direction:rtl;background:#fff;border:1px solid #e4deeb;border-radius:23px;box-shadow:0 25px 60px rgba(64,49,94,.14);overflow:hidden}.lm-dashboard__top{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 15px;border-bottom:1px solid var(--lh-line);font-size:9px}.lm-dashboard__brand{display:flex;align-items:center;gap:7px;color:var(--lh-purple);font-weight:900}.lm-dashboard__body{display:grid;grid-template-columns:1fr 115px;min-height:340px}.lm-dashboard__side{padding:12px 8px;background:#fbf9fd;border-left:1px solid var(--lh-line)}.lm-dashboard__side span{display:flex;align-items:center;gap:6px;padding:9px 7px;margin-bottom:2px;border-radius:8px;color:#777082;font-size:7px}.lm-dashboard__side span:first-child{background:var(--lh-purple-3);color:var(--lh-purple);font-weight:900}.lm-dashboard__main{padding:14px}.lm-dashboard__cards{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.lm-dashboard__card{padding:10px;border:1px solid var(--lh-line);border-radius:10px}.lm-dashboard__card small{display:block;color:#8f8795;font-size:7px}.lm-dashboard__card b{display:block;margin-top:5px;color:var(--lh-purple);font-size:10px}.lm-dashboard__schedule{margin-top:9px;border:1px solid var(--lh-line);border-radius:12px;overflow:hidden}.lm-dashboard__row{display:grid;grid-template-columns:58px repeat(5,1fr);min-height:39px}.lm-dashboard__row span{padding:5px 3px;border-left:1px solid #f0edf3;border-bottom:1px solid #f0edf3;color:#99909f;font-size:6px;text-align:center}.lm-event{margin:2px;padding:6px 3px;border-radius:7px;background:#eee7fb;color:#6b5aa0}.lm-event--green{background:#edf6eb;color:#557253}.lm-event--rose{background:#f7edf9;color:#8b5c8f}
+/* phone/orbit */
+.lm-scene--orbit .lm-scene__inner{display:grid;place-items:center;text-align:center}.lm-orbit__title{position:relative;z-index:6;max-width:650px}.lm-orbit__visual{position:absolute;inset:5% 0 0;display:grid;place-items:center}.lm-orbit__ring{position:absolute;border:1px dashed rgba(115,92,190,.20);border-radius:50%}.lm-orbit__ring--one{width:330px;height:330px}.lm-orbit__ring--two{width:510px;height:240px;transform:rotate(-13deg)}.lm-orbit__phone{position:relative;z-index:5;height:82%;max-height:470px;object-fit:contain;filter:drop-shadow(0 28px 40px rgba(51,41,72,.18))}.lm-orbit__pill{position:absolute;z-index:7;display:flex;align-items:center;gap:7px;padding:9px 12px;border-radius:12px;background:#fff;border:1px solid #ebe4f2;box-shadow:0 15px 30px rgba(54,44,73,.11);font-size:8px;color:#71697a}.lm-orbit__pill i{color:var(--lh-purple)}.lm-orbit__pill--a{left:15%;top:34%}.lm-orbit__pill--b{right:14%;top:28%}.lm-orbit__pill--c{right:18%;bottom:13%}.lm-orbit__pill--d{left:17%;bottom:16%}
+/* manager CTA */
+.lm-scene--join .lm-scene__inner{display:grid;grid-template-columns:1.08fr .92fr;align-items:center;gap:60px}.lm-join__visual{position:relative;height:100%;display:grid;place-items:center}.lm-join__glow{position:absolute;width:430px;height:430px;border-radius:50%;background:radial-gradient(circle,#e8ddfb 0,#f5effc 48%,transparent 70%)}.lm-join__card{position:relative;z-index:2;width:min(450px,100%);padding:28px;border-radius:23px;background:#fff;border:1px solid #e5deed;box-shadow:0 25px 65px rgba(64,49,94,.13);text-align:right;direction:rtl}.lm-join__card-head{display:flex;align-items:center;justify-content:space-between}.lm-join__brand{display:flex;align-items:center;gap:8px;color:var(--lh-purple);font-size:12px;font-weight:900}.lm-join__brand img{width:29px}.lm-join__items{display:grid;gap:8px;margin-top:18px}.lm-join__item{display:flex;align-items:center;gap:9px;padding:11px;border-radius:11px;background:#faf8fd;color:#625b6d;font-size:9px}.lm-join__item i{color:var(--lh-purple)}.lm-join__copy{direction:rtl;text-align:right}.lm-join__copy .lm-scene__lead{max-width:490px}.lm-join__tag{display:inline-flex;padding:6px 9px;border-radius:8px;background:#f0f8ee;color:#557253;font-size:8px;font-weight:900;margin-top:11px}
+/* final */
+.lm-scene--final .lm-scene__inner{display:grid;place-items:center;text-align:center}.lm-final__logo{width:82px;height:82px;border-radius:25px;background:#fff;display:grid;place-items:center;box-shadow:0 18px 40px rgba(65,51,91,.12);margin-bottom:18px}.lm-final__logo img{width:54px}.lm-final__actions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:25px}.lm-story__progress{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:25;display:flex;align-items:center;gap:6px;padding:7px 9px;border-radius:999px;background:rgba(255,255,255,.85);border:1px solid rgba(115,92,190,.1);box-shadow:0 10px 22px rgba(54,44,73,.08);backdrop-filter:blur(10px)}.lm-story__dot{width:6px;height:6px;border:0;padding:0;border-radius:99px;background:#d9d2e3;cursor:pointer;transition:.28s ease}.lm-story__dot.is-active{width:23px;background:var(--lh-purple)}
+.lm-story__scroll-hint{position:absolute;z-index:25;bottom:17px;right:28px;display:flex;align-items:center;gap:7px;color:#9a93a2;font-size:8px}.lm-story__scroll-hint i{color:var(--lh-purple)}
+@keyframes sceneIn{from{opacity:0;transform:translateY(20px) scale(.985)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.lm-scene{transition:none!important}.lm-float,.lm-orbit__pill,.lm-orbit__phone,.lm-scene__inner>*{animation:none!important}}
+@media(max-width:900px){:root{--lh-header:60px}.lm-story__stage{height:calc(100svh - var(--lh-header));min-height:640px;padding:10px}.lm-story__canvas{height:calc(100svh - var(--lh-header) - 20px);min-height:0;border-radius:22px}.lm-story__nav{height:52px;padding:0 15px}.lm-story__nav-links{display:none}.lm-story__nav-brand img{max-width:108px}.lm-story__nav-cta{padding:7px 10px}.lm-story__scenes{inset:52px 0 0}.lm-scene__inner{width:88%;height:92%}.lm-story h1{font-size:clamp(35px,8.7vw,51px)}.lm-story h2{font-size:clamp(29px,7vw,42px)}.lm-story__lead{font-size:12px;line-height:1.95}.lm-float--brand{left:3%;top:24%;width:64px;height:64px}.lm-float--brand img{width:43px}.lm-float--calendar{left:17%;top:8%;width:44px;height:44px}.lm-float--bell{right:14%;top:10%;width:43px;height:43px}.lm-float--search{right:3%;top:27%;width:64px;height:64px}.lm-float--profile{left:5%;bottom:18%;width:49px;height:49px}.lm-float--service{right:5%;bottom:18%;width:58px;height:58px}.lm-connect{left:6%;right:6%;top:35%}.lm-cap-grid{grid-template-columns:1fr;gap:10px;margin-top:22px}.lm-cap-card{min-height:150px;padding:18px}.lm-cap-card h3{margin-top:13px;font-size:15px}.lm-cap-card p{font-size:9px}.lm-cap-grid .lm-cap-card:nth-child(3){display:none}.lm-scene--manager .lm-scene__inner{grid-template-columns:1fr;gap:15px;align-content:center}.lm-dashboard__body{min-height:245px}.lm-dashboard__side{display:none}.lm-dashboard__main{padding:10px}.lm-dashboard__cards{display:none}.lm-dashboard__row{min-height:30px;grid-template-columns:42px repeat(5,1fr)}.lm-dashboard__row span{font-size:5px}.lm-event{font-size:5px;padding:5px 2px}.lm-manager-copy{order:2}.lm-manager-copy .lm-scene__lead{font-size:10px}.lm-manager-points{gap:5px;margin-top:11px}.lm-manager-point{font-size:8px}.lm-manager-point i{width:22px;height:22px}.lm-scene--orbit .lm-scene__inner{height:95%}.lm-orbit__phone{height:67%;max-height:350px;margin-top:35px}.lm-orbit__ring--one{width:230px;height:230px}.lm-orbit__ring--two{width:330px;height:160px}.lm-orbit__pill{font-size:7px;padding:7px 8px}.lm-orbit__pill--a{left:0;top:30%}.lm-orbit__pill--b{right:0;top:25%}.lm-orbit__pill--c{right:3%;bottom:13%}.lm-orbit__pill--d{left:3%;bottom:15%}.lm-scene--join .lm-scene__inner{grid-template-columns:1fr;gap:12px;align-content:center}.lm-join__visual{order:-1;height:46%}.lm-join__glow{width:260px;height:260px}.lm-join__card{width:86%;padding:17px}.lm-join__items{margin-top:11px}.lm-join__item{padding:8px;font-size:8px}.lm-join__copy .lm-scene__lead{font-size:10px}.lm-story__scroll-hint{display:none}.lm-story__progress{bottom:9px}}
+@media(max-width:560px){.lm-story__stage{padding:6px}.lm-story__canvas{border-radius:19px}.lm-story__nav{height:48px}.lm-story__scenes{inset:48px 0 0}.lm-story h1{font-size:30px}.lm-story h2{font-size:25px}.lm-scene__lead{font-size:10px}.lm-hero__logo{width:110px;margin-bottom:12px}.lm-hero__actions{margin-top:17px}.lm-btn{min-height:42px;padding:0 14px;font-size:9px}.lm-cap-grid{margin-top:18px}.lm-cap-card{min-height:135px;padding:15px}.lm-cap-card:nth-child(2){display:none}.lm-dashboard{border-radius:17px}.lm-dashboard__top{height:36px;padding:0 10px}.lm-dashboard__body{min-height:190px}.lm-manager-copy .lm-scene__label{font-size:8px}.lm-manager-copy h2{font-size:24px}.lm-join__visual{height:42%}.lm-join__card{padding:14px}.lm-join__copy h2{font-size:24px}.lm-story__progress{bottom:7px}}
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="lm-home" aria-label="معرفی Loomera">
-  <div class="lm-home__stage">
-    <div class="lm-home__scene" data-lm-home-story>
-      <div class="lm-home__window">
-        <div class="lm-home__window-top"><div class="lm-home__traffic"><i></i><i></i><i></i></div><span class="lm-home__window-label">loomera.ir</span></div>
-        <div class="lm-home__window-body">
-          <nav class="lm-home__nav" aria-label="ناوبری اصلی">
-            <a class="lm-home__nav-brand" href="{% url 'salons:home' %}" aria-label="Loomera">{% include "partials/brand/logo.html" with logo_variant="header" logo_size="sm" %}</a>
-            <div class="lm-home__nav-links"><span>محصول</span><span>ویژگی‌ها</span><span>رزرو</span><span>منابع</span></div>
-            <div class="lm-home__nav-actions"><span class="lm-home__nav-sign">ورود</span><a class="lm-home__nav-cta" href="{% url 'dashboards:salon_profile_creator_step1' %}">ثبت مجموعه</a></div>
-          </nav>
-
-          <article class="lm-home__slide lm-home__hero is-active" data-home-slide="0">
-            <div class="lm-home__hero-copy"><span class="lm-home__eyebrow">انتخاب و رزرو ساده‌تر</span><h1>زیبایی،<br><span class="lm-home__purple">از انتخاب خوب</span> شروع می‌شود.</h1><p class="lm-home__lead">مرکز، متخصص و خدمت مناسب را پیدا کنید؛ زمان مناسب را ببینید و نوبتتان را با آرامش رزرو کنید.</p><div class="lm-home__actions"><a href="{% url 'search:search_page' %}" class="lm-home__btn lm-home__btn--primary">شروع جستجو <i class="fa-solid fa-arrow-left"></i></a><a href="{% url 'dashboards:salon_profile_creator_step1' %}" class="lm-home__btn lm-home__btn--outline">ثبت مجموعه رایگان</a></div></div>
-            <div class="lm-home__hero-visual"><div class="lm-home__float lm-home__float--a"><img src="{% static 'images/home/home-hero-portrait-reference.png' %}" alt="تجربه زیبایی"></div><div class="lm-home__float lm-home__float--b"><i class="fa-solid fa-spa"></i></div><div class="lm-home__hero-core"><i class="fa-solid fa-check"></i></div><div class="lm-home__float lm-home__float--c"><i class="fa-regular fa-calendar-check"></i></div><div class="lm-home__float lm-home__float--d"><i class="fa-solid fa-heart"></i></div></div>
-          </article>
-
-          <article class="lm-home__slide lm-home__feature" data-home-slide="1">
-            <div class="lm-home__feature-inner">
-              <div class="lm-home__feature-copy"><span class="lm-home__eyebrow">برای مدیر مجموعه</span><h2>نوبت‌ها،<br><span class="lm-home__purple">یکجا و منظم.</span></h2><p class="lm-home__lead">از تقویم و ظرفیت‌ها تا خدمات و برنامه تیم؛ Loomera جریان روزانه مجموعه را ساده‌تر و دیدپذیرتر می‌کند.</p><div class="lm-home__bullet-list"><div class="lm-home__bullet"><i class="fa-regular fa-calendar-check"></i><span>نوبت‌دهی و برنامه‌ریزی آنلاین</span></div><div class="lm-home__bullet"><i class="fa-solid fa-chart-simple"></i><span>مدیریت ظرفیت و خدمات</span></div><div class="lm-home__bullet"><i class="fa-solid fa-users"></i><span>هماهنگی بهتر تیم</span></div></div></div>
-              <div class="lm-home__dashboard" aria-label="پیش‌نمایش مدیریت مجموعه"><div class="lm-home__dashbar"><span>برنامه امروز</span><span class="lm-home__dash-date">شنبه · ۱۰:۳۰</span></div><div class="lm-home__dashmain"><main class="lm-home__dcontent"><div class="lm-home__cards"><div class="lm-home__card"><small>نوبت‌ها</small><b>۱۸</b></div><div class="lm-home__card"><small>خدمات</small><b>۱۲</b></div><div class="lm-home__card"><small>تیم</small><b>۶</b></div></div><div class="lm-home__calendar"><div class="lm-home__calhead"><span>ساعت</span><span>شنبه</span><span>یکشنبه</span><span>دوشنبه</span><span>سه‌شنبه</span><span>چهارشنبه</span></div><div class="lm-home__calrow"><span>۱۰</span><span><div class="lm-home__event">رنگ مو</div></span><span></span><span><div class="lm-home__event lm-home__event--green">فیشال</div></span><span></span><span><div class="lm-home__event">کوتاهی</div></span></div><div class="lm-home__calrow"><span>۱۱</span><span></span><span><div class="lm-home__event lm-home__event--green">مراقبت پوست</div></span><span></span><span><div class="lm-home__event">براشینگ</div></span><span></span></div><div class="lm-home__calrow"><span>۱۲</span><span><div class="lm-home__event">مانیکور</div></span><span></span><span></span><span><div class="lm-home__event lm-home__event--green">پاکسازی</div></span><span></span></div></div></main><aside class="lm-home__dashside"><span>نمای کلی</span><span>نوبت‌ها</span><span>خدمات</span><span>تیم</span><span>گزارش‌ها</span></aside></div></div>
-            </div>
-          </article>
-
-          <article class="lm-home__slide lm-home__team" data-home-slide="2">
-            <div class="lm-home__team-inner"><div class="lm-home__team-image"><img src="{% static 'images/home/home-hero-mobile-bg.png' %}" alt="تیم حرفه‌ای Loomera"></div><div class="lm-home__team-copy"><span class="lm-home__eyebrow">برای تیم‌های حرفه‌ای</span><h2>همه‌چیز،<br><span class="lm-home__purple">هماهنگ‌تر پیش می‌رود.</span></h2><p class="lm-home__lead">وقتی برنامه، خدمات و اعضای تیم در یک محیط باشند، مدیر بهتر تصمیم می‌گیرد و تیم با تمرکز بیشتری کار می‌کند.</p><div class="lm-home__team-grid"><div class="lm-home__mini"><i class="fa-solid fa-user-group"></i>حضور و شیفت‌ها</div><div class="lm-home__mini"><i class="fa-solid fa-user-gear"></i>تقسیم خدمات</div><div class="lm-home__mini"><i class="fa-regular fa-star"></i>تجربه یکدست مشتری</div><div class="lm-home__mini"><i class="fa-solid fa-bolt"></i>تصمیم‌گیری سریع‌تر</div></div></div></div>
-          </article>
-
-          <article class="lm-home__slide lm-home__lumi" data-home-slide="3">
-            <div class="lm-home__lumi-inner"><div class="lm-home__lumi-copy"><span class="lm-home__eyebrow">دستیار هوشمند Loomera</span><h2>Lumi،<br><span class="lm-home__purple">کنار شما.</span></h2><p class="lm-home__lead">برای پیدا کردن مسیر درست، پاسخ گرفتن و انجام سریع‌تر کارهای روزمره، Lumi را کنار تجربه Loomera قرار داده‌ایم.</p><div class="lm-home__bullet-list"><div class="lm-home__bullet"><i class="fa-solid fa-wand-magic-sparkles"></i><span>پیشنهادهای هوشمند و کاربردی</span></div><div class="lm-home__bullet"><i class="fa-regular fa-message"></i><span>پاسخ سریع و طبیعی</span></div></div></div><div class="lm-home__lumi-visual"><div class="lm-home__orb"></div><div class="lm-home__chat"><b>Lumi</b><p>سلام! برای پیدا کردن خدمت مناسب، از کجا شروع کنیم؟</p><div class="lm-home__chat-row"><span>جستجوی خدمت</span><span>رزرو نوبت</span></div></div></div></div>
-          </article>
-
-          <article class="lm-home__slide lm-home__reminder" data-home-slide="4">
-            <div class="lm-home__reminder-inner"><div class="lm-home__phone-wrap"><img class="lm-home__phone" src="{% static 'images/home/mobile-app-preview.png' %}" alt="پیش‌نمایش اپلیکیشن Loomera"></div><div class="lm-home__reminder-copy"><span class="lm-home__eyebrow">از انتخاب تا مراجعه</span><h2>هیچ نوبتی،<br><span class="lm-home__purple">فراموش نمی‌شود.</span></h2><p class="lm-home__lead">یادآوری و پیگیری، فاصله‌ی بین رزرو و مراجعه را آرام‌تر می‌کند تا تجربه Loomera فقط به لحظه ثبت نوبت ختم نشود.</p><div class="lm-home__bullet-list"><div class="lm-home__bullet"><i class="fa-regular fa-bell"></i><span>یادآوری به‌موقع نوبت</span></div><div class="lm-home__bullet"><i class="fa-regular fa-comment-dots"></i><span>اطلاع‌رسانی و پیگیری</span></div><div class="lm-home__bullet"><i class="fa-solid fa-shield-heart"></i><span>تجربه مطمئن‌تر مشتری</span></div></div></div></div>
-          </article>
-
-          <article class="lm-home__slide lm-home__final" data-home-slide="5">
-            <div class="lm-home__final-inner"><div class="lm-home__final-logo">{% include "partials/brand/logo.html" with logo_variant="header" logo_size="sm" %}</div><span class="lm-home__eyebrow">شروع تجربه Loomera</span><h2>انتخاب را روشن‌تر کنید.<br><span class="lm-home__purple">رزرو را آرام‌تر.</span></h2><p class="lm-home__lead" style="margin-inline:auto">برای پیدا کردن خدمت و مجموعه مناسب جستجو کنید؛ یا اگر صاحب سالن و کلینیک هستید، حضور حرفه‌ای خود را در Loomera شروع کنید.</p><div class="lm-home__actions"><a href="{% url 'search:search_page' %}" class="lm-home__btn lm-home__btn--primary">شروع جستجو <i class="fa-solid fa-arrow-left"></i></a><a href="{% url 'dashboards:salon_profile_creator_step1' %}" class="lm-home__btn lm-home__btn--outline">ثبت مجموعه رایگان</a></div></div>
-          </article>
-
-          <div class="lm-home__progress" aria-label="مراحل معرفی Loomera">{% for i in "012345" %}<button class="lm-home__dot{% if forloop.first %} is-active{% endif %}" type="button" data-home-dot="{{ i }}" aria-label="مرحله {{ forloop.counter }}"{% if forloop.first %} aria-current="step"{% endif %}></button>{% endfor %}</div>
+<section class="lm-story" aria-label="داستان Loomera">
+  <div class="lm-story__stage">
+    <div class="lm-story__canvas" data-lm-story>
+      <nav class="lm-story__nav" aria-label="ناوبری Loomera">
+        <a class="lm-story__nav-brand" href="{% url 'salons:home' %}">{% include "partials/brand/logo.html" with logo_variant="header" logo_size="md" %}</a>
+        <div class="lm-story__nav-links">
+          <a href="{% url 'salons:show_salons' %}">مراکز</a><a href="{% url 'services:all_services' %}">خدمات</a><a href="{% url 'search:search_page' %}">جستجو</a><a href="{% url 'accounts:login' %}">ورود</a>
         </div>
+        <a class="lm-story__nav-cta" href="{% url 'dashboards:salon_profile_creator_step1' %}">ثبت مجموعه</a>
+      </nav>
+
+      <div class="lm-story__scenes">
+        <article class="lm-scene lm-scene--hero is-active" data-story-scene="0">
+          <div class="lm-scene__inner">
+            <div class="lm-hero__copy">
+              <div class="lm-hero__logo">{% include "partials/brand/logo.html" with logo_variant="header" logo_size="lg" %}</div>
+              <span class="lm-scene__label">انتخاب، ساده‌تر از همیشه</span>
+              <h1>زیبایی،<br><span class="lm-scene__accent">از انتخاب خوب</span> شروع می‌شود.</h1>
+              <p class="lm-scene__lead" style="margin-inline:auto">مرکز، متخصص و خدمت مناسب را پیدا کنید؛ زمان مناسب را ببینید و نوبتتان را با آرامش رزرو کنید.</p>
+              <div class="lm-hero__actions"><a class="lm-btn lm-btn--primary" href="{% url 'search:search_page' %}">شروع جستجو <i class="fa-solid fa-arrow-left"></i></a><a class="lm-btn lm-btn--soft" href="{% url 'dashboards:salon_profile_creator_step1' %}">ثبت مجموعه</a></div>
+            </div>
+            <div class="lm-connect"></div>
+            <div class="lm-float lm-float--brand">{% include "partials/brand/logo.html" with logo_variant="header" logo_size="sm" %}</div>
+            <div class="lm-float lm-float--calendar"><i class="fa-regular fa-calendar-check"></i></div>
+            <div class="lm-float lm-float--bell"><i class="fa-regular fa-bell"></i></div>
+            <div class="lm-float lm-float--search"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <div class="lm-float lm-float--profile"><img src="{% static 'images/home/home-hero-mobile-bg.png' %}" alt=""></div>
+            <div class="lm-float lm-float--service"><i class="fa-solid fa-spa"></i></div>
+          </div>
+        </article>
+
+        <article class="lm-scene lm-scene--cap" data-story-scene="1">
+          <div class="lm-scene__inner">
+            <span class="lm-scene__label">یک مسیر برای هر نیاز</span>
+            <h2>همه‌چیز برای یک <span class="lm-scene__accent">رزرو خوب</span></h2>
+            <p class="lm-scene__lead" style="margin-inline:auto">از پیدا کردن خدمت تا انتخاب مجموعه و پیگیری نوبت، Loomera مسیر را روشن و ساده نگه می‌دارد.</p>
+            <div class="lm-cap-grid">
+              <article class="lm-cap-card"><div class="lm-cap-card__icon"><i class="fa-solid fa-magnifying-glass"></i></div><h3>پیدا کردن انتخاب مناسب</h3><p>خدمت، مجموعه یا متخصص مورد نظرتان را سریع‌تر پیدا کنید و گزینه‌ها را در یک مسیر واضح ببینید.</p><div class="lm-cap-card__mini">جستجو و کشف</div></article>
+              <article class="lm-cap-card"><div class="lm-cap-card__icon"><i class="fa-regular fa-calendar-check"></i></div><h3>رزرو با آرامش</h3><p>زمان مناسب را ببینید و نوبت خود را بدون پیچیدگی از مسیر رزرو جلو ببرید.</p><div class="lm-cap-card__mini">انتخاب زمان</div></article>
+              <article class="lm-cap-card"><div class="lm-cap-card__icon"><i class="fa-regular fa-bell"></i></div><h3>پیگیری تا مراجعه</h3><p>یادآوری و اطلاع‌رسانی کمک می‌کنند مسیر رزرو تا مراجعه کامل‌تر و منظم‌تر باشد.</p><div class="lm-cap-card__mini">یادآوری نوبت</div></article>
+            </div>
+          </div>
+        </article>
+
+        <article class="lm-scene lm-scene--manager" data-story-scene="2">
+          <div class="lm-scene__inner">
+            <div class="lm-manager-copy">
+              <span class="lm-scene__label">برای مدیران سالن و کلینیک</span>
+              <h2 style="margin-top:14px">کسب‌وکار شما،<br><span class="lm-scene__accent">منظم و یکجا.</span></h2>
+              <p class="lm-scene__lead">برای مدیر مجموعه، Loomera فقط یک تقویم نیست؛ محیطی برای مدیریت نوبت‌ها، خدمات و تیم است تا زمان و ظرفیت مجموعه بهتر مدیریت شود.</p>
+              <div class="lm-manager-points"><div class="lm-manager-point"><i class="fa-regular fa-calendar-check"></i><span>نوبت‌دهی و برنامه‌ریزی آنلاین</span></div><div class="lm-manager-point"><i class="fa-solid fa-scissors"></i><span>مدیریت خدمات و ظرفیت‌های خالی</span></div><div class="lm-manager-point"><i class="fa-solid fa-users"></i><span>هماهنگی تیم و برنامه کاری</span></div></div>
+            </div>
+            <div class="lm-dashboard" aria-label="پیش‌نمایش محیط مدیریت Loomera"><div class="lm-dashboard__top"><span class="lm-dashboard__brand"><span style="width:21px;height:21px;border-radius:7px;background:#f0e9fb;display:grid;place-items:center"><i class="fa-solid fa-leaf"></i></span>Loomera</span><span style="color:#8e8594">نمونه محیط مدیریت</span></div><div class="lm-dashboard__body"><main class="lm-dashboard__main"><div class="lm-dashboard__cards"><div class="lm-dashboard__card"><small>نوبت‌ها</small><b>برنامه‌ریزی</b></div><div class="lm-dashboard__card"><small>خدمات</small><b>مدیریت</b></div><div class="lm-dashboard__card"><small>تیم</small><b>هماهنگی</b></div></div><div class="lm-dashboard__schedule"><div class="lm-dashboard__row"><span>ساعت</span><span>شنبه</span><span>یکشنبه</span><span>دوشنبه</span><span>سه‌شنبه</span><span>چهارشنبه</span></div><div class="lm-dashboard__row"><span>۱۰:۰۰</span><span><div class="lm-event">رنگ مو</div></span><span></span><span><div class="lm-event lm-event--green">پاکسازی</div></span><span></span><span><div class="lm-event">کوتاهی</div></span></div><div class="lm-dashboard__row"><span>۱۱:۰۰</span><span></span><span><div class="lm-event lm-event--green">مراقبت پوست</div></span><span></span><span><div class="lm-event lm-event--rose">براشینگ</div></span><span></span></div><div class="lm-dashboard__row"><span>۱۲:۰۰</span><span><div class="lm-event">مانیکور</div></span><span></span><span></span><span><div class="lm-event lm-event--green">فیشال</div></span><span></span></div></div></main><aside class="lm-dashboard__side"><span><i class="fa-solid fa-chart-line"></i> نمای کلی</span><span><i class="fa-regular fa-calendar"></i> نوبت‌ها</span><span><i class="fa-solid fa-scissors"></i> خدمات</span><span><i class="fa-solid fa-users"></i> تیم</span><span><i class="fa-solid fa-bullhorn"></i> بازاریابی</span></aside></div></div>
+          </div>
+        </article>
+
+        <article class="lm-scene lm-scene--orbit" data-story-scene="3">
+          <div class="lm-scene__inner">
+            <div class="lm-orbit__title"><span class="lm-scene__label">تجربه‌ی Loomera در یک نگاه</span><h2 style="margin-top:13px">از کشف تا نوبت،<br><span class="lm-scene__accent">همه‌چیز کنار هم.</span></h2><p class="lm-scene__lead" style="margin-inline:auto">رابطی آرام، روشن و آشنا برای جستجو، انتخاب، رزرو و پیگیری.</p></div>
+            <div class="lm-orbit__visual"><div class="lm-orbit__ring lm-orbit__ring--one"></div><div class="lm-orbit__ring lm-orbit__ring--two"></div><img class="lm-orbit__phone" src="{% static 'images/home/mobile-app-preview.png' %}" alt="پیش‌نمایش اپلیکیشن Loomera"><div class="lm-orbit__pill lm-orbit__pill--a"><i class="fa-solid fa-magnifying-glass"></i>جستجوی مجموعه</div><div class="lm-orbit__pill lm-orbit__pill--b"><i class="fa-regular fa-calendar-check"></i>رزرو نوبت</div><div class="lm-orbit__pill lm-orbit__pill--c"><i class="fa-regular fa-bell"></i>یادآوری</div><div class="lm-orbit__pill lm-orbit__pill--d"><i class="fa-solid fa-heart"></i>انتخاب‌های شما</div></div>
+          </div>
+        </article>
+
+        <article class="lm-scene lm-scene--join" data-story-scene="4">
+          <div class="lm-scene__inner">
+            <div class="lm-join__visual"><div class="lm-join__glow"></div><div class="lm-join__card"><div class="lm-join__card-head"><div class="lm-join__brand">{% include "partials/brand/logo.html" with logo_variant="header" logo_size="sm" %}<span>Loomera</span></div><span style="font-size:8px;color:#8b8392">پنل مجموعه</span></div><div class="lm-join__items"><div class="lm-join__item"><i class="fa-regular fa-calendar-check"></i><span>مدیریت نوبت و برنامه کاری</span></div><div class="lm-join__item"><i class="fa-solid fa-scissors"></i><span>خدمات و ظرفیت‌های مجموعه</span></div><div class="lm-join__item"><i class="fa-solid fa-users"></i><span>هماهنگی تیم و مشتریان</span></div><div class="lm-join__item"><i class="fa-solid fa-chart-simple"></i><span>نمایش و پیگیری عملکرد</span></div></div></div></div>
+            <div class="lm-join__copy"><span class="lm-scene__label">یک قدم تا حضور حرفه‌ای‌تر</span><h2 style="margin-top:14px">سالن خود را<br><span class="lm-scene__accent">به Loomera بسپارید.</span></h2><p class="lm-scene__lead">مجموعه‌تان را بسازید، خدمات و تیم را معرفی کنید و مدیریت روزمره را از یک مسیر حرفه‌ای شروع کنید.</p><span class="lm-join__tag">بدون نمایش آمار ساختگی</span><div class="lm-hero__actions" style="justify-content:flex-start"><a class="lm-btn lm-btn--primary" href="{% url 'dashboards:salon_profile_creator_step1' %}">ثبت مجموعه <i class="fa-solid fa-arrow-left"></i></a></div></div>
+          </div>
+        </article>
+
+        <article class="lm-scene lm-scene--final" data-story-scene="5">
+          <div class="lm-scene__inner"><div class="lm-final__logo">{% include "partials/brand/logo.html" with logo_variant="header" logo_size="sm" %}</div><span class="lm-scene__label">Loomera</span><h2 style="margin-top:13px">انتخاب را روشن‌تر کنید.<br><span class="lm-scene__accent">رزرو را آرام‌تر.</span></h2><p class="lm-scene__lead" style="margin-inline:auto">خدمت و مجموعه مناسب را پیدا کنید؛ یا حضور حرفه‌ای کسب‌وکار زیبایی خود را در Loomera شروع کنید.</p><div class="lm-final__actions"><a class="lm-btn lm-btn--primary" href="{% url 'search:search_page' %}">شروع جستجو <i class="fa-solid fa-arrow-left"></i></a><a class="lm-btn lm-btn--soft" href="{% url 'dashboards:salon_profile_creator_step1' %}">ثبت مجموعه رایگان</a></div></div>
+        </article>
       </div>
-      <div class="lm-home__hint">اسکرول کنید و داستان Loomera را ببینید</div>
+
+      <div class="lm-story__progress" aria-label="مراحل داستان Loomera">
+        <button class="lm-story__dot is-active" type="button" data-story-dot="0" aria-label="مرحله ۱" aria-current="step"></button><button class="lm-story__dot" type="button" data-story-dot="1" aria-label="مرحله ۲"></button><button class="lm-story__dot" type="button" data-story-dot="2" aria-label="مرحله ۳"></button><button class="lm-story__dot" type="button" data-story-dot="3" aria-label="مرحله ۴"></button><button class="lm-story__dot" type="button" data-story-dot="4" aria-label="مرحله ۵"></button><button class="lm-story__dot" type="button" data-story-dot="5" aria-label="مرحله ۶"></button>
+      </div>
+      <div class="lm-story__scroll-hint"><i class="fa-solid fa-arrow-down"></i><span>اسکرول کنید</span></div>
     </div>
   </div>
-  <div class="lm-home__step" data-home-step="0"></div><div class="lm-home__step" data-home-step="1"></div><div class="lm-home__step" data-home-step="2"></div><div class="lm-home__step" data-home-step="3"></div><div class="lm-home__step" data-home-step="4"></div><div class="lm-home__step" data-home-step="5"></div>
-  <div style="height:70px"></div>
+  <div class="lm-story__steps"><div data-story-step="0"></div><div data-story-step="1"></div><div data-story-step="2"></div><div data-story-step="3"></div><div data-story-step="4"></div><div data-story-step="5"></div></div>
 </section>
 {% endblock %}
 
@@ -96,17 +140,64 @@ body[data-page="home"] .lm-app-bottom-nav-surface{display:none!important}
 {{ block.super }}
 <script>
 (function(){
-  const root=document.querySelector('[data-lm-home-story]');if(!root)return;
-  const story=root.closest('.lm-home');
-  const slides=[...root.querySelectorAll('[data-home-slide]')];
-  const dots=[...root.querySelectorAll('[data-home-dot]')];
-  const steps=[...story.querySelectorAll('[data-home-step]')];
-  let active=0, raf=0;
-  function setActive(i){const next=Math.max(0,Math.min(slides.length-1,i));if(next===active&&slides[next].classList.contains('is-active'))return;active=next;slides.forEach((s,n)=>s.classList.toggle('is-active',n===active));dots.forEach((d,n)=>{d.classList.toggle('is-active',n===active);d.setAttribute('aria-current',n===active?'step':'false')});}
-  const io=new IntersectionObserver(entries=>{const v=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(!v)return;cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>setActive(Number(v.target.dataset.homeStep)))} ,{rootMargin:'-34% 0px -34% 0px',threshold:[.15,.35,.55,.75,.95]});
-  steps.forEach(s=>io.observe(s));
-  dots.forEach(d=>d.addEventListener('click',()=>{const i=Number(d.dataset.homeDot);steps[i]?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'})}));
-  setActive(0);
+  const story=document.querySelector('.lm-story');
+  if(!story)return;
+  const canvas=story.querySelector('[data-lm-story]');
+  const scenes=[...story.querySelectorAll('[data-story-scene]')];
+  const steps=[...story.querySelectorAll('[data-story-step]')];
+  const dots=[...story.querySelectorAll('[data-story-dot]')];
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let active=0;
+
+  const clamp=(n,a=0,b=1)=>Math.min(b,Math.max(a,n));
+  const ease=t=>t*t*(3-2*t);
+  const setLayer=(el,progress,index)=>{
+    const center=index/(scenes.length-1);
+    const spread=.18;
+    const distance=clamp(Math.abs(progress-center)/spread);
+    const local=1-distance;
+    const isNear=Math.abs(progress-center)<spread;
+    const y=(1-local)*18;
+    const s=.985+.015*local;
+    el.style.opacity=isNear?String(local):'0';
+    el.style.visibility=isNear?'visible':'hidden';
+    el.style.transform=`translate3d(0,${y}px,0) scale(${s})`;
+    el.style.zIndex=Math.round(local*10);
+    el.style.pointerEvents=index===active?'auto':'none';
+  };
+  function render(progress){
+    const p=clamp(progress);
+    const normalized=p*(scenes.length-1);
+    const next=Math.round(normalized);
+    if(next!==active){
+      active=next;
+      dots.forEach((d,i)=>{d.classList.toggle('is-active',i===active);d.setAttribute('aria-current',i===active?'step':'false');});
+    }
+    scenes.forEach((scene,i)=>setLayer(scene,p,i));
+  }
+  function updateFromScroll(){
+    const rect=story.getBoundingClientRect();
+    const distance=Math.max(1,story.offsetHeight-window.innerHeight);
+    const progress=clamp((-rect.top)/distance);
+    render(progress);
+  }
+
+  const io=new IntersectionObserver(entries=>{
+    if(entries.some(e=>e.isIntersecting)){
+      requestAnimationFrame(updateFromScroll);
+    }
+  },{threshold:[0,.25,.5,.75,1]});
+  io.observe(story);
+  window.addEventListener('scroll',updateFromScroll,{passive:true});
+  window.addEventListener('resize',updateFromScroll,{passive:true});
+  dots.forEach(dot=>dot.addEventListener('click',()=>{
+    const index=Number(dot.dataset.storyDot);
+    const target=steps[index];
+    if(!target)return;
+    const top=target.getBoundingClientRect().top+window.scrollY-window.innerHeight*.5;
+    window.scrollTo({top:Math.max(0,top),behavior:reduced?'auto':'smooth'});
+  }));
+  render(0);
 })();
 </script>
 {% endblock %}
