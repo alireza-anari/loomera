@@ -25,9 +25,31 @@ def _audience_q(role: str):
     return Q(audience=Audience.ALL) | Q(audience=role)
 
 
+def _article_action_links(items) -> list[dict]:
+    links = []
+    seen_urls = set()
+    for item in items or []:
+        if not isinstance(item, dict):
+            continue
+        route_name = str(item.get("route_name") or item.get("url_name") or "").strip()
+        if not route_name:
+            continue
+        try:
+            url = reverse(route_name)
+        except NoReverseMatch:
+            continue
+        if not url or url in seen_urls:
+            continue
+        seen_urls.add(url)
+        label = str(item.get("link_label") or item.get("title") or "باز کردن").strip()
+        links.append({"label": label[:100], "url": url})
+    return links
+
+
 def article_to_dict(article: HelpArticle) -> dict:
+    raw_steps = article.steps or []
     steps = []
-    for item in article.steps or []:
+    for item in raw_steps:
         if isinstance(item, dict):
             steps.append(
                 {
@@ -49,6 +71,7 @@ def article_to_dict(article: HelpArticle) -> dict:
         "summary": article.summary,
         "body": article.body,
         "steps": steps,
+        "action_links": _article_action_links(raw_steps),
         "tips": [str(item) for item in (article.tips or []) if str(item).strip()],
         "keywords": article.keywords,
         "aliases": article.aliases,

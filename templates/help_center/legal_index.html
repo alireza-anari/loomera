@@ -1,35 +1,102 @@
 {% extends "base.html" %}
 
-{% block title %}قوانین و حریم خصوصی | لومرا{% endblock %}
+{% block title %}قوانین و مقررات | لومرا{% endblock %}
+{% block meta_description %}شرایط استفاده، حریم خصوصی و قواعد مهم رزرو و استفاده از لومرا را به زبان ساده ببین.{% endblock %}
 {% block body_attrs %}data-page="help-legal-index"{% endblock %}
 
 {% block content %}
-<main class="min-h-dvh bg-loomera-bg pb-20 text-loomera-textPrimary">
+{# LEGAL REVIEW REQUIRED: قبل از لانچ عمومی، هویت کامل بهره‌بردار، شناسه/شماره ثبت، نشانی رسمی و راه تماس حقوقی باید در اسناد نهایی درج شود. #}
+<main class="min-h-dvh bg-loomera-bg pb-24 text-loomera-textPrimary">
   <header class="border-b border-loomera-borderSoft bg-white">
-    <div class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 xl:px-0">
+    <div class="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:py-10 xl:px-0">
       <a href="{% url 'help_center:home' %}" class="text-xs font-black text-loomera-primary">مرکز راهنما</a>
-      <h1 class="mt-2 text-2xl font-black sm:text-3xl">قوانین، حریم خصوصی و اعتماد</h1>
-      <p class="mt-2 text-sm leading-7 text-loomera-textMuted">
-        نسخه جاری اسناد رسمی و سیاست‌های مرتبط با استفاده از لومرا.
-      </p>
+      <div class="mt-3 max-w-3xl">
+        <p class="text-xs font-black text-loomera-primary">قوانین و مقررات لومرا</p>
+        <h1 class="mt-2 text-2xl font-black leading-9 sm:text-3xl">قبل از استفاده، چیزهای مهم را ساده و روشن بدان</h1>
+        <p class="mt-3 text-sm font-semibold leading-7 text-loomera-textMuted">
+          این بخش برای متن حقوقی پیچیده ساخته نشده. اینجا می‌توانی بفهمی هنگام استفاده از لومرا چه اطلاعاتی مهم است،
+          رزرو و پرداخت چه قواعدی دارد، اطلاعاتت چطور استفاده می‌شود و اگر مسئله‌ای پیش آمد از کجا پیگیری کنی.
+        </p>
+      </div>
     </div>
   </header>
 
-  <div class="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 xl:px-0">
-    <div class="overflow-hidden rounded-[1.5rem] border border-loomera-borderSoft bg-white">
-      {% for document in legal_documents %}
-        <a href="{% url 'help_center:legal_detail' document.slug %}" class="group flex items-center gap-3 border-b border-loomera-borderSoft px-4 py-4 last:border-0 sm:px-5">
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-          </span>
-          <span class="min-w-0 flex-1">
-            <strong class="block text-sm font-black group-hover:text-loomera-primary">{{ document.title }}</strong>
-            <small class="mt-1 block text-[10px] font-bold text-loomera-textMuted">نسخه {{ document.version }}</small>
-          </span>
-          <i class="fa-solid fa-chevron-left text-[10px] text-loomera-textMuted" aria-hidden="true"></i>
-        </a>
-      {% endfor %}
-    </div>
+  <div class="mx-auto w-full max-w-5xl space-y-6 px-4 py-6 sm:px-6 xl:px-0">
+    <section class="grid gap-3 sm:grid-cols-3" aria-label="خلاصه قواعد مهم">
+      <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary"><i class="fa-regular fa-calendar-check" aria-hidden="true"></i></span>
+        <h2 class="mt-3 text-sm font-black">قبل از رزرو</h2>
+        <p class="mt-2 text-xs font-semibold leading-6 text-loomera-textMuted">خدمت، مجموعه یا متخصص، زمان، مبلغ و روش پرداخت را بررسی کن. چیزی که روی تصمیم تو اثر دارد باید پیش از تأیید روشن باشد.</p>
+      </div>
+      <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary"><i class="fa-solid fa-user-shield" aria-hidden="true"></i></span>
+        <h2 class="mt-3 text-sm font-black">اطلاعات شخصی</h2>
+        <p class="mt-2 text-xs font-semibold leading-6 text-loomera-textMuted">اطلاعات باید برای هدف مشخص و به‌اندازه نیاز استفاده شود. درباره اطلاعات حساس، رضایت صریح و ضرورت واقعی اهمیت دارد.</p>
+      </div>
+      <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary"><i class="fa-regular fa-life-ring" aria-hidden="true"></i></span>
+        <h2 class="mt-3 text-sm font-black">اگر مشکلی پیش آمد</h2>
+        <p class="mt-2 text-xs font-semibold leading-6 text-loomera-textMuted">مشکل فنی یا حساب را از پشتیبانی لومرا پیگیری کن. موضوع مربوط به اجرای خدمت حضوری را ابتدا با همان مجموعه مطرح کن.</p>
+      </div>
+    </section>
+
+    <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5" aria-labelledby="legal-docs-title">
+      <div class="mb-4">
+        <h2 id="legal-docs-title" class="text-lg font-black">اسناد اصلی</h2>
+        <p class="mt-1 text-xs font-semibold leading-6 text-loomera-textMuted">برای هر موضوع، همان سندی را باز کن که جواب سؤال تو را می‌دهد.</p>
+      </div>
+      <div class="grid gap-3">
+        {% for document in legal_documents %}
+          <a href="{% url 'help_center:legal_detail' document.slug %}" class="group flex items-start gap-3 rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/35 sm:p-5">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm">
+              {% if document.slug == 'privacy' %}
+                <i class="fa-solid fa-shield-heart" aria-hidden="true"></i>
+              {% elif document.slug == 'terms' %}
+                <i class="fa-solid fa-file-contract" aria-hidden="true"></i>
+              {% elif document.slug == 'messaging-privacy' %}
+                <i class="fa-regular fa-message" aria-hidden="true"></i>
+              {% else %}
+                <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+              {% endif %}
+            </span>
+            <span class="min-w-0 flex-1">
+              <strong class="block text-sm font-black group-hover:text-loomera-primary">{{ document.title }}</strong>
+              {% if document.summary %}
+                <span class="mt-1 block text-xs font-semibold leading-6 text-loomera-textMuted">{{ document.summary }}</span>
+              {% else %}
+                <span class="mt-1 block text-xs font-semibold leading-6 text-loomera-textMuted">
+                  {% if document.slug == 'privacy' %}چه اطلاعاتی داریم، چرا استفاده می‌کنیم و چه کنترل‌هایی داری.{% elif document.slug == 'terms' %}قواعد حساب، رزرو، پرداخت، لغو و مسئولیت کاربران و ارائه‌دهندگان.{% elif document.slug == 'messaging-privacy' %}اطلاعات و تنظیمات مربوط به اتصال بله، تلگرام و سایر پیام‌رسان‌های پشتیبانی‌شده.{% else %}جزئیات سند و نسخه جاری آن.{% endif %}
+                </span>
+              {% endif %}
+              <small class="mt-2 block text-[10px] font-bold text-loomera-textMuted">{% if document.version and document.version != 'legacy' %}نسخه {{ document.version }}{% else %}نسخه جاری{% endif %}</small>
+            </span>
+            <i class="fa-solid fa-chevron-left mt-4 text-[10px] text-loomera-textMuted" aria-hidden="true"></i>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card" aria-labelledby="consumer-rights-title">
+      <div class="flex items-start gap-3">
+        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span>
+        <div>
+          <h2 id="consumer-rights-title" class="text-base font-black">قانون از این متن مهم‌تر است</h2>
+          <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+            این اسناد برای روشن‌کردن نحوه استفاده از لومرا نوشته شده‌اند. هیچ بندی قرار نیست حقوقی را که طبق قوانین لازم‌الاجرای ایران قابل اسقاط نیست، از کاربر بگیرد.
+            درباره حق انصراف، استرداد وجه یا مسئولیت‌ها، ماهیت خدمت و شرایط همان معامله هم اهمیت دارد و حکم قانونی مقدم است.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="rounded-[2rem] border border-amber-200 bg-amber-50 p-5" aria-labelledby="legal-question-title">
+      <h2 id="legal-question-title" class="text-sm font-black text-amber-950">سؤال یا ابهام داری؟</h2>
+      <p class="mt-2 text-sm font-semibold leading-7 text-amber-900">اگر درباره حساب، رزرو، اطلاعات شخصی یا یکی از این اسناد سؤال داری، درخواست پشتیبانی ثبت کن. اطلاعات محرمانه بانکی یا رمزها را داخل تیکت نفرست.</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <a href="{% url 'support' %}" class="rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white">درخواست پشتیبانی</a>
+        <a href="{% url 'help_center:home' %}" class="rounded-full border border-amber-200 bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary">مرکز راهنما</a>
+      </div>
+    </section>
   </div>
 </main>
 {% endblock %}

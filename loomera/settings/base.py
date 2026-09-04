@@ -246,7 +246,7 @@ MESSAGING_ACTION_TOKEN_TTL_MINUTES = env.int(
     "MESSAGING_ACTION_TOKEN_TTL_MINUTES", default=60
 )
 MESSAGING_PRIVACY_TEXT_VERSION = env(
-    "MESSAGING_PRIVACY_TEXT_VERSION", default="1403-01"
+    "MESSAGING_PRIVACY_TEXT_VERSION", default="1405-06"
 ).strip()
 
 # Lightweight operational limits. More advanced rate limiting will be moved to
