@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import http.client
 import json
 import logging
 import urllib.error
@@ -28,6 +29,7 @@ class OpenAICompatibleProvider:
     model: str
     timeout: int = 15
     extra_headers: dict | None = None
+    extra_payload: dict | None = None
 
     @property
     def enabled(self) -> bool:
@@ -52,6 +54,7 @@ class OpenAICompatibleProvider:
             "max_completion_tokens": int(
                 getattr(settings, "HELP_AI_MAX_COMPLETION_TOKENS", 750) or 750
             ),
+            **(self.extra_payload or {}),
         }
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -87,7 +90,12 @@ class OpenAICompatibleProvider:
                 status=status,
                 detail=raw_detail,
             ) from exc
-        except (urllib.error.URLError, TimeoutError, ValueError) as exc:
+        except (
+            http.client.RemoteDisconnected,
+            urllib.error.URLError,
+            TimeoutError,
+            ValueError,
+        ) as exc:
             logger.warning(
                 "Help AI provider request failed | provider=%s error=%s",
                 self.provider_name,
@@ -148,6 +156,13 @@ class OpenRouterProvider(OpenAICompatibleProvider):
             model=str(getattr(settings, "HELP_AI_MODEL", "") or "").strip(),
             timeout=max(3, int(getattr(settings, "HELP_AI_TIMEOUT_SECONDS", 15) or 15)),
             extra_headers=extra_headers,
+            extra_payload={
+                "provider": {
+                    "zdr": True,
+                    "data_collection": "deny",
+                    "allow_fallbacks": True,
+                }
+            },
         )
 
 

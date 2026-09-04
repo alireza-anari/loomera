@@ -1,6 +1,6 @@
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'css/components/help_assistant.css' %}?v=20260828-21">
+<link rel="stylesheet" href="{% static 'css/components/help_assistant.css' %}?v=20260905-lumi-ui7-avatar-size">
 <div
   class="lm-help-assistant"
   data-help-assistant
@@ -16,6 +16,7 @@
   data-support-url="{% url 'support' %}"
   data-current-path="{{ request.path|default:'/' }}"
   data-current-route="{{ request.resolver_match.view_name|default:'' }}"
+  data-lumi-avatar-url="{% static 'images/help_assistant/lumi-avatar.png' %}"
 >
   <div hidden>{% csrf_token %}</div>
 
@@ -23,29 +24,48 @@
     type="button"
     class="lm-help-assistant__fab"
     data-help-fab
+    title="لومی — برای جابه‌جایی نگه‌دار و بکش"
     aria-label="باز کردن لومی"
     aria-expanded="false"
+    aria-controls="lumi-help-assistant-panel"
   >
     <span class="lm-help-assistant__fab-icon" aria-hidden="true">
-      <i class="fa-regular fa-message"></i>
+      <span class="lm-help-assistant__lumi-avatar" aria-hidden="true">
+        <img
+          class="lm-help-assistant__lumi-avatar-image"
+          src="{% static 'images/help_assistant/lumi-avatar.png' %}"
+          alt=""
+          width="48"
+          height="48"
+          decoding="async"
+        >
+      </span>
     </span>
-    <span class="lm-help-assistant__fab-badge" data-help-new-dot aria-hidden="true"></span>
+        <span class="lm-help-assistant__fab-badge" data-help-new-dot aria-hidden="true"></span>
   </button>
 
   <section
+    id="lumi-help-assistant-panel"
     class="lm-help-assistant__panel"
     data-help-panel
     hidden
     role="dialog"
-    aria-label="لومی، دستیار راهنمای لومرا"
+    aria-labelledby="lumi-help-assistant-title"
   >
     <header class="lm-help-assistant__header">
       <div class="lm-help-assistant__identity">
         <span class="lm-help-assistant__avatar" aria-hidden="true">
-          <i class="fa-solid fa-sparkles"></i>
+          <img
+          class="lm-help-assistant__lumi-avatar-image"
+          src="{% static 'images/help_assistant/lumi-avatar.png' %}"
+          alt=""
+          width="48"
+          height="48"
+          decoding="async"
+        >
         </span>
         <div class="lm-help-assistant__identity-copy">
-          <strong>لومی</strong>
+          <strong id="lumi-help-assistant-title">لومی</strong>
           <small data-help-page-label>
             <span class="lm-help-assistant__online-dot"></span>
             دستیار راهنمای لومرا
@@ -63,11 +83,18 @@
       </div>
     </header>
 
-    <div class="lm-help-assistant__messages" data-help-messages aria-live="polite">
+    <div class="lm-help-assistant__messages" data-help-messages role="log" aria-live="polite" aria-relevant="additions text" aria-atomic="false">
       <div class="lm-help-assistant__welcome" data-help-welcome>
         <div class="lm-help-assistant__welcome-message">
           <span class="lm-help-assistant__welcome-avatar" aria-hidden="true">
-            <i class="fa-solid fa-sparkles"></i>
+            <img
+          class="lm-help-assistant__lumi-avatar-image"
+          src="{% static 'images/help_assistant/lumi-avatar.png' %}"
+          alt=""
+          width="48"
+          height="48"
+          decoding="async"
+        >
           </span>
           <div>
             <strong>سلام، من لومی‌ام.</strong>
@@ -85,6 +112,26 @@
       </button>
     </div>
 
+    <div class="lm-help-assistant__confirm-layer" data-help-new-chat-confirm hidden>
+      <section
+        class="lm-help-assistant__confirm-dialog"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="lumi-new-chat-title"
+        aria-describedby="lumi-new-chat-description"
+      >
+        <span class="lm-help-assistant__confirm-icon" aria-hidden="true">
+          <i class="fa-solid fa-rotate-right"></i>
+        </span>
+        <strong id="lumi-new-chat-title">گفتگوی جدید شروع بشه؟</strong>
+        <p id="lumi-new-chat-description">گفتگوی فعلی در سوابق پشتیبانی باقی می‌مونه و یک گفتگوی تازه داخل لومی شروع می‌شه.</p>
+        <div class="lm-help-assistant__confirm-actions">
+          <button type="button" class="is-primary" data-help-confirm-new-chat>شروع گفتگوی جدید</button>
+          <button type="button" class="is-secondary" data-help-cancel-new-chat>ادامه همین گفتگو</button>
+        </div>
+      </section>
+    </div>
+
     <form class="lm-help-assistant__composer" data-help-form>
       <div class="lm-help-assistant__input-shell">
         <textarea
@@ -93,6 +140,7 @@
           data-help-input
           placeholder="پیامت رو بنویس..."
           aria-label="پیام به لومی"
+          enterkeyhint="send"
         ></textarea>
         <button type="submit" data-help-send aria-label="ارسال پیام">
           <i class="fa-solid fa-paper-plane"></i>
@@ -102,4 +150,4 @@
   </section>
 </div>
 
-<script type="module" src="{% static 'js/components/help_assistant.js' %}?v=20260828-21"></script>
+<script type="module" src="{% static 'js/components/help_assistant.js' %}?v=20260905-lumi-ui7-avatar-size"></script>

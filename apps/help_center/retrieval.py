@@ -58,6 +58,8 @@ STOP_WORDS = {
 CONCEPT_GROUPS = (
     ("متخصص", "استایلیست", "آرایشگر", "عضو تیم", "همکار"),
     ("رزرو", "نوبت", "وقت"),
+    ("تغییر", "عوض", "ویرایش", "جابه جایی", "جابجایی"),
+    ("پیگیری", "وضعیت", "چی شد", "چه شد"),
     ("شیفت", "برنامه کاری", "ساعت کاری", "برنامه کار"),
     ("مجموعه", "سالن"),
     ("خدمت", "سرویس"),
@@ -87,6 +89,27 @@ PAGE_INTENT_PHRASES = (
     "تو این صفحه",
     "در این صفحه",
     "با این صفحه",
+)
+
+
+ROLE_REFERENCE_TOKENS = {
+    Audience.MANAGER: {"مدیر"},
+    Audience.STYLIST: {"متخصص", "استایلیست", "آرایشگر"},
+    Audience.CUSTOMER: {"مشتری"},
+}
+
+SELF_REFERENCE_TOKENS = {
+    "من",
+    "خودم",
+    "خودمون",
+    "خودمان",
+}
+
+STATUS_INTENT_PHRASES = (
+    "چی شد",
+    "چه شد",
+    "وضعیت",
+    "پیگیری",
 )
 
 
@@ -135,6 +158,87 @@ def _expanded_terms(query: str) -> set[str]:
 def is_page_context_question(query: str) -> bool:
     normalized = normalize_persian(query)
     return any(normalize_persian(phrase) in normalized for phrase in PAGE_INTENT_PHRASES)
+
+
+ROLE_ACTOR_CUES = (
+    "چطور",
+    "چگونه",
+    "از کجا",
+    "کجا",
+    "میتونه",
+    "می تونه",
+    "میتواند",
+    "می تواند",
+    "باید",
+    "خودش",
+)
+
+
+def mentions_audience_as_actor(query: str, audience: str) -> bool:
+    """Return True when a role is explicitly the actor of the question.
+
+    A bare mention such as ``متخصص رو چطور انتخاب کنم؟`` means the customer
+    is choosing a specialist; it must not disable customer-role affinity.
+    Cross-role mode is only relaxed when the user actually asks how another
+    role acts, e.g. ``مدیر چطور ...`` or ``مشتری نوبت‌های خودش ...``.
+    """
+    normalized = normalize_persian(query)
+    if not normalized:
+        return False
+
+    for raw_token in ROLE_REFERENCE_TOKENS.get(audience, set()):
+        token = normalize_persian(raw_token)
+        if not token:
+            continue
+
+        if normalized == token:
+            return True
+
+        if f"حساب {token}" in normalized or f"از حساب {token}" in normalized:
+            return True
+
+        cue_pattern = "|".join(re.escape(normalize_persian(cue)) for cue in ROLE_ACTOR_CUES)
+        if re.search(rf"(?:^|\s){re.escape(token)}\s+(?:{cue_pattern})(?:\s|$)", normalized):
+            return True
+
+        # Third-person ownership makes the mentioned role the actor even when
+        # the noun between the role and the verb is explicit, e.g.
+        # «مشتری نوبت‌های خودش را از کجا می‌بیند؟».
+        if normalized.startswith(f"{token} ") and any(
+            pronoun in normalized for pronoun in ("خودش", "خودشان", "خودشون")
+        ):
+            return True
+
+    return False
+
+
+def _mentions_other_role(query_norm: str, requester_role: str) -> bool:
+    role = (requester_role or "").strip().lower()
+    return any(
+        audience != role and mentions_audience_as_actor(query_norm, audience)
+        for audience in ROLE_REFERENCE_TOKENS
+    )
+
+
+def _has_self_reference(query_norm: str) -> bool:
+    query_tokens = set(normalize_persian(query_norm).split())
+    return bool(query_tokens & SELF_REFERENCE_TOKENS)
+
+
+def _has_status_intent(query_norm: str) -> bool:
+    normalized = normalize_persian(query_norm)
+    return any(
+        normalize_persian(phrase) in normalized
+        for phrase in STATUS_INTENT_PHRASES
+    )
+
+
+def _has_leave_intent(query_norm: str) -> bool:
+    normalized = normalize_persian(query_norm)
+    return any(
+        normalize_persian(phrase) in normalized
+        for phrase in ("مرخصی", "عدم حضور", "تایم آف", "time off")
+    )
 
 
 def allowed_audiences(role: str) -> tuple[str, ...]:
@@ -317,18 +421,79 @@ def _score_chunk(
         if "از کاتالوگ" in intent_surface and "درخواست" not in intent_surface:
             score -= 4.0
 
-    # Exact-role affinity remains a tie-breaker in both modes.
+    # Status/follow-up questions such as "نوبتم چی شد؟" should prefer
+    # tracking/status documentation over a generic booking workflow.
+    if _has_status_intent(query_norm):
+        status_surface = normalize_persian(
+            " ".join(
+                (
+                    article.title,
+                    chunk.heading,
+                    article.keywords,
+                    article.aliases,
+                    chunk.content,
+                )
+            )
+        )
+        if any(
+            normalize_persian(term) in status_surface
+            for term in ("پیگیری", "وضعیت")
+        ):
+            score += 12.0
+
+    # For a stylist, a natural "ثبت مرخصی" question means creating the
+    # stylist's leave request. Manager documentation uses very strong lexical
+    # phrases such as "ثبت عدم حضور" and "مرخصی آرایشگر", which can
+    # otherwise outrank the correct stylist workflow. Keep the rule narrow and
+    # disable it when the manager is explicitly the actor of the question.
+    if (
+        role == Audience.STYLIST
+        and _has_leave_intent(query_norm)
+        and not mentions_audience_as_actor(query_norm, Audience.MANAGER)
+    ):
+        if (
+            article.audience == Audience.STYLIST
+            and "درخواست" in intent_surface
+            and any(term in intent_surface for term in ("مرخصی", "عدم حضور"))
+        ):
+            score += 24.0
+        elif (
+            article.audience == Audience.MANAGER
+            and any(term in intent_surface for term in ("مرخصی", "عدم حضور"))
+        ):
+            score -= 16.0
+
+    # Exact-role affinity remains a tie-breaker in both modes. Natural
+    # first-person questions need a stronger preference for the requester's own
+    # role, unless the user explicitly asks how another role performs the task.
     if role and article.audience == role:
         score += 3.0
 
-    # In cross-role chat mode, other-role documents stay searchable. The user's
-    # own role gets a small additional preference, but relevance still wins.
+        if not _mentions_other_role(query_norm, role):
+            score += 8.0
+
+            if _has_self_reference(query_norm):
+                score += 4.0
+
+    # Cross-role documents stay searchable, but should not outrank the user's
+    # own operational docs merely because the query mentions another role as
+    # an object (for example, a customer choosing a specialist). A document
+    # from another audience receives a strong penalty unless that audience is
+    # explicitly the actor the user is asking about.
     if allow_cross_role:
         score += _audience_role_bonus(
             role,
             article.audience,
             allow_cross_role=True,
         )
+
+        if role and article.audience not in {Audience.ALL, role}:
+            if mentions_audience_as_actor(query_norm, article.audience):
+                score += 6.0
+            elif _mentions_other_role(query_norm, role):
+                score -= 6.0
+            else:
+                score -= 12.0
 
     # Current page is NEVER a general retrieval boost. It is only used when the
     # user explicitly asks about "this page / here / this section".

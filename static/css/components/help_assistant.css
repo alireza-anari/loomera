@@ -2461,3 +2461,1033 @@ button.lm-help-assistant__discovery-result-action { width: 100%; cursor: pointer
     font-size: 12px;
   }
 }
+
+/* ==========================================================================
+   Lumi UX hardening v5.3.3
+   Accessibility focus, global async-action lock, and keyboard safety.
+   ========================================================================== */
+.lm-help-assistant :where(
+  button,
+  a,
+  summary,
+  textarea
+):focus-visible {
+  outline: 2px solid var(--lm-primary, #6d55bb);
+  outline-offset: 2px;
+}
+
+.lm-help-assistant__feedback button:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+
+.lm-help-assistant--busy :where(
+  [data-lumi-choice],
+  [data-lumi-confirm],
+  [data-lumi-book-salon],
+  [data-lumi-book-stylist],
+  [data-lumi-book-slot],
+  [data-lumi-relax-slots],
+  [data-lumi-booking-back],
+  [data-lumi-booking-cancel],
+  [data-lumi-checkout],
+  [data-lumi-location],
+  [data-lumi-message],
+  [data-lumi-retry-message],
+  [data-help-escalate]
+) {
+  pointer-events: none;
+  opacity: .6;
+}
+
+.lm-help-assistant [data-help-new-chat]:disabled {
+  cursor: wait;
+  opacity: .5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lm-help-assistant * {
+    scroll-behavior: auto !important;
+  }
+}
+
+
+
+/* ========================================================================== 
+   Lumi UX v5.3.4 — in-panel confirmation, booking context, desktop readability
+   ========================================================================== */
+.lm-help-assistant__confirm-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(31, 25, 48, .34);
+  backdrop-filter: blur(2px);
+}
+.lm-help-assistant__confirm-layer[hidden] { display: none !important; }
+.lm-help-assistant__confirm-dialog {
+  width: min(330px, 100%);
+  padding: 18px;
+  border: 1px solid rgba(109, 85, 187, .14);
+  border-radius: 18px;
+  background: #fff;
+  color: var(--lm-ink, #252136);
+  text-align: center;
+  box-shadow: 0 24px 72px rgba(34, 27, 50, .24);
+}
+.lm-help-assistant__confirm-icon {
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  margin-bottom: 9px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, var(--lm-primary-soft, #f2edff), var(--lm-secondary-soft, #e8faf5));
+  color: var(--lm-primary, #6d55bb);
+}
+.lm-help-assistant__confirm-dialog > strong { display: block; font-size: 14px; font-weight: 950; }
+.lm-help-assistant__confirm-dialog > p { margin: 7px 0 0; color: #746d7e; font-size: 11.5px; line-height: 1.8; }
+.lm-help-assistant__confirm-actions { display: grid; gap: 7px; margin-top: 14px; }
+.lm-help-assistant__confirm-actions button {
+  min-height: 42px;
+  cursor: pointer;
+  border-radius: 11px;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 900;
+}
+.lm-help-assistant__confirm-actions .is-primary {
+  border: 0;
+  background: linear-gradient(110deg, var(--lm-primary, #6d55bb), #755fc7 72%, var(--lm-secondary, #2fc7a2));
+  color: #fff;
+}
+.lm-help-assistant__confirm-actions .is-secondary { border: 1px solid #e4dfea; background: #fff; color: #696171; }
+.lm-help-assistant__confirm-actions .is-secondary:hover { background: #f8f6fb; }
+
+.lm-help-assistant__booking-selection-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 9px;
+  border-bottom: 1px solid #efebf3;
+  background: linear-gradient(90deg, rgba(109,85,187,.045), rgba(47,199,162,.04));
+}
+.lm-help-assistant__booking-selection-context > span {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(109, 85, 187, .09);
+  border-radius: 999px;
+  background: rgba(255,255,255,.82);
+  padding: 4px 7px;
+}
+.lm-help-assistant__booking-selection-context small { color: #938b9b; font-size: 8px; font-weight: 750; }
+.lm-help-assistant__booking-selection-context strong {
+  max-width: 150px;
+  overflow: hidden;
+  color: #50475d;
+  font-size: 8.5px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .lm-help-assistant__bubble { font-size: 12.4px; line-height: 1.86; }
+  .lm-help-assistant__message--user .lm-help-assistant__bubble { font-size: 12px; }
+  .lm-help-assistant__welcome strong { font-size: 12px; }
+  .lm-help-assistant__welcome p,
+  .lm-help-assistant__prompts button { font-size: 10.5px; }
+  .lm-help-assistant__message-sources summary { font-size: 10.5px; }
+  .lm-help-assistant__source-copy strong { font-size: 10.5px; }
+  .lm-help-assistant__source-copy small { font-size: 9.3px; }
+  .lm-help-assistant__feedback { font-size: 10px; }
+  .lm-help-assistant__feedback button { width: 30px; height: 30px; font-size: 11px; }
+  .lm-help-assistant__handoff button { min-height: 38px; font-size: 10.5px; }
+  .lm-help-assistant__composer textarea { font-size: 12px; }
+  .lm-help-assistant__guide-header,
+  .lm-help-assistant__flow-title { font-size: 11.2px; }
+  .lm-help-assistant__flow-copy p,
+  .lm-help-assistant__flow-action { font-size: 10.2px; }
+  .lm-help-assistant__guide-role,
+  .lm-help-assistant__flow-direct { font-size: 8.5px; }
+  .lm-help-assistant__discovery-result-copy strong,
+  .lm-help-assistant__booking-context strong,
+  .lm-help-assistant__booking-provider-copy strong,
+  .lm-help-assistant__operation-header,
+  .lm-help-assistant__operation-section-title { font-size: 11.2px; }
+  .lm-help-assistant__discovery-result-copy small,
+  .lm-help-assistant__discovery-meta,
+  .lm-help-assistant__booking-context span,
+  .lm-help-assistant__booking-provider-copy small,
+  .lm-help-assistant__booking-day > strong,
+  .lm-help-assistant__operation-preview dt,
+  .lm-help-assistant__operation-preview dd,
+  .lm-help-assistant__operation-notice,
+  .lm-help-assistant__operation-review-copy small,
+  .lm-help-assistant__operation-review-copy p { font-size: 9.8px; }
+  .lm-help-assistant__booking-provider-copy em,
+  .lm-help-assistant__discovery-suggestions button,
+  .lm-help-assistant__booking-slots button,
+  .lm-help-assistant__booking-primary,
+  .lm-help-assistant__booking-link,
+  .lm-help-assistant__booking-cancel,
+  .lm-help-assistant__operation-primary,
+  .lm-help-assistant__operation-secondary,
+  .lm-help-assistant__operation-suggestions button,
+  .lm-help-assistant__operation-review-actions button,
+  .lm-help-assistant__operation-link,
+  .lm-help-assistant__operation-choice-button { font-size: 10px; }
+  .lm-help-assistant__booking-preview dt,
+  .lm-help-assistant__booking-preview dd { font-size: 10px; }
+}
+
+@media (max-width: 767px) {
+  .lm-help-assistant__confirm-layer {
+    place-items: end center;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  .lm-help-assistant__confirm-dialog { width: 100%; padding: 17px 15px; border-radius: 18px; }
+  .lm-help-assistant__confirm-dialog > strong { font-size: 15px; }
+  .lm-help-assistant__confirm-dialog > p,
+  .lm-help-assistant__confirm-actions button { font-size: 13px; }
+  .lm-help-assistant__confirm-actions button { min-height: 46px; }
+  .lm-help-assistant__booking-selection-context { gap: 7px; padding: 9px 10px; }
+  .lm-help-assistant__booking-selection-context > span { min-height: 30px; padding: 5px 8px; }
+  .lm-help-assistant__booking-selection-context small { font-size: 10px; }
+  .lm-help-assistant__booking-selection-context strong { max-width: 220px; font-size: 11.5px; }
+}
+
+
+/* ========================================================================== 
+   Lumi UI v6 — approved minimal / modern / intelligent brand direction
+   Keep this block LAST. It deliberately simplifies the previous visual layers.
+   ========================================================================== */
+.lm-help-assistant {
+  --lm-primary: #7056d9;
+  --lm-primary-deep: #5a3fc2;
+  --lm-primary-soft: #f2efff;
+  --lm-secondary: #31c6a0;
+  --lm-secondary-deep: #1d9f7f;
+  --lm-secondary-soft: #ecfaf6;
+  --lm-ink: #252238;
+  --lm-muted: #7b7589;
+  --lm-border: #ebe8f2;
+  --lm-surface: #ffffff;
+  --lm-canvas: #fcfbfe;
+}
+
+/* Lumi identity — a tiny branded AI character instead of a generic chat icon. */
+.lm-help-assistant__lumi-mark {
+  position: relative;
+  isolation: isolate;
+  display: inline-grid;
+  place-items: center;
+  overflow: visible;
+  background:
+    radial-gradient(circle at 30% 22%, rgba(255,255,255,.96) 0 5%, transparent 6%),
+    linear-gradient(145deg, #8b75ef 0%, #7455dc 48%, #9d64e2 75%, #62cdb5 125%);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.48),
+    0 7px 18px rgba(92, 65, 189, .20);
+}
+.lm-help-assistant__lumi-mark::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 8px;
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg);
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(255,255,255,.9);
+}
+.lm-help-assistant__lumi-mark::after {
+  content: "";
+  position: absolute;
+  right: 50%;
+  bottom: -2px;
+  width: 22px;
+  height: 10px;
+  transform: translateX(50%);
+  border-radius: 50% 50% 62% 62%;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.96) 0 49%, transparent 50%) left/50% 100% no-repeat,
+    linear-gradient(225deg, rgba(234,255,249,.96) 0 49%, transparent 50%) right/50% 100% no-repeat;
+  opacity: .92;
+  filter: drop-shadow(0 1px 2px rgba(49,198,160,.16));
+}
+.lm-help-assistant__lumi-face {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 58%;
+  height: 44%;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transform: translateY(-1px);
+  border: 1px solid rgba(255,255,255,.48);
+  border-radius: 999px;
+  background: rgba(63, 39, 150, .38);
+  box-shadow: inset 0 1px 4px rgba(42, 24, 117, .24);
+}
+.lm-help-assistant__lumi-eye {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(255,255,255,.9);
+}
+.lm-help-assistant__lumi-smile {
+  position: absolute;
+  right: 50%;
+  bottom: 4px;
+  width: 10px;
+  height: 5px;
+  transform: translateX(50%);
+  border-bottom: 1.5px solid rgba(255,255,255,.95);
+  border-radius: 0 0 10px 10px;
+}
+.lm-help-assistant__lumi-mark--profile {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  border: 2px solid rgba(255,255,255,.92);
+  border-radius: 17px;
+}
+.lm-help-assistant__lumi-mark--fab {
+  width: 42px;
+  height: 42px;
+  border-radius: 15px;
+}
+.lm-help-assistant__lumi-mark--fab .lm-help-assistant__lumi-face { gap: 4px; }
+.lm-help-assistant__lumi-mark--fab::after { width: 19px; height: 9px; }
+
+/* Floating launcher */
+.lm-help-assistant__fab {
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(112, 86, 217, .13);
+  border-radius: 20px;
+  background: rgba(255,255,255,.98);
+  color: var(--lm-primary);
+  box-shadow: 0 14px 40px rgba(36, 28, 64, .16);
+}
+.lm-help-assistant__fab-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 15px;
+  background: transparent;
+}
+.lm-help-assistant__fab-icon::after { display: none; }
+.lm-help-assistant__fab-badge {
+  top: -1px;
+  right: -1px;
+  width: 9px;
+  height: 9px;
+  border-width: 2px;
+  background: var(--lm-secondary);
+  box-shadow: 0 0 0 3px rgba(49,198,160,.10);
+}
+
+/* Shell */
+.lm-help-assistant__panel {
+  width: min(410px, calc(100vw - 28px));
+  height: min(700px, calc(100dvh - 116px));
+  border: 1px solid rgba(79, 61, 119, .10);
+  border-radius: 24px;
+  background: #fff;
+  color: var(--lm-ink);
+  box-shadow:
+    0 30px 80px rgba(32, 25, 50, .18),
+    0 2px 10px rgba(66, 51, 101, .045);
+}
+.lm-help-assistant__header {
+  min-height: 72px;
+  padding: 11px 13px;
+  border-bottom: 1px solid #f0edf5;
+  background: rgba(255,255,255,.98);
+}
+.lm-help-assistant__header::after { display: none; }
+.lm-help-assistant__identity { gap: 11px; }
+.lm-help-assistant__avatar { background: transparent; box-shadow: none; }
+.lm-help-assistant__avatar::after { display: none; }
+.lm-help-assistant__identity strong {
+  color: #242037;
+  font-size: 14px;
+  font-weight: 950;
+}
+.lm-help-assistant__identity small {
+  margin-top: 3px;
+  color: #8a8494;
+  font-size: 10px;
+  font-weight: 720;
+}
+.lm-help-assistant__online-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--lm-secondary);
+  box-shadow: 0 0 0 3px rgba(49,198,160,.10);
+}
+.lm-help-assistant__header-actions { gap: 3px; }
+.lm-help-assistant__header-actions button {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #7b748b;
+}
+.lm-help-assistant__header-actions button:hover {
+  background: #f7f5fb;
+  color: var(--lm-primary-deep);
+}
+
+/* Conversation — intentionally quiet and spacious. */
+.lm-help-assistant__messages {
+  padding: 17px 14px 20px;
+  background: var(--lm-canvas);
+}
+.lm-help-assistant__welcome { padding: 3px 1px 13px; }
+.lm-help-assistant__welcome-message {
+  padding: 12px;
+  border: 1px solid #efecf4;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: none;
+}
+.lm-help-assistant__welcome-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+  background: var(--lm-primary-soft);
+  color: var(--lm-primary);
+}
+.lm-help-assistant__welcome p { color: #817a8d; }
+.lm-help-assistant__prompts { gap: 7px; margin-top: 9px; }
+.lm-help-assistant__prompts button {
+  min-height: 40px;
+  border: 1px solid #ece8f2;
+  border-radius: 13px;
+  background: #fff;
+  color: #51495f;
+  box-shadow: none;
+}
+.lm-help-assistant__prompts button:hover {
+  border-color: rgba(112,86,217,.19);
+  background: #faf9fd;
+  color: var(--lm-primary-deep);
+}
+.lm-help-assistant__prompts button::before { color: var(--lm-primary); }
+
+.lm-help-assistant__message { margin: 11px 0; }
+.lm-help-assistant__message-avatar {
+  border: 0;
+  background: var(--lm-primary-soft);
+  color: var(--lm-primary);
+}
+.lm-help-assistant__bubble { border-radius: 16px; box-shadow: none; }
+.lm-help-assistant__message--user .lm-help-assistant__bubble {
+  border: 0;
+  border-bottom-left-radius: 7px;
+  background: #eeeaff;
+  color: #3f3564;
+}
+.lm-help-assistant__message--assistant .lm-help-assistant__bubble {
+  border: 1px solid #ece9f1;
+  border-bottom-right-radius: 7px;
+  background: #fff;
+  color: #413c4b;
+  box-shadow: 0 3px 12px rgba(47,37,67,.025);
+}
+.lm-help-assistant__message--error .lm-help-assistant__bubble {
+  border-color: #f0d7de;
+  background: #fff9fa;
+}
+
+/* Supporting surfaces use one visual language. */
+.lm-help-assistant__guide,
+.lm-help-assistant__discovery,
+.lm-help-assistant__booking,
+.lm-help-assistant__operation,
+.lm-help-assistant__message-sources {
+  border-color: #eae6f0;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: none;
+}
+.lm-help-assistant__guide { background: #fff; }
+.lm-help-assistant__guide-header,
+.lm-help-assistant__booking-context,
+.lm-help-assistant__operation-header,
+.lm-help-assistant__booking-preview-title {
+  background: #faf8fe;
+  border-bottom-color: #eeeaf4;
+}
+.lm-help-assistant__flow-step--current {
+  border-color: rgba(49,198,160,.14);
+  background: #f7fdfb;
+}
+.lm-help-assistant__flow-marker { background: var(--lm-primary); }
+.lm-help-assistant__flow-step--current .lm-help-assistant__flow-marker { background: var(--lm-secondary-deep); }
+.lm-help-assistant__guide-role,
+.lm-help-assistant__source-count,
+.lm-help-assistant__citation {
+  background: var(--lm-primary-soft);
+  color: var(--lm-primary-deep);
+}
+.lm-help-assistant__flow-direct,
+.lm-help-assistant__booking-discount {
+  background: var(--lm-secondary-soft);
+  color: var(--lm-secondary-deep);
+}
+.lm-help-assistant__source-link { background: #faf9fc; }
+.lm-help-assistant__source-link:hover { background: #f6f3fa; }
+.lm-help-assistant__source-number {
+  background: var(--lm-primary-soft);
+  color: var(--lm-primary-deep);
+}
+
+/* Actions: one confident primary, everything else quiet. */
+.lm-help-assistant__booking-primary,
+.lm-help-assistant__operation-primary {
+  border: 0;
+  background: linear-gradient(110deg, #7b55ed 0%, #6b49d0 52%, #8b42b9 100%);
+  box-shadow: 0 7px 18px rgba(100,69,204,.16);
+}
+.lm-help-assistant__operation-primary--danger {
+  background: linear-gradient(110deg, #c14b73, #a7428d);
+  box-shadow: 0 7px 18px rgba(173,64,116,.14);
+}
+.lm-help-assistant__operation-secondary,
+.lm-help-assistant__booking-link,
+.lm-help-assistant__booking-cancel { color: #776f82; }
+.lm-help-assistant__operation-success { background: #effaf7; }
+.lm-help-assistant__operation-success > span { background: var(--lm-secondary); }
+.lm-help-assistant__operation-notice,
+.lm-help-assistant__booking-safe-note { color: #4f736a; }
+
+/* Feedback + handoff */
+.lm-help-assistant__feedback { color: #9992a0; }
+.lm-help-assistant__feedback button:hover,
+.lm-help-assistant__feedback button.is-selected { box-shadow: none; }
+.lm-help-assistant__handoff {
+  padding: 7px 11px 5px;
+  background: #fff;
+}
+.lm-help-assistant__handoff button {
+  border-color: rgba(112,86,217,.15);
+  background: #faf9fd;
+  color: var(--lm-primary-deep);
+}
+.lm-help-assistant__handoff button:hover { background: var(--lm-primary-soft); }
+
+/* Composer */
+.lm-help-assistant__composer {
+  padding: 9px 11px 11px;
+  border-top: 1px solid #efecf3;
+  background: #fff;
+}
+.lm-help-assistant__input-shell {
+  min-height: 50px;
+  align-items: center;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid #dfdae7;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 2px 9px rgba(51,40,73,.025);
+}
+.lm-help-assistant__input-shell:focus-within {
+  border-color: rgba(112,86,217,.38);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(112,86,217,.06);
+}
+.lm-help-assistant__composer textarea {
+  min-height: 38px;
+  max-height: 116px;
+  padding: 8px 9px;
+  color: #35303d;
+}
+.lm-help-assistant__composer textarea::placeholder { color: #a59eaf; }
+.lm-help-assistant__composer [data-help-send] {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #8257ee, #6745cd);
+  box-shadow: 0 6px 15px rgba(99,69,202,.19);
+}
+.lm-help-assistant__composer [data-help-send]:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(99,69,202,.22);
+}
+
+/* Confirmation */
+.lm-help-assistant__confirm-layer {
+  background: rgba(35,28,51,.22);
+  backdrop-filter: blur(5px);
+}
+.lm-help-assistant__confirm-dialog {
+  border-color: #e9e5ef;
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(33,26,47,.18);
+}
+.lm-help-assistant__confirm-icon {
+  background: var(--lm-primary-soft);
+  color: var(--lm-primary-deep);
+}
+.lm-help-assistant__confirm-actions .is-primary {
+  background: linear-gradient(110deg, #7b55ed, #6847cc 62%, #8c46b8);
+}
+
+@media (max-width: 767px) {
+  .lm-help-assistant__panel { border-radius: 0; background: #fff; }
+  .lm-help-assistant__header {
+    min-height: 70px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+  .lm-help-assistant__lumi-mark--profile {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+    border-radius: 16px;
+  }
+  .lm-help-assistant__messages {
+    padding: 14px 12px 18px !important;
+    background: #fcfbfe;
+  }
+  .lm-help-assistant__message--assistant .lm-help-assistant__bubble { background: #fff; }
+  .lm-help-assistant__composer {
+    padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .lm-help-assistant__input-shell { min-height: 54px; border-radius: 18px; }
+  .lm-help-assistant__composer textarea { min-height: 42px; font-size: 16px; }
+  .lm-help-assistant__composer [data-help-send] {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+    border-radius: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lm-help-assistant__composer [data-help-send] { transform: none !important; }
+}
+
+
+/* === UI Final Polish Batch === */
+.lm-help-assistant {
+  z-index: 96;
+}
+
+.lm-help-assistant__fab {
+  width: 64px;
+  height: 64px;
+  border-radius: 22px;
+  box-shadow: 0 16px 40px rgba(41, 31, 70, .16), 0 0 0 1px rgba(112, 86, 217, .06);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.lm-help-assistant__fab:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 44px rgba(41, 31, 70, .18), 0 0 0 1px rgba(112, 86, 217, .08);
+}
+.lm-help-assistant__fab.is-dragging,
+.lm-help-assistant__fab:active {
+  cursor: grabbing;
+  transform: scale(.98);
+  box-shadow: 0 18px 48px rgba(41, 31, 70, .20), 0 0 0 1px rgba(112, 86, 217, .10);
+}
+.lm-help-assistant__fab-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 18px;
+  background: transparent;
+}
+.lm-help-assistant__fab-badge {
+  top: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: #30c4a0;
+}
+
+.lm-help-assistant__lumi-avatar,
+.lm-help-assistant__welcome-avatar,
+.lm-help-assistant__message-avatar {
+  display: inline-grid;
+  place-items: center;
+  overflow: hidden;
+}
+.lm-help-assistant__lumi-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.lm-help-assistant__avatar {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  box-shadow: none;
+}
+.lm-help-assistant__avatar .lm-help-assistant__lumi-svg {
+  filter: drop-shadow(0 10px 20px rgba(110, 85, 187, .16));
+}
+.lm-help-assistant__welcome-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: transparent;
+}
+.lm-help-assistant__message-avatar {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: inherit;
+}
+
+.lm-help-assistant__header {
+  min-height: 72px;
+  padding: 12px 14px;
+}
+.lm-help-assistant__identity { gap: 11px; }
+.lm-help-assistant__identity strong {
+  font-size: 15px;
+  font-weight: 900;
+  color: #28243b;
+}
+.lm-help-assistant__identity small {
+  max-width: 270px;
+  margin-top: 4px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #827b95;
+}
+.lm-help-assistant__header-actions { gap: 4px; }
+.lm-help-assistant__header-actions button {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.lm-help-assistant__welcome-message {
+  gap: 10px;
+  padding: 12px 13px;
+  border-radius: 18px;
+}
+.lm-help-assistant__welcome strong { font-size: 12px; }
+.lm-help-assistant__welcome p { font-size: 10px; }
+
+.lm-help-assistant__bubble {
+  padding: 10px 12px;
+  font-size: 11.3px;
+  line-height: 1.95;
+}
+.lm-help-assistant__message-name {
+  font-size: 8.6px;
+}
+.lm-help-assistant__message-sources summary,
+.lm-help-assistant__source-link,
+.lm-help-assistant__guide,
+.lm-help-assistant__feedback,
+.lm-help-assistant__booking,
+.lm-help-assistant__discovery,
+.lm-help-assistant__operation {
+  font-size: 11px;
+}
+
+.lm-help-assistant__discovery {
+  padding: 12px;
+  border-radius: 18px;
+}
+.lm-help-assistant__discovery-results { gap: 10px; }
+.lm-help-assistant__discovery-result {
+  padding: 12px;
+  border-radius: 16px;
+}
+.lm-help-assistant__discovery-result-top {
+  gap: 10px;
+  align-items: center;
+}
+.lm-help-assistant__discovery-image {
+  width: 62px;
+  height: 62px;
+  border-radius: 14px;
+}
+.lm-help-assistant__discovery-rank {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+.lm-help-assistant__discovery-result-copy strong {
+  font-size: 13px;
+  line-height: 1.55;
+}
+.lm-help-assistant__discovery-result-copy small {
+  font-size: 10.3px;
+  line-height: 1.7;
+}
+.lm-help-assistant__discovery-meta {
+  gap: 10px;
+  margin-top: 5px;
+  font-size: 10px;
+}
+.lm-help-assistant__discovery-result-action,
+.lm-help-assistant__discovery-result-detail,
+.lm-help-assistant__discovery-all {
+  min-height: 40px;
+  border-radius: 12px;
+  font-size: 10.7px;
+}
+
+.lm-help-assistant__booking,
+.lm-help-assistant__operation,
+.lm-help-assistant__guide {
+  border-radius: 18px;
+}
+
+@media (max-width: 767px) {
+  .lm-help-assistant__fab {
+    width: 62px;
+    height: 62px;
+    border-radius: 22px;
+  }
+  .lm-help-assistant__fab-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 18px;
+  }
+  .lm-help-assistant__panel { border-radius: 0; }
+  .lm-help-assistant__header {
+    min-height: 72px;
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+  .lm-help-assistant__avatar {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+  .lm-help-assistant__identity strong { font-size: 15px; }
+  .lm-help-assistant__identity small { font-size: 10px; }
+  .lm-help-assistant__bubble { font-size: 11.8px; }
+  .lm-help-assistant__discovery { padding: 11px; }
+  .lm-help-assistant__discovery-result { padding: 11px; }
+  .lm-help-assistant__discovery-image {
+    width: 54px;
+    height: 54px;
+    border-radius: 13px;
+  }
+  .lm-help-assistant__discovery-result-copy strong { font-size: 12.4px; }
+  .lm-help-assistant__discovery-result-copy small,
+  .lm-help-assistant__discovery-meta { font-size: 10px; }
+}
+
+
+/* === Draggable FAB hotfix ===
+   The older mobile viewport block pins .lm-help-assistant with !important.
+   JS now writes inline !important coordinates while dragging; touch-action
+   belongs on the actual pointer target so touch dragging is not converted
+   into page scrolling. */
+.lm-help-assistant__fab {
+  touch-action: none !important;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.lm-help-assistant__fab *,
+.lm-help-assistant__fab svg {
+  pointer-events: none;
+}
+
+
+/* Avatar hotfix */
+.lm-help-assistant__fab-icon {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.lm-help-assistant__lumi-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  flex: 0 0 auto;
+}
+.lm-help-assistant__fab-icon > .lm-help-assistant__lumi-avatar,
+.lm-help-assistant__fab-icon > .lm-help-assistant__lumi-avatar > .lm-help-assistant__lumi-svg {
+  width: 100%;
+  height: 100%;
+}
+.lm-help-assistant__fab-icon .lm-help-assistant__lumi-svg {
+  filter: drop-shadow(0 12px 22px rgba(110, 85, 187, .18));
+}
+.lm-help-assistant__fab-icon *,
+.lm-help-assistant__avatar *,
+.lm-help-assistant__message-avatar * {
+  pointer-events: none;
+}
+
+
+/* ==========================================================================
+   Lumi avatar asset — use the approved real image everywhere.
+   ========================================================================== */
+.lm-help-assistant__lumi-avatar-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.lm-help-assistant__fab-icon,
+.lm-help-assistant__lumi-avatar,
+.lm-help-assistant__avatar,
+.lm-help-assistant__welcome-avatar,
+.lm-help-assistant__message-avatar {
+  overflow: hidden;
+}
+
+.lm-help-assistant__fab-icon .lm-help-assistant__lumi-avatar-image {
+  filter: drop-shadow(0 8px 18px rgba(98, 71, 190, .18));
+}
+
+.lm-help-assistant__avatar .lm-help-assistant__lumi-avatar-image {
+  filter: drop-shadow(0 7px 16px rgba(98, 71, 190, .14));
+}
+
+/* Old generated SVG character is intentionally disabled. */
+.lm-help-assistant__lumi-svg,
+.lm-help-assistant__lumi-face,
+.lm-help-assistant__lumi-eye,
+.lm-help-assistant__lumi-smile {
+  display: none !important;
+}
+
+
+/* ========================================================================== 
+   Lumi avatar sizing final — frameless floating FAB + larger header avatar
+   ========================================================================== */
+
+/* Closed state: the avatar itself IS the floating control. No white card/frame. */
+.lm-help-assistant__fab {
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: transparent !important;
+  box-shadow: none;
+  overflow: visible;
+}
+.lm-help-assistant__fab:hover,
+.lm-help-assistant__fab:active,
+.lm-help-assistant__fab.is-dragging {
+  background: transparent !important;
+  box-shadow: none;
+}
+.lm-help-assistant__fab:focus-visible {
+  outline: 3px solid rgba(110, 85, 187, .22);
+  outline-offset: 4px;
+  box-shadow: none;
+}
+.lm-help-assistant__fab-icon {
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: transparent !important;
+  box-shadow: none;
+  overflow: visible;
+}
+.lm-help-assistant__fab-icon > .lm-help-assistant__lumi-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 24px;
+  overflow: hidden;
+}
+.lm-help-assistant__fab-icon .lm-help-assistant__lumi-avatar-image {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 24px;
+  filter: drop-shadow(0 12px 24px rgba(83, 55, 161, .24));
+}
+.lm-help-assistant__fab-badge {
+  top: 1px;
+  right: 1px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+}
+
+/* Open state header: make Lumi identity more visible. */
+.lm-help-assistant__avatar {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+.lm-help-assistant__avatar .lm-help-assistant__lumi-avatar-image {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  object-fit: cover;
+  filter: drop-shadow(0 8px 18px rgba(83, 55, 161, .16));
+}
+.lm-help-assistant__header {
+  min-height: 82px;
+}
+.lm-help-assistant__identity {
+  gap: 12px;
+}
+.lm-help-assistant__identity strong {
+  font-size: 15.5px;
+}
+.lm-help-assistant__identity small {
+  font-size: 10.5px;
+}
+
+@media (max-width: 767px) {
+  .lm-help-assistant__fab,
+  .lm-help-assistant__fab-icon,
+  .lm-help-assistant__fab-icon > .lm-help-assistant__lumi-avatar,
+  .lm-help-assistant__fab-icon .lm-help-assistant__lumi-avatar-image {
+    width: 68px;
+    height: 68px;
+  }
+  .lm-help-assistant__fab,
+  .lm-help-assistant__fab-icon,
+  .lm-help-assistant__fab-icon > .lm-help-assistant__lumi-avatar,
+  .lm-help-assistant__fab-icon .lm-help-assistant__lumi-avatar-image {
+    border-radius: 23px;
+  }
+  .lm-help-assistant__avatar,
+  .lm-help-assistant__avatar .lm-help-assistant__lumi-avatar-image {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+  }
+  .lm-help-assistant__avatar {
+    flex-basis: 52px;
+  }
+  .lm-help-assistant__header {
+    min-height: 82px;
+  }
+}

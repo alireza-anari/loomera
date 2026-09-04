@@ -83,53 +83,120 @@ function formatToman(value) {
   }
 }
 
-function positionKey() {
-  return `loomera.help-assistant.position.${matchMedia("(max-width:767px)").matches ? "mobile" : "desktop"}`;
+function safeHttpUrl(value, { sameOrigin = false } = {}) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  try {
+    const url = new URL(raw, window.location.origin);
+    if (!["http:", "https:"].includes(url.protocol)) return "";
+    if (sameOrigin && url.origin !== window.location.origin) return "";
+    return url.href;
+  } catch (_) {
+    return "";
+  }
 }
 
-function applyPosition(root) {
-  if (matchMedia("(max-width:767px)").matches) {
-    root.style.left = "";
-    root.style.top = "";
-    root.style.right = "";
-    root.style.bottom = "";
-    return;
-  }
+function appendIconLabel(target, label, iconClass) {
+  const text = document.createElement("span");
+  text.textContent = String(label || "");
+  const icon = document.createElement("i");
+  icon.className = iconClass;
+  icon.setAttribute("aria-hidden", "true");
+  target.append(text, icon);
+}
 
+function appendMetaText(target, iconClass, text) {
+  const icon = document.createElement("i");
+  icon.className = iconClass;
+  icon.setAttribute("aria-hidden", "true");
+  target.append(icon, document.createTextNode(String(text || "")));
+}
+
+function createLumiAvatar(root, className = "") {
+  const avatar = document.createElement("span");
+  avatar.className = className;
+  avatar.setAttribute("aria-hidden", "true");
+
+  const image = document.createElement("img");
+  image.className = "lm-help-assistant__lumi-avatar-image";
+  image.src = String(root?.dataset?.lumiAvatarUrl || "");
+  image.alt = "";
+  image.width = 48;
+  image.height = 48;
+  image.decoding = "async";
+
+  avatar.appendChild(image);
+  return avatar;
+}
+
+function isMobileViewport() {
+  return matchMedia("(max-width:767px)").matches;
+}
+
+function positionKey() {
+  return `loomera.help-assistant.position.${isMobileViewport() ? "mobile" : "desktop"}`;
+}
+
+function clampNumber(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getFabBounds(fab) {
+  const size = fab?.offsetWidth || 60;
+  const sideInset = isMobileViewport() ? 12 : 20;
+  const minX = sideInset;
+  const maxX = Math.max(minX, window.innerWidth - size - sideInset);
+  const topInset = isMobileViewport() ? 92 : 72;
+  const bottomInset = isMobileViewport() ? 104 : 20;
+  const minY = topInset;
+  const maxY = Math.max(minY, window.innerHeight - size - bottomInset);
+  return { minX, maxX, minY, maxY, size };
+}
+
+function defaultFabPosition(fab) {
+  const bounds = getFabBounds(fab);
+  return { left: bounds.minX, top: bounds.maxY };
+}
+
+function applyPosition(root, fab = root.querySelector("[data-help-fab]")) {
+  const bounds = getFabBounds(fab);
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(positionKey()) || "null"); } catch (_) {}
-  if (!saved) return;
 
-  const size = root.offsetWidth || 60;
-  const left = saved.side === "right" ? window.innerWidth - size - 20 : 20;
-  const minY = 72;
-  const maxY = Math.max(minY, window.innerHeight - size - 20);
-  const top = minY + Math.max(0, Math.min(1, Number(saved.ratio) || 0)) * (maxY - minY);
+  const fallback = defaultFabPosition(fab);
+  const xRatio = Number(saved?.xRatio);
+  const yRatio = Number(saved?.yRatio);
 
-  root.style.left = `${left}px`;
-  root.style.top = `${top}px`;
-  root.style.right = "auto";
-  root.style.bottom = "auto";
+  const left = Number.isFinite(xRatio)
+    ? bounds.minX + xRatio * (bounds.maxX - bounds.minX)
+    : fallback.left;
+  const top = Number.isFinite(yRatio)
+    ? bounds.minY + yRatio * (bounds.maxY - bounds.minY)
+    : fallback.top;
+
+  root.style.setProperty("left", `${clampNumber(left, bounds.minX, bounds.maxX)}px`, "important");
+  root.style.setProperty("top", `${clampNumber(top, bounds.minY, bounds.maxY)}px`, "important");
+  root.style.setProperty("right", "auto", "important");
+  root.style.setProperty("bottom", "auto", "important");
 }
 
-function savePosition(root) {
-  if (matchMedia("(max-width:767px)").matches) return;
+function savePosition(root, fab = root.querySelector("[data-help-fab]")) {
   const rect = root.getBoundingClientRect();
-  const side = rect.left + rect.width / 2 < window.innerWidth / 2 ? "left" : "right";
-  const minY = 72;
-  const maxY = Math.max(minY + 1, window.innerHeight - rect.height - 20);
-  const ratio = (Math.max(minY, Math.min(maxY, rect.top)) - minY) / Math.max(1, maxY - minY);
-  try { localStorage.setItem(positionKey(), JSON.stringify({ side, ratio })); } catch (_) {}
+  const bounds = getFabBounds(fab);
+  const left = clampNumber(rect.left, bounds.minX, bounds.maxX);
+  const top = clampNumber(rect.top, bounds.minY, bounds.maxY);
+  const xRatio = (left - bounds.minX) / Math.max(1, bounds.maxX - bounds.minX);
+  const yRatio = (top - bounds.minY) / Math.max(1, bounds.maxY - bounds.minY);
+  try { localStorage.setItem(positionKey(), JSON.stringify({ xRatio, yRatio })); } catch (_) {}
 }
 
-function bindDrag(root, fab) {
-  if (matchMedia("(max-width:767px)").matches) return;
-
+function bindDrag(root, fab, panel) {
   let pointer = null;
   let startX = 0, startY = 0, startLeft = 0, startTop = 0;
   let dragging = false, suppress = false;
 
   fab.addEventListener("pointerdown", (event) => {
+    if (!panel.hidden) return;
     if (event.button !== undefined && event.button !== 0) return;
     pointer = event.pointerId;
     const rect = root.getBoundingClientRect();
@@ -138,6 +205,7 @@ function bindDrag(root, fab) {
     startLeft = rect.left;
     startTop = rect.top;
     dragging = false;
+    fab.classList.add("is-dragging");
     try { fab.setPointerCapture(pointer); } catch (_) {}
   });
 
@@ -148,24 +216,21 @@ function bindDrag(root, fab) {
     if (!dragging && Math.hypot(dx, dy) < 7) return;
     dragging = true;
 
-    const size = root.offsetWidth || 60;
-    root.style.left = `${Math.max(10, Math.min(window.innerWidth - size - 10, startLeft + dx))}px`;
-    root.style.top = `${Math.max(70, Math.min(window.innerHeight - size - 10, startTop + dy))}px`;
-    root.style.bottom = "auto";
-    root.style.right = "auto";
+    const bounds = getFabBounds(fab);
+    root.style.setProperty("left", `${clampNumber(startLeft + dx, bounds.minX, bounds.maxX)}px`, "important");
+    root.style.setProperty("top", `${clampNumber(startTop + dy, bounds.minY, bounds.maxY)}px`, "important");
+    root.style.setProperty("bottom", "auto", "important");
+    root.style.setProperty("right", "auto", "important");
   });
 
   const finish = (event) => {
     if (pointer === null || event.pointerId !== pointer) return;
     if (dragging) {
-      const rect = root.getBoundingClientRect();
-      const right = rect.left + rect.width / 2 >= window.innerWidth / 2;
-      const size = root.offsetWidth || 60;
-      root.style.left = `${right ? window.innerWidth - size - 20 : 20}px`;
-      savePosition(root);
+      savePosition(root, fab);
       suppress = true;
-      setTimeout(() => { suppress = false; }, 120);
+      setTimeout(() => { suppress = false; }, 140);
     }
+    fab.classList.remove("is-dragging");
     try { fab.releasePointerCapture(pointer); } catch (_) {}
     pointer = null;
     dragging = false;
@@ -179,6 +244,7 @@ function bindDrag(root, fab) {
     event.stopImmediatePropagation();
   }, true);
 }
+
 
 function autoGrow(textarea) {
   textarea.style.height = "auto";
@@ -198,10 +264,11 @@ function appendTextWithCitations(container, text, sources = []) {
 
     const number = Number(match[1]);
     const source = sources[number - 1];
-    if (source?.url) {
+    const sourceUrl = safeHttpUrl(source?.url, { sameOrigin: true });
+    if (sourceUrl) {
       const citation = document.createElement("a");
       citation.className = "lm-help-assistant__citation";
-      citation.href = source.url;
+      citation.href = sourceUrl;
       citation.title = source.title || `منبع ${number}`;
       citation.textContent = String(number);
       citation.setAttribute("aria-label", `منبع ${number}: ${source.title || "راهنمای لومرا"}`);
@@ -317,10 +384,11 @@ function guideCard(guide) {
     const headingRow = document.createElement("div");
     headingRow.className = "lm-help-assistant__flow-heading-row";
 
-    const heading = document.createElement(step.url ? "a" : "strong");
+    const stepUrl = safeHttpUrl(step.url, { sameOrigin: true });
+    const heading = document.createElement(stepUrl ? "a" : "strong");
     heading.className = "lm-help-assistant__flow-title";
     heading.textContent = step.title || `مرحله ${index + 1}`;
-    if (step.url) heading.href = step.url;
+    if (stepUrl) heading.href = stepUrl;
     headingRow.appendChild(heading);
 
     if (step.contextual) {
@@ -344,11 +412,11 @@ function guideCard(guide) {
       copy.appendChild(body);
     }
 
-    if (step.url && step.link_label) {
+    if (stepUrl && step.link_label) {
       const action = document.createElement("a");
-      action.href = step.url;
+      action.href = stepUrl;
       action.className = "lm-help-assistant__flow-action";
-      action.innerHTML = `<span>${step.link_label}</span><i class="fa-solid fa-arrow-up-left-from-square" aria-hidden="true"></i>`;
+      appendIconLabel(action, step.link_label, "fa-solid fa-arrow-up-left-from-square");
       copy.appendChild(action);
     }
 
@@ -368,6 +436,7 @@ function feedbackRow(root, messageId) {
 
   const label = document.createElement("span");
   label.textContent = "مفید بود؟";
+  label.setAttribute("aria-live", "polite");
   row.appendChild(label);
 
   [
@@ -378,12 +447,15 @@ function feedbackRow(root, messageId) {
     button.type = "button";
     button.dataset.rating = rating;
     button.setAttribute("aria-label", aria);
+    button.setAttribute("aria-pressed", "false");
     button.innerHTML = `<i class="${icon}" aria-hidden="true"></i>`;
     row.appendChild(button);
   });
 
   row.querySelectorAll("button").forEach((button) => {
     button.addEventListener("click", async () => {
+      const buttons = [...row.querySelectorAll("button")];
+      buttons.forEach((item) => { item.disabled = true; });
       try {
         const response = await fetch(root.dataset.feedbackUrl, {
           method: "POST",
@@ -400,8 +472,12 @@ function feedbackRow(root, messageId) {
         });
         if (!response.ok) throw new Error("feedback");
 
-        row.querySelectorAll("button").forEach((item) => item.classList.remove("is-selected"));
+        buttons.forEach((item) => {
+          item.classList.remove("is-selected");
+          item.setAttribute("aria-pressed", "false");
+        });
         button.classList.add("is-selected");
+        button.setAttribute("aria-pressed", "true");
         label.textContent = "ثبت شد";
 
         const handoff = root.querySelector("[data-help-handoff-box]");
@@ -410,6 +486,8 @@ function feedbackRow(root, messageId) {
         }
       } catch (_) {
         label.textContent = "ثبت بازخورد انجام نشد";
+      } finally {
+        buttons.forEach((item) => { item.disabled = false; });
       }
     });
   });
@@ -434,8 +512,10 @@ function sourceDetails(sources = []) {
   list.className = "lm-help-assistant__source-list";
 
   sources.forEach((source, index) => {
+    const sourceUrl = safeHttpUrl(source.url, { sameOrigin: true });
+    if (!sourceUrl) return;
     const link = document.createElement("a");
-    link.href = source.url;
+    link.href = sourceUrl;
     link.className = "lm-help-assistant__source-link";
 
     const number = document.createElement("span");
@@ -527,10 +607,11 @@ function discoveryCard(payload = {}) {
       const top = document.createElement("div");
       top.className = "lm-help-assistant__discovery-result-top";
 
-      if (result.image_url) {
+      const imageUrl = safeHttpUrl(result.image_url);
+      if (imageUrl) {
         const image = document.createElement("img");
         image.className = "lm-help-assistant__discovery-image";
-        image.src = result.image_url;
+        image.src = imageUrl;
         image.alt = "";
         image.loading = "lazy";
         top.appendChild(image);
@@ -559,23 +640,23 @@ function discoveryCard(payload = {}) {
       meta.className = "lm-help-assistant__discovery-meta";
       if (result.price !== null && result.price !== undefined) {
         const price = document.createElement("span");
-        price.innerHTML = `<i class="fa-solid fa-wallet" aria-hidden="true"></i> از ${formatToman(result.price)}`;
+        appendMetaText(price, "fa-solid fa-wallet", `از ${formatToman(result.price)}`);
         meta.appendChild(price);
       }
       if (result.distance_km !== null && result.distance_km !== undefined) {
         const distance = document.createElement("span");
-        distance.innerHTML = `<i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${result.distance_km} کیلومتر`;
+        appendMetaText(distance, "fa-solid fa-location-dot", `${result.distance_km} کیلومتر`);
         meta.appendChild(distance);
       }
       if (Number(result.rating) > 0) {
         const rating = document.createElement("span");
-        rating.innerHTML = `<i class="fa-solid fa-star" aria-hidden="true"></i> ${result.rating}`;
+        appendMetaText(rating, "fa-solid fa-star", result.rating);
         meta.appendChild(rating);
       }
       if (result.availability) {
         const availability = document.createElement("span");
         availability.className = "lm-help-assistant__discovery-availability";
-        availability.innerHTML = `<i class="fa-regular fa-clock" aria-hidden="true"></i> ${result.availability}`;
+        appendMetaText(availability, "fa-regular fa-clock", result.availability);
         meta.appendChild(availability);
       }
       if (meta.childElementCount) item.appendChild(meta);
@@ -589,10 +670,11 @@ function discoveryCard(payload = {}) {
         action.innerHTML = '<span>انتخاب این مجموعه</span><i class="fa-solid fa-chevron-left" aria-hidden="true"></i>';
         item.appendChild(action);
       }
-      if (result.url) {
+      const resultUrl = safeHttpUrl(result.url, { sameOrigin: true });
+      if (resultUrl) {
         const detail = document.createElement("a");
         detail.className = "lm-help-assistant__discovery-result-detail";
-        detail.href = result.url;
+        detail.href = resultUrl;
         detail.textContent = "مشاهده صفحه مجموعه";
         item.appendChild(detail);
       }
@@ -601,17 +683,47 @@ function discoveryCard(payload = {}) {
     card.appendChild(list);
   }
 
-  if (payload.search_url) {
+  const searchUrl = safeHttpUrl(payload.search_url, { sameOrigin: true });
+  if (searchUrl) {
     const all = document.createElement("a");
     all.className = "lm-help-assistant__discovery-all";
-    all.href = payload.search_url;
-    all.innerHTML = `<span>${payload.search_label || "مشاهده همه نتایج"}</span><i class="fa-solid fa-arrow-up-left-from-square" aria-hidden="true"></i>`;
+    all.href = searchUrl;
+    appendIconLabel(all, payload.search_label || "مشاهده همه نتایج", "fa-solid fa-arrow-up-left-from-square");
     card.appendChild(all);
   }
 
   return card.childElementCount ? card : null;
 }
 
+
+function appendBookingSelectionContext(card, payload = {}) {
+  if (!["booking_slots", "booking_slots_empty"].includes(payload.kind)) return;
+
+  const context = payload.ui_context || {};
+  const items = [
+    ["خدمت", context.service],
+    ["مجموعه", context.salon],
+    ["متخصص", context.stylist],
+  ].filter(([, value]) => String(value || "").trim());
+
+  if (!items.length) return;
+
+  const box = document.createElement("div");
+  box.className = "lm-help-assistant__booking-selection-context";
+  box.setAttribute("aria-label", "انتخاب فعلی رزرو");
+
+  items.forEach(([label, value]) => {
+    const item = document.createElement("span");
+    const key = document.createElement("small");
+    const data = document.createElement("strong");
+    key.textContent = label;
+    data.textContent = String(value || "").trim();
+    item.append(key, data);
+    box.appendChild(item);
+  });
+
+  card.appendChild(box);
+}
 
 function bookingCard(payload = {}) {
   if (!payload?.handled || !String(payload.kind || "").startsWith("booking_")) return null;
@@ -620,19 +732,26 @@ function bookingCard(payload = {}) {
   card.className = "lm-help-assistant__booking";
   card.setAttribute("aria-label", "رزرو با لومی");
 
-  if (payload.kind === "booking_auth_required" && payload.login_url) {
+  const loginUrl = safeHttpUrl(payload.login_url, { sameOrigin: true });
+  if (payload.kind === "booking_auth_required" && loginUrl) {
     const login = document.createElement("a");
     login.className = "lm-help-assistant__booking-primary";
-    login.href = payload.login_url;
-    login.innerHTML = '<span>ورود به حساب مشتری</span><i class="fa-solid fa-arrow-left-to-bracket" aria-hidden="true"></i>';
+    login.href = loginUrl;
+    appendIconLabel(login, "ورود به حساب مشتری", "fa-solid fa-arrow-left-to-bracket");
     card.appendChild(login);
     return card;
   }
 
+  appendBookingSelectionContext(card, payload);
+
   if (payload.kind === "booking_stylists" && Array.isArray(payload.providers)) {
     const header = document.createElement("div");
     header.className = "lm-help-assistant__booking-context";
-    header.innerHTML = `<strong>${payload.service?.name || "خدمت"}</strong><span>${payload.salon?.name || ""}</span>`;
+    const serviceName = document.createElement("strong");
+    serviceName.textContent = payload.service?.name || "خدمت";
+    const salonName = document.createElement("span");
+    salonName.textContent = payload.salon?.name || "";
+    header.append(serviceName, salonName);
     card.appendChild(header);
 
     const list = document.createElement("div");
@@ -642,21 +761,44 @@ function bookingCard(payload = {}) {
       button.type = "button";
       button.className = "lm-help-assistant__booking-provider";
       button.dataset.lumiBookStylist = String(provider.id || "");
-      const avatar = provider.image_url
-        ? `<img src="${provider.image_url}" alt="" loading="lazy">`
-        : '<span class="lm-help-assistant__booking-provider-avatar"><i class="fa-solid fa-user"></i></span>';
-      const when = provider.next_date_label && provider.next_time
+
+      const providerImageUrl = safeHttpUrl(provider.image_url);
+      if (providerImageUrl) {
+        const image = document.createElement("img");
+        image.src = providerImageUrl;
+        image.alt = "";
+        image.loading = "lazy";
+        button.appendChild(image);
+      } else {
+        const avatar = document.createElement("span");
+        avatar.className = "lm-help-assistant__booking-provider-avatar";
+        const avatarIcon = document.createElement("i");
+        avatarIcon.className = "fa-solid fa-user";
+        avatarIcon.setAttribute("aria-hidden", "true");
+        avatar.appendChild(avatarIcon);
+        button.appendChild(avatar);
+      }
+
+      const copy = document.createElement("span");
+      copy.className = "lm-help-assistant__booking-provider-copy";
+      const name = document.createElement("strong");
+      name.textContent = provider.name || "متخصص";
+      const when = document.createElement("small");
+      when.textContent = provider.next_date_label && provider.next_time
         ? `نزدیک‌ترین وقت: ${provider.next_date_label} · ${provider.next_time}`
         : "وقت قابل رزرو";
-      button.innerHTML = `
-        ${avatar}
-        <span class="lm-help-assistant__booking-provider-copy">
-          <strong>${provider.name || "متخصص"}</strong>
-          <small>${when}</small>
-          ${Number(provider.price) > 0 ? `<em>${formatToman(provider.price)}</em>` : ""}
-        </span>
-        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-      `;
+      copy.append(name, when);
+
+      if (Number(provider.price) > 0) {
+        const price = document.createElement("em");
+        price.textContent = formatToman(provider.price);
+        copy.appendChild(price);
+      }
+
+      const arrow = document.createElement("i");
+      arrow.className = "fa-solid fa-chevron-left";
+      arrow.setAttribute("aria-hidden", "true");
+      button.append(copy, arrow);
       list.appendChild(button);
     });
     card.appendChild(list);
@@ -755,7 +897,7 @@ function bookingCard(payload = {}) {
       if (method.value === "pay_in_salon") label = "تأیید و رزرو";
       else if (method.value === "wallet") label = "پرداخت از کیف پول و رزرو";
       else if (method.value === "online") label = "ادامه و پرداخت آنلاین";
-      button.innerHTML = `<span>${label}</span><i class="fa-solid fa-check" aria-hidden="true"></i>`;
+      appendIconLabel(button, label, "fa-solid fa-check");
       confirm.appendChild(button);
     });
     card.appendChild(confirm);
@@ -938,19 +1080,21 @@ function operationalCard(payload = {}) {
     });
     if (list.childElementCount) card.appendChild(list);
 
-    if (payload.review_list.manage_url) {
+    const manageUrl = safeHttpUrl(payload.review_list.manage_url, { sameOrigin: true });
+    if (manageUrl) {
       const link = document.createElement("a");
       link.className = "lm-help-assistant__operation-link";
-      link.href = payload.review_list.manage_url;
+      link.href = manageUrl;
       link.textContent = "مشاهده همه در داشبورد";
       card.appendChild(link);
     }
   }
 
-  if (payload.kind === "action_link" && payload.link?.url) {
+  const actionLinkUrl = safeHttpUrl(payload.link?.url, { sameOrigin: true });
+  if (payload.kind === "action_link" && actionLinkUrl) {
     const link = document.createElement("a");
     link.className = "lm-help-assistant__operation-primary lm-help-assistant__operation-primary--link";
-    link.href = payload.link.url;
+    link.href = actionLinkUrl;
     const iconName = String(payload.link.icon || "arrow-up-left-from-square").replace(/[^a-z0-9-]/gi, "");
     const label = document.createElement("span");
     label.textContent = payload.link.label || "باز کردن";
@@ -977,10 +1121,11 @@ function operationalCard(payload = {}) {
     }
     success.append(icon, copy);
     card.appendChild(success);
-    if (payload.success.url) {
+    const successUrl = safeHttpUrl(payload.success.url, { sameOrigin: true });
+    if (successUrl) {
       const link = document.createElement("a");
       link.className = "lm-help-assistant__operation-link";
-      link.href = payload.success.url;
+      link.href = successUrl;
       link.textContent = payload.success.url_label || "مشاهده";
       card.appendChild(link);
     }
@@ -1024,11 +1169,7 @@ function addMessage(container, role, text, options = {}) {
   if (options.temporary) row.dataset.temporary = "1";
 
   if (role === "assistant" && !options.temporary) {
-    const avatar = document.createElement("span");
-    avatar.className = "lm-help-assistant__message-avatar";
-    avatar.setAttribute("aria-hidden", "true");
-    avatar.innerHTML = '<i class="fa-solid fa-sparkles"></i>';
-    row.appendChild(avatar);
+    row.appendChild(createLumiAvatar(options.root, "lm-help-assistant__message-avatar"));
   }
 
   const stack = document.createElement("div");
@@ -1040,7 +1181,9 @@ function addMessage(container, role, text, options = {}) {
   if (options.temporary) {
     const typing = document.createElement("div");
     typing.className = "lm-help-assistant__typing-wrap";
-    typing.setAttribute("aria-label", "در حال آماده‌سازی پاسخ");
+    typing.setAttribute("role", "status");
+    typing.setAttribute("aria-live", "polite");
+    typing.setAttribute("aria-label", "لومی در حال آماده‌سازی پاسخ است");
     typing.innerHTML = `
       <span class="lm-help-assistant__typing" aria-hidden="true"><span></span><span></span><span></span></span>
     `;
@@ -1144,10 +1287,11 @@ async function sendAssistantAction(root, { message = "", actionState = null, com
 
 function submitOperationalForm(root, payload) {
   const spec = payload?.form_submit;
-  if (!spec?.url) throw new Error("مسیر اجرای عملیات در دسترس نیست.");
+  const actionUrl = safeHttpUrl(spec?.url, { sameOrigin: true });
+  if (!actionUrl) throw new Error("مسیر اجرای عملیات در دسترس نیست.");
   const form = document.createElement("form");
   form.method = "post";
-  form.action = spec.url;
+  form.action = actionUrl;
   form.hidden = true;
   const fields = { csrfmiddlewaretoken: csrfToken(root), ...(spec.fields || {}) };
   Object.entries(fields).forEach(([name, value]) => {
@@ -1164,8 +1308,9 @@ function submitOperationalForm(root, payload) {
 
 async function postOperationalEndpoint(root, payload) {
   const spec = payload?.remote_post;
-  if (!spec?.url) throw new Error("مسیر اجرای عملیات در دسترس نیست.");
-  const response = await fetch(spec.url, {
+  const actionUrl = safeHttpUrl(spec?.url, { sameOrigin: true });
+  if (!actionUrl) throw new Error("مسیر اجرای عملیات در دسترس نیست.");
+  const response = await fetch(actionUrl, {
     method: "POST",
     credentials: "same-origin",
     headers: {
@@ -1242,10 +1387,11 @@ async function sendCustomerBooking(root, action, actionState, extra = {}) {
 }
 
 function submitExistingCheckout(root, url, paymentMethod) {
-  if (!url || !paymentMethod) throw new Error("اطلاعات تأیید رزرو ناقص است.");
+  const checkoutUrl = safeHttpUrl(url, { sameOrigin: true });
+  if (!checkoutUrl || !paymentMethod) throw new Error("اطلاعات تأیید رزرو ناقص است.");
   const form = document.createElement("form");
   form.method = "post";
-  form.action = url;
+  form.action = checkoutUrl;
   form.hidden = true;
   const fields = {
     csrfmiddlewaretoken: csrfToken(root),
@@ -1336,6 +1482,9 @@ function init() {
   const dot = root.querySelector("[data-help-new-dot]");
   const handoffBox = root.querySelector("[data-help-handoff-box]");
   const escalate = root.querySelector("[data-help-escalate]");
+  const newChatConfirm = root.querySelector("[data-help-new-chat-confirm]");
+  const confirmNewChat = root.querySelector("[data-help-confirm-new-chat]");
+  const cancelNewChat = root.querySelector("[data-help-cancel-new-chat]");
 
   let contextLoaded = false;
   let conversationHydrated = false;
@@ -1344,9 +1493,93 @@ function init() {
   let conversationId = getStoredConversationId();
   let actionState = getStoredActionState();
   let actionCoordinates = null;
+  let interactionBusy = false;
+  let lastFocusBeforeOpen = null;
+  let confirmReturnFocus = null;
+  let bookingContext = { salon: "", service: "", stylist: "" };
 
-  applyPosition(root);
-  bindDrag(root, fab);
+  const isMobileViewport = () => matchMedia("(max-width:767px)").matches;
+  const focusInputWhenAppropriate = ({ delay = 0 } = {}) => {
+    // Mobile UX: opening or updating Lumi must not summon the software keyboard.
+    // On phones the textarea gets focus only from a direct user tap.
+    if (isMobileViewport()) return;
+    if (delay > 0) {
+      window.setTimeout(() => input.focus(), delay);
+      return;
+    }
+    input.focus();
+  };
+
+  function setInteractionBusy(value) {
+    interactionBusy = Boolean(value);
+    send.disabled = interactionBusy;
+    if (newChat) newChat.disabled = interactionBusy;
+    root.classList.toggle("lm-help-assistant--busy", interactionBusy);
+    if (interactionBusy) {
+      form.setAttribute("aria-busy", "true");
+    } else {
+      form.removeAttribute("aria-busy");
+    }
+  }
+
+  function panelFocusableElements() {
+    return [...panel.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
+    )].filter((element) => !element.hidden && element.getClientRects().length > 0);
+  }
+
+  function updateDialogMode() {
+    if (matchMedia("(max-width:767px)").matches && !panel.hidden) {
+      panel.setAttribute("aria-modal", "true");
+    } else {
+      panel.removeAttribute("aria-modal");
+    }
+  }
+
+  function confirmFocusableElements() {
+    if (!newChatConfirm || newChatConfirm.hidden) return [];
+    return [...newChatConfirm.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+      .filter((element) => !element.hidden && element.getClientRects().length > 0);
+  }
+
+  function openNewChatConfirm() {
+    if (!newChatConfirm || interactionBusy) return;
+    confirmReturnFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : newChat;
+    newChatConfirm.hidden = false;
+    root.classList.add("lm-help-assistant--confirming");
+    requestAnimationFrame(() => cancelNewChat?.focus());
+  }
+
+  function closeNewChatConfirm({ restoreFocus = true } = {}) {
+    if (!newChatConfirm) return;
+    newChatConfirm.hidden = true;
+    root.classList.remove("lm-help-assistant--confirming");
+    if (restoreFocus) {
+      const target = confirmReturnFocus?.isConnected ? confirmReturnFocus : newChat;
+      requestAnimationFrame(() => target?.focus?.());
+    }
+    confirmReturnFocus = null;
+  }
+
+  function updateBookingContext(payload = {}, overrides = {}) {
+    const salon = String(overrides.salon || payload?.salon?.name || payload?.preview?.salon || "").trim();
+    const service = String(overrides.service || payload?.service?.name || payload?.preview?.service || "").trim();
+    const stylist = String(overrides.stylist || payload?.stylist?.name || payload?.preview?.stylist || "").trim();
+
+    if (salon) bookingContext.salon = salon;
+    if (service) bookingContext.service = service;
+    if (stylist) bookingContext.stylist = stylist;
+
+    return {
+      ...(payload || {}),
+      ui_context: { ...bookingContext },
+    };
+  }
+
+  applyPosition(root, fab);
+  bindDrag(root, fab, panel);
 
   function resetConversationUi() {
     history = [];
@@ -1354,6 +1587,8 @@ function init() {
     setStoredConversationId(null);
     actionState = null;
     actionCoordinates = null;
+    bookingContext = { salon: "", service: "", stylist: "" };
+    closeNewChatConfirm({ restoreFocus: false });
     setStoredActionState(null);
     conversationHydrated = true;
 
@@ -1387,6 +1622,7 @@ function init() {
         button.type = "button";
         button.textContent = text;
         button.addEventListener("click", () => {
+          if (interactionBusy) return;
           input.value = text;
           autoGrow(input);
           form.requestSubmit();
@@ -1408,6 +1644,8 @@ function init() {
     conversationHydrated = true;
     if (!conversationId) return;
 
+    const previousLive = messages.getAttribute("aria-live") || "polite";
+    let liveMuted = false;
     try {
       const payload = await getConversation(root, conversationId);
       if (!payload?.messages?.length) {
@@ -1420,6 +1658,8 @@ function init() {
 
       welcome.hidden = true;
       history = [];
+      messages.setAttribute("aria-live", "off");
+      liveMuted = true;
 
       payload.messages.forEach((item) => {
         addMessage(messages, item.role, item.content, {
@@ -1434,15 +1674,27 @@ function init() {
     } catch (_) {
       conversationId = null;
       setStoredConversationId(null);
+    } finally {
+      if (liveMuted) {
+        requestAnimationFrame(() => {
+          messages.setAttribute("aria-live", previousLive);
+        });
+      }
     }
   }
 
   async function openPanel() {
+    if (panel.hidden) {
+      lastFocusBeforeOpen = document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    }
     panel.hidden = false;
     if (matchMedia("(max-width:767px)").matches) {
       document.body.classList.add("lm-help-assistant-open");
     }
     fab.setAttribute("aria-expanded", "true");
+    updateDialogMode();
     await Promise.all([loadContext(), hydrateConversation()]);
 
     if (context?.page_key) {
@@ -1450,37 +1702,54 @@ function init() {
       dot.hidden = true;
     }
 
-    setTimeout(() => input.focus(), 80);
+    focusInputWhenAppropriate({ delay: 80 });
   }
 
-  function closePanel() {
+  function closePanel({ restoreFocus = true } = {}) {
+    closeNewChatConfirm({ restoreFocus: false });
     panel.hidden = true;
     fab.setAttribute("aria-expanded", "false");
     document.body.classList.remove("lm-help-assistant-open");
+    updateDialogMode();
+
+    if (restoreFocus) {
+      const target = lastFocusBeforeOpen?.isConnected ? lastFocusBeforeOpen : fab;
+      requestAnimationFrame(() => target?.focus?.());
+    }
   }
 
   fab.addEventListener("click", () => panel.hidden ? openPanel() : closePanel());
   close?.addEventListener("click", closePanel);
 
   newChat?.addEventListener("click", () => {
-    if (history.length && !window.confirm("گفتگوی جدید شروع بشه؟ گفتگوی فعلی در سوابق پشتیبانی باقی می‌مونه.")) {
+    if (interactionBusy) return;
+    if (history.length) {
+      openNewChatConfirm();
       return;
     }
     resetConversationUi();
-    input.focus();
+    focusInputWhenAppropriate();
+  });
+
+  cancelNewChat?.addEventListener("click", () => closeNewChatConfirm());
+
+  confirmNewChat?.addEventListener("click", () => {
+    closeNewChatConfirm({ restoreFocus: false });
+    resetConversationUi();
+    focusInputWhenAppropriate();
   });
 
   input.addEventListener("input", () => autoGrow(input));
   input.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      form.requestSubmit();
+      if (!interactionBusy) form.requestSubmit();
     }
   });
 
   root.addEventListener("click", async (event) => {
     const retryButton = event.target.closest("[data-lumi-retry-message]");
-    if (retryButton && root.contains(retryButton) && !send.disabled) {
+    if (retryButton && root.contains(retryButton) && !interactionBusy) {
       const retryMessage = String(retryButton.dataset.lumiRetryMessage || "").trim();
       if (!retryMessage) return;
       retryButton.disabled = true;
@@ -1492,7 +1761,7 @@ function init() {
       return;
     }
     const messageButton = event.target.closest("[data-lumi-message]");
-    if (messageButton && root.contains(messageButton)) {
+    if (messageButton && root.contains(messageButton) && !interactionBusy) {
       input.value = messageButton.dataset.lumiMessage || "";
       autoGrow(input);
       form.requestSubmit();
@@ -1500,8 +1769,9 @@ function init() {
     }
 
     const choiceButton = event.target.closest("[data-lumi-choice]");
-    if (choiceButton && root.contains(choiceButton) && !send.disabled) {
+    if (choiceButton && root.contains(choiceButton) && !interactionBusy) {
       choiceButton.disabled = true;
+      setInteractionBusy(true);
       const typing = addMessage(messages, "assistant", "", { temporary: true });
       try {
         const payload = await sendAssistantAction(root, {
@@ -1520,13 +1790,15 @@ function init() {
         addMessage(messages, "assistant", lumiRequestError(error, "انتخاب انجام نشد. دوباره تلاش کن."), { root, error: true });
       } finally {
         choiceButton.disabled = false;
+        setInteractionBusy(false);
       }
       return;
     }
 
     const confirmActionButton = event.target.closest("[data-lumi-confirm]");
-    if (confirmActionButton && root.contains(confirmActionButton) && !send.disabled) {
+    if (confirmActionButton && root.contains(confirmActionButton) && !interactionBusy) {
       confirmActionButton.disabled = true;
+      setInteractionBusy(true);
       const typing = addMessage(messages, "assistant", "", { temporary: true });
       try {
         let payload = await sendAssistantAction(root, {
@@ -1562,6 +1834,7 @@ function init() {
         addMessage(messages, "assistant", lumiRequestError(error, "عملیات انجام نشد. دوباره تلاش کن."), { root, error: true });
       } finally {
         confirmActionButton.disabled = false;
+        setInteractionBusy(false);
       }
       return;
     }
@@ -1577,8 +1850,13 @@ function init() {
     }
 
     const salonButton = event.target.closest("[data-lumi-book-salon]");
-    if (salonButton && root.contains(salonButton) && !send.disabled) {
+    if (salonButton && root.contains(salonButton) && !interactionBusy) {
       salonButton.disabled = true;
+      setInteractionBusy(true);
+      bookingContext.stylist = "";
+      const selectedSalonName = salonButton.closest(".lm-help-assistant__discovery-result")
+        ?.querySelector(".lm-help-assistant__discovery-result-copy strong")?.textContent?.trim() || "";
+      if (selectedSalonName) bookingContext.salon = selectedSalonName;
       const typing = addMessage(messages, "assistant", "", { temporary: true });
       try {
         const payload = await sendCustomerBooking(root, "select_salon", actionState, {
@@ -1589,20 +1867,26 @@ function init() {
         typing.remove();
         if (Object.prototype.hasOwnProperty.call(payload, "action_state")) actionState = payload.action_state;
         setStoredActionState(actionState);
-        addMessage(messages, "assistant", payload.answer || "متخصص‌ها آماده‌اند.", { root, booking: payload });
+        const bookingPayload = updateBookingContext(payload, { salon: selectedSalonName });
+        addMessage(messages, "assistant", payload.answer || "متخصص‌ها آماده‌اند.", { root, booking: bookingPayload });
         history.push({ role: "assistant", content: payload.answer || "متخصص‌ها آماده‌اند." });
       } catch (error) {
         typing.remove();
         addMessage(messages, "assistant", lumiRequestError(error, "نتونستم متخصص‌ها رو دریافت کنم."), { root, error: true });
       } finally {
         salonButton.disabled = false;
+        setInteractionBusy(false);
       }
       return;
     }
 
     const stylistButton = event.target.closest("[data-lumi-book-stylist]");
-    if (stylistButton && root.contains(stylistButton) && !send.disabled) {
+    if (stylistButton && root.contains(stylistButton) && !interactionBusy) {
       stylistButton.disabled = true;
+      setInteractionBusy(true);
+      const selectedStylistName = stylistButton
+        .querySelector(".lm-help-assistant__booking-provider-copy strong")?.textContent?.trim() || "";
+      if (selectedStylistName) bookingContext.stylist = selectedStylistName;
       const typing = addMessage(messages, "assistant", "", { temporary: true });
       try {
         const payload = await sendCustomerBooking(root, "select_stylist", actionState, {
@@ -1611,20 +1895,23 @@ function init() {
         typing.remove();
         if (Object.prototype.hasOwnProperty.call(payload, "action_state")) actionState = payload.action_state;
         setStoredActionState(actionState);
-        addMessage(messages, "assistant", payload.answer || "زمان‌های آزاد آماده‌اند.", { root, booking: payload });
+        const bookingPayload = updateBookingContext(payload, { stylist: selectedStylistName });
+        addMessage(messages, "assistant", payload.answer || "زمان‌های آزاد آماده‌اند.", { root, booking: bookingPayload });
         history.push({ role: "assistant", content: payload.answer || "زمان‌های آزاد آماده‌اند." });
       } catch (error) {
         typing.remove();
         addMessage(messages, "assistant", lumiRequestError(error, "نتونستم زمان‌های آزاد رو دریافت کنم."), { root, error: true });
       } finally {
         stylistButton.disabled = false;
+        setInteractionBusy(false);
       }
       return;
     }
 
     const slotButton = event.target.closest("[data-lumi-book-slot]");
-    if (slotButton && root.contains(slotButton) && !send.disabled) {
+    if (slotButton && root.contains(slotButton) && !interactionBusy) {
       slotButton.disabled = true;
+      setInteractionBusy(true);
       const typing = addMessage(messages, "assistant", "", { temporary: true });
       try {
         const payload = await sendCustomerBooking(root, "select_slot", actionState, {
@@ -1634,38 +1921,45 @@ function init() {
         typing.remove();
         if (Object.prototype.hasOwnProperty.call(payload, "action_state")) actionState = payload.action_state;
         setStoredActionState(actionState);
-        addMessage(messages, "assistant", payload.answer || "جزئیات رزرو آماده است.", { root, booking: payload });
+        const bookingPayload = updateBookingContext(payload);
+        addMessage(messages, "assistant", payload.answer || "جزئیات رزرو آماده است.", { root, booking: bookingPayload });
         history.push({ role: "assistant", content: payload.answer || "جزئیات رزرو آماده است." });
       } catch (error) {
         typing.remove();
         addMessage(messages, "assistant", lumiRequestError(error, "این زمان دیگه قابل رزرو نیست."), { root, error: true });
       } finally {
         slotButton.disabled = false;
+        setInteractionBusy(false);
       }
       return;
     }
 
     const relaxButton = event.target.closest("[data-lumi-relax-slots]");
-    if (relaxButton && root.contains(relaxButton) && !send.disabled) {
+    if (relaxButton && root.contains(relaxButton) && !interactionBusy) {
       relaxButton.disabled = true;
+      setInteractionBusy(true);
       const typing = addMessage(messages, "assistant", "", { temporary: true });
       try {
         const payload = await sendCustomerBooking(root, "relax_slots", actionState, {});
         typing.remove();
         if (Object.prototype.hasOwnProperty.call(payload, "action_state")) actionState = payload.action_state;
         setStoredActionState(actionState);
-        addMessage(messages, "assistant", payload.answer || "نزدیک‌ترین زمان‌ها رو پیدا کردم.", { root, booking: payload });
+        const bookingPayload = updateBookingContext(payload);
+        addMessage(messages, "assistant", payload.answer || "نزدیک‌ترین زمان‌ها رو پیدا کردم.", { root, booking: bookingPayload });
       } catch (error) {
         typing.remove();
         addMessage(messages, "assistant", lumiRequestError(error, "زمان دیگری پیدا نشد."), { root, error: true });
       } finally {
         relaxButton.disabled = false;
+        setInteractionBusy(false);
       }
       return;
     }
 
     const backButton = event.target.closest("[data-lumi-booking-back]");
-    if (backButton && root.contains(backButton) && !send.disabled) {
+    if (backButton && root.contains(backButton) && !interactionBusy) {
+      setInteractionBusy(true);
+      bookingContext.stylist = "";
       const typing = addMessage(messages, "assistant", "", { temporary: true });
       try {
         const payload = await sendCustomerBooking(root, "select_salon", actionState, {
@@ -1676,39 +1970,56 @@ function init() {
         typing.remove();
         if (Object.prototype.hasOwnProperty.call(payload, "action_state")) actionState = payload.action_state;
         setStoredActionState(actionState);
-        addMessage(messages, "assistant", "متخصص دیگه‌ای انتخاب کن.", { root, booking: payload });
+        const bookingPayload = updateBookingContext(payload);
+        addMessage(messages, "assistant", "متخصص دیگه‌ای انتخاب کن.", { root, booking: bookingPayload });
       } catch (error) {
         typing.remove();
         addMessage(messages, "assistant", lumiRequestError(error, "نتونستم فهرست متخصص‌ها رو تازه کنم."), { root, error: true });
+      } finally {
+        setInteractionBusy(false);
       }
       return;
     }
 
     const cancelBookingButton = event.target.closest("[data-lumi-booking-cancel]");
-    if (cancelBookingButton && root.contains(cancelBookingButton) && !send.disabled) {
+    if (cancelBookingButton && root.contains(cancelBookingButton) && !interactionBusy) {
+      setInteractionBusy(true);
       try {
         const payload = await sendCustomerBooking(root, "cancel", actionState, {});
         actionState = null;
+        bookingContext = { salon: "", service: "", stylist: "" };
         setStoredActionState(null);
         addMessage(messages, "assistant", payload.answer || "رزرو لغو شد.", { root });
       } catch (error) {
         addMessage(messages, "assistant", lumiRequestError(error, "نتونستم فرایند رو پاک کنم."), { root, error: true });
+      } finally {
+        setInteractionBusy(false);
       }
       return;
     }
 
     const checkoutButton = event.target.closest("[data-lumi-checkout]");
-    if (checkoutButton && root.contains(checkoutButton) && !send.disabled) {
+    if (checkoutButton && root.contains(checkoutButton) && !interactionBusy) {
       checkoutButton.disabled = true;
+      setInteractionBusy(true);
+      const originalCheckout = checkoutButton.innerHTML;
       checkoutButton.innerHTML = '<span>در حال بررسی نهایی…</span><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>';
-      submitExistingCheckout(root, checkoutButton.dataset.checkoutUrl, checkoutButton.dataset.lumiCheckout);
+      try {
+        submitExistingCheckout(root, checkoutButton.dataset.checkoutUrl, checkoutButton.dataset.lumiCheckout);
+      } catch (error) {
+        checkoutButton.disabled = false;
+        checkoutButton.innerHTML = originalCheckout;
+        setInteractionBusy(false);
+        addMessage(messages, "assistant", lumiRequestError(error, "نتونستم رزرو رو برای پرداخت ادامه بدم."), { root, error: true });
+      }
       return;
     }
 
     const locationButton = event.target.closest("[data-lumi-location]");
-    if (!locationButton || !root.contains(locationButton) || send.disabled) return;
+    if (!locationButton || !root.contains(locationButton) || interactionBusy) return;
 
     locationButton.disabled = true;
+    setInteractionBusy(true);
     const original = locationButton.innerHTML;
     locationButton.innerHTML = '<span><i class="fa-solid fa-spinner fa-spin"></i> دریافت موقعیت…</span>';
     try {
@@ -1738,13 +2049,14 @@ function init() {
     } finally {
       locationButton.disabled = false;
       locationButton.innerHTML = original;
+      setInteractionBusy(false);
     }
   });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const text = input.value.trim();
-    if (!text || send.disabled) return;
+    if (!text || interactionBusy) return;
 
     const retryMessage = String(form.dataset.lumiRetryMessage || "").trim();
     const isRetry = Boolean(retryMessage && retryMessage === text);
@@ -1758,8 +2070,7 @@ function init() {
 
     input.value = "";
     autoGrow(input);
-    send.disabled = true;
-    form.setAttribute("aria-busy", "true");
+    setInteractionBusy(true);
     const typing = addMessage(messages, "assistant", "", { temporary: true });
 
     try {
@@ -1802,7 +2113,8 @@ function init() {
           if (Object.prototype.hasOwnProperty.call(bookingPayload, "action_state")) actionState = bookingPayload.action_state;
           setStoredActionState(actionState);
           const bookingAnswer = bookingPayload.answer || actionAnswer;
-          addMessage(messages, "assistant", bookingAnswer, { root, booking: bookingPayload });
+          const bookingView = updateBookingContext(bookingPayload);
+          addMessage(messages, "assistant", bookingAnswer, { root, booking: bookingView });
           history.push({ role: "assistant", content: bookingAnswer });
           handoffBox.hidden = true;
           return;
@@ -1847,15 +2159,16 @@ function init() {
       );
       handoffBox.hidden = false;
     } finally {
-      send.disabled = false;
-      form.removeAttribute("aria-busy");
-      input.focus();
+      setInteractionBusy(false);
+      focusInputWhenAppropriate();
     }
   });
 
   escalate?.addEventListener("click", async () => {
+    if (interactionBusy) return;
     if (!conversationId) {
-      window.location.href = root.dataset.supportUrl;
+      const supportUrl = safeHttpUrl(root.dataset.supportUrl, { sameOrigin: true });
+      if (supportUrl) window.location.href = supportUrl;
       return;
     }
 
@@ -1876,25 +2189,27 @@ function init() {
       });
       const payload = await response.json().catch(() => ({}));
 
-      if (response.ok && payload.ticket_url) {
+      const ticketUrl = safeHttpUrl(payload.ticket_url, { sameOrigin: true });
+      if (response.ok && ticketUrl) {
         addMessage(
           messages,
           "assistant",
           "برای پشتیبانی ارسال شد؛ صفحه پیگیری باز می‌شود.",
           { root }
         );
-        setTimeout(() => { window.location.href = payload.ticket_url; }, 650);
+        setTimeout(() => { window.location.href = ticketUrl; }, 650);
         return;
       }
 
-      if (payload.support_url) {
+      const supportUrl = safeHttpUrl(payload.support_url, { sameOrigin: true });
+      if (supportUrl) {
         addMessage(
           messages,
           "assistant",
           payload.error || "برای ادامه، فرم پشتیبانی رو باز می‌کنم.",
           { root }
         );
-        setTimeout(() => { window.location.href = payload.support_url; }, 850);
+        setTimeout(() => { window.location.href = supportUrl; }, 850);
         return;
       }
 
@@ -1916,15 +2231,66 @@ function init() {
       input.value = question;
       autoGrow(input);
     }
-    input.focus();
+    focusInputWhenAppropriate();
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !panel.hidden) closePanel();
+    if (panel.hidden) return;
+
+    if (newChatConfirm && !newChatConfirm.hidden) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeNewChatConfirm();
+        return;
+      }
+      if (event.key === "Tab") {
+        const focusable = confirmFocusableElements();
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+        if (event.shiftKey && (active === first || !newChatConfirm.contains(active))) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && active === last) {
+          event.preventDefault();
+          first.focus();
+        }
+        return;
+      }
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closePanel();
+      return;
+    }
+
+    if (event.key === "Tab" && matchMedia("(max-width:767px)").matches) {
+      const focusable = panelFocusableElements();
+      if (!focusable.length) {
+        event.preventDefault();
+        (close || newChat || fab)?.focus?.();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !panel.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
   });
 
   window.addEventListener("resize", () => {
-    applyPosition(root);
+    applyPosition(root, fab);
+    updateDialogMode();
     if (!matchMedia("(max-width:767px)").matches) {
       document.body.classList.remove("lm-help-assistant-open");
     } else if (!panel.hidden) {

@@ -104,3 +104,127 @@ class RoleAwareRetrievalRegressionTests(SimpleTestCase):
             _score_chunk(stylist, q, role="stylist", allow_cross_role=True),
             _score_chunk(manager, q, role="stylist", allow_cross_role=True),
         )
+
+    def test_first_person_stylist_question_prefers_stylist_document(self):
+        stylist = self._chunk(
+            audience="stylist",
+            title="نوبت‌های متخصص",
+            aliases="قرارهای من\nرزروهای من متخصص",
+            keywords="نوبت متخصص مراجعه مشتری",
+            content="متخصص نوبت‌های مربوط به خودش را می‌بیند.",
+        )
+        customer = self._chunk(
+            audience="customer",
+            title="نوبت‌های من",
+            aliases="قرارهای من",
+            keywords="نوبت های من رزروها جزئیات پیگیری",
+            content="مشتری نوبت‌های خودش را پیگیری می‌کند.",
+        )
+
+        question = "نوبت‌های من را از کجا ببینم؟"
+
+        self.assertGreater(
+            _score_chunk(
+                stylist,
+                question,
+                role="stylist",
+                allow_cross_role=True,
+            ),
+            _score_chunk(
+                customer,
+                question,
+                role="stylist",
+                allow_cross_role=True,
+            ),
+        )
+
+
+    def test_customer_selecting_specialist_keeps_customer_booking_document_first(self):
+        customer = self._chunk(
+            audience="customer",
+            title="مراحل رزرو نوبت برای مشتری",
+            aliases="انتخاب متخصص برای رزرو",
+            keywords="رزرو نوبت انتخاب متخصص زمان",
+            content="مشتری هنگام رزرو متخصص مناسب را انتخاب می‌کند.",
+        )
+        manager = self._chunk(
+            audience="manager",
+            title="افزودن متخصص به مجموعه",
+            aliases="اضافه کردن آرایشگر",
+            keywords="متخصص تیم مجموعه",
+            content="مدیر متخصص جدید را به مجموعه اضافه می‌کند.",
+        )
+        q = "متخصص رو چطور انتخاب کنم؟"
+        self.assertGreater(
+            _score_chunk(customer, q, role="customer", allow_cross_role=True),
+            _score_chunk(manager, q, role="customer", allow_cross_role=True),
+        )
+
+    def test_stylist_leave_question_prefers_real_stylist_request_metadata(self):
+        stylist = self._chunk(
+            audience="stylist",
+            title="درخواست مرخصی توسط متخصص",
+            aliases="درخواست تایم آف\nleave request",
+            keywords="مرخصی متخصص درخواست مدیر عدم حضور",
+            content=(
+                "برای ثبت درخواست مرخصی باید یک مجموعه فعال داشته باشی. "
+                "از برنامه و مرخصی من وارد درخواست مرخصی شو."
+            ),
+        )
+        manager = self._chunk(
+            audience="manager",
+            title="ثبت عدم حضور متخصص توسط مدیر",
+            aliases="time off\nمرخصی آرایشگر\nبستن ساعت متخصص",
+            keywords="عدم حضور مرخصی متخصص مدیر تایم آف شکستن شیفت",
+            content=(
+                "از برنامه کاری تیم، متخصص و روز موردنظر را انتخاب کن "
+                "و وارد ثبت عدم حضور شو."
+            ),
+        )
+        q = "چطور مرخصی ثبت کنم؟"
+        self.assertGreater(
+            _score_chunk(stylist, q, role="stylist", allow_cross_role=True),
+            _score_chunk(manager, q, role="stylist", allow_cross_role=True),
+        )
+
+    def test_explicit_manager_leave_question_can_still_prefer_manager_document(self):
+        stylist = self._chunk(
+            audience="stylist",
+            title="درخواست مرخصی توسط متخصص",
+            aliases="درخواست تایم آف",
+            keywords="مرخصی متخصص درخواست مدیر عدم حضور",
+            content="متخصص درخواست مرخصی را برای بررسی مدیر ثبت می‌کند.",
+        )
+        manager = self._chunk(
+            audience="manager",
+            title="ثبت عدم حضور متخصص توسط مدیر",
+            aliases="مرخصی آرایشگر",
+            keywords="عدم حضور مرخصی متخصص مدیر",
+            content="مدیر عدم حضور متخصص را مستقیم ثبت می‌کند.",
+        )
+        q = "مدیر چطور برای متخصص مرخصی ثبت می‌کند؟"
+        self.assertGreater(
+            _score_chunk(manager, q, role="stylist", allow_cross_role=True),
+            _score_chunk(stylist, q, role="stylist", allow_cross_role=True),
+        )
+
+    def test_explicit_manager_actor_still_allows_manager_document_for_customer(self):
+        manager = self._chunk(
+            audience="manager",
+            title="ثبت نوبت دستی توسط مدیر",
+            aliases="مدیر برای مشتری نوبت ثبت کند",
+            keywords="مدیر مشتری رزرو نوبت",
+            content="مدیر برای مشتری نوبت ثبت می‌کند.",
+        )
+        customer = self._chunk(
+            audience="customer",
+            title="مراحل رزرو نوبت برای مشتری",
+            aliases="نوبت گرفتن",
+            keywords="مشتری رزرو نوبت",
+            content="مشتری برای خودش نوبت رزرو می‌کند.",
+        )
+        q = "مدیر چطور برای مشتری نوبت ثبت می‌کند؟"
+        self.assertGreater(
+            _score_chunk(manager, q, role="customer", allow_cross_role=True),
+            _score_chunk(customer, q, role="customer", allow_cross_role=True),
+        )
