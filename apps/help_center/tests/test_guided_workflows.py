@@ -46,3 +46,38 @@ class GuidedWorkflowTests(SimpleTestCase):
         guide = _build_guide(groups, requester_role="stylist")
         self.assertFalse(guide["role_matches"])
         self.assertEqual(guide["steps"][0]["url"], "")
+
+    def test_near_tie_does_not_become_deterministic_workflow(self):
+        groups = [
+            {
+                "article_key": "customer.booking.flow",
+                "title": "رزرو نوبت",
+                "audience": "customer",
+                "score": 48.1,
+                "steps": [
+                    {
+                        "title": "انتخاب زمان",
+                        "body": "یک زمان آزاد انتخاب کن.",
+                    }
+                ],
+                "chunks": [],
+            },
+            {
+                "article_key": "customer.booking.reschedule",
+                "title": "تغییر زمان نوبت",
+                "audience": "customer",
+                "score": 47.9,
+                "steps": [
+                    {
+                        "title": "زمان جدید",
+                        "body": "یک زمان جدید انتخاب کن.",
+                    }
+                ],
+                "chunks": [],
+            },
+        ]
+
+        guide = _build_guide(groups, requester_role="customer")
+
+        self.assertIsNone(guide)
+

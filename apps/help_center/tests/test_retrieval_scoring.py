@@ -70,6 +70,34 @@ class HelpRetrievalScoringTests(SimpleTestCase):
         )
 
 
+    def test_ambiguous_status_question_prefers_tracking_document(self):
+        tracking = self._chunk(
+            audience="customer",
+            title="نوبت‌های من",
+            aliases="قرارهای من",
+            keywords="نوبت های من رزروها جزئیات پیگیری",
+            content=(
+                "برای پیگیری وضعیت همان نوبت، "
+                "جزئیات رزرو را باز کن."
+            ),
+            article_type="guide",
+        )
+        booking = self._chunk(
+            audience="customer",
+            title="مراحل رزرو نوبت برای مشتری",
+            aliases="نوبت گرفتن",
+            keywords="رزرو نوبت گرفتن وقت انتخاب زمان",
+            content="برای ثبت نوبت خدمت و زمان را انتخاب کن.",
+        )
+
+        question = "نوبتم چی شد؟"
+
+        self.assertGreater(
+            _score_chunk(tracking, question, role="customer"),
+            _score_chunk(booking, question, role="customer"),
+        )
+
+
 class HelpRetrievalIntentTests(SimpleTestCase):
     def _chunk(self, title, keywords, aliases, content):
         article = SimpleNamespace(
