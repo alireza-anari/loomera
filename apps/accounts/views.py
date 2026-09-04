@@ -179,7 +179,7 @@ def _client_ip(request):
     return request.META.get("REMOTE_ADDR")
 
 
-LEGAL_DOCUMENT_VERSION = "1.1-beta"
+LEGAL_DOCUMENT_VERSION = "1.3-beta"
 
 
 def _record_signup_consents(request, *, user, source):

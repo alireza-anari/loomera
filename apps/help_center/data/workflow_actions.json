@@ -543,7 +543,7 @@
       "steps": [
         {
           "title": "شرط اقدام",
-          "body": "«ثبت تسویه در مجموعه» فقط وقتی مجاز است که مرحله فعلی رزرو pay-in-salon pending باشد.",
+          "body": "«ثبت تسویه در مجموعه» فقط وقتی مجاز است که وضعیت نوبت «تسویه در مجموعه مانده» باشد.",
           "route_name": "dashboards:salon_manager_dashboard",
           "link_label": "باز کردن داشبورد نوبت‌ها",
           "dynamic_route_name": "dashboards:appointment_detail",

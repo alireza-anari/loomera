@@ -248,7 +248,7 @@ class MessagingPreferencesView(LoginRequiredMixin, View):
                 audience_role=role,
                 active_provider_keys=_active_provider_keys(),
             ),
-            "privacy_version": getattr(settings, "MESSAGING_PRIVACY_TEXT_VERSION", "1403-01"),
+            "privacy_version": getattr(settings, "MESSAGING_PRIVACY_TEXT_VERSION", "1405-06"),
             "hide_footer": True,
         }
 
@@ -267,7 +267,7 @@ class MessagingPrivacyView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["privacy_version"] = getattr(settings, "MESSAGING_PRIVACY_TEXT_VERSION", "1403-01")
+        context["privacy_version"] = getattr(settings, "MESSAGING_PRIVACY_TEXT_VERSION", "1405-06")
         context["hide_footer"] = True
         return context
 

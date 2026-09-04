@@ -1,22 +1,22 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}سیاست حفظ حریم خصوصی{% endblock %}
+{% block title %}سیاست حفظ حریم خصوصی لومرا{% endblock %}
+{% block meta_description %}به زبان ساده ببین لومرا چه اطلاعاتی را برای حساب، رزرو، پشتیبانی و امنیت استفاده می‌کند و چه کنترل‌هایی روی اطلاعاتت داری.{% endblock %}
 {% block body_attrs %}data-page="privacy-policy"{% endblock %}
 
 {% block content %}
+{# LEGAL REVIEW REQUIRED: پیش از لانچ عمومی، نام و نوع شخصیت حقوقی بهره‌بردار، شناسه/شماره ثبت، نشانی پستی و راه تماس رسمی حریم خصوصی باید در نسخه نهایی درج شود. #}
+{# LEGAL REVIEW REQUIRED: دوره‌های دقیق نگهداری داده بر اساس الزامات مالی/حقوقی/عملیاتی نهایی شوند. #}
 <main class="min-h-dvh bg-loomera-bg pb-28 text-loomera-textPrimary lg:pb-16">
   <header class="sticky top-0 z-30 border-b border-loomera-borderSoft bg-white/90 px-4 py-3 shadow-sm backdrop-blur lg:hidden">
     <div class="flex items-center gap-3">
-      <a href="{% url 'salons:home' %}"
-         class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition active:scale-95"
-         aria-label="بازگشت به صفحه اصلی">
+      <a href="{% url 'help_center:legal_index' %}" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-sm transition active:scale-95" aria-label="بازگشت به قوانین و مقررات">
         <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
       </a>
-
       <div class="min-w-0 flex-1">
-        <h1 class="truncate text-base font-black text-loomera-textPrimary">سیاست حفظ حریم خصوصی</h1>
-        <p class="mt-1 truncate text-xs font-semibold text-loomera-textMuted">نسخه ۱.۱ بتا • آخرین بروزرسانی ۱۴۰۵/۰۳/۰۶</p>
+        <h1 class="truncate text-base font-black text-loomera-textPrimary">حریم خصوصی</h1>
+        <p class="mt-1 truncate text-xs font-semibold text-loomera-textMuted">نسخه ۱.۳ آزمایشی • آخرین به‌روزرسانی ۱۴۰۵/۰۶/۱۳</p>
       </div>
     </div>
   </header>
@@ -26,296 +26,139 @@
       <section class="overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-card">
         <div class="relative isolate p-5 lg:p-7">
           <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_34%),linear-gradient(135deg,rgba(238,232,250,0.92),rgba(255,255,255,0.98))]"></div>
-
           <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div class="min-w-0">
               <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-loomera-primary/15 bg-white/75 px-3 py-1 text-xs font-black text-loomera-primary shadow-sm backdrop-blur">
                 <i class="fa-solid fa-shield-heart text-[11px]" aria-hidden="true"></i>
-                <span>حریم خصوصی در Loomera</span>
+                <span>شفاف و به زبان ساده</span>
               </div>
-
-              <h2 class="text-2xl font-black leading-9 text-loomera-textPrimary lg:text-4xl lg:leading-[3.2rem]">سیاست حفظ حریم خصوصی</h2>
-              <p class="mt-2 max-w-2xl text-sm font-semibold leading-7 text-loomera-textMuted">
-                این سند توضیح می‌دهد Loomera چه اطلاعاتی را برای ثبت‌نام، رزرو، مدیریت سالن، فعالیت متخصصان، پشتیبانی، اعلان‌ها و امکانات بتا پردازش می‌کند و دسترسی‌ها چگونه محدود می‌شوند.
-              </p>
+              <h2 class="text-2xl font-black leading-9 text-loomera-textPrimary lg:text-4xl lg:leading-[3.2rem]">اطلاعاتت در لومرا چطور استفاده می‌شود؟</h2>
+              <p class="mt-2 max-w-2xl text-sm font-semibold leading-7 text-loomera-textMuted">این صفحه توضیح می‌دهد چه اطلاعاتی برای حساب، رزرو و پشتیبانی لازم است، چه کسانی در حد نیاز به آن دسترسی دارند و از کجا می‌توانی تنظیمات، اصلاح یا حذف حساب را پیگیری کنی.</p>
             </div>
-
-            <a href="{% url 'salons:home' %}"
-               class="hidden w-full shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 sm:w-auto lg:inline-flex">
-              <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
-              <span>صفحه اصلی</span>
+            <a href="{% url 'help_center:legal_index' %}" class="hidden w-full shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary shadow-sm transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 sm:w-auto lg:inline-flex">
+              <i class="fa-solid fa-scale-balanced text-xs" aria-hidden="true"></i><span>قوانین و مقررات</span>
             </a>
-          </div>
-
-          <div class="mt-5 grid gap-3 sm:grid-cols-3">
-            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
-              <p class="text-xs font-black text-loomera-textMuted">نسخه سند</p>
-              <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">۱.۱ بتا</strong>
-            </div>
-            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
-              <p class="text-xs font-black text-loomera-textMuted">وضعیت پرداخت در بتا</p>
-              <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">پرداخت حضوری در سالن</strong>
-            </div>
-            <div class="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur">
-              <p class="text-xs font-black text-loomera-textMuted">مخاطبان</p>
-              <strong class="mt-2 block text-sm font-black leading-7 text-loomera-textPrimary">مشتری، متخصص، سالن</strong>
-            </div>
           </div>
         </div>
       </section>
 
-      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5" aria-labelledby="privacy-summary-title">
-        <div class="rounded-[1.75rem] border border-loomera-primary/15 bg-loomera-primarySoft/70 p-4 lg:p-5">
-          <div class="flex gap-3">
-            <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primary shadow-sm">
-              <i class="fa-solid fa-lock" aria-hidden="true"></i>
-            </span>
-            <div class="min-w-0">
-              <h2 id="privacy-summary-title" class="text-base font-black text-loomera-textPrimary">خلاصه سیاست</h2>
-              <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                Loomera فقط اطلاعاتی را پردازش می‌کند که برای ارائه سرویس، امنیت حساب، مدیریت رزرو، ارتباط میان مشتری/سالن/متخصص، پشتیبانی و الزامات عملیاتی لازم است. دسترسی مدیر سالن، متخصص و پشتیبانی باید به حد نیاز همان نقش محدود شود.
-              </p>
-            </div>
-          </div>
-        </div>
+      <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="حریم خصوصی در یک نگاه">
+        <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft"><p class="text-xs font-black text-loomera-primary">چه داریم؟</p><p class="mt-2 text-xs font-semibold leading-6 text-loomera-textMuted">اطلاعات حساب، رزرو، ارتباطات و داده فنی لازم برای سرویس.</p></div>
+        <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft"><p class="text-xs font-black text-loomera-primary">چرا؟</p><p class="mt-2 text-xs font-semibold leading-6 text-loomera-textMuted">برای اجرای رزرو، امنیت، پشتیبانی و قابلیت‌هایی که خودت استفاده می‌کنی.</p></div>
+        <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft"><p class="text-xs font-black text-loomera-primary">چه کسی می‌بیند؟</p><p class="mt-2 text-xs font-semibold leading-6 text-loomera-textMuted">فقط نقش‌ها و سرویس‌هایی که برای همان کار به اطلاعات نیاز دارند.</p></div>
+        <div class="rounded-[1.5rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft"><p class="text-xs font-black text-loomera-primary">کنترل تو</p><p class="mt-2 text-xs font-semibold leading-6 text-loomera-textMuted">ویرایش پروفایل، تنظیم پیام‌ها و مسیر مشخص برای درخواست حذف حساب.</p></div>
       </section>
 
       <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card lg:p-5" aria-labelledby="privacy-content-title">
         <div class="mb-5">
-          <p class="text-xs font-black uppercase tracking-[0.25em] text-loomera-primary">جزئیات سیاست</p>
-          <h2 id="privacy-content-title" class="mt-2 text-xl font-black text-loomera-textPrimary">اطلاعات شما چگونه مدیریت می‌شود؟</h2>
+          <p class="text-xs font-black text-loomera-primary">جزئیات حریم خصوصی</p>
+          <h2 id="privacy-content-title" class="mt-2 text-xl font-black">هر چیزی که لازم است بدانی</h2>
         </div>
-
         <div class="space-y-3">
           <article id="scope" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-circle-nodes text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">دامنه این سیاست</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  این سیاست برای استفاده از وب‌سایت Loomera، ثبت‌نام مشتری، متخصص و مدیر سالن، جستجو و مشاهده سالن‌ها، رزرو خدمات، مدیریت داشبوردها، لینک سریع رزرو، دعوت همکاری متخصص، درخواست برنامه کاری/مرخصی، اعلان‌ها، پشتیبانی و امکانات محتوایی مثل مقاله، استوری یا نمونه‌کار اعمال می‌شود.
-                </p>
-              </div>
-            </div>
+            <h3 class="text-sm font-black">۱. این سیاست کجاها را پوشش می‌دهد؟</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">وب‌سایت لومرا، حساب مشتری، مدیر و متخصص، جستجو و رزرو، داشبوردها، پشتیبانی، اعلان‌ها، لینک‌های رزرو، محتوای بارگذاری‌شده و اتصال به پیام‌رسان‌هایی که لومرا پشتیبانی می‌کند.</p>
           </article>
 
           <article id="data-collected" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-database text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">چه اطلاعاتی دریافت یا نگهداری می‌شود؟</h3>
-                <div class="mt-2 space-y-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  <p>اطلاعات حساب شامل نام، نام خانوادگی، شماره موبایل، ایمیل در صورت ثبت، رمز عبور رمزنگاری‌شده، کدهای تأیید، تصویر پروفایل و تنظیمات اعلان‌ها.</p>
-                  <p>اطلاعات مشتری شامل آدرس‌های ذخیره‌شده، علاقه‌مندی‌ها، رزروها، سوابق مراجعه، امتیاز و نظر، پیام‌های پشتیبانی و اعلان‌ها.</p>
-                  <p>اطلاعات متخصص شامل تخصص، رزومه، توضیحات حرفه‌ای، نمونه‌کار، تصویر، عضویت در سالن‌ها، برنامه کاری، درخواست مرخصی، درخواست همکاری، اطلاعات تماس اضطراری و داده‌های مالی داخلی در صورت فعال بودن.</p>
-                  <p>اطلاعات سالن شامل مشخصات سالن، آدرس، موقعیت، ساعات کاری، خدمات، قیمت‌ها، تصاویر، گالری، اعضای تیم، لینک‌های سریع، تنظیمات رزرو، گزارش‌ها و داده‌های مربوط به مدیریت مشتریان.</p>
-                </div>
-              </div>
+            <h3 class="text-sm font-black">۲. چه اطلاعاتی استفاده می‌شود؟</h3>
+            <div class="mt-2 space-y-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+              <p><strong class="text-loomera-textPrimary">حساب:</strong> نام، شماره موبایل، ایمیل در صورت ثبت، تصویر پروفایل، تنظیمات و اطلاعات لازم برای ورود و تأیید حساب. رمز عبور به‌صورت متن خام و قابل‌بازیابی نگهداری نمی‌شود.</p>
+              <p><strong class="text-loomera-textPrimary">رزرو:</strong> مجموعه، خدمت، متخصص، تاریخ و ساعت، وضعیت نوبت، مبلغ، تخفیف، روش و وضعیت پرداخت و سوابق لازم برای پیگیری همان نوبت.</p>
+              <p><strong class="text-loomera-textPrimary">مدیر و متخصص:</strong> اطلاعات حرفه‌ای، خدمات و قیمت‌ها، برنامه کاری، همکاری‌ها، درخواست‌های کاری و محتوایی که خودت در محصول ثبت می‌کنی.</p>
+              <p><strong class="text-loomera-textPrimary">پشتیبانی و امنیت:</strong> متن و فایل تیکت، آدرس IP، اطلاعات پایه مرورگر/دستگاه و رویدادهای فنی لازم برای ورود، امنیت، عیب‌یابی و جلوگیری از سوءاستفاده.</p>
+              <p><strong class="text-loomera-textPrimary">پیام‌رسان متصل:</strong> در صورت اتصال، شناسه‌های فنی لازم برای شناسایی حساب و رساندن پیام به مقصد درست.</p>
             </div>
           </article>
 
-          <article id="sensitive-data" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-user-lock text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">اطلاعات حساس و فایل‌ها</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  در بتای اولیه ممکن است برای تکمیل پروفایل متخصص، پشتیبانی یا مدیریت همکاری، فایل، تصویر یا اطلاعاتی مانند تماس اضطراری دریافت شود. دریافت مدارک احراز سالن در این نسخه فعال نشده است؛ اگر بعدک احراز سالن در این نسخه فعالاً فعال شود، نوع مدرک، هدف، دسترسی و مدت نگهداری آن در همین سیاست به‌روزرسانی می‌شود. اطلاعات حساس فقط باید به‌اندازه ضرورت، با هدف مشخص و با کنترل دسترسی محدود پردازش شود.
-                </p>
-              </div>
+          <article id="sensitive-data" class="rounded-[1.5rem] border border-amber-200 bg-amber-50 p-4 shadow-lm-soft scroll-mt-28">
+            <h3 class="text-sm font-black text-amber-950">۳. اطلاعات حساس؛ فقط وقتی واقعاً لازم است</h3>
+            <div class="mt-2 space-y-2 text-sm font-semibold leading-7 text-amber-900">
+              <p>اطلاعات پزشکی، وضعیت جسمانی یا روانی و سایر اطلاعات حساس را بی‌دلیل در یادداشت مشتری، تیکت یا توضیحات رزرو وارد نکن. اگر دانستن چنین اطلاعاتی واقعاً برای ارائه خدمت لازم است، هدف باید برای مشتری روشن باشد و در مواردی که قانون لازم می‌داند، رضایت صریح مشتری گرفته شود.</p>
+              <p>فقط همان مقدار اطلاعاتی را ثبت کن که برای همان هدف لازم است. یادداشت مشتری جای پرونده پزشکی یا محل نگهداری اطلاعات محرمانه نیست.</p>
             </div>
           </article>
 
           <article id="usage" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-sparkles text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">چرا از اطلاعات استفاده می‌کنیم؟</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  برای ایجاد و امنیت حساب، تأیید شماره موبایل، نمایش و مدیریت رزرو، هماهنگی بین مشتری و سالن/متخصص، جلوگیری از تداخل زمان‌ها، نمایش خدمات مرتبط، ثبت پرداخت حضوری، پشتیبانی، ارسال اعلان‌های ضروری، کنترل دسترسی نقش‌ها، جلوگیری از سوءاستفاده، بهبود کیفیت سرویس و تولید گزارش‌های مدیریتی لازم برای همان سالن یا همان کاربر.
-                </p>
-              </div>
-            </div>
-          </article>
-
-          <article id="payments" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-wallet text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">داده‌های مالی و پرداخت</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  در بتای اولیه، پرداخت خدمات به‌صورت حضوری در سالن انجام می‌شود و درگاه آنلاین عمومی فعال نیست. با این حال، Loomera ممکن است وضعیت پرداخت، مبلغ رزرو، تخفیف، سهم‌ها، گزارش مالی داخلی، تأیید پرداخت حضوری و رویدادهای مالی لازم برای مدیریت سالن را ذخیره کند. اگر کیف پول، تسویه آنلاین یا درگاه پرداخت در آینده فعال شود، اطلاعات مورد نیاز همان قابلیت طبق نسخه به‌روزشده این سیاست پردازش می‌شود.
-                </p>
-              </div>
-            </div>
-          </article>
-
-          <article id="quick-links-invites" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-link text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">لینک سریع و دعوت همکاری</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  لینک‌های سریع رزرو ممکن است شامل شناسه سالن، خدمت، متخصص، تاریخ یا ساعت باشند و با امضای امن ساخته می‌شوند. دعوت همکاری متخصص با شماره موبایل ذخیره می‌شود تا متخصص ثبت‌نام‌شده یا متخصصی که بعداً با همان شماره ثبت‌نام می‌کند بتواند دعوت را ببیند. این داده‌ها فقط باید برای رزرو یا همکاری همان سالن استفاده شوند.
-                </p>
-              </div>
-            </div>
+            <h3 class="text-sm font-black">۴. این اطلاعات برای چه کاری استفاده می‌شود؟</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">برای ساخت و امنیت حساب، ثبت و مدیریت رزرو، هماهنگی مشتری با مجموعه و متخصص، جلوگیری از تداخل زمان، پشتیبانی، اعلان‌های مرتبط، کنترل دسترسی، پیگیری مالی و جلوگیری از سوءاستفاده. اطلاعات نباید برای هدفی نامرتبط با چیزی که هنگام جمع‌آوری توضیح داده شده استفاده شود.</p>
           </article>
 
           <article id="access" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-user-shield text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">چه کسانی به اطلاعات دسترسی دارند؟</h3>
-                <div class="mt-2 space-y-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  <p>مشتری به حساب، رزروها، آدرس‌ها، اعلان‌ها و سوابق خودش دسترسی دارد.</p>
-                  <p>مدیر سالن فقط به داده‌های مربوط به سالن خودش دسترسی دارد؛ مانند رزروهای همان سالن، مشتریان همان سالن، تیم همان سالن، گزارش‌های همان سالن و درخواست‌های همکاری/مرخصی/برنامه همان سالن.</p>
-                  <p>متخصص فقط به داده‌های مرتبط با حساب خود و سالن فعال یا عضویت‌های مجاز خود دسترسی دارد. عضویت متخصص در یک سالن نباید باعث نمایش داده‌های سالن دیگر شود.</p>
-                  <p>تیم پشتیبانی و مدیر پلتفرم فقط در حد نیاز رسیدگی، امنیت، پشتیبانی، کنترل سوءاستفاده و نگهداری سرویس به داده‌ها دسترسی دارند.</p>
-                </div>
-              </div>
+            <h3 class="text-sm font-black">۵. چه کسانی به اطلاعات دسترسی دارند؟</h3>
+            <div class="mt-2 space-y-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+              <p><strong class="text-loomera-textPrimary">خودت:</strong> اطلاعات حساب و بخش‌هایی که با نقش تو مرتبط‌اند.</p>
+              <p><strong class="text-loomera-textPrimary">مجموعه و متخصص:</strong> فقط اطلاعاتی که برای رزرو، ارائه خدمت یا مدیریت همان همکاری لازم است.</p>
+              <p><strong class="text-loomera-textPrimary">پشتیبانی و مدیران مجاز پلتفرم:</strong> در حد لازم برای رسیدگی، امنیت و نگهداری سرویس.</p>
+              <p><strong class="text-loomera-textPrimary">سرویس‌های زیرساختی:</strong> فقط داده‌ای که برای کاری مثل میزبانی، ذخیره فایل، پیامک، ایمیل یا پیام‌رسان متصل لازم است.</p>
             </div>
           </article>
 
           <article id="sharing" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-share-nodes text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">اشتراک‌گذاری اطلاعات با دیگران</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  اطلاعات شما فروخته نمی‌شود. اطلاعات فقط در حد ضرورت با سالن یا متخصص مرتبط با رزرو، ارائه‌دهندگان زیرساخت مانند پیامک، میزبانی، ذخیره فایل، اعلان یا پیام‌رسان‌های متصل، و در صورت الزام قانونی با مراجع ذی‌صلاح به اشتراک گذاشته می‌شود. اگر پرداخت آنلاین در آینده فعال شود، اطلاعات لازم برای انجام تراکنش با ارائه‌دهنده پرداخت منتقل خواهد شد.
-                </p>
-              </div>
-            </div>
+            <h3 class="text-sm font-black">۶. چه زمانی اطلاعات خارج از حساب تو استفاده می‌شود؟</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">برای انجام همان سرویس ممکن است بخشی از اطلاعات با مجموعه/متخصص رزرو یا ارائه‌دهنده فنی مربوط به همان قابلیت به اشتراک گذاشته شود. اگر مرجع قانونی ذی‌صلاح درخواست معتبر و لازم‌الاجرا داشته باشد، اطلاعات فقط در حدود همان الزام بررسی و ارائه می‌شود.</p>
+          </article>
+
+          <article id="payments" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <h3 class="text-sm font-black">۷. اطلاعات پرداخت</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">در تنظیم فعلی محصول، روش اصلی پرداخت خدمت «پرداخت در مجموعه» است. لومرا مبلغ رزرو، تخفیف، روش و وضعیت پرداخت و سوابق لازم برای پیگیری را نگه می‌دارد. اگر پرداخت آنلاین برای یک جریان فعال باشد، فقط داده لازم برای انجام و پیگیری همان تراکنش با ارائه‌دهنده پرداخت تبادل می‌شود. رمز پویا، CVV2 یا اطلاعات کامل کارت را در تیکت، چت یا فرم عادی لومرا وارد نکن.</p>
           </article>
 
           <article id="cookies" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-cookie-bite text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">کوکی، نشست و داده‌های فنی</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  برای ورود، حفظ نشست کاربر، امنیت فرم‌ها، جلوگیری از سوءاستفاده، نگهداری انتخاب‌های رزرو و بهبود عملکرد، ممکن است از کوکی‌ها، session، آدرس IP، نوع مرورگر، مسیرهای بازدیدشده و گزارش خطا استفاده شود. غیرفعال‌کردن کوکی‌های ضروری ممکن است باعث اختلال در ورود یا رزرو شود.
-                </p>
-              </div>
-            </div>
+            <h3 class="text-sm font-black">۸. کوکی و داده فنی</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">لومرا برای ورود، نگه‌داشتن نشست، امنیت فرم‌ها و بعضی انتخاب‌های موقت از کوکی‌های فنی استفاده می‌کند. غیرفعال‌کردن کوکی‌های ضروری ممکن است ورود یا بخشی از رزرو را از کار بیندازد. در این سند ادعایی درباره استفاده از کوکی تبلیغاتی یا ابزار تحلیل شخص ثالث نمی‌کنیم مگر زمانی که واقعاً در محصول فعال و در همین صفحه اعلام شود.</p>
           </article>
 
           <article id="notifications" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-bell text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">اعلان‌ها و پیام‌رسان‌ها</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  اعلان‌های ضروری مانند کد تأیید، وضعیت رزرو، تغییر زمان، لغو، درخواست همکاری، تایید/رد برنامه یا مرخصی ممکن است از طریق داخل سایت، پیامک یا پیام‌رسان‌های متصل ارسال شوند. پیام‌های بازاریابی فقط در صورت فعال‌بودن تنظیمات مربوط یا رضایت کاربر ارسال می‌شوند و کاربر می‌تواند تنظیمات اعلان‌های غیرضروری را تغییر دهد.
-                </p>
-              </div>
-            </div>
+            <h3 class="text-sm font-black">۹. پیام ضروری با تبلیغ فرق دارد</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">کد تأیید، تغییر وضعیت نوبت، امنیت حساب یا پیام مربوط به درخواست جاری، پیام عملیاتی است. پیشنهادها و پیام‌های بازاریابی جدا هستند و می‌توانی آن‌ها را از تنظیمات ارتباطات کنترل کنی. خاموش‌کردن بازاریابی نباید مانع دریافت پیام لازم برای امنیت یا انجام درخواست جاری شود.</p>
           </article>
 
           <article id="content" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-photo-film text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">تصاویر، نمونه‌کار، مقاله و استوری</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  تصاویر سالن، نمونه‌کار متخصص، مقاله، استوری یا محتوای ارسالی ممکن است در صفحات عمومی نمایش داده شود، مگر اینکه قابلیت مربوط خصوصی یا غیرفعال باشد. کاربر یا سالن نباید تصویر، مشخصات یا اطلاعات دیگران را بدون اجازه بارگذاری کند. Loomera می‌تواند محتو کند. Loomera می‌تواند محتوای ناقض حقوق دیگران، نامناسب یا مشکوک را حذف یا محدود کند.
-                </p>
-              </div>
-            </div>
+            <h3 class="text-sm font-black">۱۰. تصویر، نمونه‌کار و محتوای عمومی</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">تصویر مجموعه، نمونه‌کار، مقاله یا محتوایی که برای نمایش عمومی ثبت می‌شود ممکن است در بخش‌های عمومی لومرا دیده شود. اگر فرد دیگری در تصویر یا محتوا قابل‌شناسایی است، مسئول انتشار باید اجازه لازم را داشته باشد. محتوایی که حریم خصوصی یا حقوق دیگران را نقض کند می‌تواند محدود یا حذف شود.</p>
           </article>
 
           <article id="retention" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-clock-rotate-left text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">مدت نگهداری اطلاعات</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  اطلاعات تا زمانی نگهداری می‌شود که برای ارائه سرویس، پیگیری رزرو، گزارش مالی، رسیدگی به اختلاف، امنیت، الزامات قانونی یا حفظ سوابق عملیاتی لازم باشد. پس از حذف حساب، ممکن است بخشی از داده‌ها ناشناس‌سازی شود و برخی سوابق لازم مثل رزرو، رویداد مالی، گزارش پشتیبانی یا لاگ امنیتی تا حد نیاز نگهداری شوند.
-                </p>
-              </div>
-            </div>
+            <h3 class="text-sm font-black">۱۱. اطلاعات تا چه زمانی نگهداری می‌شود؟</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">همه اطلاعات مدت یکسانی ندارند. داده تا وقتی نگهداری می‌شود که برای ارائه سرویس، پیگیری رزرو یا پرداخت، امنیت، رسیدگی به اختلاف یا تکلیف قانونی لازم باشد. وقتی دلیل معتبر برای نگهداری تمام شود، داده باید حذف یا در صورت مناسب ناشناس‌سازی شود.</p>
           </article>
 
           <article id="rights" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-sliders text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">حقوق و کنترل‌های شما</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  بسته به نقش و وضعیت حساب، می‌توانید اطلاعات پروفایل را ویرایش کنید، تنظیمات اعلان را تغییر دهید، آدرس‌های ذخیره‌شده را مدیریت کنید، درخواست حذف حساب ثبت کنید یا از پشتیبانی بخواهید درباره داده‌های حساب شما بررسی انجام دهد. حذف یا محدودسازی برخی داده‌ها ممکن است روی رزروها، عضویت متخصص، گزارش‌ها یا امکان ارائه سرویس اثر بگذارد.
-                </p>
-              </div>
+            <h3 class="text-sm font-black">۱۲. چه کنترل‌هایی روی اطلاعاتت داری؟</h3>
+            <div class="mt-2 space-y-2 text-sm font-semibold leading-7 text-loomera-textMuted">
+              <p>اطلاعات قابل‌ویرایش پروفایل را اصلاح کن و تنظیمات ارتباطات و بازاریابی را از حساب خودت تغییر بده.</p>
+              <p>اگر اطلاعاتی نادرست است یا درخواست اصلاحی داری که از داخل حساب ممکن نیست، از پشتیبانی پیگیری کن.</p>
+              <p>برای حذف حساب مسیر جداگانه وجود دارد. حذف موفق، حساب را غیرفعال و بخش مهمی از اطلاعات هویتی حساب را ناشناس‌سازی می‌کند؛ با این حال بعضی سوابق عملیاتی، مالی، امنیتی یا لازم برای الزام قانونی ممکن است باقی بمانند.</p>
+              <p>اجرای بعضی درخواست‌ها ممکن است برای جلوگیری از حذف اشتباه یا سوءاستفاده به احراز هویت و تعیین تکلیف نوبت فعال، همکاری فعال یا مانده مالی وابسته باشد.</p>
             </div>
           </article>
 
           <article id="security" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-vault text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">امنیت اطلاعات</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  Loomera از کنترل دسترسی نقش‌ها، محدودسازی داده‌های هر سالن، رمزنگاری رمز عبور، CSRF، نشست کاربری، ثبت رویدادهای مهم و محدودسازی دسترسی عملیاتی استفاده می‌کند. با این حال، هیچ سرویس اینترنتی امنیت مطلق ندارد؛ شما نیز مسئول حفظ رمز عبور، کدهای تأیید و دسترسی دستگاه خود هستید.
-                </p>
-              </div>
-            </div>
+            <h3 class="text-sm font-black">۱۳. امنیت اطلاعات</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">لومرا برای بخش‌های مختلف از کنترل دسترسی بر اساس نقش، محدودسازی داده هر مجموعه، محافظت نشست و فرم‌ها و نگهداری امن رمز عبور استفاده می‌کند. هیچ سرویس اینترنتی بدون ریسک نیست؛ رمز، کد تأیید یا اطلاعات بانکی محرمانه را با کسی به اشتراک نگذار و دسترسی مشکوک را سریع از پشتیبانی پیگیری کن.</p>
           </article>
 
-          <article id="children" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-child-reaching text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">استفاده افراد زیر سن قانونی</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  استفاده از Loomera برای ثبت حساب، رزرو یا فعالیت حرفه‌ای باید توسط فرد واجد اهلیت قانونی یا با اجازه و نظارت ولی/نماینده قانونی انجام شود. اگر متوجه شویم اطلاعات فردی بدون مجوز لازم ثبت شده، ممکن است حساب یا داده مربوط محدود یا حذف شود.
-                </p>
-              </div>
-            </div>
+          <article id="law" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
+            <h3 class="text-sm font-black">۱۴. چارچوب حقوقی این سیاست</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">این سیاست با هدف شفافیت و رعایت الزامات لازم‌الاجرای ایران نوشته شده است؛ از جمله اصول مرتبط با اطلاع‌رسانی روشن، هدف مشخص پردازش، تناسب داده و رضایت صریح برای برخی اطلاعات حساس. اگر این متن با حکم آمره قانون تعارض داشته باشد، قانون مقدم است.</p>
           </article>
 
           <article id="updates" class="rounded-[1.5rem] border border-loomera-borderSoft bg-loomera-surface p-4 shadow-lm-soft scroll-mt-28">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary">
-                <i class="fa-solid fa-file-signature text-sm" aria-hidden="true"></i>
-              </span>
-              <div class="min-w-0">
-                <h3 class="text-sm font-black text-loomera-textPrimary">تغییرات این سیاست</h3>
-                <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">
-                  با توسعه قابلیت‌هایی مثل پرداخت آنلاین، کیف پول فعال، احراز مدارک سالن، ربات پیام‌رسان یا قابلیت‌های جدید، این سیاست ممکن است به‌روزرسانی شود. نسخه جدید از همین صفحه اعلام می‌شود و در صورت تغییر مهم، ممکن است از شما خواسته شود دوباره آن را تأیید کنید.
-                </p>
-              </div>
-            </div>
+            <h3 class="text-sm font-black">۱۵. اگر این سیاست تغییر کند</h3>
+            <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">اگر قابلیت‌ها، شیوه پردازش داده یا الزامات قانونی تغییر کنند، نسخه و تاریخ جدید در همین صفحه درج می‌شود. اگر تغییر مهمی نیاز به تصمیم یا رضایت تازه کاربر داشته باشد، باید همان‌جا به‌صورت روشن اطلاع‌رسانی شود.</p>
           </article>
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-5 shadow-lm-card">
+        <h2 class="text-base font-black">می‌خواهی درباره اطلاعاتت کاری انجام بدهی؟</h2>
+        <p class="mt-2 text-sm font-semibold leading-7 text-loomera-textMuted">برای سؤال، اصلاح یا موضوعی که از داخل حساب قابل انجام نیست، پشتیبانی را باز کن. برای حذف حساب نیز مسیر اختصاصی داخل تنظیمات وجود دارد.</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <a href="{% url 'support' %}" class="inline-flex rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white">پشتیبانی</a>
+          {% if user.is_authenticated %}<a href="{% url 'accounts:delete_account' %}" class="inline-flex rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary">حذف حساب</a>{% endif %}
+          <a href="{% url 'accounts:terms_of_use' %}" class="inline-flex rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary">شرایط استفاده</a>
+          <a href="{% url 'help_center:legal_index' %}" class="inline-flex rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textPrimary">همه قوانین</a>
         </div>
       </section>
     </div>
@@ -323,60 +166,16 @@
     <aside class="hidden lg:block">
       <div class="sticky top-24 space-y-4">
         <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-card">
-          <p class="text-xs font-black text-loomera-textMuted">راهنمای سریع</p>
+          <p class="text-xs font-black text-loomera-textMuted">دسترسی سریع</p>
           <nav class="mt-3 grid gap-2 text-sm font-bold">
-            <a href="#scope" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
-              <span>دامنه سیاست</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
-            </a>
-            <a href="#data-collected" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
-              <span>اطلاعات جمع‌آوری‌شده</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
-            </a>
-            <a href="#payments" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
-              <span>پرداخت و مالی</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
-            </a>
-            <a href="#access" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
-              <span>دسترسی نقش‌ها</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
-            </a>
-            <a href="#rights" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary">
-              <span>حقوق شما</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
-            </a>
+            <a href="#data-collected" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary"><span>چه اطلاعاتی داریم؟</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i></a>
+            <a href="#sensitive-data" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary"><span>اطلاعات حساس</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i></a>
+            <a href="#notifications" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary"><span>پیام و تبلیغات</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i></a>
+            <a href="#rights" class="flex items-center justify-between rounded-2xl px-3 py-3 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary"><span>کنترل‌های تو</span><i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i></a>
           </nav>
-        </section>
-
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-          <p class="text-xs font-black text-loomera-textMuted">صفحه مرتبط</p>
-          <a href="{% url 'accounts:terms_of_use' %}"
-             class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-5 py-3 text-sm font-black text-loomera-textPrimary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/50">
-            <i class="fa-regular fa-file-lines text-xs" aria-hidden="true"></i>
-            <span>شرایط استفاده</span>
-          </a>
-        </section>
-
-        <section class="rounded-[2rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-          <p class="text-xs font-black text-loomera-textMuted">سؤال یا درخواست</p>
-          <a href="{% url 'main:contact' %}?issue=privacy"
-             class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
-            <i class="fa-regular fa-message text-xs" aria-hidden="true"></i>
-            <span>تماس با پشتیبانی</span>
-          </a>
         </section>
       </div>
     </aside>
-  </div>
-
-  <div data-mobile-primary-action class="lm-shell-aware-mobile-action fixed inset-x-0 bottom-0 z-40 border-t border-loomera-borderSoft bg-white/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-18px_48px_rgba(46,42,60,0.1)] backdrop-blur lg:hidden">
-    <div class="mx-auto flex max-w-md gap-2">
-      <a href="{% url 'salons:home' %}"
-         class="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-black text-loomera-textPrimary shadow-sm transition active:scale-[0.99]">
-        <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
-        <span>خانه</span>
-      </a>
-      <a href="{% url 'main:contact' %}?issue=privacy"
-         class="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft transition active:scale-[0.99]">
-        <i class="fa-regular fa-message text-xs" aria-hidden="true"></i>
-        <span>پشتیبانی</span>
-      </a>
-    </div>
   </div>
 </main>
 {% endblock %}
