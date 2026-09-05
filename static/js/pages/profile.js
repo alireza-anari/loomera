@@ -69,7 +69,7 @@ function initFavoriteButtons() {
         }
 
         if (!response.ok) {
-          window.alert(payload?.message || raw || "ثبت علاقه‌مندی با خطا مواجه شد.");
+          window.LoomeraFeedback?.error?.(payload?.message || raw || "ثبت علاقه‌مندی با خطا مواجه شد.");
           return;
         }
 
@@ -89,7 +89,7 @@ function initFavoriteButtons() {
         }
       } catch (error) {
         console.error("[profile] favorite toggle failed", error);
-        window.alert("در ثبت علاقه‌مندی مشکلی پیش آمد.");
+        window.LoomeraFeedback?.error?.("در ثبت علاقه‌مندی مشکلی پیش آمد.");
       } finally {
         delete button.dataset.loading;
         button.classList.remove("opacity-70", "pointer-events-none");

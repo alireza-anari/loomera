@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import user_error_message
 import json
 import logging
 from urllib.parse import quote
@@ -1692,7 +1693,7 @@ class CustomerDetailView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, V
             ).exists()
         )
         if not has_relation:
-            raise Http404("Customer not found for this salon")
+            raise Http404("مشتری موردنظر برای این مجموعه پیدا نشد.")
         return customer
 
     def _status_meta(self, order):
@@ -2228,7 +2229,7 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
         try:
             payload = normalize_booking_payload(payload)
         except Exception as exc:
-            return None, payload, [str(exc)]
+            return None, payload, [user_error_message(exc)]
 
         payload["summary"] = {
             "service": (
@@ -2268,11 +2269,7 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
                 internal_note=internal_note,
             )
         except ValidationError as exc:
-            return (
-                None,
-                payload,
-                list(getattr(exc, "messages", [str(exc)])),
-            )
+            return None, payload, [user_error_message(exc)]
 
         return link, payload, []
 
@@ -2358,7 +2355,7 @@ class OnlineBookingView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, Vi
                 )
                 messages.success(request, message)
             except Exception as exc:
-                messages.error(request, str(exc))
+                messages.error(request, user_error_message(exc))
             return redirect("dashboards:quick_links")
 
         generated_link, generated_payload, generator_errors = self._generate_quick_link(
@@ -2449,7 +2446,7 @@ class SalonProfileCreatorStep1View(
     def get(self, request, *args, **kwargs):
         salon = _get_or_create_manager_salon(request.user)
         if salon is None:
-            raise Http404("No salon manager profile found.")
+            raise Http404("پروفایل مدیریت مجموعه پیدا نشد.")
         form = SalonProfileStep1Form(instance=salon)
         profile_edit_mode = _is_manager_profile_edit_mode(request.user)
         if (
@@ -2469,7 +2466,7 @@ class SalonProfileCreatorStep1View(
     def post(self, request, *args, **kwargs):
         salon = _get_or_create_manager_salon(request.user)
         if salon is None:
-            raise Http404("No salon manager profile found.")
+            raise Http404("پروفایل مدیریت مجموعه پیدا نشد.")
         form = SalonProfileStep1Form(request.POST, instance=salon)
         if form.is_valid():
             form.save()
@@ -8097,7 +8094,7 @@ class ManagerStaffScheduleRequestActionView(
             action = _clean_dashboard_schedule_action(request)
             review_note = _clean_dashboard_schedule_review_note(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("dashboards:scheduled_shifts")
 
         try:
@@ -8116,7 +8113,7 @@ class ManagerStaffScheduleRequestActionView(
                     review_note=review_note,
                 )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("dashboards:scheduled_shifts")
 
         if reviewed.status == StaffScheduleRequest.Status.APPROVED:
@@ -8144,7 +8141,7 @@ class ManagerStaffLeaveRequestActionView(
             action = _clean_dashboard_schedule_action(request)
             review_note = _clean_dashboard_schedule_review_note(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("dashboards:scheduled_shifts")
 
         try:
@@ -8163,7 +8160,7 @@ class ManagerStaffLeaveRequestActionView(
                     review_note=review_note,
                 )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("dashboards:scheduled_shifts")
 
         try:
@@ -8529,7 +8526,7 @@ class EditStylistDayScheduleView(
         try:
             _validate_dashboard_schedule_post_size(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("dashboards:scheduled_shifts")
 
         salon, stylist = _get_managed_schedule_salon_and_stylist(
@@ -8553,7 +8550,7 @@ class EditStylistDayScheduleView(
         try:
             shift_indices = _extract_shift_indices_from_post(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect(
                 "dashboards:edit_day_schedule",
                 stylist_pk=stylist.pk,
@@ -8775,7 +8772,7 @@ class DeleteDayScheduleView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin
             salon = managed_salons.first()
 
         if salon is None:
-            raise Http404("Stylist is not managed by this salon manager.")
+            raise Http404("متخصص موردنظر در این مجموعه تحت مدیریت شما نیست.")
 
         return salon, stylist
 
@@ -8788,7 +8785,7 @@ class DeleteDayScheduleView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin
             return JsonResponse(
                 {
                     "status": "error",
-                    "message": str(exc),
+                    "message": user_error_message(exc),
                 },
                 status=400,
             )
@@ -9012,7 +9009,7 @@ class SetRegularShiftsView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin,
         try:
             _validate_dashboard_schedule_post_size(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect(request.path_info)
 
         if not salon.opening_hours.exists():
@@ -9162,7 +9159,7 @@ class SetRegularShiftsView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin,
         except ValidationError as e:
             messages.error(
                 request,
-                e.messages[0] if hasattr(e, "messages") and e.messages else str(e),
+                user_error_message(e, "ذخیره برنامه شیفت‌ها انجام نشد. موارد واردشده را بررسی کنید."),
             )
             return redirect(request.path_info)
         except Exception:
@@ -9361,7 +9358,7 @@ class AddTimeOffView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
         try:
             _validate_dashboard_schedule_post_size(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("dashboards:scheduled_shifts")
 
         try:
@@ -10065,7 +10062,7 @@ def get_calendar_data(request, salon_id):
         selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
     except ValueError:
         return JsonResponse(
-            {"error": "Invalid date format. Use YYYY-MM-DD."}, status=400
+            {"error": "قالب تاریخ معتبر نیست. تاریخ را با قالب سال، ماه و روز ارسال کنید."}, status=400
         )
 
     salon = get_object_or_404(
@@ -10243,7 +10240,7 @@ class ManagerAppointmentActionView(
             )
             messages.success(request, message)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
 
         return redirect(
             "dashboards:appointment_detail",
@@ -13000,7 +12997,7 @@ def _generate_stylist_quick_link(request, salon, stylist):
     try:
         payload = normalize_booking_payload(payload)
     except Exception as exc:
-        return None, payload, [str(exc)]
+        return None, payload, [user_error_message(exc)]
 
     payload["summary"] = {
         "salon": salon.salon_name,
@@ -13032,11 +13029,7 @@ def _generate_stylist_quick_link(request, salon, stylist):
             internal_note=internal_note,
         )
     except ValidationError as exc:
-        return (
-            None,
-            payload,
-            list(getattr(exc, "messages", [str(exc)])),
-        )
+        return None, payload, [user_error_message(exc)]
 
     return link, payload, []
 
@@ -13150,7 +13143,7 @@ class StylistAddScheduleView(StylistDashboardGuardMixin, View):
                     note=(form.cleaned_data.get("note") or "").strip(),
                 )
             except ValidationError as exc:
-                messages.error(request, str(exc))
+                messages.error(request, user_error_message(exc))
             else:
                 messages.success(
                     request,
@@ -13255,7 +13248,7 @@ class StylistAddCustomerView(StylistDashboardGuardMixin, View):
                 if redirect_url:
                     separator = "&" if "?" in redirect_url else "?"
                     redirect_url = f"{redirect_url}{separator}customer={customer.pk}"
-                messages.success(request, "مشتری جدید برای workflow شخصی شما ثبت شد.")
+                messages.success(request, "مشتری جدید در فرایند شخصی شما ثبت شد.")
                 return redirect(redirect_url)
         return render(
             request,
@@ -13608,10 +13601,7 @@ class StylistQuickLinksView(StylistDashboardGuardMixin, View):
 
                 messages.success(request, message)
             except ValidationError as exc:
-                messages.error(
-                    request,
-                    " ".join(getattr(exc, "messages", [str(exc)])),
-                )
+                messages.error(request, user_error_message(exc))
 
             return redirect("dashboards:stylist_quick_links")
 
@@ -13912,7 +13902,7 @@ class StylistAppointmentDetailView(StylistDashboardGuardMixin, View):
                 else:
                     messages.success(request, "قالب مواد مصرفی این خدمت بروزرسانی شد.")
             except ValidationError as exc:
-                messages.error(request, str(exc))
+                messages.error(request, user_error_message(exc))
             except Exception:
                 logger.exception(
                     "Failed to create stylist material template for detail_id=%s",
@@ -13998,7 +13988,7 @@ class StylistAppointmentDetailView(StylistDashboardGuardMixin, View):
                     f"محاسبات مالی نهایی شد. سهم شما: {_dashboard_currency(snapshot.stylist_net_share)}",
                 )
             except ValidationError as exc:
-                messages.error(request, str(exc))
+                messages.error(request, user_error_message(exc))
 
             return redirect(
                 "dashboards:stylist_appointment_detail", appointment_id=detail.id
@@ -14047,7 +14037,7 @@ class StylistAppointmentDetailView(StylistDashboardGuardMixin, View):
                 )
             messages.success(request, message)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
 
         return redirect(next_url)
 
@@ -14173,7 +14163,7 @@ class StylistRequestPayoutView(StylistDashboardGuardMixin, View):
                 note=request.POST.get("note") or "",
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
         else:
             messages.success(
                 request,
@@ -14311,7 +14301,7 @@ class StylistAddTimeOffView(StylistDashboardGuardMixin, View):
                     auto_approve=False,
                 )
             except ValidationError as exc:
-                messages.error(request, str(exc))
+                messages.error(request, user_error_message(exc))
             else:
                 try:
                     _notify_manager_about_leave_request(

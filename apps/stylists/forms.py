@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import user_error_message
 import datetime
 import re
 from io import BytesIO
@@ -123,7 +124,7 @@ def validate_work_sample_image_upload(uploaded_file, *, declared_content_type=No
 
     if ext not in WORK_SAMPLE_ALLOWED_EXTENSIONS:
         raise ValidationError(
-            "پسوند تصویر مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "پسوند تصویر مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     name_without_last_ext = original_name[: -len(ext)] if ext else original_name
@@ -142,7 +143,7 @@ def validate_work_sample_image_upload(uploaded_file, *, declared_content_type=No
 
     if content_type not in WORK_SAMPLE_ALLOWED_CONTENT_TYPES:
         raise ValidationError(
-            "فرمت فایل مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "فرمت فایل مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     try:
@@ -646,7 +647,7 @@ def validate_stylist_profile_image_upload(uploaded_file, *, declared_content_typ
 
     if ext not in STYLIST_PROFILE_IMAGE_ALLOWED_EXTENSIONS:
         raise ValidationError(
-            "پسوند تصویر مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "پسوند تصویر مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     name_without_last_ext = original_name[: -len(ext)] if ext else original_name
@@ -665,7 +666,7 @@ def validate_stylist_profile_image_upload(uploaded_file, *, declared_content_typ
 
     if content_type not in STYLIST_PROFILE_IMAGE_ALLOWED_CONTENT_TYPES:
         raise ValidationError(
-            "فرمت فایل مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "فرمت فایل مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     try:
@@ -1006,7 +1007,7 @@ class JobDetailsForm(forms.ModelForm):
             return jalali_date.todate()
 
         except ValueError as exc:
-            raise ValidationError(str(exc))
+            raise ValidationError(user_error_message(exc, "تاریخ واردشده معتبر نیست."))
         except Exception:
             raise ValidationError("تاریخ واردشده معتبر نیست.")
 

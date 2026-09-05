@@ -17,6 +17,7 @@ from .models import Comments, Favorits, Scoring
 from apps.orders.models import OrderDetail
 from django.contrib.auth.views import redirect_to_login
 from django.conf import settings
+from apps.main.ui_feedback import stash_form_errors
 
 
 def _review_post_max_bytes():
@@ -47,7 +48,7 @@ def _review_post_payload_too_large(request):
 def _validated_salon_id(raw_salon_id):
     salon_id = str(raw_salon_id or "").strip()
     if not salon_id.isdigit():
-        raise Http404("Salon not found")
+        raise Http404("مجموعه موردنظر پیدا نشد.")
     return int(salon_id)
 
 
@@ -168,7 +169,7 @@ class SalonCommentScoreView(View):
 
     def post(self, request, *args, **kwargs):
         if _review_post_payload_too_large(request):
-            return HttpResponse("review_payload_too_large", status=413)
+            return HttpResponse("حجم اطلاعات دیدگاه بیش از حد مجاز است.", status=413)
 
         salon_id = _validated_salon_id(request.GET.get("salon_id"))
         salon = get_object_or_404(Salon, id=salon_id, is_active=True)
@@ -182,10 +183,10 @@ class SalonCommentScoreView(View):
         form = CommentScoringForm(request.POST, salon=salon, customer=customer)
 
         if not form.is_valid():
-            error_text = " ".join([" ".join(errors) for errors in form.errors.values()])
+            stash_form_errors(request, form)
             messages.error(
                 request,
-                error_text or "مشکلی در ثبت نظر پیش آمد. لطفاً دوباره تلاش کنید.",
+                "اطلاعات دیدگاه نیاز به اصلاح دارد. موارد مشخص‌شده را بررسی کنید.",
             )
             return redirect(salon.get_absolute_url())
 

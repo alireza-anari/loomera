@@ -267,7 +267,7 @@ export default function initStylistAddBookingAvailability() {
       resetDate("دریافت زمان‌های آزاد ناموفق بود");
 
       statusMessage(
-        error.message || "دریافت زمان‌های آزاد انجام نشد.",
+        window.LoomeraFeedback?.safeMessage?.(error.message, "error") || "دریافت زمان‌های آزاد انجام نشد.",
         "error",
       );
     }

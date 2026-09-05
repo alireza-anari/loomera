@@ -65,7 +65,7 @@ class CustomerNotificationSettingsSecurityTests(Stage1DomainFactoryMixin, TestCa
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["error"], "Invalid JSON")
+        self.assertEqual(response.json()["error"], "invalid_json")
 
     def test_notification_settings_rejects_invalid_boolean_value(self):
         customer = self.make_customer()

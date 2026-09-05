@@ -33,32 +33,10 @@ export function formatNumber(number) {
  * نمایش Toast Notification
  */
 export function showToast(message, type = 'info', duration = 3000) {
-    const existingToasts = document.querySelectorAll('.toast-notification');
-    existingToasts.forEach(toast => toast.remove());
-
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification fixed top-4 right-4 z-[9999] px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full';
-    
-    const colors = {
-        success: 'bg-green-500 text-white',
-        error: 'bg-red-500 text-white',
-        warning: 'bg-yellow-500 text-white',
-        info: 'bg-blue-500 text-white'
-    };
-    
-    toast.className += ' ' + (colors[type] || colors.info);
-    toast.textContent = message;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.remove('translate-x-full');
-    }, 10);
-    
-    setTimeout(() => {
-        toast.classList.add('translate-x-full');
-        setTimeout(() => toast.remove(), 300);
-    }, duration);
+    if (window.LoomeraFeedback?.show) {
+        return window.LoomeraFeedback.show(message, type, { duration });
+    }
+    return null;
 }
 
 /**

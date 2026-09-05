@@ -453,7 +453,7 @@ class StylistSelfBookingForm(forms.Form):
         if not Services.objects.filter(
             pk=service.pk, services_of_salon=salon, stylists=stylist, is_active=True
         ).exists():
-            raise ValidationError("این خدمت در scope فعال شما برای این مجموعه نیست.")
+            raise ValidationError("این خدمت در محدوده فعال شما برای این مجموعه نیست.")
 
         price = stylist.get_price_for_service(service)
         if price in (None, ""):

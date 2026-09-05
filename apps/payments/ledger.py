@@ -59,7 +59,7 @@ def post_balanced_ledger_entries(
     credit_total = sum(_safe_int(line.amount) for line in lines if line.direction == LedgerEntry.Direction.CREDIT)
 
     if debit_total != credit_total:
-        raise ValidationError("سند Ledger تراز نیست؛ جمع بدهکار و بستانکار باید برابر باشد.")
+        raise ValidationError("سند دفتر مالی تراز نیست؛ جمع بدهکار و بستانکار باید برابر باشد.")
 
     if debit_total <= 0:
         return []

@@ -475,7 +475,7 @@ export default function initSetRegularShifts() {
     updateSummary();
     if (hasClientError) {
       event.preventDefault();
-      window.alert("بعضی از بازه‌ها ناقص، خارج از ساعت کاری یا دارای زمان پایان نامعتبر هستند. لطفاً قبل از ذخیره اصلاحشان کن.");
+      window.LoomeraFeedback?.error?.("بعضی از بازه‌ها ناقص، خارج از ساعت کاری یا دارای زمان پایان نامعتبر هستند. لطفاً قبل از ذخیره اصلاحشان کن.");
     }
   });
 

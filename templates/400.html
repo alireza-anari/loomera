@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}درخواست نامعتبر | Loomera{% endblock %}
+{% block meta_description %}درخواست ارسال‌شده برای لومرا معتبر نبود.{% endblock %}
+{% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
+{% block body_attrs %}data-page="error_400"{% endblock %}
+
+{% block content %}
+<section class="flex min-h-[calc(100vh-10rem)] items-center px-4 py-10 sm:px-6 lg:py-16">
+  <div class="mx-auto w-full max-w-3xl overflow-hidden rounded-[2.25rem] border border-loomera-borderSoft bg-white shadow-lm-elevated">
+    <div class="bg-loomera-textPrimary px-6 py-9 text-white sm:px-8 lg:px-10">
+      <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-black text-white/85">
+        <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+        خطای ۴۰۰
+      </span>
+      <h1 class="mt-5 text-3xl font-black leading-[1.5] sm:text-4xl">اطلاعات این درخواست معتبر نیست</h1>
+      <p class="mt-4 max-w-2xl text-sm leading-8 text-white/75 sm:text-base">
+        صفحه را دوباره باز کنید و اطلاعات را مجدد ارسال کنید. جزئیات فنی خطا برای حفظ امنیت نمایش داده نمی‌شود.
+      </p>
+    </div>
+    <div class="grid gap-3 p-5 sm:grid-cols-2 sm:p-6">
+      <a href="/" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 text-sm font-black text-white">
+        <i class="fa-solid fa-house" aria-hidden="true"></i>
+        بازگشت به خانه
+      </a>
+      <button type="button" onclick="history.back()" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 text-sm font-black text-loomera-textPrimary">
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        بازگشت به صفحه قبل
+      </button>
+    </div>
+  </div>
+</section>
+{% endblock %}

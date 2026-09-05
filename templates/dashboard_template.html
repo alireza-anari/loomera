@@ -41,6 +41,7 @@
       <main class="lm-dashboard-main px-3 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] pt-24 sm:px-5 lg:px-8 lg:pb-10 lg:pt-28">
         <div class="lm-dashboard-content-container mx-auto w-full max-w-[1680px] min-w-0">
           {% include "partials/messages.html" %}
+          {% include "partials/redirect_form_errors.html" %}
 
           {% if not hide_dashboard_header and dashboard_active_key == "overview" %}
             <div>
@@ -65,29 +66,7 @@
     {% include "dashboards/partials/dashboard_help_fab.html" %}
   </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const messages = document.querySelectorAll("[data-flash-message]");
-
-      messages.forEach((message, index) => {
-        const closeBtn = message.querySelector("[data-flash-close]");
-        const dismissAfter = parseInt(message.dataset.dismissAfter || "5000", 10);
-
-        const hideMessage = () => {
-          message.classList.add("opacity-0", "translate-y-2");
-          setTimeout(() => {
-            message.remove();
-          }, 300);
-        };
-
-        if (closeBtn) {
-          closeBtn.addEventListener("click", hideMessage);
-        }
-
-        setTimeout(hideMessage, dismissAfter + index * 250);
-      });
-    });
-  </script>
+  <script src="{% static 'js/feedback.js' %}"></script>
   <script src="{% static 'js/jalali.js' %}"></script>
   <script src="{% static 'vendor/jalalidatepicker/jalalidatepicker.min.js' %}"></script>
   <script type="module" src="{% static 'js/app.js' %}"></script>

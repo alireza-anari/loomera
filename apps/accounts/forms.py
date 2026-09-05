@@ -1,5 +1,7 @@
 import os
 
+from apps.main.ui_feedback import user_error_message
+
 from PIL import Image, ImageSequence, UnidentifiedImageError
 from django.conf import settings
 
@@ -95,7 +97,7 @@ def validate_customer_profile_image_upload(
 
     if ext not in CUSTOMER_PROFILE_IMAGE_ALLOWED_EXTENSIONS:
         raise ValidationError(
-            "پسوند تصویر مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "پسوند تصویر مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     name_without_last_ext = original_name[: -len(ext)] if ext else original_name
@@ -114,7 +116,7 @@ def validate_customer_profile_image_upload(
 
     if content_type not in CUSTOMER_PROFILE_IMAGE_ALLOWED_CONTENT_TYPES:
         raise ValidationError(
-            "فرمت فایل مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "فرمت فایل مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     try:
@@ -150,8 +152,8 @@ def validate_customer_profile_image_upload(
 # ------------------------------------------------------------------------------------------------------------
 # User Creation Form
 class CustomUserCreationForm(forms.ModelForm):
-    password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
-    password2 = forms.CharField(label="RePassword", widget=forms.PasswordInput)
+    password1 = forms.CharField(label="رمز عبور", widget=forms.PasswordInput)
+    password2 = forms.CharField(label="تکرار رمز عبور", widget=forms.PasswordInput)
 
     class Meta:
         model = CustomUser
@@ -300,7 +302,11 @@ class BaseSignupForm(forms.ModelForm):
                     self.instance if getattr(self.instance, "pk", None) else None,
                 )
             except ValidationError as exc:
-                raise ValidationError(exc.messages)
+                raise ValidationError(
+                    user_error_message(
+                        exc, fallback="رمز عبور شرایط امنیتی لازم را ندارد."
+                    )
+                )
 
         return password2
 
@@ -489,7 +495,11 @@ class ChangePasswordForm(forms.Form):
             try:
                 validate_password(password1)
             except ValidationError as exc:
-                raise ValidationError(exc.messages)
+                raise ValidationError(
+                    user_error_message(
+                        exc, fallback="رمز عبور شرایط امنیتی لازم را ندارد."
+                    )
+                )
 
         return password2
 

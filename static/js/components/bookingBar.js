@@ -44,7 +44,7 @@ export default function initBookingBar(options = {}) {
     submitBtn?.addEventListener("click", () => {
 
         if (totalCount === 0) {
-            alert("لطفاً حداقل یک خدمت انتخاب کنید.");
+            window.LoomeraFeedback?.error?.("لطفاً حداقل یک خدمت انتخاب کنید.");
             return;
         }
 

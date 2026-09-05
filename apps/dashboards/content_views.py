@@ -1395,7 +1395,7 @@ class StylistContentHubView(LoginRequiredMixin, View):
         اگر کاربر id مربوط به مقاله/محتوای مجموعه یا متخصص دیگر را بفرستد، 404 می‌گیرد.
         """
         if not submission_id:
-            raise Http404("Submission not found.")
+            raise Http404("درخواست محتوای موردنظر پیدا نشد.")
 
         return get_object_or_404(
             StaffContentSubmission.objects.select_related("stylist", "salon"),
@@ -1422,11 +1422,11 @@ class StylistContentHubView(LoginRequiredMixin, View):
         )
 
         if object_id and action in self.PROTECTED_ACTIONS:
-            raise Http404("Content object not found.")
+            raise Http404("محتوای موردنظر پیدا نشد.")
 
         # اگر بدون form_type معتبر ولی همراه object id ارسال شود، مشکوک است.
         if object_id and form_type not in {"article", "story", "submission_edit"}:
-            raise Http404("Content object not found.")
+            raise Http404("محتوای موردنظر پیدا نشد.")
 
     def _context(self, request, *, form=None):
         stylist, salon = self._get_objects(request)

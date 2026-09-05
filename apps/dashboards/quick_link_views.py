@@ -1,4 +1,5 @@
 from __future__ import annotations
+from apps.main.ui_feedback import user_error_message
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -312,9 +313,7 @@ class ManagerQuickLinksView(
             except ValidationError as exc:
                 messages.error(
                     request,
-                    " ".join(
-                        getattr(exc, "messages", [str(exc)])
-                    ),
+                    user_error_message(exc, "تغییر وضعیت لینک رزرو انجام نشد."),
                 )
 
             return redirect("dashboards:quick_links")

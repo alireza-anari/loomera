@@ -58,7 +58,7 @@
             updateContinueButton();
         } catch (error) {
             console.error('❌ Initialization error:', error);
-            alert('صفحه به‌درستی بارگذاری نشد. لطفاً دوباره تلاش کنید.');
+            window.LoomeraFeedback?.error?.('صفحه به‌درستی بارگذاری نشد. لطفاً دوباره تلاش کنید.');
         }
     }
 
@@ -169,7 +169,7 @@
 
     function handleContinue() {
         if (!isAllServicesSelected()) {
-            alert('لطفاً برای همه خدمات، متخصص را انتخاب کنید.');
+            window.LoomeraFeedback?.error?.('لطفاً برای همه خدمات، متخصص را انتخاب کنید.');
             return;
         }
 

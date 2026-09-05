@@ -75,12 +75,12 @@ def group_service_image(request, group_id):
     image = getattr(group, "group_image", None)
 
     if not image or not getattr(image, "name", ""):
-        raise Http404("Service group image not found")
+        raise Http404("تصویر گروه خدمات پیدا نشد.")
 
     try:
         file_obj = image.open("rb")
     except Exception as exc:  # pragma: no cover - storage/network specific
-        raise Http404("Service group image unavailable") from exc
+        raise Http404("تصویر گروه خدمات در دسترس نیست.") from exc
 
     content_type = mimetypes.guess_type(image.name)[0] or "application/octet-stream"
     response = FileResponse(file_obj, content_type=content_type)
@@ -360,7 +360,7 @@ def categories(request):
 def service_dynamic_content(request):
     if not _is_ajax_request(request):
         return JsonResponse(
-            {"status": "error", "message": "Invalid request"},
+            {"status": "error", "message": "درخواست ارسال‌شده معتبر نیست."},
             status=400,
         )
 
@@ -369,13 +369,13 @@ def service_dynamic_content(request):
 
     if not service_id.isdigit():
         return JsonResponse(
-            {"status": "error", "message": "Invalid service"},
+            {"status": "error", "message": "خدمت انتخاب‌شده معتبر نیست."},
             status=400,
         )
 
     if content_type not in SERVICE_DYNAMIC_CONTENT_TYPES:
         return JsonResponse(
-            {"status": "error", "message": "Invalid content type"},
+            {"status": "error", "message": "نوع محتوای درخواستی معتبر نیست."},
             status=400,
         )
 

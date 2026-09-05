@@ -341,7 +341,7 @@
           fillTimes();
         } catch (error) {
           dateSelect.innerHTML = '<option value="">زمان آزاد دریافت نشد</option>';
-          if (availabilityNote) availabilityNote.textContent = error.message || "زمان‌های آزاد دریافت نشد.";
+          if (availabilityNote) availabilityNote.textContent = window.LoomeraFeedback?.safeMessage?.(error.message, "error") || "زمان‌های آزاد دریافت نشد.";
         }
       };
 

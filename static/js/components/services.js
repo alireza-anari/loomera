@@ -43,7 +43,7 @@ export function initServices() {
     const booking = initBookingBar({
         onSubmit: ({ count, price, duration }) => {
             if (selectedServices.size === 0) {
-                alert("لطفاً حداقل یک خدمت انتخاب کنید.");
+                window.LoomeraFeedback?.error?.("لطفاً حداقل یک خدمت انتخاب کنید.");
                 return;
             }
 

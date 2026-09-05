@@ -31,7 +31,7 @@
       await renderCurrentStep();
     } catch (error) {
       console.error('Select datetime init failed:', error);
-      alert('زمان‌های قابل رزرو بارگذاری نشد. لطفاً دوباره تلاش کنید.');
+      window.LoomeraFeedback?.error?.('زمان‌های قابل رزرو بارگذاری نشد. لطفاً دوباره تلاش کنید.');
     }
   }
 
@@ -937,13 +937,13 @@
   async function handleContinue() {
     const selection = getCurrentSelection();
     if (!selection || !state.currentDate || !state.currentTime) {
-      alert('لطفاً تاریخ و زمان را انتخاب کنید.');
+      window.LoomeraFeedback?.error?.('لطفاً تاریخ و زمان را انتخاب کنید.');
       return;
     }
 
     const previousPicked = getPreviousPicked();
     if (previousPicked && compareIsoDates(state.currentDate, previousPicked.date) < 0) {
-      alert('این خدمت نمی‌تواند قبل از خدمت قبلی زمان‌بندی شود.');
+      window.LoomeraFeedback?.error?.('این خدمت نمی‌تواند قبل از خدمت قبلی زمان‌بندی شود.');
       return;
     }
 
@@ -952,7 +952,7 @@
       state.currentSlots = await getAvailabilityForDate(selection, state.currentDate);
     } catch (error) {
       console.error('[select_datetime] fresh availability check failed', error);
-      alert('بررسی دوباره زمان آزاد ممکن نشد. لطفاً چند لحظه دیگر تلاش کنید.');
+      window.LoomeraFeedback?.error?.('بررسی دوباره زمان آزاد ممکن نشد. لطفاً چند لحظه دیگر تلاش کنید.');
       return;
     }
 
@@ -961,7 +961,7 @@
       state.currentTime = null;
       renderTimeSlots(state.currentSlots, selection, false);
       updateContinueButton();
-      alert('این ساعت همین حالا رزرو شده و از فهرست زمان‌های آزاد حذف شد. لطفاً زمان دیگری را انتخاب کنید.');
+      window.LoomeraFeedback?.error?.('این ساعت همین حالا رزرو شده و از فهرست زمان‌های آزاد حذف شد. لطفاً زمان دیگری را انتخاب کنید.');
       return;
     }
 
@@ -1001,12 +1001,12 @@
         state.currentDate = stale.picked.date;
         state.currentTime = null;
         await renderCurrentStep();
-        alert(`ساعت ${stale.picked.time} برای «${stale.selection.serviceName || 'خدمت'}» دیگر آزاد نیست و از انتخاب شما حذف شد. لطفاً یک زمان دیگر انتخاب کنید.`);
+        window.LoomeraFeedback?.error?.(`ساعت ${stale.picked.time} برای «${stale.selection.serviceName || 'خدمت'}» دیگر آزاد نیست و از انتخاب شما حذف شد. لطفاً یک زمان دیگر انتخاب کنید.`);
         return;
       }
     } catch (error) {
       console.error('[select_datetime] final availability refresh failed', error);
-      alert('بررسی نهایی زمان‌های آزاد ممکن نشد. لطفاً دوباره تلاش کنید.');
+      window.LoomeraFeedback?.error?.('بررسی نهایی زمان‌های آزاد ممکن نشد. لطفاً دوباره تلاش کنید.');
       return;
     }
 
@@ -1024,7 +1024,7 @@
     const bookingForm = document.getElementById('dateTimeSelectionForm');
     if (!bookingInput || !bookingForm) {
       console.error('booking form elements not found');
-      alert('ثبت اطلاعات رزرو کامل نشد. لطفاً دوباره تلاش کنید.');
+      window.LoomeraFeedback?.error?.('ثبت اطلاعات رزرو کامل نشد. لطفاً دوباره تلاش کنید.');
       return;
     }
 
