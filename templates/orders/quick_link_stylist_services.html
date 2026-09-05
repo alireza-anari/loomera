@@ -75,15 +75,6 @@
         </div>
       </section>
 
-      {% if messages %}
-        <section class="space-y-2" aria-label="پیام‌های سیستم">
-          {% for message in messages %}
-            <div class="rounded-3xl border {% if message.tags == 'error' %}border-red-200 bg-red-50 text-red-700{% elif message.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-700{% else %}border-loomera-borderSoft bg-white text-loomera-textSecondary{% endif %} px-4 py-3 text-sm font-bold shadow-lm-soft">
-              {{ message }}
-            </div>
-          {% endfor %}
-        </section>
-      {% endif %}
 
       <!-- Services form -->
       <form method="post" id="quickStylistServicesForm" class="space-y-5">
@@ -256,7 +247,7 @@
       if (selectedCount > 0) return;
 
       event.preventDefault();
-      window.alert("حداقل یک خدمت را برای این متخصص انتخاب کنید.");
+      window.LoomeraFeedback?.error?.("حداقل یک خدمت را برای این متخصص انتخاب کنید.");
       const firstCard = document.querySelector("[data-service-card]");
       firstCard?.scrollIntoView({ behavior: "smooth", block: "center" });
     });

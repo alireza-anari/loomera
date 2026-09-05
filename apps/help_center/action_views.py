@@ -1,4 +1,5 @@
 from __future__ import annotations
+from apps.main.ui_feedback import user_error_message
 
 import hashlib
 import json
@@ -133,9 +134,9 @@ def customer_booking_api(request):
     try:
         result = run_customer_booking_action(request, payload)
     except ValidationError as exc:
-        messages = getattr(exc, "messages", None) or [str(exc)]
+        message = user_error_message(exc, "انجام عملیات رزرو ممکن نشد. اطلاعات را بررسی کنید.")
         return JsonResponse(
-            {"error": messages[0]},
+            {"error": message},
             status=400,
             json_dumps_params={"ensure_ascii": False},
         )
@@ -146,9 +147,9 @@ def customer_booking_api(request):
 
 
 def _validation_error_response(exc: ValidationError):
-    messages = getattr(exc, "messages", None) or [str(exc)]
+    message = user_error_message(exc)
     return JsonResponse(
-        {"error": messages[0]},
+        {"error": message},
         status=400,
         json_dumps_params={"ensure_ascii": False},
     )

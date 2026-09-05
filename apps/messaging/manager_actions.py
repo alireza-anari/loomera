@@ -1,4 +1,5 @@
 from __future__ import annotations
+from apps.main.ui_feedback import user_error_message
 
 from typing import Any
 
@@ -92,11 +93,7 @@ ACTION_LABELS = {
 
 
 def _validation_text(exc: Exception) -> str:
-    if isinstance(exc, ValidationError):
-        messages = getattr(exc, "messages", None) or []
-        if messages:
-            return str(messages[0])
-    return str(exc) or "اجرای عملیات ناموفق بود."
+    return user_error_message(exc, "اجرای عملیات انجام نشد. لطفاً دوباره تلاش کنید.")
 
 
 def _manager_user_or_error(context: MessagingActionContext):

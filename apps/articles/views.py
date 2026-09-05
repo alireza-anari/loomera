@@ -34,6 +34,7 @@ from .services import (
     user_can_access_story,
 )
 from apps.services.models import GroupServices
+from apps.main.ui_feedback import safe_form_errors
 
 
 def get_client_ip(request):
@@ -110,11 +111,11 @@ def _magazine_story_id_from_value(value):
         return None
 
     if not story_id.isdigit():
-        raise Http404("Invalid story")
+        raise Http404("استوری موردنظر معتبر نیست.")
 
     story_id = int(story_id)
     if story_id <= 0:
-        raise Http404("Invalid story")
+        raise Http404("استوری موردنظر معتبر نیست.")
 
     return story_id
 
@@ -496,7 +497,7 @@ def _story_explore_service_group_id(value):
         return None
 
     if not service_group.isdigit():
-        raise Http404("Invalid story filter")
+        raise Http404("فیلتر استوری معتبر نیست.")
 
     return int(service_group)
 
@@ -669,7 +670,7 @@ class ContentReportCreateView(LoginRequiredMixin, View):
         form = ContentReportForm(request.POST)
         if not form.is_valid():
             return JsonResponse(
-                {"ok": False, "error": "invalid_form", "errors": form.errors},
+                {"ok": False, "error": "invalid_form", "errors": safe_form_errors(form)},
                 status=400,
             )
 

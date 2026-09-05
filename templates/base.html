@@ -38,6 +38,7 @@
     {% endif %}
 
     {% include "partials/messages.html" %}
+    {% include "partials/redirect_form_errors.html" %}
 
     <main id="main-content"
           class="lm-shell-main lm-app-container {% if not hide_navbar %}lm-shell-main--with-mobile-nav{% endif %} {% block main_class %}{% endblock %}">
@@ -56,29 +57,7 @@
         </div>
     {% endif %}
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-        const messages = document.querySelectorAll("[data-flash-message]");
-
-        messages.forEach((message, index) => {
-            const closeBtn = message.querySelector("[data-flash-close]");
-            const dismissAfter = parseInt(message.dataset.dismissAfter || "5000", 10);
-
-            const hideMessage = () => {
-            message.classList.add("opacity-0", "translate-y-2");
-            setTimeout(() => {
-                message.remove();
-            }, 300);
-            };
-
-            if (closeBtn) {
-            closeBtn.addEventListener("click", hideMessage);
-            }
-
-            setTimeout(hideMessage, dismissAfter + index * 250);
-        });
-        });
-    </script>
+    <script src="{% static 'js/feedback.js' %}"></script>
     <script src="{% static 'js/jalali.js' %}"></script>
     <script src="{% static 'vendor/jalalidatepicker/jalalidatepicker.min.js' %}"></script>
 

@@ -183,7 +183,7 @@ class MessagingProviderQuickConnectView(LoginRequiredMixin, View):
         config = self.BETA_PROVIDERS.get(provider_key)
         fallback_url = self._safe_next_url(request)
         if config is None:
-            messages.warning(request, "این پیام‌رسان برای اتصال Beta فعال نیست.", "warning")
+            messages.warning(request, "این پیام‌رسان برای اتصال نسخه آزمایشی فعال نیست.", "warning")
             return redirect(fallback_url)
 
         label, enabled_setting = config

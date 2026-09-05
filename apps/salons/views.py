@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import user_error_message
 import logging
 from collections import Counter
 from urllib import request
@@ -961,7 +962,7 @@ class DetailSalonView(View):
         try:
             _validate_public_salon_query_size(request)
         except ValidationError as exc:
-            return HttpResponseBadRequest(str(exc))
+            return HttpResponseBadRequest(user_error_message(exc, "درخواست صفحه مجموعه معتبر نیست."))
         # =================================================================
         # ۱. واکشی آبجکت اصلی مجموعه به همراه روابط اولیه
         # =================================================================
@@ -1272,7 +1273,7 @@ class SalonStylistProfileView(View):
         try:
             _validate_public_salon_query_size(request)
         except ValidationError as exc:
-            return HttpResponseBadRequest(str(exc))
+            return HttpResponseBadRequest(user_error_message(exc, "درخواست صفحه مجموعه معتبر نیست."))
 
         salon_lookup = {"slug": salon_slug} if salon_slug else {"id": salon_id}
         salon = get_object_or_404(

@@ -283,11 +283,7 @@
             return response.json();
           })
           .then(function () {
-            if (message) {
-              message.textContent = "گزارش ثبت شد و تیم لومرا بررسی می‌کند.";
-              message.className = "text-xs font-black text-emerald-600";
-            }
-
+            window.LoomeraFeedback?.success?.("گزارش ثبت شد و تیم لومرا آن را بررسی می‌کند.");
             form.reset();
 
             window.setTimeout(function () {
@@ -296,10 +292,7 @@
             }, 1400);
           })
           .catch(function () {
-            if (message) {
-              message.textContent = "ثبت گزارش انجام نشد. دوباره تلاش کن.";
-              message.className = "text-xs font-black text-rose-600";
-            }
+            window.LoomeraFeedback?.error?.("ثبت گزارش انجام نشد. لطفاً دوباره تلاش کنید.");
           })
           .finally(function () {
             if (button) {

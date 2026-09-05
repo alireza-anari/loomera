@@ -37,6 +37,10 @@ from apps.main.sitemaps import StaticViewSitemap
 from apps.salons.sitemaps import SalonSitemap
 from apps.services.sitemaps import ServiceGroupSitemap, ServiceSitemap
 
+handler400 = "apps.main.views.bad_request_view"
+handler403 = "apps.main.views.permission_denied_view"
+
+
 sitemaps = {
     "static": StaticViewSitemap,
     "salons": SalonSitemap,

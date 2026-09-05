@@ -362,6 +362,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.csrf",
+                "apps.main.context_processors.redirect_form_errors",
                 "apps.main.views.madia_admin",
             ],
         },
@@ -410,6 +411,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 AUTH_USER_MODEL = "accounts.CustomUser"
+CSRF_FAILURE_VIEW = "apps.main.views.csrf_failure_view"
 
 # ==============================================================================
 # INTERNATIONALIZATION

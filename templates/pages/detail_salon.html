@@ -337,7 +337,7 @@
           {% include "components/rating_stars.html" with value=average_score show_number=True count=total_reviews size_class="text-base" %}
         </div>
 
-        <div id="reviewFormContainer" class="hidden mt-4">
+        <div id="reviewFormContainer" class="hidden mt-4" data-lm-reveal-on-error>
           {% include "components/review_form.html" %}
         </div>
 

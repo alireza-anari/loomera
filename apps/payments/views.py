@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import user_error_message
 import logging
 import requests
 from django.conf import settings
@@ -15,7 +16,7 @@ from apps.dashboards.jalali_utils import (
     format_jalali_with_weekday,
     format_time_fa,
 )
-from .forms import WalletWithdrawalRequestForm
+from .forms import WalletChargeForm, WalletWithdrawalRequestForm
 import uuid
 from django.db.models import Q
 from .gateways import (
@@ -154,25 +155,29 @@ class WalletDetailView(LoginRequiredMixin, View):
 class WalletChargeView(LoginRequiredMixin, View):
     """شارژ کیف پول کاربر با همان gateway abstraction جدید"""
 
+    def _context(self, request, *, form=None):
+        wallet, _ = Wallet.objects.get_or_create(user=request.user)
+        gateway_mode = get_gateway_mode()
+        gateway_provider = get_gateway_provider()
+        return {
+            "wallet": wallet,
+            "form": form or WalletChargeForm(),
+            "presets": [50000, 100000, 200000, 500000],
+            "gateway_mode": gateway_mode,
+            "gateway_provider": (
+                Payment.Provider.MOCK if gateway_mode == "mock" else gateway_provider
+            ),
+        }
+
     def get(self, request):
         if not _wallet_operations_enabled():
             return _redirect_wallet_operation_disabled(request)
         try:
-            wallet, _ = Wallet.objects.get_or_create(user=request.user)
-            presets = [50000, 100000, 200000, 500000]
-            gateway_mode = get_gateway_mode()
-            gateway_provider = get_gateway_provider()
-            context = {
-                "wallet": wallet,
-                "presets": presets,
-                "gateway_mode": gateway_mode,
-                "gateway_provider": (
-                    Payment.Provider.MOCK
-                    if gateway_mode == "mock"
-                    else gateway_provider
-                ),
-            }
-            return render(request, "payments/wallet_charge.html", context)
+            return render(
+                request,
+                "payments/wallet_charge.html",
+                self._context(request),
+            )
         except Exception as e:
             logger.error("Error in WalletChargeView GET: %s", e)
             messages.error(request, "خطا در بارگذاری صفحه شارژ")
@@ -182,25 +187,21 @@ class WalletChargeView(LoginRequiredMixin, View):
         if not _wallet_operations_enabled():
             return _redirect_wallet_operation_disabled(request)
         try:
-            amount_str = request.POST.get("amount", "")
-            amount_cleaned = _normalize_amount_input(amount_str)
+            form_data = request.POST.copy()
+            form_data["amount"] = _normalize_amount_input(request.POST.get("amount", ""))
+            form = WalletChargeForm(form_data)
+            if not form.is_valid():
+                messages.error(
+                    request,
+                    "مبلغ شارژ نیاز به اصلاح دارد. مورد مشخص‌شده را بررسی کنید.",
+                )
+                return render(
+                    request,
+                    "payments/wallet_charge.html",
+                    self._context(request, form=form),
+                )
 
-            if not amount_cleaned:
-                messages.error(request, "لطفاً مبلغ مورد نظر را وارد کنید")
-                return redirect("payments:charge")
-
-            try:
-                amount = int(amount_cleaned)
-                if amount < 10000:
-                    messages.error(request, "حداقل مبلغ شارژ 10,000 تومان است")
-                    return redirect("payments:charge")
-                if amount > 50000000:
-                    messages.error(request, "حداکثر مبلغ شارژ 50,000,000 تومان است")
-                    return redirect("payments:charge")
-            except (ValueError, TypeError):
-                messages.error(request, "مبلغ وارد شده معتبر نیست")
-                return redirect("payments:charge")
-
+            amount = int(form.cleaned_data["amount"])
             gateway_mode = get_gateway_mode()
             gateway_provider = get_gateway_provider()
             payment = Payment.objects.create(
@@ -247,7 +248,10 @@ class WalletChargeView(LoginRequiredMixin, View):
                     title="شروع پرداخت شارژ ناموفق بود",
                 )
                 messages.error(
-                    request, gateway_result.message or "شروع پرداخت ناموفق بود."
+                    request,
+                    user_error_message(
+                        gateway_result.message, fallback="شروع پرداخت ناموفق بود."
+                    ),
                 )
                 return redirect("payments:charge")
 
@@ -484,7 +488,11 @@ class WalletChargeVerifyView(View):
             title="تأیید شارژ کیف پول ناموفق بود",
         )
         messages.error(
-            request, result.message or "تایید پرداخت شارژ کیف پول ناموفق بود."
+            request,
+            user_error_message(
+                result.message,
+                "تأیید پرداخت شارژ کیف پول ناموفق بود. لطفاً دوباره تلاش کنید.",
+            ),
         )
         return redirect("payments:detail")
 
@@ -590,7 +598,7 @@ class WalletWithdrawView(LoginRequiredMixin, View):
                     )
                 )
         except ValidationError as exc:
-            form.add_error("amount", str(exc))
+            form.add_error("amount", user_error_message(exc))
             return render(
                 request,
                 self.template_name,
@@ -621,7 +629,7 @@ class WalletWithdrawalCancelView(LoginRequiredMixin, View):
                 note="درخواست برداشت توسط کاربر لغو شد و مبلغ به کیف پول برگشت داده شد."
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
         else:
             logger.info(
                 "Wallet withdrawal cancelled | user=%s | request=%s | wallet=%s",
@@ -1219,7 +1227,12 @@ class AppointmentPaymentVerifyView(View):
                 ),
                 title="تأیید پرداخت ناموفق بود",
             )
-            messages.error(request, result.message or "تایید پرداخت ناموفق بود.")
+            messages.error(
+                request,
+                user_error_message(
+                    result.message, fallback="تأیید پرداخت ناموفق بود."
+                ),
+            )
 
         return redirect(
             "payments:appointment_result",

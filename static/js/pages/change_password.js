@@ -46,28 +46,28 @@ export default function initChangePassword() {
       // Check if passwords match
       if (newPassword.value !== confirmPassword.value) {
         e.preventDefault();
-        alert('رمز عبور و تکرار آن مطابقت ندارند');
+        window.LoomeraFeedback?.error?.('رمز عبور و تکرار آن مطابقت ندارند');
         return false;
       }
 
       // Check minimum length
       if (newPassword.value.length < 6) {
         e.preventDefault();
-        alert('رمز عبور باید حداقل ۶ کاراکتر باشد');
+        window.LoomeraFeedback?.error?.('رمز عبور باید حداقل ۶ کاراکتر باشد');
         return false;
       }
 
       // If current password field exists, check it's not empty
       if (currentPassword && !currentPassword.value) {
         e.preventDefault();
-        alert('لطفاً رمز عبور فعلی را وارد کنید');
+        window.LoomeraFeedback?.error?.('لطفاً رمز عبور فعلی را وارد کنید');
         return false;
       }
 
       // Check that new password is different from current
       if (currentPassword && newPassword.value === currentPassword.value) {
         e.preventDefault();
-        alert('رمز عبور جدید نباید برابر با رمز عبور فعلی باشد');
+        window.LoomeraFeedback?.error?.('رمز عبور جدید نباید برابر با رمز عبور فعلی باشد');
         return false;
       }
     });

@@ -966,7 +966,7 @@
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(destination).catch(() => null);
     }
-    alert('برای مسیریابی با اپ دستگاه، این صفحه را روی موبایل باز کن. مقصد برایت کپی شد.');
+    window.LoomeraFeedback?.info?.('برای مسیریابی با برنامه دستگاه، این صفحه را روی موبایل باز کن. مقصد برایت کپی شد.');
   };
 
   window.confirmCancel = function () {
@@ -982,13 +982,13 @@
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok || !data.success) {
-          alert(data.error || 'خطا در لغو نوبت');
+          window.LoomeraFeedback?.error?.(data.error || 'خطا در لغو نوبت');
           return;
         }
-        alert(data.message || 'نوبت شما لغو شد');
+        window.LoomeraFeedback?.success?.(data.message || 'نوبت شما لغو شد.');
         window.location.reload();
       })
-      .catch(() => alert('خطا در ارسال درخواست'))
+      .catch(() => window.LoomeraFeedback?.error?.('خطا در ارسال درخواست'))
       .finally(() => window.closeManageModal());
   };
 

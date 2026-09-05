@@ -1,4 +1,5 @@
 from __future__ import annotations
+from apps.main.ui_feedback import user_error_message
 
 from urllib.parse import urlencode
 
@@ -327,7 +328,7 @@ class _PrintTemplateImageView(View):
                 )
             )
         except ValueError as exc:
-            raise Http404(str(exc)) from exc
+            raise Http404(user_error_message(exc, "لینک رزرو پیدا نشد یا دیگر در دسترس نیست.")) from exc
 
         response = HttpResponse(
             generated.content,

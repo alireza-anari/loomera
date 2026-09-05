@@ -29,15 +29,6 @@
           <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
         </a>
       </div>
-
-      {% if messages %}
-        <div class="mt-5 space-y-2" aria-label="پیام‌های سیستم">
-          {% for message in messages %}
-            <div class="rounded-2xl border px-4 py-3 text-sm font-bold leading-7 {% if message.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-700{% else %}border-red-200 bg-red-50 text-red-700{% endif %}" role="alert">
-              {{ message }}
-            </div>
-          {% endfor %}
-        </div>
       {% endif %}
 
       <form method="post" class="mt-7 space-y-5" novalidate>

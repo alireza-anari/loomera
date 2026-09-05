@@ -1,4 +1,5 @@
 from __future__ import annotations
+from apps.main.ui_feedback import stash_form_errors, user_error_message
 
 from django.conf import settings
 from django.contrib import messages
@@ -553,7 +554,8 @@ class SalonVerificationActionView(PlatformAdminBaseMixin, View):
         salon = get_object_or_404(Salon, pk=pk)
         form = SalonVerificationActionForm(request.POST)
         if not form.is_valid():
-            messages.error(request, "اطلاعات وضعیت احراز معتبر نیست.")
+            stash_form_errors(request, form)
+            messages.error(request, "اطلاعات وضعیت احراز نیاز به اصلاح دارد.")
             return redirect("platform_admin:salon_detail", pk=salon.pk)
         old = salon.verification_status
         new = form.cleaned_data["status"]
@@ -663,7 +665,8 @@ class UserSuspendActionView(PlatformAdminBaseMixin, View):
         user = get_object_or_404(User, pk=pk)
         form = SuspensionActionForm(request.POST)
         if not form.is_valid():
-            messages.error(request, "اطلاعات تعلیق معتبر نیست.")
+            stash_form_errors(request, form)
+            messages.error(request, "اطلاعات تعلیق نیاز به اصلاح دارد.")
             return redirect("platform_admin:user_detail", pk=user.pk)
         ct = ContentType.objects.get_for_model(user, for_concrete_model=False)
         SuspensionRecord.objects.create(
@@ -761,7 +764,8 @@ class ContentReportActionView(PlatformAdminBaseMixin, View):
         report = get_object_or_404(ContentReport, pk=pk)
         form = ModerationActionForm(request.POST)
         if not form.is_valid():
-            messages.error(request, "عملیات گزارش محتوا معتبر نیست.")
+            stash_form_errors(request, form)
+            messages.error(request, "اطلاعات عملیات گزارش محتوا نیاز به اصلاح دارد.")
             return redirect("platform_admin:content_reports")
         action = form.cleaned_data["action"]
         note = form.cleaned_data.get("note") or ""
@@ -908,7 +912,7 @@ class SupportQueueView(PlatformAdminBaseMixin, ListView):
         try:
             _validate_platform_support_query_size(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("platform_admin:support")
 
         return super().get(request, *args, **kwargs)
@@ -982,7 +986,7 @@ class SupportStatusActionView(PlatformAdminBaseMixin, View):
         try:
             _validate_platform_support_action_size(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("platform_admin:support_detail", pk=pk)
 
         from apps.accounts.notifications import notify_support_reply
@@ -1000,7 +1004,8 @@ class SupportStatusActionView(PlatformAdminBaseMixin, View):
 
             form = SupportStatusForm(request.POST)
             if not form.is_valid():
-                messages.error(request, "اطلاعات تیکت معتبر نیست.")
+                stash_form_errors(request, form)
+                messages.error(request, "اطلاعات تیکت نیاز به اصلاح دارد.")
                 return redirect("platform_admin:support_detail", pk=ticket.pk)
 
             try:
@@ -1015,7 +1020,7 @@ class SupportStatusActionView(PlatformAdminBaseMixin, View):
                     field_label="یادداشت داخلی",
                 )
             except ValidationError as exc:
-                messages.error(request, str(exc))
+                messages.error(request, user_error_message(exc))
                 return redirect("platform_admin:support_detail", pk=ticket.pk)
 
             old = {
@@ -1159,7 +1164,8 @@ class DisputeActionView(PlatformAdminBaseMixin, View):
         dispute = get_object_or_404(DisputeCase, pk=pk)
         form = DisputeActionForm(request.POST)
         if not form.is_valid():
-            messages.error(request, "عملیات پرونده اختلاف معتبر نیست.")
+            stash_form_errors(request, form)
+            messages.error(request, "اطلاعات عملیات پرونده اختلاف نیاز به اصلاح دارد.")
             return redirect("platform_admin:dispute_detail", pk=dispute.pk)
         old_status = dispute.status
         dispute.status = form.cleaned_data["status"]
@@ -1384,6 +1390,6 @@ class AnalyticsExportCreateView(PlatformAdminBaseMixin, View):
             new_value={"report_type": report_type, "filters": filters},
         )
         messages.success(
-            request, "درخواست خروجی گزارش ثبت شد. command پردازش خروجی را اجرا کنید."
+            request, "درخواست خروجی گزارش ثبت شد. فرمان پردازش خروجی را اجرا کنید."
         )
         return redirect("platform_admin:analytics")

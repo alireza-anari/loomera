@@ -99,7 +99,7 @@ function initSingleReadButtons() {
         markCardAsRead(card);
         updateUnreadBadges(payload.unread_count);
       } catch (error) {
-        window.alert(error.message || "خوانده‌شدن اعلان ثبت نشد.");
+        window.LoomeraFeedback?.error?.(error.message || "خوانده‌شدن اعلان ثبت نشد.");
         button.disabled = false;
       } finally {
         delete button.dataset.loading;
@@ -151,7 +151,7 @@ function initMarkAllRead() {
         document.querySelectorAll("[data-notification-card]").forEach(markCardAsRead);
         updateUnreadBadges(payload.unread_count);
       } catch (error) {
-        window.alert(error.message || "خواندن همه اعلان‌ها با خطا مواجه شد.");
+        window.LoomeraFeedback?.error?.(error.message || "خواندن همه اعلان‌ها با خطا مواجه شد.");
         button.disabled = false;
       } finally {
         delete button.dataset.loading;

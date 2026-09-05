@@ -1,35 +1,17 @@
-import ast
-import re
-
 from django import template
+
+from apps.main.ui_feedback import user_error_message, user_ui_message
 
 register = template.Library()
 
 
 @register.filter
-def clean_ui_message(value):
-    """Normalize message-framework text for display without changing backend logic.
+def clean_ui_message(value, tags=""):
+    """Return normalized feedback text without exposing technical error details."""
 
-    Django ValidationError stringification can produce a Python-list-looking string,
-    e.g. ``['زمان انتخاب‌شده دیگر آزاد نیست.']``.  This filter only unwraps a
-    literal list/tuple of strings and normalizes whitespace; arbitrary content is
-    returned as text and remains auto-escaped by the template engine.
-    """
-
-    text = str(value or "").strip()
-    if not text:
-        return ""
-
-    if (text.startswith("[") and text.endswith("]")) or (
-        text.startswith("(") and text.endswith(")")
-    ):
-        try:
-            parsed = ast.literal_eval(text)
-        except (ValueError, SyntaxError):
-            parsed = None
-        if isinstance(parsed, (list, tuple)) and parsed and all(
-            isinstance(item, str) for item in parsed
-        ):
-            text = "، ".join(item.strip() for item in parsed if item.strip())
-
-    return re.sub(r"\s+", " ", text).strip()
+    tag_set = set(str(tags or "").split())
+    if tag_set.intersection({"error", "danger", "warning"}):
+        return user_error_message(value)
+    if tag_set.intersection({"success", "info"}):
+        return user_ui_message(value, allow_latin_data=True)
+    return user_ui_message(value)

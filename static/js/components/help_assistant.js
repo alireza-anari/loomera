@@ -15,7 +15,7 @@ function csrfToken(root) {
 
 function lumiApiError(response, payload, fallback) {
   if (response.status >= 500) return fallback;
-  return payload?.error || fallback;
+  return window.LoomeraFeedback?.safeMessage?.(payload?.error, "error") || fallback;
 }
 
 
@@ -30,7 +30,7 @@ function lumiRequestError(error, fallback) {
   if (!message || /failed to fetch|networkerror|load failed|network request failed/i.test(message)) {
     return "ارتباط با لومی برقرار نشد. اتصال اینترنت رو بررسی کن و دوباره امتحان کن.";
   }
-  return message || fallback;
+  return window.LoomeraFeedback?.safeMessage?.(message, "error") || fallback;
 }
 
 async function fetchWithTimeout(url, options = {}, timeoutMs = 30000) {

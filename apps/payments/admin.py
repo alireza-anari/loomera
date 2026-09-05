@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import user_error_message
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
 from .models import (
@@ -137,7 +138,7 @@ def approve_wallet_withdrawals(modeladmin, request, queryset):
             item.approve(note="تایید توسط تیم مالی")
             done += 1
         except ValidationError as exc:
-            messages.error(request, f"درخواست {item.pk}: {exc}")
+            messages.error(request, f"درخواست {item.pk}: {user_error_message(exc)}")
     if done:
         messages.success(request, f"{done} درخواست برداشت مشتری تایید شد.")
 
@@ -149,7 +150,7 @@ def reject_wallet_withdrawals(modeladmin, request, queryset):
             item.reject(note="رد توسط تیم مالی و بازگشت خودکار موجودی")
             done += 1
         except ValidationError as exc:
-            messages.error(request, f"درخواست {item.pk}: {exc}")
+            messages.error(request, f"درخواست {item.pk}: {user_error_message(exc)}")
     if done:
         messages.warning(request, f"{done} درخواست برداشت مشتری رد شد و موجودی آن‌ها برگشت داده شد.")
 
@@ -161,7 +162,7 @@ def approve_salon_withdrawals(modeladmin, request, queryset):
             item.approve(note="تایید توسط تیم مالی")
             done += 1
         except ValidationError as exc:
-            messages.error(request, f"درخواست {item.pk}: {exc}")
+            messages.error(request, f"درخواست {item.pk}: {user_error_message(exc)}")
     if done:
         messages.success(request, f"{done} درخواست برداشت سالن تایید شد.")
 
@@ -173,7 +174,7 @@ def reject_salon_withdrawals(modeladmin, request, queryset):
             item.reject(note="رد توسط تیم مالی و بازگشت خودکار موجودی")
             done += 1
         except ValidationError as exc:
-            messages.error(request, f"درخواست {item.pk}: {exc}")
+            messages.error(request, f"درخواست {item.pk}: {user_error_message(exc)}")
     if done:
         messages.warning(request, f"{done} درخواست برداشت سالن رد شد و موجودی آن‌ها برگشت داده شد.")
 
@@ -185,7 +186,7 @@ def cancel_wallet_withdrawals(modeladmin, request, queryset):
             item.cancel(note="لغو توسط تیم مالی و بازگشت خودکار موجودی")
             done += 1
         except ValidationError as exc:
-            messages.error(request, f"درخواست {item.pk}: {exc}")
+            messages.error(request, f"درخواست {item.pk}: {user_error_message(exc)}")
     if done:
         messages.warning(request, f"{done} درخواست برداشت مشتری لغو شد و موجودی آن‌ها برگشت داده شد.")
 
@@ -197,7 +198,7 @@ def cancel_salon_withdrawals(modeladmin, request, queryset):
             item.cancel(note="لغو توسط تیم مالی و بازگشت خودکار موجودی")
             done += 1
         except ValidationError as exc:
-            messages.error(request, f"درخواست {item.pk}: {exc}")
+            messages.error(request, f"درخواست {item.pk}: {user_error_message(exc)}")
     if done:
         messages.warning(request, f"{done} درخواست برداشت سالن لغو شد و موجودی آن‌ها برگشت داده شد.")
 
@@ -369,7 +370,7 @@ def approve_stylist_withdrawals(modeladmin, request, queryset):
             item.approve(note="تایید توسط تیم مالی")
             done += 1
         except ValidationError as exc:
-            messages.error(request, f"درخواست {item.pk}: {exc}")
+            messages.error(request, f"درخواست {item.pk}: {user_error_message(exc)}")
 
     if done:
         messages.success(request, f"{done} درخواست برداشت آرایشگر تایید شد.")
@@ -383,7 +384,7 @@ def reject_stylist_withdrawals(modeladmin, request, queryset):
             item.reject(note="رد توسط تیم مالی و بازگشت خودکار موجودی")
             done += 1
         except ValidationError as exc:
-            messages.error(request, f"درخواست {item.pk}: {exc}")
+            messages.error(request, f"درخواست {item.pk}: {user_error_message(exc)}")
 
     if done:
         messages.warning(
@@ -399,7 +400,7 @@ def cancel_stylist_withdrawals(modeladmin, request, queryset):
             item.cancel(note="لغو توسط تیم مالی و بازگشت خودکار موجودی")
             done += 1
         except ValidationError as exc:
-            messages.error(request, f"درخواست {item.pk}: {exc}")
+            messages.error(request, f"درخواست {item.pk}: {user_error_message(exc)}")
 
     if done:
         messages.warning(

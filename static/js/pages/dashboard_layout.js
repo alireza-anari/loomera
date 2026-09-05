@@ -51,28 +51,8 @@ function setupDashboardLayout() {
   const mobileManagementPanel = document.querySelector("[data-mobile-management-panel]");
   const mobileManagementClose = document.querySelector("[data-mobile-management-close]");
 
-  let comingSoonToastTimer = null;
-
   const showComingSoonToast = (message = "به‌زودی فعال می‌شود") => {
-    document.querySelector("[data-dashboard-coming-soon-toast]")?.remove();
-
-    const toast = document.createElement("div");
-    toast.className = "lm-dashboard-coming-soon-toast";
-    toast.dataset.dashboardComingSoonToast = "true";
-    toast.setAttribute("role", "status");
-    toast.setAttribute("aria-live", "polite");
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    window.requestAnimationFrame(() => {
-      toast.classList.add("is-visible");
-    });
-
-    if (comingSoonToastTimer) window.clearTimeout(comingSoonToastTimer);
-    comingSoonToastTimer = window.setTimeout(() => {
-      toast.classList.remove("is-visible");
-      window.setTimeout(() => toast.remove(), 220);
-    }, 2400);
+    window.LoomeraFeedback?.info?.(message, { duration: 2400 });
   };
 
   if (!sidebar || !overlay || !content) return;

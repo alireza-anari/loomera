@@ -57,14 +57,6 @@
     </aside>
 
     <main class="min-w-0 flex-1">
-      {% if messages %}
-        <div class="mb-4 space-y-2">
-          {% for message in messages %}
-            <div class="rounded-3xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-semibold text-loomera-textPrimary shadow-sm">{{ message }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-      {% block platform_content %}{% endblock %}
     </main>
   </div>
 </section>

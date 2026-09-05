@@ -36,7 +36,7 @@ class PublicSearchJsonSecurityTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["error"], "Invalid JSON")
+        self.assertEqual(response.json()["error"], "invalid_json")
 
     def test_filter_salon_rejects_json_array_payload(self):
         response = self.client.post(

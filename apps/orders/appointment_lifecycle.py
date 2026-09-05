@@ -1,4 +1,5 @@
 from __future__ import annotations
+from apps.main.ui_feedback import user_error_message
 
 from datetime import timedelta
 
@@ -834,7 +835,7 @@ def _resolve_no_show_paid_amount(detail: OrderDetail, order: Order) -> dict:
             "method": method,
         }
     except Exception as exc:
-        return {"is_digital_paid": False, "paid_amount": 0, "error": str(exc), "source": "error"}
+        return {"is_digital_paid": False, "paid_amount": 0, "error": user_error_message(exc), "source": "error"}
 
 
 def _find_existing_no_show_wallet_refund(*, order: Order):
@@ -1095,7 +1096,7 @@ def apply_no_show_refund_policy(*, detail: OrderDetail, actor=None, force_full_r
                 "refund_percent": amounts.get("refund_percent"),
             }
     except Exception as exc:
-        return {"eligible": False, "refund_amount": 0, "error": str(exc), "error_type": exc.__class__.__name__}
+        return {"eligible": False, "refund_amount": 0, "error": user_error_message(exc), "error_type": "domain_error"}
 
 @transaction.atomic
 def confirm_no_show(*, detail: OrderDetail, actor=None, note: str = "") -> OrderDetail:

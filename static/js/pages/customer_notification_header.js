@@ -432,7 +432,7 @@ function bindRoot(root) {
         syncUnreadCount(payload.unread_count);
         await loadSummary(root);
       } catch (error) {
-        window.alert("خواندن همه اعلان‌ها با خطا مواجه شد");
+        window.LoomeraFeedback?.error?.("خواندن همه اعلان‌ها با خطا مواجه شد");
       } finally {
         delete readAll.dataset.loading;
       }

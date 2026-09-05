@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import user_error_message
 import json
 import logging
 import hashlib
@@ -126,7 +127,7 @@ def _clean_appointment_checkout_form_action(request):
     # field or a browser that drops the submitter button) as confirmation.
     if not action:
         if actions:
-            raise ValidationError("عملیات checkout معتبر نیست.")
+            raise ValidationError("عملیات تسویه معتبر نیست.")
         raise ValidationError(
             "عملیات مشخص نیست؛ برای ثبت نهایی رزرو از دکمه «ثبت نهایی» استفاده کنید."
         )
@@ -1280,7 +1281,7 @@ class BookingStylistSelectPerService(View):
 
             messages.error(
                 request,
-                (str(exc) or "خطا در پردازش اطلاعات."),
+                user_error_message(exc, "اطلاعات رزرو معتبر نیست. لطفاً انتخاب‌ها را دوباره بررسی کنید."),
             )
 
             return redirect("orders:select_stylists")
@@ -1323,7 +1324,7 @@ class BookingDateTimeSelectPersian(View):
 
         except ValidationError as exc:
             _clear_public_booking_session_state(request)
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("salons:show_salons")
 
         enriched = []
@@ -1427,7 +1428,7 @@ class BookingDateTimeSelectPersian(View):
 
             messages.error(
                 request,
-                (str(exc) or "خطا در پردازش اطلاعات."),
+                user_error_message(exc, "اطلاعات رزرو معتبر نیست. لطفاً انتخاب‌ها را دوباره بررسی کنید."),
             )
 
             return redirect("orders:select_dateTime")
@@ -1890,7 +1891,7 @@ class QuickBookingEntryView(View):
                     quick_link=quick_link,
                 )
         except ValidationError as exc:
-            return self._redirect_with_error(request, str(exc))
+            return self._redirect_with_error(request, user_error_message(exc))
 
         if quick_link:
             request.session["booking_quick_link_id"] = quick_link.id
@@ -2040,7 +2041,7 @@ class ReservationPreview(LoginRequiredMixin, View):
                 datetime_selections=datetime_selections,
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:select_dateTime")
 
         service_details = []
@@ -2102,7 +2103,7 @@ class ReservationPreview(LoginRequiredMixin, View):
                 request.GET.get("coupon")
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             coupon_code = ""
         payload = _build_checkout_payload(request=request, coupon_code=coupon_code)
         form = AppointmentCheckoutForm(
@@ -2136,7 +2137,7 @@ class ReservationPreview(LoginRequiredMixin, View):
                 datetime_selections=datetime_selections,
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:reservation_preview")
 
         record_booking_quick_link_started(request=request)
@@ -2449,7 +2450,7 @@ class RebookPastOrderView(LoginRequiredMixin, View):
         try:
             items, stylist_selections = _build_rebook_stylist_selections(order)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:appointments")
 
         if not items:
@@ -2697,7 +2698,7 @@ class AppointmentDetailView(LoginRequiredMixin, DetailView):
                 request.POST.get("comment_text")
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:appointment_detail", pk=appointment.pk)
 
         comment = Comments.objects.create(
@@ -3012,7 +3013,7 @@ class PayInSalonSettlementView(LoginRequiredMixin, View):
         try:
             action = _clean_pay_in_salon_settlement_action(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:appointment_detail", pk=pk)
 
         appointment = get_object_or_404(
@@ -3134,7 +3135,10 @@ class PayInSalonSettlementView(LoginRequiredMixin, View):
 
             messages.error(
                 request,
-                gateway_result.message or "شروع پرداخت آنلاین ناموفق بود.",
+                user_error_message(
+                    gateway_result.message,
+                    "شروع پرداخت آنلاین ناموفق بود. لطفاً دوباره تلاش کنید.",
+                ),
             )
             return redirect("orders:appointment_detail", pk=appointment.pk)
 
@@ -3613,7 +3617,7 @@ class RescheduleConfirmView(LoginRequiredMixin, View):
             return redirect("orders:appointment_detail", pk=base_id)
 
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:appointment_detail", pk=base_id)
 
         except Exception:
@@ -3875,10 +3879,10 @@ _CHECKOUT_SLOT_LOST_SESSION_KEY = "checkout_slot_lost_notice"
 
 
 def _validation_error_message(exc):
-    exc_messages = getattr(exc, "messages", None)
-    if exc_messages:
-        return " ".join(str(item) for item in exc_messages)
-    return str(exc)
+    return user_error_message(
+        exc,
+        "اطلاعات رزرو معتبر نیست. لطفاً انتخاب‌ها را دوباره بررسی کنید.",
+    )
 
 
 def _store_checkout_slot_lost_notice(request, *, message: str):
@@ -4084,7 +4088,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
                 request.GET.get("coupon")
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             coupon_code = ""
 
         if coupon_code:
@@ -4116,7 +4120,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
                 request.POST.get("coupon_code")
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:reservation_preview")
 
         checkout_action = form_action
@@ -4169,7 +4173,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
         try:
             coupon_code = _clean_appointment_checkout_coupon_code(coupon_code)
         except ValidationError as exc:
-            form.add_error("coupon_code", str(exc))
+            form.add_error("coupon_code", user_error_message(exc, "کد تخفیف معتبر نیست یا امکان استفاده از آن وجود ندارد."))
             return self._render(request, form=form, coupon_code="")
 
         payload = _build_checkout_payload(request=request, coupon_code=coupon_code)
@@ -4282,7 +4286,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             if gateway_mode == "live" and not salon.payout_profile_complete:
                 messages.error(
                     request,
-                    "اطلاعات تسویه این مجموعه هنوز کامل نشده و پرداخت آنلاین در حالت live فعلاً مجاز نیست.",
+                    "اطلاعات تسویه این مجموعه هنوز کامل نشده و پرداخت آنلاین در حالت عملیاتی فعلاً مجاز نیست.",
                 )
                 return self._render(request, form=form, coupon_code=coupon_code)
 
@@ -4306,7 +4310,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             )
 
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:select_dateTime")
 
         order = Order.objects.create(
@@ -4621,7 +4625,12 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
                 gateway_result.message or "",
             )
 
-            messages.error(request, gateway_result.message or "شروع پرداخت ناموفق بود.")
+            messages.error(
+                request,
+                user_error_message(
+                    gateway_result.message, fallback="شروع پرداخت ناموفق بود."
+                ),
+            )
 
             redirect_url = reverse(
                 "payments:appointment_result",
