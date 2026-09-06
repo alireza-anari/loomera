@@ -1,0 +1,29 @@
+<section class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5"
+         aria-labelledby="loomi-share-title" data-loomi-share>
+  <h2 id="loomi-share-title" class="text-lg font-black text-loomera-textPrimary">{{ loomi_share_title }}</h2>
+  <p class="mt-2 text-sm leading-7 text-loomera-textSecondary">{{ loomi_share_description }}</p>
+  <div class="mt-4 space-y-4">
+    {% for card in loomi_share_cards %}
+      <article class="min-w-0 rounded-2xl border border-loomera-borderSoft p-4">
+        <h3 class="font-black text-loomera-textPrimary">{{ card.label }}</h3>
+        <div class="mt-3 grid gap-4 lg:grid-cols-2">
+          {% for link in card.links %}
+            <div class="min-w-0 space-y-2" data-loomi-share-link>
+              <label for="loomi-link-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" class="block text-sm font-bold">{{ link.label }}</label>
+              <input id="loomi-link-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" type="text" readonly dir="ltr"
+                     value="{{ link.url }}" aria-label="لینک لومی {{ card.label }} در {{ link.label }}"
+                     class="w-full min-w-0 rounded-xl border border-loomera-borderSoft bg-loomera-bgSubtle px-3 py-2 text-sm" data-loomi-link-value>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" data-loomi-copy aria-label="کپی لینک لومی {{ card.label }} در {{ link.label }}"
+                        class="min-h-11 rounded-full bg-loomera-primary px-4 py-2 text-sm font-bold text-white">کپی لینک</button>
+                <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer"
+                   aria-label="باز کردن لومی {{ card.label }} در {{ link.label }}"
+                   class="inline-flex min-h-11 items-center rounded-full border border-loomera-borderSoft px-4 py-2 text-sm font-bold">باز کردن</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</section>

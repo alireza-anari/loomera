@@ -39,6 +39,36 @@ export function showToast(message, type = 'info', duration = 3000) {
     return null;
 }
 
+/** Copy text with a fallback for older/mobile browsers and denied permissions. */
+export async function copyText(text) {
+    try {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch (_error) {
+        // Try the legacy copy path before asking for manual selection.
+    }
+    const previousFocus = document.activeElement;
+    const helper = document.createElement('textarea');
+    helper.value = text;
+    helper.setAttribute('readonly', '');
+    helper.style.position = 'fixed';
+    helper.style.opacity = '0';
+    document.body.appendChild(helper);
+    try {
+        helper.focus();
+        helper.select();
+        helper.setSelectionRange(0, text.length);
+        return Boolean(document.execCommand('copy'));
+    } catch (_error) {
+        return false;
+    } finally {
+        helper.remove();
+        previousFocus?.focus();
+    }
+}
+
 /**
  * Debounce function
  */
@@ -58,5 +88,6 @@ export default {
     getCookie,
     formatNumber,
     showToast,
+    copyText,
     debounce
 };

@@ -125,3 +125,97 @@ require staging QA; mocked provider tests cannot establish live delivery.
    quota response, working menus, and no webhook transaction failure.
 10. Replay a webhook update and confirm it is not dispatched twice. Send a Loomi
     question in a group and confirm private context is not used.
+
+## Beta UX follow-up: direct bots and dashboard sharing
+
+Root cause: without a saved public context, the previous runtime only intercepted
+booking words; price/service/contact questions and greetings fell through to the
+generic Help Center. Cancellation questions also matched booking words too early.
+
+The existing dispatcher is unchanged. Commands, connect tokens, callbacks,
+deterministic text menus and authenticated operations still run first. Within
+Loomi, unscoped account/payment/cancellation/policy questions continue to Help
+Center; other supported public service/price/contact/salon/stylist questions ask
+the user to choose a target. Booking/availability asks for selection without
+calculating slots. Greetings introduce Loomi. These replies use the existing
+`menu:customer_search`, website search, and guest/connected main-menu callbacks.
+Scoped public database behavior is unchanged. Cache failure now returns the old
+safe menu, while an exhausted quota still returns the quota response. Context,
+service-read and Help Center errors remain inside the optional-work savepoint.
+
+Manager and stylist Settings → Communications reuse the existing shared page.
+Managers see a separate card for every active salon they own, independent of
+the selected dashboard salon. Specialists see only their authenticated public
+profile; hidden/inactive profiles have no share links. Query parameters never
+select the share target. Each provider is gated by messaging, provider allowlist,
+bot and Loomi flags plus a successfully generated HTTPS URL. Link construction
+uses the existing environment-aware builders. No new model or migration exists.
+
+Each link has a readonly selectable URL, an accessible Copy button and Open link.
+Copy uses the shared utility and existing `LoomeraFeedback` system. It tries
+Clipboard API, then legacy clipboard support; if both fail, it selects the visible
+URL for manual copy and does not claim success. No separate toast system was added.
+
+### Follow-up files
+
+- `apps/messaging/loomi.py`: no-context routing and safe cache-error fallback.
+- `apps/messaging/links.py`: reusable feature-gated provider list.
+- `apps/messaging/templatetags/messaging_connect.py`: reuse that provider list.
+- `apps/dashboards/manager_settings_views.py`: authorized manager/stylist cards.
+- `templates/dashboards/manager_communication_settings.html`: shared settings integration.
+- `templates/dashboards/partials/loomi_share_links.html`: per-target copy/open UI.
+- `static/js/utils.js`: shared clipboard fallback utility.
+- `static/js/pages/loomi_share_links.js`: copy button and existing feedback wiring.
+- `apps/messaging/test_loomi.py`: direct-bot/general-help/failure regressions.
+- `apps/dashboards/test_loomi_communication_settings.py`: ownership, multiple
+  salons, current stylist, environment URLs, visibility and flag coverage.
+- `scripts/test_loomi_clipboard.cjs`: clipboard and feedback behavior tests.
+- This document: audit, results and manual QA.
+
+### Follow-up verification
+
+277 Django tests passed, 0 failed, with this combined run:
+
+```text
+python manage.py test apps.messaging apps.telegram_bot apps.bale_bot apps.dashboards.test_loomi_communication_settings apps.dashboards.test_telegram_communication_settings_static_guards apps.dashboards.test_beta_ux_workspace_settings_batch50_static_guards apps.dashboards.test_beta_ux_specialist_completion_batch54_static_guards --noinput
+```
+
+`node --test scripts/test_loomi_clipboard.cjs`: 5 passed, 0 failed.
+`python manage.py makemigrations --check --dry-run`: No changes detected.
+`git diff --check`: passed. Django used test settings, Python UTF-8 mode and the
+project's Windows GIS initialization. Provider delivery was mocked; no staging or
+production webhook/configuration was changed.
+
+### Next manual QA (Telegram and Bale)
+
+A. Use a fresh bot identity without a deep link. Send `سلام`,
+`قیمت رنگ مو چنده؟`, `چه خدماتی دارید؟`, `برای فردا رزرو کن`. Expect a greeting
+or target-selection guidance with existing search buttons, not a generic Help
+Center refusal. Tap salon search and main menu. Then send `لومرا چیه؟`,
+`چطور حساب کاربری بسازم؟`, `چطور نوبتم رو لغو کنم؟`, `قوانین پرداخت چیه؟` and
+confirm product help remains available.
+
+B. Open an active salon deep link and ask `چه خدماتی دارید؟`,
+`قیمت رنگ مو چنده؟`, `آدرس؟`, `برای فردا رزرو کن`. Compare prices/contact with
+public database records. Booking must open the website without creating an Order
+or claiming available times. An invalid/newly inactive target must not reveal
+the old salon's facts.
+
+C. Open a specialist deep link and ask `چه خدماتی انجام میدی؟` and
+`قیمت رنگ مو چنده؟`. Confirm public services/prices and membership visibility.
+
+D. As a manager open Settings → Communications. Confirm every active owned
+salon has its own named card. Copy and open each Telegram/Bale URL; verify the
+bot username belongs to the current environment and the welcome names the right
+salon. Changing a query-string salon ID must not add another manager's links.
+
+E. As a specialist repeat the communications checks for your own profile. Alter
+the query-string stylist ID and confirm links stay yours. On desktop and mobile,
+copy then paste into a text field; expect `لینک لومی کپی شد.`. Deny clipboard
+permission and verify legacy/manual selection fallback. Disable Loomi and each
+bot flag in staging to verify the section/provider disappears as appropriate.
+
+Phrase matching is deterministic and may miss unfamiliar wording. Live provider
+delivery and real-device clipboard/visual behavior still need the manual checks
+above. Existing public salon inline UI remains absent and the floating assistant
+and specialist public-page block remain unchanged.

@@ -79,3 +79,20 @@ def build_loomi_provider_start_url(provider_key: str, scope_type: str, object_id
 
 def build_login_next_url(request) -> str:
     return f"{reverse('accounts:login')}?next={quote(request.get_full_path())}"
+
+
+def loomi_provider_links(scope_type, target) -> list[dict]:
+    """Links for an already-authorized/public target, gated by deployment flags."""
+    from .loomi import loomi_messaging_enabled
+    from .services import messaging_enabled, provider_allowed
+
+    if not messaging_enabled() or not getattr(target, "is_active", False):
+        return []
+    links = []
+    for key, label in [("telegram", "تلگرام"), ("bale", "بله")]:
+        if (loomi_messaging_enabled(key) and provider_allowed(key)
+                and getattr(settings, f"{key.upper()}_BOT_ENABLED", False)):
+            url = build_loomi_provider_start_url(key, scope_type, target.pk)
+            if url.startswith("https://"):
+                links.append({"url": url, "label": label})
+    return links
