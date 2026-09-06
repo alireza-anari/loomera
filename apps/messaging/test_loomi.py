@@ -216,7 +216,7 @@ class LoomiConversationTests(TestCase):
 
     def test_cache_outage_safely_limits_assistant(self):
         with patch("apps.messaging.loomi.cache.add", side_effect=RuntimeError("cache unavailable")):
-            self.assertIn("سقف", self.answer("سؤال؟")["text"])
+            self.assertEqual(self.dispatch("سؤال؟")[0], "unknown_guest_message_menu")
 
     @override_settings(LOOMI_MESSAGING_ENABLED=False)
     def test_disabled_preserves_original_fallback(self):
@@ -299,6 +299,43 @@ class LoomiConversationTests(TestCase):
         with patch("apps.help_center.services.answer_help_question") as help_answer:
             self.assertIn("مسیر سایت", self.answer("برای فردا رزرو کن")["text"])
             help_answer.assert_not_called()
+
+    def test_direct_bot_public_questions_and_greeting_use_existing_search(self):
+        for provider_key in ("telegram", "bale"):
+            self.provider = self.providers[provider_key]
+            for question, expected in [
+                ("قیمت رنگ مو چنده؟", "کدوم سالن"),
+                ("قیمت رنگساژ چنده؟", "کدوم سالن"),
+                ("چه خدماتی دارید؟", "کدوم سالن"),
+                ("آدرس و شماره تماس؟", "کدوم سالن"),
+                ("این متخصص چه کاری انجام میده؟", "کدوم سالن"),
+                ("برای فردا وقت دارید؟", "اول سالن"),
+                ("سلام", "سلام 🌱"),
+            ]:
+                cache.clear()
+                with self.subTest(provider=provider_key, question=question), patch(
+                    "apps.help_center.services.answer_help_question"
+                ) as help_answer, patch("apps.orders.booking_utils.get_available_slots_for_service") as slots:
+                    result, client = self.dispatch(question)
+                    self.assertEqual(result, "loomi_message")
+                    sent = client.send_message.call_args.kwargs
+                    self.assertIn(expected, sent["text"])
+                    rows = sent["reply_markup"]["inline_keyboard"]
+                    self.assertEqual(rows[0][0]["callback_data"], "menu:customer_search")
+                    self.assertEqual(rows[-1][0]["callback_data"], "menu:guest")
+                    help_answer.assert_not_called()
+                    slots.assert_not_called()
+
+    def test_general_help_including_cancellation_bypasses_selection(self):
+        for question in ["لومرا چیه؟", "چطور حساب کاربری بسازم؟", "چطور نوبتم رو لغو کنم؟", "قوانین پرداخت چیه؟"]:
+            with self.subTest(question=question), patch("apps.help_center.services.answer_help_question",
+                return_value={"answer": "راهنمای عمومی لومرا"}) as help_answer:
+                self.assertEqual(self.answer(question)["text"], "راهنمای عمومی لومرا")
+                help_answer.assert_called_once()
+
+    def test_context_lookup_failure_uses_old_safe_menu(self):
+        with patch("apps.messaging.loomi._current_context", side_effect=RuntimeError("lookup failed")):
+            self.assertEqual(self.dispatch("خدمات؟")[0], "unknown_guest_message_menu")
 
     def test_manager_question_with_customer_context_keeps_operator_guidance(self):
         self.start()

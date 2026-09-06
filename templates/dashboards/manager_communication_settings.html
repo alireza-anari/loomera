@@ -1,4 +1,5 @@
 {% extends "dashboard_template.html" %}
+{% load static %}
 
 {% block title %}اعلان‌ها و ارتباطات{% endblock %}
 
@@ -20,6 +21,10 @@
       </div>
     </div>
   </header>
+
+  {% if loomi_share_cards %}
+    {% include "dashboards/partials/loomi_share_links.html" %}
+  {% endif %}
 
   <div class="lm-task-tabs-anchor"
        data-lm-task-tabs-anchor="communication-settings"
@@ -297,4 +302,11 @@
     </div>
   </section>
 </section>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  {% if loomi_share_cards %}
+    <script type="module" src="{% static 'js/pages/loomi_share_links.js' %}"></script>
+  {% endif %}
 {% endblock %}

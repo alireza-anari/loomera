@@ -21,6 +21,7 @@ from apps.messaging.preferences import (
 from apps.messaging.services import ensure_default_providers, messaging_enabled, provider_allowed
 from apps.notifications.models import NotificationAudienceRole, NotificationChannel
 from apps.salons.membership import get_active_salon_for_stylist
+from apps.messaging.links import loomi_provider_links
 
 
 class ManagerCommunicationSettingsView(LoginRequiredMixin, View):
@@ -38,6 +39,28 @@ class ManagerCommunicationSettingsView(LoginRequiredMixin, View):
     settings_return_name = "dashboards:workspace_settings"
     notification_center_name = "dashboards:notifications_center"
     success_message = "تنظیم اعلان‌های مدیر ذخیره شد."
+    loomi_share_title = "لومی در پیام‌رسان‌ها"
+    loomi_share_description = "این لینک را می‌توانید در بیو اینستاگرام، شبکه‌های اجتماعی یا برای مشتریان ارسال کنید تا مستقیماً با لومی درباره مجموعه شما گفتگو کنند."
+
+    def _loomi_share_targets(self, request):
+        from apps.salons.models import Salon
+        # Ownership comes exclusively from the authenticated manager, not URL IDs
+        # or the currently selected salon in a multi-salon dashboard session.
+        return [("salon", salon, salon.salon_name) for salon in
+                Salon.objects.filter(salon_manager=request.user.salon_manager_profile,
+                                     is_active=True).order_by("salon_name", "id")]
+
+    def _loomi_share_context(self, request):
+        from apps.messaging.loomi import loomi_messaging_enabled
+        cards = []
+        if (request.user.is_active and messaging_enabled()
+                and any(loomi_messaging_enabled(key) for key in ("telegram", "bale"))):
+            for scope, target, label in self._loomi_share_targets(request):
+                links = loomi_provider_links(scope, target)
+                if links:
+                    cards.append({"label": label, "links": links})
+        return {"loomi_share_cards": cards, "loomi_share_title": self.loomi_share_title,
+                "loomi_share_description": self.loomi_share_description}
 
     provider_specs = (
         (
@@ -128,6 +151,7 @@ class ManagerCommunicationSettingsView(LoginRequiredMixin, View):
 
     def _context(self, request):
         context = self._dashboard_context(request)
+        context.update(self._loomi_share_context(request))
         context.update(
             {
                 "hide_dashboard_header": True,
@@ -199,6 +223,15 @@ class StylistCommunicationSettingsView(ManagerCommunicationSettingsView):
     settings_return_name = "dashboards:stylist_settings"
     notification_center_name = "dashboards:stylist_notifications"
     success_message = "تنظیم اعلان‌های متخصص ذخیره شد."
+    loomi_share_title = "لینک لومی من"
+    loomi_share_description = "این لینک را می‌توانید در بیو اینستاگرام یا برای مشتریان ارسال کنید تا درباره خدمات شما با لومی گفتگو کنند."
+
+    def _loomi_share_targets(self, request):
+        from apps.messaging.loomi import _resolve_target
+        stylist = _resolve_target("stylist", request.user.stylist.pk)
+        if stylist is None:
+            return []
+        return [("stylist", stylist, stylist.professional_display_name)]
 
     def dispatch(self, request, *args, **kwargs):
         if not hasattr(request.user, "stylist"):

@@ -127,7 +127,7 @@ def _consume_rate_limit(identity, provider) -> bool:
             return cache.add(key, 1, timeout=window)
     except Exception:
         logger.exception("Loomi rate limiter unavailable")
-        return False
+        raise
 
 
 def _public_stylist_salons(stylist):
@@ -405,6 +405,39 @@ def _current_context(identity) -> MessagingConversationContext | None:
     return MessagingConversationContext.objects.filter(identity=identity).first()
 
 
+def _is_general_help_question(normalized: str) -> bool:
+    return _contains_any(normalized, {
+        "حساب", "ثبت نام", "ورود", "لغو", "پرداخت", "قوانین", "پشتیبانی",
+        "لومرا چیه", "لومرا چیست", "loomera چیست", "loomera چیه",
+    })
+
+
+def _unscoped_reply(normalized: str, base_url: str, *, connected: bool = False) -> dict | None:
+    """Guide public discovery back into the existing customer search flow."""
+    from django.urls import reverse
+    greeting = re.sub(r"[^\w\s]", "", normalized).strip() in {
+        "سلام", "درود", "سلام لومی", "سلام وقت بخیر", "hello", "hi",
+    }
+    booking = _contains_any(normalized, _BOOKING_WORDS | {"زمان", "موجودی وقت"})
+    public_question = _contains_any(normalized, _SERVICE_WORDS | _PRICE_WORDS | _CONTACT_WORDS | {
+        "سالن", "متخصص", "آرایشگر", "مجموعه", "انجام میدی", "انجام می دهید",
+    })
+    if not (greeting or booking or public_question):
+        return None
+    if greeting:
+        text = "سلام 🌱\nمن لومی، دستیار هوشمند لومرا هستم. می‌تونم برای پیدا کردن سالن، خدمات، قیمت‌ها و مسیر رزرو کمکت کنم."
+    elif booking:
+        text = "برای بررسی زمان‌های آزاد، اول سالن یا متخصص موردنظرت رو انتخاب کن. رزرو از مسیر سایت انجام می‌شود."
+    else:
+        text = "برای اینکه اطلاعات دقیق خدمات، قیمت یا آدرس رو بگم، باید بدونم درباره کدوم سالن یا متخصص می‌پرسی. از جستجوی سالن‌ها شروع کن یا لینک لومیِ مجموعه یا متخصص رو باز کن."
+    rows = [[{"text": "جستجوی سالن‌ها", "callback_data": "menu:customer_search"}]]
+    url = absolute_site_url(base_url, reverse("search:search_page"))
+    if url.startswith(("https://", "http://")):
+        rows.append([{"text": "مشاهده سالن‌ها", "url": url}])
+    rows.append([{"text": "منوی اصلی", "callback_data": "menu:main" if connected else "menu:guest"}])
+    return {"text": text, "reply_markup": {"inline_keyboard": rows}}
+
+
 @_safe_loomi
 def answer_loomi_message(*, identity, provider, text: str, base_url: str = "") -> dict | None:
     """
@@ -441,7 +474,8 @@ def answer_loomi_message(*, identity, provider, text: str, base_url: str = "") -
         user = None
     role = detect_user_role(user)
     normalized = _normalize(question)
-    if role in {"manager", "stylist"} and _contains_any(normalized, {
+    general_help = not context and _is_general_help_question(normalized)
+    if not general_help and role in {"manager", "stylist"} and _contains_any(normalized, {
         "برنامه", "تقویم", "شیفت", "مرخصی", "گزارش", "درآمد", "مدیریت", "همکاری", "نوبت", "امروز", "فردا",
     }):
         from apps.bale_bot.menus import menu_for_role
@@ -465,13 +499,10 @@ def answer_loomi_message(*, identity, provider, text: str, base_url: str = "") -
             return {"text": "این پروفایل دیگر در دسترس نیست. لطفاً لینک یک مجموعه یا متخصص فعال را باز کن.", "reply_markup": None}
 
     try:
-        if _contains_any(normalized, _BOOKING_WORDS):
-            from django.urls import reverse
-            url = absolute_site_url(base_url, reverse("search:search_page"))
-            return {
-                "text": "برای دیدن زمان‌های آزاد و ثبت رزرو، ابتدا مجموعه را در لومرا انتخاب کن. رزرو از مسیر سایت انجام می‌شود.",
-                "reply_markup": {"inline_keyboard": [[{"text": "انتخاب مجموعه و رزرو", "url": url}]]} if url.startswith(("https://", "http://")) else None,
-            }
+        if not context and not general_help:
+            reply = _unscoped_reply(normalized, base_url, connected=user is not None)
+            if reply:
+                return reply
         if context and not _contains_any(normalized, {"لومرا", "loomera", "حساب", "داشبورد", "پشتیبانی", "پرداخت", "ثبت نام", "ورود", "لغو"}):
             return {"text": "برای این سؤال اطلاعات تأییدشده‌ای ندارم. می‌تونی درباره خدمات، قیمت، آدرس یا مسیر رزرو بپرسی.", "reply_markup": None}
         result = answer_help_question(
