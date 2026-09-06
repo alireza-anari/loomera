@@ -125,6 +125,31 @@ class MessagingIdentity(models.Model):
         return f"{self.provider.key}:{label}"
 
 
+class MessagingConversationContext(models.Model):
+    class ScopeType(models.TextChoices):
+        GLOBAL = "global", "عمومی"
+        SALON = "salon", "سالن"
+        STYLIST = "stylist", "متخصص"
+
+    identity = models.OneToOneField(
+        MessagingIdentity, on_delete=models.CASCADE, related_name="loomi_context",
+        verbose_name="هویت پیام‌رسان",
+    )
+    scope_type = models.CharField(max_length=24, choices=ScopeType.choices, default="global", db_index=True, verbose_name="نوع scope")
+    scope_object_id = models.PositiveIntegerField(null=True, blank=True, db_index=True, verbose_name="شناسه آبجکت scope")
+    source = models.CharField(max_length=40, blank=True, default="", verbose_name="منبع context")
+    start_payload = models.CharField(max_length=128, blank=True, default="", verbose_name="payload شروع")
+    metadata = models.JSONField(default=dict, blank=True, verbose_name="متادیتا")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="آخرین تغییر")
+
+    class Meta:
+        verbose_name = "context مکالمه لومی"
+        verbose_name_plural = "contextهای مکالمه لومی"
+        ordering = ["-updated_at", "-id"]
+        indexes = [models.Index(fields=["scope_type", "scope_object_id"], name="msg_loomi_scope_idx")]
+
+
 class MessagingAccountConnection(models.Model):
     provider = models.ForeignKey(
         MessagingProvider,

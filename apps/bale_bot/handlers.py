@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from apps.messaging.loomi import answer_loomi_message, try_apply_loomi_start_context
+
 from apps.messaging.services import (
     connect_identity_with_raw_token,
     disconnect_identity,
@@ -660,6 +662,14 @@ def handle_bale_update_stage10(
             )
             return "connected"
 
+        loomi_start = try_apply_loomi_start_context(
+            identity=identity, provider=provider, payload=payload, base_url=base_url,
+        ) if parsed.raw_chat.get("type", "private") == "private" else None
+        if loomi_start:
+            _send(client, provider=provider, identity=identity, chat_id=chat_id,
+                  text=loomi_start["text"], reply_markup=loomi_start.get("reply_markup"))
+            return "loomi_context_started"
+
         if payload:
             _send(
                 client,
@@ -1026,6 +1036,15 @@ def handle_bale_update_stage10(
             chat_id=chat_id,
             base_url=base_url,
         )
+
+    # Commands, callbacks and authenticated menu flows above retain priority.
+    loomi_reply = answer_loomi_message(
+        identity=identity, provider=provider, text=parsed.text, base_url=base_url,
+    ) if parsed.raw_chat.get("type", "private") == "private" else None
+    if loomi_reply:
+        _send(client, provider=provider, identity=identity, chat_id=chat_id,
+              text=loomi_reply["text"], reply_markup=loomi_reply.get("reply_markup"))
+        return "loomi_message"
 
     user = _identity_user(identity)
     if user:

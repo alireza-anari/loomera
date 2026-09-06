@@ -12,6 +12,25 @@ from apps.messaging.services import messaging_enabled, provider_allowed
 register = template.Library()
 
 
+@register.inclusion_tag("messaging/components/loomi_links.html")
+def loomi_links(scope_type, target):
+    """Expose configured assistant entry points on already-public profiles."""
+    from django.conf import settings
+    from apps.messaging.links import build_loomi_provider_start_url
+    from apps.messaging.loomi import loomi_messaging_enabled
+
+    links = []
+    if not messaging_enabled() or not getattr(target, "is_active", False):
+        return {"links": links}
+    for key, label in [("telegram", "تلگرام"), ("bale", "بله")]:
+        if (loomi_messaging_enabled(key) and provider_allowed(key)
+                and getattr(settings, f"{key.upper()}_BOT_ENABLED", False)):
+            url = build_loomi_provider_start_url(key, scope_type, target.pk)
+            if url.startswith("https://"):
+                links.append({"url": url, "label": label})
+    return {"links": links}
+
+
 @register.inclusion_tag("messaging/components/bale_connect_card.html", takes_context=True)
 def bale_connect_card(context, compact: bool = False):
     request = context.get("request")

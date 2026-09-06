@@ -191,6 +191,20 @@ MESSAGING_ENABLED = env.bool("MESSAGING_ENABLED", default=False)
 MESSAGING_OUTBOUND_ENABLED = env.bool("MESSAGING_OUTBOUND_ENABLED", default=False)
 MESSAGING_ACTIONS_ENABLED = env.bool("MESSAGING_ACTIONS_ENABLED", default=False)
 MESSAGING_ALLOWED_PROVIDERS = env.list("MESSAGING_ALLOWED_PROVIDERS", default=[])
+LOOMI_MESSAGING_ENABLED = env.bool("LOOMI_MESSAGING_ENABLED", default=False)
+LOOMI_MESSAGING_ALLOWED_PROVIDERS = env.list(
+    "LOOMI_MESSAGING_ALLOWED_PROVIDERS",
+    default=["telegram", "bale"],
+)
+LOOMI_MESSAGING_HISTORY_LIMIT = env.int("LOOMI_MESSAGING_HISTORY_LIMIT", default=6)
+LOOMI_MESSAGING_USER_LIMIT = env.int("LOOMI_MESSAGING_USER_LIMIT", default=30)
+LOOMI_MESSAGING_GUEST_LIMIT = env.int("LOOMI_MESSAGING_GUEST_LIMIT", default=10)
+LOOMI_MESSAGING_RATE_WINDOW_SECONDS = env.int(
+    "LOOMI_MESSAGING_RATE_WINDOW_SECONDS", default=3600
+)
+LOOMI_MESSAGING_MAX_QUESTION_CHARS = env.int(
+    "LOOMI_MESSAGING_MAX_QUESTION_CHARS", default=1200
+)
 BALE_BOT_ENABLED = env.bool("BALE_BOT_ENABLED", default=False)
 if BALE_BOT_ENABLED and "bale" not in MESSAGING_ALLOWED_PROVIDERS:
     MESSAGING_ALLOWED_PROVIDERS.append("bale")
@@ -200,6 +214,8 @@ BALE_BOT_API_BASE_URL = env(
 ).strip()
 BALE_BOT_REQUEST_TIMEOUT = env.int("BALE_BOT_REQUEST_TIMEOUT", default=10)
 BALE_BOT_USERNAME = env("BALE_BOT_USERNAME", default="").strip().lstrip("@")
+# Username selects this deployment's bot. Optional template may use {username},
+# {payload}, {raw_token}; a different bot/host is ignored by the link builder.
 BALE_BOT_START_URL_TEMPLATE = env("BALE_BOT_START_URL_TEMPLATE", default="").strip()
 BALE_WEBHOOK_SECRET = env("BALE_WEBHOOK_SECRET", default="").strip()
 BALE_WEBHOOK_REQUIRE_SECRET = env.bool("BALE_WEBHOOK_REQUIRE_SECRET", default=True)
