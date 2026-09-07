@@ -271,3 +271,58 @@ git diff --check
 
 The earlier 277/5-pass counts above describe the pre-hardening follow-up and must
 not be treated as verification of this new patch until the commands above pass.
+
+## Conversation quality follow-up
+
+This follow-up keeps the existing Telegram/Bale transport, webhook, permissions,
+booking engine and Loomi safety boundaries unchanged. It improves only the
+conversation layer used after existing deterministic bot commands and callbacks.
+
+Changes:
+
+- Persian colloquial phrasing is recognized more broadly for service, price,
+  contact and availability questions (for example `چند درمیاد؟`, `چه کارایی`,
+  `چه تایمی`, `چطور بیام`).
+- Service-name matching now tolerates short natural mentions such as asking for
+  `رنگساژ` when the registered service is `رنگساژ مو`, while still resolving only
+  against active services already visible in the current public scope.
+- The active Loomi context stores only a lightweight `last_service_id/name`
+  pointer in its existing metadata. No chat history is stored. The service is
+  revalidated against the current visible scope before every follow-up.
+- Short follow-ups such as `قیمتش چنده؟` use the last explicitly resolved service
+  instead of listing every service again.
+- Availability follow-ups such as `فردا چه وقتایی دارید؟` reuse the last service
+  when it remains valid, so users are not forced to select the same service twice.
+- A specific service answer offers a direct `زمان‌های آزاد ...` callback plus the
+  existing booking link. Real slots are still read from the existing booking
+  engine and final reservation stays on the website.
+- Greetings, thanks, farewell and capability/help-about-Loomi messages now have
+  deterministic conversational replies instead of falling through to generic
+  unknown/help responses.
+- Direct-bot discovery wording such as `دنبال رنگ مو هستم` is routed to the
+  existing salon search flow without calling Help Center AI.
+- Scoped unsupported questions continue to avoid guessing. The reply explains
+  the verified public facts Loomi can answer and gives concrete examples.
+
+Safety boundaries remain unchanged: public deep links do not grant authenticated
+roles; hidden/inactive data is not exposed; no Order is created by Loomi; no slot
+is reserved by the bot; availability is revalidated by the website booking flow;
+and product/account/cancellation questions continue to the Help Center path.
+
+### Conversation QA additions
+
+Run these on both Telegram and Bale after the existing smoke tests pass:
+
+1. Scoped salon: ask `رنگساژ چند درمیاد؟` where the registered service is
+   `رنگساژ مو`; verify the correct service and database price are returned.
+2. With multiple services, ask `قیمت رنگ مو چنده؟` then `قیمتش چنده؟`; verify the
+   second answer stays on `رنگ مو` and does not list unrelated services.
+3. After the same service question, ask `فردا چه وقتایی دارید؟`; verify Loomi
+   previews real availability for that service without asking for the service a
+   second time.
+4. Ask `مرسی`, `خداحافظ`, and `چه کمکی میکنی؟`; verify natural deterministic
+   replies and no generic "اطلاعات ندارم" response.
+5. Without a deep link ask `دنبال رنگ مو هستم`; verify existing salon-search
+   actions are offered and Help Center AI is not used.
+6. Ask a scoped question outside supported public facts; verify Loomi explicitly
+   says it only answers verified registered information and does not invent data.

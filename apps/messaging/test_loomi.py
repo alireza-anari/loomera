@@ -344,6 +344,96 @@ class LoomiConversationTests(TestCase):
             "https://loomera.test/orders/quick-link/"
         ))
 
+    def test_colloquial_service_and_price_phrase_matches_registered_service(self):
+        color_gloss = Services.objects.create(
+            service_name="رنگساژ مو",
+            slug="loomi-color-gloss",
+            is_active=True,
+            is_platform_catalog=True,
+            base_price=410000,
+        )
+        self.salon.services.add(color_gloss)
+        color_gloss.stylists.add(self.stylist)
+        self.start()
+
+        reply = self.answer("رنگساژ چند درمیاد؟")
+        self.assertIn("رنگساژ مو", reply["text"])
+        self.assertIn("410,000", reply["text"])
+
+    def test_scoped_service_reply_remembers_service_for_short_price_followup(self):
+        second = Services.objects.create(
+            service_name="اصلاح مو",
+            slug="loomi-haircut-followup",
+            is_active=True,
+            is_platform_catalog=True,
+            base_price=180000,
+        )
+        self.salon.services.add(second)
+        second.stylists.add(self.stylist)
+        self.start()
+
+        first = self.answer("رنگ مو دارید؟")
+        self.assertIn("رنگ مو", first["text"])
+        context = MessagingConversationContext.objects.get(identity=self.identity)
+        self.assertEqual(context.metadata.get("last_service_id"), self.service.pk)
+
+        followup = self.answer("قیمتش چنده؟")
+        self.assertIn("رنگ مو", followup["text"])
+        self.assertIn("250,000", followup["text"])
+        self.assertNotIn("اصلاح مو", followup["text"])
+
+    def test_availability_followup_reuses_last_service_instead_of_asking_again(self):
+        second = Services.objects.create(
+            service_name="اصلاح مو",
+            slug="loomi-haircut-memory",
+            is_active=True,
+            is_platform_catalog=True,
+            base_price=180000,
+        )
+        self.salon.services.add(second)
+        second.stylists.add(self.stylist)
+        self.add_schedule(service=self.service)
+        self.start()
+
+        self.answer("قیمت رنگ مو چنده؟")
+        reply = self.answer("فردا چه وقتایی دارید؟")
+        self.assertIn("زمان‌های آزاد واقعی", reply["text"])
+        self.assertIn("رنگ مو", reply["text"])
+        self.assertNotIn("اول خدمت", reply["text"])
+
+    def test_single_service_answer_offers_availability_as_next_action(self):
+        self.start()
+        reply = self.answer("قیمت رنگ مو چنده؟")
+        rows = reply["reply_markup"]["inline_keyboard"]
+        self.assertTrue(rows[0][0]["callback_data"].startswith(
+            f"loomi:service:{self.service.pk}:0:7"
+        ))
+        self.assertIn("زمان‌های آزاد", rows[0][0]["text"])
+
+    def test_scoped_courtesy_messages_are_conversational_and_do_not_call_help_ai(self):
+        self.start()
+        with patch("apps.help_center.services.answer_help_question") as help_answer:
+            thanks = self.answer("مرسی")
+            self.assertIn("خواهش", thanks["text"])
+            self.assertIn(self.salon.salon_name, thanks["text"])
+            goodbye = self.answer("خداحافظ")
+            self.assertIn("خوشحال", goodbye["text"])
+            help_answer.assert_not_called()
+
+    def test_direct_bot_capability_and_beauty_discovery_stay_out_of_help_ai(self):
+        for question, expected in [
+            ("چه کمکی میکنی؟", "می‌تونم"),
+            ("دنبال رنگ مو هستم", "کدوم سالن"),
+            ("مرسی", "خواهش"),
+        ]:
+            cache.clear()
+            with self.subTest(question=question), patch(
+                "apps.help_center.services.answer_help_question"
+            ) as help_answer:
+                reply = self.answer(question)
+                self.assertIn(expected, reply["text"])
+                help_answer.assert_not_called()
+
     def test_loomi_service_callback_cannot_select_service_outside_context(self):
         self.start()
         result, client = self.dispatch_callback("loomi:service:999999:1:1")
