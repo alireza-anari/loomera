@@ -26,24 +26,57 @@ _AVAILABILITY_PHRASES = {
     "وقت دارید", "وقت دارین", "وقت خالی", "وقت آزاد", "نوبت آزاد",
     "نوبت خالی", "زمان آزاد", "زمان خالی", "ساعت آزاد", "ساعت خالی",
     "تایم آزاد", "تایم خالی", "چه ساعتی", "چه ساعت", "چه زمانی",
-    "چه وقت", "خالی دارید", "خالی دارین", "موجودی وقت",
+    "چه وقت", "خالی دارید", "خالی دارین", "موجودی وقت", "چه تایمی",
+    "چه تایم", "کی وقت دارید", "کی وقت دارین",
 }
 _BOOKING_ACTION_PHRASES = {
     "رزرو", "رزرو کن", "نوبت میخوام", "نوبت می خواهم", "نوبت می‌خوام",
     "وقت میخوام", "وقت می خواهم", "وقت می‌خوام", "نوبت بگیر", "وقت بگیر",
+    "میخوام رزرو کنم", "می‌خوام رزرو کنم", "می خواهم رزرو کنم",
 }
 _BOOKING_NOUNS = {"وقت", "نوبت", "زمان", "ساعت", "تایم", "رزرو"}
 _DATE_HINT_WORDS = {"امروز", "فردا", "پس فردا", "پس‌فردا", "این هفته", "هفته"}
 _CANCELLATION_WORDS = {"لغو", "کنسل", "کنسلی", "استرداد", "بازگشت وجه"}
-_GREETING_WORDS = {"سلام", "درود", "سلام لومی", "سلام وقت بخیر", "hello", "hi"}
+_GREETING_WORDS = {
+    "سلام", "درود", "سلام لومی", "سلام وقت بخیر", "سلام خوبی", "سلام خوبی؟",
+    "صبح بخیر", "عصر بخیر", "شب بخیر", "hello", "hi",
+}
+_THANKS_WORDS = {"ممنون", "مرسی", "متشکرم", "سپاس", "دمت گرم", "خیلی ممنون", "خیلی مرسی"}
+_FAREWELL_WORDS = {"خداحافظ", "فعلا", "فعلاً", "بدرود", "روز خوش", "شب خوش"}
+_CAPABILITY_PHRASES = {
+    "چه کار میکنی", "چه کار می‌کنی", "چیکار میکنی", "چیکار می‌کنی",
+    "چه کمکی میکنی", "چه کمکی می‌کنی", "چی بلدی", "چه چیزایی بلدی",
+    "راهنمایی کن", "کمکم کن", "کمک میخوام", "کمک می‌خوام",
+}
+_DISCOVERY_WORDS = {
+    "دنبال", "میخوام", "می‌خوام", "می خواهم", "کوتاهی", "اصلاح", "رنگ",
+    "ناخن", "پوست", "مو", "ماساژ", "فیشیال", "ابرو", "مژه", "کراتین",
+}
+_FOLLOWUP_REFERENCE_WORDS = {
+    "قیمتش", "هزینه‌ش", "هزینش", "هزینه اش", "همین", "همون", "همونو",
+    "اون", "آن", "این", "این یکی", "همین خدمت", "همون خدمت",
+}
 _LOOMI_SERVICE_CALLBACK_PREFIX = "loomi:service:"
 _LOOMI_SERVICE_CALLBACK_RE = re.compile(
     r"^loomi:service:(?P<service_id>[1-9][0-9]{0,9}):(?P<offset>[0-9]{1,2}):(?P<horizon>[1-9][0-9]?)$"
 )
-_SERVICE_WORDS = {"خدمت", "خدمات", "سرویس", "سرویس‌ها", "کارها", "چه کارهایی"}
-_PRICE_WORDS = {"قیمت", "هزینه", "چقدر", "چنده", "تعرفه"}
-_CONTACT_WORDS = {"آدرس", "کجاست", "کجا", "تلفن", "شماره", "تماس", "لوکیشن"}
-_IDENTITY_WORDS = {"کی هستی", "تو کی هستی", "لومی", "راهنما"}
+_SERVICE_WORDS = {
+    "خدمت", "خدمات", "خدماتتون", "سرویس", "سرویس‌ها", "کارها", "چه کارهایی",
+    "چه کارایی", "چه خدماتی", "انجام میدین", "انجام میدید", "انجام میدی",
+    "ارائه میدین", "ارائه میدید",
+}
+_PRICE_WORDS = {
+    "قیمت", "قیمتش", "هزینه", "هزینه‌ش", "هزینش", "چقدر", "چنده", "تعرفه",
+    "چند میشه", "چند می‌شه", "چند درمیاد", "چند در میاد",
+}
+_CONTACT_WORDS = {
+    "آدرس", "نشانی", "کجاست", "کجا", "تلفن", "شماره", "شماره تماس", "تماس",
+    "لوکیشن", "موقعیت", "چطور بیام", "چجوری بیام",
+}
+_IDENTITY_WORDS = {
+    "کی هستی", "تو کی هستی", "لومی", "راهنما", "اسم سالن", "اسم مجموعه",
+    "اسم متخصص", "درباره این سالن", "درباره این مجموعه", "درباره این متخصص",
+}
 
 
 def _safe_loomi(function):
@@ -75,12 +108,44 @@ class ParsedLoomiStart:
 def _normalize(text: str) -> str:
     value = str(text or "").strip().lower()
     value = value.replace("ي", "ی").replace("ك", "ک")
+    value = re.sub(r"[\u064b-\u065f\u0670]", "", value)
     value = re.sub(r"[\u200c\s]+", " ", value)
     return value
 
 
 def _contains_any(text: str, words: set[str]) -> bool:
-    return any(_normalize(word) in text for word in words)
+    normalized_text = _normalize(text)
+    return any(_normalize(word) in normalized_text for word in words)
+
+
+def _tokens(text: str) -> set[str]:
+    normalized = _normalize(text)
+    return {
+        token
+        for token in re.findall(r"[\wآ-ی]+", normalized, flags=re.UNICODE)
+        if len(token) >= 2
+    }
+
+
+def _is_thanks(normalized: str) -> bool:
+    value = re.sub(r"[^\w\s]", "", _normalize(normalized)).strip()
+    return any(_normalize(item) in value for item in _THANKS_WORDS)
+
+
+def _is_farewell(normalized: str) -> bool:
+    value = re.sub(r"[^\w\s]", "", _normalize(normalized)).strip()
+    return any(_normalize(item) in value for item in _FAREWELL_WORDS)
+
+
+def _is_capability_question(normalized: str) -> bool:
+    return _contains_any(normalized, _CAPABILITY_PHRASES | {"راهنما", "کمک"})
+
+
+def _looks_like_discovery_request(normalized: str) -> bool:
+    value = _normalize(normalized)
+    if _contains_any(value, _DISCOVERY_WORDS) and not _is_general_help_question(value):
+        return True
+    return False
 
 
 def _is_greeting(normalized: str) -> bool:
@@ -243,10 +308,16 @@ def _booking_markup(scope_type: str, target, base_url: str) -> dict | None:
 def _welcome_text(scope_type: str, target) -> str:
     label = _target_label(scope_type, target)
     kind = "مجموعه" if scope_type == "salon" else "متخصص"
+    contact_hint = "آدرس و راه ارتباطی" if scope_type == "salon" else "محل‌های فعالیت"
     return (
-        f"سلام، من لومی هستم؛ دستیار هوشمند {kind} «{label}» در Loomera.\n\n"
-        "می‌تونی درباره خدمات، قیمت‌ها، اطلاعات مجموعه و زمان‌های آزاد ازم بپرسی. "
-        "برای رزرو نهایی هم مسیر امن Loomera رو بهت می‌دم."
+        f"سلام 🌱 من لومی‌ام؛ دستیار هوشمند {kind} «{label}» در لومرا.\n\n"
+        "می‌تونی خیلی ساده بپرسی:\n"
+        "• چه خدماتی دارید؟\n"
+        "• قیمت رنگ مو چنده؟\n"
+        "• برای فردا چه ساعت‌هایی خالیه؟\n"
+        f"• {contact_hint}؟\n\n"
+        "من اطلاعات ثبت‌شده و زمان‌های آزاد واقعی رو بررسی می‌کنم؛ "
+        "رزرو نهایی داخل لومرا تکمیل می‌شه."
     )
 
 
@@ -338,13 +409,52 @@ def _scope_services(scope_type: str, target):
     ).distinct().order_by("service_name", "id")
 
 
+def _service_match_score(service_name: str, question: str) -> int:
+    name = _normalize(service_name)
+    value = _normalize(question)
+    if not name or not value:
+        return 0
+    if name in value:
+        return 100
+
+    # Short colloquial mentions such as «رنگساژ دارید؟» should still match
+    # «رنگساژ مو», while generic conversational words must not create a hit.
+    cleaned_question = re.sub(
+        r"(?:دارید|دارین|انجام میدید|انجام میدین|میخوام|می‌خوام|قیمت|هزینه|چنده|چقدر|لطفا|لطفاً)",
+        " ",
+        value,
+    )
+    cleaned_question = re.sub(r"[^\wآ-ی]+", " ", cleaned_question).strip()
+    if cleaned_question and len(cleaned_question) >= 3 and cleaned_question in name:
+        return 85
+
+    stopwords = {"مو", "صورت", "بدن", "خدمت", "خدمات", "سرویس", "برای", "با", "و"}
+    name_tokens = {token for token in _tokens(name) if token not in stopwords}
+    question_tokens = {token for token in _tokens(value) if token not in stopwords}
+    if not name_tokens or not question_tokens:
+        return 0
+    overlap = name_tokens & question_tokens
+    if not overlap:
+        return 0
+    ratio = len(overlap) / len(name_tokens)
+    if ratio == 1:
+        return 75 + min(len(overlap), 5)
+    if ratio >= 0.5 and any(len(token) >= 3 for token in overlap):
+        return 55 + int(ratio * 10)
+    return 0
+
+
 def _matching_services(scope_type: str, target, normalized_question: str):
-    matches = []
+    ranked = []
     for service in _scope_services(scope_type, target)[:80]:
-        name = _normalize(getattr(service, "service_name", ""))
-        if name and (name in normalized_question or normalized_question in name):
-            matches.append(service)
-    return matches[:5]
+        score = _service_match_score(
+            getattr(service, "service_name", ""),
+            normalized_question,
+        )
+        if score:
+            ranked.append((score, str(getattr(service, "service_name", "")), service))
+    ranked.sort(key=lambda item: (-item[0], item[1]))
+    return [item[2] for item in ranked[:5]]
 
 
 def _render_service_line(scope_type: str, target, service) -> str:
@@ -376,6 +486,88 @@ def _service_answer(scope_type: str, target, question: str) -> str | None:
         suffix = "\n\nاگر اسم خدمت مدنظرت رو بگی، دقیق‌تر بررسی می‌کنم." if len(services) >= 2 else ""
         return "خدمات فعال ثبت‌شده:\n" + "\n".join(lines) + suffix
 
+    return None
+
+
+def _remember_last_service(context: MessagingConversationContext, service) -> None:
+    """Persist a lightweight conversational pointer without storing chat history."""
+    try:
+        metadata = dict(context.metadata) if isinstance(context.metadata, dict) else {}
+        service_id = int(getattr(service, "pk", 0) or 0)
+        if not service_id:
+            return
+        service_name = str(getattr(service, "service_name", "") or "").strip()
+        if (
+            metadata.get("last_service_id") == service_id
+            and metadata.get("last_service_name") == service_name
+        ):
+            return
+        metadata["last_service_id"] = service_id
+        metadata["last_service_name"] = service_name[:160]
+        context.metadata = metadata
+        context.save(update_fields=["metadata", "updated_at"])
+    except (DatabaseError, TypeError, ValueError):
+        logger.warning("Could not persist Loomi last-service context", exc_info=True)
+
+
+def _last_context_service(context: MessagingConversationContext, scope_type: str, target):
+    metadata = context.metadata if isinstance(context.metadata, dict) else {}
+    try:
+        service_id = int(metadata.get("last_service_id") or 0)
+    except (TypeError, ValueError):
+        return None
+    if not service_id:
+        return None
+    return _scope_services(scope_type, target).filter(pk=service_id).first()
+
+
+def _should_use_last_service(normalized: str) -> bool:
+    value = _normalize(normalized)
+    if _contains_any(value, {"همه", "لیست", "خدمات", "سرویس‌ها", "تعرفه خدمات"}):
+        return False
+    if _contains_any(value, _FOLLOWUP_REFERENCE_WORDS):
+        return True
+    return _contains_any(value, _PRICE_WORDS) and len(_tokens(value)) <= 4
+
+
+def _courtesy_reply(*, context, target, normalized: str, base_url: str) -> dict | None:
+    if _is_thanks(normalized):
+        if context and target:
+            label = _target_label(context.scope_type, target)
+            return {
+                "text": (
+                    f"خواهش می‌کنم 🌱 اگر درباره «{label}» سؤال دیگه‌ای داری، "
+                    "اسم خدمت، قیمت، آدرس یا زمان موردنظرت رو بفرست."
+                ),
+                "reply_markup": _booking_markup(context.scope_type, target, base_url),
+            }
+        return {
+            "text": "خواهش می‌کنم 🌱 هر وقت خواستی می‌تونم برای پیدا کردن سالن، خدمات، قیمت یا مسیر رزرو کمکت کنم.",
+            "reply_markup": None,
+        }
+    if _is_farewell(normalized):
+        return {
+            "text": "خوشحال شدم کمکت کنم 🌱 هر وقت خواستی دوباره پیام بده.",
+            "reply_markup": None,
+        }
+    if _is_capability_question(normalized):
+        if context and target:
+            label = _target_label(context.scope_type, target)
+            return {
+                "text": (
+                    f"برای «{label}» می‌تونم خدمات و قیمت‌های ثبت‌شده، اطلاعات تماس یا محل فعالیت، "
+                    "و زمان‌های آزاد واقعی رو بررسی کنم. رزرو نهایی هم داخل لومرا انجام می‌شه.\n\n"
+                    "مثلاً بنویس: «قیمت رنگ مو چنده؟» یا «برای فردا وقت دارید؟»"
+                ),
+                "reply_markup": _booking_markup(context.scope_type, target, base_url),
+            }
+        return {
+            "text": (
+                "می‌تونم کمکت کنم سالن یا متخصص پیدا کنی، خدمات و قیمت‌ها رو بررسی کنی، "
+                "زمان آزاد ببینی و وارد مسیر رزرو بشی. اول یک سالن یا متخصص انتخاب کن."
+            ),
+            "reply_markup": None,
+        }
     return None
 
 
@@ -466,6 +658,25 @@ def _bookable_scope_services(scope_type: str, target):
         .distinct()
         .order_by("service_name", "id")
     )
+
+
+def _service_next_action_markup(scope_type: str, target, service, base_url: str) -> dict | None:
+    rows = []
+    try:
+        is_bookable = _bookable_scope_services(scope_type, target).filter(pk=service.pk).exists()
+    except (DatabaseError, TypeError, ValueError):
+        is_bookable = False
+    if is_bookable:
+        rows.append([
+            {
+                "text": f"زمان‌های آزاد {str(service.service_name)[:32]}",
+                "callback_data": _availability_callback_data(service.pk, offset=0, horizon=7),
+            }
+        ])
+    booking = _booking_markup(scope_type, target, base_url)
+    if booking:
+        rows.extend(booking.get("inline_keyboard") or [])
+    return {"inline_keyboard": rows} if rows else None
 
 
 def _visible_salon_stylists_for_service(salon, service):
@@ -671,12 +882,12 @@ def _availability_answer(
                 "reply_markup": None,
             }
     else:
-        mentioned = [
-            service
-            for service in services
-            if _normalize(getattr(service, "service_name", "")) in normalized
-        ]
-        if mentioned:
+        matched_ids = {
+            service.pk
+            for service in _matching_services(scope_type, target, normalized)
+        }
+        mentioned = [service for service in services if service.pk in matched_ids]
+        if len(mentioned) == 1:
             selected = mentioned[0]
 
     if selected is None and len(services) > 1:
@@ -771,6 +982,10 @@ def try_handle_loomi_callback(*, identity, provider, callback_data: str, base_ur
 
     from django.utils import timezone
 
+    selected_service = _scope_services(context.scope_type, target).filter(pk=service_id).first()
+    if selected_service is not None:
+        _remember_last_service(context, selected_service)
+
     return _availability_answer(
         context.scope_type,
         target,
@@ -798,15 +1013,68 @@ def _scoped_read_only_reply(*, context, target, question: str, base_url: str) ->
     }):
         return None
 
+    courtesy = _courtesy_reply(
+        context=context,
+        target=target,
+        normalized=normalized,
+        base_url=base_url,
+    )
+    if courtesy:
+        return courtesy
+
+    matches = _matching_services(context.scope_type, target, normalized)
+
     if _is_booking_or_availability_question(normalized):
-        return _availability_answer(context.scope_type, target, question, base_url)
+        selected_service_id = None
+        if len(matches) == 1:
+            selected_service_id = matches[0].pk
+            _remember_last_service(context, matches[0])
+        elif not matches:
+            last_service = _last_context_service(context, context.scope_type, target)
+            if last_service is not None:
+                selected_service_id = last_service.pk
+        return _availability_answer(
+            context.scope_type,
+            target,
+            question,
+            base_url,
+            selected_service_id=selected_service_id,
+        )
 
     if _contains_any(normalized, _CONTACT_WORDS):
-        return {"text": _contact_answer(context.scope_type, target), "reply_markup": None}
+        return {
+            "text": _contact_answer(context.scope_type, target),
+            "reply_markup": _booking_markup(context.scope_type, target, base_url),
+        }
+
+    if not matches and _should_use_last_service(normalized):
+        last_service = _last_context_service(context, context.scope_type, target)
+        if last_service is not None:
+            return {
+                "text": (
+                    f"برای «{last_service.service_name}» این اطلاعات ثبت شده:\n"
+                    + _render_service_line(context.scope_type, target, last_service)
+                ),
+                "reply_markup": _service_next_action_markup(
+                    context.scope_type, target, last_service, base_url
+                ),
+            }
 
     service_text = _service_answer(context.scope_type, target, question)
     if service_text:
-        return {"text": service_text, "reply_markup": None}
+        matched_service = matches[0] if len(matches) == 1 else None
+        if matched_service is not None:
+            _remember_last_service(context, matched_service)
+        return {
+            "text": service_text,
+            "reply_markup": (
+                _service_next_action_markup(
+                    context.scope_type, target, matched_service, base_url
+                )
+                if matched_service is not None
+                else _booking_markup(context.scope_type, target, base_url)
+            ),
+        }
 
     if _contains_any(normalized, _IDENTITY_WORDS):
         return {
@@ -848,28 +1116,66 @@ def _is_general_help_question(normalized: str) -> bool:
     })
 
 
-def _unscoped_reply(normalized: str, base_url: str, *, connected: bool = False) -> dict | None:
-    """Guide public discovery back into the existing customer search flow."""
+def _discovery_markup(base_url: str, *, connected: bool) -> dict:
     from django.urls import reverse
-    greeting = _is_greeting(normalized)
-    booking = _is_booking_or_availability_question(normalized)
-    public_question = _contains_any(normalized, _SERVICE_WORDS | _PRICE_WORDS | _CONTACT_WORDS | {
-        "سالن", "متخصص", "آرایشگر", "مجموعه", "انجام میدی", "انجام می دهید",
-    })
-    if not (greeting or booking or public_question):
-        return None
-    if greeting:
-        text = "سلام 🌱\nمن لومی، دستیار هوشمند لومرا هستم. می‌تونم برای پیدا کردن سالن، خدمات، قیمت‌ها و مسیر رزرو کمکت کنم."
-    elif booking:
-        text = "برای بررسی زمان‌های آزاد، اول سالن یا متخصص موردنظرت رو انتخاب کن. رزرو از مسیر سایت انجام می‌شود."
-    else:
-        text = "برای اینکه اطلاعات دقیق خدمات، قیمت یا آدرس رو بگم، باید بدونم درباره کدوم سالن یا متخصص می‌پرسی. از جستجوی سالن‌ها شروع کن یا لینک لومیِ مجموعه یا متخصص رو باز کن."
+
     rows = [[{"text": "جستجوی سالن‌ها", "callback_data": "menu:customer_search"}]]
     url = absolute_site_url(base_url, reverse("search:search_page"))
     if url.startswith(("https://", "http://")):
         rows.append([{"text": "مشاهده سالن‌ها", "url": url}])
     rows.append([{"text": "منوی اصلی", "callback_data": "menu:main" if connected else "menu:guest"}])
-    return {"text": text, "reply_markup": {"inline_keyboard": rows}}
+    return {"inline_keyboard": rows}
+
+
+def _unscoped_reply(normalized: str, base_url: str, *, connected: bool = False) -> dict | None:
+    """Guide public discovery back into the existing customer search flow."""
+    greeting = _is_greeting(normalized)
+    booking = _is_booking_or_availability_question(normalized)
+    thanks = _is_thanks(normalized)
+    farewell = _is_farewell(normalized)
+    capability = _is_capability_question(normalized)
+    public_question = (
+        _contains_any(normalized, _SERVICE_WORDS | _PRICE_WORDS | _CONTACT_WORDS | {
+            "سالن", "متخصص", "آرایشگر", "مجموعه", "انجام میدی", "انجام می دهید",
+        })
+        or _looks_like_discovery_request(normalized)
+    )
+    if not (greeting or booking or public_question or thanks or farewell or capability):
+        return None
+
+    if farewell:
+        return {"text": "خوشحال شدم کمکت کنم 🌱 هر وقت خواستی دوباره پیام بده.", "reply_markup": None}
+    if thanks:
+        return {
+            "text": "خواهش می‌کنم 🌱 اگر چیزی خواستی، من اینجام.",
+            "reply_markup": _discovery_markup(base_url, connected=connected),
+        }
+    if greeting:
+        text = (
+            "سلام 🌱 من لومی‌ام، دستیار هوشمند لومرا.\n\n"
+            "می‌تونم کمکت کنم سالن یا متخصص پیدا کنی، خدمات و قیمت‌ها رو ببینی، "
+            "زمان آزاد واقعی رو بررسی کنی و وارد مسیر رزرو بشی.\n"
+            "مثلاً بنویس: «دنبال رنگ مو هستم» یا اول یک سالن رو انتخاب کن."
+        )
+    elif capability:
+        text = (
+            "می‌تونم برای پیدا کردن سالن و متخصص، بررسی خدمات و قیمت‌ها، دیدن زمان‌های آزاد "
+            "و رفتن به رزرو آنلاین کمکت کنم. برای اطلاعات دقیق، اول سالن یا متخصص موردنظرت رو انتخاب کن."
+        )
+    elif booking:
+        text = (
+            "حتماً. برای اینکه زمان واقعی نشون بدم، اول سالن یا متخصص موردنظرت رو انتخاب کن؛ "
+            "بعد زمان‌های آزاد رو همین‌جا بررسی می‌کنم و رزرو نهایی از مسیر سایت لومرا انجام می‌شه."
+        )
+    else:
+        text = (
+            "برای اینکه جواب دقیق بدم، باید بدونم درباره کدوم سالن یا متخصص می‌پرسی. "
+            "از جستجوی سالن‌ها شروع کن؛ بعد می‌تونی درباره خدمت، قیمت، آدرس یا زمان آزاد خیلی ساده سؤال کنی."
+        )
+    return {
+        "text": text,
+        "reply_markup": _discovery_markup(base_url, connected=connected),
+    }
 
 
 @_safe_loomi
@@ -946,9 +1252,9 @@ def answer_loomi_message(*, identity, provider, text: str, base_url: str = "") -
             target_hint = f" «{label}»" if label else ""
             return {
                 "text": (
-                    f"درباره{target_hint} اطلاعات عمومی ثبت‌شده رو می‌تونم دقیق بررسی کنم: "
-                    "خدمات و قیمت‌ها، آدرس و تماس، و زمان‌های آزاد. "
-                    "اسم خدمت یا چیزی که می‌خوای بدونی رو کوتاه بفرست تا بررسی کنم."
+                    f"درباره{target_hint} فقط اطلاعات عمومی ثبت‌شده رو قطعی جواب می‌دم. "
+                    "می‌تونی اسم یک خدمت رو بگی، قیمت بپرسی، آدرس و تماس بخوای یا بگی "
+                    "«برای فردا چه ساعت‌هایی خالیه؟». اگر اطلاعاتی ثبت نشده باشه، حدس نمی‌زنم."
                 ),
                 "reply_markup": _booking_markup(context.scope_type, target, base_url),
             }
