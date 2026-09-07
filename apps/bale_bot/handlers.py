@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from apps.messaging.loomi import answer_loomi_message, try_apply_loomi_start_context
+from apps.messaging.loomi import (
+    answer_loomi_message,
+    try_apply_loomi_start_context,
+    try_handle_loomi_callback,
+)
 
 from apps.messaging.services import (
     connect_identity_with_raw_token,
@@ -576,6 +580,29 @@ def handle_bale_update_stage10(
                 provider=provider,
                 base_url=base_url,
             )
+        if callback_data.startswith("loomi:") and parsed.raw_chat.get("type", "private") == "private":
+            loomi_callback = try_handle_loomi_callback(
+                identity=identity,
+                provider=provider,
+                callback_data=callback_data,
+                base_url=base_url,
+            )
+            if loomi_callback:
+                if parsed.callback_query_id:
+                    client.answer_callback_query(
+                        callback_query_id=parsed.callback_query_id,
+                        text="زمان‌های آزاد آماده شد.",
+                        show_alert=False,
+                    )
+                _send(
+                    client,
+                    provider=provider,
+                    identity=identity,
+                    chat_id=chat_id,
+                    text=loomi_callback["text"],
+                    reply_markup=loomi_callback.get("reply_markup"),
+                )
+                return "loomi_callback"
         _send(
             client,
             provider=provider,

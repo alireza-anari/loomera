@@ -1,6 +1,10 @@
+from datetime import time, timedelta
+from urllib.parse import unquote, urlparse
+
 from django.test import SimpleTestCase, override_settings
 from django.test import TestCase
 from django.core.cache import cache
+from django.utils import timezone
 from unittest.mock import Mock, patch
 
 from apps.accounts.models import CustomUser, SalonManager, Stylist
@@ -109,6 +113,38 @@ class LoomiConversationTests(TestCase):
             identity=self.identity, provider=self.provider, base_url="https://loomera.test", client=client)
         return result, client
 
+    def dispatch_callback(self, callback_data):
+        payload = {
+            "update_id": 2,
+            "callback_query": {
+                "id": "loomi-cb",
+                "from": {"id": 801},
+                "data": callback_data,
+                "message": {"chat": {"id": 801, "type": "private"}},
+            },
+        }
+        client = Mock()
+        result = handle_bale_update_stage11(
+            parsed=parse_bale_update(payload),
+            identity=self.identity,
+            provider=self.provider,
+            base_url="https://loomera.test",
+            client=client,
+        )
+        return result, client
+
+    def add_schedule(self, *, service=None, date_value=None, start=None, end=None):
+        from apps.stylists.models import StylistSchedule
+
+        return StylistSchedule.objects.create(
+            stylist=self.stylist,
+            salon=self.salon,
+            service=service or self.service,
+            date=date_value or (timezone.localdate() + timedelta(days=1)),
+            start_time=start or time(10, 0),
+            end_time=end or time(13, 0),
+        )
+
     def test_both_provider_start_links_through_webhook_services(self):
         from apps.telegram_bot.services import record_telegram_webhook_update
         from apps.bale_bot.services import record_bale_webhook_update
@@ -198,14 +234,95 @@ class LoomiConversationTests(TestCase):
             status=SalonMembershipStatus.ACTIVE, show_on_salon_profile=False)
         self.assertIn("معتبر نیست", self.start(f"loomi_p_{self.stylist.pk}")["text"])
 
-    def test_booking_only_links_and_never_creates_order(self):
+    def test_availability_preview_uses_real_slots_and_never_creates_order(self):
         from apps.orders.models import Order
+        from apps.orders.quick_links import resolve_booking_quick_link_token
+
         self.start()
+        tomorrow = timezone.localdate() + timedelta(days=1)
+        self.add_schedule(date_value=tomorrow)
         before = Order.objects.count()
-        answer = self.answer("برای فردا نوبت رزرو کن")
-        self.assertIn("مسیر رزرو", answer["text"])
-        self.assertTrue(answer["reply_markup"]["inline_keyboard"][0][0]["url"].startswith("https://loomera.test/"))
+        answer = self.answer("برای فردا رنگ مو وقت دارید؟")
+        self.assertIn("زمان‌های آزاد واقعی", answer["text"])
+        self.assertIn("فردا", answer["text"])
+        first_url = answer["reply_markup"]["inline_keyboard"][0][0]["url"]
+        self.assertTrue(first_url.startswith("https://loomera.test/orders/quick-link/"))
+
+        token = unquote(urlparse(first_url).path.split("/quick-link/", 1)[1].strip("/"))
+        quick_link, payload = resolve_booking_quick_link_token(token)
+        self.assertIsNone(quick_link)
+        self.assertEqual(payload["mode"], "service_stylist_time")
+        self.assertEqual(payload["salon_id"], self.salon.pk)
+        self.assertEqual(payload["service_ids"], [self.service.pk])
+        self.assertEqual(payload["stylist_user_id"], self.stylist.user_id)
+        self.assertEqual(payload["date"], tomorrow.isoformat())
+
+        handoff = self.client.get(urlparse(first_url).path)
+        self.assertEqual(handoff.status_code, 302)
+        self.assertIn("reservation_preview", handoff.url)
+        session = self.client.session
+        self.assertEqual(session["salon_id"], str(self.salon.pk))
+        selection_key = f"{self.stylist.user_id}_{self.service.pk}"
+        self.assertEqual(
+            session["datetime_selections"][selection_key]["date"],
+            tomorrow.isoformat(),
+        )
         self.assertEqual(Order.objects.count(), before)
+
+    def test_stylist_deep_link_availability_uses_real_booking_context(self):
+        self.add_schedule()
+        self.start(f"loomi_p_{self.stylist.pk}")
+        answer = self.answer("فردا برای رنگ مو چه ساعتی خالیه؟")
+        self.assertIn("زمان‌های آزاد واقعی", answer["text"])
+        self.assertIn(self.salon.salon_name, answer["text"])
+        self.assertTrue(answer["reply_markup"]["inline_keyboard"][0][0]["url"].startswith(
+            "https://loomera.test/orders/quick-link/"
+        ))
+
+    def test_hidden_stylist_is_not_used_for_salon_availability(self):
+        self.add_schedule()
+        self.start()
+        self.stylist.public_visibility = "hidden"
+        self.stylist.save(update_fields=["public_visibility"])
+        answer = self.answer("فردا برای رنگ مو وقت دارید؟")
+        self.assertIn("زمان آزادی", answer["text"])
+        first_button = answer["reply_markup"]["inline_keyboard"][0][0]
+        self.assertNotIn("/orders/quick-link/", first_button.get("url", ""))
+
+    def test_multiple_services_are_selected_with_loomi_callback(self):
+        second = Services.objects.create(
+            service_name="اصلاح مو",
+            slug="loomi-haircut",
+            is_active=True,
+            base_price=180000,
+        )
+        self.salon.services.add(second)
+        second.stylists.add(self.stylist)
+        self.add_schedule()
+        self.start()
+
+        answer = self.answer("برای فردا وقت دارید؟")
+        self.assertIn("اول خدمت", answer["text"])
+        buttons = answer["reply_markup"]["inline_keyboard"]
+        callbacks = {
+            row[0]["text"]: row[0]["callback_data"]
+            for row in buttons
+        }
+        self.assertTrue(callbacks["رنگ مو"].startswith(f"loomi:service:{self.service.pk}:1:1"))
+
+        result, client = self.dispatch_callback(callbacks["رنگ مو"])
+        self.assertEqual(result, "loomi_callback")
+        sent = client.send_message.call_args.kwargs
+        self.assertIn("زمان‌های آزاد واقعی", sent["text"])
+        self.assertTrue(sent["reply_markup"]["inline_keyboard"][0][0]["url"].startswith(
+            "https://loomera.test/orders/quick-link/"
+        ))
+
+    def test_loomi_service_callback_cannot_select_service_outside_context(self):
+        self.start()
+        result, client = self.dispatch_callback("loomi:service:999999:1:1")
+        self.assertEqual(result, "loomi_callback")
+        self.assertIn("قابل رزرو نیست", client.send_message.call_args.kwargs["text"])
 
     @override_settings(LOOMI_MESSAGING_GUEST_LIMIT=1)
     def test_rate_limit_and_menu_remains_available(self):
@@ -332,6 +449,18 @@ class LoomiConversationTests(TestCase):
                 return_value={"answer": "راهنمای عمومی لومرا"}) as help_answer:
                 self.assertEqual(self.answer(question)["text"], "راهنمای عمومی لومرا")
                 help_answer.assert_called_once()
+
+    def test_scoped_cancellation_question_still_uses_help_center(self):
+        self.start()
+        with patch(
+            "apps.help_center.services.answer_help_question",
+            return_value={"answer": "راهنمای لغو نوبت"},
+        ) as help_answer, patch(
+            "apps.orders.booking_utils.get_available_slots_for_service"
+        ) as slots:
+            self.assertEqual(self.answer("چطور نوبتم رو لغو کنم؟")["text"], "راهنمای لغو نوبت")
+            help_answer.assert_called_once()
+            slots.assert_not_called()
 
     def test_context_lookup_failure_uses_old_safe_menu(self):
         with patch("apps.messaging.loomi._current_context", side_effect=RuntimeError("lookup failed")):
