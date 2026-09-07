@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
+from datetime import timedelta
 from functools import wraps
 
 from django.conf import settings
@@ -21,17 +22,24 @@ _START_RE = re.compile(
     re.IGNORECASE,
 )
 
-_BOOKING_WORDS = {
-    "رزرو",
-    "نوبت",
-    "وقت",
-    "وقت آزاد",
-    "زمان آزاد",
-    "ساعت آزاد",
-    "خالی",
-    "امروز",
-    "فردا",
+_AVAILABILITY_PHRASES = {
+    "وقت دارید", "وقت دارین", "وقت خالی", "وقت آزاد", "نوبت آزاد",
+    "نوبت خالی", "زمان آزاد", "زمان خالی", "ساعت آزاد", "ساعت خالی",
+    "تایم آزاد", "تایم خالی", "چه ساعتی", "چه ساعت", "چه زمانی",
+    "چه وقت", "خالی دارید", "خالی دارین", "موجودی وقت",
 }
+_BOOKING_ACTION_PHRASES = {
+    "رزرو", "رزرو کن", "نوبت میخوام", "نوبت می خواهم", "نوبت می‌خوام",
+    "وقت میخوام", "وقت می خواهم", "وقت می‌خوام", "نوبت بگیر", "وقت بگیر",
+}
+_BOOKING_NOUNS = {"وقت", "نوبت", "زمان", "ساعت", "تایم", "رزرو"}
+_DATE_HINT_WORDS = {"امروز", "فردا", "پس فردا", "پس‌فردا", "این هفته", "هفته"}
+_CANCELLATION_WORDS = {"لغو", "کنسل", "کنسلی", "استرداد", "بازگشت وجه"}
+_GREETING_WORDS = {"سلام", "درود", "سلام لومی", "سلام وقت بخیر", "hello", "hi"}
+_LOOMI_SERVICE_CALLBACK_PREFIX = "loomi:service:"
+_LOOMI_SERVICE_CALLBACK_RE = re.compile(
+    r"^loomi:service:(?P<service_id>[1-9][0-9]{0,9}):(?P<offset>[0-9]{1,2}):(?P<horizon>[1-9][0-9]?)$"
+)
 _SERVICE_WORDS = {"خدمت", "خدمات", "سرویس", "سرویس‌ها", "کارها", "چه کارهایی"}
 _PRICE_WORDS = {"قیمت", "هزینه", "چقدر", "چنده", "تعرفه"}
 _CONTACT_WORDS = {"آدرس", "کجاست", "کجا", "تلفن", "شماره", "تماس", "لوکیشن"}
@@ -73,6 +81,29 @@ def _normalize(text: str) -> str:
 
 def _contains_any(text: str, words: set[str]) -> bool:
     return any(_normalize(word) in text for word in words)
+
+
+def _is_greeting(normalized: str) -> bool:
+    cleaned = re.sub(r"[^\w\s]", "", _normalize(normalized)).strip()
+    return cleaned in {_normalize(item) for item in _GREETING_WORDS}
+
+
+def _is_booking_or_availability_question(normalized: str) -> bool:
+    """Recognize booking intent without treating every date/nobat word as booking.
+
+    Cancellation/refund questions are deliberately excluded so they can continue
+    to the product/help flow. Date words only count when paired with an actual
+    booking noun.
+    """
+    value = _normalize(normalized)
+    if _contains_any(value, _CANCELLATION_WORDS):
+        return False
+    if _contains_any(value, _AVAILABILITY_PHRASES | _BOOKING_ACTION_PHRASES):
+        return True
+    cleaned = re.sub(r"[^\w\s]", "", value).strip()
+    if cleaned in {_normalize(item) for item in _BOOKING_NOUNS}:
+        return True
+    return _contains_any(value, _DATE_HINT_WORDS) and _contains_any(value, _BOOKING_NOUNS)
 
 
 def parse_loomi_start_payload(payload: str) -> ParsedLoomiStart | None:
@@ -214,8 +245,8 @@ def _welcome_text(scope_type: str, target) -> str:
     kind = "مجموعه" if scope_type == "salon" else "متخصص"
     return (
         f"سلام، من لومی هستم؛ دستیار هوشمند {kind} «{label}» در Loomera.\n\n"
-        "می‌تونی درباره خدمات، قیمت‌ها و اطلاعات مجموعه ازم بپرسی. "
-        "برای رزرو هم مسیر امن Loomera رو بهت می‌دم."
+        "می‌تونی درباره خدمات، قیمت‌ها، اطلاعات مجموعه و زمان‌های آزاد ازم بپرسی. "
+        "برای رزرو نهایی هم مسیر امن Loomera رو بهت می‌دم."
     )
 
 
@@ -372,18 +403,403 @@ def _contact_answer(scope_type: str, target) -> str:
     return "\n".join(lines)
 
 
+
+
+def _availability_window(normalized_question: str):
+    """Resolve a small, deterministic date window for availability previews."""
+    from django.utils import timezone
+
+    today = timezone.localdate()
+    normalized = _normalize(normalized_question)
+    if "پس فردا" in normalized or "پس‌فردا" in normalized:
+        return today + timedelta(days=2), 1, 2
+    if "فردا" in normalized:
+        return today + timedelta(days=1), 1, 1
+    if "امروز" in normalized:
+        return today, 1, 0
+    if "هفته" in normalized:
+        return today, 7, 0
+    # A generic "وقت دارید؟" should still be useful even when today is full.
+    return today, 7, 0
+
+
+def _availability_callback_data(service_id: int, *, offset: int, horizon: int) -> str:
+    return f"{_LOOMI_SERVICE_CALLBACK_PREFIX}{int(service_id)}:{int(offset)}:{int(horizon)}"
+
+
+def _parse_availability_callback(callback_data: str):
+    match = _LOOMI_SERVICE_CALLBACK_RE.fullmatch(str(callback_data or "").strip())
+    if not match:
+        return None
+    service_id = int(match.group("service_id"))
+    offset = int(match.group("offset"))
+    horizon = int(match.group("horizon"))
+    if offset > 14 or horizon > 7:
+        return None
+    return service_id, offset, horizon
+
+
+def _bookable_scope_services(scope_type: str, target):
+    """Return services that can enter the existing public booking flow."""
+    from django.db.models import Q
+
+    public_filter = Q(is_platform_catalog=True) | Q(catalog_source__isnull=False)
+    if scope_type == "salon":
+        return (
+            target.services.filter(is_active=True)
+            .filter(public_filter)
+            .distinct()
+            .order_by("service_name", "id")
+        )
+
+    booking_salons = [
+        salon
+        for salon in _public_stylist_salons(target)
+        if salon.stylists.filter(pk=target.pk).exists()
+    ]
+    return (
+        target.services_of_stylist.filter(
+            is_active=True,
+            services_of_salon__in=booking_salons,
+        )
+        .filter(public_filter)
+        .distinct()
+        .order_by("service_name", "id")
+    )
+
+
+def _visible_salon_stylists_for_service(salon, service):
+    from apps.stylists.profile_services import can_show_stylist_on_salon_profile
+
+    candidates = list(
+        salon.stylists.filter(
+            is_active=True,
+            services_of_stylist=service,
+        )
+        .select_related("user")
+        .distinct()
+        .order_by("user_id")
+    )
+    return [
+        stylist
+        for stylist in candidates
+        if can_show_stylist_on_salon_profile(
+            salon=salon,
+            stylist=stylist,
+            legacy_membership_confirmed=True,
+        ).allowed
+    ]
+
+
+def _slot_booking_url(*, salon, service, stylist, date_value, start_time, base_url: str) -> str:
+    """Build a signed read-to-write handoff into the existing booking flow.
+
+    This creates no Order and reserves no slot. The booking flow revalidates the
+    service/stylist/time before confirmation.
+    """
+    from django.urls import reverse
+    from apps.orders.quick_links import sign_booking_payload
+
+    payload = {
+        "mode": "service_stylist_time",
+        "salon_id": int(salon.pk),
+        "service_ids": [int(service.pk)],
+        "stylist_user_id": int(stylist.user_id),
+        "date": date_value.isoformat(),
+        "time": start_time.strftime("%H:%M"),
+    }
+    token = sign_booking_payload(payload)
+    path = reverse("orders:quick_booking_entry", kwargs={"token": token})
+    return absolute_site_url(base_url, path)
+
+
+def _collect_availability_slots(
+    *,
+    scope_type: str,
+    target,
+    service,
+    start_date,
+    horizon_days: int,
+    max_slots: int = 5,
+):
+    """Read real slots from the existing booking engine without reserving them.
+
+    A cheap schedule prefilter avoids calling the three-query availability helper
+    for stylist/date pairs that cannot possibly have capacity. The booking helper
+    remains the single source of truth for leaves, existing bookings and slot math.
+    """
+    from django.db.models import Q
+    from apps.orders.booking_utils import get_available_slots_for_service
+    from apps.stylists.models import StylistSchedule
+
+    horizon_days = max(1, min(int(horizon_days or 1), 7))
+    max_slots = max(1, min(int(max_slots or 5), 8))
+    end_date = start_date + timedelta(days=horizon_days - 1)
+
+    pair_map = {}
+    if scope_type == "salon":
+        for stylist in _visible_salon_stylists_for_service(target, service):
+            pair_map[(target.pk, stylist.pk)] = (target, stylist)
+    else:
+        for salon in _public_stylist_salons(target):
+            if not salon.stylists.filter(pk=target.pk).exists():
+                continue
+            if not salon.services.filter(pk=service.pk, is_active=True).exists():
+                continue
+            pair_map[(salon.pk, target.pk)] = (salon, target)
+
+    if not pair_map:
+        return []
+
+    salon_ids = {key[0] for key in pair_map}
+    stylist_ids = {key[1] for key in pair_map}
+    scheduled_keys = set(
+        StylistSchedule.objects.filter(
+            salon_id__in=salon_ids,
+            stylist_id__in=stylist_ids,
+            date__range=(start_date, end_date),
+        )
+        .filter(Q(service_id=service.pk) | Q(service__isnull=True))
+        .values_list("salon_id", "stylist_id", "date")
+        .distinct()
+    )
+    if not scheduled_keys:
+        return []
+
+    candidates = []
+    seen = set()
+    for day_offset in range(horizon_days):
+        day = start_date + timedelta(days=day_offset)
+        day_pairs = [
+            pair
+            for key, pair in pair_map.items()
+            if (key[0], key[1], day) in scheduled_keys
+        ]
+        for salon, stylist in day_pairs:
+            for start_time, end_time in get_available_slots_for_service(
+                salon=salon,
+                stylist=stylist,
+                service=service,
+                date_value=day,
+            ):
+                key = (salon.pk, stylist.pk, day.isoformat(), start_time.strftime("%H:%M"))
+                if key in seen:
+                    continue
+                seen.add(key)
+                candidates.append(
+                    {
+                        "salon": salon,
+                        "stylist": stylist,
+                        "service": service,
+                        "date": day,
+                        "time": start_time,
+                        "end_time": end_time,
+                    }
+                )
+
+        candidates.sort(
+            key=lambda item: (
+                item["date"],
+                item["time"],
+                int(getattr(item["stylist"], "user_id", 0) or 0),
+            )
+        )
+        if len(candidates) >= max_slots:
+            return candidates[:max_slots]
+
+    return candidates[:max_slots]
+
+
+def _availability_slot_text(slot, *, scope_type: str) -> str:
+    from django.utils import timezone
+    from apps.dashboards.jalali_utils import (
+        format_jalali_with_weekday,
+        format_time_fa,
+        relative_jalali_label,
+    )
+
+    day = slot["date"]
+    relative = relative_jalali_label(day, today=timezone.localdate())
+    if relative not in {"امروز", "فردا"}:
+        relative = format_jalali_with_weekday(day, include_year=False)
+    time_label = format_time_fa(slot["time"])
+    suffix = ""
+    if scope_type == "salon":
+        stylist_label = _target_label("stylist", slot["stylist"])
+        if stylist_label:
+            suffix = f" — {stylist_label}"
+    else:
+        salon_label = str(getattr(slot["salon"], "salon_name", "") or "").strip()
+        if salon_label:
+            suffix = f" — {salon_label}"
+    return f"{relative}، {time_label}{suffix}"
+
+
+def _availability_answer(
+    scope_type: str,
+    target,
+    question: str,
+    base_url: str,
+    *,
+    selected_service_id: int | None = None,
+    start_date=None,
+    horizon_days: int | None = None,
+) -> dict | None:
+    """Preview real availability and hand final reservation to the website."""
+    from django.utils import timezone
+
+    services = list(_bookable_scope_services(scope_type, target)[:80])
+    if not services:
+        return {
+            "text": "فعلاً خدمت قابل رزرو آنلاینی برای بررسی زمان آزاد پیدا نکردم.",
+            "reply_markup": _booking_markup(scope_type, target, base_url),
+        }
+
+    normalized = _normalize(question)
+    if start_date is None or horizon_days is None:
+        start_date, horizon_days, offset = _availability_window(normalized)
+    else:
+        offset = max((start_date - timezone.localdate()).days, 0)
+        horizon_days = max(1, min(int(horizon_days), 7))
+
+    selected = None
+    if selected_service_id:
+        selected = next((item for item in services if item.pk == int(selected_service_id)), None)
+        if selected is None:
+            return {
+                "text": "این خدمت برای این پروفایل قابل رزرو نیست. لطفاً دوباره خدمت را انتخاب کن.",
+                "reply_markup": None,
+            }
+    else:
+        mentioned = [
+            service
+            for service in services
+            if _normalize(getattr(service, "service_name", "")) in normalized
+        ]
+        if mentioned:
+            selected = mentioned[0]
+
+    if selected is None and len(services) > 1:
+        rows = [
+            [
+                {
+                    "text": str(service.service_name),
+                    "callback_data": _availability_callback_data(
+                        service.pk,
+                        offset=offset,
+                        horizon=horizon_days,
+                    ),
+                }
+            ]
+            for service in services[:10]
+        ]
+        if len(services) > 10:
+            url = _booking_url(scope_type, target, base_url)
+            if url.startswith(("https://", "http://")):
+                rows.append([{"text": "مشاهده همه خدمات در Loomera", "url": url}])
+        return {
+            "text": "برای بررسی زمان‌های آزاد، اول خدمت موردنظرت رو انتخاب کن یا اسم خدمت رو بنویس:",
+            "reply_markup": {"inline_keyboard": rows},
+        }
+
+    service = selected or services[0]
+    slots = _collect_availability_slots(
+        scope_type=scope_type,
+        target=target,
+        service=service,
+        start_date=start_date,
+        horizon_days=horizon_days,
+        max_slots=5,
+    )
+
+    if not slots:
+        if horizon_days == 1:
+            when = "امروز" if offset == 0 else "فردا" if offset == 1 else "این روز"
+            text = f"برای {when} زمان آزادی برای «{service.service_name}» پیدا نکردم. می‌تونی زمان‌های دیگر رو در مسیر رزرو Loomera بررسی کنی."
+        else:
+            text = f"در چند روز آینده زمان آزادی برای «{service.service_name}» پیدا نکردم. می‌تونی مسیر رزرو Loomera رو برای زمان‌های دیگر بررسی کنی."
+        return {
+            "text": text,
+            "reply_markup": _booking_markup(scope_type, target, base_url),
+        }
+
+    lines = [_availability_slot_text(slot, scope_type=scope_type) for slot in slots]
+    rows = []
+    for slot, line in zip(slots, lines):
+        url = _slot_booking_url(
+            salon=slot["salon"],
+            service=slot["service"],
+            stylist=slot["stylist"],
+            date_value=slot["date"],
+            start_time=slot["time"],
+            base_url=base_url,
+        )
+        if url.startswith(("https://", "http://")):
+            rows.append([{"text": line[:60], "url": url}])
+
+    reply_markup = {"inline_keyboard": rows} if rows else _booking_markup(scope_type, target, base_url)
+    return {
+        "text": (
+            f"زمان‌های آزاد واقعی برای «{service.service_name}»:\n\n"
+            + "\n".join(f"• {line}" for line in lines)
+            + "\n\nزمان موردنظرت رو انتخاب کن؛ رزرو نهایی داخل Loomera انجام می‌شه."
+        ),
+        "reply_markup": reply_markup,
+    }
+
+
+@_safe_loomi
+def try_handle_loomi_callback(*, identity, provider, callback_data: str, base_url: str = "") -> dict | None:
+    """Handle Loomi-only callbacks after existing menu/action callbacks."""
+    parsed = _parse_availability_callback(callback_data)
+    if not parsed:
+        return None
+
+    service_id, offset, horizon = parsed
+    context = _current_context(identity)
+    if not context:
+        return {
+            "text": "این انتخاب به گفت‌وگوی فعالی وصل نیست. لطفاً دوباره لینک لومی سالن یا متخصص رو باز کن.",
+            "reply_markup": None,
+        }
+    target = _context_target(context)
+    if not target:
+        return {
+            "text": "این پروفایل دیگر در دسترس نیست. لطفاً لینک یک مجموعه یا متخصص فعال رو باز کن.",
+            "reply_markup": None,
+        }
+
+    from django.utils import timezone
+
+    return _availability_answer(
+        context.scope_type,
+        target,
+        "",
+        base_url,
+        selected_service_id=service_id,
+        start_date=timezone.localdate() + timedelta(days=offset),
+        horizon_days=horizon,
+    )
+
 def _scoped_read_only_reply(*, context, target, question: str, base_url: str) -> dict | None:
     normalized = _normalize(question)
 
-    if _contains_any(normalized, _BOOKING_WORDS):
-        label = _target_label(context.scope_type, target)
+    if _is_greeting(normalized):
         return {
-            "text": (
-                f"برای اینکه زمان نادرست بهت نگم، وقت‌های آزاد «{label}» رو فعلاً فقط از مسیر رزرو خود Loomera بررسی کن. "
-                "من اینجا اطلاعات خدمات و قیمت‌های ثبت‌شده رو هم می‌تونم برات بررسی کنم."
-            ),
+            "text": _welcome_text(context.scope_type, target),
             "reply_markup": _booking_markup(context.scope_type, target, base_url),
         }
+
+    # Product/account lifecycle questions belong to the Help Center even when
+    # a public salon/stylist context is active. In particular, cancellation
+    # must never be mistaken for a request to find a new slot.
+    if _contains_any(normalized, _CANCELLATION_WORDS | {
+        "پرداخت", "حساب", "ثبت نام", "ورود", "قوانین", "پشتیبانی",
+    }):
+        return None
+
+    if _is_booking_or_availability_question(normalized):
+        return _availability_answer(context.scope_type, target, question, base_url)
 
     if _contains_any(normalized, _CONTACT_WORDS):
         return {"text": _contact_answer(context.scope_type, target), "reply_markup": None}
@@ -401,13 +817,33 @@ def _scoped_read_only_reply(*, context, target, question: str, base_url: str) ->
     return None
 
 
+def clear_loomi_context(*, identity) -> bool:
+    """Clear only the public Loomi conversation scope for one provider identity."""
+    deleted, _ = MessagingConversationContext.objects.filter(identity=identity).delete()
+    return bool(deleted)
+
+
 def _current_context(identity) -> MessagingConversationContext | None:
-    return MessagingConversationContext.objects.filter(identity=identity).first()
+    context = MessagingConversationContext.objects.filter(identity=identity).first()
+    if not context:
+        return None
+
+    ttl_seconds = max(
+        int(getattr(settings, "LOOMI_MESSAGING_CONTEXT_TTL_SECONDS", 86400) or 86400),
+        0,
+    )
+    if ttl_seconds:
+        from django.utils import timezone
+
+        if context.updated_at < timezone.now() - timedelta(seconds=ttl_seconds):
+            context.delete()
+            return None
+    return context
 
 
 def _is_general_help_question(normalized: str) -> bool:
-    return _contains_any(normalized, {
-        "حساب", "ثبت نام", "ورود", "لغو", "پرداخت", "قوانین", "پشتیبانی",
+    return _contains_any(normalized, _CANCELLATION_WORDS | {
+        "حساب", "ثبت نام", "ورود", "پرداخت", "قوانین", "پشتیبانی",
         "لومرا چیه", "لومرا چیست", "loomera چیست", "loomera چیه",
     })
 
@@ -415,10 +851,8 @@ def _is_general_help_question(normalized: str) -> bool:
 def _unscoped_reply(normalized: str, base_url: str, *, connected: bool = False) -> dict | None:
     """Guide public discovery back into the existing customer search flow."""
     from django.urls import reverse
-    greeting = re.sub(r"[^\w\s]", "", normalized).strip() in {
-        "سلام", "درود", "سلام لومی", "سلام وقت بخیر", "hello", "hi",
-    }
-    booking = _contains_any(normalized, _BOOKING_WORDS | {"زمان", "موجودی وقت"})
+    greeting = _is_greeting(normalized)
+    booking = _is_booking_or_availability_question(normalized)
     public_question = _contains_any(normalized, _SERVICE_WORDS | _PRICE_WORDS | _CONTACT_WORDS | {
         "سالن", "متخصص", "آرایشگر", "مجموعه", "انجام میدی", "انجام می دهید",
     })
@@ -484,6 +918,7 @@ def answer_loomi_message(*, identity, provider, text: str, base_url: str = "") -
             "text": "برای بررسی برنامه و نوبت‌ها، تقویم را باز کن. تغییر شیفت، مرخصی و سایر کارها از گزینه‌های زیر و داشبورد انجام می‌شود؛ اطلاعات نهایی را همان‌جا بررسی کن.",
             "reply_markup": markup,
         }
+    target = None
     if context:
         target = _context_target(context)
         if target:
@@ -503,8 +938,20 @@ def answer_loomi_message(*, identity, provider, text: str, base_url: str = "") -
             reply = _unscoped_reply(normalized, base_url, connected=user is not None)
             if reply:
                 return reply
-        if context and not _contains_any(normalized, {"لومرا", "loomera", "حساب", "داشبورد", "پشتیبانی", "پرداخت", "ثبت نام", "ورود", "لغو"}):
-            return {"text": "برای این سؤال اطلاعات تأییدشده‌ای ندارم. می‌تونی درباره خدمات، قیمت، آدرس یا مسیر رزرو بپرسی.", "reply_markup": None}
+        if context and target and not _contains_any(
+            normalized,
+            {"لومرا", "loomera", "حساب", "داشبورد", "پشتیبانی", "پرداخت", "ثبت نام", "ورود"} | _CANCELLATION_WORDS,
+        ):
+            label = _target_label(context.scope_type, target)
+            target_hint = f" «{label}»" if label else ""
+            return {
+                "text": (
+                    f"درباره{target_hint} اطلاعات عمومی ثبت‌شده رو می‌تونم دقیق بررسی کنم: "
+                    "خدمات و قیمت‌ها، آدرس و تماس، و زمان‌های آزاد. "
+                    "اسم خدمت یا چیزی که می‌خوای بدونی رو کوتاه بفرست تا بررسی کنم."
+                ),
+                "reply_markup": _booking_markup(context.scope_type, target, base_url),
+            }
         result = answer_help_question(
             question=question,
             page_path="/",

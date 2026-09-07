@@ -16,7 +16,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         action = options["action"]
-        if not str(getattr(settings, "TELEGRAM_BOT_TOKEN", "") or "").strip():
+        token = str(getattr(settings, "TELEGRAM_BOT_TOKEN", "") or "").strip()
+        relay_url = str(getattr(settings, "TELEGRAM_RELAY_URL", "") or "").strip()
+        relay_secret = str(getattr(settings, "TELEGRAM_RELAY_SECRET", "") or "").strip()
+        if relay_url:
+            if not relay_secret:
+                raise CommandError(
+                    "TELEGRAM_RELAY_SECRET is required when TELEGRAM_RELAY_URL is configured."
+                )
+        elif not token:
             raise CommandError("TELEGRAM_BOT_TOKEN is not configured.")
         client = TelegramBotClient()
         try:

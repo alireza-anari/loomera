@@ -50,8 +50,14 @@ def sanitize_webhook_headers(meta: dict[str, Any]):
 
 
 def _process_telegram_webhook_event(*, event_id: int, base_url: str) -> None:
-    """Process a stored Telegram event outside the webhook request lifecycle."""
-    close_old_connections()
+    """Process one stored Telegram event using the current DB connection.
+
+    This function intentionally does not call ``close_old_connections``. That
+    makes the processing core safe to invoke synchronously from tests, admin
+    tooling, or a future queue worker that already owns its connection lifecycle.
+    Production daemon threads use ``_process_telegram_webhook_event_thread``
+    below, which isolates database connections before and after this core call.
+    """
     try:
         event = MessagingWebhookEvent.objects.select_related("provider", "identity").get(
             id=event_id
@@ -61,6 +67,7 @@ def _process_telegram_webhook_event(*, event_id: int, base_url: str) -> None:
         parsed: ParsedBaleUpdate = parse_bale_update(payload)
         identity = event.identity
 
+        handler_result = "not_processed"
         if identity is not None:
             handler_result = handle_bale_update_stage11(
                 parsed=parsed,
@@ -74,14 +81,32 @@ def _process_telegram_webhook_event(*, event_id: int, base_url: str) -> None:
                 event_id,
                 handler_result,
             )
-        event.mark_processed()
+        if str(handler_result or "").startswith("outbound_failed:"):
+            event.mark_failed(str(handler_result)[:500])
+            logger.error(
+                "Telegram webhook outbound delivery failed | event_id=%s result=%s",
+                event_id,
+                str(handler_result)[:240],
+            )
+        else:
+            event.mark_processed()
     except Exception as exc:
         logger.exception("Telegram webhook event processing failed | event_id=%s", event_id)
         try:
             event = MessagingWebhookEvent.objects.get(id=event_id)
             event.mark_failed(type(exc).__name__)
         except Exception:
-            logger.exception("Failed to mark Telegram webhook event failed | event_id=%s", event_id)
+            logger.exception(
+                "Failed to mark Telegram webhook event failed | event_id=%s",
+                event_id,
+            )
+
+
+def _process_telegram_webhook_event_thread(*, event_id: int, base_url: str) -> None:
+    """Thread boundary that owns database connection cleanup for production."""
+    close_old_connections()
+    try:
+        _process_telegram_webhook_event(event_id=event_id, base_url=base_url)
     finally:
         close_old_connections()
 
@@ -94,7 +119,7 @@ def _start_telegram_event_processing(*, event_id: int, base_url: str) -> None:
     slower Loomi/Telegram outbound work.
     """
     worker = Thread(
-        target=_process_telegram_webhook_event,
+        target=_process_telegram_webhook_event_thread,
         kwargs={"event_id": event_id, "base_url": base_url},
         name=f"telegram-webhook-{event_id}",
         daemon=True,

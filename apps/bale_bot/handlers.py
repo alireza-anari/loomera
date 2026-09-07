@@ -2,8 +2,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from apps.messaging.loomi import answer_loomi_message, try_apply_loomi_start_context
+from apps.messaging.loomi import (
+    answer_loomi_message,
+    clear_loomi_context,
+    try_apply_loomi_start_context,
+    try_handle_loomi_callback,
+)
 
+from apps.messaging.constants import MessagingMessageStatus
 from apps.messaging.services import (
     connect_identity_with_raw_token,
     disconnect_identity,
@@ -93,13 +99,31 @@ def _send(
     text: str,
     reply_markup: dict | None = None,
 ):
-    return client.send_message(
+    """Send one user-visible reply and remember explicit delivery failures.
+
+    Provider clients intentionally return an audit log instead of raising when a
+    send fails. The dispatcher records explicit FAILED deliveries on the client
+    so the webhook service does not silently report the inbound event as processed.
+    Intentional SKIPPED sends (for example a disabled outbound feature flag) keep
+    their historical behavior. Mock/custom clients that do not return a real
+    message-log status keep the historical test/adapter behaviour.
+    """
+    delivery = client.send_message(
         provider=provider,
         identity=identity,
         chat_id=chat_id,
         text=text,
         reply_markup=reply_markup,
     )
+    status = getattr(delivery, "status", None)
+    if status == MessagingMessageStatus.FAILED:
+        error = str(getattr(delivery, "error_message", "") or status)[:240]
+        setattr(
+            client,
+            "_loomera_outbound_failure",
+            {"status": str(status), "error": error},
+        )
+    return delivery
 
 
 def _identity_is_connected(identity) -> bool:
@@ -576,6 +600,29 @@ def handle_bale_update_stage10(
                 provider=provider,
                 base_url=base_url,
             )
+        if callback_data.startswith("loomi:") and parsed.raw_chat.get("type", "private") == "private":
+            loomi_callback = try_handle_loomi_callback(
+                identity=identity,
+                provider=provider,
+                callback_data=callback_data,
+                base_url=base_url,
+            )
+            if loomi_callback:
+                if parsed.callback_query_id:
+                    client.answer_callback_query(
+                        callback_query_id=parsed.callback_query_id,
+                        text="زمان‌های آزاد آماده شد.",
+                        show_alert=False,
+                    )
+                _send(
+                    client,
+                    provider=provider,
+                    identity=identity,
+                    chat_id=chat_id,
+                    text=loomi_callback["text"],
+                    reply_markup=loomi_callback.get("reply_markup"),
+                )
+                return "loomi_callback"
         _send(
             client,
             provider=provider,
@@ -683,6 +730,10 @@ def handle_bale_update_stage10(
             ),
             )
             return "unknown_payload"
+
+        # A plain /start intentionally leaves any old salon/stylist conversation
+        # and returns the bot to its normal global menu.
+        clear_loomi_context(identity=identity)
 
         if getattr(identity, "user_id", None):
             return _show_connected_menu(
@@ -1077,13 +1128,24 @@ def handle_bale_update_stage10(
 def handle_bale_update_stage11(
     *, parsed: ParsedBaleUpdate, identity, provider, base_url: str = "", client=None
 ) -> str:
-    return handle_bale_update_stage10(
+    # Create the client here (rather than only inside stage10) so the outer
+    # boundary can inspect whether a user-visible outbound send failed.
+    active_client = client or BaleBotClient()
+    if hasattr(active_client, "_loomera_outbound_failure"):
+        delattr(active_client, "_loomera_outbound_failure")
+    result = handle_bale_update_stage10(
         parsed=parsed,
         identity=identity,
         provider=provider,
         base_url=base_url,
-        client=client,
+        client=active_client,
     )
+    failure = getattr(active_client, "_loomera_outbound_failure", None)
+    if isinstance(failure, dict):
+        status = str(failure.get("status") or "failed")
+        error = str(failure.get("error") or "outbound_delivery_failed")[:160]
+        return f"outbound_failed:{result}:{status}:{error}"
+    return result
 
 
 # Backward-compatible aliases kept for imports created in previous stages.

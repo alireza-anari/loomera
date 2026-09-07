@@ -110,8 +110,10 @@ require staging QA; mocked provider tests cannot establish live delivery.
    Compare with active public database records, including stylist price overrides.
 3. Open a specialist profile link. Verify its name/services and booking link.
    Hide its membership, deactivate it, then ask again: no hidden data should appear.
-4. Ask `برای فردا رزرو کن`. Follow the website link; no bot-created order or
-   claimed available time should appear.
+4. Ask `برای فردا رزرو کن`. If more than one bookable service exists, choose
+   one from the Loomi buttons. Verify that up to five real slots are read from
+   the existing booking engine. Selecting a slot must open the signed Loomera
+   quick-booking flow; the bot must not create an Order or reserve the slot.
 5. Start with a malformed/nonexistent Loomi link after a valid salon context.
    Verify a Persian invalid-link response and no answers from the old salon.
 6. Connect a manager and ask about team schedules/reports; connect a specialist
@@ -132,16 +134,19 @@ Root cause: without a saved public context, the previous runtime only intercepte
 booking words; price/service/contact questions and greetings fell through to the
 generic Help Center. Cancellation questions also matched booking words too early.
 
-The existing dispatcher is unchanged. Commands, connect tokens, callbacks,
+The existing dispatcher priority is unchanged: commands, connect tokens, callbacks,
 deterministic text menus and authenticated operations still run first. Within
 Loomi, unscoped account/payment/cancellation/policy questions continue to Help
 Center; other supported public service/price/contact/salon/stylist questions ask
-the user to choose a target. Booking/availability asks for selection without
-calculating slots. Greetings introduce Loomi. These replies use the existing
+the user to choose a target. Unscoped booking/availability asks for target
+selection without calculating slots. Greetings introduce Loomi. These replies use the existing
 `menu:customer_search`, website search, and guest/connected main-menu callbacks.
-Scoped public database behavior is unchanged. Cache failure now returns the old
-safe menu, while an exhausted quota still returns the quota response. Context,
-service-read and Help Center errors remain inside the optional-work savepoint.
+Scoped public database behavior remains deterministic. Booking/availability now
+previews real slots from the existing booking engine and hands the selected
+service/stylist/date/time to the signed Loomera quick-booking flow; no Order or
+slot reservation is created by the bot. Cache failure returns the old safe menu,
+while an exhausted quota still returns the quota response. Context, service-read
+and Help Center errors remain inside the optional-work savepoint.
 
 Manager and stylist Settings → Communications reuse the existing shared page.
 Managers see a separate card for every active salon they own, independent of
@@ -197,9 +202,11 @@ confirm product help remains available.
 
 B. Open an active salon deep link and ask `چه خدماتی دارید؟`,
 `قیمت رنگ مو چنده؟`, `آدرس؟`, `برای فردا رزرو کن`. Compare prices/contact with
-public database records. Booking must open the website without creating an Order
-or claiming available times. An invalid/newly inactive target must not reveal
-the old salon's facts.
+public database records. For booking, choose a service when prompted and compare
+the displayed slots with the site's existing availability for the same salon,
+specialist and service. Selecting a slot must open the website at reservation
+preview without creating an Order in the bot. An invalid/newly inactive target
+must not reveal the old salon's facts.
 
 C. Open a specialist deep link and ask `چه خدماتی انجام میدی؟` and
 `قیمت رنگ مو چنده؟`. Confirm public services/prices and membership visibility.
@@ -219,3 +226,48 @@ Phrase matching is deterministic and may miss unfamiliar wording. Live provider
 delivery and real-device clipboard/visual behavior still need the manual checks
 above. Existing public salon inline UI remains absent and the floating assistant
 and specialist public-page block remain unchanged.
+
+## Reliability and availability hardening
+
+This follow-up fixes two production-facing failure modes discovered during live
+staging QA. First, provider clients return a failed `MessagingMessageLog` rather
+than raising when `sendMessage` is rejected. The shared dispatcher now records
+that explicit delivery failure and Bale/Telegram webhook events are marked
+`FAILED` instead of silently becoming `PROCESSED`. Intentionally disabled
+outbound sends remain `SKIPPED` and keep their historical behavior. Bale failed
+events can be inspected/reprocessed with the existing
+`bale_webhook_event_check` command after credentials are corrected.
+
+Second, Loomi availability is read-only but useful: salon/stylist deep-link
+contexts can show real slots using `apps.orders.booking_utils` and build a signed
+`service_stylist_time` quick-booking URL. The final website flow revalidates the
+selection. Loomi itself does not create an Order, hold a slot, or perform payment.
+Availability callbacks are restricted to services belonging to the active public
+context, and hidden/inactive specialists are excluded. Cancellation/refund/help
+questions are deliberately excluded from booking intent.
+
+A plain `/start` clears an old Loomi salon/stylist context and returns to the
+normal bot menu. Contexts also expire automatically after 24 hours by default
+(`LOOMI_MESSAGING_CONTEXT_TTL_SECONDS` may override this without being required
+in env). Greetings inside an active deep-link context reintroduce the named
+salon/stylist instead of returning the generic verified-data limitation.
+
+Telegram relay mode no longer requires a local bot token for outbound transport;
+when `TELEGRAM_RELAY_URL` is configured the relay URL and relay secret are the
+local transport credentials. Direct Telegram mode still requires
+`TELEGRAM_BOT_TOKEN`. The relay itself remains responsible for using the correct
+environment-specific Telegram bot credential.
+
+### Verification required after this hardening
+
+Run these locally before commit/push:
+
+```text
+python manage.py test apps.messaging.test_loomi apps.telegram_bot apps.bale_bot --noinput
+python manage.py test apps.messaging --noinput
+python manage.py makemigrations --check --dry-run
+git diff --check
+```
+
+The earlier 277/5-pass counts above describe the pre-hardening follow-up and must
+not be treated as verification of this new patch until the commands above pass.

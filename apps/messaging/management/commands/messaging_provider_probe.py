@@ -41,14 +41,7 @@ class Command(BaseCommand):
             )
         except BaleBotApiError as exc:
             self.stdout.write(
-                self.style.ERROR(
-                    f"  getMe=FAILED error={exc} response={exc.response}"
-                )
-            )
-            return False
-        except Exception as exc:
-            self.stdout.write(
-                self.style.ERROR(f"  getMe=FAILED error_type={type(exc).__name__}")
+                self.style.ERROR(f"  getMe=FAILED error={exc} response={exc.response}")
             )
             return False
 
@@ -59,7 +52,9 @@ class Command(BaseCommand):
                 )
                 message_id = (response.get("result") or {}).get("message_id")
                 self.stdout.write(
-                    self.style.SUCCESS(f"  sendMessage=OK message_id={message_id or '?'}")
+                    self.style.SUCCESS(
+                        f"  sendMessage=OK message_id={message_id or '?'}"
+                    )
                 )
             except BaleBotApiError as exc:
                 self.stdout.write(
@@ -85,14 +80,7 @@ class Command(BaseCommand):
             )
         except TelegramBotApiError as exc:
             self.stdout.write(
-                self.style.ERROR(
-                    f"  getMe=FAILED error={exc} response={exc.response}"
-                )
-            )
-            return False
-        except Exception as exc:
-            self.stdout.write(
-                self.style.ERROR(f"  getMe=FAILED error_type={type(exc).__name__}")
+                self.style.ERROR(f"  getMe=FAILED error={exc} response={exc.response}")
             )
             return False
 
@@ -103,7 +91,9 @@ class Command(BaseCommand):
                 )
                 message_id = (response.get("result") or {}).get("message_id")
                 self.stdout.write(
-                    self.style.SUCCESS(f"  sendMessage=OK message_id={message_id or '?'}")
+                    self.style.SUCCESS(
+                        f"  sendMessage=OK message_id={message_id or '?'}"
+                    )
                 )
             except TelegramBotApiError as exc:
                 self.stdout.write(

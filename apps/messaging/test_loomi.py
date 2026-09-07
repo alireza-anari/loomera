@@ -1,14 +1,19 @@
-from django.test import SimpleTestCase, override_settings
-from django.test import TestCase
-from django.core.cache import cache
+from datetime import time, timedelta
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
+from urllib.parse import unquote, urlparse
+
+from django.core.cache import cache
+from django.test import SimpleTestCase, TestCase, override_settings
+from django.utils import timezone
 
 from apps.accounts.models import CustomUser, SalonManager, Stylist
 from apps.salons.models import Salon, SalonMembership, SalonMembershipStatus
 from apps.services.models import Services
 from apps.bale_bot.parser import parse_bale_update
 from apps.bale_bot.handlers import handle_bale_update_stage11
-from apps.messaging.models import MessagingConversationContext
+from apps.messaging.constants import MessagingMessageStatus, MessagingWebhookEventStatus
+from apps.messaging.models import MessagingConversationContext, MessagingMessageLog
 from apps.messaging.services import ensure_default_providers, get_or_create_identity, connect_identity_to_user
 from apps.messaging.loomi import answer_loomi_message, try_apply_loomi_start_context
 
@@ -87,7 +92,13 @@ class LoomiConversationTests(TestCase):
         self.stylist_user = CustomUser.objects.create(mobile_number="09121110002", name="متخصص", is_active=True)
         self.stylist = Stylist.objects.create(user=self.stylist_user, is_active=True, public_visibility="salon_only")
         self.salon.stylists.add(self.stylist)
-        self.service = Services.objects.create(service_name="رنگ مو", slug="loomi-color", is_active=True, base_price=250000)
+        self.service = Services.objects.create(
+            service_name="رنگ مو",
+            slug="loomi-color",
+            is_active=True,
+            is_platform_catalog=True,
+            base_price=250000,
+        )
         self.salon.services.add(self.service)
         self.service.stylists.add(self.stylist)
 
@@ -109,22 +120,72 @@ class LoomiConversationTests(TestCase):
             identity=self.identity, provider=self.provider, base_url="https://loomera.test", client=client)
         return result, client
 
-    def test_both_provider_start_links_through_webhook_services(self):
-        from apps.telegram_bot.services import record_telegram_webhook_update
-        from apps.bale_bot.services import record_bale_webhook_update
-        with override_settings(MESSAGING_ENABLED=True, MESSAGING_ALLOWED_PROVIDERS=["telegram", "bale"], TELEGRAM_BOT_ENABLED=True, BALE_BOT_ENABLED=True):
-            for key, recorder, client_path in [
-                ("telegram", record_telegram_webhook_update, "apps.telegram_bot.services.TelegramBotClient"),
-                ("bale", record_bale_webhook_update, "apps.bale_bot.handlers.BaleBotClient"),
-            ]:
-                with self.subTest(provider=key), patch(client_path) as client:
-                    result = recorder(payload=self.update(f"/start loomi_s_{self.salon.pk}"), base_url="https://loomera.test")
-                    self.assertEqual(result["handler_result"], "loomi_context_started")
-                    self.assertEqual(result["identity"].loomi_context.scope_object_id, self.salon.pk)
-                    self.assertIn("سالن آزمایش", client.return_value.send_message.call_args.kwargs["text"])
-                    duplicate = recorder(payload=self.update(f"/start loomi_s_{self.salon.pk}"))
-                    self.assertTrue(duplicate["duplicate"])
-                    self.assertEqual(client.return_value.send_message.call_count, 1)
+    def dispatch_callback(self, callback_data):
+        payload = {
+            "update_id": 2,
+            "callback_query": {
+                "id": "loomi-cb",
+                "from": {"id": 801},
+                "data": callback_data,
+                "message": {"chat": {"id": 801, "type": "private"}},
+            },
+        }
+        client = Mock()
+        result = handle_bale_update_stage11(
+            parsed=parse_bale_update(payload),
+            identity=self.identity,
+            provider=self.provider,
+            base_url="https://loomera.test",
+            client=client,
+        )
+        return result, client
+
+    def add_schedule(self, *, service=None, date_value=None, start=None, end=None):
+        from apps.stylists.models import StylistSchedule
+
+        return StylistSchedule.objects.create(
+            stylist=self.stylist,
+            salon=self.salon,
+            service=service or self.service,
+            date=date_value or (timezone.localdate() + timedelta(days=1)),
+            start_time=start or time(10, 0),
+            end_time=end or time(13, 0),
+        )
+
+    def test_both_providers_apply_loomi_start_through_shared_dispatcher(self):
+        for index, provider_key in enumerate(("telegram", "bale"), start=1):
+            provider = self.providers[provider_key]
+            identity, _ = get_or_create_identity(
+                provider=provider,
+                provider_user_id=f"loomi-start-{provider_key}",
+                chat_id=f"loomi-start-{provider_key}",
+            )
+            payload = {
+                "update_id": 8800 + index,
+                "message": {
+                    "message_id": 8800 + index,
+                    "from": {"id": 8800 + index},
+                    "chat": {"id": 8800 + index, "type": "private"},
+                    "text": f"/start loomi_s_{self.salon.pk}",
+                },
+            }
+            client = Mock()
+            result = handle_bale_update_stage11(
+                parsed=parse_bale_update(payload),
+                identity=identity,
+                provider=provider,
+                base_url="https://loomera.test",
+                client=client,
+            )
+            with self.subTest(provider=provider_key):
+                self.assertEqual(result, "loomi_context_started")
+                identity.refresh_from_db()
+                self.assertEqual(identity.loomi_context.scope_object_id, self.salon.pk)
+                self.assertIn(
+                    "سالن آزمایش",
+                    client.send_message.call_args.kwargs["text"],
+                )
+
 
     def test_salon_prices_and_contact_are_database_backed(self):
         self.start()
@@ -198,14 +259,189 @@ class LoomiConversationTests(TestCase):
             status=SalonMembershipStatus.ACTIVE, show_on_salon_profile=False)
         self.assertIn("معتبر نیست", self.start(f"loomi_p_{self.stylist.pk}")["text"])
 
-    def test_booking_only_links_and_never_creates_order(self):
+    def test_availability_preview_uses_real_slots_and_never_creates_order(self):
         from apps.orders.models import Order
+        from apps.orders.quick_links import resolve_booking_quick_link_token
+
         self.start()
+        tomorrow = timezone.localdate() + timedelta(days=1)
+        self.add_schedule(date_value=tomorrow)
         before = Order.objects.count()
-        answer = self.answer("برای فردا نوبت رزرو کن")
-        self.assertIn("مسیر رزرو", answer["text"])
-        self.assertTrue(answer["reply_markup"]["inline_keyboard"][0][0]["url"].startswith("https://loomera.test/"))
+        answer = self.answer("برای فردا رنگ مو وقت دارید؟")
+        self.assertIn("زمان‌های آزاد واقعی", answer["text"])
+        self.assertIn("فردا", answer["text"])
+        first_url = answer["reply_markup"]["inline_keyboard"][0][0]["url"]
+        self.assertTrue(first_url.startswith("https://loomera.test/orders/quick-link/"))
+
+        token = unquote(urlparse(first_url).path.split("/quick-link/", 1)[1].strip("/"))
+        quick_link, payload = resolve_booking_quick_link_token(token)
+        self.assertIsNone(quick_link)
+        self.assertEqual(payload["mode"], "service_stylist_time")
+        self.assertEqual(payload["salon_id"], self.salon.pk)
+        self.assertEqual(payload["service_ids"], [self.service.pk])
+        self.assertEqual(payload["stylist_user_id"], self.stylist.user_id)
+        self.assertEqual(payload["date"], tomorrow.isoformat())
+
+        handoff = self.client.get(urlparse(first_url).path)
+        self.assertEqual(handoff.status_code, 302)
+        self.assertIn("reservation_preview", handoff.url)
+        session = self.client.session
+        self.assertEqual(session["salon_id"], str(self.salon.pk))
+        selection_key = f"{self.stylist.user_id}_{self.service.pk}"
+        self.assertEqual(
+            session["datetime_selections"][selection_key]["date"],
+            tomorrow.isoformat(),
+        )
         self.assertEqual(Order.objects.count(), before)
+
+    def test_stylist_deep_link_availability_uses_real_booking_context(self):
+        self.add_schedule()
+        self.start(f"loomi_p_{self.stylist.pk}")
+        answer = self.answer("فردا برای رنگ مو چه ساعتی خالیه؟")
+        self.assertIn("زمان‌های آزاد واقعی", answer["text"])
+        self.assertIn(self.salon.salon_name, answer["text"])
+        self.assertTrue(answer["reply_markup"]["inline_keyboard"][0][0]["url"].startswith(
+            "https://loomera.test/orders/quick-link/"
+        ))
+
+    def test_hidden_stylist_is_not_used_for_salon_availability(self):
+        self.add_schedule()
+        self.start()
+        self.stylist.public_visibility = "hidden"
+        self.stylist.save(update_fields=["public_visibility"])
+        answer = self.answer("فردا برای رنگ مو وقت دارید؟")
+        self.assertIn("زمان آزادی", answer["text"])
+        first_button = answer["reply_markup"]["inline_keyboard"][0][0]
+        self.assertNotIn("/orders/quick-link/", first_button.get("url", ""))
+
+    def test_multiple_services_are_selected_with_loomi_callback(self):
+        second = Services.objects.create(
+            service_name="اصلاح مو",
+            slug="loomi-haircut",
+            is_active=True,
+            is_platform_catalog=True,
+            base_price=180000,
+        )
+        self.salon.services.add(second)
+        second.stylists.add(self.stylist)
+        self.add_schedule()
+        self.start()
+
+        answer = self.answer("برای فردا وقت دارید؟")
+        self.assertIn("اول خدمت", answer["text"])
+        buttons = answer["reply_markup"]["inline_keyboard"]
+        callbacks = {
+            row[0]["text"]: row[0]["callback_data"]
+            for row in buttons
+        }
+        self.assertTrue(callbacks["رنگ مو"].startswith(f"loomi:service:{self.service.pk}:1:1"))
+
+        result, client = self.dispatch_callback(callbacks["رنگ مو"])
+        self.assertEqual(result, "loomi_callback")
+        sent = client.send_message.call_args.kwargs
+        self.assertIn("زمان‌های آزاد واقعی", sent["text"])
+        self.assertTrue(sent["reply_markup"]["inline_keyboard"][0][0]["url"].startswith(
+            "https://loomera.test/orders/quick-link/"
+        ))
+
+    def test_loomi_service_callback_cannot_select_service_outside_context(self):
+        self.start()
+        result, client = self.dispatch_callback("loomi:service:999999:1:1")
+        self.assertEqual(result, "loomi_callback")
+        self.assertIn("قابل رزرو نیست", client.send_message.call_args.kwargs["text"])
+
+    def test_scoped_greeting_keeps_named_context(self):
+        self.start()
+        reply = self.answer("سلام")
+        self.assertIn("سلام", reply["text"])
+        self.assertIn(self.salon.salon_name, reply["text"])
+
+    def test_plain_start_clears_old_loomi_context(self):
+        self.start()
+        self.assertTrue(MessagingConversationContext.objects.filter(identity=self.identity).exists())
+        result, _client = self.dispatch("/start")
+        self.assertEqual(result, "guest_menu")
+        self.assertFalse(MessagingConversationContext.objects.filter(identity=self.identity).exists())
+
+    @override_settings(LOOMI_MESSAGING_CONTEXT_TTL_SECONDS=60)
+    def test_expired_context_falls_back_to_global_discovery(self):
+        self.start()
+        MessagingConversationContext.objects.filter(identity=self.identity).update(
+            updated_at=timezone.now() - timedelta(minutes=2)
+        )
+        reply = self.answer("قیمت رنگ مو چنده؟")
+        self.assertIn("کدوم سالن", reply["text"])
+        self.assertFalse(MessagingConversationContext.objects.filter(identity=self.identity).exists())
+
+    def test_date_word_without_booking_noun_does_not_trigger_availability(self):
+        self.start()
+        with patch("apps.orders.booking_utils.get_available_slots_for_service") as slots:
+            reply = self.answer("فردا هوا چطوره؟")
+            self.assertIn("اطلاعات عمومی ثبت‌شده", reply["text"])
+            slots.assert_not_called()
+
+    def test_dispatcher_surfaces_explicit_outbound_delivery_failure(self):
+        client = Mock()
+        client.send_message.return_value = SimpleNamespace(
+            status=MessagingMessageStatus.FAILED,
+            error_message="provider_unauthorized",
+        )
+        result = handle_bale_update_stage11(
+            parsed=parse_bale_update(self.update("سلام")),
+            identity=self.identity,
+            provider=self.provider,
+            base_url="https://loomera.test",
+            client=client,
+        )
+        self.assertTrue(result.startswith("outbound_failed:loomi_message:failed:"))
+
+    @override_settings(LOOMI_MESSAGING_GUEST_LIMIT=20)
+    def test_bale_event_is_failed_when_provider_rejects_outbound_reply(self):
+        from apps.bale_bot.client import BaleBotApiError
+        from apps.bale_bot.services import record_bale_webhook_update
+
+        bale = self.providers["bale"]
+        bale.is_active = True
+        bale.save(update_fields=["is_active"])
+        payload = {
+            "update_id": 99101,
+            "message": {
+                "message_id": 99102,
+                "from": {"id": 99103, "first_name": "کاربر"},
+                "chat": {"id": 99103, "type": "private"},
+                "text": "سلام",
+            },
+        }
+        with override_settings(
+            MESSAGING_ENABLED=True,
+            MESSAGING_OUTBOUND_ENABLED=True,
+            MESSAGING_ALLOWED_PROVIDERS=["telegram", "bale"],
+            BALE_BOT_ENABLED=True,
+            BALE_BOT_TOKEN="fake-stage-token",
+        ), patch(
+            "apps.bale_bot.client.BaleBotClient.request",
+            side_effect=BaleBotApiError(
+                "bale_api_http_error",
+                status_code=401,
+                response={"ok": False, "description": "Unauthorized"},
+            ),
+        ):
+            result = record_bale_webhook_update(
+                payload=payload,
+                base_url="https://loomera.test",
+            )
+
+        event = result["event"]
+        event.refresh_from_db()
+        self.assertEqual(event.status, MessagingWebhookEventStatus.FAILED)
+        self.assertTrue(result["handler_result"].startswith("outbound_failed:"))
+        outbound = MessagingMessageLog.objects.filter(
+            provider=bale,
+            direction="outbound",
+            identity=result["identity"],
+        ).latest("id")
+        self.assertEqual(outbound.status, MessagingMessageStatus.FAILED)
+        self.assertEqual(outbound.provider_response.get("description"), "Unauthorized")
 
     @override_settings(LOOMI_MESSAGING_GUEST_LIMIT=1)
     def test_rate_limit_and_menu_remains_available(self):
@@ -262,7 +498,7 @@ class LoomiConversationTests(TestCase):
     def test_scoped_unknown_does_not_call_ai(self):
         self.start()
         with patch("apps.help_center.services.answer_help_question") as help_answer:
-            self.assertIn("اطلاعات تأییدشده", self.answer("مدیر اینجا چند سالشه؟")["text"])
+            self.assertIn("اطلاعات عمومی ثبت‌شده", self.answer("مدیر اینجا چند سالشه؟")["text"])
             help_answer.assert_not_called()
 
     def test_help_failure_returns_old_friendly_menu(self):
@@ -302,7 +538,12 @@ class LoomiConversationTests(TestCase):
 
     def test_direct_bot_public_questions_and_greeting_use_existing_search(self):
         for provider_key in ("telegram", "bale"):
-            self.provider = self.providers[provider_key]
+            provider = self.providers[provider_key]
+            identity, _ = get_or_create_identity(
+                provider=provider,
+                provider_user_id=f"direct-{provider_key}",
+                chat_id=f"direct-{provider_key}",
+            )
             for question, expected in [
                 ("قیمت رنگ مو چنده؟", "کدوم سالن"),
                 ("قیمت رنگساژ چنده؟", "کدوم سالن"),
@@ -313,10 +554,28 @@ class LoomiConversationTests(TestCase):
                 ("سلام", "سلام 🌱"),
             ]:
                 cache.clear()
+                payload = {
+                    "update_id": 12000,
+                    "message": {
+                        "message_id": 12000,
+                        "from": {"id": 12000},
+                        "chat": {"id": 12000, "type": "private"},
+                        "text": question,
+                    },
+                }
+                client = Mock()
                 with self.subTest(provider=provider_key, question=question), patch(
                     "apps.help_center.services.answer_help_question"
-                ) as help_answer, patch("apps.orders.booking_utils.get_available_slots_for_service") as slots:
-                    result, client = self.dispatch(question)
+                ) as help_answer, patch(
+                    "apps.orders.booking_utils.get_available_slots_for_service"
+                ) as slots:
+                    result = handle_bale_update_stage11(
+                        parsed=parse_bale_update(payload),
+                        identity=identity,
+                        provider=provider,
+                        base_url="https://loomera.test",
+                        client=client,
+                    )
                     self.assertEqual(result, "loomi_message")
                     sent = client.send_message.call_args.kwargs
                     self.assertIn(expected, sent["text"])
@@ -332,6 +591,18 @@ class LoomiConversationTests(TestCase):
                 return_value={"answer": "راهنمای عمومی لومرا"}) as help_answer:
                 self.assertEqual(self.answer(question)["text"], "راهنمای عمومی لومرا")
                 help_answer.assert_called_once()
+
+    def test_scoped_cancellation_question_still_uses_help_center(self):
+        self.start()
+        with patch(
+            "apps.help_center.services.answer_help_question",
+            return_value={"answer": "راهنمای لغو نوبت"},
+        ) as help_answer, patch(
+            "apps.orders.booking_utils.get_available_slots_for_service"
+        ) as slots:
+            self.assertEqual(self.answer("چطور نوبتم رو لغو کنم؟")["text"], "راهنمای لغو نوبت")
+            help_answer.assert_called_once()
+            slots.assert_not_called()
 
     def test_context_lookup_failure_uses_old_safe_menu(self):
         with patch("apps.messaging.loomi._current_context", side_effect=RuntimeError("lookup failed")):
