@@ -1,18 +1,23 @@
 from __future__ import annotations
 
+import logging
+from threading import Thread
 from typing import Any
+
 from django.conf import settings
-from django.db import transaction
+from django.db import close_old_connections, transaction
 
 from apps.bale_bot.handlers import handle_bale_update_stage11
 from apps.bale_bot.parser import ParsedBaleUpdate, parse_bale_update
 from apps.messaging.constants import MessagingMessageDirection, MessagingProviderKey
-from apps.messaging.models import MessagingProvider
+from apps.messaging.models import MessagingProvider, MessagingWebhookEvent
 from apps.messaging.services import (
     ensure_default_providers, get_or_create_identity, log_message,
     provider_allowed, record_webhook_event,
 )
 from .client import TelegramBotClient
+
+logger = logging.getLogger(__name__)
 
 
 class TelegramWebhookDisabled(PermissionError):
@@ -44,6 +49,84 @@ def sanitize_webhook_headers(meta: dict[str, Any]):
     return {key: str(meta.get(key, "")) for key in allowed if meta.get(key)}
 
 
+def _process_telegram_webhook_event(*, event_id: int, base_url: str) -> None:
+    """Process one stored Telegram event using the current DB connection.
+
+    This function intentionally does not call ``close_old_connections``. That
+    makes the processing core safe to invoke synchronously from tests, admin
+    tooling, or a future queue worker that already owns its connection lifecycle.
+    Production daemon threads use ``_process_telegram_webhook_event_thread``
+    below, which isolates database connections before and after this core call.
+    """
+    try:
+        event = MessagingWebhookEvent.objects.select_related("provider", "identity").get(
+            id=event_id
+        )
+        provider = event.provider
+        payload = event.payload or {}
+        parsed: ParsedBaleUpdate = parse_bale_update(payload)
+        identity = event.identity
+
+        handler_result = "not_processed"
+        if identity is not None:
+            handler_result = handle_bale_update_stage11(
+                parsed=parsed,
+                identity=identity,
+                provider=provider,
+                base_url=base_url,
+                client=TelegramBotClient(),
+            )
+            logger.info(
+                "Telegram webhook event processed | event_id=%s result=%s",
+                event_id,
+                handler_result,
+            )
+        if str(handler_result or "").startswith("outbound_failed:"):
+            event.mark_failed(str(handler_result)[:500])
+            logger.error(
+                "Telegram webhook outbound delivery failed | event_id=%s result=%s",
+                event_id,
+                str(handler_result)[:240],
+            )
+        else:
+            event.mark_processed()
+    except Exception as exc:
+        logger.exception("Telegram webhook event processing failed | event_id=%s", event_id)
+        try:
+            event = MessagingWebhookEvent.objects.get(id=event_id)
+            event.mark_failed(type(exc).__name__)
+        except Exception:
+            logger.exception(
+                "Failed to mark Telegram webhook event failed | event_id=%s",
+                event_id,
+            )
+
+
+def _process_telegram_webhook_event_thread(*, event_id: int, base_url: str) -> None:
+    """Thread boundary that owns database connection cleanup for production."""
+    close_old_connections()
+    try:
+        _process_telegram_webhook_event(event_id=event_id, base_url=base_url)
+    finally:
+        close_old_connections()
+
+
+def _start_telegram_event_processing(*, event_id: int, base_url: str) -> None:
+    """Start processing after commit so the webhook can return immediately.
+
+    Celery remains optional for this deployment. When no worker is available,
+    the lightweight daemon thread keeps webhook delivery independent from the
+    slower Loomi/Telegram outbound work.
+    """
+    worker = Thread(
+        target=_process_telegram_webhook_event_thread,
+        kwargs={"event_id": event_id, "base_url": base_url},
+        name=f"telegram-webhook-{event_id}",
+        daemon=True,
+    )
+    worker.start()
+
+
 @transaction.atomic
 def record_telegram_webhook_update(*, payload, headers=None, base_url=""):
     provider = get_telegram_provider_for_webhook()
@@ -68,18 +151,19 @@ def record_telegram_webhook_update(*, payload, headers=None, base_url=""):
             direction=MessagingMessageDirection.INBOUND,
             text=parsed.inbound_text, payload=payload,
         )
-    handler_result = "ignored_missing_identity"
+
+    # Do not run Loomi or outbound Telegram calls inside the webhook request.
+    # Telegram needs a fast 2xx response; processing continues after commit.
     if identity is not None:
-        try:
-            handler_result = handle_bale_update_stage11(
-                parsed=parsed, identity=identity, provider=provider, base_url=base_url,
-                client=TelegramBotClient(),
+        transaction.on_commit(
+            lambda event_id=event.id, url=base_url: _start_telegram_event_processing(
+                event_id=event_id, base_url=url
             )
-        except Exception as exc:
-            event.mark_failed(type(exc).__name__)
-            raise
-    event.mark_processed()
+        )
+    else:
+        event.mark_processed()
+
     return {
         "event": event, "created": True, "duplicate": False,
-        "identity": identity, "parsed": parsed, "handler_result": handler_result,
+        "identity": identity, "parsed": parsed, "handler_result": "queued",
     }

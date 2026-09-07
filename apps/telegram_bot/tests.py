@@ -1,7 +1,10 @@
 from datetime import timedelta
+from io import StringIO
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from django.core.exceptions import ImproperlyConfigured
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -60,6 +63,35 @@ class TelegramWebhookTests(TestCase):
         self.assertEqual(malformed.status_code, 400)
         self.assertEqual(invalid.status_code, 400)
 
+    @override_settings(**TELEGRAM_LIVE)
+    def test_async_event_marks_failed_when_user_reply_delivery_fails(self):
+        from apps.telegram_bot.services import (
+            _process_telegram_webhook_event,
+            record_telegram_webhook_update,
+        )
+
+        result = record_telegram_webhook_update(
+            payload=self.payload(update_id=155, text="/start"),
+            base_url="https://loomera.test",
+        )
+        client = MagicMock()
+        client.send_message.return_value = SimpleNamespace(
+            status=MessagingMessageStatus.FAILED,
+            error_message="telegram_api_http_error",
+        )
+        with patch(
+            "apps.telegram_bot.services.TelegramBotClient",
+            return_value=client,
+        ):
+            _process_telegram_webhook_event(
+                event_id=result["event"].pk,
+                base_url="https://loomera.test",
+            )
+
+        result["event"].refresh_from_db()
+        self.assertEqual(result["event"].status, "failed")
+        self.assertIn("outbound_failed", result["event"].error_message)
+
     @override_settings(**{**TELEGRAM_LIVE, "MESSAGING_OUTBOUND_ENABLED": False})
     def test_duplicate_update_is_stored_once(self):
         kwargs = dict(content_type="application/json", HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN="test-secret-not-real")
@@ -82,6 +114,8 @@ class TelegramLinkingTests(TestCase):
 
     @override_settings(**{**TELEGRAM_LIVE, "MESSAGING_OUTBOUND_ENABLED": False})
     def test_start_token_links_once_and_reuse_is_safe(self):
+        from apps.telegram_bot.services import _process_telegram_webhook_event
+
         telegram = ensure_default_providers()[MessagingProviderKey.TELEGRAM]
         raw, token = issue_messaging_token(
             purpose=MessagingTokenPurpose.CONNECT_ACCOUNT, provider=telegram, user=self.user,
@@ -92,14 +126,39 @@ class TelegramLinkingTests(TestCase):
             "message": {"message_id": 201, "from": {"id": 8001, "first_name": "Linked"}, "chat": {"id": 8001, "type": "private"}, "text": f"/start connect_{raw}"},
         }
         kwargs = dict(content_type="application/json", HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN="test-secret-not-real")
-        self.assertEqual(self.client.post(reverse("telegram_bot:webhook"), data=payload, **kwargs).status_code, 200)
+
+        # The production webhook intentionally queues Telegram processing after
+        # commit. TestCase keeps an outer transaction open, so execute the
+        # captured on_commit callback deterministically and replace the thread
+        # launcher with the connection-safe processing core.
+        def process_now(*, event_id, base_url):
+            _process_telegram_webhook_event(event_id=event_id, base_url=base_url)
+
+        with patch(
+            "apps.telegram_bot.services._start_telegram_event_processing",
+            side_effect=process_now,
+        ):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    reverse("telegram_bot:webhook"), data=payload, **kwargs
+                )
+        self.assertEqual(response.status_code, 200)
         token.refresh_from_db()
         self.assertTrue(token.is_used)
         identity = telegram.identities.get(provider_user_id="8001")
         self.assertEqual(identity.user, self.user)
+
         payload["update_id"] = 202
         payload["message"]["message_id"] = 202
-        self.assertEqual(self.client.post(reverse("telegram_bot:webhook"), data=payload, **kwargs).status_code, 200)
+        with patch(
+            "apps.telegram_bot.services._start_telegram_event_processing",
+            side_effect=process_now,
+        ):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    reverse("telegram_bot:webhook"), data=payload, **kwargs
+                )
+        self.assertEqual(response.status_code, 200)
         identity.refresh_from_db()
         self.assertEqual(identity.user, self.user)
 
@@ -215,6 +274,58 @@ class TelegramRelayClientTests(TestCase):
         self.assertEqual(
             request_obj.get_header("User-agent"),
             "Loomera-Test/1.0",
+        )
+
+    @override_settings(
+        MESSAGING_ENABLED=True,
+        MESSAGING_OUTBOUND_ENABLED=True,
+        MESSAGING_ALLOWED_PROVIDERS=["telegram"],
+        TELEGRAM_BOT_ENABLED=True,
+        TELEGRAM_BOT_TOKEN="",
+        TELEGRAM_RELAY_URL="https://relay.example.workers.dev",
+        TELEGRAM_RELAY_SECRET="relay-test-secret",
+    )
+    @patch.object(
+        TelegramBotClient,
+        "request",
+        return_value={"ok": True, "result": {"message_id": 55}},
+    )
+    def test_relay_send_does_not_require_local_bot_token(self, request_mock):
+        telegram = ensure_default_providers()[MessagingProviderKey.TELEGRAM]
+        telegram.is_active = True
+        telegram.save(update_fields=["is_active"])
+        client = TelegramBotClient()
+
+        log = client.send_message(
+            provider=telegram,
+            chat_id="relay-chat",
+            text="سلام",
+        )
+
+        self.assertEqual(log.status, MessagingMessageStatus.SENT)
+        request_mock.assert_called_once_with(
+            "sendMessage",
+            {"chat_id": "relay-chat", "text": "سلام"},
+        )
+
+    @override_settings(
+        TELEGRAM_BOT_ENABLED=True,
+        TELEGRAM_BOT_TOKEN="",
+        TELEGRAM_RELAY_URL="https://relay.example.workers.dev",
+        TELEGRAM_RELAY_SECRET="relay-test-secret",
+        TELEGRAM_WEBHOOK_SECRET="webhook-test-secret",
+        MESSAGING_PUBLIC_BASE_URL="https://staging.example.com",
+    )
+    @patch("apps.telegram_bot.management.commands.telegram_webhook.TelegramBotClient")
+    def test_webhook_command_relay_does_not_require_local_bot_token(self, client_cls):
+        client_cls.return_value.set_webhook.return_value = {"ok": True}
+
+        call_command("telegram_webhook", "set", stdout=StringIO())
+
+        client_cls.return_value.set_webhook.assert_called_once_with(
+            f"https://staging.example.com{reverse('telegram_bot:webhook')}",
+            secret_token="webhook-test-secret",
+            drop_pending_updates=False,
         )
 
     @override_settings(

@@ -122,6 +122,19 @@ class TelegramBotClient:
             and provider_allowed(MessagingProviderKey.TELEGRAM)
         )
 
+    def _transport_ready(self) -> bool:
+        # In relay mode the relay authenticates to Telegram with its own bot
+        # credential; Loomera only needs the relay URL + shared relay secret.
+        # Direct mode still requires TELEGRAM_BOT_TOKEN.
+        if self.relay_url:
+            return bool(self.relay_secret)
+        return bool(self.token)
+
+    def _transport_missing_reason(self) -> str:
+        if self.relay_url and not self.relay_secret:
+            return "telegram_relay_secret_missing"
+        return "telegram_bot_token_missing"
+
     def send_message(
         self, *, chat_id, text, provider=None, identity=None,
         notification_delivery=None, reply_markup=None
@@ -136,16 +149,24 @@ class TelegramBotClient:
         if reply_markup:
             log_payload["reply_markup"] = sanitize_reply_markup_for_log(reply_markup)
         outbound_allowed = self._outbound_allowed(provider)
-        if not outbound_allowed or not self.token:
-            token_missing = bool(outbound_allowed and not self.token)
+        if not outbound_allowed or not self._transport_ready():
+            transport_missing = bool(outbound_allowed and not self._transport_ready())
             return (
                 log_message(
                     provider=provider, identity=identity,
                     notification_delivery=notification_delivery,
                     direction=MessagingMessageDirection.OUTBOUND,
-                    status=(MessagingMessageStatus.FAILED if token_missing else MessagingMessageStatus.SKIPPED),
+                    status=(
+                        MessagingMessageStatus.FAILED
+                        if transport_missing
+                        else MessagingMessageStatus.SKIPPED
+                    ),
                     text=text, payload=log_payload,
-                    error_message=("telegram_bot_token_missing" if token_missing else "telegram_outbound_disabled"),
+                    error_message=(
+                        self._transport_missing_reason()
+                        if transport_missing
+                        else "telegram_outbound_disabled"
+                    ),
                 ) if provider else None
             )
         try:
@@ -172,15 +193,23 @@ class TelegramBotClient:
         if not callback_query_id:
             return {"ok": False, "skipped": True, "reason": "missing_callback_query_id"}
         allowed = self._outbound_allowed()
-        if not allowed or not self.token:
+        if not allowed or not self._transport_ready():
             return {
                 "ok": False, "skipped": True,
-                "reason": "telegram_bot_token_missing" if allowed and not self.token else "telegram_outbound_disabled",
+                "reason": (
+                    self._transport_missing_reason()
+                    if allowed and not self._transport_ready()
+                    else "telegram_outbound_disabled"
+                ),
             }
         try:
             return self.request(
                 "answerCallbackQuery",
-                {"callback_query_id": callback_query_id, "text": str(text or "")[:180], "show_alert": bool(show_alert)},
+                {
+                    "callback_query_id": callback_query_id,
+                    "text": str(text or "")[:180],
+                    "show_alert": bool(show_alert),
+                },
             )
         except TelegramBotApiError as exc:
             return {"ok": False, "error": str(exc), "response": exc.response}
