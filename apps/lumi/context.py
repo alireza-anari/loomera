@@ -74,6 +74,25 @@ class LumiContext:
             "metadata": dict(self.metadata),
         }
 
+    def model_dict(self) -> dict[str, Any]:
+        """Return the minimum non-identifying context an intent model may see.
+
+        User/session IDs, request objects, page URLs and arbitrary metadata are
+        intentionally excluded. Scope IDs stay server-side and are injected by
+        the orchestrator after model classification.
+        """
+        metadata = self.metadata if isinstance(self.metadata, Mapping) else {}
+        return {
+            "authenticated": self.authenticated,
+            "roles": sorted(self.roles),
+            "primary_role": self.primary_role,
+            "channel": self.channel,
+            "locale": self.locale,
+            "scope_type": str(metadata.get("scope_type") or "")[:32],
+            "has_scope": bool(metadata.get("scope_type")),
+            "reference_date": str(metadata.get("reference_date") or "")[:10],
+        }
+
 
 def build_lumi_context(
     *,

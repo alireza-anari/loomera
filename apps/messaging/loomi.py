@@ -1236,6 +1236,22 @@ def answer_loomi_message(*, identity, provider, text: str, base_url: str = "") -
             )
             if scoped:
                 return scoped
+            if (
+                bool(getattr(settings, "LOOMI_V2_INTENT_ENABLED", False))
+                and not _is_general_help_question(normalized)
+            ):
+                from .loomi_v2 import try_answer_with_lumi_v2
+
+                v2_reply = try_answer_with_lumi_v2(
+                    conversation_context=context,
+                    target=target,
+                    user=user,
+                    provider=provider,
+                    question=question,
+                    reply_markup=_booking_markup(context.scope_type, target, base_url),
+                )
+                if v2_reply:
+                    return v2_reply
         else:
             return {"text": "این پروفایل دیگر در دسترس نیست. لطفاً لینک یک مجموعه یا متخصص فعال را باز کن.", "reply_markup": None}
 

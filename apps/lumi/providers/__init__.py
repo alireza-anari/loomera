@@ -1,3 +1,4 @@
-from .base import ModelProvider, ModelProviderError, StructuredIntent
+from .base import ModelProvider, ModelProviderError
+from .staging import HelpCenterIntentProvider
 
-__all__ = ["ModelProvider", "ModelProviderError", "StructuredIntent"]
+__all__ = ["ModelProvider", "ModelProviderError", "HelpCenterIntentProvider"]
