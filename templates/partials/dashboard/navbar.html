@@ -30,7 +30,7 @@
     </div>
 
     <div class="flex shrink-0 items-center gap-2 sm:gap-3">
-      <div class="relative" data-notification-root>
+      <div class="relative" data-notification-root data-notification-summary-url="{% url 'notifications:summary' %}?role={{ dashboard_notifications.audience_role|default:'manager' }}">
         <button type="button"
                 class="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-surfaceSoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"
                 aria-label="اعلان‌ها"

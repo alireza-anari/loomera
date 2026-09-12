@@ -666,6 +666,16 @@ def complete_service(*, detail: OrderDetail, actor=None) -> OrderDetail:
     old_status = detail.lifecycle_status
     detail.mark_service_completed(at=timezone.now())
     record_appointment_event(order_detail=detail, event_type=AppointmentEvent.EventType.SERVICE_COMPLETED, actor=actor, old_status=old_status, new_status=detail.lifecycle_status, metadata={"overrun_minutes": detail.service_overrun_minutes})
+    _notify_appointment_lifecycle(
+        detail=detail,
+        event_type="service_completed",
+        title="خدمت شما تکمیل شد",
+        body="این خدمت با موفقیت تکمیل شد. جزئیات نوبت و امکان ثبت دیدگاه از صفحه نوبت در دسترس است.",
+        actor=actor,
+        include_customer=True,
+        include_stylist=True,
+        include_manager=True,
+    )
     _refresh_order(detail.order)
     return detail
 

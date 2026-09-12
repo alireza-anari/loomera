@@ -177,7 +177,7 @@ class HelpArticleChunk(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["article", "position"],
-                name="hc_unique_article_chunk_position",
+                name="hc_uq_article_chunk_pos",
             ),
         ]
         indexes = [
@@ -225,7 +225,7 @@ class HelpPageContext(models.Model):
             models.UniqueConstraint(
                 fields=["role", "path_pattern"],
                 condition=~models.Q(path_pattern=""),
-                name="hc_unique_role_path_pattern_nonempty",
+                name="hc_uq_role_path_nonempty",
             ),
         ]
         indexes = [

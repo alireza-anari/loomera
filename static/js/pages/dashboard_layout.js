@@ -204,7 +204,6 @@ function setupDashboardLayout() {
     if (!notificationPanel) return;
 
     const tabButtons = Array.from(notificationPanel.querySelectorAll("[data-notification-tab]"));
-    const items = Array.from(notificationPanel.querySelectorAll("[data-notification-item]"));
     const emptyState = notificationPanel.querySelector("[data-notification-empty]");
 
     if (!tabButtons.length) return;
@@ -213,6 +212,7 @@ function setupDashboardLayout() {
     const inactiveClasses = ["bg-white", "text-loomera-textSecondary", "border-loomera-borderSoft"];
 
     const activateTab = (key) => {
+      const items = Array.from(notificationPanel.querySelectorAll("[data-notification-item]"));
       let visibleItems = 0;
 
       tabButtons.forEach((button) => {
@@ -317,6 +317,72 @@ function setupDashboardLayout() {
   };
 
 
+  const refreshDashboardNotifications = async () => {
+    if (!notificationRoot || !notificationPanel) return;
+    const summaryUrl = notificationRoot.dataset.notificationSummaryUrl || "";
+    if (!summaryUrl) return;
+
+    try {
+      const response = await fetch(summaryUrl, {
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { "X-Requested-With": "XMLHttpRequest", "Accept": "application/json" },
+      });
+      if (!response.ok) return;
+      const payload = await response.json();
+      const unread = Math.max(0, Number(payload.unread_count) || 0);
+      const badge = notificationRoot.querySelector("[data-dashboard-notification-badge]");
+      const toggle = notificationRoot.querySelector("[data-notification-toggle]");
+      let nextBadge = badge;
+      if (!nextBadge && unread > 0 && toggle) {
+        nextBadge = document.createElement("span");
+        nextBadge.dataset.dashboardNotificationBadge = "";
+        nextBadge.className = "absolute -right-1.5 -top-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-loomera-primary px-1 text-[10px] font-black leading-none text-white shadow-lm-soft";
+        toggle.appendChild(nextBadge);
+      }
+      if (nextBadge) {
+        nextBadge.textContent = unread > 99 ? "+99" : String(unread);
+        nextBadge.classList.toggle("hidden", unread === 0);
+      }
+      const unreadLabel = notificationPanel.querySelector("[data-dashboard-notification-unread-count]");
+      if (unreadLabel) unreadLabel.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-rose-500" aria-hidden="true"></span>${unread} خوانده‌نشده`;
+
+      const list = notificationPanel.querySelector("[data-notification-list]");
+      if (!list || !Array.isArray(payload.notifications)) return;
+      list.innerHTML = "";
+      payload.notifications.forEach((note) => {
+        const item = document.createElement("a");
+        item.href = note.action_url || "#";
+        item.dataset.notificationItem = "";
+        item.dataset.notificationCategory = note.category || "appointments";
+        item.dataset.notificationUnread = note.is_read ? "false" : "true";
+        item.dataset.notificationReadUrl = `/notifications/api/${note.id}/read/`;
+        item.className = "group flex items-start gap-2.5 rounded-[18px] border border-loomera-borderSoft bg-white px-2.5 py-2.5 transition hover:border-loomera-primary/20 hover:bg-loomera-primarySoft/15";
+        const safeTitle = document.createElement("p");
+        safeTitle.className = "min-w-0 flex-1 truncate text-xs font-black leading-5 text-loomera-textPrimary";
+        safeTitle.textContent = note.title || "اعلان";
+        const body = document.createElement("div");
+        body.className = "min-w-0 flex-1";
+        body.appendChild(safeTitle);
+        const meta = document.createElement("p");
+        meta.className = "mt-1.5 truncate text-[10px] font-semibold text-loomera-textMuted";
+        meta.textContent = note.created_at_label || "";
+        body.appendChild(meta);
+        const icon = document.createElement("span");
+        icon.className = "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText";
+        const i = document.createElement("i");
+        i.className = note.icon || "fa-regular fa-bell";
+        icon.appendChild(i);
+        item.append(icon, body);
+        list.appendChild(item);
+      });
+      setupNotificationTabs();
+      setupNotificationReadActions();
+    } catch (error) {
+      console.warn("Unable to refresh dashboard notifications.", error);
+    }
+  };
+
   const openNotificationPanel = () => {
     if (!notificationPanel) return;
 
@@ -327,6 +393,7 @@ function setupDashboardLayout() {
     setExpanded(notificationToggle, true);
     setupNotificationTabs();
     setupNotificationReadActions();
+    refreshDashboardNotifications();
   };
 
   const openMobileCreatePanel = () => {
@@ -393,6 +460,8 @@ function setupDashboardLayout() {
     event.stopPropagation();
     closeMobileManagementPanel();
   });
+
+  window.setInterval(refreshDashboardNotifications, 30000);
 
   notificationPanel?.addEventListener("click", (event) => event.stopPropagation());
   mobileCreatePanel?.addEventListener("click", (event) => event.stopPropagation());

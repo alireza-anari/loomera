@@ -43,14 +43,15 @@ class BetaUxAppointmentsStaticGuards(TestCase):
 
     def test_appointment_detail_puts_lifecycle_action_before_advanced_details(self):
         source = self.read("templates/dashboards/appointment_detail.html")
-        action_pos = source.index('id="appointment-section-actions"')
-        services_pos = source.index('id="appointment-section-services"')
+        action_pos = source.index('id="manager-next-action-title"')
+        services_pos = source.index('id="appointment-section-summary"')
         finance_pos = source.index('id="appointment-section-finance"')
         self.assertLess(action_pos, services_pos)
         self.assertLess(services_pos, finance_pos)
         self.assertIn("این نوبت نیاز به اقدام دارد", source)
         self.assertIn("detail.timeline_hint", source)
-        self.assertNotIn("data-dashboard-workspace-tabs", source)
+        self.assertIn("data-dashboard-workspace-tabs", source)
+        self.assertIn('data-target="#appointment-section-finance"', source)
         self.assertNotIn("detail.finance_totals", source)
 
     def test_detail_keeps_finance_material_dispute_and_customer_paths(self):

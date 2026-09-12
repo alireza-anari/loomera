@@ -243,3 +243,51 @@ def test_customer_profile_image_rejects_gif_with_jpg_filename(self):
 
     customer.refresh_from_db()
     self.assertFalse(customer.profile_image)
+
+
+class CustomerEditProfileRegressionTests(Stage1DomainFactoryMixin, TestCase):
+    def _url(self):
+        return reverse("accounts:customer_update_profile")
+
+    def test_edit_profile_valid_image_saves_without_attribute_error(self):
+        customer = self.make_customer()
+        self.client.force_login(customer.user)
+
+        response = self.client.post(
+            self._url(),
+            {
+                "name": "نام جدید",
+                "family": "نام خانوادگی",
+                "email": "updated@example.com",
+                "birth_day": "",
+                "birth_month": "",
+                "birth_year": "",
+                "image": _image_upload(name="profile.jpg"),
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        customer.refresh_from_db()
+        self.assertTrue(customer.profile_image)
+
+    def test_edit_profile_name_validation_does_not_mark_valid_image_invalid(self):
+        customer = self.make_customer()
+        self.client.force_login(customer.user)
+
+        response = self.client.post(
+            self._url(),
+            {
+                "name": "",
+                "family": "نام خانوادگی",
+                "email": "updated@example.com",
+                "birth_day": "",
+                "birth_month": "",
+                "birth_year": "",
+                "image": _image_upload(name="profile.jpg"),
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        form = response.context["form"]
+        self.assertIn("name", form.errors)
+        self.assertNotIn("image", form.errors)

@@ -472,6 +472,17 @@
     </section>
 
     <div class="lm-notifications-toolbar" data-notification-toolbar>
+      <div class="mb-2 flex items-center justify-end">
+        <button type="button"
+                class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-4 text-xs font-black text-loomera-textSecondary shadow-sm"
+                data-notification-filter-open
+                aria-haspopup="dialog"
+                aria-expanded="false">
+          <i class="fa-solid fa-filter text-[10px]" aria-hidden="true"></i>
+          <span>فیلتر</span>
+          <span class="text-loomera-primary" data-notification-active-filter-label>همه</span>
+        </button>
+      </div>
       <div class="lm-notifications-tabs" role="tablist" aria-label="فیلتر اعلان‌ها">
         <button type="button"
                 class="lm-notifications-tab lm-notifications-search-toggle"
@@ -551,6 +562,38 @@
             <span>جستجو</span>
           </button>
         </form>
+      </div>
+    </div>
+
+    <div class="fixed inset-0 z-[80] hidden items-end justify-center bg-black/30 p-3 sm:items-center"
+         data-notification-filter-modal
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="notification-filter-title"
+         hidden>
+      <div class="w-full max-w-md rounded-[26px] border border-loomera-borderSoft bg-white p-4 shadow-lm-elevated">
+        <div class="flex items-center justify-between gap-3">
+          <h2 id="notification-filter-title" class="text-base font-black text-loomera-textPrimary">فیلتر اعلان‌ها</h2>
+          <button type="button"
+                  class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-loomera-bgSubtle text-loomera-textSecondary"
+                  data-notification-filter-close
+                  aria-label="بستن فیلتر">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="mt-4 grid gap-2">
+          <button type="button" class="rounded-2xl border border-loomera-borderSoft px-4 py-3 text-right text-sm font-black" data-notification-filter="all">همه اعلان‌ها</button>
+          <button type="button" class="rounded-2xl border border-loomera-borderSoft px-4 py-3 text-right text-sm font-black" data-notification-filter="unread">خوانده‌نشده</button>
+          {% for tab in notification_center.tabs %}
+            {% if tab.key != 'all' and tab.count %}
+              <button type="button"
+                      class="rounded-2xl border border-loomera-borderSoft px-4 py-3 text-right text-sm font-black"
+                      data-notification-filter="{{ tab.key }}">
+                {{ tab.label }}
+              </button>
+            {% endif %}
+          {% endfor %}
+        </div>
       </div>
     </div>
 
@@ -665,6 +708,10 @@
         const searchForm = root.querySelector("[data-notification-search-form]");
         const searchInput = root.querySelector("[data-notification-search]");
         const filterButtons = Array.from(root.querySelectorAll("[data-notification-filter]"));
+        const filterOpen = root.querySelector("[data-notification-filter-open]");
+        const filterModal = root.querySelector("[data-notification-filter-modal]");
+        const filterClose = root.querySelector("[data-notification-filter-close]");
+        const activeFilterLabel = root.querySelector("[data-notification-active-filter-label]");
         const cards = Array.from(root.querySelectorAll("[data-notification-card]"));
         const emptyState = root.querySelector("[data-notification-empty]");
         let activeFilter = "all";
@@ -677,11 +724,14 @@
         };
 
         const setTabState = () => {
+          let activeLabel = "همه";
           filterButtons.forEach((button) => {
             const active = button.dataset.notificationFilter === activeFilter;
             button.setAttribute("aria-selected", active ? "true" : "false");
             button.setAttribute("tabindex", active ? "0" : "-1");
+            if (active) activeLabel = button.textContent.trim();
           });
+          if (activeFilterLabel) activeFilterLabel.textContent = activeLabel;
         };
 
         const setCardVisible = (card, visible) => {
@@ -752,11 +802,38 @@
           setTabState();
         };
 
+        const setFilterModalOpen = (open) => {
+          if (!filterModal) return;
+          filterModal.hidden = !open;
+          filterModal.classList.toggle("hidden", !open);
+          filterModal.classList.toggle("flex", open);
+          filterOpen?.setAttribute("aria-expanded", open ? "true" : "false");
+          if (open) {
+            window.requestAnimationFrame(() => filterModal.querySelector("[data-notification-filter]")?.focus());
+          }
+        };
+
+        filterOpen?.addEventListener("click", () => setFilterModalOpen(true));
+        filterClose?.addEventListener("click", () => setFilterModalOpen(false));
+        filterModal?.addEventListener("click", (event) => {
+          if (event.target === filterModal) setFilterModalOpen(false);
+        });
+
         filterButtons.forEach((button) => {
           button.addEventListener("click", () => {
             activeFilter = button.dataset.notificationFilter || "all";
             applyFilters();
+            if (button.closest("[data-notification-filter-modal]")) {
+              setFilterModalOpen(false);
+            }
           });
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && filterModal && !filterModal.hidden) {
+            setFilterModalOpen(false);
+            filterOpen?.focus();
+          }
         });
 
         cards.forEach((card) => {

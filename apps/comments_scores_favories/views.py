@@ -14,10 +14,11 @@ from apps.orders.lifecycle import (
     mark_review_completed,
 )
 from .models import Comments, Favorits, Scoring
+from .review_service import DuplicateReviewError, create_customer_review_once
 from apps.orders.models import OrderDetail
 from django.contrib.auth.views import redirect_to_login
 from django.conf import settings
-from apps.main.ui_feedback import stash_form_errors
+from apps.main.ui_feedback import stash_form_errors, user_error_message
 
 
 def _review_post_max_bytes():
@@ -120,52 +121,6 @@ class SalonCommentScoreView(View):
 
         return appointment, True
 
-    def _upsert_comment_and_score(
-        self, *, salon, customer, stylist, service, comment_text, score
-    ):
-        """
-        قبلاً update_or_create مستقیم روی Comments باعث MultipleObjectsReturned می‌شد،
-        چون ترکیب salon/comment_user/stylist/service در دیتابیس unique نیست.
-        این نسخه اگر رکورد قبلی وجود داشته باشد آخرین رکورد را آپدیت می‌کند،
-        و اگر نباشد رکورد جدید می‌سازد.
-        """
-        comment_obj = (
-            Comments.objects.filter(
-                salon=salon,
-                comment_user=customer,
-                stylist=stylist,
-                service=service,
-            )
-            .order_by("-id")
-            .first()
-        )
-
-        if comment_obj:
-            comment_obj.comment_text = comment_text
-            comment_obj.is_active = False
-            comment_obj.save(update_fields=["comment_text", "is_active"])
-        else:
-            comment_obj = Comments.objects.create(
-                salon=salon,
-                comment_user=customer,
-                stylist=stylist,
-                service=service,
-                comment_text=comment_text,
-                is_active=False,
-            )
-
-        Scoring.objects.update_or_create(
-            comment=comment_obj,
-            defaults={
-                "score": score,
-                "scoring_user": customer,
-                "salon": salon,
-                "stylist": stylist,
-                "service": service,
-            },
-        )
-
-        return comment_obj
 
     def post(self, request, *args, **kwargs):
         if _review_post_payload_too_large(request):
@@ -255,14 +210,18 @@ class SalonCommentScoreView(View):
             messages.error(request, "برای ثبت دیدگاه، خدمت و متخصص معتبر نیست.")
             return redirect(salon.get_absolute_url())
 
-        self._upsert_comment_and_score(
-            salon=salon,
-            customer=customer,
-            stylist=stylist,
-            service=service,
-            comment_text=comment_text,
-            score=score,
-        )
+        try:
+            create_customer_review_once(
+                salon=salon,
+                customer=customer,
+                stylist=stylist,
+                service=service,
+                comment_text=comment_text,
+                score=score,
+            )
+        except DuplicateReviewError as exc:
+            messages.info(request, user_error_message(exc))
+            return redirect(salon.get_absolute_url())
 
         if linked_order is not None:
             mark_review_completed(linked_order)

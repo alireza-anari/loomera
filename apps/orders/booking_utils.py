@@ -362,7 +362,7 @@ def get_candidate_stylists_for_service(
     if requested_stylist_id not in (None, "", "any"):
         return list(
             Stylist.objects.filter(
-                user_id=int(resolved_stylist_id),
+                user_id=int(requested_stylist_id),
                 stylists_of_salon=salon,
                 services_of_stylist=service,
                 is_active=True,
@@ -586,11 +586,15 @@ def resolve_booking_sequence(
         current_stylist_id = selection.get("stylistId")
         resolved_stylist_id = selection.get("resolvedStylistId") or current_stylist_id
 
-        service = Services.objects.get(
+        service = Services.objects.filter(
             pk=service_id,
             services_of_salon=salon,
             is_active=True,
-        )
+        ).first()
+        if service is None:
+            raise ValidationError(
+                "یکی از خدمات انتخاب‌شده دیگر فعال یا قابل رزرو نیست. لطفاً خدمات را دوباره انتخاب کنید."
+            )
         duration_minutes = get_service_duration_minutes(service)
         buffer_minutes = get_service_buffer_minutes(service)
 

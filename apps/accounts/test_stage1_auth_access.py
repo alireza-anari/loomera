@@ -83,6 +83,27 @@ class Stage1AuthAndAccessTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(session["active_code"], "12345")
         self.assertEqual(session["signup_kind"], "customer")
 
+    def test_verify_page_renders_for_active_otp_session(self):
+        customer = self.make_customer(is_active=False)
+        session = self.client.session
+        session[USER_SESSION_KEY] = {
+            "mobile_number": customer.user.mobile_number,
+            "active_code": "12345",
+            "remember_password": False,
+            "signup_kind": "customer",
+            "otp_expires_at": 9999999999,
+            "otp_attempts": 0,
+            "otp_max_attempts": 5,
+            "otp_verified": False,
+        }
+        session.save()
+
+        response = self.client.get(reverse("accounts:verify"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "accounts/verify.html")
+        self.assertContains(response, "کد تأیید را وارد کن")
+
     def test_verify_register_success_activates_customer_and_logs_in(self):
         customer = self.make_customer(is_active=False)
         session = self.client.session

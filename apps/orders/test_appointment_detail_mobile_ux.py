@@ -81,5 +81,9 @@ class AppointmentDetailMobileUXTests(SimpleTestCase):
     def test_critical_actions_are_preserved(self):
         self.assertIn("confirmCancel()", self.template)
         self.assertIn("openReviewModal", self.template)
-        self.assertIn("pay_in_salon_action_url", self.template)
         self.assertIn("openNavigation()", self.template)
+        self.assertNotIn("pay_in_salon_action_url", self.template)
+        self.assertIn(
+            "پس از دریافت وجه، مجموعه پرداخت حضوری را ثبت می‌کند",
+            self.template,
+        )

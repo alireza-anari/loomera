@@ -66,8 +66,9 @@ async function postJson(url) {
 function markCardAsRead(card) {
   if (!card) return;
 
-  card.classList.remove("border-loomera-primary/25", "bg-loomera-primarySoft/35");
-  card.classList.add("border-loomera-borderSoft", "bg-white");
+  card.classList.remove("border-loomera-primary/40", "bg-loomera-primarySoft/45", "shadow-lm-card", "ring-1", "ring-loomera-primary/10");
+  card.classList.add("border-loomera-borderSoft", "bg-white", "opacity-90", "shadow-lm-soft");
+  card.dataset.notificationUnread = "false";
   card.querySelectorAll("[data-mark-read]").forEach((button) => button.remove());
 
   const iconWrap = card.querySelector(".bg-loomera-primary.text-white");

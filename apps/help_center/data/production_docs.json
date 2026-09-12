@@ -410,7 +410,9 @@
       "keywords": "زمان آزاد نیست گرفته شد تداخل رزرو همزمان checkout",
       "aliases": "اسلات پر شد\nوقت رو یکی گرفت\nزمان دیگه خالی نیست",
       "is_featured": true,
-      "source_refs": ["apps/orders/views.py:AppointmentCheckoutView"]
+      "source_refs": [
+        "apps/orders/views.py:AppointmentCheckoutView"
+      ]
     },
     {
       "key": "customer.booking.reschedule",
@@ -445,6 +447,23 @@
       "source_refs": [
         "apps/orders/urls.py:orders:appointments",
         "apps/orders/urls.py:orders:appointment_detail"
+      ]
+    },
+    {
+      "key": "customer.payment.beta-pay-at-salon-only",
+      "slug": "customer-beta-pay-at-salon-only",
+      "title": "روش پرداخت در نسخه بتا لومرا",
+      "audience": "customer",
+      "category": "payments",
+      "article_type": "guide",
+      "summary": "در نسخه بتای فعلی لومرا، پرداخت رزرو فقط در مجموعه انجام می‌شود و پرداخت آنلاین یا کیف پول مشتری فعال نیست.",
+      "body": "## روش پرداخت فعلی\nدر نسخه بتای فعلی، رزرو بدون پرداخت آنلاین ثبت می‌شود و هزینه خدمت در خود مجموعه پرداخت می‌شود.\n\n## قابلیت‌های غیرفعال در بتا\nکیف پول مشتری، شارژ یا برداشت کیف پول، پیش‌پرداخت آنلاین، پرداخت آنلاین هنگام رزرو و پرداخت آنلاین تکمیلی بعد از خدمت در مسیر فعال بتا نیستند.\n\nاگر در مستند قدیمی یا نسخه آینده به این قابلیت‌ها اشاره شده باشد، آن محتوا وضعیت فعال محصول بتای فعلی را توصیف نمی‌کند.",
+      "keywords": "نسخه بتا پرداخت در مجموعه پرداخت حضوری کیف پول غیرفعال پرداخت آنلاین غیرفعال پیش پرداخت",
+      "aliases": "هزینه نوبت را چطور پرداخت کنم\nکیف پول دارم\nپرداخت آنلاین هست\nچطور کیف پول شارژ کنم\npay at salon\nwallet\nonline payment",
+      "is_featured": true,
+      "source_refs": [
+        "apps/orders/views.py:AppointmentCheckoutView",
+        "apps/help_center/product_truth.py:BETA_PAYMENT_MODE"
       ]
     },
     {
@@ -1057,7 +1076,9 @@
       "keywords": "مالی متخصص درآمد سهم کیف پول مجموعه فعال",
       "aliases": "درآمد من\nمالی استایلیست\nstylist finance",
       "is_featured": false,
-      "source_refs": ["apps/dashboards/views.py:StylistFinanceView"]
+      "source_refs": [
+        "apps/dashboards/views.py:StylistFinanceView"
+      ]
     },
     {
       "key": "stylist.finance.withdraw",
@@ -1087,7 +1108,9 @@
       "keywords": "جزئیات نوبت متخصص مشتری خدمت مواد مالی مجموعه فعال",
       "aliases": "نوبت من متخصص\nappointment detail stylist\nجزئیات مراجعه",
       "is_featured": false,
-      "source_refs": ["apps/dashboards/views.py:StylistAppointmentDetailView"]
+      "source_refs": [
+        "apps/dashboards/views.py:StylistAppointmentDetailView"
+      ]
     },
     {
       "key": "stylist.booking.quick-links",
@@ -1101,7 +1124,9 @@
       "keywords": "لینک رزرو متخصص quick link qr مجموعه فعال",
       "aliases": "لینک وقت من\nQR متخصص\nstylist quick link",
       "is_featured": false,
-      "source_refs": ["apps/dashboards/views.py:StylistQuickLinksView"]
+      "source_refs": [
+        "apps/dashboards/views.py:StylistQuickLinksView"
+      ]
     },
     {
       "key": "customer.booking.cancel",
@@ -1132,7 +1157,9 @@
       "keywords": "پرداخت در مجموعه تسویه آنلاین بعد خدمت مشتری حضوری",
       "aliases": "بعد از سالن آنلاین پرداخت کنم\npay in salon settlement\nپرداخت حضوری",
       "is_featured": false,
-      "source_refs": ["apps/orders/views.py:PayInSalonSettlementView"]
+      "source_refs": [
+        "apps/orders/views.py:PayInSalonSettlementView"
+      ]
     },
     {
       "key": "customer.payment.pending-review",
@@ -1197,7 +1224,9 @@
       "keywords": "تنظیمات حساب مشتری پروفایل آدرس رمز ارتباطات حذف حساب",
       "aliases": "تنظیمات من\ncustomer settings\nمدیریت حساب",
       "is_featured": false,
-      "source_refs": ["apps/accounts/views.py:CustomerSettingsView"]
+      "source_refs": [
+        "apps/accounts/views.py:CustomerSettingsView"
+      ]
     },
     {
       "key": "customer.account.profile-edit",
@@ -1211,7 +1240,9 @@
       "keywords": "ویرایش پروفایل مشتری نام اطلاعات تصویر حساب",
       "aliases": "اطلاعاتم رو عوض کنم\nedit profile\nپروفایل من",
       "is_featured": false,
-      "source_refs": ["apps/accounts/views.py:CustomerUpdateProfileView"]
+      "source_refs": [
+        "apps/accounts/views.py:CustomerUpdateProfileView"
+      ]
     },
     {
       "key": "customer.account.password",
@@ -1343,7 +1374,9 @@
       "keywords": "قطع اتصال بله حذف ربات disconnect پیام رسان",
       "aliases": "بله رو قطع کنم\nunlink bale\nحذف اتصال پیام رسان",
       "is_featured": false,
-      "source_refs": ["apps/messaging/views.py:MessagingDisconnectView"]
+      "source_refs": [
+        "apps/messaging/views.py:MessagingDisconnectView"
+      ]
     },
     {
       "key": "support.tickets.overview",
@@ -2138,7 +2171,10 @@
       "route_name": "main:support_ticket_detail",
       "page_key": "support.tickets.reply-close",
       "article_key": "support.tickets.reply-close",
-      "quick_prompts": ["چطور به این تیکت پاسخ بدهم؟", "چطور تیکت را ببندم؟"],
+      "quick_prompts": [
+        "چطور به این تیکت پاسخ بدهم؟",
+        "چطور تیکت را ببندم؟"
+      ],
       "priority": 100
     },
     {
@@ -2157,7 +2193,9 @@
       "route_name": "dashboards:salon_profile_creator_step1",
       "page_key": "manager.setup.identity",
       "article_key": "manager.setup.identity",
-      "quick_prompts": ["نام و شماره مجموعه رو چطور ثبت کنم؟"],
+      "quick_prompts": [
+        "نام و شماره مجموعه رو چطور ثبت کنم؟"
+      ],
       "priority": 100
     },
     {
@@ -2165,7 +2203,9 @@
       "route_name": "dashboards:salon_profile_creator_step2",
       "page_key": "manager.setup.location",
       "article_key": "manager.setup.location",
-      "quick_prompts": ["آدرس و موقعیت رو چطور ثبت کنم؟"],
+      "quick_prompts": [
+        "آدرس و موقعیت رو چطور ثبت کنم؟"
+      ],
       "priority": 100
     },
     {
@@ -2173,7 +2213,9 @@
       "route_name": "dashboards:salon_profile_creator_step3",
       "page_key": "manager.setup.hours",
       "article_key": "manager.setup.hours",
-      "quick_prompts": ["ساعت کاری مجموعه رو چطور تنظیم کنم؟"],
+      "quick_prompts": [
+        "ساعت کاری مجموعه رو چطور تنظیم کنم؟"
+      ],
       "priority": 100
     },
     {
@@ -2192,7 +2234,9 @@
       "route_name": "dashboards:request_service",
       "page_key": "manager.services.request-new",
       "article_key": "manager.services.request-new",
-      "quick_prompts": ["خدمت موردنظرم تو کاتالوگ نیست، چیکار کنم؟"],
+      "quick_prompts": [
+        "خدمت موردنظرم تو کاتالوگ نیست، چیکار کنم؟"
+      ],
       "priority": 100
     },
     {
@@ -2200,7 +2244,9 @@
       "route_name": "dashboards:edit_service",
       "page_key": "manager.services.edit",
       "article_key": "manager.services.edit",
-      "quick_prompts": ["قیمت یا مدت خدمت رو چطور عوض کنم؟"],
+      "quick_prompts": [
+        "قیمت یا مدت خدمت رو چطور عوض کنم؟"
+      ],
       "priority": 100
     },
     {
@@ -2208,7 +2254,9 @@
       "route_name": "dashboards:salons_customers_page",
       "page_key": "manager.customers.overview",
       "article_key": "manager.customers.overview",
-      "quick_prompts": ["مشتری ارزشمند یعنی چی؟"],
+      "quick_prompts": [
+        "مشتری ارزشمند یعنی چی؟"
+      ],
       "priority": 100
     },
     {
@@ -2216,7 +2264,9 @@
       "route_name": "dashboards:reports_dashboard",
       "page_key": "manager.reports.overview",
       "article_key": "manager.reports.overview",
-      "quick_prompts": ["گزارش‌ها رو چطور فیلتر کنم؟"],
+      "quick_prompts": [
+        "گزارش‌ها رو چطور فیلتر کنم؟"
+      ],
       "priority": 100
     },
     {
@@ -2224,7 +2274,9 @@
       "route_name": "dashboards:content_hub",
       "page_key": "manager.content.publish",
       "article_key": "manager.content.publish",
-      "quick_prompts": ["برای عکس مشتری رضایت لازمه؟"],
+      "quick_prompts": [
+        "برای عکس مشتری رضایت لازمه؟"
+      ],
       "priority": 100
     },
     {
@@ -2232,7 +2284,9 @@
       "route_name": "dashboards:products",
       "page_key": "manager.inventory.products-not-ready",
       "article_key": "manager.inventory.products-not-ready",
-      "quick_prompts": ["آیا مدیریت موجودی این بخش کامل شده؟"],
+      "quick_prompts": [
+        "آیا مدیریت موجودی این بخش کامل شده؟"
+      ],
       "priority": 100
     },
     {
@@ -2240,7 +2294,9 @@
       "route_name": "dashboards:stocktakes",
       "page_key": "manager.inventory.stocktakes-not-ready",
       "article_key": "manager.inventory.stocktakes-not-ready",
-      "quick_prompts": ["آیا انبارگردانی الان کامل و عملیاتی است؟"],
+      "quick_prompts": [
+        "آیا انبارگردانی الان کامل و عملیاتی است؟"
+      ],
       "priority": 100
     },
     {
@@ -2248,7 +2304,9 @@
       "route_name": "dashboards:stylist_profile",
       "page_key": "stylist.profile.manage",
       "article_key": "stylist.profile.manage",
-      "quick_prompts": ["چه اطلاعاتی از پروفایلم اینجا قابل ویرایشه؟"],
+      "quick_prompts": [
+        "چه اطلاعاتی از پروفایلم اینجا قابل ویرایشه؟"
+      ],
       "priority": 100
     },
     {
@@ -2256,7 +2314,9 @@
       "route_name": "dashboards:stylist_add_customer",
       "page_key": "stylist.customers.add",
       "article_key": "stylist.customers.add",
-      "quick_prompts": ["چطور مشتری جدید ثبت کنم؟"],
+      "quick_prompts": [
+        "چطور مشتری جدید ثبت کنم؟"
+      ],
       "priority": 100
     },
     {
@@ -2264,7 +2324,9 @@
       "route_name": "dashboards:stylist_add_booking",
       "page_key": "stylist.booking.manual",
       "article_key": "stylist.booking.manual",
-      "quick_prompts": ["چطور برای مشتری نوبت ثبت کنم؟"],
+      "quick_prompts": [
+        "چطور برای مشتری نوبت ثبت کنم؟"
+      ],
       "priority": 100
     },
     {
@@ -2272,7 +2334,9 @@
       "route_name": "dashboards:stylist_content",
       "page_key": "stylist.content.manage",
       "article_key": "stylist.content.manage",
-      "quick_prompts": ["چه محتواهایی رو می‌تونم ویرایش کنم؟"],
+      "quick_prompts": [
+        "چه محتواهایی رو می‌تونم ویرایش کنم؟"
+      ],
       "priority": 100
     },
     {
@@ -2280,7 +2344,9 @@
       "route_name": "accounts:customer_address_add",
       "page_key": "customer.account.address-add",
       "article_key": "customer.account.address-add",
-      "quick_prompts": ["چطور آدرس جدید ذخیره کنم؟"],
+      "quick_prompts": [
+        "چطور آدرس جدید ذخیره کنم؟"
+      ],
       "priority": 100
     },
     {
@@ -2288,7 +2354,9 @@
       "route_name": "services:all_services",
       "page_key": "customer.discovery.services",
       "article_key": "customer.discovery.services",
-      "quick_prompts": ["چطور خدمت مناسب پیدا کنم؟"],
+      "quick_prompts": [
+        "چطور خدمت مناسب پیدا کنم؟"
+      ],
       "priority": 100
     },
     {
@@ -2296,7 +2364,9 @@
       "route_name": "salons:show_salons",
       "page_key": "customer.discovery.salons",
       "article_key": "customer.discovery.salons",
-      "quick_prompts": ["چطور مجموعه و متخصص مناسب پیدا کنم؟"],
+      "quick_prompts": [
+        "چطور مجموعه و متخصص مناسب پیدا کنم؟"
+      ],
       "priority": 100
     }
   ]

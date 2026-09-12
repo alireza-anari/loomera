@@ -56,7 +56,10 @@ from apps.accounts.models import (
     CustomUser,
     WorkSamples,
 )
-from apps.orders.booking_utils import get_available_slots_for_service
+from apps.orders.booking_utils import (
+    get_available_slots_for_service,
+    get_blocking_order_details_queryset,
+)
 from apps.orders.models import (
     AppointmentMaterialUsage,
     BookingQuickLink,
@@ -8280,7 +8283,24 @@ def _validate_dashboard_schedule_post_size(request):
 def _clean_dashboard_schedule_action(request):
     _validate_dashboard_schedule_post_size(request)
 
-    action = (request.POST.get("action") or "").strip().lower()
+    raw_action = (
+        request.POST.get("action")
+        or request.POST.get("decision")
+        or request.POST.get("form_action")
+        or ""
+    )
+    action = str(raw_action).strip().lower()
+    action_aliases = {
+        "approved": "approve",
+        "approve_request": "approve",
+        "accept": "approve",
+        "accepted": "approve",
+        "rejected": "reject",
+        "reject_request": "reject",
+        "decline": "reject",
+        "declined": "reject",
+    }
+    action = action_aliases.get(action, action)
     if action not in DASHBOARD_SCHEDULE_ACTIONS:
         raise ValidationError("عملیات انتخاب‌شده معتبر نیست.")
 
@@ -9105,6 +9125,44 @@ class SetRegularShiftsView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin,
 
             if parsed_rows:
                 daily_shifts_data[i] = parsed_rows
+
+        # Existing appointments are commitments. Reject a schedule rewrite that
+        # would place any active future appointment outside all proposed windows;
+        # never silently move or invalidate the appointment.
+        today = timezone.localdate()
+        conflict_start = max(start_date, today)
+        if conflict_start <= end_date:
+            future_bookings = get_blocking_order_details_queryset(
+                salon=salon,
+                stylist=stylist,
+                start_date=conflict_start,
+                end_date=end_date,
+            ).select_related("service")
+            conflicting_bookings = []
+            for booking in future_bookings:
+                weekday_index = (booking.date.weekday() + 2) % 7
+                proposed_windows = daily_shifts_data.get(weekday_index, [])
+                booking_end = booking.occupied_until or booking.end_time
+                contained = any(
+                    booking.time
+                    and booking_end
+                    and window["start"] <= booking.time
+                    and booking_end <= window["end"]
+                    for window in proposed_windows
+                )
+                if not contained:
+                    conflicting_bookings.append(booking)
+
+            if conflicting_bookings:
+                first = conflicting_bookings[0]
+                messages.error(
+                    request,
+                    "این تغییر برنامه کاری با "
+                    f"{to_persian_digits(len(conflicting_bookings))} نوبت آینده تداخل دارد؛ "
+                    f"از جمله نوبت {format_jalali_with_weekday(first.date)} ساعت {format_time_fa(first.time)}. "
+                    "ابتدا نوبت‌های موجود را بررسی کنید؛ هیچ نوبتی خودکار جابه‌جا نشد.",
+                )
+                return redirect(request.path_info)
 
         try:
             with transaction.atomic():
