@@ -137,6 +137,16 @@ function syncUnreadCount(count) {
   });
 }
 
+
+function syncCategoryCounts(root, counts = {}) {
+  root.querySelectorAll("[data-notification-tab]").forEach((button) => {
+    const key = button.dataset.notificationTab || "all";
+    const count = Math.max(0, Number(counts[key]) || 0);
+    const target = button.querySelector("[data-notification-tab-count]");
+    if (target) target.textContent = toPersianNumber(count);
+  });
+}
+
 function setRootState(root, state) {
   const loading = root.querySelector("[data-notification-loading]");
   const empty = root.querySelector("[data-notification-empty]");
@@ -226,7 +236,7 @@ function createNotificationItem(root, notification) {
   item.href = actionUrl;
   item.className = [
     "group flex gap-3 rounded-[1.35rem] border p-3.5 text-right transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 lg:p-4",
-    isUnread ? "border-loomera-primary/20 bg-loomera-primarySoft/30" : "border-loomera-borderSoft bg-white",
+    isUnread ? "border-loomera-primary/35 bg-loomera-primarySoft/45 shadow-lm-soft ring-1 ring-loomera-primary/10" : "border-loomera-borderSoft bg-white opacity-90",
   ].join(" ");
   item.dataset.notificationItem = "true";
   item.dataset.notificationId = String(notification.id || "");
@@ -363,6 +373,7 @@ async function loadSummary(root) {
     const payload = await fetchJson(url);
     root._notifications = Array.isArray(payload.notifications) ? payload.notifications : [];
     syncUnreadCount(payload.unread_count);
+    syncCategoryCounts(root, payload.category_counts || {});
     renderNotifications(root);
   } catch (error) {
     setRootState(root, "error");

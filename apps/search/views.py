@@ -334,7 +334,7 @@ def loomera_search(request):
     except SearchJsonBodyTooLarge:
         return JsonResponse({"error": "payload_too_large"}, status=413)
     except SearchJsonBodyInvalid:
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
+        return JsonResponse({"error": "invalid_json"}, status=400)
 
     params = {
         "q": data.get("query") or data.get("q") or "",

@@ -677,6 +677,20 @@ class OrderDetail(models.Model):
         verbose_name="پایان اشغال تقویم با احتساب بافر",
     )
 
+    @property
+    def display_duration_minutes(self):
+        """Stable appointment duration, independent of later service edits."""
+        snapshot = int(self.scheduled_duration_minutes or 0)
+        if snapshot > 0:
+            return snapshot
+        if self.date and self.time and self.end_time:
+            start = datetime.combine(self.date, self.time)
+            end = datetime.combine(self.date, self.end_time)
+            minutes = int((end - start).total_seconds() // 60)
+            if minutes > 0:
+                return minutes
+        return int(getattr(self.service, "duration_minutes", 0) or 0)
+
     class ConfirmationStatus(models.TextChoices):
         PENDING = "pending", "در انتظار تایید"
         CONFIRMED = "confirmed", "تایید شده"

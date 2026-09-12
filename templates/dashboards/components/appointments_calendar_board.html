@@ -122,6 +122,9 @@
                       <div class="min-w-0">
                         <p class="truncate text-sm font-black text-loomera-textPrimary">{{ item.service_name }}</p>
                         <p class="mt-1 truncate text-xs text-loomera-textSecondary">{{ item.customer_name }}</p>
+                        <span class="mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-black {{ item.status.badge_class }}" data-calendar-status="{{ item.status.key }}">
+                          <i class="fa-solid fa-circle-info text-[8px]" aria-hidden="true"></i>{{ item.status.label }}
+                        </span>
                       </div>
                       <span class="h-3 w-3 shrink-0 rounded-full" style="background: {{ item.stylist_color }}"></span>
                     </div>
@@ -192,6 +195,7 @@
                         <div class="min-w-0 flex-1">
                           <p class="truncate text-xs font-black text-loomera-textPrimary">{{ item.service_name }}</p>
                           <p class="mt-0.5 truncate text-[10px] text-loomera-textMuted">{{ item.customer_name }} • {{ item.stylist_name }}</p>
+                          <span class="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[8px] font-black {{ item.status.badge_class }}" data-calendar-status="{{ item.status.key }}"><i class="fa-solid fa-circle-info text-[7px]" aria-hidden="true"></i>{{ item.status.label }}</span>
                         </div>
                       </a>
                     {% endif %}
@@ -278,6 +282,7 @@
                       </div>
                       <p class="mt-0.5 truncate text-[10px] font-black">{{ item.service_name }}</p>
                       {% if item.height_px >= 58 %}<p class="mt-0.5 truncate text-[9px] opacity-75">{{ item.customer_name }}</p>{% endif %}
+                      {% if item.height_px >= 72 %}<span class="mt-1 inline-flex max-w-full items-center gap-1 truncate rounded-full px-1.5 py-0.5 text-[7px] font-black {{ item.status.badge_class }}" data-calendar-status="{{ item.status.key }}"><i class="fa-solid fa-circle-info text-[6px]" aria-hidden="true"></i>{{ item.status.label }}</span>{% endif %}
                     </a>
                   {% endif %}
                 {% endfor %}

@@ -23,8 +23,8 @@
       </div>
     </div>
 
-    <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-      {% for card in finance_summary_cards|slice:":3" %}
+    <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {% for card in finance_summary_cards %}
         <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle p-4">
           <p class="text-[11px] font-bold text-loomera-textMuted">{{ card.label }}</p>
           <strong class="mt-2 block text-lg font-black text-loomera-textPrimary">{{ card.value }}</strong>
@@ -35,6 +35,33 @@
       {% endfor %}
     </div>
   </section>
+
+  {% if finance_alerts %}
+    <section class="rounded-[30px] border border-amber-200 bg-amber-50/45 p-4 shadow-lm-card sm:p-6" aria-labelledby="finance-alerts-title">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="text-[11px] font-black text-amber-700">نیازمند اقدام</p>
+          <h2 id="finance-alerts-title" class="mt-1 text-base font-black text-loomera-textPrimary">موارد مالی که بهتر است بررسی شوند</h2>
+        </div>
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-amber-700 shadow-sm">
+          <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        </span>
+      </div>
+      <div class="mt-4 grid gap-3 sm:grid-cols-2">
+        {% for alert in finance_alerts %}
+          <a href="{{ alert.url }}" class="rounded-2xl border border-amber-100 bg-white p-4 transition hover:border-amber-300">
+            <div class="flex items-start gap-3">
+              <i class="{{ alert.icon }} mt-1 text-amber-700" aria-hidden="true"></i>
+              <div class="min-w-0">
+                <strong class="block text-sm font-black text-loomera-textPrimary">{{ alert.title }}</strong>
+                <span class="mt-1 block text-[11px] leading-6 text-loomera-textMuted">{{ alert.description }}</span>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
 
   <section class="rounded-[30px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-6">
     <h2 class="text-base font-black text-loomera-textPrimary">
@@ -47,27 +74,32 @@
 
     <div class="mt-4 grid gap-3 sm:grid-cols-2">
       {% for group in finance_groups %}
-        {% for action in group.actions %}
-          <a href="{{ action.url }}"
-             class="group rounded-2xl border border-loomera-borderSoft bg-white p-4 transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
-
-            <div class="flex items-center gap-3">
-              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-                {% include "partials/dashboard/nav_icon.html" with key=group.icon %}
-              </span>
-
-              <div class="min-w-0">
-                <strong class="block text-sm font-black text-loomera-textPrimary">
-                  {{ action.label }}
-                </strong>
-                <span class="mt-1 block text-[11px] text-loomera-textMuted">
-                  {{ action.description }}
-                </span>
-              </div>
+        <section class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/35 p-3"
+                 data-finance-group="{{ group.key }}">
+          <div class="mb-3 flex items-start gap-3">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+              {% include "partials/dashboard/nav_icon.html" with key=group.icon %}
+            </span>
+            <div class="min-w-0">
+              <h3 class="text-sm font-black text-loomera-textPrimary">{{ group.title }}</h3>
+              <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">{{ group.description }}</p>
             </div>
-
-          </a>
-        {% endfor %}
+          </div>
+          <div class="grid gap-2">
+            {% for action in group.actions %}
+              <a href="{{ action.url }}"
+                 class="group rounded-2xl border border-loomera-borderSoft bg-white p-4 transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="min-w-0">
+                    <strong class="block text-sm font-black text-loomera-textPrimary">{{ action.label }}</strong>
+                    <span class="mt-1 block text-[11px] text-loomera-textMuted">{{ action.description }}</span>
+                  </div>
+                  <i class="fa-solid fa-arrow-left text-[10px] text-loomera-textMuted" aria-hidden="true"></i>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        </section>
       {% endfor %}
     </div>
   </section>

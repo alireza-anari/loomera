@@ -64,6 +64,10 @@ from apps.dashboards.jalali_utils import (
     format_time_fa,
 )
 from apps.comments_scores_favories.models import Comments, Scoring
+from apps.comments_scores_favories.review_service import (
+    DuplicateReviewError,
+    create_customer_review_once,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -1106,6 +1110,13 @@ class BookingStylistSelectPerService(View):
             "",
         )
 
+        # An explicit service list starts a fresh booking attempt. Do not leak a
+        # transient checkout conflict/price snapshot from an older attempt into it.
+        if selected_services:
+            request.session.pop("checkout_slot_lost_notice", None)
+            request.session.pop("checkout_price_consent", None)
+            request.session.modified = True
+
         service_ids = _quick_booking_parse_service_ids(
             [item for item in selected_services.split(",") if item]
         )
@@ -2106,10 +2117,15 @@ class ReservationPreview(LoginRequiredMixin, View):
             messages.error(request, user_error_message(exc))
             coupon_code = ""
         payload = _build_checkout_payload(request=request, coupon_code=coupon_code)
+        _store_checkout_price_consent(request, payload)
         form = AppointmentCheckoutForm(
             initial={
                 "coupon_code": coupon_code,
-                "payment_method": AppointmentCheckoutForm.PAYMENT_METHOD_ONLINE,
+                "payment_method": (
+                    AppointmentCheckoutForm.PAYMENT_METHOD_ONLINE
+                    if payload["requires_online_payment"]
+                    else AppointmentCheckoutForm.PAYMENT_METHOD_SALON
+                ),
             },
             requires_online_payment=payload["requires_online_payment"],
         )
@@ -2569,7 +2585,11 @@ class AppointmentsView(LoginRequiredMixin, View):
         context = {
             "past_appointments": past_appointments,
             "upcoming_appointments": upcoming_appointments,
+            "clear_completed_booking_client_state": bool(
+                request.session.pop("booking_completed_cleanup_client", False)
+            ),
         }
+        request.session.modified = True
         return render(request, self.template_name, context)
 
     def _filter_manually(self, queryset):
@@ -2701,22 +2721,18 @@ class AppointmentDetailView(LoginRequiredMixin, DetailView):
             messages.error(request, user_error_message(exc))
             return redirect("orders:appointment_detail", pk=appointment.pk)
 
-        comment = Comments.objects.create(
-            comment_user=customer,
-            salon=appointment.salon,
-            stylist=appointment.stylist,
-            service=appointment.service,
-            comment_text=comment_text,
-            is_active=False,
-        )
-        Scoring.objects.create(
-            comment=comment,
-            scoring_user=customer,
-            salon=appointment.salon,
-            stylist=appointment.stylist,
-            service=appointment.service,
-            score=score,
-        )
+        try:
+            create_customer_review_once(
+                customer=customer,
+                salon=appointment.salon,
+                stylist=appointment.stylist,
+                service=appointment.service,
+                comment_text=comment_text,
+                score=score,
+            )
+        except DuplicateReviewError as exc:
+            messages.info(request, user_error_message(exc))
+            return redirect("orders:appointment_detail", pk=appointment.pk)
 
         order.review_completed_at = timezone.now()
         order.save(update_fields=["review_completed_at", "update_date"])
@@ -2747,9 +2763,8 @@ class AppointmentDetailView(LoginRequiredMixin, DetailView):
             order.total_amount or sum(int(item.price or 0) for item in order_items) or 0
         )
         context["total_duration"] = sum(
-            int(getattr(item.service, "duration_minutes", 0) or 0)
+            int(item.display_duration_minutes or 0)
             for item in order_items
-            if item.service
         )
         context["service_count"] = len(order_items)
 
@@ -3611,6 +3626,13 @@ class RescheduleConfirmView(LoginRequiredMixin, View):
                 body="مشتری زمان نوبت را تغییر داد. لطفاً زمان جدید را در تقویم بررسی کنید.",
                 detail_meta={"base_appointment_id": base_id},
             )
+            from apps.accounts.notifications import notify_booking_rescheduled
+            customer_detail = next((item for item in items if item.pk == base_id), items[0])
+            notify_booking_rescheduled(
+                customer=order.customer,
+                order=order,
+                order_detail=customer_detail,
+            )
             queue_customer_booking_rescheduled_sms(order)
 
             messages.success(request, "زمان نوبت با موفقیت تغییر کرد.")
@@ -3876,6 +3898,38 @@ def _build_checkout_payload(*, request, coupon_code=""):
 _CHECKOUT_SESSION_KEY = "finance_checkout_submission"
 
 _CHECKOUT_SLOT_LOST_SESSION_KEY = "checkout_slot_lost_notice"
+_CHECKOUT_PRICE_CONSENT_SESSION_KEY = "checkout_price_consent"
+
+
+def _checkout_price_consent_snapshot(payload):
+    return {
+        "salon_id": payload["salon"].id if payload.get("salon") else None,
+        "total_amount": int(payload.get("total_amount") or 0),
+        "items": [
+            {
+                "service_id": int(item.service.id),
+                "stylist_id": int(item.stylist.user_id),
+                "price": int(item.price or 0),
+                "date": item.date_value.strftime("%Y-%m-%d"),
+                "time": item.start_time.strftime("%H:%M"),
+            }
+            for item in payload.get("resolved_items") or []
+        ],
+    }
+
+
+def _store_checkout_price_consent(request, payload):
+    request.session[_CHECKOUT_PRICE_CONSENT_SESSION_KEY] = (
+        _checkout_price_consent_snapshot(payload)
+    )
+    request.session.modified = True
+
+
+def _checkout_price_consent_changed(request, payload):
+    consented = request.session.get(_CHECKOUT_PRICE_CONSENT_SESSION_KEY)
+    if not consented:
+        return True
+    return consented != _checkout_price_consent_snapshot(payload)
 
 
 def _validation_error_message(exc):
@@ -4064,6 +4118,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
 
     def _render(self, request, form=None, coupon_code=""):
         payload = _build_checkout_payload(request=request, coupon_code=coupon_code)
+        _store_checkout_price_consent(request, payload)
         form = form or AppointmentCheckoutForm(
             initial={
                 "coupon_code": coupon_code,
@@ -4141,6 +4196,16 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
                 "زمان انتخاب‌شده دیگر آزاد نیست. لطفاً زمان جدیدی انتخاب کنید.",
             )
             return redirect("orders:select_dateTime")
+
+        if (
+            checkout_action == "confirm_checkout"
+            and _checkout_price_consent_changed(request, preview_payload)
+        ):
+            messages.warning(
+                request,
+                "قیمت یا جزئیات مالی این رزرو از زمان مشاهده پیش‌نمایش تغییر کرده است. لطفاً مبلغ جدید را بررسی و دوباره تأیید کنید.",
+            )
+            return self._render(request, coupon_code=coupon_code)
 
         form = AppointmentCheckoutForm(
             post_data,
@@ -4497,6 +4562,9 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             request.session.pop("datetime_selections", None)
             request.session.pop("stylist_selections", None)
             request.session.pop("salon_id", None)
+            request.session.pop(_CHECKOUT_SLOT_LOST_SESSION_KEY, None)
+            request.session.pop(_CHECKOUT_PRICE_CONSENT_SESSION_KEY, None)
+            request.session["booking_completed_cleanup_client"] = True
             request.session.modified = True
 
             order.status = "pending"

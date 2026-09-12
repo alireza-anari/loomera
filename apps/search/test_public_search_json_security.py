@@ -46,7 +46,7 @@ class PublicSearchJsonSecurityTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("JSON معتبر نیست", response.json()["error"])
+        self.assertIn("ساختار داده‌های ارسالی معتبر نیست", response.json()["error"])
 
     def test_loomera_search_accepts_small_json_object(self):
         response = self.client.post(

@@ -56,6 +56,45 @@ PERIOD_LABELS = {
 }
 
 
+def _service_catalog_identity(service: Services) -> int | None:
+    if service is None:
+        return None
+    return getattr(service, "catalog_source_id", None) or getattr(service, "id", None)
+
+
+def _same_service_identity(candidate: Services, requested: Services) -> bool:
+    return _service_catalog_identity(candidate) == _service_catalog_identity(requested)
+
+
+def _find_salon_service_variant(salon_services: list[Services], requested: Services) -> Services | None:
+    for candidate in salon_services:
+        if getattr(candidate, "is_active", False) and _same_service_identity(candidate, requested):
+            return candidate
+    return None
+
+
+def _slot_is_past(current_date: dt_date | None, start_minutes: int) -> bool:
+    if current_date is None:
+        return False
+    today = timezone.localdate()
+    if current_date < today:
+        return True
+    if current_date > today:
+        return False
+    local_now = timezone.localtime(timezone.now())
+    now_minutes = local_now.hour * 60 + local_now.minute
+    return start_minutes <= now_minutes
+
+
+def _format_search_date_label(value: dt_date) -> str:
+    if JalaliDate is not None:
+        try:
+            return JalaliDate(value).strftime("%Y/%m/%d")
+        except (TypeError, ValueError):
+            pass
+    return value.isoformat()
+
+
 @dataclass
 class SearchFilters:
     query: str = ""
@@ -597,6 +636,7 @@ def _find_service_slot(
     salon_id: int,
     period: str,
     exact_time: dt_time | None,
+    current_date: dt_date | None = None,
 ) -> dict | None:
     duration = int(getattr(service, "duration_minutes", 60) or 60)
     exact_minutes = _time_to_minutes(exact_time) if exact_time else None
@@ -622,6 +662,8 @@ def _find_service_slot(
                 window=window,
             )
             for start_minutes in start_times:
+                if _slot_is_past(current_date, start_minutes):
+                    continue
                 end_minutes = start_minutes + duration
                 if _time_off_blocks(start_minutes, end_minutes, stylist_time_offs):
                     continue
@@ -647,6 +689,7 @@ def _find_any_slot(
     bookings_by_salon_stylist: dict[tuple[int, int], list[OrderDetail]],
     period: str,
     exact_time: dt_time | None,
+    current_date: dt_date | None = None,
 ) -> dict | None:
     exact_minutes = _time_to_minutes(exact_time) if exact_time else None
     window = PERIOD_WINDOWS.get(period) if period else None
@@ -666,6 +709,8 @@ def _find_any_slot(
             )
 
             for start_minutes in start_times:
+                if _slot_is_past(current_date, start_minutes):
+                    continue
                 end_minutes = start_minutes + duration
 
                 if _time_off_blocks(start_minutes, end_minutes, stylist_time_offs):
@@ -918,7 +963,7 @@ def search_salons(filters: SearchFilters) -> dict:
     selected_services_qs = Services.objects.filter(
         pk__in=service_ids_value,
         is_active=True,
-    ).prefetch_related(
+    ).select_related("catalog_source").prefetch_related(
         "service_group",
         "stylists",
         "service_prices",
@@ -948,6 +993,7 @@ def search_salons(filters: SearchFilters) -> dict:
             Prefetch(
                 "services",
                 queryset=Services.objects.filter(is_active=True)
+                .select_related("catalog_source")
                 .prefetch_related("service_group", "stylists", "service_prices")
                 .distinct(),
             ),
@@ -990,9 +1036,10 @@ def search_salons(filters: SearchFilters) -> dict:
         if group_service_ids and not selected_service_ids.issubset(group_service_ids):
             base_qs = base_qs.none()
         else:
-            for service_id in selected_service_ids:
+            for selected_service in selected_services:
+                canonical_id = _service_catalog_identity(selected_service)
                 base_qs = base_qs.filter(
-                    services__id=service_id,
+                    Q(services__id=canonical_id) | Q(services__catalog_source_id=canonical_id),
                     services__is_active=True,
                 )
 
@@ -1014,8 +1061,13 @@ def search_salons(filters: SearchFilters) -> dict:
         if group_service_ids and filters.q_id not in group_service_ids:
             base_qs = base_qs.none()
         else:
+            requested_service = next(
+                (service for service in selected_services if service.pk == filters.q_id),
+                None,
+            )
+            canonical_id = _service_catalog_identity(requested_service) or filters.q_id
             base_qs = base_qs.filter(
-                services__pk=filters.q_id,
+                Q(services__pk=canonical_id) | Q(services__catalog_source_id=canonical_id),
                 services__is_active=True,
             )
 
@@ -1128,6 +1180,24 @@ def search_salons(filters: SearchFilters) -> dict:
             if ids:
                 service_to_stylists[service.id] = ids
                 stylist_ids.update(ids)
+
+        if selected_services:
+            service_to_stylists.clear()
+            stylist_ids.clear()
+            for salon in salons:
+                salon_services = [service for service in salon.services.all() if service.is_active]
+                for requested_service in selected_services:
+                    candidate = _find_salon_service_variant(salon_services, requested_service)
+                    if candidate is None:
+                        continue
+                    ids = {
+                        stylist.pk
+                        for stylist in candidate.stylists.all()
+                        if getattr(stylist, "is_active", True)
+                    }
+                    if ids:
+                        service_to_stylists[candidate.id] = ids
+                        stylist_ids.update(ids)
 
         if filters.q_type == "stylist" and filters.q_id:
             requested_stylist_ids = {filters.q_id}
@@ -1244,19 +1314,21 @@ def search_salons(filters: SearchFilters) -> dict:
                     salon_is_valid = True
 
                     for service in selected_services:
-                        if service.id not in salon_service_ids:
+                        salon_service = _find_salon_service_variant(salon_services, service)
+                        if salon_service is None:
                             salon_is_valid = False
                             break
 
                         slot_info = _find_service_slot(
-                            service,
-                            service_to_stylists.get(service.id, set()),
+                            salon_service,
+                            service_to_stylists.get(salon_service.id, set()),
                             schedules_by_salon,
                             time_offs_by_salon_stylist,
                             bookings_by_salon_stylist,
                             salon.id,
                             filters.period,
                             filters.exact_time,
+                            current_date=current_date,
                         )
 
                         if slot_info is None:
@@ -1285,6 +1357,7 @@ def search_salons(filters: SearchFilters) -> dict:
                             salon.id,
                             filters.period,
                             filters.exact_time,
+                            current_date=current_date,
                         )
 
                         if slot_info is not None:
@@ -1313,6 +1386,7 @@ def search_salons(filters: SearchFilters) -> dict:
                                 salon.id,
                                 filters.period,
                                 filters.exact_time,
+                                current_date=current_date,
                             )
 
                             if slot_info is not None:
@@ -1329,6 +1403,7 @@ def search_salons(filters: SearchFilters) -> dict:
                             bookings_by_salon_stylist,
                             filters.period,
                             filters.exact_time,
+                            current_date=current_date,
                         )
 
                         if fallback_slot is None:
@@ -1344,6 +1419,7 @@ def search_salons(filters: SearchFilters) -> dict:
                         bookings_by_salon_stylist,
                         filters.period,
                         filters.exact_time,
+                        current_date=current_date,
                     )
 
                     if fallback_slot is None:
@@ -1363,7 +1439,7 @@ def search_salons(filters: SearchFilters) -> dict:
 
                 if first_slot:
                     if len(availability_dates) > 1:
-                        date_label = current_date.strftime("%Y/%m/%d")
+                        date_label = _format_search_date_label(current_date)
                         salon.search_available_label = (
                             f"اولین زمان آزاد {date_label} ساعت {first_slot}"
                         )
@@ -1382,6 +1458,7 @@ def search_salons(filters: SearchFilters) -> dict:
         salon.search_matched_services = getattr(salon, "search_matched_services", [])
         salon.search_available_label = getattr(salon, "search_available_label", "")
         salon.search_distance_km = None
+        salon.search_show_distance = bool(filters.sort == "nearest" and distance_supported)
 
         if distance_supported and getattr(salon, "distance", None) is not None:
             try:
@@ -1517,5 +1594,9 @@ def serialize_salon_for_map(salon: Salon) -> dict:
         "coordinates": coords,
         "avg_score": round(salon.avg_score or 0, 1),
         "available_label": getattr(salon, "search_available_label", ""),
-        "distance_km": getattr(salon, "search_distance_km", None),
+        "distance_km": (
+            getattr(salon, "search_distance_km", None)
+            if getattr(salon, "search_show_distance", False)
+            else None
+        ),
     }

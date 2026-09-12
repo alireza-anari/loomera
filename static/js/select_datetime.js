@@ -26,9 +26,15 @@
   async function init() {
     try {
       loadDataFromPage();
-      await preloadAvailabilityWindow();
       setupEventListeners();
+      const today = JalaliDate.today();
+      await loadAvailabilityForMonth(today.jy, today.jm);
       await renderCurrentStep();
+      // Do not block first paint on future months. The current month is enough to
+      // render a deterministic initial state; warm the rest opportunistically.
+      preloadAvailabilityWindow(1).catch((error) => {
+        console.warn('[select_datetime] background availability preload failed', error);
+      });
     } catch (error) {
       console.error('Select datetime init failed:', error);
       window.LoomeraFeedback?.error?.('زمان‌های قابل رزرو بارگذاری نشد. لطفاً دوباره تلاش کنید.');
@@ -60,9 +66,9 @@
     document.getElementById('desktopContinueBtn')?.addEventListener('click', handleContinue);
   }
 
-  async function preloadAvailabilityWindow() {
+  async function preloadAvailabilityWindow(startOffset = 0) {
     const today = JalaliDate.today();
-    for (let offset = 0; offset < MONTHS_TO_PRELOAD; offset += 1) {
+    for (let offset = startOffset; offset < MONTHS_TO_PRELOAD; offset += 1) {
       const target = shiftJalaliMonth(today.jy, today.jm, offset);
       await loadAvailabilityForMonth(target.year, target.month);
     }
@@ -178,9 +184,9 @@
     return formatDate(new Date());
   }
 
-  function getEarliestMinutesForDate(dateStr) {
-    if (isSplitDayEnabled()) return null;
-    const previousPicked = getPreviousPicked();
+  function getEarliestMinutesForDate(dateStr, index = state.currentIndex) {
+    if (isSplitDayEnabled(index)) return null;
+    const previousPicked = index > 0 ? getPickedForIndex(index - 1) : null;
     if (!previousPicked || previousPicked.date !== dateStr) return null;
     return toMinutes(previousPicked.end_time || previousPicked.time);
   }
@@ -290,15 +296,16 @@
     return String(a).localeCompare(String(b));
   }
 
-  async function getAvailabilityForDate(selection, dateStr) {
-    const earliestMinutes = getEarliestMinutesForDate(dateStr);
+  async function getAvailabilityForDate(selection, dateStr, index = state.currentIndex) {
+    const earliestMinutes = getEarliestMinutesForDate(dateStr, index);
     const cacheKey = [
       selection.serviceId,
       selection.stylistId,
       selection.requestedStylistId,
       dateStr,
       earliestMinutes === null ? 'start' : earliestMinutes,
-      isSplitDayEnabled() ? 'split' : 'same',
+      isSplitDayEnabled(index) ? 'split' : 'same',
+      `step-${index}`,
     ].join('|');
 
     if (state.availabilityCache[cacheKey]) return state.availabilityCache[cacheKey];
@@ -578,7 +585,7 @@
       const beforeAnchor = sameDayAnchor && compareIsoDates(dateStr, sameDayAnchor) < 0;
       const hardSameDayLock = sameDayAnchor && !splitEnabled && sameDayAnchor !== dateStr;
       const disabledBySequence = beforeAnchor || hardSameDayLock;
-      const slots = disabledBySequence ? [] : await getAvailabilityForDate(selection, dateStr);
+      const slots = disabledBySequence ? [] : await getAvailabilityForDate(selection, dateStr, state.currentIndex);
       const hasAvailability = slots.length > 0;
       const disabled = disabledBySequence || (!hasAvailability && !splitEnabled && sameDayAnchor === dateStr && state.currentIndex > 0);
       let footerLabel = 'بدون وقت';
@@ -590,7 +597,7 @@
 
       const buttonClass = [
         'flex h-full w-full min-w-[88px] flex-col items-center rounded-3xl border px-3 py-3 text-center transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30',
-        isCurrent ? 'border-loomera-primary bg-loomera-primary text-white shadow-lm-card' : 'border-loomera-borderSoft bg-white text-loomera-textPrimary hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/50',
+        isCurrent ? 'border-loomera-primary bg-loomera-primary text-white shadow-lm-card ring-4 ring-loomera-primary/20' : 'border-loomera-borderSoft bg-white text-loomera-textPrimary hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/50',
         disabled ? 'cursor-not-allowed opacity-45 hover:border-loomera-borderSoft hover:bg-white' : '',
         isHoliday && !isCurrent ? 'bg-loomera-bgSubtle' : '',
       ].filter(Boolean).join(' ');
@@ -611,13 +618,14 @@
             <span class="block text-[11px] font-black opacity-80">${jalaliDay.getShortDayName()}</span>
             <span class="mt-1 block text-2xl font-black leading-none">${toPersianDigits(jalaliDay.jd)}</span>
             <span class="mt-1 block text-[10px] opacity-75">${toPersianDigits(jalaliDay.jm)}/${toPersianDigits(jalaliDay.jy)}</span>
-            <span class="mt-2 block text-[10px] font-black ${footerClass}">${footerLabel}</span>
+            <span class="mt-2 block text-[10px] font-black ${footerClass}">${isCurrent ? 'انتخاب‌شده · ' : ''}${footerLabel}</span>
           </button>
         </div>
       `;
     }));
 
     calendar.innerHTML = cards.join('');
+    syncCalendarStripToCurrentDate();
     calendar.querySelectorAll('[data-date-card]:not([disabled])').forEach((button) => {
       button.addEventListener('click', async () => {
         state.currentDate = button.dataset.date;
@@ -626,6 +634,16 @@
         await loadTimesForDate(state.currentDate);
       });
     });
+  }
+
+
+  function syncCalendarStripToCurrentDate({ focus = false } = {}) {
+    const calendar = document.getElementById('calendar');
+    if (!calendar || !state.currentDate) return;
+    const selectedCard = calendar.querySelector(`[data-date-card][data-date="${state.currentDate}"]`);
+    if (!selectedCard) return;
+    selectedCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    if (focus) selectedCard.focus({ preventScroll: true });
   }
 
   async function loadTimesForDate(dateStr, options = {}) {
@@ -641,7 +659,7 @@
     timesEl.innerHTML = `<div class="py-10 text-center text-loomera-textMuted"><i class="fa-solid fa-spinner fa-spin mb-3 text-2xl text-loomera-primary" aria-hidden="true"></i><p class="text-sm font-black">در حال بررسی زمان‌های آزاد واقعی...</p></div>`;
 
     const selection = getCurrentSelection();
-    const slots = await getAvailabilityForDate(selection, dateStr);
+    const slots = await getAvailabilityForDate(selection, dateStr, state.currentIndex);
     state.currentSlots = slots;
 
     if (!slots.length) {
@@ -701,7 +719,7 @@
             const isSelected = slot.time === selectedTime;
             const showStylist = selection.requestedStylistId === 'any';
             const buttonClass = isSelected
-              ? 'border-loomera-primary bg-loomera-primary text-white shadow-lm-card'
+              ? 'border-loomera-primary bg-loomera-primary text-white shadow-lm-card ring-4 ring-loomera-primary/20'
               : 'border-loomera-borderSoft bg-white text-loomera-textPrimary hover:border-loomera-primary/40 hover:bg-loomera-primarySoft/50';
             return `
               <button type="button"
@@ -712,6 +730,7 @@
                       aria-label="ساعت ${slot.time} تا ${slot.end_time}${showStylist ? `، ${slot.stylistName}` : ''}">
                 <span class="block text-base font-black">${slot.time}</span>
                 <span class="mt-1 block text-[11px] opacity-75">تا ${slot.end_time}</span>
+                ${isSelected ? '<span class="mt-1 block text-[10px] font-black"><i class="fa-solid fa-check ml-1" aria-hidden="true"></i>انتخاب‌شده</span>' : ''}
                 ${showStylist ? `<span class="mt-2 block truncate text-[11px] opacity-75">${slot.stylistName}</span>` : ''}
               </button>
             `;
@@ -918,7 +937,7 @@
           }
         : selection;
 
-      const slots = await getAvailabilityForDate(validationSelection, picked.date);
+      const slots = await getAvailabilityForDate(validationSelection, picked.date, index);
       const stillAvailable = slots.some((slot) => slot.time === picked.time);
       if (!stillAvailable) return { index, selection, picked };
     }
@@ -1103,6 +1122,7 @@
       }
 
       await renderHorizontalCalendar();
+      syncCalendarStripToCurrentDate({ focus: true });
       await loadTimesForDate(state.currentDate);
     });
   }

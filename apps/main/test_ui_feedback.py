@@ -328,6 +328,6 @@ class FeedbackSourceContractTests(SimpleTestCase):
         pattern = re.compile(r"{%\s*for\s+message\s+in\s+messages\s*%}")
         for path in templates_root.rglob("*.html"):
             if pattern.search(path.read_text(encoding="utf-8")):
-                renderers.append(str(path.relative_to(settings.BASE_DIR)))
+                renderers.append(path.relative_to(settings.BASE_DIR).as_posix())
 
         self.assertEqual(renderers, ["templates/partials/messages.html"])

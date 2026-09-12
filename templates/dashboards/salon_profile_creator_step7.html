@@ -30,6 +30,7 @@
 {% endblock %}
 
 {% block content %}
+  {% url 'dashboards:salon_profile' as salon_profile_url %}
   {% url 'dashboards:salon_profile_creator_step6' as previous_step_url %}
   {% url 'dashboards:salon_profile_creator_step8' as next_step_url %}
   {% url 'dashboards:online_booking' as online_booking_url %}

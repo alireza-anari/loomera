@@ -9,6 +9,7 @@ from django.db import OperationalError, ProgrammingError
 from django.db.models import Q
 
 from .models import Audience, HelpArticleChunk
+from .product_truth import BETA_INACTIVE_HELP_ARTICLE_KEYS
 
 
 DB_ERRORS = (OperationalError, ProgrammingError)
@@ -524,6 +525,7 @@ def retrieve_help_chunks(
         qs = (
             HelpArticleChunk.objects.select_related("article", "article__category")
             .filter(article__is_published=True)
+            .exclude(article__key__in=BETA_INACTIVE_HELP_ARTICLE_KEYS)
             .filter(_audience_q(role, allow_cross_role=allow_cross_role))
             .order_by("article_id", "position")
         )

@@ -847,6 +847,7 @@ def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=
             "title": "اعلان‌های محیط کاری",
             "subtitle": "در این بخش اعلان فعالی ثبت نشده است.",
             "panel_label": "رفتن به صفحه مرتبط",
+            "audience_role": role,
         }
 
     if role == "stylist" and stylist is not None:
@@ -955,6 +956,7 @@ def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=
             "title": "اعلان‌های کاری من",
             "subtitle": "نوبت‌ها، مالی و تغییرات مرتبط با خودت را یک‌جا پیگیری کن.",
             "panel_label": "باز کردن مرکز اعلان‌ها",
+            "audience_role": "stylist",
         }
 
     items = []
@@ -1102,6 +1104,7 @@ def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=
         "title": "اعلان‌های محیط کاری",
         "subtitle": "مالی، رزروها، مشتری و متخصص را در یک سطح کاری دسته‌بندی‌شده ببین.",
         "panel_label": "باز کردن مرکز اعلان‌ها",
+        "audience_role": "manager",
     }
 
 

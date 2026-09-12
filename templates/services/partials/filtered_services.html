@@ -28,9 +28,20 @@
 
           <div class="p-3.5 pb-2">
             <div class="flex items-start justify-between gap-3">
-              <h3 class="line-clamp-2 min-w-0 text-sm font-black leading-7 text-loomera-textPrimary sm:text-base">
-                {{ service.service_name }}
-              </h3>
+              <div class="min-w-0">
+                <h3 class="line-clamp-2 text-sm font-black leading-7 text-loomera-textPrimary sm:text-base">
+                  {{ service.service_name }}
+                </h3>
+                {% if service.public_service_groups %}
+                  <div class="mt-1 flex flex-wrap gap-1.5" aria-label="گروه‌های خدمت">
+                    {% for group in service.public_service_groups %}
+                      <span class="rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[10px] font-bold text-loomera-textMuted">
+                        {{ group.group_title }}
+                      </span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
 
               {% if service.public_avg_score %}
                 <span class="inline-flex shrink-0 items-center gap-1 pt-1 text-[11px] font-black text-loomera-textSecondary">

@@ -397,6 +397,33 @@
               </details>
             {% endif %}
 
+            {% if detail.has_dispute_cases %}
+              <section class="rounded-[22px] border border-amber-200 bg-amber-50/45 p-3" aria-labelledby="appointment-disputes-title">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="text-[10px] font-black text-amber-700">پیگیری اختلاف</p>
+                    <h3 id="appointment-disputes-title" class="mt-1 text-xs font-black text-loomera-textPrimary">
+                      {{ detail.dispute_count_label }} پرونده مرتبط
+                    </h3>
+                  </div>
+                  <i class="fa-solid fa-scale-balanced text-amber-700" aria-hidden="true"></i>
+                </div>
+                <div class="mt-3 space-y-2">
+                  {% for dispute in detail.dispute_cases %}
+                    <article class="rounded-[18px] border border-amber-100 bg-white p-3">
+                      <div class="flex items-start justify-between gap-3">
+                        <strong class="text-xs font-black text-loomera-textPrimary">{{ dispute.subject }}</strong>
+                        <span class="shrink-0 rounded-full bg-loomera-bgSubtle px-2 py-1 text-[10px] font-black text-loomera-textSecondary">{{ dispute.status_label }}</span>
+                      </div>
+                      {% if dispute.description %}
+                        <p class="mt-2 text-[11px] leading-6 text-loomera-textMuted">{{ dispute.description }}</p>
+                      {% endif %}
+                    </article>
+                  {% endfor %}
+                </div>
+              </section>
+            {% endif %}
+
             {% if detail.items %}
               <details class="group rounded-[22px] border border-loomera-borderSoft bg-white">
                 <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">

@@ -2020,7 +2020,7 @@ def update_notification_settings(request):
     except NotificationSettingsPayloadTooLarge:
         return JsonResponse({"error": "payload_too_large"}, status=413)
     except NotificationSettingsPayloadInvalid:
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
+        return JsonResponse({"error": "invalid_json"}, status=400)
 
     valid_fields = [
         "notify_appointment_email",
@@ -2175,7 +2175,7 @@ def _serialize_customer_notification(notification, request):
             notification.action_url,
         ),
         "is_read": notification.is_read,
-        "created_at": notification.created_at.strftime("%Y-%m-%d %H:%M"),
+        "created_at": timezone.localtime(notification.created_at).strftime("%Y-%m-%d %H:%M"),
     }
 
 
@@ -2186,21 +2186,30 @@ def customer_notifications_summary(request):
     if redirect_response:
         return JsonResponse({"error": "not_customer"}, status=403)
 
-    latest_notifications = CustomerNotification.objects.filter(
-        user=request.user
-    ).order_by("-created_at", "-id")[:5]
+    all_notifications = CustomerNotification.objects.filter(user=request.user)
+    latest_notifications = all_notifications.order_by("-created_at", "-id")[:5]
+    category_counts = {
+        category: all_notifications.filter(category=category).count()
+        for category, _label in CustomerNotification.CATEGORY_CHOICES
+    }
+    unread_total = all_notifications.filter(is_read=False).count()
 
-    return JsonResponse(
+    response = JsonResponse(
         {
-            "unread_count": CustomerNotification.objects.filter(
-                user=request.user, is_read=False
-            ).count(),
+            "unread_count": unread_total,
+            "category_counts": {
+                "all": all_notifications.count(),
+                "unread": unread_total,
+                **category_counts,
+            },
             "notifications": [
                 _serialize_customer_notification(notification, request)
                 for notification in latest_notifications
             ],
         }
     )
+    response["Cache-Control"] = "private, no-store"
+    return response
 
 
 @require_POST
@@ -2220,7 +2229,25 @@ def mark_customer_notification_read(request, notification_id):
     )
     notification.mark_as_read()
 
-    return JsonResponse(
+    # CustomerNotification is still the source used by the customer center while
+    # the header can also read its mirrored unified recipient. Keep both read
+    # states atomic from the user's point of view.
+    try:
+        from apps.notifications.models import NotificationRecipient
+
+        NotificationRecipient.objects.filter(
+            user=request.user,
+            notification__metadata__legacy_model="CustomerNotification",
+            notification__metadata__legacy_id=notification.id,
+            is_read=False,
+        ).update(is_read=True, read_at=timezone.now())
+    except Exception:
+        logger.exception(
+            "Failed to sync legacy customer notification read state. notification_id=%s",
+            notification.id,
+        )
+
+    response = JsonResponse(
         {
             "status": "success",
             "notification_id": notification.id,
@@ -2229,6 +2256,8 @@ def mark_customer_notification_read(request, notification_id):
             ).count(),
         }
     )
+    response["Cache-Control"] = "private, no-store"
+    return response
 
 
 @require_POST
@@ -2241,15 +2270,27 @@ def mark_all_customer_notifications_read(request):
     if _customer_notification_action_payload_too_large(request):
         return JsonResponse({"error": "payload_too_large"}, status=413)
 
+    read_at = timezone.now()
     updated = CustomerNotification.objects.filter(
         user=request.user,
         is_read=False,
     ).update(
         is_read=True,
-        read_at=timezone.now(),
+        read_at=read_at,
     )
 
-    return JsonResponse(
+    try:
+        from apps.notifications.models import NotificationRecipient
+
+        NotificationRecipient.objects.filter(
+            user=request.user,
+            notification__metadata__legacy_model="CustomerNotification",
+            is_read=False,
+        ).update(is_read=True, read_at=read_at)
+    except Exception:
+        logger.exception("Failed to sync customer notification read-all state.")
+
+    response = JsonResponse(
         {
             "status": "success",
             "updated": updated,
@@ -2259,6 +2300,8 @@ def mark_all_customer_notifications_read(request):
             ).count(),
         }
     )
+    response["Cache-Control"] = "private, no-store"
+    return response
 
 
 # ----------------------------------------------------------------------------------------------------

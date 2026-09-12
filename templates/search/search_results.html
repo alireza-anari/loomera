@@ -36,7 +36,7 @@
             <a href="{{ salon.get_absolute_url }}" class="line-clamp-2 text-sm font-black leading-6 text-loomera-textPrimary sm:text-base">
               {{ salon.salon_name }}
             </a>
-            {% if salon.search_distance_km %}
+            {% if salon.search_show_distance and salon.search_distance_km %}
               <span class="shrink-0 rounded-full border border-loomera-borderSoft bg-loomera-bgSubtle px-2 py-1 text-[10px] font-bold text-loomera-textMuted">
                 {{ salon.search_distance_km|floatformat:1 }} کیلومتر
               </span>

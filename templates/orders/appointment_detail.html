@@ -616,7 +616,7 @@
                   </div>
                   <div class="mt-3 grid gap-2 text-xs text-loomera-textSecondary sm:grid-cols-2">
                     <p class="flex items-center gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-2"><i class="fa-regular fa-calendar text-loomera-primary" aria-hidden="true"></i><span>{{ item.date|jalali_with_weekday }}</span></p>
-                    <p class="flex items-center gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-2"><i class="fa-regular fa-clock text-loomera-primary" aria-hidden="true"></i><span>{{ item.time|persian_time }} تا {{ item.end_time|persian_time }}{% if item.service.duration_minutes %} • {{ item.service.duration_minutes }} دقیقه{% endif %}</span></p>
+                    <p class="flex items-center gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-2"><i class="fa-regular fa-clock text-loomera-primary" aria-hidden="true"></i><span>{{ item.time|persian_time }} تا {{ item.end_time|persian_time }}{% if item.display_duration_minutes %} • {{ item.display_duration_minutes }} دقیقه{% endif %}</span></p>
                     {% if item.stylist %}
                     <p class="flex items-center gap-2 rounded-2xl bg-loomera-bgSubtle px-3 py-2 sm:col-span-2"><i class="fa-solid fa-user text-loomera-primary" aria-hidden="true"></i><span>{{ item.stylist.user.get_fullName|default:item.stylist.user.name }}</span></p>
                     {% endif %}
@@ -801,7 +801,7 @@
   <div class="w-full max-w-lg overflow-hidden rounded-[2rem] border border-loomera-borderSoft bg-white shadow-lm-elevated">
     <div class="flex items-start justify-between gap-4 border-b border-loomera-borderSoft bg-loomera-primarySoft/50 px-5 py-4">
       <div>
-        <p class="text-xs font-black uppercase tracking-[0.2em] text-loomera-primary">Review</p>
+        <p class="text-xs font-black uppercase tracking-[0.2em] text-loomera-primary">دیدگاه</p>
         <h2 id="reviewModalTitle" class="mt-1 text-lg font-black text-loomera-textPrimary">ثبت امتیاز و دیدگاه</h2>
         <p class="mt-1 text-xs leading-6 text-loomera-textMuted">خدمت و متخصص از همین نوبت انتخاب شده‌اند؛ فقط امتیاز را ثبت کن و اگر خواستی توضیح بنویس.</p>
       </div>

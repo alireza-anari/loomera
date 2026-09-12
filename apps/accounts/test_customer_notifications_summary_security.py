@@ -146,3 +146,24 @@ class CustomerNotificationsSummarySecurityTests(Stage1DomainFactoryMixin, TestCa
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()["notifications"]), 5)
+
+
+    def test_notifications_summary_returns_real_category_counts(self):
+        customer = self.make_customer()
+        self._create_notification(customer=customer, category=CustomerNotification.CATEGORY_BOOKING)
+        self._create_notification(customer=customer, category=CustomerNotification.CATEGORY_BOOKING)
+        self._create_notification(
+            customer=customer,
+            category=CustomerNotification.CATEGORY_SYSTEM,
+            is_read=True,
+        )
+
+        self.client.force_login(customer.user)
+        response = self.client.get(self._url())
+
+        self.assertEqual(response.status_code, 200)
+        counts = response.json()["category_counts"]
+        self.assertEqual(counts["all"], 3)
+        self.assertEqual(counts["unread"], 2)
+        self.assertEqual(counts[CustomerNotification.CATEGORY_BOOKING], 2)
+        self.assertEqual(counts[CustomerNotification.CATEGORY_SYSTEM], 1)

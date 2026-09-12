@@ -560,6 +560,7 @@ class CustomerUpdateProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         customer_instance = kwargs.pop("customer_instance", None)
+        self.customer_instance = customer_instance
 
         files = kwargs.get("files")
         if files is None and len(args) > 1:

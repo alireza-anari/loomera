@@ -1,0 +1,150 @@
+diff --git a/apps/accounts/test_private_cache_control.py b/apps/accounts/test_private_cache_control.py
+--- a/apps/accounts/test_private_cache_control.py
++++ b/apps/accounts/test_private_cache_control.py
+@@ -1,6 +1,8 @@
+ from django.contrib.auth import get_user_model
+ from django.test import TestCase
+ from django.urls import reverse
++
++from apps.accounts.models import Customer
+ 
+ 
+ class PrivateCacheControlTests(TestCase):
+@@ -8,10 +10,14 @@
+         self.user = get_user_model().objects.create_user(
+             mobile_number="09121112233", password="StrongPass123!"
+         )
++        self.user.is_active = True
++        self.user.save(update_fields=["is_active"])
++        Customer.objects.create(user=self.user)
+ 
+     def test_authenticated_html_response_is_no_store(self):
+         self.client.force_login(self.user)
+         response = self.client.get(reverse("accounts:customer_panel"))
++        self.assertEqual(response.status_code, 200)
+         self.assertIn("no-store", response.get("Cache-Control", ""))
+         self.assertIn("private", response.get("Cache-Control", ""))
+ 
+diff --git a/apps/comments_scores_favories/views.py b/apps/comments_scores_favories/views.py
+--- a/apps/comments_scores_favories/views.py
++++ b/apps/comments_scores_favories/views.py
+@@ -18,7 +18,7 @@
+ from apps.orders.models import OrderDetail
+ from django.contrib.auth.views import redirect_to_login
+ from django.conf import settings
+-from apps.main.ui_feedback import stash_form_errors
++from apps.main.ui_feedback import stash_form_errors, user_error_message
+ 
+ 
+ def _review_post_max_bytes():
+@@ -220,7 +220,7 @@
+                 score=score,
+             )
+         except DuplicateReviewError as exc:
+-            messages.info(request, exc.messages[0])
++            messages.info(request, user_error_message(exc))
+             return redirect(salon.get_absolute_url())
+ 
+         if linked_order is not None:
+diff --git a/apps/help_center/tests/test_fixture_quality.py b/apps/help_center/tests/test_fixture_quality.py
+--- a/apps/help_center/tests/test_fixture_quality.py
++++ b/apps/help_center/tests/test_fixture_quality.py
+@@ -15,6 +15,11 @@
+     for node in tree.body:
+         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+             symbols.add(node.name)
++        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
++            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
++            for target in targets:
++                if isinstance(target, ast.Name):
++                    symbols.add(target.id)
+         if isinstance(node, ast.ClassDef):
+             for child in node.body:
+                 if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+diff --git a/apps/orders/booking_checkout_contract_manifest.json b/apps/orders/booking_checkout_contract_manifest.json
+--- a/apps/orders/booking_checkout_contract_manifest.json
++++ b/apps/orders/booking_checkout_contract_manifest.json
+@@ -23,13 +23,13 @@
+     {
+       "qualname": "BookingStylistSelectPerService.post",
+       "kind": "method",
+-      "executable_sha256": "eafcc51f86d89ebbd53f9d69f5af343071b91d9bef6718517739923d03e42a61",
++      "executable_sha256": "8f11a9d70a84f9937c519c38e3c30536c004f3f3440dbe059f8d04e5afbb51db",
+       "documentation_sha256": "6e294ce2a8ef86740c1f2883e0a5414932cd231057d2a5875b11a25a5d98637f"
+     },
+     {
+       "qualname": "BookingDateTimeSelectPersian.post",
+       "kind": "method",
+-      "executable_sha256": "12823c66d68fe25151ea7452d75dc02d327a5865837bfd0ba7b11b1a2dda456e",
++      "executable_sha256": "549d38f21d16e53be33f85695bfd629e4c30e42257973e4881a5bc3d7301b142",
+       "documentation_sha256": "4937f928f721ac4f5bb810486ac84be067219d598a4a1f11ee3bf555dbecb4fe"
+     },
+     {
+@@ -59,7 +59,7 @@
+     {
+       "qualname": "AppointmentCheckoutView.post",
+       "kind": "method",
+-      "executable_sha256": "429330e58b464e7c2dc60cc061a60ec08760653489ed193e79fb8ff8557b3c3d",
++      "executable_sha256": "192df6671512356be11845d73129ace64410cace3d6a3084bc1cf58f32d93534",
+       "documentation_sha256": "87a092bf4d8aae761ce3fb1dd940f7ae819711e93a37a8cf772a4bd497f103b2"
+     }
+   ]
+diff --git a/apps/orders/models.py b/apps/orders/models.py
+--- a/apps/orders/models.py
++++ b/apps/orders/models.py
+@@ -1,4 +1,3 @@
+-from datetime import datetime
+ import uuid
+ from datetime import date, datetime, timedelta
+ 
+diff --git a/apps/orders/test_stage1_booking_finance.py b/apps/orders/test_stage1_booking_finance.py
+--- a/apps/orders/test_stage1_booking_finance.py
++++ b/apps/orders/test_stage1_booking_finance.py
+@@ -242,6 +242,9 @@
+         }
+         session.save()
+ 
++        preview_response = self.client.get(reverse("orders:checkout"))
++        self.assertEqual(preview_response.status_code, 200)
++
+         response = self.client.post(
+             reverse("orders:checkout"),
+             {
+diff --git a/apps/orders/views.py b/apps/orders/views.py
+--- a/apps/orders/views.py
++++ b/apps/orders/views.py
+@@ -2731,7 +2731,7 @@
+                 score=score,
+             )
+         except DuplicateReviewError as exc:
+-            messages.info(request, exc.messages[0])
++            messages.info(request, user_error_message(exc))
+             return redirect("orders:appointment_detail", pk=appointment.pk)
+ 
+         order.review_completed_at = timezone.now()
+diff --git a/middlewares/middlewares.py b/middlewares/middlewares.py
+--- a/middlewares/middlewares.py
++++ b/middlewares/middlewares.py
+@@ -1,4 +1,6 @@
+ import threading
++
++from django.contrib.auth import SESSION_KEY
+ 
+ 
+ class RequestMiddleware:
+@@ -23,9 +25,12 @@
+         self.get_response = get_response
+ 
+     def __call__(self, request):
+-        was_authenticated = bool(
+-            getattr(getattr(request, "user", None), "is_authenticated", False)
+-        )
++        # Use the authenticated session marker rather than evaluating request.user.
++        # Evaluating Django's lazy user here can perform a model lookup before the
++        # view runs and can interfere with endpoints/tests that intentionally mock
++        # app/model resolution. SessionMiddleware + AuthenticationMiddleware run
++        # before this middleware, so the auth session key is authoritative here.
++        was_authenticated = SESSION_KEY in request.session
+         response = self.get_response(request)
+         content_type = (response.get("Content-Type", "") or "").lower()
+         if was_authenticated and "text/html" in content_type:

@@ -38,6 +38,7 @@ data-marker-icon-url="{% static 'vendor/mapp/dist/assets/images/marker-icon.png'
 {% endblock %}
 
 {% block content %}
+  {% url 'dashboards:salon_profile' as salon_profile_url %}
   {% url 'dashboards:salon_profile_creator_step1' as step1_url %}
 
   <section class="mx-auto min-w-0 max-w-5xl space-y-4" data-salon-location-step-page data-profile-edit-mode="{{ profile_edit_mode|yesno:'true,false' }}">

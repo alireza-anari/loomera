@@ -859,5 +859,12 @@ export function setupFiltersUI() {
   syncInputs();
   updateUrl();
   salonList.querySelector("[data-clear-search]")?.addEventListener("click", resetFilters);
-  window.searchFiltersController = { applySearch, resetFilters, setSheetOpen, openFilterScreen, state };
+  window.searchFiltersController = {
+    applySearch,
+    resetFilters,
+    setSheetOpen,
+    setDesktopResultsOpen,
+    openFilterScreen,
+    state,
+  };
 }
