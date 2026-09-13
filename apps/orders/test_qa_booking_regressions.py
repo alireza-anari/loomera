@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import time, timedelta
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
@@ -9,6 +9,8 @@ from django.utils import timezone
 from tests_stage1_helpers import Stage1DomainFactoryMixin
 
 from apps.orders.booking_utils import resolve_booking_sequence
+from apps.orders.views import _public_booking_stylist_queryset
+from apps.salons.models import SalonMembership, SalonMembershipStatus
 
 
 class BookingQARegressionTests(Stage1DomainFactoryMixin, TestCase):
@@ -60,3 +62,51 @@ class BookingQARegressionTests(Stage1DomainFactoryMixin, TestCase):
                 stylist_selections=self._selection(stylist, service),
                 datetime_selections=self._datetime_selection(stylist, service),
             )
+    def test_paused_salon_membership_is_rejected_by_final_booking_validation(self):
+        salon, stylist, service = self._context()
+        date_value = timezone.localdate() + timedelta(days=2)
+        self.add_schedule(
+            stylist=stylist,
+            salon=salon,
+            service=service,
+            date_value=date_value,
+            start=time(9, 0),
+            end=time(12, 0),
+        )
+        membership = SalonMembership.objects.create(
+            salon=salon,
+            stylist=stylist,
+            status=SalonMembershipStatus.PAUSED,
+        )
+
+        with self.assertRaises(ValidationError):
+            resolve_booking_sequence(
+                salon=salon,
+                stylist_selections=self._selection(stylist, service),
+                datetime_selections=self._datetime_selection(stylist, service),
+            )
+
+        membership.status = SalonMembershipStatus.ACTIVE
+        membership.save(update_fields=["status"])
+        resolved = resolve_booking_sequence(
+            salon=salon,
+            stylist_selections=self._selection(stylist, service),
+            datetime_selections=self._datetime_selection(stylist, service),
+        )
+        self.assertEqual(resolved[0].stylist_id if hasattr(resolved[0], "stylist_id") else resolved[0].stylist.pk, stylist.pk)
+
+    def test_public_booking_queryset_excludes_paused_membership_and_restores_active(self):
+        salon, stylist, service = self._context()
+        stylist.public_visibility = stylist.PublicVisibility.PUBLIC
+        stylist.save(update_fields=["public_visibility"])
+        membership = SalonMembership.objects.create(
+            salon=salon,
+            stylist=stylist,
+            status=SalonMembershipStatus.PAUSED,
+        )
+
+        self.assertFalse(_public_booking_stylist_queryset(salon).filter(pk=stylist.pk).exists())
+
+        membership.status = SalonMembershipStatus.ACTIVE
+        membership.save(update_fields=["status"])
+        self.assertTrue(_public_booking_stylist_queryset(salon).filter(pk=stylist.pk).exists())

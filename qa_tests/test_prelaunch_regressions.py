@@ -142,7 +142,8 @@ class PreLaunchQaStaticRegressionTests(unittest.TestCase):
     def test_lm_qa_025_partner_notifications_poll_without_creating_events(self):
         source = read("static/js/pages/dashboard_layout.js")
         self.assertIn("refreshDashboardNotifications", source)
-        self.assertIn("window.setInterval(refreshDashboardNotifications, 30000)", source)
+        self.assertIn('document.visibilityState === "visible"', source)
+        self.assertIn('}, 10000);', source)
         self.assertIn('cache: "no-store"', source)
 
     def test_lm_qa_026_cancellation_deeplink_is_object_specific(self):

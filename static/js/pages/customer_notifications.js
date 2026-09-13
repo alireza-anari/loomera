@@ -30,6 +30,11 @@ function updateUnreadBadges(count) {
   document.querySelectorAll("[data-notification-badge]").forEach((badge) => {
     badge.textContent = safeCount > 99 ? "+۹۹" : toPersianNumber(safeCount);
     badge.classList.toggle("hidden", safeCount === 0);
+    badge.classList.toggle("inline-flex", safeCount > 0);
+  });
+
+  document.querySelectorAll("[data-notification-unread-text]").forEach((element) => {
+    element.textContent = toPersianNumber(safeCount);
   });
 
   document.querySelectorAll("[data-mark-all-read]").forEach((button) => {

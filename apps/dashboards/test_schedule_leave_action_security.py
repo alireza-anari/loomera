@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from datetime import time, timedelta
+from pathlib import Path
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.accounts.models import CustomUser, SalonManager, Stylist
+from apps.accounts.models import CustomUser, Customer, SalonManager, Stylist
+from apps.orders.models import Order, OrderDetail
 from apps.salons.models import Salon, SalonOpeningHours
 from apps.services.models import Services
 from apps.stylists.models import (
@@ -255,3 +257,79 @@ class ScheduleLeaveActionSecurityTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(StylistSchedule.objects.count(), 0)
         self.assertEqual(StylistTimeOff.objects.count(), 1)
+    def test_edit_day_schedule_rejects_change_that_excludes_future_appointment(self):
+        salon = self._salon(mobile="09129000115", name="سالن تداخل")
+        stylist = self._stylist(mobile="09129000116")
+        service = self._service(name="خدمت رزروشده")
+        salon.stylists.add(stylist)
+        salon.services.add(service)
+        service.stylists.add(stylist)
+
+        date_value = timezone.localdate() + timedelta(days=1)
+        self._open_salon_for_date(salon, date_value)
+        existing = StylistSchedule.objects.create(
+            salon=salon,
+            stylist=stylist,
+            service=service,
+            date=date_value,
+            start_time=time(10, 0),
+            end_time=time(12, 0),
+        )
+        customer_user = self._user(mobile="09129000117", name="مشتری", family="تست")
+        customer = Customer.objects.create(user=customer_user)
+        order = Order.objects.create(
+            customer=customer,
+            salon=salon,
+            selected_payment_method="pay_in_salon",
+            status="confirmed",
+            is_finally=True,
+            subtotal_amount=100000,
+            total_amount=100000,
+            salon_payout_amount=100000,
+        )
+        OrderDetail.objects.create(
+            order=order,
+            salon=salon,
+            stylist=stylist,
+            service=service,
+            date=date_value,
+            time=time(10, 30),
+            end_time=time(11, 0),
+            occupied_until=time(11, 0),
+            scheduled_duration_minutes=30,
+            buffer_minutes=0,
+            price=100000,
+        )
+
+        self.client.force_login(salon.salon_manager.user)
+        response = self.client.post(
+            reverse(
+                "dashboards:edit_day_schedule",
+                kwargs={
+                    "stylist_pk": stylist.pk,
+                    "salon_pk": salon.pk,
+                    "date_iso": date_value.isoformat(),
+                },
+            ),
+            data={
+                "shifts[0][start_time]": "12:00",
+                "shifts[0][end_time]": "13:00",
+                "shifts[0][service_id]": str(service.pk),
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(StylistSchedule.objects.filter(pk=existing.pk).exists())
+        self.assertFalse(
+            StylistSchedule.objects.filter(
+                salon=salon,
+                stylist=stylist,
+                date=date_value,
+                start_time=time(12, 0),
+            ).exists()
+        )
+
+    def test_schedule_request_buttons_preserve_submitter_action(self):
+        template = Path("templates/dashboards/scheduled_shifts.html").read_text(encoding="utf-8")
+        self.assertIn('name="action" value="approve" data-lm-no-submit-feedback', template)
+        self.assertIn('name="action" value="reject" data-lm-no-submit-feedback', template)

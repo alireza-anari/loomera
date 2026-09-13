@@ -22,6 +22,7 @@ from apps.stylists.models import StaffLeaveRequest, StylistSchedule
 from .booking_utils import (
     BLOCKING_STATUSES,
     build_cancellation_policy,
+    bookable_stylists_for_salon,
     get_service_buffer_minutes,
     get_blocking_order_details_queryset,
     get_upcoming_available_stylists_for_service,
@@ -195,8 +196,7 @@ def _public_booking_service_or_response(salon, service_id):
 
 
 def _public_booking_stylist_queryset(salon):
-    return salon.stylists.filter(
-        is_active=True,
+    return bookable_stylists_for_salon(salon=salon).filter(
         public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
     ).distinct()
 
@@ -3241,7 +3241,7 @@ class CancelAppointmentView(LoginRequiredMixin, View):
 
             _notify_manager_and_stylists_for_customer_order_event(
                 order,
-                event_type="customer_cancelled_booking",
+                event_type="booking_cancelled",
                 manager_title="نوبت توسط مشتری لغو شد",
                 stylist_title="نوبت شما توسط مشتری لغو شد",
                 body="مشتری این نوبت را لغو کرد و وضعیت رزرو برای مجموعه به‌روزرسانی شد.",
