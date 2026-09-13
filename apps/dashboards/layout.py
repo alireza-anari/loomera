@@ -853,6 +853,8 @@ def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=
     if role == "stylist" and stylist is not None:
         items = []
         persistent_unread_count = 0
+        mirrored_legacy_ids = set()
+        persistent_detail_ids = set()
         if NotificationRecipient is not None and user is not None:
             recipient_qs = (
                 NotificationRecipient.objects.filter(
@@ -868,13 +870,26 @@ def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=
             )
             persistent_unread_count = recipient_qs.filter(is_read=False).count()
             for recipient in recipient_qs[:12]:
+                metadata = dict(getattr(recipient.notification, "metadata", None) or {})
+                if metadata.get("legacy_model") == "AppointmentNotification":
+                    try:
+                        mirrored_legacy_ids.add(int(metadata.get("legacy_id")))
+                    except (TypeError, ValueError):
+                        pass
+                try:
+                    persistent_detail_ids.add(int(metadata.get("detail_id")))
+                except (TypeError, ValueError):
+                    pass
                 items.append(_serialize_unified_notification_item(recipient))
         today = timezone.localdate()
         dynamic_notifications = AppointmentNotification.objects.filter(
             salon=salon,
             audience_role="stylist",
             stylist=stylist,
-        ).order_by("-created_at")[:4]
+        )
+        if mirrored_legacy_ids:
+            dynamic_notifications = dynamic_notifications.exclude(pk__in=mirrored_legacy_ids)
+        dynamic_notifications = dynamic_notifications.order_by("-created_at")[:4]
         for note in dynamic_notifications:
             items.append(
                 _serialize_lifecycle_notification_item(
@@ -894,6 +909,10 @@ def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=
             .order_by("-date", "-time", "-id")[:8]
         )
         for detail in recent_details:
+            if detail.pk in persistent_detail_ids:
+                # A durable notification already represents this appointment.
+                # Do not add the contextual fallback row as a second "notification".
+                continue
             order = detail.order
             if order.status in ["cancelled", "payment_failed"]:
                 title = "نوبت لغوشده"

@@ -8703,6 +8703,50 @@ class EditStylistDayScheduleView(
                     date_iso=date_obj.isoformat(),
                 )
 
+        # Existing future appointments are commitments. A one-day schedule edit
+        # must obey the same invariant as regular-shift rewrites: never leave a
+        # booked appointment outside all proposed windows and never move it
+        # silently. Service-specific shifts only cover appointments of that
+        # service; an empty service means the shift covers every service.
+        if date_obj >= timezone.localdate():
+            future_bookings = get_blocking_order_details_queryset(
+                salon=salon,
+                stylist=stylist,
+                start_date=date_obj,
+            ).select_related("service")
+            conflicting_bookings = []
+            for booking in future_bookings:
+                booking_end = booking.occupied_until or booking.end_time
+                contained = any(
+                    booking.time
+                    and booking_end
+                    and shift["start_time"] <= booking.time
+                    and booking_end <= shift["end_time"]
+                    and (
+                        shift["service_id"] is None
+                        or shift["service_id"] == booking.service_id
+                    )
+                    for shift in ordered_shifts
+                )
+                if not contained:
+                    conflicting_bookings.append(booking)
+
+            if conflicting_bookings:
+                first = conflicting_bookings[0]
+                messages.error(
+                    request,
+                    "این تغییر برنامه کاری با "
+                    f"{to_persian_digits(len(conflicting_bookings))} نوبت آینده تداخل دارد؛ "
+                    f"از جمله نوبت {format_jalali_with_weekday(first.date)} ساعت {format_time_fa(first.time)}. "
+                    "ابتدا نوبت‌های موجود را بررسی کنید؛ هیچ نوبتی خودکار جابه‌جا نشد.",
+                )
+                return redirect(
+                    "dashboards:edit_day_schedule",
+                    stylist_pk=stylist.pk,
+                    salon_pk=salon.pk,
+                    date_iso=date_obj.isoformat(),
+                )
+
         try:
             with transaction.atomic():
                 StylistSchedule.objects.filter(

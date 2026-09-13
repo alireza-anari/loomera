@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -227,3 +228,7 @@ class CustomerNotificationActionsSecurityTests(Stage1DomainFactoryMixin, TestCas
         recipient.refresh_from_db()
         self.assertTrue(recipient.is_read)
         self.assertIsNotNone(recipient.read_at)
+    def test_customer_notification_page_syncs_header_badge_and_unread_text(self):
+        script = Path("static/js/pages/customer_notifications.js").read_text(encoding="utf-8")
+        self.assertIn('badge.classList.toggle("inline-flex", safeCount > 0);', script)
+        self.assertIn('[data-notification-unread-text]', script)

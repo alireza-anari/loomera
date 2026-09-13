@@ -461,7 +461,11 @@ function setupDashboardLayout() {
     closeMobileManagementPanel();
   });
 
-  window.setInterval(refreshDashboardNotifications, 30000);
+  window.setInterval(() => {
+    if (document.visibilityState === "visible") {
+      refreshDashboardNotifications();
+    }
+  }, 10000);
 
   notificationPanel?.addEventListener("click", (event) => event.stopPropagation());
   mobileCreatePanel?.addEventListener("click", (event) => event.stopPropagation());
