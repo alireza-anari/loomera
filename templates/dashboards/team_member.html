@@ -3,7 +3,7 @@
 {% block body_attrs %}data-page="team-member"{% endblock %}
 
 {% block content %}
-  {% url 'dashboards:add_stylist' as add_stylist_url %}
+  {% url 'dashboards:team_member' as add_stylist_url %}
   {% url 'dashboards:team_member' as team_member_url %}
 
   <section class="min-w-0 max-w-full space-y-4 lg:space-y-5" data-dashboard-page="team-member">
@@ -16,7 +16,7 @@
         </div>
 
         <div class="flex shrink-0 gap-2">
-          <a href="{{ add_stylist_url }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft"><i class="fa-solid fa-user-plus text-xs" aria-hidden="true"></i>افزودن عضو</a>
+          <a href="{{ add_stylist_url }}#team-member-section-invites" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft"><i class="fa-solid fa-user-plus text-xs" aria-hidden="true"></i>افزودن عضو</a>
         </div>
       </div>
 
@@ -192,7 +192,7 @@
           <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-8 text-center md:col-span-2 xl:col-span-3">
             <h3 class="text-sm font-black text-loomera-textPrimary">عضوی پیدا نشد</h3>
             <p class="mt-1 text-xs leading-6 text-loomera-textMuted">اگر تیم هنوز خالی است، اولین متخصص را اضافه کن. اگر فیلتر فعال است، آن را پاک کن.</p>
-            <a href="{{ add_stylist_url }}" class="mt-4 inline-flex min-h-11 items-center justify-center rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white">افزودن عضو</a>
+            <a href="{{ add_stylist_url }}#team-member-section-invites" class="mt-4 inline-flex min-h-11 items-center justify-center rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white">افزودن عضو</a>
           </div>
         {% endfor %}
       </div>
@@ -205,7 +205,7 @@
         <div>
           <p class="text-[11px] font-black text-loomera-primaryText">دعوت متخصص</p>
           <h2 class="mt-1 text-base font-black text-loomera-textPrimary">دعوت متخصص با شماره موبایل</h2>
-          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">برای متخصصی که می‌خواهی دعوت را خودش بپذیرد؛ برای افزودن مستقیم از دکمه «افزودن عضو» استفاده کن.</p>
+          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">افزودن متخصص فقط با دعوت انجام می‌شود؛ متخصص باید دعوت همکاری را خودش بپذیرد.</p>
         </div>
 <i class="fa-solid fa-chevron-down text-xs text-loomera-textMuted transition group-open:rotate-180" aria-hidden="true"></i>
 </summary>

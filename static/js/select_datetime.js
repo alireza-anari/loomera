@@ -176,6 +176,8 @@
     const suggested = getSuggestedSameDay();
     if (suggested && !isSplitDayEnabled()) return suggested;
 
+    if (selection?.firstAvailableDate) return selection.firstAvailableDate;
+
     if (selection?.requestedStylistId === 'any') {
       const best = state.bestAvailableByService[String(selection.serviceId)];
       if (best?.next_date) return best.next_date;
@@ -327,7 +329,7 @@
         const lastSlot = windowEnd - occupiedDuration;
 
         for (let minute = firstSlot; minute <= lastSlot; minute += SLOT_STEP) {
-          if (isToday(dateStr) && minute < currentTimeMinutes()) continue;
+          if (isToday(dateStr) && minute <= currentTimeMinutes()) continue;
           const serviceEnd = minute + duration;
           const occupiedEnd = minute + occupiedDuration;
           if (isBlockedByBookings(stylist.id, dateStr, minute, occupiedEnd)) continue;

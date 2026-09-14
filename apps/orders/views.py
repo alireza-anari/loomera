@@ -1227,6 +1227,7 @@ class BookingStylistSelectPerService(View):
                     "has_available_stylists": bool(stylist_cards),
                     "any_option": {
                         "enabled": bool(best_available),
+                        "first_slot": (best_available["first_slot"] if best_available else None),
                         "price": (
                             int(best_available["price"] or service.min_price or 0)
                             if best_available

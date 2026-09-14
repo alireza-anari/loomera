@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from tests_stage1_helpers import Stage1DomainFactoryMixin
 
-from apps.orders.booking_utils import resolve_booking_sequence
+from apps.orders.booking_utils import get_available_slots_for_service, resolve_booking_sequence
 from apps.orders.views import _public_booking_stylist_queryset
 from apps.salons.models import SalonMembership, SalonMembershipStatus
 
@@ -77,6 +77,16 @@ class BookingQARegressionTests(Stage1DomainFactoryMixin, TestCase):
             salon=salon,
             stylist=stylist,
             status=SalonMembershipStatus.PAUSED,
+        )
+
+        self.assertEqual(
+            get_available_slots_for_service(
+                salon=salon,
+                stylist=stylist,
+                service=service,
+                date_value=date_value,
+            ),
+            [],
         )
 
         with self.assertRaises(ValidationError):

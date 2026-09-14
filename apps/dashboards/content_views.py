@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.views import View
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from apps.articles.forms import (
     validate_article_cover_image_upload,
     validate_staff_content_media_upload,
@@ -117,7 +117,9 @@ def _attach_new_tags(article: Article, raw_tags: str) -> None:
         article.tags.add(tag)
 
 
-def _build_story_link_suggestions(salon: Salon):
+def _build_story_link_suggestions(
+    salon: Salon, *, stylist: Stylist | None = None
+):
     suggestions = []
     try:
         if getattr(salon, "salon_slug", ""):
@@ -144,14 +146,16 @@ def _build_story_link_suggestions(salon: Salon):
             {"label": "صفحه مجموعه", "url": f"/detail_salon/{salon.pk}/"}
         )
     try:
-        services = salon.services.all().distinct().order_by("service_name")[:10]
+        services = salon.services.all()
+        if stylist is not None:
+            services = services.filter(stylists=stylist)
+        services = services.distinct().order_by("service_name")[:10]
     except Exception:
         try:
-            services = (
-                Services.objects.filter(services_of_salon=salon)
-                .distinct()
-                .order_by("service_name")[:10]
-            )
+            services = Services.objects.filter(services_of_salon=salon)
+            if stylist is not None:
+                services = services.filter(stylists=stylist)
+            services = services.distinct().order_by("service_name")[:10]
         except Exception:
             services = []
     service_ids = []
@@ -181,11 +185,10 @@ def _build_story_link_suggestions(salon: Salon):
             }
         )
     stylists = []
-    if hasattr(salon, "stylists"):
+    if stylist is None and hasattr(salon, "stylists"):
         try:
-            # Stylist.Meta ordering in older data can contain the invalid path ``user.id`` or ``id``.
-            # Always override ordering here so the content dashboard never crashes while
-            # building story link suggestions.
+            # Manager suggestions may include salon specialists; specialist suggestions
+            # intentionally exclude other specialists (LM-QA-053).
             stylists = salon.stylists.all().order_by("user_id")[:6]
         except Exception:
             stylists = []
@@ -685,7 +688,9 @@ class StylistDashboardContentSubmissionForm(forms.ModelForm):
         ]
         widgets = {"body": forms.Textarea(attrs={"rows": 7})}
 
-    def __init__(self, *args, submission_type=None, salon=None, **kwargs):
+    def __init__(
+        self, *args, submission_type=None, salon=None, stylist=None, **kwargs
+    ):
         files = kwargs.get("files")
         if files is None and len(args) > 1:
             files = args[1]
@@ -706,11 +711,13 @@ class StylistDashboardContentSubmissionForm(forms.ModelForm):
             "title"
         )
         if salon is not None:
-            self.fields["suggested_services"].queryset = (
-                salon.services.all().distinct().order_by("service_name")
-            )
+            scoped_services = salon.services.all()
+            if stylist is not None:
+                scoped_services = scoped_services.filter(stylists=stylist)
+            scoped_services = scoped_services.distinct().order_by("service_name")
+            self.fields["suggested_services"].queryset = scoped_services
             self.fields["suggested_service_groups"].queryset = (
-                GroupServices.objects.filter(services_of_group__in=salon.services.all())
+                GroupServices.objects.filter(services_of_group__in=scoped_services)
                 .distinct()
                 .order_by("group_title")
             )
@@ -733,7 +740,12 @@ class StylistDashboardContentSubmissionForm(forms.ModelForm):
                 "متن کوتاه و قابل نمایش روی استوری بنویس؛ لینک یا دکمه پیشنهادی را هم در فیلدهای پایین مشخص کن."
             )
             self.fields["media"].required = True
-            self.fields["media"].help_text = "برای استوری، تصویر یا ویدیو الزامی است."
+            self.fields["media"].error_messages["required"] = (
+                "برای ارسال استوری یک تصویر JPG/PNG/WebP یا ویدیوی MP4 انتخاب کن."
+            )
+            self.fields["media"].help_text = (
+                "الزامی؛ تصویر JPG/PNG/WebP یا ویدیوی MP4 انتخاب کن."
+            )
             self.fields["visibility"].choices = SalonStory.Visibility.choices
         elif submission_type == StaffContentSubmission.SubmissionType.ARTICLE:
             self.fields["body"].label = "متن مقاله پیشنهادی"
@@ -813,15 +825,11 @@ class StylistDashboardContentSubmissionForm(forms.ModelForm):
         body = (cleaned.get("body") or "").strip()
         media = cleaned.get("media")
         if (
-            submission_type
-            in {
-                StaffContentSubmission.SubmissionType.STORY,
-                StaffContentSubmission.SubmissionType.PORTFOLIO,
-            }
+            submission_type == StaffContentSubmission.SubmissionType.PORTFOLIO
             and not media
         ):
             self.add_error(
-                "media", "برای استوری یا نمونه‌کار، یک تصویر یا فایل محتوا اضافه کن."
+                "media", "برای نمونه‌کار، یک تصویر یا فایل محتوا اضافه کن."
             )
         if (
             submission_type == StaffContentSubmission.SubmissionType.ARTICLE
@@ -1389,6 +1397,30 @@ class StylistContentHubView(LoginRequiredMixin, View):
 
         return stylist, salon
 
+    def _content_permissions(self, *, stylist, salon):
+        membership = (
+            SalonMembership.objects.filter(
+                stylist=stylist,
+                salon=salon,
+                status=SalonMembershipStatus.ACTIVE,
+            )
+            .select_related("dashboard_permissions")
+            .first()
+        )
+        if membership is None:
+            return None
+        return getattr(membership, "dashboard_permissions", None)
+
+    def _can_submit_content(self, *, stylist, salon, submission_type):
+        permissions = self._content_permissions(stylist=stylist, salon=salon)
+        if permissions is None:
+            return False
+        if submission_type == StaffContentSubmission.SubmissionType.STORY:
+            return bool(permissions.can_submit_stories)
+        if submission_type == StaffContentSubmission.SubmissionType.ARTICLE:
+            return bool(permissions.can_submit_posts)
+        return False
+
     def _get_editable_submission_or_404(self, *, submission_id, stylist, salon):
         """
         فقط محتوای پیشنهادی خود همین متخصص در همین مجموعه قابل ویرایش است.
@@ -1443,6 +1475,7 @@ class StylistContentHubView(LoginRequiredMixin, View):
             else StylistDashboardContentSubmissionForm(
                 submission_type=StaffContentSubmission.SubmissionType.ARTICLE,
                 salon=salon,
+                stylist=stylist,
             )
         )
 
@@ -1452,6 +1485,7 @@ class StylistContentHubView(LoginRequiredMixin, View):
             else StylistDashboardContentSubmissionForm(
                 submission_type=StaffContentSubmission.SubmissionType.STORY,
                 salon=salon,
+                stylist=stylist,
             )
         )
 
@@ -1475,6 +1509,7 @@ class StylistContentHubView(LoginRequiredMixin, View):
                     instance=item,
                     submission_type=item.submission_type,
                     salon=salon,
+                    stylist=stylist,
                 ),
             )
             for item in submissions
@@ -1513,7 +1548,19 @@ class StylistContentHubView(LoginRequiredMixin, View):
                 "stylist_story_service_group_options": story_form.fields[
                     "suggested_service_groups"
                 ].queryset,
-                "story_link_suggestions": _build_story_link_suggestions(salon),
+                "story_link_suggestions": _build_story_link_suggestions(
+                    salon, stylist=stylist
+                ),
+                "stylist_can_submit_posts": self._can_submit_content(
+                    stylist=stylist,
+                    salon=salon,
+                    submission_type=StaffContentSubmission.SubmissionType.ARTICLE,
+                ),
+                "stylist_can_submit_stories": self._can_submit_content(
+                    stylist=stylist,
+                    salon=salon,
+                    submission_type=StaffContentSubmission.SubmissionType.STORY,
+                ),
             }
         )
 
@@ -1560,6 +1607,15 @@ class StylistContentHubView(LoginRequiredMixin, View):
                 )
                 return redirect("dashboards:stylist_content")
 
+            if not self._can_submit_content(
+                stylist=stylist,
+                salon=salon,
+                submission_type=submission.submission_type,
+            ):
+                return HttpResponseForbidden(
+                    "دسترسی ارسال این نوع محتوا برای شما فعال نیست."
+                )
+
             form = StylistDashboardContentSubmissionForm(
                 request.POST,
                 request.FILES,
@@ -1567,6 +1623,7 @@ class StylistContentHubView(LoginRequiredMixin, View):
                 instance=submission,
                 submission_type=submission.submission_type,
                 salon=salon,
+                stylist=stylist,
             )
 
             if form.is_valid():
@@ -1633,11 +1690,21 @@ class StylistContentHubView(LoginRequiredMixin, View):
             else StaffContentSubmission.SubmissionType.ARTICLE
         )
 
+        if not self._can_submit_content(
+            stylist=stylist,
+            salon=salon,
+            submission_type=submission_type,
+        ):
+            return HttpResponseForbidden(
+                "دسترسی ارسال این نوع محتوا برای شما فعال نیست."
+            )
+
         form = StylistDashboardContentSubmissionForm(
             request.POST,
             request.FILES,
             submission_type=submission_type,
             salon=salon,
+            stylist=stylist,
         )
 
         form.submission_kind = (

@@ -222,9 +222,6 @@ def get_available_slots_for_service(
     still revalidate availability inside their transaction boundary.
     """
 
-    if not stylist_is_bookable_for_salon(salon=salon, stylist=stylist):
-        return []
-
     duration_minutes = get_service_duration_minutes(service)
     buffer_minutes = get_service_buffer_minutes(service)
     occupied_minutes = duration_minutes + buffer_minutes
@@ -447,11 +444,27 @@ def _get_schedule_windows(
     date_value: date,
     service: Services,
 ) -> list[tuple[time, time]]:
+    memberships = SalonMembership.objects.filter(
+        salon=salon,
+        stylist_id=OuterRef("stylist_id"),
+    )
     day_schedules = list(
         StylistSchedule.objects.filter(
             stylist=stylist,
+            stylist__is_active=True,
+            stylist__stylists_of_salon=salon,
             salon=salon,
             date=date_value,
+        )
+        .annotate(
+            _has_salon_membership=Exists(memberships),
+            _has_active_salon_membership=Exists(
+                memberships.filter(status=SalonMembershipStatus.ACTIVE)
+            ),
+        )
+        .filter(
+            Q(_has_salon_membership=False)
+            | Q(_has_active_salon_membership=True)
         )
         .select_related("service")
         .order_by("start_time")

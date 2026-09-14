@@ -333,7 +333,7 @@ def _stylist_context_payload(ctx):
         "stylist_can_create_own_bookings": ctx.can("can_create_own_bookings", True),
         "stylist_can_view_client_phone": ctx.can("can_view_client_phone", False),
         "stylist_can_manage_own_schedule": ctx.can("can_manage_own_schedule", False),
-        "stylist_can_request_leave": ctx.can("can_request_leave", True),
+        "stylist_can_request_leave": ctx.can("can_request_leave", False),
         "stylist_can_manage_own_portfolio": ctx.can("can_manage_own_portfolio", True),
     }
 
@@ -801,10 +801,7 @@ def _get_required_onboarding_view_name(user):
     if not _is_step3_complete(salon):
         return "dashboards:salon_profile_creator_step3"
 
-    # Gallery is optional and never blocks dashboard access.
-
-    if not _is_step7_complete(salon):
-        return "dashboards:salon_profile_creator_step7"
+    # Gallery and supplementary features are optional and never block dashboard access.
 
     if not _is_step8_complete(salon):
         return "dashboards:salon_profile_creator_step8"
@@ -5670,10 +5667,7 @@ class TeamMemberView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
         ).values_list("stylist_id", flat=True)
 
         if applied_status == "all":
-            stylists_qs = stylists_qs.filter(
-                is_active=True,
-                pk__in=active_membership_ids,
-            )
+            pass
         elif applied_status == "active":
             stylists_qs = stylists_qs.filter(
                 is_active=True, pk__in=active_membership_ids
@@ -6397,6 +6391,9 @@ def _build_salon_service_group_cards(*, salon):
 class AddStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View):
     template_name = "dashboards/add_stylist.html"
 
+    def _invite_url(self):
+        return f"{reverse('dashboards:team_member')}#team-member-section-invites"
+
     def _get_salon(self, request):
         salon_manager = get_object_or_404(SalonManager, user=request.user)
         return get_object_or_404(Salon, salon_manager=salon_manager)
@@ -6515,6 +6512,12 @@ class AddStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
         }
 
     def get(self, request):
+        messages.info(
+            request,
+            "افزودن متخصص فقط از مسیر دعوت همکاری انجام می‌شود تا پذیرش متخصص ثبت شود.",
+        )
+        return redirect(self._invite_url())
+
         salon = self._get_salon(request)
 
         context = self._build_context(
@@ -6528,6 +6531,12 @@ class AddStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
         return render(request, self.template_name, context)
 
     def post(self, request):
+        messages.warning(
+            request,
+            "افزودن مستقیم متخصص غیرفعال است. دعوت همکاری را ارسال کنید تا متخصص آن را بپذیرد.",
+        )
+        return redirect(self._invite_url())
+
         salon = self._get_salon(request)
 
         user_form = StylistUserForm(request.POST, allow_existing_mobile=True)
@@ -6973,11 +6982,9 @@ class EditStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
                     kwargs={"stylist_id": stylist.user.id},
                 ),
                 "is_request_added_member": is_request_added_member,
-                "personal_fields_locked": is_request_added_member,
+                "personal_fields_locked": True,
                 "personal_fields_lock_message": (
-                    "این متخصص با درخواست خودش به سالن اضافه شده است؛ اطلاعات شخصی، رزومه و تماس اضطراری فقط توسط خود متخصص قابل ویرایش است."
-                    if is_request_added_member
-                    else ""
+                    "اطلاعات شخصی، رزومه و تماس اضطراری متعلق به پروفایل سراسری متخصص است و فقط توسط خود متخصص قابل ویرایش است."
                 ),
                 "start_date_lock_message": (
                     "تاریخ شروع همکاری برابر تاریخ تایید درخواست است و قابل ویرایش نیست."
@@ -7018,8 +7025,8 @@ class EditStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
                 "emergency_phone": emergency_phone,
             },
         )
+        self._lock_form_fields(user_form, profile_form, emergency_form)
         if is_request_added_member:
-            self._lock_form_fields(user_form, profile_form, emergency_form)
             self._lock_job_start_date(job_form)
 
         selected_service_ids = self._get_selected_service_ids_for_salon(
@@ -7051,80 +7058,23 @@ class EditStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
 
         selected_service_ids = self._extract_selected_service_ids(request)
 
+        user_form = StylistUserForm(instance=stylist.user)
+        profile_form = StylistProfileForm(instance=stylist)
+        emergency_form = EmergencyInfoForm(instance=emergency_info)
+        job_form = JobDetailsForm(
+            request.POST,
+            instance=job_detail,
+            initial=self._job_form_initial(job_detail),
+        )
+        self._lock_form_fields(user_form, profile_form, emergency_form)
         if is_request_added_member:
-            user_form = StylistUserForm(instance=stylist.user)
-            profile_form = StylistProfileForm(instance=stylist)
-            emergency_form = EmergencyInfoForm(instance=emergency_info)
-            job_form = JobDetailsForm(
-                request.POST,
-                instance=job_detail,
-                initial=self._job_form_initial(job_detail),
-            )
-            self._lock_form_fields(user_form, profile_form, emergency_form)
             self._lock_job_start_date(job_form)
 
-            forms_valid = job_form.is_valid()
-        else:
-            user_form = StylistUserForm(request.POST, instance=stylist.user)
-            profile_form = StylistProfileForm(
-                request.POST,
-                request.FILES,
-                instance=stylist,
-            )
-            job_form = JobDetailsForm(
-                request.POST,
-                instance=job_detail,
-                initial=self._job_form_initial(job_detail),
-            )
-            emergency_form = EmergencyInfoForm(request.POST, instance=emergency_info)
-
-            forms_valid = all(
-                [
-                    user_form.is_valid(),
-                    profile_form.is_valid(),
-                    job_form.is_valid(),
-                    emergency_form.is_valid(),
-                ]
-            )
+        forms_valid = job_form.is_valid()
 
         if forms_valid:
             try:
                 with transaction.atomic():
-                    if not is_request_added_member:
-                        user_obj = user_form.save()
-
-                        stylist = profile_form.save(commit=False)
-                        stylist.user = user_obj
-                        if not stylist.calendar_color:
-                            stylist.calendar_color = "#6d5ef7"
-                        stylist.save()
-
-                        emergency = emergency_form.save(commit=False)
-                        emergency.stylist = stylist
-                        emergency.full_name = (
-                            f"{emergency_form.cleaned_data.get('emergency_contact_name', '')} "
-                            f"{emergency_form.cleaned_data.get('emergency_contact_family', '')}"
-                        ).strip()
-
-                        prefix = (
-                            emergency_form.cleaned_data.get(
-                                "emergency_phone_prefix", ""
-                            )
-                            or ""
-                        ).strip()
-                        phone = (
-                            emergency_form.cleaned_data.get("emergency_phone", "") or ""
-                        ).strip()
-                        relationship = (
-                            emergency_form.cleaned_data.get("relationship", "") or ""
-                        ).strip()
-
-                        emergency.emergency_contact = (
-                            f"{prefix}{phone}" if phone else ""
-                        )
-                        emergency.relationship = relationship
-                        emergency.save()
-
                     job = job_form.save(commit=False)
                     job.stylist = stylist
                     job.salon = salon
@@ -7152,13 +7102,10 @@ class EditStylistView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
                         request=request,
                     )
 
-                if is_request_added_member:
-                    messages.success(
-                        request,
-                        "اطلاعات همکاری، خدمات و تنظیمات قابل مدیریت توسط سالن ذخیره شد. اطلاعات شخصی متخصص تغییر نکرد.",
-                    )
-                else:
-                    messages.success(request, "اطلاعات عضو تیم با موفقیت ویرایش شد.")
+                messages.success(
+                    request,
+                    "اطلاعات همکاری، خدمات و دسترسی‌های همین مجموعه ذخیره شد. اطلاعات شخصی متخصص تغییر نکرد.",
+                )
 
                 return redirect("dashboards:team_member")
 
@@ -13198,6 +13145,9 @@ class StylistAddScheduleView(StylistDashboardGuardMixin, View):
     def get(self, request, *args, **kwargs):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
+        if not ctx.can("can_manage_own_schedule", False):
+            messages.error(request, "دسترسی ثبت درخواست برنامه کاری برای شما فعال نیست.")
+            return redirect("dashboards:stylist_schedule")
         if salon is None:
             messages.error(
                 request,
@@ -13226,6 +13176,9 @@ class StylistAddScheduleView(StylistDashboardGuardMixin, View):
     def post(self, request, *args, **kwargs):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
+        if not ctx.can("can_manage_own_schedule", False):
+            messages.error(request, "دسترسی ثبت درخواست برنامه کاری برای شما فعال نیست.")
+            return redirect("dashboards:stylist_schedule")
         if salon is None:
             messages.error(
                 request,
@@ -14351,6 +14304,9 @@ class StylistAddTimeOffView(StylistDashboardGuardMixin, View):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
 
+        if not ctx.can("can_request_leave", False):
+            messages.error(request, "دسترسی ثبت درخواست مرخصی برای شما فعال نیست.")
+            return redirect("dashboards:stylist_schedule")
         if not salon:
             messages.error(
                 request,
@@ -14382,6 +14338,9 @@ class StylistAddTimeOffView(StylistDashboardGuardMixin, View):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
 
+        if not ctx.can("can_request_leave", False):
+            messages.error(request, "دسترسی ثبت درخواست مرخصی برای شما فعال نیست.")
+            return redirect("dashboards:stylist_schedule")
         if not salon:
             messages.error(
                 request,

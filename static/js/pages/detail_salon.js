@@ -132,9 +132,20 @@ function initFavoriteButton() {
     button.dataset.loading = "1";
 
     try {
-      const response = await fetch(`${endpoint}?salonId=${encodeURIComponent(salonId)}`, {
+      const csrfToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("csrftoken="))
+        ?.split("=")[1] || "";
+      const body = new URLSearchParams({ salonId: String(salonId) });
+      const response = await fetch(endpoint, {
+        method: "POST",
         credentials: "same-origin",
-        headers: { "X-Requested-With": "XMLHttpRequest" },
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": decodeURIComponent(csrfToken),
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        },
+        body: body.toString(),
       });
       const raw = (await response.text()).trim();
       let payload = null;

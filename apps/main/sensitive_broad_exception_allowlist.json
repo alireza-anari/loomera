@@ -1114,7 +1114,7 @@
     "path": "apps/orders/views.py",
     "qualname": "CancelAppointmentView.post",
     "try_handler_index": 1,
-    "try_sha256": "53f9aaad56678b08073ba53b664dc2f8c8923805a0c9806d4ad2ad0f71cb8a76",
+    "try_sha256": "19eecf3cd3919905edc656b90de1330cd72b6740bd62778fbe62ce704a52ee3e",
     "handler_sha256": "d18321359d4d5d619cf49bfd03a2182b1fc84c9bc682b6aac187d3e994c1ed74",
     "category": "user_facing_recovery",
     "review_status": "tracked_legacy",

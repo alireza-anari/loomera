@@ -101,6 +101,7 @@
        data-lm-task-tabs-label="بخش‌های محتوای من"
        aria-label="بخش‌های محتوای من"></div>
 
+  {% if stylist_can_submit_posts %}
   <section id="creator-article"
            class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
            data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-content" data-lm-task-key="article" data-lm-task-label="مقاله جدید" data-lm-task-order="2">
@@ -340,6 +341,9 @@
     </form>
   </section>
 
+  {% endif %}
+
+  {% if stylist_can_submit_stories %}
   <section id="creator-story"
            class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
            data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-content" data-lm-task-key="story" data-lm-task-label="استوری جدید" data-lm-task-order="3">
@@ -605,6 +609,8 @@
       </div>
     </form>
   </section>
+
+  {% endif %}
 
   <section id="creator-submissions"
            class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
