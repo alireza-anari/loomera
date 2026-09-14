@@ -109,7 +109,10 @@
             stylistId: button.dataset.stylistId,
             stylistName: button.dataset.stylistName,
             stylistProfileImage: button.dataset.stylistProfileImage || null,
-            stylistPrice: parseAmount(button.dataset.stylistPrice || 0)
+            stylistPrice: parseAmount(button.dataset.stylistPrice || 0),
+            firstAvailableDate: button.dataset.nextDate || null,
+            firstAvailableTime: button.dataset.nextTime || null,
+            firstAvailableEndTime: button.dataset.nextEndTime || null
         };
     }
 

@@ -202,94 +202,19 @@ class TeamMemberSetupHandoffUxTests(
         self.assertIsNone(response.context["stylist_setup_handoff"])
         self.assertNotContains(response, "data-stylist-setup-handoff")
 
-    def test_add_stylist_success_redirects_to_scoped_handoff(self):
-        stylist = self._activate_member(self.make_stylist())
-        membership = SalonMembership.objects.get(
-            salon=self.salon,
-            stylist=stylist,
-        )
-
-        class FakeForm:
-            def __init__(self, cleaned_data=None, saved_object=None):
-                self.cleaned_data = cleaned_data or {}
-                self.saved_object = saved_object
-
-            def is_valid(self):
-                return True
-
-            def save(self, *args, **kwargs):
-                return self.saved_object
-
-        emergency = SimpleNamespace(
-            stylist=None,
-            full_name="",
-            emergency_contact="",
-            relationship="",
-            save=lambda: None,
-        )
-
-        user_form = FakeForm(
-            {
-                "name": "عضو",
-                "family": "جدید",
-                "mobile_number": "09120000000",
-                "email": "",
-            }
-        )
-        profile_form = FakeForm({})
-        job_form = FakeForm({})
-        emergency_form = FakeForm(
-            {
-                "emergency_contact_name": "",
-                "emergency_contact_family": "",
-                "emergency_phone_prefix": "",
-                "emergency_phone": "",
-                "relationship": "",
-            },
-            emergency,
-        )
-
+    def test_add_stylist_route_redirects_to_invitation_without_direct_attach(self):
         with (
             patch(
                 "apps.dashboards.views._redirect_to_required_onboarding",
                 return_value=None,
             ),
-            patch(
-                "apps.dashboards.views.StylistUserForm",
-                return_value=user_form,
-            ),
-            patch(
-                "apps.dashboards.views.StylistProfileForm",
-                return_value=profile_form,
-            ),
-            patch(
-                "apps.dashboards.views.JobDetailsForm",
-                return_value=job_form,
-            ),
-            patch(
-                "apps.dashboards.views.EmergencyInfoForm",
-                return_value=emergency_form,
-            ),
-            patch(
-                "apps.dashboards.views.invite_or_attach_stylist",
-                return_value=(stylist, membership, False),
-            ),
-            patch(
-                "apps.dashboards.views._ensure_active_staff_membership_for_salon",
-                return_value=membership,
-            ),
+            patch("apps.dashboards.views.invite_or_attach_stylist") as direct_attach,
         ):
-            response = self.client.post(
-                reverse("dashboards:add_stylist"),
-                data={},
-            )
+            response = self.client.post(reverse("dashboards:add_stylist"), data={})
 
-        expected_url = (
-            f"{reverse('dashboards:team_member')}"
-            f"?created_stylist={stylist.user_id}"
-        )
         self.assertRedirects(
             response,
-            expected_url,
+            f"{reverse('dashboards:team_member')}#team-member-section-invites",
             fetch_redirect_response=False,
         )
+        direct_attach.assert_not_called()

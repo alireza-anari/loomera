@@ -25,17 +25,17 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <a href="{{ stylist_time_off_url }}"
+          {% if stylist_can_request_leave %}<a href="{{ stylist_time_off_url }}"
              class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3.5 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/40 hover:text-loomera-primaryText">
             <i class="fa-regular fa-calendar-xmark text-[11px]" aria-hidden="true"></i>
             <span>درخواست مرخصی</span>
-          </a>
-          <a href="{{ stylist_add_schedule_url }}"
+          </a>{% endif %}
+          {% if stylist_can_manage_own_schedule %}<a href="{{ stylist_add_schedule_url }}"
              data-primary-action
              class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-3.5 py-2 text-xs font-black text-white shadow-[0_10px_24px_rgba(109,94,247,0.16)] transition hover:opacity-95">
             <i class="fa-regular fa-calendar-plus text-[11px]" aria-hidden="true"></i>
             <span>درخواست برنامه</span>
-          </a>
+          </a>{% endif %}
         </div>
       </div>
     </header>
@@ -78,7 +78,7 @@
           </article>
         {% empty %}
           <div class="md:col-span-2 xl:col-span-3">
-            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-clock" title="شیفت فعالی ثبت نشده" description="برای ساخت برنامه کاری، درخواست جدید بفرست؛ بعد از تایید مدیر اینجا نمایش داده می‌شود." action_label="درخواست برنامه" action_url=stylist_add_schedule_url %}
+            {% if stylist_can_manage_own_schedule %}{% include "dashboards/components/empty_state.html" with icon="fa-regular fa-clock" title="شیفت فعالی ثبت نشده" description="برای ساخت برنامه کاری، درخواست جدید بفرست؛ بعد از تایید مدیر اینجا نمایش داده می‌شود." action_label="درخواست برنامه" action_url=stylist_add_schedule_url %}{% else %}{% include "dashboards/components/empty_state.html" with icon="fa-regular fa-clock" title="شیفت فعالی ثبت نشده" description="دسترسی درخواست برنامه کاری برای این عضویت فعال نیست." %}{% endif %}
           </div>
         {% endfor %}
       </div>
@@ -142,7 +142,7 @@
           </article>
         {% empty %}
           <div class="md:col-span-2 xl:col-span-3">
-            {% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-plus" title="درخواست برنامه‌ای ثبت نشده" description="اگر برنامه جدیدی می‌خواهی، درخواستت را ثبت کن." action_label="درخواست برنامه" action_url=stylist_add_schedule_url %}
+            {% if stylist_can_manage_own_schedule %}{% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-plus" title="درخواست برنامه‌ای ثبت نشده" description="اگر برنامه جدیدی می‌خواهی، درخواستت را ثبت کن." action_label="درخواست برنامه" action_url=stylist_add_schedule_url %}{% else %}{% include "dashboards/components/empty_state.html" with icon="fa-regular fa-calendar-plus" title="درخواست برنامه‌ای ثبت نشده" description="دسترسی درخواست برنامه کاری برای این عضویت فعال نیست." %}{% endif %}
           </div>
         {% endfor %}
       </div>

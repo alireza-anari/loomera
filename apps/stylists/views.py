@@ -231,14 +231,12 @@ class SubmitStaffContentView(LoginRequiredMixin, View):
         submission_type = request.POST.get("submission_type")
         if (
             submission_type == StaffContentSubmission.SubmissionType.ARTICLE
-            and permissions
-            and not permissions.can_submit_posts
+            and (permissions is None or not permissions.can_submit_posts)
         ):
             return HttpResponseForbidden("دسترسی ارسال مقاله برای شما فعال نیست.")
         if (
             submission_type == StaffContentSubmission.SubmissionType.STORY
-            and permissions
-            and not permissions.can_submit_stories
+            and (permissions is None or not permissions.can_submit_stories)
         ):
             return HttpResponseForbidden("دسترسی ارسال استوری برای شما فعال نیست.")
 
