@@ -379,6 +379,14 @@
     state.currentDate = existing?.date || getDefaultDateForCurrentStep();
     state.currentTime = existing?.time || null;
 
+    // The specialist step can point to the first slot in a future Jalali month.
+    // Load that exact month before rendering the date strip/times, otherwise the
+    // correct first-available date can appear empty until background preloading.
+    if (state.currentDate) {
+      const targetMonth = getJalaliMonthForIsoDate(state.currentDate);
+      await loadAvailabilityForMonth(targetMonth.year, targetMonth.month);
+    }
+
     updateProgressBar();
     updateBookingSummaries();
     renderServiceSwitcher();

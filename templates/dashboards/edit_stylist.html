@@ -167,8 +167,8 @@
           <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <label class="lm-provider-card flex cursor-pointer items-center justify-between gap-4 rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
               <span class="min-w-0">
-                <span class="block text-sm font-black text-loomera-textPrimary">ثبت نوبت برای خود</span>
-                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">متخصص بتواند از داشبورد خودش نوبت داخلی ثبت کند.</span>
+                <span class="block text-sm font-black text-loomera-textPrimary">ثبت مستقیم نوبت</span>
+                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">روشن: نوبت را مستقیم ثبت کند. خاموش: نوبت به‌صورت درخواست در انتظار تأیید مدیر ثبت شود.</span>
               </span>
               <span class="flex shrink-0 items-center gap-2">
                 <input type="checkbox" name="can_create_own_bookings" class="lm-provider-switch-input sr-only" role="switch" {% if not membership_permissions or membership_permissions.can_create_own_bookings %}checked{% endif %}>
@@ -233,8 +233,8 @@
 
             <label class="lm-provider-card flex cursor-pointer items-center justify-between gap-4 rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
               <span class="min-w-0">
-                <span class="block text-sm font-black text-loomera-textPrimary">درخواست مرخصی</span>
-                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">برای همین مجموعه درخواست مرخصی ارسال کند.</span>
+                <span class="block text-sm font-black text-loomera-textPrimary">تأیید مستقیم مرخصی</span>
+                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">برای همین مجموعه تأیید مستقیم مرخصی ارسال کند.</span>
               </span>
               <span class="flex shrink-0 items-center gap-2">
                 <input type="checkbox" name="can_request_leave" class="lm-provider-switch-input sr-only" role="switch" {% if not membership_permissions or membership_permissions.can_request_leave %}checked{% endif %}>
@@ -244,8 +244,8 @@
 
             <label class="lm-provider-card flex cursor-pointer items-center justify-between gap-4 rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
               <span class="min-w-0">
-                <span class="block text-sm font-black text-loomera-textPrimary">مدیریت برنامه خود</span>
-                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">در مسیر درخواست برنامه استفاده می‌شود و تایید مدیر همچنان حفظ می‌شود.</span>
+                <span class="block text-sm font-black text-loomera-textPrimary">ثبت مستقیم برنامه کاری</span>
+                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">روشن: برنامه کاری بدون تأیید موردی ثبت شود. خاموش: برنامه برای تأیید مدیر ارسال شود.</span>
               </span>
               <span class="flex shrink-0 items-center gap-2">
                 <input type="checkbox" name="can_manage_own_schedule" class="lm-provider-switch-input sr-only" role="switch" {% if membership_permissions and membership_permissions.can_manage_own_schedule %}checked{% endif %}>
@@ -266,8 +266,8 @@
 
             <label class="lm-provider-card flex cursor-pointer items-center justify-between gap-4 rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
               <span class="min-w-0">
-                <span class="block text-sm font-black text-loomera-textPrimary">ارسال مقاله پیشنهادی</span>
-                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">محتوای پیشنهادی برای بررسی مجموعه ارسال کند.</span>
+                <span class="block text-sm font-black text-loomera-textPrimary">انتشار مستقیم مقاله</span>
+                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">روشن: مقاله پس از ارسال مستقیم منتشر شود. خاموش: مقاله برای بررسی و تأیید مدیر ارسال شود.</span>
               </span>
               <span class="flex shrink-0 items-center gap-2">
                 <input type="checkbox" name="can_submit_posts" class="lm-provider-switch-input sr-only" role="switch" {% if membership_permissions and membership_permissions.can_submit_posts %}checked{% endif %}>
@@ -277,8 +277,8 @@
 
             <label class="lm-provider-card flex cursor-pointer items-center justify-between gap-4 rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
               <span class="min-w-0">
-                <span class="block text-sm font-black text-loomera-textPrimary">ارسال استوری پیشنهادی</span>
-                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">استوری پیشنهادی برای بررسی مجموعه ارسال کند.</span>
+                <span class="block text-sm font-black text-loomera-textPrimary">انتشار مستقیم استوری</span>
+                <span class="mt-1 block text-xs leading-6 text-loomera-textMuted">روشن: استوری پس از ارسال مستقیم منتشر شود. خاموش: استوری برای بررسی و تأیید مدیر ارسال شود.</span>
               </span>
               <span class="flex shrink-0 items-center gap-2">
                 <input type="checkbox" name="can_submit_stories" class="lm-provider-switch-input sr-only" role="switch" {% if membership_permissions and membership_permissions.can_submit_stories %}checked{% endif %}>

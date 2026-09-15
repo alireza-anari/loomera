@@ -32,149 +32,85 @@
   </header>
 
   <div class="mx-auto mt-6 w-full max-w-7xl space-y-8 px-4 sm:px-6 sm:mt-8 xl:px-0">
-    {% if request.user.is_authenticated and favorite_stories %}
-      {% include "articles/partials/story_rail.html" %}
-    {% elif all_stories_preview %}
-      <section aria-labelledby="fresh-stories-title">
-        <div class="mb-3 flex items-center justify-between gap-3">
-          <h2 id="fresh-stories-title" class="text-lg font-black text-loomera-textPrimary">استوری‌های تازه</h2>
+    {% if magazine_stories %}
+      <section aria-labelledby="magazine-stories-title" class="rounded-[1.75rem] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft sm:p-5">
+        <div class="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-black text-loomera-primary">استوری‌های لومرا</p>
+            <h2 id="magazine-stories-title" class="mt-1 text-lg font-black text-loomera-textPrimary">تازه‌ها را سریع ببین</h2>
+          </div>
           <a href="{% url 'articles:story_explore' %}" class="inline-flex items-center gap-1 text-xs font-black text-loomera-primary">
-            مشاهده همه
+            همه استوری‌ها
             <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
           </a>
         </div>
 
-        <div class="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="list">
-          {% for story in all_stories_preview %}
-            <button
-              type="button"
-              class="group w-20 shrink-0 text-center"
-              data-story-open
-              data-story-id="{{ story.id }}"
-              aria-label="مشاهده استوری {{ story.title }}"
-              role="listitem"
-            >
-              <span class="mx-auto block rounded-full bg-gradient-to-br from-loomera-primary via-loomera-secondary to-loomera-accent p-[2px] transition group-hover:scale-105">
-                <span class="block h-16 w-16 overflow-hidden rounded-full border-[3px] border-white bg-loomera-primarySoft">
+        <div class="-mx-2 flex gap-4 overflow-x-auto px-2 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="list" aria-label="استوری‌های تازه">
+          {% for story in magazine_stories %}
+            <button type="button" class="group w-20 shrink-0 text-center" data-story-open data-story-id="{{ story.id }}" aria-label="مشاهده استوری {{ story.title }}" role="listitem">
+              <span class="mx-auto block rounded-full bg-gradient-to-br from-loomera-primary via-loomera-secondary to-loomera-accent p-[3px] transition group-hover:scale-105">
+                <span class="block h-[68px] w-[68px] overflow-hidden rounded-full border-[3px] border-white bg-loomera-primarySoft">
                   {% if story.cover_image %}
                     <img src="{{ story.cover_image.url }}" alt="{{ story.title }}" class="h-full w-full object-cover">
                   {% elif story.salon.logo %}
                     <img src="{{ story.salon.logo.url }}" alt="{{ story.salon.salon_name }}" class="h-full w-full object-cover">
                   {% else %}
-                    <span class="flex h-full w-full items-center justify-center text-lg text-loomera-primary">
-                      <i class="fa-solid fa-spa" aria-hidden="true"></i>
-                    </span>
+                    <span class="flex h-full w-full items-center justify-center text-lg text-loomera-primary"><i class="fa-solid fa-spa" aria-hidden="true"></i></span>
                   {% endif %}
                 </span>
               </span>
-              <span class="mt-2 block truncate text-[11px] font-black text-loomera-textPrimary">
-                {{ story.salon.salon_name }}
-              </span>
+              <span class="mt-2 block truncate text-[11px] font-black text-loomera-textPrimary">{{ story.salon.salon_name }}</span>
             </button>
           {% endfor %}
         </div>
       </section>
     {% endif %}
 
-    {% if featured_articles %}
-      <section data-magazine-rail-scope aria-labelledby="featured-articles-title">
-        <div class="mb-3 flex items-center justify-between gap-3">
-          <h2 id="featured-articles-title" class="text-lg font-black text-loomera-textPrimary sm:text-xl">مقالات ویژه</h2>
-          <div class="hidden items-center gap-2 sm:flex">
-            <button
-              type="button"
-              data-magazine-rail-prev
-              class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:text-loomera-primary"
-              aria-label="مقاله قبلی"
-            >
-              <i class="fa-solid fa-chevron-right text-[10px]" aria-hidden="true"></i>
-            </button>
-            <button
-              type="button"
-              data-magazine-rail-next
-              class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:text-loomera-primary"
-              aria-label="مقاله بعدی"
-            >
-              <i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
-            </button>
-          </div>
+    <section aria-labelledby="magazine-articles-title" class="space-y-5">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="text-[11px] font-black text-loomera-primary">مقالات</p>
+          <h2 id="magazine-articles-title" class="mt-1 text-xl font-black text-loomera-textPrimary">مطالب مجله</h2>
         </div>
 
-        <div
-          class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          data-magazine-rail
-          role="list"
-          aria-label="مقالات ویژه"
-        >
-          {% for article in featured_articles %}
-            <div class="w-[70vw] max-w-[270px] shrink-0 snap-start sm:w-[300px] lg:w-[320px]" role="listitem">
-              {% include "articles/partials/article_card.html" with article=article compact_card=True %}
-            </div>
-          {% endfor %}
-        </div>
-      </section>
-    {% endif %}
+        <form method="get" class="grid w-full gap-2 rounded-[1.5rem] border border-loomera-borderSoft bg-white p-3 shadow-lm-soft sm:w-auto sm:grid-cols-[minmax(210px,1fr)_170px_170px_auto]" aria-label="فیلتر و مرتب‌سازی مقالات">
+          <label class="min-w-0">
+            <span class="sr-only">جستجو در مقالات</span>
+            <input type="search" name="q" value="{{ current_article_q }}" placeholder="جستجو در مقالات..." class="h-11 w-full rounded-xl border border-loomera-borderSoft bg-loomera-bgSubtle px-3 text-sm font-bold text-loomera-textPrimary outline-none focus:border-loomera-primary/40">
+          </label>
+          <label>
+            <span class="sr-only">موضوع</span>
+            <select name="category" class="h-11 w-full rounded-xl border border-loomera-borderSoft bg-loomera-bgSubtle px-3 text-xs font-bold text-loomera-textSecondary">
+              <option value="">همه موضوع‌ها</option>
+              {% for category in categories %}
+                <option value="{{ category.slug }}" {% if current_article_category == category.slug %}selected{% endif %}>{{ category.title }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>
+            <span class="sr-only">مرتب‌سازی</span>
+            <select name="sort" class="h-11 w-full rounded-xl border border-loomera-borderSoft bg-loomera-bgSubtle px-3 text-xs font-bold text-loomera-textSecondary">
+              <option value="newest" {% if current_article_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
+              <option value="popular" {% if current_article_sort == 'popular' %}selected{% endif %}>پربازدیدترین</option>
+            </select>
+          </label>
+          <button type="submit" class="inline-flex h-11 items-center justify-center rounded-xl bg-loomera-primary px-4 text-xs font-black text-white">اعمال</button>
+        </form>
+      </div>
 
-    {% if categories %}
-      <section data-magazine-rail-scope aria-labelledby="magazine-categories-title">
-        <h2 id="magazine-categories-title" class="mb-3 text-lg font-black text-loomera-textPrimary">موضوع‌ها</h2>
-        <div
-          class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          data-magazine-rail
-          role="list"
-          aria-label="موضوع‌های مجله"
-        >
-          {% for category in categories %}
-            <a
-              href="{{ category.get_absolute_url }}"
-              class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-4 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary"
-              role="listitem"
-            >
-              {{ category.title }}
-            </a>
-          {% endfor %}
-        </div>
-      </section>
-    {% endif %}
-
-    {% if latest_articles %}
-      <section data-magazine-rail-scope aria-labelledby="latest-articles-title">
-        <div class="mb-3 flex items-center justify-between gap-3">
-          <h2 id="latest-articles-title" class="text-lg font-black text-loomera-textPrimary sm:text-xl">جدیدترین مقاله‌ها</h2>
-          <div class="hidden items-center gap-2 sm:flex">
-            <button
-              type="button"
-              data-magazine-rail-prev
-              class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:text-loomera-primary"
-              aria-label="مقاله قبلی"
-            >
-              <i class="fa-solid fa-chevron-right text-[10px]" aria-hidden="true"></i>
-            </button>
-            <button
-              type="button"
-              data-magazine-rail-next
-              class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textSecondary transition hover:text-loomera-primary"
-              aria-label="مقاله بعدی"
-            >
-              <i class="fa-solid fa-chevron-left text-[10px]" aria-hidden="true"></i>
-            </button>
-          </div>
-        </div>
-
-        <div
-          class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          data-magazine-rail
-          role="list"
-          aria-label="جدیدترین مقاله‌ها"
-        >
+      {% if latest_articles %}
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {% for article in latest_articles %}
-            <div class="w-[68vw] max-w-[260px] shrink-0 snap-start sm:w-[290px] lg:w-[310px]" role="listitem">
-              {% include "articles/partials/article_card.html" with article=article compact_card=True %}
-            </div>
+            <div class="min-w-0">{% include "articles/partials/article_card.html" with article=article compact_card=True %}</div>
           {% endfor %}
         </div>
-      </section>
-    {% endif %}
+      {% else %}
+        <div class="rounded-[1.5rem] border border-dashed border-loomera-borderSoft bg-white px-5 py-10 text-center">
+          <p class="text-sm font-black text-loomera-textPrimary">مقاله‌ای با این فیلتر پیدا نشد.</p>
+          <a href="{% url 'articles:magazine_home' %}" class="mt-3 inline-flex rounded-full bg-loomera-primarySoft px-4 py-2 text-xs font-black text-loomera-primary">پاک‌کردن فیلترها</a>
+        </div>
+      {% endif %}
+    </section>
   </div>
 
   {% include "articles/partials/story_viewer.html" with stories_payload=magazine_stories_payload %}

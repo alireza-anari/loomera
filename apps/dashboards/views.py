@@ -5447,10 +5447,14 @@ def _team_member_services_prefetch(*, salon):
 
 
 def _build_team_member_stylists_queryset(salon):
-    """Return team members with fixed-query card data."""
+    """Return current and historical salon members with fixed-query card data."""
 
     return (
-        salon.stylists.select_related("user")
+        Stylist.objects.filter(
+            Q(stylists_of_salon=salon) | Q(salon_memberships__salon=salon)
+        )
+        .distinct()
+        .select_related("user")
         .prefetch_related(
             _team_member_services_prefetch(
                 salon=salon,
@@ -5659,6 +5663,16 @@ class TeamMemberView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View)
             actor=request.user,
             request=request,
         )
+        # Keep ended/paused historical members visible in the default "all" view
+        # even after the legacy Salon.stylists relation has been detached.
+        membership_status_map.update(
+            dict(
+                SalonMembership.objects.filter(
+                    salon=salon,
+                    stylist__isnull=False,
+                ).values_list("stylist_id", "status")
+            )
+        )
 
         active_membership_ids = SalonMembership.objects.filter(
             salon=salon,
@@ -5818,7 +5832,18 @@ class ManagerCreateStylistInviteView(
     SalonManagerOnboardingGuardMixin, LoginRequiredMixin, View
 ):
     def post(self, request, *args, **kwargs):
-        return _create_manager_stylist_invite(request)
+        try:
+            return _create_manager_stylist_invite(request)
+        except IntegrityError:
+            logger.exception(
+                "Manager stylist invite hit a membership uniqueness/integrity conflict. manager_user_id=%s",
+                request.user.pk,
+            )
+            messages.error(
+                request,
+                "دعوت متخصص به‌دلیل تداخل با یک عضویت یا دعوت قبلی ثبت نشد. صفحه را تازه کن و وضعیت همان متخصص را بررسی کن.",
+            )
+            return redirect("dashboards:team_member")
 
 
 class ManagerCancelStylistInviteView(
@@ -9743,9 +9768,21 @@ class AppointmentDetailView(SalonManagerOnboardingGuardMixin, LoginRequiredMixin
         order = appointment.order
 
         if action == "approve":
+            if appointment.confirmation_status == OrderDetail.ConfirmationStatus.PENDING:
+                appointment.confirmation_status = OrderDetail.ConfirmationStatus.CONFIRMED
+                appointment.lifecycle_status = OrderDetail.ServiceLifecycleStatus.CONFIRMED
+                appointment.stylist_confirmed_at = timezone.now()
+                appointment.save(
+                    update_fields=[
+                        "confirmation_status",
+                        "lifecycle_status",
+                        "stylist_confirmed_at",
+                    ]
+                )
             order.status = "confirmed"
             order.is_finally = True
             order.stylist_approved = True
+            order.stylist_confirmed_at = order.stylist_confirmed_at or timezone.now()
             messages.success(request, "نوبت تایید شد.")
         elif action == "mark_paid":
             order.status = "paid"
@@ -11619,10 +11656,10 @@ def _create_manager_stylist_invite(request):
         salon_manager__user=request.user,
     )
 
-    mobile = normalize_mobile(request.POST.get("mobile_number") or "")
-    invitee_name = (request.POST.get("invitee_name") or "").strip()
-    role_title = (request.POST.get("role_title") or "").strip()
-    invite_message = (request.POST.get("invite_message") or "").strip()
+    mobile = normalize_mobile(request.POST.get("mobile_number") or "")[:32]
+    invitee_name = (request.POST.get("invitee_name") or "").strip()[:160]
+    role_title = (request.POST.get("role_title") or "").strip()[:128]
+    invite_message = (request.POST.get("invite_message") or "").strip()[:500]
 
     if not mobile or len(mobile) < 10:
         messages.error(request, "شماره موبایل متخصص برای ارسال دعوت معتبر نیست.")
@@ -11630,6 +11667,7 @@ def _create_manager_stylist_invite(request):
 
     user = CustomUser.objects.filter(mobile_number=mobile).first()
     stylist = getattr(user, "stylist", None) if user else None
+    invited_email = (getattr(user, "email", "") or "")[:254]
 
     if stylist:
         existing = (
@@ -11677,7 +11715,7 @@ def _create_manager_stylist_invite(request):
             existing.stylist = existing.stylist or stylist
             existing.invited_phone = mobile
             existing.invited_email = (
-                getattr(user, "email", "") if user else existing.invited_email
+                invited_email or existing.invited_email
             )
             existing.role_title = (
                 role_title or existing.role_title or getattr(stylist, "expert", "")
@@ -11721,7 +11759,7 @@ def _create_manager_stylist_invite(request):
                 salon=salon,
                 stylist=stylist,
                 invited_phone=mobile,
-                invited_email=getattr(user, "email", "") if user else "",
+                invited_email=invited_email,
                 role_title=(
                     role_title or getattr(stylist, "expert", "")
                     if stylist
@@ -13145,9 +13183,6 @@ class StylistAddScheduleView(StylistDashboardGuardMixin, View):
     def get(self, request, *args, **kwargs):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
-        if not ctx.can("can_manage_own_schedule", False):
-            messages.error(request, "دسترسی ثبت درخواست برنامه کاری برای شما فعال نیست.")
-            return redirect("dashboards:stylist_schedule")
         if salon is None:
             messages.error(
                 request,
@@ -13176,9 +13211,6 @@ class StylistAddScheduleView(StylistDashboardGuardMixin, View):
     def post(self, request, *args, **kwargs):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
-        if not ctx.can("can_manage_own_schedule", False):
-            messages.error(request, "دسترسی ثبت درخواست برنامه کاری برای شما فعال نیست.")
-            return redirect("dashboards:stylist_schedule")
         if salon is None:
             messages.error(
                 request,
@@ -13187,8 +13219,9 @@ class StylistAddScheduleView(StylistDashboardGuardMixin, View):
             return redirect("dashboards:stylist_schedule")
         form = StylistSelfScheduleForm(request.POST, salon=salon, stylist=stylist)
         if form.is_valid():
+            direct_allowed = ctx.can("can_manage_own_schedule", False)
             try:
-                create_schedule_request(
+                schedule_request = create_schedule_request(
                     stylist=stylist,
                     salon=salon,
                     service=form.cleaned_data.get("service"),
@@ -13197,12 +13230,26 @@ class StylistAddScheduleView(StylistDashboardGuardMixin, View):
                     end_time=form.cleaned_data["end_time"],
                     note=(form.cleaned_data.get("note") or "").strip(),
                 )
+                manager_user = getattr(
+                    getattr(salon, "salon_manager", None), "user", None
+                )
+                if direct_allowed and manager_user is not None:
+                    review_schedule_request(
+                        schedule_request=schedule_request,
+                        reviewer=manager_user,
+                        approved=True,
+                        review_note="تأیید خودکار بر اساس مجوز مدیریت برنامه کاری متخصص.",
+                    )
             except ValidationError as exc:
                 messages.error(request, user_error_message(exc))
             else:
                 messages.success(
                     request,
-                    "درخواست برنامه کاری شما برای بررسی مدیر مجموعه ثبت شد.",
+                    (
+                        "برنامه کاری بر اساس مجوز مدیر مستقیماً ثبت شد."
+                        if direct_allowed and manager_user is not None
+                        else "درخواست برنامه کاری شما برای بررسی مدیر مجموعه ثبت شد."
+                    ),
                 )
                 return redirect("dashboards:stylist_schedule")
         context = build_dashboard_context(
@@ -13340,9 +13387,6 @@ class StylistAddBookingView(StylistDashboardGuardMixin, View):
     def get(self, request, *args, **kwargs):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
-        if not ctx.can("can_create_own_bookings", True):
-            messages.error(request, "دسترسی ثبت نوبت برای شما فعال نیست.")
-            return redirect("dashboards:stylist_dashboard")
         initial = {}
         requested_customer = str(request.GET.get("customer") or "").strip()
         if (
@@ -13366,9 +13410,7 @@ class StylistAddBookingView(StylistDashboardGuardMixin, View):
     def post(self, request, *args, **kwargs):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
-        if not ctx.can("can_create_own_bookings", True):
-            messages.error(request, "دسترسی ثبت نوبت برای شما فعال نیست.")
-            return redirect("dashboards:stylist_dashboard")
+        direct_allowed = ctx.can("can_create_own_bookings", True)
         form = StylistSelfBookingForm(request.POST, salon=salon, stylist=stylist)
         if form.is_valid():
             cd = form.cleaned_data
@@ -13376,8 +13418,8 @@ class StylistAddBookingView(StylistDashboardGuardMixin, View):
             order = Order.objects.create(
                 customer=cd["customer"],
                 salon=salon,
-                status="confirmed",
-                is_finally=True,
+                status="confirmed" if direct_allowed else "pending",
+                is_finally=direct_allowed,
                 is_paid=False,
                 selected_payment_method="pay_in_salon",
                 requires_online_payment=False,
@@ -13398,8 +13440,8 @@ class StylistAddBookingView(StylistDashboardGuardMixin, View):
                 checkout_locked_at=timezone.now(),
                 description=(cd.get("notes") or "").strip(),
                 booking_source="dashboard_manual",
-                stylist_approved=True,
-                stylist_confirmed_at=timezone.now(),
+                stylist_approved=direct_allowed,
+                stylist_confirmed_at=timezone.now() if direct_allowed else None,
             )
             appointment = OrderDetail.objects.create(
                 order=order,
@@ -13410,19 +13452,33 @@ class StylistAddBookingView(StylistDashboardGuardMixin, View):
                 date=cd["appointment_date"],
                 time=cd["start_time"],
                 end_time=cd["resolved_end_time"],
-                confirmation_status=OrderDetail.ConfirmationStatus.CONFIRMED,
-                lifecycle_status=OrderDetail.ServiceLifecycleStatus.CONFIRMED,
-                stylist_confirmed_at=timezone.now(),
+                confirmation_status=(
+                    OrderDetail.ConfirmationStatus.CONFIRMED
+                    if direct_allowed
+                    else OrderDetail.ConfirmationStatus.PENDING
+                ),
+                lifecycle_status=(
+                    OrderDetail.ServiceLifecycleStatus.CONFIRMED
+                    if direct_allowed
+                    else OrderDetail.ServiceLifecycleStatus.AWAITING_CONFIRMATION
+                ),
+                stylist_confirmed_at=timezone.now() if direct_allowed else None,
             )
             order.refresh_lifecycle_from_details()
 
             from apps.payments.finance import sync_settlement_for_order
 
-            sync_settlement_for_order(order)
-            messages.success(
-                request,
-                "نوبت برای خودت با موفقیت ثبت شد. این رزرو به‌صورت پرداخت در مجموعه و بدون کارمزد جدید ثبت شد.",
-            )
+            if direct_allowed:
+                sync_settlement_for_order(order)
+                messages.success(
+                    request,
+                    "نوبت برای خودت با موفقیت ثبت شد. این رزرو به‌صورت پرداخت در مجموعه و بدون کارمزد جدید ثبت شد.",
+                )
+            else:
+                messages.success(
+                    request,
+                    "درخواست ثبت نوبت برای بررسی مدیر مجموعه ارسال شد.",
+                )
             return redirect(
                 "dashboards:stylist_appointment_detail", appointment_id=appointment.id
             )
@@ -14304,9 +14360,6 @@ class StylistAddTimeOffView(StylistDashboardGuardMixin, View):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
 
-        if not ctx.can("can_request_leave", False):
-            messages.error(request, "دسترسی ثبت درخواست مرخصی برای شما فعال نیست.")
-            return redirect("dashboards:stylist_schedule")
         if not salon:
             messages.error(
                 request,
@@ -14338,9 +14391,6 @@ class StylistAddTimeOffView(StylistDashboardGuardMixin, View):
         ctx = _get_stylist_dashboard_context(request)
         stylist, salon = ctx.stylist, ctx.salon
 
-        if not ctx.can("can_request_leave", False):
-            messages.error(request, "دسترسی ثبت درخواست مرخصی برای شما فعال نیست.")
-            return redirect("dashboards:stylist_schedule")
         if not salon:
             messages.error(
                 request,
@@ -14350,33 +14400,35 @@ class StylistAddTimeOffView(StylistDashboardGuardMixin, View):
 
         form = StylistSelfTimeOffForm(request.POST)
         if form.is_valid():
+            direct_allowed = ctx.can("can_request_leave", False)
+            manager_user = getattr(
+                getattr(salon, "salon_manager", None), "user", None
+            )
             try:
-                leave_request = create_leave_request(
+                create_leave_request(
                     stylist=stylist,
                     salon=salon,
                     date_value=form.cleaned_data["date"],
                     start_time=form.cleaned_data.get("start_time"),
                     end_time=form.cleaned_data.get("end_time"),
                     reason=(form.cleaned_data.get("reason") or "").strip(),
-                    actor=request.user,
-                    auto_approve=False,
+                    actor=(
+                        manager_user
+                        if direct_allowed and manager_user is not None
+                        else request.user
+                    ),
+                    auto_approve=bool(direct_allowed and manager_user is not None),
                 )
             except ValidationError as exc:
                 messages.error(request, user_error_message(exc))
             else:
-                try:
-                    _notify_manager_about_leave_request(
-                        leave_request=leave_request,
-                        actor=request.user,
-                    )
-                except Exception:
-                    logger.exception(
-                        "Failed to notify manager about staff leave request. leave_request_id=%s",
-                        leave_request.id,
-                    )
                 messages.success(
                     request,
-                    "درخواست مرخصی شما برای بررسی مدیر مجموعه ثبت شد.",
+                    (
+                        "مرخصی بر اساس مجوز مدیر مستقیماً ثبت شد."
+                        if direct_allowed and manager_user is not None
+                        else "درخواست مرخصی شما برای بررسی مدیر مجموعه ثبت شد."
+                    ),
                     "success",
                 )
                 return redirect("dashboards:stylist_schedule")

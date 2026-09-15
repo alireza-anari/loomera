@@ -133,6 +133,25 @@ class MagazineHomeView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         articles = published_articles_queryset()
+        article_q = (self.request.GET.get("q") or "").strip()[:120]
+        article_sort = (self.request.GET.get("sort") or "newest").strip()
+        article_category = (self.request.GET.get("category") or "").strip()[:160]
+
+        filtered_articles = articles
+        if article_q:
+            filtered_articles = filtered_articles.filter(
+                Q(title__icontains=article_q)
+                | Q(summary__icontains=article_q)
+                | Q(content__icontains=article_q)
+                | Q(tags__title__icontains=article_q)
+            ).distinct()
+        if article_category:
+            filtered_articles = filtered_articles.filter(category__slug=article_category)
+        if article_sort == "popular":
+            filtered_articles = filtered_articles.order_by("-view_count", "-published_at", "-id")
+        else:
+            article_sort = "newest"
+            filtered_articles = filtered_articles.order_by("-published_at", "-id")
 
         favorite_stories = list(favorite_salon_story_queryset(self.request.user)[:15])
 
@@ -154,14 +173,17 @@ class MagazineHomeView(TemplateView):
             }:
                 all_stories_preview.insert(0, requested_story)
 
+        magazine_stories = list(
+            merge_story_querysets(favorite_stories, all_stories_preview)
+        )
         magazine_story_payload = build_story_payload(
-            merge_story_querysets(favorite_stories, all_stories_preview),
+            magazine_stories,
             user=self.request.user,
             request=self.request,
         )
 
         featured_articles = articles.filter(is_featured=True)[:5]
-        latest_articles = articles[:12]
+        latest_articles = filtered_articles[:24]
         educational_articles = articles.filter(is_educational=True)[:8]
         expert_articles = articles.filter(
             Q(author_stylist__isnull=False) | Q(author_salon__isnull=False)
@@ -191,7 +213,11 @@ class MagazineHomeView(TemplateView):
                 .distinct()
                 .order_by("title")[:20],
                 "all_stories_preview": all_stories_preview,
+                "magazine_stories": magazine_stories,
                 "magazine_stories_payload": magazine_story_payload,
+                "current_article_q": article_q,
+                "current_article_sort": article_sort,
+                "current_article_category": article_category,
             }
         )
 
