@@ -130,6 +130,20 @@ class Stage1AuthAndAccessTests(Stage1DomainFactoryMixin, TestCase):
             int(self.client.session.get("_auth_user_id")), customer.user.pk
         )
         self.assertNotIn(USER_SESSION_KEY, self.client.session)
+        self.assertTrue(self.client.session.get("show_messaging_connect_prompt"))
+
+    def test_post_signup_messaging_prompt_can_be_dismissed(self):
+        customer = self.make_customer()
+        self.client.force_login(customer.user)
+        session = self.client.session
+        session["show_messaging_connect_prompt"] = True
+        session.save()
+
+        response = self.client.post(reverse("accounts:dismiss_messaging_welcome"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"ok": True})
+        self.assertNotIn("show_messaging_connect_prompt", self.client.session)
 
     def test_verify_register_wrong_otp_increments_attempts(self):
         customer = self.make_customer(is_active=False)
