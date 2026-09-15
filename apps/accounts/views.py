@@ -1077,6 +1077,11 @@ class VerifyRegisterView(View):
 
         request.session.pop(USER_SESSION_KEY, None)
         login(request, user)
+        # Show the messaging-connect explainer only on the first page after a
+        # successful signup. A tiny authenticated endpoint clears this flag as
+        # soon as the modal is rendered, so normal future logins stay unchanged.
+        request.session["show_messaging_connect_prompt"] = True
+        request.session.modified = True
 
         if signup_kind == "stylist":
             messages.success(
@@ -1088,6 +1093,17 @@ class VerifyRegisterView(View):
 
         messages.success(request, "ثبت‌نام شما کامل شد و وارد حساب شدید.", "success")
         return _redirect_user_by_role(user)
+
+
+class DismissMessagingWelcomePromptView(LoginRequiredMixin, View):
+    """Mark the one-time post-signup messaging prompt as seen."""
+
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        request.session.pop("show_messaging_connect_prompt", None)
+        request.session.modified = True
+        return JsonResponse({"ok": True})
 
 
 # ------------------------------------------------------------------------------------------------------

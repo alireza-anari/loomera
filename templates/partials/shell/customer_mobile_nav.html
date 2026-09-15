@@ -156,9 +156,9 @@
 
     {# حساب من #}
     <a
-      href="{% if request.user.salon_manager_profile %}{% url 'dashboards:salon_manager_dashboard' %}{% elif request.user.stylist %}{% url 'dashboards:stylist_dashboard' %}{% elif request.user.customer_profile %}{% url 'accounts:customer_panel' %}{% else %}{% url 'salons:home' %}{% endif %}"
+      href="{% if request.user.salon_manager_profile %}{% url 'dashboards:manager_profile' %}{% elif request.user.stylist %}{% url 'dashboards:stylist_profile' %}{% elif request.user.customer_profile %}{% url 'accounts:customerProfile' %}{% else %}{% url 'accounts:login' %}{% endif %}"
       role="listitem"
-      aria-label="حساب من"
+      aria-label="پروفایل من"
       {% if current_namespace == 'accounts' %}aria-current="page"{% endif %}
       class="lm-shell-mobile-nav-item lm-app-touch-target {% if current_namespace == 'accounts' %}is-active{% endif %}"
     >

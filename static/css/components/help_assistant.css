@@ -3385,8 +3385,8 @@ button.lm-help-assistant__discovery-result-action { width: 100%; cursor: pointer
 
 /* Closed state: the avatar itself IS the floating control. No white card/frame. */
 .lm-help-assistant__fab {
-  width: 72px;
-  height: 72px;
+  width: 62px;
+  height: 62px;
   padding: 0;
   border: 0;
   border-radius: 24px;
@@ -3406,8 +3406,8 @@ button.lm-help-assistant__discovery-result-action { width: 100%; cursor: pointer
   box-shadow: none;
 }
 .lm-help-assistant__fab-icon {
-  width: 72px;
-  height: 72px;
+  width: 62px;
+  height: 62px;
   padding: 0;
   border: 0;
   border-radius: 24px;
@@ -3416,16 +3416,16 @@ button.lm-help-assistant__discovery-result-action { width: 100%; cursor: pointer
   overflow: visible;
 }
 .lm-help-assistant__fab-icon > .lm-help-assistant__lumi-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 24px;
+  width: 62px;
+  height: 62px;
+  border-radius: 21px;
   overflow: hidden;
 }
 .lm-help-assistant__fab-icon .lm-help-assistant__lumi-avatar-image {
-  width: 72px;
-  height: 72px;
+  width: 62px;
+  height: 62px;
   object-fit: cover;
-  border-radius: 24px;
+  border-radius: 21px;
   filter: drop-shadow(0 12px 24px rgba(83, 55, 161, .24));
 }
 .lm-help-assistant__fab-badge {
@@ -3469,14 +3469,14 @@ button.lm-help-assistant__discovery-result-action { width: 100%; cursor: pointer
   .lm-help-assistant__fab-icon,
   .lm-help-assistant__fab-icon > .lm-help-assistant__lumi-avatar,
   .lm-help-assistant__fab-icon .lm-help-assistant__lumi-avatar-image {
-    width: 68px;
-    height: 68px;
+    width: 58px;
+    height: 58px;
   }
   .lm-help-assistant__fab,
   .lm-help-assistant__fab-icon,
   .lm-help-assistant__fab-icon > .lm-help-assistant__lumi-avatar,
   .lm-help-assistant__fab-icon .lm-help-assistant__lumi-avatar-image {
-    border-radius: 23px;
+    border-radius: 20px;
   }
   .lm-help-assistant__avatar,
   .lm-help-assistant__avatar .lm-help-assistant__lumi-avatar-image {

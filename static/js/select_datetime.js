@@ -105,6 +105,9 @@
     mergeAvailabilityPayload(state.bookedTimes, data.booked_times || {});
     mergeAvailabilityPayload(state.timeOffs, data.time_offs || {});
     state.loadedMonths.add(key);
+    // A date can be rendered before its future month finishes background loading.
+    // Drop any cached empty result now that the real month payload is available.
+    clearAvailabilityCache();
   }
 
   function getJalaliMonthForIsoDate(dateStr) {
@@ -669,6 +672,10 @@
     timesEl.innerHTML = `<div class="py-10 text-center text-loomera-textMuted"><i class="fa-solid fa-spinner fa-spin mb-3 text-2xl text-loomera-primary" aria-hidden="true"></i><p class="text-sm font-black">در حال بررسی زمان‌های آزاد واقعی...</p></div>`;
 
     const selection = getCurrentSelection();
+    // Never calculate a selected future date from a partial/background cache.
+    // Load that date's exact Jalali month first (including dates 1–2+ months ahead).
+    const targetMonth = getJalaliMonthForIsoDate(dateStr);
+    await loadAvailabilityForMonth(targetMonth.year, targetMonth.month);
     const slots = await getAvailabilityForDate(selection, dateStr, state.currentIndex);
     state.currentSlots = slots;
 
