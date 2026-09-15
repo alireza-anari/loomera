@@ -42,8 +42,10 @@ class FinalSurgicalRegressionContracts(unittest.TestCase):
         self.assertNotIn("profile_form.save(commit=False)", block)
         self.assertNotIn("emergency_form.save(commit=False)", block)
 
-    def test_lm_qa_045_unfiltered_team_does_not_force_active_only(self):
+    def test_lm_qa_045_unfiltered_team_keeps_historical_members_visible(self):
         source = self.read("apps/dashboards/views.py")
+        queryset_block = source[source.index("def _build_team_member_stylists_queryset"):source.index("class TeamMemberView")]
+        self.assertIn("Q(stylists_of_salon=salon) | Q(salon_memberships__salon=salon)", queryset_block)
         marker = 'if applied_status == "all":'
         block = source[source.index(marker):source.index('elif applied_status == "active":', source.index(marker))]
         self.assertRegex(block, r'if applied_status == "all":\s+pass')
@@ -63,6 +65,8 @@ class FinalSurgicalRegressionContracts(unittest.TestCase):
         self.assertIn("data-next-date", template)
         self.assertIn("firstAvailableDate", select_js)
         self.assertIn("selection?.firstAvailableDate", datetime_js)
+        self.assertIn("getJalaliMonthForIsoDate(state.currentDate)", datetime_js)
+        self.assertIn("await loadAvailabilityForMonth(targetMonth.year, targetMonth.month)", datetime_js)
         self.assertIn("minute <= currentTimeMinutes()", datetime_js)
 
     def test_lm_qa_048_manager_article_publish_action_survives_submit_feedback(self):
@@ -77,40 +81,57 @@ class FinalSurgicalRegressionContracts(unittest.TestCase):
         detail = self.read("templates/pages/detail_salon.html")
         self.assertIn("salon_stories", detail)
 
-    def test_lm_qa_050_customer_bell_is_not_rendered_for_manager_or_stylist(self):
+    def test_lm_qa_050_customer_shell_is_not_rendered_for_manager_or_stylist(self):
         desktop = self.read("templates/partials/shell/desktop_site_header.html")
         mobile = self.read("templates/partials/shell/mobile_app_header.html")
-        self.assertIn("user.customer_profile", desktop)
-        self.assertIn("user.customer_profile", mobile)
-        self.assertIn("dashboards:salon_manager_dashboard", desktop)
-        self.assertIn("dashboards:stylist_dashboard", desktop)
+        base = self.read("templates/base.html")
+        customer_nav = self.read("templates/partials/shell/customer_mobile_nav.html")
+        self.assertLess(desktop.index("user.salon_manager_profile"), desktop.index("user.customer_profile"))
+        self.assertLess(desktop.index("user.stylist"), desktop.index("user.customer_profile"))
+        self.assertLess(mobile.index("user.salon_manager_profile"), mobile.index("user.customer_profile"))
+        self.assertLess(mobile.index("user.stylist"), mobile.index("user.customer_profile"))
+        self.assertIn("not request.user.salon_manager_profile and not request.user.stylist", base)
+        self.assertLess(customer_nav.index("request.user.salon_manager_profile"), customer_nav.index("request.user.customer_profile"))
 
-    def test_lm_qa_051_specialist_permissions_are_backend_enforced_and_deny_by_default(self):
+    def test_lm_qa_051_specialist_permissions_mean_direct_action_not_total_denial(self):
         dashboard = self.read("apps/dashboards/views.py")
         content = self.read("apps/dashboards/content_views.py")
         legacy = self.read("apps/stylists/views.py")
-        self.assertIn('ctx.can("can_manage_own_schedule", False)', dashboard)
-        self.assertIn('ctx.can("can_request_leave", False)', dashboard)
-        self.assertIn("if permissions is None:\n            return False", content)
-        self.assertIn("permissions is None or not permissions.can_submit_posts", legacy)
-        self.assertIn("permissions is None or not permissions.can_submit_stories", legacy)
+        self.assertIn('direct_allowed = ctx.can("can_manage_own_schedule", False)', dashboard)
+        self.assertIn('direct_allowed = ctx.can("can_request_leave", False)', dashboard)
+        self.assertIn('direct_allowed = ctx.can("can_create_own_bookings", True)', dashboard)
+        self.assertIn('status="confirmed" if direct_allowed else "pending"', dashboard)
+        self.assertIn("_can_publish_directly", content)
+        self.assertIn("Permission flags control direct publication vs manager review", content)
+        self.assertIn("Submission itself is always available for an active membership", content)
+        self.assertNotIn("دسترسی ارسال مقاله برای شما فعال نیست", legacy)
+        self.assertNotIn("دسترسی ارسال استوری برای شما فعال نیست", legacy)
 
     def test_lm_qa_052_leave_review_actions_keep_submitter_value(self):
         source = self.read("templates/dashboards/scheduled_shifts.html")
         self.assertRegex(source, r'name="action" value="approve" data-lm-no-submit-feedback')
         self.assertRegex(source, r'name="action" value="reject" data-lm-no-submit-feedback')
 
-    def test_lm_qa_053_story_suggestions_are_scoped_to_current_stylist(self):
+    def test_lm_qa_053_story_suggestions_are_scoped_and_target_prefixed_field(self):
         source = self.read("apps/dashboards/content_views.py")
+        template = self.read("templates/dashboards/stylist_content.html")
         self.assertIn("salon: Salon, *, stylist: Stylist | None = None", source)
         self.assertIn("services = services.filter(stylists=stylist)", source)
-        self.assertIn("if stylist is None and hasattr(salon, \"stylists\")", source)
+        self.assertIn('if stylist is None and hasattr(salon, "stylists")', source)
         self.assertIn("salon, stylist=stylist", source)
         self.assertIn("scoped_services = scoped_services.filter(stylists=stylist)", source)
+        self.assertIn('prefix="story"', source)
+        self.assertIn('data-copy-to="{{ story_form.cta_url.id_for_label }}"', template)
+        self.assertIn("document.getElementById(button.dataset.copyTo)", template)
 
-    def test_lm_qa_054_story_media_error_is_precise_and_not_duplicated(self):
+    def test_lm_qa_054_story_media_error_is_precise_prefixed_and_visible(self):
         source = self.read("apps/dashboards/content_views.py")
+        template = self.read("templates/dashboards/stylist_content.html")
         self.assertIn("برای ارسال استوری یک تصویر JPG/PNG/WebP یا ویدیوی MP4 انتخاب کن.", source)
+        self.assertIn('prefix="story"', source)
+        self.assertIn("story_form.media.id_for_label", template)
+        self.assertIn("story_form.non_field_errors", template)
+        self.assertIn("text-rose-700", template)
         clean_block = source[source.index("    def clean(self):", source.index("class StylistDashboardContentSubmissionForm")):source.index("class ManagerContentHubView")]
         self.assertNotIn("StaffContentSubmission.SubmissionType.STORY,\n                StaffContentSubmission.SubmissionType.PORTFOLIO", clean_block)
 
@@ -128,6 +149,36 @@ class FinalSurgicalRegressionContracts(unittest.TestCase):
         self.assertIn("salon_articles", salon_view)
         self.assertIn("salon_stories", salon_view)
         self.assertIn("articles/partials/salon_content_section.html", detail)
+
+    def test_manual_retest_ui_contracts_for_team_magazine_and_salon_content(self):
+        team = self.read("templates/dashboards/team_member.html")
+        article_detail = self.read("templates/articles/article_detail.html")
+        magazine = self.read("templates/articles/magazine_home.html")
+        salon_detail = self.read("templates/pages/detail_salon.html")
+        salon_content = self.read("templates/articles/partials/salon_content_section.html")
+        self.assertIn('href="#team-member-section-invites" data-open-team-invite', team)
+        self.assertIn('{% block js %}', team)
+        self.assertNotIn('{% block title %}تیم\n<script>', team)
+        self.assertIn("[overflow-wrap:anywhere]", article_detail)
+        self.assertIn("magazine_stories", magazine)
+        self.assertIn('name="q"', magazine)
+        self.assertIn('name="category"', magazine)
+        self.assertIn('name="sort"', magazine)
+        self.assertIn('href="#salon-content"', salon_detail)
+        self.assertIn('id="salon-content"', salon_content)
+        self.assertIn("مقاله‌های مجموعه", salon_content)
+
+    def test_manual_retest_team_invite_is_local_and_integrity_controlled(self):
+        source = self.read("apps/dashboards/views.py")
+        team = self.read("templates/dashboards/team_member.html")
+        helper = source[source.index("def _create_manager_stylist_invite(request):"):source.index("def _cancel_manager_stylist_invite", source.index("def _create_manager_stylist_invite(request):"))]
+        invite_view = source[source.index("class ManagerCreateStylistInviteView"):source.index("class ManagerCancelStylistInviteView")]
+        self.assertIn('mobile = normalize_mobile(request.POST.get("mobile_number") or "")[:32]', helper)
+        self.assertIn('role_title = (request.POST.get("role_title") or "").strip()[:128]', helper)
+        self.assertIn('invited_email = (getattr(user, "email", "") or "")[:254]', helper)
+        self.assertIn("except IntegrityError:", invite_view)
+        self.assertIn('href="#team-member-section-invites" data-open-team-invite', team)
+        self.assertIn("event.preventDefault()", team)
 
 
 if __name__ == "__main__":

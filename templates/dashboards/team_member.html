@@ -16,7 +16,7 @@
         </div>
 
         <div class="flex shrink-0 gap-2">
-          <a href="{{ add_stylist_url }}#team-member-section-invites" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft"><i class="fa-solid fa-user-plus text-xs" aria-hidden="true"></i>افزودن عضو</a>
+          <a href="#team-member-section-invites" data-open-team-invite class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-loomera-primary px-4 py-3 text-sm font-black text-white shadow-lm-soft"><i class="fa-solid fa-user-plus text-xs" aria-hidden="true"></i>افزودن عضو</a>
         </div>
       </div>
 
@@ -192,7 +192,7 @@
           <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-8 text-center md:col-span-2 xl:col-span-3">
             <h3 class="text-sm font-black text-loomera-textPrimary">عضوی پیدا نشد</h3>
             <p class="mt-1 text-xs leading-6 text-loomera-textMuted">اگر تیم هنوز خالی است، اولین متخصص را اضافه کن. اگر فیلتر فعال است، آن را پاک کن.</p>
-            <a href="{{ add_stylist_url }}#team-member-section-invites" class="mt-4 inline-flex min-h-11 items-center justify-center rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white">افزودن عضو</a>
+            <a href="#team-member-section-invites" data-open-team-invite class="mt-4 inline-flex min-h-11 items-center justify-center rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white">افزودن عضو</a>
           </div>
         {% endfor %}
       </div>
@@ -235,4 +235,35 @@
       </div>
     </details>
   </section>
+{% endblock %}
+{% block js %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const panel = document.getElementById("team-member-section-invites");
+      if (!panel) return;
+
+      function revealInvitePanel() {
+        panel.open = true;
+        window.requestAnimationFrame(function () {
+          panel.scrollIntoView({ behavior: "smooth", block: "start" });
+          panel.querySelector('input[name="mobile_number"]')?.focus({ preventScroll: true });
+        });
+      }
+
+      document.querySelectorAll("[data-open-team-invite]").forEach(function (link) {
+        link.addEventListener("click", function (event) {
+          event.preventDefault();
+          if (window.location.hash !== "#team-member-section-invites") {
+            window.history.replaceState(null, "", "#team-member-section-invites");
+          }
+          revealInvitePanel();
+        });
+      });
+
+      if (window.location.hash === "#team-member-section-invites") {
+        revealInvitePanel();
+      }
+    });
+  </script>
 {% endblock %}

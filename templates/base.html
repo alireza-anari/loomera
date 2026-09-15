@@ -41,11 +41,11 @@
     {% include "partials/redirect_form_errors.html" %}
 
     <main id="main-content"
-          class="lm-shell-main lm-app-container {% if not hide_navbar %}lm-shell-main--with-mobile-nav{% endif %} {% block main_class %}{% endblock %}">
+          class="lm-shell-main lm-app-container {% if not hide_navbar and not request.user.salon_manager_profile and not request.user.stylist %}lm-shell-main--with-mobile-nav{% endif %} {% block main_class %}{% endblock %}">
         {% block content %}{% endblock %}
     </main>
 
-    {% if not hide_navbar %}
+    {% if not hide_navbar and not request.user.salon_manager_profile and not request.user.stylist %}
         {% include "partials/shell/customer_mobile_nav.html" %}
     {% endif %}
 

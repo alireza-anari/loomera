@@ -76,6 +76,18 @@
       border-color: rgba(115, 92, 190, .38);
       background: var(--lm-primary-soft, #f3effc);
     }
+
+    .lm-stylist-content-form .errorlist {
+      margin-top: .5rem;
+      border: 1px solid #fecdd3;
+      border-radius: .75rem;
+      background: #fff1f2;
+      padding: .55rem .75rem;
+      color: #be123c;
+      font-size: .75rem;
+      font-weight: 800;
+      line-height: 1.75;
+    }
   </style>
 {% endblock %}
 
@@ -126,6 +138,7 @@
       {% if article_form.errors %}
         <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold leading-7 text-rose-700">
           <p class="font-black">مقاله پیشنهادی کامل نیست؛ موارد زیر را اصلاح کن:</p>
+          {% if article_form.non_field_errors %}<p class="mt-2 text-xs font-black text-rose-700">{{ article_form.non_field_errors|join:"، " }}</p>{% endif %}
           <ul class="mt-2 list-inside list-disc space-y-1">
             {% for field in article_form %}
               {% if field.errors %}
@@ -329,12 +342,16 @@
       <div data-mobile-primary-action class="rounded-[20px] border border-loomera-borderSoft bg-white p-2.5 shadow-[0_10px_26px_rgba(46,42,60,0.08)]">
         <div class="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
           <p class="text-xs leading-6 text-loomera-textMuted">
-            این مقاله فقط برای بررسی مدیر مجموعه فعال ارسال می‌شود.
+            {% if stylist_posts_direct_publish %}
+              مدیر مجموعه انتشار مستقیم مقاله را از قبل مجاز کرده است؛ پس از ارسال منتشر می‌شود.
+            {% else %}
+              مقاله برای بررسی مدیر مجموعه ارسال می‌شود و بعد از تأیید منتشر خواهد شد.
+            {% endif %}
           </p>
 
           <button type="submit" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white shadow-[0_8px_20px_rgba(115,92,190,0.16)] transition hover:bg-loomera-primaryHover">
             <i class="fa-solid fa-paper-plane text-xs" aria-hidden="true"></i>
-            ارسال مقاله برای بررسی مدیر
+            {% if stylist_posts_direct_publish %}انتشار مقاله{% else %}ارسال مقاله برای بررسی مدیر{% endif %}
           </button>
         </div>
       </div>
@@ -368,6 +385,7 @@
       {% if story_form.errors %}
         <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold leading-7 text-rose-700">
           <p class="font-black">استوری پیشنهادی کامل نیست؛ موارد زیر را اصلاح کن:</p>
+          {% if story_form.non_field_errors %}<p class="mt-2 text-xs font-black text-rose-700">{{ story_form.non_field_errors|join:"، " }}</p>{% endif %}
           <ul class="mt-2 list-inside list-disc space-y-1">
             {% for field in story_form %}
               {% if field.errors %}
@@ -598,12 +616,16 @@
       <div data-mobile-primary-action class="rounded-[20px] border border-loomera-borderSoft bg-white p-2.5 shadow-[0_10px_26px_rgba(46,42,60,0.08)]">
         <div class="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
           <p class="text-xs leading-6 text-loomera-textMuted">
-            این استوری فقط برای بررسی مدیر مجموعه فعال ارسال می‌شود.
+            {% if stylist_stories_direct_publish %}
+              مدیر مجموعه انتشار مستقیم استوری را از قبل مجاز کرده است؛ پس از ارسال منتشر می‌شود.
+            {% else %}
+              استوری برای بررسی مدیر مجموعه ارسال می‌شود و بعد از تأیید منتشر خواهد شد.
+            {% endif %}
           </p>
 
           <button type="submit" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white shadow-[0_8px_20px_rgba(115,92,190,0.16)] transition hover:bg-loomera-primaryHover">
             <i class="fa-solid fa-paper-plane text-xs" aria-hidden="true"></i>
-            ارسال استوری برای بررسی مدیر
+            {% if stylist_stories_direct_publish %}انتشار استوری{% else %}ارسال استوری برای بررسی مدیر{% endif %}
           </button>
         </div>
       </div>
