@@ -7,15 +7,9 @@ from django.conf import settings
 from django.test import SimpleTestCase
 
 
-class MessagingManagementCommandExceptionScopeTests(
-    SimpleTestCase
-):
+class MessagingManagementCommandExceptionScopeTests(SimpleTestCase):
     COMMANDS_DIR = (
-        Path(settings.BASE_DIR)
-        / "apps"
-        / "messaging"
-        / "management"
-        / "commands"
+        Path(settings.BASE_DIR) / "apps" / "messaging" / "management" / "commands"
     )
 
     EXPECTED_COMMAND_FILES = {
@@ -24,6 +18,7 @@ class MessagingManagementCommandExceptionScopeTests(
         "bale_final_readiness_check.py",
         "bale_webhook_admin.py",
         "bale_webhook_event_check.py",
+        "messaging_provider_probe.py",
         "messaging_qa_check.py",
         "poll_bale_updates.py",
     }
@@ -33,6 +28,7 @@ class MessagingManagementCommandExceptionScopeTests(
         "ValueError",
         "NoReverseMatch",
         "BaleBotApiError",
+        "TelegramBotApiError",
         "BaleWebhookIgnored",
         "BalePollingError",
     }
@@ -40,9 +36,7 @@ class MessagingManagementCommandExceptionScopeTests(
     @classmethod
     def _command_paths(cls):
         return sorted(
-            path
-            for path in cls.COMMANDS_DIR.glob("*.py")
-            if path.name != "__init__.py"
+            path for path in cls.COMMANDS_DIR.glob("*.py") if path.name != "__init__.py"
         )
 
     @staticmethod
@@ -61,8 +55,7 @@ class MessagingManagementCommandExceptionScopeTests(
 
             for item in node.elts:
                 names.update(
-                    MessagingManagementCommandExceptionScopeTests
-                    ._exception_names(item)
+                    MessagingManagementCommandExceptionScopeTests._exception_names(item)
                 )
 
             return names
@@ -70,10 +63,7 @@ class MessagingManagementCommandExceptionScopeTests(
         return {ast.unparse(node)}
 
     def test_expected_management_commands_are_scanned(self):
-        discovered = {
-            path.name
-            for path in self._command_paths()
-        }
+        discovered = {path.name for path in self._command_paths()}
 
         self.assertEqual(
             discovered,
@@ -91,9 +81,7 @@ class MessagingManagementCommandExceptionScopeTests(
         violations = []
 
         for path in self._command_paths():
-            source = path.read_text(
-                encoding="utf-8"
-            )
+            source = path.read_text(encoding="utf-8")
             tree = ast.parse(
                 source,
                 filename=str(path),
@@ -106,9 +94,7 @@ class MessagingManagementCommandExceptionScopeTests(
                 ):
                     continue
 
-                names = self._exception_names(
-                    node.type
-                )
+                names = self._exception_names(node.type)
 
                 forbidden = names.intersection(
                     {
@@ -136,8 +122,7 @@ class MessagingManagementCommandExceptionScopeTests(
                 "Messaging management commands must not use "
                 "bare except, Exception, or BaseException. "
                 "Catch the expected parsing, routing, provider, "
-                "or domain exception instead: "
-                + ", ".join(violations)
+                "or domain exception instead: " + ", ".join(violations)
             ),
         )
 
@@ -147,9 +132,7 @@ class MessagingManagementCommandExceptionScopeTests(
         violations = []
 
         for path in self._command_paths():
-            source = path.read_text(
-                encoding="utf-8"
-            )
+            source = path.read_text(encoding="utf-8")
             tree = ast.parse(
                 source,
                 filename=str(path),
@@ -162,13 +145,8 @@ class MessagingManagementCommandExceptionScopeTests(
                 ):
                     continue
 
-                names = self._exception_names(
-                    node.type
-                )
-                unexpected = (
-                    names
-                    - self.ALLOWED_EXCEPTION_NAMES
-                )
+                names = self._exception_names(node.type)
+                unexpected = names - self.ALLOWED_EXCEPTION_NAMES
 
                 if not unexpected:
                     continue
@@ -188,8 +166,7 @@ class MessagingManagementCommandExceptionScopeTests(
                 "An unreviewed exception type was added to a "
                 "Messaging/Bale management command. Verify that "
                 "the handler cannot hide database, network, or "
-                "programming failures before allowing it: "
-                + ", ".join(violations)
+                "programming failures before allowing it: " + ", ".join(violations)
             ),
         )
 
@@ -212,6 +189,12 @@ class MessagingManagementCommandExceptionScopeTests(
                 {"TypeError", "ValueError"},
                 {"NoReverseMatch"},
             ],
+            "messaging_provider_probe.py": [
+                {"BaleBotApiError"},
+                {"BaleBotApiError"},
+                {"TelegramBotApiError"},
+                {"TelegramBotApiError"},
+            ],
             "poll_bale_updates.py": [
                 {"BalePollingError"},
             ],
@@ -220,9 +203,7 @@ class MessagingManagementCommandExceptionScopeTests(
         actual = {}
 
         for path in self._command_paths():
-            source = path.read_text(
-                encoding="utf-8"
-            )
+            source = path.read_text(encoding="utf-8")
             tree = ast.parse(
                 source,
                 filename=str(path),
@@ -240,19 +221,12 @@ class MessagingManagementCommandExceptionScopeTests(
                 handlers.append(
                     (
                         node.lineno,
-                        self._exception_names(
-                            node.type
-                        ),
+                        self._exception_names(node.type),
                     )
                 )
 
-            handlers.sort(
-                key=lambda item: item[0]
-            )
-            actual[path.name] = [
-                names
-                for _line_number, names in handlers
-            ]
+            handlers.sort(key=lambda item: item[0])
+            actual[path.name] = [names for _line_number, names in handlers]
 
         self.assertEqual(
             actual,

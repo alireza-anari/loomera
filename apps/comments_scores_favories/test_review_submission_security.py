@@ -159,3 +159,41 @@ class ReviewSubmissionSecurityTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Comments.objects.filter(comment_user=customer).exists())
         self.assertFalse(Scoring.objects.filter(scoring_user=customer).exists())
+
+
+    def test_review_submission_rejects_duplicate_tuple(self):
+        customer, salon, stylist, service, _order, _detail = self._make_reviewable_context()
+        self.client.force_login(customer.user)
+        payload = {
+            "comment_text": "دیدگاه اول",
+            "score": "5",
+            "stylist": str(stylist.pk),
+            "service": str(service.pk),
+        }
+
+        first = self.client.post(self._url(salon), payload)
+        second = self.client.post(self._url(salon), {**payload, "comment_text": "دیدگاه دوم"})
+
+        self.assertEqual(first.status_code, 302)
+        self.assertEqual(second.status_code, 302)
+        self.assertEqual(
+            Comments.objects.filter(
+                comment_user=customer, salon=salon, stylist=stylist, service=service
+            ).count(),
+            1,
+        )
+        self.assertEqual(Scoring.objects.filter(scoring_user=customer, salon=salon).count(), 1)
+
+    def test_review_eligibility_survives_service_and_stylist_deactivation(self):
+        customer, salon, stylist, service, _order, detail = self._make_reviewable_context()
+        stylist.is_active = False
+        stylist.save(update_fields=["is_active"])
+        service.is_active = False
+        service.save(update_fields=["is_active"])
+
+        from apps.comments_scores_favories.forms import CommentScoringForm
+
+        form = CommentScoringForm(salon=salon, customer=customer)
+        self.assertTrue(form.eligible_order_details.filter(pk=detail.pk).exists())
+        self.assertTrue(form.fields["stylist"].queryset.filter(pk=stylist.pk).exists())
+        self.assertTrue(form.fields["service"].queryset.filter(pk=service.pk).exists())

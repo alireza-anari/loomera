@@ -1,43 +1,24 @@
-# Phase 9 Closure Patch
+# Loomera
 
-این بسته Closure رسمی فاز ۹ Loomera را اضافه می‌کند.
+Loomera is a Django application for salon/service discovery, booking, customer and partner operations, notifications, reviews, and Loomi messaging integrations.
 
-## اجرا
+## Project entry points
 
-فایل `apply_phase9_closure.py` را در ریشه پروژه، کنار `manage.py` قرار بده و اجرا کن:
+- Django entry point: `manage.py`
+- Runtime dependencies: `requirements.txt`
+- Development/test dependencies: `requirements-dev.txt`
+- QA command list: `docs/qa/final-release-command-list.md`
+- Release readiness checklist: `docs/qa/release-readiness-checklist.md`
+- Manual E2E checklist: `docs/qa/manual-e2e-checklist.md`
 
-```powershell
-python apply_phase9_closure.py
-```
+## Local validation
 
-سپس تست‌ها:
+After installing the appropriate dependencies and environment variables, run:
 
-```powershell
-python -m py_compile `
-  apps/main/phase9_closure.py `
-  apps/main/test_phase9_closure_manifest.py `
-  apps/main/release_readiness.py
-```
-
-```powershell
-python manage.py test `
-  apps.main.test_phase9_acceptance_registry `
-  apps.main.test_phase9_closure_manifest `
-  apps.main.test_regression_suite_registry `
-  --keepdb
-```
-
-```powershell
+```bash
 python manage.py check
 python manage.py makemigrations --check --dry-run
+python manage.py test
 ```
 
-اجرای Closure نهایی:
-
-```powershell
-python manage.py local_beta_acceptance_check `
-  --keepdb `
-  --failfast
-```
-
-پس از اعمال Patch، فایل موقت `apply_phase9_closure.py` را می‌توانی حذف کنی.
+For the current beta, customer checkout is **Pay at Salon only**. Wallet, online payment, prepayment, recharge, and withdrawal are not active customer booking capabilities.

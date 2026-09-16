@@ -51,14 +51,14 @@ export default function initDeleteAccount() {
         if (currentStep === 1) {
           const reasonSelected = form.querySelector('input[name="reason"]:checked');
           if (!reasonSelected) {
-            alert('لطفاً یک دلیل انتخاب کنید');
+            window.LoomeraFeedback?.error?.('لطفاً یک دلیل انتخاب کنید');
             return;
           }
         } else if (currentStep === 2) {
           const confirm1 = form.querySelector('input[name="confirm_appointments"]')?.checked;
           const confirm2 = form.querySelector('input[name="confirm_bookings"]')?.checked;
           if (!confirm1 || !confirm2) {
-            alert('لطفاً تمام موارد را تایید کنید');
+            window.LoomeraFeedback?.error?.('لطفاً تمام موارد را تایید کنید');
             return;
           }
         }

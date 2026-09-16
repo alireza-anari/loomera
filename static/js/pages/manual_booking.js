@@ -508,7 +508,8 @@ export default function initManualBookingPage() {
       clearSelectedSlot();
       els.monthTitle.textContent = "زمان‌های آزاد";
       els.calendarHint.textContent = "دریافت برنامه متخصص ناموفق بود";
-      els.calendar.innerHTML = `<div class="col-span-full rounded-[22px] border border-loomera-danger/20 bg-loomera-dangerSoft px-4 py-5 text-center text-sm text-loomera-danger">${error.message || "زمان‌های آزاد دریافت نشد."}</div>`;
+      const safeAvailabilityError = window.LoomeraFeedback?.safeMessage?.(error.message, "error") || "زمان‌های آزاد دریافت نشد.";
+      els.calendar.innerHTML = `<div class="col-span-full rounded-[22px] border border-loomera-danger/20 bg-loomera-dangerSoft px-4 py-5 text-center text-sm text-loomera-danger">${safeAvailabilityError}</div>`;
       renderTimeSlots([]);
       refreshWorkspaceLayout();
     }

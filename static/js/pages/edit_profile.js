@@ -54,19 +54,19 @@ export default function initEditProfile() {
 
       if (anyBirthFieldFilled && !allBirthFieldsFilled) {
         e.preventDefault();
-        alert('لطفاً تمام فیلدهای تاریخ تولد را پر کنید یا همه را خالی بگذارید.');
+        window.LoomeraFeedback?.error?.('لطفاً تمام فیلدهای تاریخ تولد را پر کنید یا همه را خالی بگذارید.');
       }
 
       // Validate birth year is reasonable (1900-2024)
       if (birthYear && (parseInt(birthYear) < 1300 || parseInt(birthYear) > 1410)) {
         e.preventDefault();
-        alert('سال تاریخ تولد را درست بررسی کنید.');
+        window.LoomeraFeedback?.error?.('سال تاریخ تولد را درست بررسی کنید.');
       }
 
       // Validate day
       if (birthDay && (parseInt(birthDay) < 1 || parseInt(birthDay) > 31)) {
         e.preventDefault();
-        alert('روز نمی‌تواند کمتر از ۱ یا بیش‌تر از ۳۱ باشد.');
+        window.LoomeraFeedback?.error?.('روز نمی‌تواند کمتر از ۱ یا بیش‌تر از ۳۱ باشد.');
       }
     });
   }

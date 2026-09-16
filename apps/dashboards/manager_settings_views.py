@@ -21,156 +21,227 @@ from apps.messaging.preferences import (
 from apps.messaging.services import ensure_default_providers, messaging_enabled, provider_allowed
 from apps.notifications.models import NotificationAudienceRole, NotificationChannel
 from apps.salons.membership import get_active_salon_for_stylist
+from apps.messaging.links import loomi_provider_links
 
 
 class ManagerCommunicationSettingsView(LoginRequiredMixin, View):
-    """Manager-facing notification and messenger configuration.
-
-    This page intentionally exposes only the channel that is usable today
-    (Bale). Future messaging adapters remain in the shared messaging layer but
-    are not presented as configurable manager settings before they are usable.
-    """
+    """Manager/stylist notification and messenger configuration for Beta."""
 
     template_name = "dashboards/manager_communication_settings.html"
     audience_role = NotificationAudienceRole.MANAGER
+    communication_role_label = "مدیر"
+    communication_owner_label = "مدیر مجموعه"
+    communication_description = (
+        "مشخص کن چه پیام‌هایی را در بله و تلگرام دریافت کنی و اتصال هر پیام‌رسان "
+        "را از همین صفحه مدیریت کن."
+    )
+    redirect_name = "dashboards:manager_communication_settings"
+    settings_return_name = "dashboards:workspace_settings"
+    notification_center_name = "dashboards:notifications_center"
+    success_message = "تنظیم اعلان‌های مدیر ذخیره شد."
+    loomi_share_title = "لومی در پیام‌رسان‌ها"
+    loomi_share_description = "این لینک را می‌توانید در بیو اینستاگرام، شبکه‌های اجتماعی یا برای مشتریان ارسال کنید تا مستقیماً با لومی درباره مجموعه شما گفتگو کنند."
+
+    def _loomi_share_targets(self, request):
+        from apps.salons.models import Salon
+        # Ownership comes exclusively from the authenticated manager, not URL IDs
+        # or the currently selected salon in a multi-salon dashboard session.
+        return [("salon", salon, salon.salon_name) for salon in
+                Salon.objects.filter(salon_manager=request.user.salon_manager_profile,
+                                     is_active=True).order_by("salon_name", "id")]
+
+    def _loomi_share_context(self, request):
+        from apps.messaging.loomi import loomi_messaging_enabled
+        cards = []
+        if (request.user.is_active and messaging_enabled()
+                and any(loomi_messaging_enabled(key) for key in ("telegram", "bale"))):
+            for scope, target, label in self._loomi_share_targets(request):
+                links = loomi_provider_links(scope, target)
+                if links:
+                    cards.append({"label": label, "links": links})
+        return {"loomi_share_cards": cards, "loomi_share_title": self.loomi_share_title,
+                "loomi_share_description": self.loomi_share_description}
+
+    provider_specs = (
+        (
+            "bale",
+            MessagingProviderKey.BALE,
+            NotificationChannel.BALE.value,
+        ),
+        (
+            "telegram",
+            MessagingProviderKey.TELEGRAM,
+            NotificationChannel.TELEGRAM.value,
+        ),
+    )
 
     def dispatch(self, request, *args, **kwargs):
         if not hasattr(request.user, "salon_manager_profile"):
             return redirect("dashboards:salon_manager_dashboard")
         return super().dispatch(request, *args, **kwargs)
 
-    def _bale_provider(self):
+    def _provider(self, provider_key):
         ensure_default_providers()
-        return MessagingProvider.objects.filter(key=MessagingProviderKey.BALE).first()
+        return MessagingProvider.objects.filter(key=provider_key).first()
 
-    def _bale_ready(self, provider):
+    def _provider_ready(self, provider, provider_key):
         return bool(
             messaging_enabled()
             and provider is not None
             and provider.is_active
-            and provider_allowed(MessagingProviderKey.BALE)
+            and provider_allowed(provider_key)
         )
 
-    def _active_connection(self, request):
+    def _active_connection(self, request, provider_key):
         return (
             MessagingAccountConnection.objects.select_related("provider", "identity")
             .filter(
                 user=request.user,
-                provider__key=MessagingProviderKey.BALE,
+                provider__key=provider_key,
                 status=MessagingConnectionStatus.ACTIVE,
             )
             .order_by("-connected_at", "-id")
             .first()
         )
 
-    def _context(self, request):
-        provider = self._bale_provider()
-        connection = self._active_connection(request)
-        operational_enabled = stream_enabled(
-            user=request.user,
-            channel=NotificationChannel.BALE.value,
-            stream=STREAM_OPERATIONAL,
-            audience_role=self.audience_role,
+    def _connect_url(self, request, provider_key):
+        connect_url = reverse(
+            "messaging:provider_quick_connect",
+            kwargs={"provider_key": str(provider_key)},
         )
-        marketing_enabled = stream_enabled(
-            user=request.user,
-            channel=NotificationChannel.BALE.value,
-            stream=STREAM_MARKETING,
-            audience_role=self.audience_role,
-        )
+        return f"{connect_url}?{urlencode({'next': request.path})}"
 
-        connect_url = reverse("messaging:bale_quick_connect")
-        connect_url = f"{connect_url}?{urlencode({'next': request.path})}"
+    def _provider_context(
+        self,
+        *,
+        request,
+        prefix,
+        provider_key,
+        channel,
+    ):
+        provider = self._provider(provider_key)
+        connection = self._active_connection(request, provider_key)
+        return {
+            f"{prefix}_ready": self._provider_ready(provider, provider_key),
+            f"{prefix}_connection": connection,
+            f"{prefix}_connected": bool(connection),
+            f"{prefix}_connect_url": self._connect_url(request, provider_key),
+            f"{prefix}_operational": stream_enabled(
+                user=request.user,
+                channel=channel,
+                stream=STREAM_OPERATIONAL,
+                audience_role=self.audience_role,
+            ),
+            f"{prefix}_marketing": stream_enabled(
+                user=request.user,
+                channel=channel,
+                stream=STREAM_MARKETING,
+                audience_role=self.audience_role,
+            ),
+        }
 
-        context = build_dashboard_context(
+    def _dashboard_context(self, request):
+        return build_dashboard_context(
             request.user,
             nav_active="home",
             sidebar_active="settings",
             page_title="اعلان‌ها و ارتباطات",
             request_path=request.path,
         )
+
+    def _context(self, request):
+        context = self._dashboard_context(request)
+        context.update(self._loomi_share_context(request))
         context.update(
             {
                 "hide_dashboard_header": True,
                 "hide_dashboard_top_nav": True,
                 "page_meta": {
                     "title": "اعلان‌ها و ارتباطات",
-                    "description": "اعلان‌های نقش مدیر و اتصال بله را از یک صفحه مدیریت کن.",
+                    "description": self.communication_description,
                     "icon": "fa-regular fa-bell",
                     "badges": [],
                     "primary_action": {
                         "label": "بازگشت به تنظیمات",
-                        "url": reverse("dashboards:workspace_settings"),
+                        "url": reverse(self.settings_return_name),
                     },
                 },
-                "bale_ready": self._bale_ready(provider),
-                "bale_connection": connection,
-                "bale_connected": bool(connection),
-                "bale_connect_url": connect_url,
-                "operational_enabled": operational_enabled,
-                "marketing_enabled": marketing_enabled,
                 "messaging_privacy_url": reverse("messaging:privacy"),
-                "notification_center_url": reverse("dashboards:notifications_center"),
-                "settings_return_url": reverse("dashboards:workspace_settings"),
-                "communication_role_label": "مدیر",
-                "communication_owner_label": "مدیر مجموعه",
-                "communication_description": "مشخص کن چه پیام‌هایی برای نقش مدیر در بله دریافت کنی و اتصال بله را از همین صفحه مدیریت کن.",
+                "notification_center_url": reverse(self.notification_center_name),
+                "settings_return_url": reverse(self.settings_return_name),
+                "communication_role_label": self.communication_role_label,
+                "communication_owner_label": self.communication_owner_label,
+                "communication_description": self.communication_description,
             }
         )
+        for prefix, provider_key, channel in self.provider_specs:
+            context.update(
+                self._provider_context(
+                    request=request,
+                    prefix=prefix,
+                    provider_key=provider_key,
+                    channel=channel,
+                )
+            )
         return context
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, self._context(request))
 
     def post(self, request, *args, **kwargs):
-        set_stream_enabled(
-            user=request.user,
-            channel=NotificationChannel.BALE.value,
-            stream=STREAM_OPERATIONAL,
-            enabled=normalize_bool(request.POST.get("bale_operational")),
-            audience_role=self.audience_role,
-        )
-        set_stream_enabled(
-            user=request.user,
-            channel=NotificationChannel.BALE.value,
-            stream=STREAM_MARKETING,
-            enabled=normalize_bool(request.POST.get("bale_marketing")),
-            audience_role=self.audience_role,
-        )
-        messages.success(request, "تنظیم اعلان‌های مدیر ذخیره شد.")
-        return redirect("dashboards:manager_communication_settings")
+        for prefix, _provider_key, channel in self.provider_specs:
+            set_stream_enabled(
+                user=request.user,
+                channel=channel,
+                stream=STREAM_OPERATIONAL,
+                enabled=normalize_bool(request.POST.get(f"{prefix}_operational")),
+                audience_role=self.audience_role,
+            )
+            set_stream_enabled(
+                user=request.user,
+                channel=channel,
+                stream=STREAM_MARKETING,
+                enabled=normalize_bool(request.POST.get(f"{prefix}_marketing")),
+                audience_role=self.audience_role,
+            )
+
+        messages.success(request, self.success_message)
+        return redirect(self.redirect_name)
 
 
 class StylistCommunicationSettingsView(ManagerCommunicationSettingsView):
-    """Stylist-facing Bale preferences using the same safe messaging primitives."""
+    """Stylist-facing Bale/Telegram preferences using shared messaging primitives."""
 
     audience_role = NotificationAudienceRole.STYLIST
+    communication_role_label = "متخصص"
+    communication_owner_label = "متخصص"
+    communication_description = (
+        "مشخص کن چه پیام‌هایی را برای نقش متخصص در بله و تلگرام دریافت کنی و "
+        "اتصال هر پیام‌رسان را از همین صفحه مدیریت کن."
+    )
+    redirect_name = "dashboards:stylist_communication_settings"
+    settings_return_name = "dashboards:stylist_settings"
+    notification_center_name = "dashboards:stylist_notifications"
+    success_message = "تنظیم اعلان‌های متخصص ذخیره شد."
+    loomi_share_title = "لینک لومی من"
+    loomi_share_description = "این لینک را می‌توانید در بیو اینستاگرام یا برای مشتریان ارسال کنید تا درباره خدمات شما با لومی گفتگو کنند."
+
+    def _loomi_share_targets(self, request):
+        from apps.messaging.loomi import _resolve_target
+        stylist = _resolve_target("stylist", request.user.stylist.pk)
+        if stylist is None:
+            return []
+        return [("stylist", stylist, stylist.professional_display_name)]
 
     def dispatch(self, request, *args, **kwargs):
         if not hasattr(request.user, "stylist"):
             return redirect("dashboards:stylist_dashboard")
         return LoginRequiredMixin.dispatch(self, request, *args, **kwargs)
 
-    def _context(self, request):
-        provider = self._bale_provider()
-        connection = self._active_connection(request)
-        operational_enabled = stream_enabled(
-            user=request.user,
-            channel=NotificationChannel.BALE.value,
-            stream=STREAM_OPERATIONAL,
-            audience_role=self.audience_role,
-        )
-        marketing_enabled = stream_enabled(
-            user=request.user,
-            channel=NotificationChannel.BALE.value,
-            stream=STREAM_MARKETING,
-            audience_role=self.audience_role,
-        )
-        connect_url = reverse("messaging:bale_quick_connect")
-        connect_url = f"{connect_url}?{urlencode({'next': request.path})}"
+    def _dashboard_context(self, request):
         salon = get_active_salon_for_stylist(request.user, request=request)
         stylist = request.user.stylist
-        context = build_dashboard_context(
+        return build_dashboard_context(
             request.user,
             sidebar_active="my_settings",
             page_title="اعلان‌ها و ارتباطات",
@@ -179,48 +250,3 @@ class StylistCommunicationSettingsView(ManagerCommunicationSettingsView):
             salon_override=salon,
             stylist_override=stylist,
         )
-        context.update(
-            {
-                "page_meta": {
-                    "title": "اعلان‌ها و ارتباطات",
-                    "description": "اعلان‌های نقش متخصص و اتصال بله را از یک صفحه مدیریت کن.",
-                    "icon": "fa-regular fa-bell",
-                    "badges": [],
-                    "primary_action": {
-                        "label": "بازگشت به تنظیمات",
-                        "url": reverse("dashboards:stylist_settings"),
-                    },
-                },
-                "bale_ready": self._bale_ready(provider),
-                "bale_connection": connection,
-                "bale_connected": bool(connection),
-                "bale_connect_url": connect_url,
-                "operational_enabled": operational_enabled,
-                "marketing_enabled": marketing_enabled,
-                "messaging_privacy_url": reverse("messaging:privacy"),
-                "notification_center_url": reverse("dashboards:stylist_notifications"),
-                "settings_return_url": reverse("dashboards:stylist_settings"),
-                "communication_role_label": "متخصص",
-                "communication_owner_label": "متخصص",
-                "communication_description": "مشخص کن چه پیام‌هایی برای نقش متخصص در بله دریافت کنی و اتصال بله را از همین صفحه مدیریت کن.",
-            }
-        )
-        return context
-
-    def post(self, request, *args, **kwargs):
-        set_stream_enabled(
-            user=request.user,
-            channel=NotificationChannel.BALE.value,
-            stream=STREAM_OPERATIONAL,
-            enabled=normalize_bool(request.POST.get("bale_operational")),
-            audience_role=self.audience_role,
-        )
-        set_stream_enabled(
-            user=request.user,
-            channel=NotificationChannel.BALE.value,
-            stream=STREAM_MARKETING,
-            enabled=normalize_bool(request.POST.get("bale_marketing")),
-            audience_role=self.audience_role,
-        )
-        messages.success(request, "تنظیم اعلان‌های متخصص ذخیره شد.")
-        return redirect("dashboards:stylist_communication_settings")

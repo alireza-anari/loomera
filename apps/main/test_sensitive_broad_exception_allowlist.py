@@ -52,15 +52,15 @@ class SensitiveBroadExceptionAllowlistTests(SimpleTestCase):
 
         self.assertEqual(
             len(manifest),
-            91,
+            121,
         )
 
         self.assertEqual(
             Counter(item["review_status"] for item in manifest),
             Counter(
                 {
-                    "approved_boundary": 35,
-                    "tracked_legacy": 56,
+                    "approved_boundary": 46,
+                    "tracked_legacy": 75,
                 }
             ),
         )

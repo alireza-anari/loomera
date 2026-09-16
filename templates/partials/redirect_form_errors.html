@@ -1,0 +1,11 @@
+{% if lm_redirect_form_errors %}
+<div hidden data-lm-redirect-form-errors data-action-path="{{ lm_redirect_form_errors.action_path }}">
+  {% for error in lm_redirect_form_errors.errors %}
+    {% if error.field %}
+      <span data-error-for="{{ error.field }}" data-error-message="{{ error.message }}"></span>
+    {% else %}
+      <span data-form-error-message data-error-message="{{ error.message }}"></span>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endif %}

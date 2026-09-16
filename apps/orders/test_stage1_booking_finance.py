@@ -38,8 +38,14 @@ class Stage1BookingFinanceTests(Stage1DomainFactoryMixin, TestCase):
         self.manager = self.make_salon_manager()
         self.stylist = self.make_stylist()
         self.service = self.make_service(duration_minutes=30)
-        self.salon = self.make_salon(manager=self.manager, cancellation_window_hours=24, cancellation_refund_percent=80)
-        self.connect_service(salon=self.salon, stylist=self.stylist, service=self.service, price=120_000)
+        self.salon = self.make_salon(
+            manager=self.manager,
+            cancellation_window_hours=24,
+            cancellation_refund_percent=80,
+        )
+        self.connect_service(
+            salon=self.salon, stylist=self.stylist, service=self.service, price=120_000
+        )
         self.target_date = timezone.localdate() + timedelta(days=3)
         self.add_schedule(
             stylist=self.stylist,
@@ -50,7 +56,9 @@ class Stage1BookingFinanceTests(Stage1DomainFactoryMixin, TestCase):
             end=timezone.datetime.strptime("14:00", "%H:%M").time(),
         )
 
-    def test_resolve_booking_sequence_allows_next_service_at_previous_service_end_ignoring_buffer(self):
+    def test_resolve_booking_sequence_allows_next_service_at_previous_service_end_ignoring_buffer(
+        self,
+    ):
         self.service.duration_minutes = 60
         self.service.buffer_minutes = 15
         self.service.save(update_fields=["duration_minutes", "buffer_minutes"])
@@ -111,7 +119,9 @@ class Stage1BookingFinanceTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(resolved[1].start_time.strftime("%H:%M"), "11:00")
 
     def test_slot_is_available_rejects_overlap_with_existing_booking(self):
-        order = self.make_order(customer=self.customer, salon=self.salon, selected_payment_method="wallet")
+        order = self.make_order(
+            customer=self.customer, salon=self.salon, selected_payment_method="wallet"
+        )
         self.make_order_detail(
             order=order,
             service=self.service,
@@ -155,7 +165,12 @@ class Stage1BookingFinanceTests(Stage1DomainFactoryMixin, TestCase):
 
     def test_resolve_booking_sequence_rejects_non_sequential_same_day_times(self):
         second_service = self.make_service(name="Color", duration_minutes=30)
-        self.connect_service(salon=self.salon, stylist=self.stylist, service=second_service, price=140_000)
+        self.connect_service(
+            salon=self.salon,
+            stylist=self.stylist,
+            service=second_service,
+            price=140_000,
+        )
         self.add_schedule(
             stylist=self.stylist,
             salon=self.salon,
@@ -166,12 +181,26 @@ class Stage1BookingFinanceTests(Stage1DomainFactoryMixin, TestCase):
         )
 
         stylist_selections = [
-            {"serviceId": self.service.id, "stylistId": str(self.stylist.user_id), "requestedStylistId": str(self.stylist.user_id)},
-            {"serviceId": second_service.id, "stylistId": str(self.stylist.user_id), "requestedStylistId": str(self.stylist.user_id)},
+            {
+                "serviceId": self.service.id,
+                "stylistId": str(self.stylist.user_id),
+                "requestedStylistId": str(self.stylist.user_id),
+            },
+            {
+                "serviceId": second_service.id,
+                "stylistId": str(self.stylist.user_id),
+                "requestedStylistId": str(self.stylist.user_id),
+            },
         ]
         datetime_selections = {
-            f"{self.stylist.user_id}_{self.service.id}": {"date": self.target_date.isoformat(), "time": "11:00"},
-            f"{self.stylist.user_id}_{second_service.id}": {"date": self.target_date.isoformat(), "time": "10:30"},
+            f"{self.stylist.user_id}_{self.service.id}": {
+                "date": self.target_date.isoformat(),
+                "time": "11:00",
+            },
+            f"{self.stylist.user_id}_{second_service.id}": {
+                "date": self.target_date.isoformat(),
+                "time": "10:30",
+            },
         }
 
         with self.assertRaises(ValidationError):
@@ -242,6 +271,9 @@ class Stage1BookingFinanceTests(Stage1DomainFactoryMixin, TestCase):
         }
         session.save()
 
+        preview_response = self.client.get(reverse("orders:reservation_preview"))
+        self.assertEqual(preview_response.status_code, 200)
+
         response = self.client.post(
             reverse("orders:checkout"),
             {
@@ -257,7 +289,10 @@ class Stage1BookingFinanceTests(Stage1DomainFactoryMixin, TestCase):
 
         self.assertRedirects(
             response,
-            reverse("payments:appointment_result", kwargs={"payment_id": payment.id, "token": payment.callback_token}),
+            reverse(
+                "payments:appointment_result",
+                kwargs={"payment_id": payment.id, "token": payment.callback_token},
+            ),
             fetch_redirect_response=False,
         )
         self.assertEqual(order.status, "paid")
@@ -325,7 +360,13 @@ class Stage1BookingFinanceTests(Stage1DomainFactoryMixin, TestCase):
 
     def test_cancel_appointment_endpoint_denies_other_customer(self):
         other_customer = self.make_customer(password="StrongPass123!")
-        order = self.make_order(customer=self.customer, salon=self.salon, selected_payment_method="pay_in_salon", status="pending", is_paid=False)
+        order = self.make_order(
+            customer=self.customer,
+            salon=self.salon,
+            selected_payment_method="pay_in_salon",
+            status="pending",
+            is_paid=False,
+        )
         appointment = self.make_order_detail(
             order=order,
             service=self.service,
@@ -338,6 +379,8 @@ class Stage1BookingFinanceTests(Stage1DomainFactoryMixin, TestCase):
         )
         self.client.force_login(other_customer.user)
 
-        response = self.client.post(reverse("orders:cancel_appointment", kwargs={"pk": appointment.pk}))
+        response = self.client.post(
+            reverse("orders:cancel_appointment", kwargs={"pk": appointment.pk})
+        )
 
         self.assertEqual(response.status_code, 404)

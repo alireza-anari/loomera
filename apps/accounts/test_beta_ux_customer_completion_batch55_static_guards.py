@@ -39,11 +39,18 @@ class CustomerExperienceCompletionBatch55StaticGuards(unittest.TestCase):
         template = self.read("templates/accounts/customer_communication_settings.html")
         self.assertIn('name="customer_communication_settings"', urls)
         self.assertIn("NotificationAudienceRole.CUSTOMER", view)
+        self.assertIn("NotificationAudienceRole.STYLIST", view)
+        self.assertIn("NotificationAudienceRole.MANAGER", view)
+        self.assertIn("user_messaging_roles", view)
         self.assertIn("NotificationChannel.BALE.value", view)
+        self.assertIn("NotificationChannel.TELEGRAM.value", view)
         self.assertIn("پیامک", template)
         self.assertIn("ایمیل", template)
         self.assertIn("اتصال بله", template)
-        for future_channel in ["واتس‌اپ", "تلگرام", "روبیکا"]:
+        self.assertIn("اتصال تلگرام", template)
+        self.assertIn('name="telegram_operational"', template)
+        self.assertIn('name="telegram_marketing"', template)
+        for future_channel in ["واتس‌اپ", "روبیکا"]:
             self.assertNotIn(future_channel, template)
         self.assertEqual(template.count("<form"), template.count("</form>"))
 
@@ -120,7 +127,6 @@ class CustomerExperienceCompletionBatch55StaticGuards(unittest.TestCase):
         for relative in [
             "templates/components/salon_card.html",
             "templates/components/book_again_card.html",
-            "templates/pages/home.html",
             "templates/csf/partials/favorite_salons.html",
             "templates/search/search_results.html",
             "templates/orders/select_stylists.html",
@@ -128,6 +134,11 @@ class CustomerExperienceCompletionBatch55StaticGuards(unittest.TestCase):
             source = self.read(relative)
             self.assertNotIn("{% url 'salons:detail_salon'", source, relative)
             self.assertIn("get_absolute_url", source, relative)
+
+        # The storytelling home no longer renders salon links/cards directly.
+        home = self.read("templates/pages/home.html")
+        self.assertNotIn("{% url 'salons:detail_salon'", home)
+
         search_utils = self.read("apps/search/utils.py")
         self.assertIn('"detail_url": salon.get_absolute_url()', search_utils)
 

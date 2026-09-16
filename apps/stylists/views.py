@@ -227,21 +227,8 @@ class SubmitStaffContentView(LoginRequiredMixin, View):
         if membership is None:
             return HttpResponseForbidden("عضویت فعال در این مجموعه پیدا نشد.")
 
-        permissions = getattr(membership, "dashboard_permissions", None)
-        submission_type = request.POST.get("submission_type")
-        if (
-            submission_type == StaffContentSubmission.SubmissionType.ARTICLE
-            and permissions
-            and not permissions.can_submit_posts
-        ):
-            return HttpResponseForbidden("دسترسی ارسال مقاله برای شما فعال نیست.")
-        if (
-            submission_type == StaffContentSubmission.SubmissionType.STORY
-            and permissions
-            and not permissions.can_submit_stories
-        ):
-            return HttpResponseForbidden("دسترسی ارسال استوری برای شما فعال نیست.")
-
+        # Dashboard permission flags are pre-approval/delegation flags.
+        # A specialist without them may still submit content for manager review.
         form = StaffContentSubmissionForm(request.POST, request.FILES)
         if form.is_valid():
             submission = form.save(commit=False)

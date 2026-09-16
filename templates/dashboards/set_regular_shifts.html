@@ -4,41 +4,21 @@
 
 {% block content %}
   <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-workspace-root data-regular-shifts-page data-direct-edit-page>
-    <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="regular-shifts-title">
-      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top_right,rgba(115,92,190,0.16),transparent_42%),linear-gradient(180deg,rgba(245,240,255,0.95),rgba(255,255,255,0))]" aria-hidden="true"></div>
-
-      <div class="relative min-w-0">
-        <div class="min-w-0 rounded-[26px] border border-white/80 bg-white/90 p-4 shadow-lm-soft backdrop-blur sm:p-5 lg:p-6">
-          <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0">
-              <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-loomera-primary/10 bg-loomera-primarySoft px-3 py-1.5 text-[11px] font-black text-loomera-primaryText">
-                <i class="fa-solid fa-repeat text-[10px]" aria-hidden="true"></i>
-                <span class="truncate">شیفت‌های منظم</span>
-              </span>
-
-              <h1 id="regular-shifts-title" class="mt-4 text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-3xl lg:text-4xl">
-                تنظیم شیفت منظم برای {{ stylist.get_fullName }}
-              </h1>
-              <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-                اینجا مشخص می‌کنی {{ stylist.get_fullName }} در چه روزها و ساعت‌هایی به‌صورت تکرارشونده کار می‌کند؛ لومرا این الگو را در بازه تاریخی انتخاب‌شده روی تقویم کاری او اعمال می‌کند.
-              </p>
-            </div>
-
-            <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-loomera-primary text-white shadow-[0_18px_42px_rgba(115,92,190,0.22)] sm:inline-flex">
-              <i class="fa-solid fa-calendar-check text-lg" aria-hidden="true"></i>
-            </span>
-          </div>
-
-          <div class="mt-6 flex min-w-0 flex-wrap gap-3">
-            <a href="{{ back_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-              <i class="fa-solid fa-arrow-right text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">بازگشت به شیفت‌ها</span>
-            </a>
-          </div>
+    <section class="min-w-0 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" aria-labelledby="regular-shifts-title">
+      <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="min-w-0">
+          <h1 id="regular-shifts-title" class="text-xl font-black leading-8 tracking-tight text-loomera-textPrimary sm:text-2xl">
+            تنظیم شیفت منظم برای {{ stylist.get_fullName }}
+          </h1>
+          <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
+            روزها و ساعت‌های تکرارشونده را برای بازه موردنظر مشخص کن.
+          </p>
         </div>
 
-
-
+        <a href="{{ back_url }}" class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 self-start rounded-xl border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-bold text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30 sm:self-auto">
+          <i class="fa-solid fa-arrow-right text-[10px] text-loomera-primaryText" aria-hidden="true"></i>
+          <span>بازگشت به شیفت‌ها</span>
+        </a>
       </div>
     </section>
 
@@ -220,10 +200,10 @@
       </template>
 
       <div class="hidden" aria-hidden="true"><span data-regular-readiness-badge></span><span data-regular-selected-ranges-badge></span><span data-regular-review-start></span><span data-regular-review-end></span><span data-regular-review-days></span><span data-regular-review-ranges></span></div>
-      <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-30 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur" data-direct-edit-savebar>
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div class="min-w-0"><p class="text-xs font-black text-loomera-textPrimary" data-direct-edit-status>تغییری ذخیره نشده</p><p class="mt-1 text-[11px] text-loomera-textMuted">تاریخ و برنامه روزها را تغییر بده و مستقیم ذخیره کن.</p></div>
-          <button type="submit" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white shadow-[0_14px_32px_rgba(115,92,190,0.20)]"><i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i><span>ثبت شیفت‌های منظم</span></button>
+      <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-30 rounded-[20px] border border-loomera-borderSoft bg-white/95 p-2.5 shadow-[0_14px_34px_rgba(46,42,60,0.14)] backdrop-blur" data-direct-edit-savebar>
+        <div class="flex items-center justify-between gap-3">
+          <p class="min-w-0 text-[11px] font-black text-loomera-textPrimary" data-direct-edit-status>تغییری ذخیره نشده</p>
+          <button type="submit" class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white shadow-lm-soft"><i class="fa-solid fa-floppy-disk text-[10px]" aria-hidden="true"></i><span>ثبت شیفت‌های منظم</span></button>
         </div>
       </div>
     </form>

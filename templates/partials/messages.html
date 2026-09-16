@@ -1,11 +1,11 @@
 {% load ui_message_extras %}
+<div data-lm-feedback-stack class="fixed top-4 left-1/2 z-[100] w-full max-w-md -translate-x-1/2 space-y-3 px-4" aria-live="polite" aria-atomic="false">
 {% if messages %}
-  <div class="fixed top-4 left-1/2 z-[100] w-full max-w-md -translate-x-1/2 space-y-3 px-4" aria-live="polite" aria-atomic="true">
     {% for message in messages %}
       <div
         data-flash-message
         data-dismiss-after="5000"
-        role="alert"
+        role="{% if 'error' in message.tags or 'danger' in message.tags or 'warning' in message.tags %}alert{% else %}status{% endif %}"
         class="lm-flash transition duration-300 ease-out {% if 'error' in message.tags or 'danger' in message.tags %}lm-flash--error{% elif 'success' in message.tags %}lm-flash--success{% elif 'warning' in message.tags %}lm-flash--warning{% elif 'info' in message.tags %}lm-flash--info{% else %}lm-flash--neutral{% endif %}"
       >
         <div class="flex items-start justify-between gap-3">
@@ -25,7 +25,7 @@
               <p class="text-xs font-black leading-5">
                 {% if 'error' in message.tags or 'danger' in message.tags %}انجام نشد{% elif 'success' in message.tags %}انجام شد{% elif 'warning' in message.tags %}نیاز به بررسی{% else %}اطلاع{% endif %}
               </p>
-              <p class="mt-0.5 text-sm font-bold leading-6">{{ message|clean_ui_message }}</p>
+              <p class="mt-0.5 text-sm font-bold leading-6">{{ message|clean_ui_message:message.tags }}</p>
             </div>
           </div>
 
@@ -40,5 +40,5 @@
         </div>
       </div>
     {% endfor %}
-  </div>
 {% endif %}
+</div>

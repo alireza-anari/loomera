@@ -8,6 +8,6 @@ python manage.py infrastructure_preflight_check
 python manage.py pre_beta_check
 
 echo "Running migrations..."
-PYTHONUNBUFFERED=1 python manage.py migrate --noinput
+python manage.py migrate --noinput
 
 echo "Loomera pre-start finished."

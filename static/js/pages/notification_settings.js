@@ -51,31 +51,10 @@ function setToggleVisualState(toggle, isChecked) {
 }
 
 function setStatus(message, type = "success") {
-  const statusEl = document.getElementById("notificationStatus");
-  if (!statusEl) return;
-
-  const isError = type === "error";
-  statusEl.textContent = message;
-  statusEl.classList.remove(
-    "hidden",
-    "border-loomera-success/30",
-    "bg-loomera-successSoft",
-    "text-loomera-textPrimary",
-    "border-red-200",
-    "bg-red-50",
-    "text-red-700"
-  );
-
-  statusEl.classList.add(
-    ...(isError
-      ? ["border-red-200", "bg-red-50", "text-red-700"]
-      : ["border-loomera-success/30", "bg-loomera-successSoft", "text-loomera-textPrimary"])
-  );
-
-  window.clearTimeout(setStatus._timer);
-  setStatus._timer = window.setTimeout(() => {
-    statusEl.classList.add("hidden");
-  }, 2600);
+  const feedback = window.LoomeraFeedback;
+  if (!feedback) return;
+  if (type === "error") feedback.error(message);
+  else feedback.success(message);
 }
 
 async function saveNotificationSetting(fieldName, isChecked) {

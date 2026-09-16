@@ -152,7 +152,10 @@ def notification_preference_enabled(
     if channel in {NotificationChannel.DASHBOARD, NotificationChannel.SYSTEM}:
         return True
 
-    if priority == NotificationPriority.CRITICAL:
+    if (
+        priority == NotificationPriority.CRITICAL
+        and channel not in {NotificationChannel.BALE, NotificationChannel.TELEGRAM}
+    ):
         return True
 
     qs = NotificationPreference.objects.filter(user=user, channel=channel)
@@ -216,12 +219,23 @@ def _normalize_recipients(
     return specs
 
 
+def _append_enabled_beta_messaging_channels(channels: list[str]) -> None:
+    if not bool(getattr(settings, "MESSAGING_ENABLED", False)):
+        return
+    for channel, setting_name in (
+        (NotificationChannel.BALE, "BALE_BOT_ENABLED"),
+        (NotificationChannel.TELEGRAM, "TELEGRAM_BOT_ENABLED"),
+    ):
+        if bool(getattr(settings, setting_name, False)) and channel not in channels:
+            channels.append(channel)
+
+
 def _should_deliver_bale_immediately(
     *,
     notification,
     channel: str,
 ) -> bool:
-    if channel != NotificationChannel.BALE:
+    if channel not in {NotificationChannel.BALE, NotificationChannel.TELEGRAM}:
         return False
 
     if not getattr(
@@ -233,13 +247,15 @@ def _should_deliver_bale_immediately(
 
     metadata = dict(notification.metadata or {})
     has_actions = bool(metadata.get("messaging_actions"))
+    stylist_simple = bool(metadata.get("messaging_stylist_simple"))
+    customer_simple = bool(metadata.get("messaging_customer_simple"))
 
     is_important = notification.priority in {
         NotificationPriority.HIGH,
         NotificationPriority.CRITICAL,
     }
 
-    return has_actions or is_important
+    return has_actions or stylist_simple or customer_simple or is_important
 
 
 def _deliver_bale_delivery_safely(
@@ -253,7 +269,7 @@ def _deliver_bale_delivery_safely(
         deliver_queued_delivery_by_id(delivery_id)
     except Exception:
         logger.exception(
-            "Immediate Bale notification delivery failed " "| delivery=%s",
+            "Immediate messaging notification delivery failed " "| delivery=%s",
             delivery_id,
         )
 
@@ -379,8 +395,7 @@ def create_notification(
                 current_metadata["messaging_actions"] = manager_actions
                 notification.metadata = current_metadata
                 notification.save(update_fields=["metadata"])
-            if NotificationChannel.BALE not in channels_for_recipient:
-                channels_for_recipient.append(NotificationChannel.BALE)
+            _append_enabled_beta_messaging_channels(channels_for_recipient)
 
         if _customer_simple_bale_delivery_enabled(
             role=spec.audience_role,
@@ -393,8 +408,20 @@ def create_notification(
                 current_metadata["messaging_customer_simple"] = True
                 notification.metadata = current_metadata
                 notification.save(update_fields=["metadata"])
-            if NotificationChannel.BALE not in channels_for_recipient:
-                channels_for_recipient.append(NotificationChannel.BALE)
+            _append_enabled_beta_messaging_channels(channels_for_recipient)
+
+        if _stylist_simple_bale_delivery_enabled(
+            role=spec.audience_role,
+            notification=notification,
+            related_object=related_object,
+            event_type=event_type,
+        ):
+            current_metadata = dict(notification.metadata or {})
+            if not current_metadata.get("messaging_stylist_simple"):
+                current_metadata["messaging_stylist_simple"] = True
+                notification.metadata = current_metadata
+                notification.save(update_fields=["metadata"])
+            _append_enabled_beta_messaging_channels(channels_for_recipient)
 
         for channel in tuple(channels_for_recipient):
             if not notification_preference_enabled(
@@ -526,14 +553,73 @@ def _customer_simple_bale_delivery_enabled(
         return False
 
 
+def _stylist_simple_bale_delivery_enabled(
+    *, role: str, notification, related_object, event_type: str
+) -> bool:
+    """Keep day-to-day specialist notices on Bale even without an action.
+
+    A specialist must see new bookings and operational updates even when the
+    current state has no button. Staff workflow updates (manager invitations,
+    leave reviews and schedule reviews) are also useful in Bale because they
+    affect the specialist's working day.
+    """
+
+    if str(role or "") != NotificationAudienceRole.STYLIST:
+        return False
+
+    metadata = dict(getattr(notification, "metadata", None) or {})
+    if metadata.get("messaging_disable_bale"):
+        return False
+
+    category = str(getattr(notification, "category", "") or "")
+    event_text = str(event_type or "").lower()
+
+    try:
+        from apps.orders.models import Order, OrderDetail
+        from apps.salons.models import SalonMembership
+        from apps.stylists.models import StaffLeaveRequest, StaffScheduleRequest
+
+        if isinstance(related_object, (Order, OrderDetail)):
+            if category in {NotificationCategory.BOOKING, NotificationCategory.PAYMENT}:
+                return True
+            return any(
+                keyword in event_text
+                for keyword in (
+                    "appointment",
+                    "booking",
+                    "reservation",
+                    "service_",
+                    "payment",
+                    "no_show",
+                    "client_late",
+                    "review_",
+                    "cancel",
+                )
+            )
+
+        if isinstance(
+            related_object,
+            (SalonMembership, StaffLeaveRequest, StaffScheduleRequest),
+        ):
+            return category == NotificationCategory.STAFF or any(
+                keyword in event_text
+                for keyword in ("staff_", "invite", "membership", "collaboration")
+            )
+    except Exception:
+        return False
+
+    return False
+
+
 def _stylist_order_detail_messaging_actions(
     *, role: str, related_object, event_type: str
 ) -> list[dict[str, Any]]:
-    """Build safe bot action specs for stylist appointment notifications.
+    """Build Bale actions that mirror the specialist fast-flow on the website.
 
-    The actual execution still happens in apps.messaging action handlers, where
-    token ownership, stylist ownership, active salon membership and permissions
-    are checked again at click time.
+    New bookings are finalized automatically; the specialist no longer confirms
+    them manually. Before service starts, the normal path is ``start_service``
+    and the exception path is ``cannot perform / cancel``. Legacy pending rows
+    are still accepted because the start action normalizes them automatically.
     """
 
     if str(role or "") != NotificationAudienceRole.STYLIST:
@@ -542,10 +628,12 @@ def _stylist_order_detail_messaging_actions(
     try:
         from apps.orders.models import OrderDetail
         from apps.messaging.stylist_actions import (
-            ACTION_COMPLETE_SERVICE,
-            ACTION_CONFIRM_APPOINTMENT,
-            ACTION_REJECT_APPOINTMENT,
+            ACTION_CONFIRM_CASH_PAYMENT_PREVIEW,
+            ACTION_COMPLETE_SERVICE_PREVIEW,
+            ACTION_NO_SHOW_PREVIEW,
+            ACTION_REJECT_APPOINTMENT_PREVIEW,
             ACTION_START_SERVICE,
+            _no_show_is_available,
         )
     except Exception:
         return []
@@ -555,7 +643,35 @@ def _stylist_order_detail_messaging_actions(
 
     detail = related_object
     try:
-        if getattr(getattr(detail, "order", None), "status", "") == "cancelled":
+        order_status = getattr(getattr(detail, "order", None), "status", "")
+        order = getattr(detail, "order", None)
+        if (
+            order_status == "completed"
+            and getattr(order, "selected_payment_method", "") == "pay_in_salon"
+            and not bool(getattr(order, "is_paid", False))
+        ):
+            common = {
+                "audience_role": NotificationAudienceRole.STYLIST,
+                "salon_id": detail.salon_id,
+                "metadata": {
+                    "order_detail_id": detail.pk,
+                    "source": "appointment_notification",
+                },
+            }
+            return [
+                {
+                    "type": "action",
+                    "key": ACTION_CONFIRM_CASH_PAYMENT_PREVIEW,
+                    "label": "دریافت وجه شد",
+                    **common,
+                }
+            ]
+
+        if order_status in {"cancelled", "completed", "no_show", "disputed"}:
+            return []
+        if detail.confirmation_status == OrderDetail.ConfirmationStatus.REJECTED:
+            return []
+        if detail.service_completed_at or detail.no_show_confirmed_at:
             return []
 
         common = {
@@ -567,48 +683,59 @@ def _stylist_order_detail_messaging_actions(
             },
         }
 
-        if detail.confirmation_status == OrderDetail.ConfirmationStatus.PENDING:
+        if detail.no_show_pending_at and not detail.no_show_confirmed_at:
             return [
                 {
                     "type": "action",
-                    "key": ACTION_CONFIRM_APPOINTMENT,
-                    "label": "تایید",
+                    "key": ACTION_NO_SHOW_PREVIEW,
+                    "label": "تکمیل وضعیت عدم حضور",
                     **common,
-                },
-                {
-                    "type": "action",
-                    "key": ACTION_REJECT_APPOINTMENT,
-                    "label": "رد",
-                    **common,
-                },
+                }
             ]
 
-        if detail.confirmation_status != OrderDetail.ConfirmationStatus.CONFIRMED:
-            return []
-
-        if detail.customer_arrived_at and not detail.service_started_at:
+        if detail.service_started_at:
             return [
+                {
+                    "type": "action",
+                    "key": ACTION_COMPLETE_SERVICE_PREVIEW,
+                    "label": "پایان خدمت",
+                    **common,
+                }
+            ]
+
+        actions: list[dict[str, Any]] = []
+        if not detail.date or detail.date <= timezone.localdate():
+            actions.append(
                 {
                     "type": "action",
                     "key": ACTION_START_SERVICE,
                     "label": "شروع خدمت",
                     **common,
-                },
-            ]
+                }
+            )
 
-        if detail.service_started_at and not detail.service_completed_at:
-            return [
+        if _no_show_is_available(detail):
+            actions.append(
                 {
                     "type": "action",
-                    "key": ACTION_COMPLETE_SERVICE,
-                    "label": "اتمام خدمت",
+                    "key": ACTION_NO_SHOW_PREVIEW,
+                    "label": "مشتری نیامد",
                     **common,
-                },
-            ]
+                }
+            )
+        elif not detail.customer_arrived_at:
+            actions.append(
+                {
+                    "type": "action",
+                    "key": ACTION_REJECT_APPOINTMENT_PREVIEW,
+                    "label": "امکان انجام ندارم",
+                    **common,
+                }
+            )
+
+        return actions
     except Exception:
         return []
-
-    return []
 
 
 def _manager_object_messaging_actions(
@@ -622,14 +749,14 @@ def _manager_object_messaging_actions(
     try:
         from apps.messaging.manager_actions import (
             ACTION_MANAGER_AVAILABLE_SLOTS,
-            ACTION_MANAGER_LEAVE_APPROVE,
-            ACTION_MANAGER_LEAVE_REJECT,
-            ACTION_MANAGER_MEMBERSHIP_ACCEPT,
+            ACTION_MANAGER_LEAVE_APPROVE_PREVIEW,
+            ACTION_MANAGER_LEAVE_REJECT_PREVIEW,
+            ACTION_MANAGER_MEMBERSHIP_ACCEPT_PREVIEW,
             ACTION_MANAGER_MEMBERSHIP_PROFILE,
-            ACTION_MANAGER_MEMBERSHIP_REJECT,
+            ACTION_MANAGER_MEMBERSHIP_REJECT_PREVIEW,
             ACTION_MANAGER_PENDING_REQUESTS,
-            ACTION_MANAGER_SCHEDULE_APPROVE,
-            ACTION_MANAGER_SCHEDULE_REJECT,
+            ACTION_MANAGER_SCHEDULE_APPROVE_PREVIEW,
+            ACTION_MANAGER_SCHEDULE_REJECT_PREVIEW,
             ACTION_MANAGER_SHIFTS_OVERVIEW,
             ACTION_MANAGER_TODAY_CALENDAR,
             ACTION_MANAGER_TODAY_SUMMARY,
@@ -659,22 +786,22 @@ def _manager_object_messaging_actions(
         return [
             {
                 "type": "action",
-                "key": ACTION_MANAGER_MEMBERSHIP_ACCEPT,
-                "label": "تایید",
+                "key": ACTION_MANAGER_MEMBERSHIP_ACCEPT_PREVIEW,
+                "label": "پذیرش همکاری",
                 **common,
                 "metadata": metadata,
             },
             {
                 "type": "action",
-                "key": ACTION_MANAGER_MEMBERSHIP_REJECT,
-                "label": "رد",
+                "key": ACTION_MANAGER_MEMBERSHIP_REJECT_PREVIEW,
+                "label": "رد درخواست",
                 **common,
                 "metadata": metadata,
             },
             {
                 "type": "view",
                 "key": ACTION_MANAGER_MEMBERSHIP_PROFILE,
-                "label": "مشاهده پروفایل",
+                "label": "پروفایل متخصص",
                 **common,
                 "metadata": metadata,
             },
@@ -694,14 +821,14 @@ def _manager_object_messaging_actions(
         return [
             {
                 "type": "action",
-                "key": ACTION_MANAGER_LEAVE_APPROVE,
-                "label": "تایید مرخصی",
+                "key": ACTION_MANAGER_LEAVE_APPROVE_PREVIEW,
+                "label": "تأیید مرخصی",
                 **common,
                 "metadata": metadata,
             },
             {
                 "type": "action",
-                "key": ACTION_MANAGER_LEAVE_REJECT,
+                "key": ACTION_MANAGER_LEAVE_REJECT_PREVIEW,
                 "label": "رد مرخصی",
                 **common,
                 "metadata": metadata,
@@ -722,15 +849,15 @@ def _manager_object_messaging_actions(
         return [
             {
                 "type": "action",
-                "key": ACTION_MANAGER_SCHEDULE_APPROVE,
-                "label": "تایید شیفت",
+                "key": ACTION_MANAGER_SCHEDULE_APPROVE_PREVIEW,
+                "label": "تأیید برنامه",
                 **common,
                 "metadata": metadata,
             },
             {
                 "type": "action",
-                "key": ACTION_MANAGER_SCHEDULE_REJECT,
-                "label": "رد شیفت",
+                "key": ACTION_MANAGER_SCHEDULE_REJECT_PREVIEW,
+                "label": "رد برنامه",
                 **common,
                 "metadata": metadata,
             },
@@ -922,8 +1049,17 @@ def sync_legacy_appointment_notification(appointment_notification):
     channels = [channel]
     if messaging_actions:
         metadata["messaging_actions"] = messaging_actions
-        if NotificationChannel.BALE not in channels:
-            channels.append(NotificationChannel.BALE)
+        _append_enabled_beta_messaging_channels(channels)
+
+    if not metadata.get("messaging_disable_bale") and str(role or "") == NotificationAudienceRole.STYLIST:
+        try:
+            from apps.orders.models import Order, OrderDetail
+
+            if isinstance(related_object, (Order, OrderDetail)):
+                metadata["messaging_stylist_simple"] = True
+                _append_enabled_beta_messaging_channels(channels)
+        except Exception:
+            pass
 
     notification = create_notification(
         event_type=appointment_notification.event_type,

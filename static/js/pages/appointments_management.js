@@ -11,9 +11,34 @@ export default function initAppointmentsManagement() {
 
   const MOBILE_ACCORDION_BODY_CLASS = "mt-4";
 
+  const normalizeJalaliDatePickerLayer = () => {
+    document
+      .querySelectorAll(".jdp-popover, .jdp-container, .jalali-datepicker, [data-jdp-container]")
+      .forEach((picker) => {
+        picker.style.zIndex = "99999";
+      });
+  };
+
   const initJalaliDatePicker = () => {
-    const dateInputs = document.querySelectorAll("[data-jalali-date]");
+    const dateInputs = Array.from(document.querySelectorAll("[data-jalali-date]"));
     if (!dateInputs.length || typeof jalaliDatepicker === "undefined") return;
+
+    const mobilePickerOnly = isMobileViewport();
+
+    dateInputs.forEach((input) => {
+      input.setAttribute("autocomplete", "off");
+      input.setAttribute("aria-haspopup", "dialog");
+      input.readOnly = mobilePickerOnly;
+      input.setAttribute("inputmode", mobilePickerOnly ? "none" : "numeric");
+
+      if (input.dataset.appointmentsDatepickerBound === "true") return;
+      input.dataset.appointmentsDatepickerBound = "true";
+      ["focus", "click"].forEach((eventName) => {
+        input.addEventListener(eventName, () => {
+          window.setTimeout(normalizeJalaliDatePickerLayer, 0);
+        });
+      });
+    });
 
     try {
       jalaliDatepicker.startWatch({
@@ -22,6 +47,7 @@ export default function initAppointmentsManagement() {
         minDate: "attr",
         maxDate: "attr",
       });
+      window.setTimeout(normalizeJalaliDatePickerLayer, 0);
     } catch (error) {
       console.warn("[appointments] jalaliDatepicker init error", error);
     }
@@ -40,8 +66,10 @@ export default function initAppointmentsManagement() {
       modal.classList.remove("hidden");
       modal.setAttribute("aria-hidden", "false");
       document.body.classList.add("overflow-hidden");
+      initJalaliDatePicker();
       window.setTimeout(() => {
         modal.querySelector("input, select, button")?.focus?.();
+        normalizeJalaliDatePickerLayer();
       }, 40);
     };
 

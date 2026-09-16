@@ -9,12 +9,22 @@ class WalletChargeForm(forms.Form):
     amount = forms.DecimalField(
         label="مبلغ شارژ (تومان)",
         min_value=10000,
+        max_value=50000000,
         max_digits=10,
         decimal_places=0,
+        error_messages={
+            "required": "لطفاً مبلغ مورد نظر را وارد کنید.",
+            "invalid": "مبلغ واردشده معتبر نیست.",
+            "min_value": "حداقل مبلغ شارژ ۱۰٬۰۰۰ تومان است.",
+            "max_value": "حداکثر مبلغ شارژ ۵۰٬۰۰۰٬۰۰۰ تومان است.",
+            "max_digits": "مبلغ واردشده معتبر نیست.",
+        },
         widget=forms.NumberInput(
             attrs={
-                "class": BASE_INPUT,
-                "placeholder": "مبلغ را وارد کنید",
+                "id": "amount",
+                "class": "w-full rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-base font-black outline-none focus:border-loomera-primary",
+                "placeholder": "مثلاً ۱۰۰۰۰۰",
+                "inputmode": "numeric",
             }
         ),
     )

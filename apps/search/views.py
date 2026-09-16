@@ -91,7 +91,7 @@ def _public_search_json_error(exc):
         return JsonResponse({"error": "payload_too_large"}, status=413)
 
     return JsonResponse(
-        {"error": "داده‌های ارسالی به صورت JSON معتبر نیست."},
+        {"error": "ساختار داده‌های ارسالی معتبر نیست."},
         status=400,
         json_dumps_params={"ensure_ascii": False},
     )
@@ -334,7 +334,7 @@ def loomera_search(request):
     except SearchJsonBodyTooLarge:
         return JsonResponse({"error": "payload_too_large"}, status=413)
     except SearchJsonBodyInvalid:
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
+        return JsonResponse({"error": "invalid_json"}, status=400)
 
     params = {
         "q": data.get("query") or data.get("q") or "",
@@ -434,7 +434,7 @@ class FilterCustomersView(LoginRequiredMixin, View):
         """Handle POST requests for filter submission"""
         salon = _get_manager_owned_salon_from_request(request)
         if salon is None:
-            return HttpResponseForbidden("access_denied")
+            return HttpResponseForbidden("دسترسی به اطلاعات این مجموعه مجاز نیست.")
 
         sort_by = request.POST.get("sort_by", "newest")
         client_group = request.POST.get("client_group", "all")

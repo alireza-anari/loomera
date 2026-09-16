@@ -92,7 +92,7 @@ class StylistWithdrawalRequestForm(forms.ModelForm):
         iban = (self.cleaned_data.get("iban") or "").strip().replace(" ", "")
 
         if not iban.startswith("IR"):
-            raise ValidationError("شماره شبا باید با IR شروع شود.")
+            raise ValidationError("شماره شبا باید با «آی‌آر» شروع شود.")
 
         if len(iban) != 26:
             raise ValidationError("شماره شبا باید ۲۶ کاراکتر باشد.")

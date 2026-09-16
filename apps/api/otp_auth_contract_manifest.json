@@ -79,14 +79,14 @@
       "source": "apps/api/v1/auth_views.py",
       "qualname": "ApiOtpRequestAPIView.post",
       "kind": "method",
-      "executable_sha256": "c32bc2ced15e425e557c8bee6a3310bcf60945b72251eb8ed009cb291e56638b",
+      "executable_sha256": "4bd137c0e9ba5e959f23143283ae8fe9e2a80f17bbaf855d2d20f90296f7d7e0",
       "documentation_sha256": "ea3b2cbb13f7604404d0a6cf76a8cd0fe4d1d420e74cabacc82ed3b4a7816ccf"
     },
     {
       "source": "apps/api/v1/auth_views.py",
       "qualname": "ApiOtpVerifyAPIView.post",
       "kind": "method",
-      "executable_sha256": "a2b26e05732d0fe367a86d927236ea4c971a5b353283c7c3cf459fa35c63e79f",
+      "executable_sha256": "cf09435ca97518c0375659d31c793e8f295844692182f0bdd7ba9d37949f90af",
       "documentation_sha256": "46e019e532c36dd29f6c613f5df56463303655cf5d92993e2357b4b022960d64"
     }
   ]

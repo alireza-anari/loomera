@@ -159,10 +159,7 @@ def _settlement_refund_amount_for_order(order: Order) -> int:
 
 
 def get_pay_in_salon_cash_payment(order: Order) -> Payment | None:
-    """
-    آخرین رکورد پرداخت نقدی/حضوری مربوط به سفارش را برمی‌گرداند.
-    این رکورد تا قبل از تایید دوطرفه در state=pending می‌ماند.
-    """
+    """Return the latest manual pay-in-salon receipt record."""
     return (
         order.payment_order.filter(
             purpose=Payment.Purpose.APPOINTMENT,
@@ -175,18 +172,22 @@ def get_pay_in_salon_cash_payment(order: Order) -> Payment | None:
 
 
 def get_pay_in_salon_cash_confirmation_state(order: Order) -> dict:
+    """Compatibility payload; customer confirmation is no longer required."""
     payment = get_pay_in_salon_cash_payment(order)
     meta = payment.meta if payment and isinstance(payment.meta, dict) else {}
-    customer_confirmed = bool(meta.get("customer_confirmed_at"))
-    stylist_confirmed = bool(meta.get("stylist_confirmed_at"))
-    finalized = bool(payment and payment.state == Payment.State.SUCCESS and payment.is_finally)
+    finalized = bool(
+        payment and payment.state == Payment.State.SUCCESS and payment.is_finally
+    )
+    stylist_confirmed = bool(
+        meta.get("received_at") or meta.get("stylist_confirmed_at") or finalized
+    )
     return {
         "payment": payment,
-        "customer_confirmed": customer_confirmed,
+        "customer_confirmed": False,
         "stylist_confirmed": stylist_confirmed,
         "finalized": finalized,
-        "awaiting_customer": bool(payment and stylist_confirmed and not customer_confirmed and not finalized),
-        "awaiting_stylist": bool(payment and customer_confirmed and not stylist_confirmed and not finalized),
+        "awaiting_customer": False,
+        "awaiting_stylist": False,
     }
 
 
@@ -199,7 +200,7 @@ def _get_or_create_pay_in_salon_cash_payment(order: Order) -> Payment:
         order=order,
         customer=order.customer,
         amount=order.total_amount,
-        description=f"تایید دوطرفه پرداخت نقدی در سالن - سفارش {order.order_number}",
+        description=f"ثبت دریافت پرداخت حضوری در مجموعه - سفارش {order.order_number}",
         provider=Payment.Provider.MANUAL,
         purpose=Payment.Purpose.APPOINTMENT,
         state=Payment.State.PENDING,
@@ -213,12 +214,16 @@ def _get_or_create_pay_in_salon_cash_payment(order: Order) -> Payment:
 @transaction.atomic
 def confirm_pay_in_salon_cash_payment(order: Order, *, actor=None, role: str) -> dict:
     """
-    پرداخت نقدی بعد از پایان خدمت فقط وقتی نهایی می‌شود که هم مشتری و هم متخصص
-    آن را تایید کرده باشند. برای جلوگیری از migration جدید، وضعیت تاییدها در meta
-    رکورد Payment نگهداری می‌شود.
+    Finalize an in-salon cash receipt with one collection-side confirmation.
+
+    Service completion and money collection remain separate.  Customer-side
+    confirmation is intentionally rejected, while the existing Payment -> Order
+    -> Settlement -> Review pipeline remains intact.
     """
-    if role not in {"customer", "stylist"}:
-        raise ValidationError("نقش تاییدکننده پرداخت معتبر نیست.")
+    if role != "stylist":
+        raise ValidationError(
+            "ثبت دریافت وجه حضوری فقط توسط متخصص یا مجموعه امکان‌پذیر است."
+        )
 
     locked_order = (
         _lock_self(Order.objects)
@@ -227,82 +232,88 @@ def confirm_pay_in_salon_cash_payment(order: Order, *, actor=None, role: str) ->
     )
 
     if locked_order.status == "cancelled":
-        raise ValidationError("این رزرو لغو شده و امکان تایید پرداخت ندارد.")
+        raise ValidationError("این رزرو لغو شده و امکان ثبت دریافت وجه ندارد.")
 
     if not (locked_order.service_completed_at or locked_order.status == "completed"):
-        raise ValidationError("تایید پرداخت حضوری فقط بعد از پایان خدمت امکان‌پذیر است.")
+        raise ValidationError("ثبت دریافت وجه فقط بعد از پایان خدمت امکان‌پذیر است.")
+
+    selected_method = (locked_order.selected_payment_method or "").strip()
+    if selected_method and selected_method != "pay_in_salon":
+        raise ValidationError(
+            "ثبت دریافت وجه حضوری فقط برای رزروهای پرداخت در مجموعه امکان‌پذیر است."
+        )
 
     if locked_order.is_paid:
-        return {"order": locked_order, "payment": get_pay_in_salon_cash_payment(locked_order), "already_paid": True, "finalized": True}
+        return {
+            "order": locked_order,
+            "payment": get_pay_in_salon_cash_payment(locked_order),
+            "already_paid": True,
+            "finalized": True,
+        }
 
     payment = _get_or_create_pay_in_salon_cash_payment(locked_order)
     payment = _lock_self(Payment.objects).get(pk=payment.pk)
     meta = payment.meta if isinstance(payment.meta, dict) else {}
-    now_iso = timezone.now().isoformat()
+    now = timezone.now()
+    now_iso = now.isoformat()
     actor_id = getattr(actor, "pk", None)
 
-    if role == "customer":
-        meta.setdefault("customer_confirmed_at", now_iso)
-        if actor_id:
-            meta.setdefault("customer_confirmed_by", actor_id)
-    else:
-        meta.setdefault("stylist_confirmed_at", now_iso)
-        if actor_id:
-            meta.setdefault("stylist_confirmed_by", actor_id)
-
+    # Keep legacy stylist metadata for audit/backward compatibility and add
+    # explicit receipt fields for the new UX.
+    meta.setdefault("stylist_confirmed_at", now_iso)
+    meta.setdefault("received_at", now_iso)
+    if actor_id:
+        meta.setdefault("stylist_confirmed_by", actor_id)
+        meta.setdefault("received_by", actor_id)
     payment.meta = {**meta, "source": "pay_in_salon_cash"}
-    payment.state = Payment.State.PENDING
-    payment.is_finally = False
-    payment.save(update_fields=["meta", "state", "is_finally", "update_date"])
 
-    customer_confirmed = bool(payment.meta.get("customer_confirmed_at"))
-    stylist_confirmed = bool(payment.meta.get("stylist_confirmed_at"))
+    payment.mark_success(
+        ref_id=f"MANUAL-{payment.id}",
+        track_id=f"manual-{payment.id}",
+        status_code=100,
+        meta={
+            "source": "pay_in_salon_cash",
+            "confirmed_at": now_iso,
+            "received_at": payment.meta.get("received_at") or now_iso,
+            **({"received_by": actor_id} if actor_id else {}),
+        },
+    )
 
-    finalized = False
-    if customer_confirmed and stylist_confirmed:
-        payment.mark_success(
-            ref_id=f"MANUAL-{payment.id}",
-            track_id=f"manual-{payment.id}",
-            status_code=100,
-            meta={"source": "pay_in_salon_cash", "confirmed_at": timezone.now().isoformat()},
-        )
-        locked_order.is_paid = True
-        locked_order.is_finally = True
-        locked_order.selected_payment_method = "pay_in_salon"
-        locked_order.status = "completed"
-        locked_order.checkout_locked_at = timezone.now()
-        locked_order.save(update_fields=["is_paid", "is_finally", "selected_payment_method", "status", "checkout_locked_at", "update_date"])
-        sync_settlement_for_order(locked_order, payment=payment)
+    locked_order.is_paid = True
+    locked_order.is_finally = True
+    locked_order.selected_payment_method = "pay_in_salon"
+    locked_order.status = "completed"
+    locked_order.checkout_locked_at = now
+    locked_order.save(
+        update_fields=[
+            "is_paid",
+            "is_finally",
+            "selected_payment_method",
+            "status",
+            "checkout_locked_at",
+            "update_date",
+        ]
+    )
 
-        from apps.orders.lifecycle import mark_review_requested, notify_operational_milestone
+    sync_settlement_for_order(locked_order, payment=payment)
 
-        notify_operational_milestone(
-            locked_order,
-            event_type="payment_completed",
-            title="پرداخت نقدی رزرو تایید شد",
-            body="پرداخت حضوری این رزرو توسط مشتری و متخصص تایید شد و مسیر ثبت دیدگاه فعال است.",
-        )
-        mark_review_requested(locked_order)
-        finalized = True
-    else:
-        sync_settlement_for_order(locked_order, payment=payment)
-        from apps.orders.lifecycle import notify_operational_milestone
+    from apps.orders.lifecycle import mark_review_requested, notify_operational_milestone
 
-        waiting_for = "متخصص" if role == "customer" else "مشتری"
-        notify_operational_milestone(
-            locked_order,
-            event_type="pay_in_salon_pending",
-            title="تایید پرداخت نقدی در انتظار تکمیل است",
-            body=f"پرداخت نقدی توسط {('مشتری' if role == 'customer' else 'متخصص')} تایید شد و اکنون منتظر تایید {waiting_for} است.",
-        )
+    notify_operational_milestone(
+        locked_order,
+        event_type="payment_completed",
+        title="دریافت وجه ثبت شد",
+        body="دریافت وجه حضوری توسط مجموعه ثبت شد و پرداخت رزرو نهایی شد.",
+    )
+    mark_review_requested(locked_order)
 
     return {
         "order": locked_order,
         "payment": payment,
         "already_paid": False,
-        "finalized": finalized,
-        "customer_confirmed": customer_confirmed,
-        "stylist_confirmed": stylist_confirmed,
+        "finalized": True,
+        "customer_confirmed": False,
+        "stylist_confirmed": True,
     }
 
 

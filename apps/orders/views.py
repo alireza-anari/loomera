@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import user_error_message
 import json
 import logging
 import hashlib
@@ -21,6 +22,7 @@ from apps.stylists.models import StaffLeaveRequest, StylistSchedule
 from .booking_utils import (
     BLOCKING_STATUSES,
     build_cancellation_policy,
+    bookable_stylists_for_salon,
     get_service_buffer_minutes,
     get_blocking_order_details_queryset,
     get_upcoming_available_stylists_for_service,
@@ -63,6 +65,10 @@ from apps.dashboards.jalali_utils import (
     format_time_fa,
 )
 from apps.comments_scores_favories.models import Comments, Scoring
+from apps.comments_scores_favories.review_service import (
+    DuplicateReviewError,
+    create_customer_review_once,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +132,7 @@ def _clean_appointment_checkout_form_action(request):
     # field or a browser that drops the submitter button) as confirmation.
     if not action:
         if actions:
-            raise ValidationError("عملیات checkout معتبر نیست.")
+            raise ValidationError("عملیات تسویه معتبر نیست.")
         raise ValidationError(
             "عملیات مشخص نیست؛ برای ثبت نهایی رزرو از دکمه «ثبت نهایی» استفاده کنید."
         )
@@ -190,8 +196,7 @@ def _public_booking_service_or_response(salon, service_id):
 
 
 def _public_booking_stylist_queryset(salon):
-    return salon.stylists.filter(
-        is_active=True,
+    return bookable_stylists_for_salon(salon=salon).filter(
         public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
     ).distinct()
 
@@ -1105,6 +1110,13 @@ class BookingStylistSelectPerService(View):
             "",
         )
 
+        # An explicit service list starts a fresh booking attempt. Do not leak a
+        # transient checkout conflict/price snapshot from an older attempt into it.
+        if selected_services:
+            request.session.pop("checkout_slot_lost_notice", None)
+            request.session.pop("checkout_price_consent", None)
+            request.session.modified = True
+
         service_ids = _quick_booking_parse_service_ids(
             [item for item in selected_services.split(",") if item]
         )
@@ -1215,6 +1227,7 @@ class BookingStylistSelectPerService(View):
                     "has_available_stylists": bool(stylist_cards),
                     "any_option": {
                         "enabled": bool(best_available),
+                        "first_slot": (best_available["first_slot"] if best_available else None),
                         "price": (
                             int(best_available["price"] or service.min_price or 0)
                             if best_available
@@ -1280,7 +1293,7 @@ class BookingStylistSelectPerService(View):
 
             messages.error(
                 request,
-                (str(exc) or "خطا در پردازش اطلاعات."),
+                user_error_message(exc, "اطلاعات رزرو معتبر نیست. لطفاً انتخاب‌ها را دوباره بررسی کنید."),
             )
 
             return redirect("orders:select_stylists")
@@ -1323,7 +1336,7 @@ class BookingDateTimeSelectPersian(View):
 
         except ValidationError as exc:
             _clear_public_booking_session_state(request)
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("salons:show_salons")
 
         enriched = []
@@ -1427,7 +1440,7 @@ class BookingDateTimeSelectPersian(View):
 
             messages.error(
                 request,
-                (str(exc) or "خطا در پردازش اطلاعات."),
+                user_error_message(exc, "اطلاعات رزرو معتبر نیست. لطفاً انتخاب‌ها را دوباره بررسی کنید."),
             )
 
             return redirect("orders:select_dateTime")
@@ -1890,7 +1903,7 @@ class QuickBookingEntryView(View):
                     quick_link=quick_link,
                 )
         except ValidationError as exc:
-            return self._redirect_with_error(request, str(exc))
+            return self._redirect_with_error(request, user_error_message(exc))
 
         if quick_link:
             request.session["booking_quick_link_id"] = quick_link.id
@@ -2040,7 +2053,7 @@ class ReservationPreview(LoginRequiredMixin, View):
                 datetime_selections=datetime_selections,
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:select_dateTime")
 
         service_details = []
@@ -2102,13 +2115,18 @@ class ReservationPreview(LoginRequiredMixin, View):
                 request.GET.get("coupon")
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             coupon_code = ""
         payload = _build_checkout_payload(request=request, coupon_code=coupon_code)
+        _store_checkout_price_consent(request, payload)
         form = AppointmentCheckoutForm(
             initial={
                 "coupon_code": coupon_code,
-                "payment_method": AppointmentCheckoutForm.PAYMENT_METHOD_ONLINE,
+                "payment_method": (
+                    AppointmentCheckoutForm.PAYMENT_METHOD_ONLINE
+                    if payload["requires_online_payment"]
+                    else AppointmentCheckoutForm.PAYMENT_METHOD_SALON
+                ),
             },
             requires_online_payment=payload["requires_online_payment"],
         )
@@ -2136,7 +2154,7 @@ class ReservationPreview(LoginRequiredMixin, View):
                 datetime_selections=datetime_selections,
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:reservation_preview")
 
         record_booking_quick_link_started(request=request)
@@ -2449,7 +2467,7 @@ class RebookPastOrderView(LoginRequiredMixin, View):
         try:
             items, stylist_selections = _build_rebook_stylist_selections(order)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:appointments")
 
         if not items:
@@ -2568,7 +2586,11 @@ class AppointmentsView(LoginRequiredMixin, View):
         context = {
             "past_appointments": past_appointments,
             "upcoming_appointments": upcoming_appointments,
+            "clear_completed_booking_client_state": bool(
+                request.session.pop("booking_completed_cleanup_client", False)
+            ),
         }
+        request.session.modified = True
         return render(request, self.template_name, context)
 
     def _filter_manually(self, queryset):
@@ -2697,25 +2719,21 @@ class AppointmentDetailView(LoginRequiredMixin, DetailView):
                 request.POST.get("comment_text")
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:appointment_detail", pk=appointment.pk)
 
-        comment = Comments.objects.create(
-            comment_user=customer,
-            salon=appointment.salon,
-            stylist=appointment.stylist,
-            service=appointment.service,
-            comment_text=comment_text,
-            is_active=False,
-        )
-        Scoring.objects.create(
-            comment=comment,
-            scoring_user=customer,
-            salon=appointment.salon,
-            stylist=appointment.stylist,
-            service=appointment.service,
-            score=score,
-        )
+        try:
+            create_customer_review_once(
+                customer=customer,
+                salon=appointment.salon,
+                stylist=appointment.stylist,
+                service=appointment.service,
+                comment_text=comment_text,
+                score=score,
+            )
+        except DuplicateReviewError as exc:
+            messages.info(request, user_error_message(exc))
+            return redirect("orders:appointment_detail", pk=appointment.pk)
 
         order.review_completed_at = timezone.now()
         order.save(update_fields=["review_completed_at", "update_date"])
@@ -2746,9 +2764,8 @@ class AppointmentDetailView(LoginRequiredMixin, DetailView):
             order.total_amount or sum(int(item.price or 0) for item in order_items) or 0
         )
         context["total_duration"] = sum(
-            int(getattr(item.service, "duration_minutes", 0) or 0)
+            int(item.display_duration_minutes or 0)
             for item in order_items
-            if item.service
         )
         context["service_count"] = len(order_items)
 
@@ -2762,10 +2779,16 @@ class AppointmentDetailView(LoginRequiredMixin, DetailView):
             order.wallet_transactions.order_by("-created_at")[:5]
         )
         if order.selected_payment_method == "pay_in_salon":
-            context["payment_status_label"] = "پرداخت در مجموعه"
-            context["payment_status_class"] = (
-                "bg-amber-50 text-amber-700 border-amber-200"
-            )
+            if order.is_paid:
+                context["payment_status_label"] = "پرداخت در مجموعه انجام شد"
+                context["payment_status_class"] = (
+                    "bg-green-50 text-green-700 border-green-200"
+                )
+            else:
+                context["payment_status_label"] = "پرداخت در مجموعه"
+                context["payment_status_class"] = (
+                    "bg-amber-50 text-amber-700 border-amber-200"
+                )
         elif order.is_paid:
             context["payment_status_label"] = "پرداخت شده"
             context["payment_status_class"] = (
@@ -3006,7 +3029,7 @@ class PayInSalonSettlementView(LoginRequiredMixin, View):
         try:
             action = _clean_pay_in_salon_settlement_action(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:appointment_detail", pk=pk)
 
         appointment = get_object_or_404(
@@ -3015,73 +3038,19 @@ class PayInSalonSettlementView(LoginRequiredMixin, View):
             order__customer__user=request.user,
         )
 
-        from apps.payments.finance import (
-            confirm_pay_in_salon_cash_payment,
-            sync_settlement_for_order,
-        )
+        from apps.payments.finance import sync_settlement_for_order
         from apps.payments.gateways import initiate_payment
         from apps.payments.models import Payment
         import secrets
         import uuid
 
         if action == "cash":
-            with transaction.atomic():
-                order = Order.objects.select_for_update().get(pk=appointment.order_id)
-
-                if order.status == "cancelled":
-                    messages.error(request, "این رزرو لغو شده و دیگر قابل تسویه نیست.")
-                    return redirect("orders:appointment_detail", pk=appointment.pk)
-
-                if not _order_ready_for_pay_in_salon_settlement(order):
-                    messages.error(
-                        request,
-                        "پرداخت در مجموعه فقط بعد از پایان خدمت فعال می‌شود.",
-                    )
-                    return redirect("orders:appointment_detail", pk=appointment.pk)
-
-                if order.is_paid:
-                    messages.info(request, "این رزرو قبلاً از نظر مالی نهایی شده است.")
-                    return redirect("orders:appointment_detail", pk=appointment.pk)
-
-                if not _order_has_valid_pay_in_salon_method(order):
-                    messages.error(
-                        request,
-                        "تسویه در مجموعه فقط برای رزروهای پرداخت در مجموعه فعال است.",
-                    )
-                    return redirect("orders:appointment_detail", pk=appointment.pk)
-
-                try:
-                    result = confirm_pay_in_salon_cash_payment(
-                        order,
-                        actor=request.user,
-                        role="customer",
-                    )
-                except ValidationError as exc:
-                    messages.error(request, str(exc))
-                    return redirect("orders:appointment_detail", pk=appointment.pk)
-
-            if result.get("finalized"):
-                messages.success(
-                    request,
-                    "پرداخت نقدی با تایید شما و متخصص نهایی شد و امکان ثبت دیدگاه فعال است.",
-                )
-                payment = result.get("payment")
-                if payment:
-                    transaction.on_commit(
-                        lambda order=result[
-                            "order"
-                        ], payment=payment: notify_payment_success(
-                            customer=order.customer,
-                            payment=payment,
-                            order=order,
-                        )
-                    )
-            else:
-                messages.success(
-                    request,
-                    "تایید پرداخت نقدی شما ثبت شد. بعد از تایید متخصص، پرداخت نهایی می‌شود.",
-                )
-
+            # Compatibility for stale forms/bookmarks. Cash receipt is now
+            # recorded by the collection side only.
+            messages.info(
+                request,
+                "ثبت دریافت وجه توسط مجموعه انجام می‌شود و نیازی به تأیید شما نیست.",
+            )
             return redirect("orders:appointment_detail", pk=appointment.pk)
 
         with transaction.atomic():
@@ -3112,7 +3081,7 @@ class PayInSalonSettlementView(LoginRequiredMixin, View):
             if getattr(order.salon, "verification_status", "") != "verified":
                 messages.error(
                     request,
-                    "پرداخت آنلاین تکمیلی فقط برای مجموعه‌های احراز هویت‌شده فعال است. برای این مجموعه، پرداخت نقدی را تایید کنید.",
+                    "پرداخت آنلاین تکمیلی فقط برای مجموعه‌های احراز هویت‌شده فعال است. تسویه حضوری توسط مجموعه ثبت می‌شود.",
                 )
                 return redirect("orders:appointment_detail", pk=appointment.pk)
 
@@ -3182,7 +3151,10 @@ class PayInSalonSettlementView(LoginRequiredMixin, View):
 
             messages.error(
                 request,
-                gateway_result.message or "شروع پرداخت آنلاین ناموفق بود.",
+                user_error_message(
+                    gateway_result.message,
+                    "شروع پرداخت آنلاین ناموفق بود. لطفاً دوباره تلاش کنید.",
+                ),
             )
             return redirect("orders:appointment_detail", pk=appointment.pk)
 
@@ -3270,7 +3242,7 @@ class CancelAppointmentView(LoginRequiredMixin, View):
 
             _notify_manager_and_stylists_for_customer_order_event(
                 order,
-                event_type="customer_cancelled_booking",
+                event_type="booking_cancelled",
                 manager_title="نوبت توسط مشتری لغو شد",
                 stylist_title="نوبت شما توسط مشتری لغو شد",
                 body="مشتری این نوبت را لغو کرد و وضعیت رزرو برای مجموعه به‌روزرسانی شد.",
@@ -3655,13 +3627,20 @@ class RescheduleConfirmView(LoginRequiredMixin, View):
                 body="مشتری زمان نوبت را تغییر داد. لطفاً زمان جدید را در تقویم بررسی کنید.",
                 detail_meta={"base_appointment_id": base_id},
             )
+            from apps.accounts.notifications import notify_booking_rescheduled
+            customer_detail = next((item for item in items if item.pk == base_id), items[0])
+            notify_booking_rescheduled(
+                customer=order.customer,
+                order=order,
+                order_detail=customer_detail,
+            )
             queue_customer_booking_rescheduled_sms(order)
 
             messages.success(request, "زمان نوبت با موفقیت تغییر کرد.")
             return redirect("orders:appointment_detail", pk=base_id)
 
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:appointment_detail", pk=base_id)
 
         except Exception:
@@ -3920,13 +3899,45 @@ def _build_checkout_payload(*, request, coupon_code=""):
 _CHECKOUT_SESSION_KEY = "finance_checkout_submission"
 
 _CHECKOUT_SLOT_LOST_SESSION_KEY = "checkout_slot_lost_notice"
+_CHECKOUT_PRICE_CONSENT_SESSION_KEY = "checkout_price_consent"
+
+
+def _checkout_price_consent_snapshot(payload):
+    return {
+        "salon_id": payload["salon"].id if payload.get("salon") else None,
+        "total_amount": int(payload.get("total_amount") or 0),
+        "items": [
+            {
+                "service_id": int(item.service.id),
+                "stylist_id": int(item.stylist.user_id),
+                "price": int(item.price or 0),
+                "date": item.date_value.strftime("%Y-%m-%d"),
+                "time": item.start_time.strftime("%H:%M"),
+            }
+            for item in payload.get("resolved_items") or []
+        ],
+    }
+
+
+def _store_checkout_price_consent(request, payload):
+    request.session[_CHECKOUT_PRICE_CONSENT_SESSION_KEY] = (
+        _checkout_price_consent_snapshot(payload)
+    )
+    request.session.modified = True
+
+
+def _checkout_price_consent_changed(request, payload):
+    consented = request.session.get(_CHECKOUT_PRICE_CONSENT_SESSION_KEY)
+    if not consented:
+        return True
+    return consented != _checkout_price_consent_snapshot(payload)
 
 
 def _validation_error_message(exc):
-    exc_messages = getattr(exc, "messages", None)
-    if exc_messages:
-        return " ".join(str(item) for item in exc_messages)
-    return str(exc)
+    return user_error_message(
+        exc,
+        "اطلاعات رزرو معتبر نیست. لطفاً انتخاب‌ها را دوباره بررسی کنید.",
+    )
 
 
 def _store_checkout_slot_lost_notice(request, *, message: str):
@@ -4108,6 +4119,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
 
     def _render(self, request, form=None, coupon_code=""):
         payload = _build_checkout_payload(request=request, coupon_code=coupon_code)
+        _store_checkout_price_consent(request, payload)
         form = form or AppointmentCheckoutForm(
             initial={
                 "coupon_code": coupon_code,
@@ -4132,7 +4144,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
                 request.GET.get("coupon")
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             coupon_code = ""
 
         if coupon_code:
@@ -4164,7 +4176,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
                 request.POST.get("coupon_code")
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:reservation_preview")
 
         checkout_action = form_action
@@ -4185,6 +4197,16 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
                 "زمان انتخاب‌شده دیگر آزاد نیست. لطفاً زمان جدیدی انتخاب کنید.",
             )
             return redirect("orders:select_dateTime")
+
+        if (
+            checkout_action == "confirm_checkout"
+            and _checkout_price_consent_changed(request, preview_payload)
+        ):
+            messages.warning(
+                request,
+                "قیمت یا جزئیات مالی این رزرو از زمان مشاهده پیش‌نمایش تغییر کرده است. لطفاً مبلغ جدید را بررسی و دوباره تأیید کنید.",
+            )
+            return self._render(request, coupon_code=coupon_code)
 
         form = AppointmentCheckoutForm(
             post_data,
@@ -4217,7 +4239,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
         try:
             coupon_code = _clean_appointment_checkout_coupon_code(coupon_code)
         except ValidationError as exc:
-            form.add_error("coupon_code", str(exc))
+            form.add_error("coupon_code", user_error_message(exc, "کد تخفیف معتبر نیست یا امکان استفاده از آن وجود ندارد."))
             return self._render(request, form=form, coupon_code="")
 
         payload = _build_checkout_payload(request=request, coupon_code=coupon_code)
@@ -4330,7 +4352,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             if gateway_mode == "live" and not salon.payout_profile_complete:
                 messages.error(
                     request,
-                    "اطلاعات تسویه این مجموعه هنوز کامل نشده و پرداخت آنلاین در حالت live فعلاً مجاز نیست.",
+                    "اطلاعات تسویه این مجموعه هنوز کامل نشده و پرداخت آنلاین در حالت عملیاتی فعلاً مجاز نیست.",
                 )
                 return self._render(request, form=form, coupon_code=coupon_code)
 
@@ -4354,7 +4376,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             )
 
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("orders:select_dateTime")
 
         order = Order.objects.create(
@@ -4483,6 +4505,9 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
                 update_fields=["is_paid", "is_finally", "status", "checkout_locked_at"]
             )
 
+            from apps.orders.appointment_lifecycle import auto_confirm_order_details
+
+            auto_confirm_order_details(order=order)
             consume_booking_quick_link_from_session(request, order)
             schedule_order_reminder(order)
             notify_manager_and_stylists_for_booking(order, event_type="booking_paid")
@@ -4538,12 +4563,18 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
             request.session.pop("datetime_selections", None)
             request.session.pop("stylist_selections", None)
             request.session.pop("salon_id", None)
+            request.session.pop(_CHECKOUT_SLOT_LOST_SESSION_KEY, None)
+            request.session.pop(_CHECKOUT_PRICE_CONSENT_SESSION_KEY, None)
+            request.session["booking_completed_cleanup_client"] = True
             request.session.modified = True
 
             order.status = "pending"
             order.is_finally = True
             order.save(update_fields=["status", "is_finally"])
 
+            from apps.orders.appointment_lifecycle import auto_confirm_order_details
+
+            auto_confirm_order_details(order=order)
             consume_booking_quick_link_from_session(request, order)
             schedule_order_reminder(order)
             notify_manager_and_stylists_for_booking(order, event_type="booking_created")
@@ -4568,7 +4599,7 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
 
             messages.success(
                 request,
-                "نوبت شما ثبت شد و در انتظار تایید متخصص قرار گرفت. پرداخت این سفارش در مجموعه انجام می‌شود.",
+                "نوبت شما قطعی شد و در برنامه کاری متخصص قرار گرفت. پرداخت این سفارش در مجموعه انجام می‌شود.",
             )
 
             redirect_url = reverse("orders:appointments")
@@ -4663,7 +4694,12 @@ class AppointmentCheckoutView(LoginRequiredMixin, View):
                 gateway_result.message or "",
             )
 
-            messages.error(request, gateway_result.message or "شروع پرداخت ناموفق بود.")
+            messages.error(
+                request,
+                user_error_message(
+                    gateway_result.message, fallback="شروع پرداخت ناموفق بود."
+                ),
+            )
 
             redirect_url = reverse(
                 "payments:appointment_result",

@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import user_error_message
 from datetime import timedelta
 
 from django.conf import settings
@@ -472,6 +473,7 @@ class SalonFinanceHubView(_SalonFinanceMixin, View):
 
         active_discount_count = active_coupons + active_baskets + active_campaigns
 
+        # Finance Hub UX stage 1: grouped navigation is preserved for gradual refactor.
         finance_groups = [
             {
                 "key": "money",
@@ -757,7 +759,7 @@ class SalonFinanceWithdrawView(_SalonFinanceMixin, View):
                     note="در انتظار بررسی تیم مالی پلتفرم",
                 )
         except Exception as exc:
-            form.add_error("amount", str(exc))
+            form.add_error("amount", user_error_message(exc))
             messages.error(request, "ثبت درخواست برداشت ممکن نشد.")
             return render(
                 request,
@@ -789,7 +791,7 @@ class SalonFinanceWithdrawCancelView(_SalonFinanceMixin, View):
                 note="درخواست برداشت توسط مدیر مجموعه لغو شد و مبلغ به موجودی قابل برداشت برگشت داده شد."
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
         else:
             messages.success(
                 request,
@@ -890,7 +892,7 @@ class SalonFinanceReportsView(_SalonFinanceMixin, View):
         try:
             filters = self._get_filters(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("dashboards:finance_reports")
         settlement_qs = self._build_settlement_queryset(salon, filters)
         wallet_tx_qs = self._build_wallet_queryset(wallet, filters)
@@ -1339,7 +1341,7 @@ class SalonFinanceReportsExportCsvView(_SalonFinanceMixin, View):
             filters = report_view._get_filters(request)
         except ValidationError as exc:
             return HttpResponse(
-                str(exc),
+                user_error_message(exc, "فیلترهای گزارش معتبر نیستند."),
                 status=400,
                 content_type="text/plain; charset=utf-8",
             )
@@ -1594,7 +1596,7 @@ class PlatformFinanceAdminReportView(_PlatformFinanceAdminMixin, View):
         try:
             filters = self._get_filters(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("dashboards:platform_finance")
         settlement_qs = self._build_settlement_queryset(filters)
 
@@ -1838,7 +1840,7 @@ class PlatformFinanceAdminReportExportCsvView(_PlatformFinanceAdminMixin, View):
             filters = view._get_filters(request)
         except ValidationError as exc:
             return HttpResponse(
-                str(exc),
+                user_error_message(exc, "فیلترهای گزارش معتبر نیستند."),
                 status=400,
                 content_type="text/plain; charset=utf-8",
             )
@@ -1995,7 +1997,7 @@ class SalonCouponManagementView(_SalonFinanceMixin, View):
         try:
             editing_coupon = self._get_editing_coupon(request, salon)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("dashboards:finance_coupons")
 
         form = (
@@ -2015,7 +2017,7 @@ class SalonCouponManagementView(_SalonFinanceMixin, View):
         try:
             post_data = _sanitize_finance_coupon_post_data(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             form = SalonCouponForm(salon=salon)
             return render(
                 request,
@@ -2042,7 +2044,7 @@ class SalonCouponToggleView(_SalonFinanceMixin, View):
         try:
             _validate_finance_coupon_post_size(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("dashboards:finance_coupons")
 
         salon = self._get_salon(request)
@@ -2068,7 +2070,7 @@ class SalonCouponUpdateView(_SalonFinanceMixin, View):
         try:
             post_data = _sanitize_finance_coupon_post_data(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             coupon = get_object_or_404(Coupon, pk=coupon_id, salon=salon)
             form = SalonCouponForm(instance=coupon, salon=salon)
             return render(
@@ -2106,7 +2108,7 @@ class SalonCouponDeleteView(_SalonFinanceMixin, View):
         try:
             _validate_finance_coupon_post_size(request)
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("dashboards:finance_coupons")
 
         salon = self._get_salon(request)

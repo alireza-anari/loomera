@@ -1,0 +1,15 @@
+{% if request.user.is_authenticated and request.session.show_messaging_connect_prompt %}
+{% if request.user.salon_manager_profile %}
+  {% with messaging_role="manager" messaging_role_label="مدیر مجموعه" messaging_context_text="اعلان نوبت‌ها، لغو و تغییر زمان و همین‌طور درخواست‌های تیم را سریع‌تر ببین و بعضی کارهای روزمره حسابت را از ربات پیگیری کن." %}
+    {% include "partials/messaging_welcome_prompt_body.html" %}
+  {% endwith %}
+{% elif request.user.stylist %}
+  {% with messaging_role="stylist" messaging_role_label="متخصص" messaging_context_text="اعلان نوبت‌های جدید، تغییر زمان، لغو و درخواست‌های کاری را سریع‌تر دریافت کن و کارهای روزمره حسابت را از ربات پیگیری کن." %}
+    {% include "partials/messaging_welcome_prompt_body.html" %}
+  {% endwith %}
+{% else %}
+  {% with messaging_role="customer" messaging_role_label="مشتری" messaging_context_text="اعلان نوبت، تغییر زمان و لغو را سریع‌تر دریافت کن و برای پیگیری حساب و نوبت‌هایت راه مستقیم‌تری داشته باش." %}
+    {% include "partials/messaging_welcome_prompt_body.html" %}
+  {% endwith %}
+{% endif %}
+{% endif %}

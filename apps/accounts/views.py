@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import safe_form_errors, user_error_message
 from django.urls import reverse
 import os
 from PIL import Image, UnidentifiedImageError
@@ -179,7 +180,7 @@ def _client_ip(request):
     return request.META.get("REMOTE_ADDR")
 
 
-LEGAL_DOCUMENT_VERSION = "1.1-beta"
+LEGAL_DOCUMENT_VERSION = "1.3-beta"
 
 
 def _record_signup_consents(request, *, user, source):
@@ -1076,6 +1077,11 @@ class VerifyRegisterView(View):
 
         request.session.pop(USER_SESSION_KEY, None)
         login(request, user)
+        # Show the messaging-connect explainer only on the first page after a
+        # successful signup. A tiny authenticated endpoint clears this flag as
+        # soon as the modal is rendered, so normal future logins stay unchanged.
+        request.session["show_messaging_connect_prompt"] = True
+        request.session.modified = True
 
         if signup_kind == "stylist":
             messages.success(
@@ -1087,6 +1093,17 @@ class VerifyRegisterView(View):
 
         messages.success(request, "ثبت‌نام شما کامل شد و وارد حساب شدید.", "success")
         return _redirect_user_by_role(user)
+
+
+class DismissMessagingWelcomePromptView(LoginRequiredMixin, View):
+    """Mark the one-time post-signup messaging prompt as seen."""
+
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        request.session.pop("show_messaging_connect_prompt", None)
+        request.session.modified = True
+        return JsonResponse({"ok": True})
 
 
 # ------------------------------------------------------------------------------------------------------
@@ -1144,7 +1161,7 @@ class LoginUserView(View):
         if user.is_admin and not (next_url or "").startswith("/platform/"):
             messages.warning(
                 request,
-                "برای ورود به پنل پلتفرم، ابتدا آدرس /platform/ را باز کن یا از ورود امن مدیران استفاده کن.",
+                "برای ورود به پنل پلتفرم، صفحه مدیریت را باز کن یا از ورود امن مدیران استفاده کن.",
                 "warning",
             )
             return render(
@@ -1634,7 +1651,7 @@ def validate_uploaded_profile_image(uploaded_file):
 
     if ext not in ALLOWED_PROFILE_IMAGE_EXTENSIONS:
         raise ValidationError(
-            "پسوند تصویر مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "پسوند تصویر مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     name_without_last_ext = original_name[: -len(ext)] if ext else original_name
@@ -1644,7 +1661,7 @@ def validate_uploaded_profile_image(uploaded_file):
     content_type = (getattr(uploaded_file, "content_type", "") or "").lower()
     if content_type not in ALLOWED_PROFILE_IMAGE_CONTENT_TYPES:
         raise ValidationError(
-            "فرمت فایل مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "فرمت فایل مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     try:
@@ -1690,9 +1707,7 @@ def customer_update_profile_image(request):
     try:
         validate_uploaded_profile_image(image)
     except ValidationError as exc:
-        message = (
-            exc.messages[0] if hasattr(exc, "messages") and exc.messages else str(exc)
-        )
+        message = user_error_message(exc, "تصویر انتخاب‌شده معتبر نیست. لطفاً فایل دیگری انتخاب کنید.")
         return JsonResponse(
             {"status": "error", "error": message},
             status=400,
@@ -1767,7 +1782,7 @@ def add_customer(request, salon_id):
             return redirect(redirect_url)
 
     elif request.method == "POST" and _is_ajax(request):
-        return JsonResponse({"success": False, "errors": form.errors}, status=400)
+        return JsonResponse({"success": False, "errors": safe_form_errors(form)}, status=400)
 
     context = build_dashboard_context(
         request.user,
@@ -1938,12 +1953,10 @@ class DetailCustomerView(LoginRequiredMixin, View):
                         or None,
                     )
                 except ValidationError as exc:
-                    error_message = (
-                        exc.messages[0]
-                        if getattr(exc, "messages", None)
-                        else "تصویر یادداشت معتبر نیست."
+                    messages.error(
+                        request,
+                        user_error_message(exc, "تصویر یادداشت معتبر نیست."),
                     )
-                    messages.error(request, error_message)
                     return redirect("accounts:detail_customer", customer_id=customer_id)
 
             if note_text:
@@ -2023,7 +2036,7 @@ def update_notification_settings(request):
     except NotificationSettingsPayloadTooLarge:
         return JsonResponse({"error": "payload_too_large"}, status=413)
     except NotificationSettingsPayloadInvalid:
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
+        return JsonResponse({"error": "invalid_json"}, status=400)
 
     valid_fields = [
         "notify_appointment_email",
@@ -2178,7 +2191,7 @@ def _serialize_customer_notification(notification, request):
             notification.action_url,
         ),
         "is_read": notification.is_read,
-        "created_at": notification.created_at.strftime("%Y-%m-%d %H:%M"),
+        "created_at": timezone.localtime(notification.created_at).strftime("%Y-%m-%d %H:%M"),
     }
 
 
@@ -2189,21 +2202,30 @@ def customer_notifications_summary(request):
     if redirect_response:
         return JsonResponse({"error": "not_customer"}, status=403)
 
-    latest_notifications = CustomerNotification.objects.filter(
-        user=request.user
-    ).order_by("-created_at", "-id")[:5]
+    all_notifications = CustomerNotification.objects.filter(user=request.user)
+    latest_notifications = all_notifications.order_by("-created_at", "-id")[:5]
+    category_counts = {
+        category: all_notifications.filter(category=category).count()
+        for category, _label in CustomerNotification.CATEGORY_CHOICES
+    }
+    unread_total = all_notifications.filter(is_read=False).count()
 
-    return JsonResponse(
+    response = JsonResponse(
         {
-            "unread_count": CustomerNotification.objects.filter(
-                user=request.user, is_read=False
-            ).count(),
+            "unread_count": unread_total,
+            "category_counts": {
+                "all": all_notifications.count(),
+                "unread": unread_total,
+                **category_counts,
+            },
             "notifications": [
                 _serialize_customer_notification(notification, request)
                 for notification in latest_notifications
             ],
         }
     )
+    response["Cache-Control"] = "private, no-store"
+    return response
 
 
 @require_POST
@@ -2223,7 +2245,25 @@ def mark_customer_notification_read(request, notification_id):
     )
     notification.mark_as_read()
 
-    return JsonResponse(
+    # CustomerNotification is still the source used by the customer center while
+    # the header can also read its mirrored unified recipient. Keep both read
+    # states atomic from the user's point of view.
+    try:
+        from apps.notifications.models import NotificationRecipient
+
+        NotificationRecipient.objects.filter(
+            user=request.user,
+            notification__metadata__legacy_model="CustomerNotification",
+            notification__metadata__legacy_id=notification.id,
+            is_read=False,
+        ).update(is_read=True, read_at=timezone.now())
+    except Exception:
+        logger.exception(
+            "Failed to sync legacy customer notification read state. notification_id=%s",
+            notification.id,
+        )
+
+    response = JsonResponse(
         {
             "status": "success",
             "notification_id": notification.id,
@@ -2232,6 +2272,8 @@ def mark_customer_notification_read(request, notification_id):
             ).count(),
         }
     )
+    response["Cache-Control"] = "private, no-store"
+    return response
 
 
 @require_POST
@@ -2244,15 +2286,27 @@ def mark_all_customer_notifications_read(request):
     if _customer_notification_action_payload_too_large(request):
         return JsonResponse({"error": "payload_too_large"}, status=413)
 
+    read_at = timezone.now()
     updated = CustomerNotification.objects.filter(
         user=request.user,
         is_read=False,
     ).update(
         is_read=True,
-        read_at=timezone.now(),
+        read_at=read_at,
     )
 
-    return JsonResponse(
+    try:
+        from apps.notifications.models import NotificationRecipient
+
+        NotificationRecipient.objects.filter(
+            user=request.user,
+            notification__metadata__legacy_model="CustomerNotification",
+            is_read=False,
+        ).update(is_read=True, read_at=read_at)
+    except Exception:
+        logger.exception("Failed to sync customer notification read-all state.")
+
+    response = JsonResponse(
         {
             "status": "success",
             "updated": updated,
@@ -2262,6 +2316,8 @@ def mark_all_customer_notifications_read(request):
             ).count(),
         }
     )
+    response["Cache-Control"] = "private, no-store"
+    return response
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -2321,6 +2377,6 @@ class DeleteAccountView(LoginRequiredMixin, View):
                 return redirect("accounts:login")
 
             except Exception as e:
-                messages.error(request, f"خطا در حذف حساب: {str(e)}", "danger")
+                messages.error(request, user_error_message(e, "حذف حساب انجام نشد. لطفاً دوباره تلاش کنید."), "danger")
 
         return render(request, self.template_name, self._context(request, form))

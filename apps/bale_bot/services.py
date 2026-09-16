@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from typing import Any
 
 from django.conf import settings
@@ -21,6 +23,8 @@ from apps.messaging.services import (
 
 from .handlers import handle_bale_update_stage11
 from .parser import ParsedBaleUpdate, parse_bale_update
+
+logger = logging.getLogger(__name__)
 
 
 class BaleWebhookDisabled(PermissionError):
@@ -68,7 +72,7 @@ def record_bale_webhook_update(
 ):
     """
     Atomically ingest, deduplicate, and dispatch one parsed Bale update.
-    
+
     The active provider is resolved first, the sender identity is created or
     refreshed, and the webhook event is recorded using provider-scoped event or
     update identifiers. A duplicate returns immediately without a second inbound
@@ -130,10 +134,21 @@ def record_bale_webhook_update(
                 base_url=base_url,
             )
         except Exception as exc:
-            event.mark_failed(str(exc))
+            # Preserve the historical exception boundary for genuine handler
+            # faults. Outbound provider failures are returned explicitly by
+            # stage11 so their FAILED message log can remain committed.
+            event.mark_failed(str(exc)[:500] or type(exc).__name__)
             raise
 
-    event.mark_processed()
+    if str(handler_result or "").startswith("outbound_failed:"):
+        event.mark_failed(str(handler_result)[:500])
+        logger.error(
+            "Bale webhook outbound delivery failed | event_id=%s result=%s",
+            event.pk,
+            str(handler_result)[:240],
+        )
+    else:
+        event.mark_processed()
 
     return {
         "event": event,
@@ -149,7 +164,7 @@ def record_bale_webhook_update(
 def reprocess_bale_webhook_event(*, event_id: int, base_url: str = ""):
     """
     Reprocess one explicitly selected stored Bale webhook event.
-    
+
     The event row is locked and must belong to the active Bale provider with a
     received or failed status. Reprocessing intentionally bypasses duplicate
     detection and does not create a second inbound message log. Identity metadata
@@ -199,7 +214,7 @@ def reprocess_bale_webhook_event(*, event_id: int, base_url: str = ""):
                 base_url=base_url,
             )
         except Exception as exc:
-            event.mark_failed(str(exc))
+            event.mark_failed(str(exc)[:500] or type(exc).__name__)
             return {
                 "ok": False,
                 "event": event,
@@ -208,6 +223,17 @@ def reprocess_bale_webhook_event(*, event_id: int, base_url: str = ""):
                 "handler_result": "failed",
                 "error": str(exc),
             }
+
+    if str(handler_result or "").startswith("outbound_failed:"):
+        event.mark_failed(str(handler_result)[:500])
+        return {
+            "ok": False,
+            "event": event,
+            "identity": identity,
+            "parsed": parsed,
+            "handler_result": handler_result,
+            "error": "outbound_delivery_failed",
+        }
 
     event.mark_processed()
 

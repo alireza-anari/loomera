@@ -326,7 +326,7 @@ class MessagingDeliverySecurityStage12Tests(TestCase):
         MESSAGING_OUTBOUND_ENABLED=False,
         MESSAGING_ALLOWED_PROVIDERS=[MessagingProviderKey.BALE],
     )
-    def test_critical_notification_bypasses_user_preference_but_still_respects_outbound_flag(self):
+    def test_critical_external_notification_respects_user_preference(self):
         NotificationPreference.objects.create(
             user=self.user,
             audience_role=NotificationAudienceRole.CUSTOMER,
@@ -334,15 +334,15 @@ class MessagingDeliverySecurityStage12Tests(TestCase):
             channel=NotificationChannel.BALE,
             is_enabled=False,
         )
-        delivery = self._delivery(category=NotificationCategory.SYSTEM, priority=NotificationPriority.CRITICAL)
-
+        delivery = self._delivery(
+            category=NotificationCategory.SYSTEM,
+            priority=NotificationPriority.CRITICAL,
+        )
         result = deliver_simple_notification(delivery)
 
         self.assertEqual(result.status, NotificationDeliveryStatus.SKIPPED)
-        self.assertEqual(result.error, "bale_outbound_disabled")
-        message_log = MessagingMessageLog.objects.get()
-        self.assertEqual(message_log.status, MessagingMessageStatus.SKIPPED)
-        self.assertEqual(message_log.identity, self.identity)
+        self.assertEqual(result.error, "messaging_user_preference_disabled")
+        self.assertFalse(MessagingMessageLog.objects.exists())
 
     @override_settings(
         MESSAGING_ENABLED=True,

@@ -1,5 +1,6 @@
 {% extends "dashboard_template.html" %}
 {% load static %}
+
 {% block title %}تنظیمات من{% endblock %}
 {% block body_attrs %}data-page="stylist-settings"{% endblock %}
 
@@ -9,34 +10,90 @@
 {% endblock %}
 
 {% block content %}
-  {% url 'dashboards:stylist_dashboard' as stylist_home_url %}
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-settings">
-    {% include "dashboards/components/page_hero.html" with eyebrow="تنظیمات شخصی" eyebrow_icon="fa-solid fa-gear" title="تنظیمات من" description="فقط تنظیمات مربوط به حساب و ارتباطات شخصی تو اینجا هستند؛ نوبت، برنامه، درآمد و محتوا از منوی اصلی مدیریت می‌شوند." action_label="بازگشت به خانه" action_url=stylist_home_url badges=page_meta.badges %}
+  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace"
+           data-dashboard-workspace-root
+           data-dashboard-page="stylist-settings">
 
-    <section class="grid gap-4 lg:grid-cols-2" aria-label="دسته‌های تنظیمات متخصص" data-lm-direct-section>
-      {% for group in stylist_settings_groups %}
-        <article class="flex min-w-0 flex-col rounded-[28px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-5" data-settings-group="{{ group.key }}" data-lm-stylist-surface>
-          <div class="flex items-start gap-3">
-            <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText"><i class="{{ group.icon }}" aria-hidden="true"></i></span>
+    <header class="rounded-[24px] border border-loomera-borderSoft bg-white px-4 py-3.5 shadow-lm-card sm:px-5 sm:py-4">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+          <i class="fa-solid fa-gear" aria-hidden="true"></i>
+        </span>
+        <div class="min-w-0">
+          <h1 class="text-xl font-black text-loomera-textPrimary sm:text-2xl">تنظیمات من</h1>
+          <p class="mt-1 text-xs font-bold leading-6 text-loomera-textMuted">حساب، امنیت و ارتباطات شخصی را از اینجا مدیریت کن.</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="lm-task-tabs-anchor"
+         data-lm-task-tabs-anchor="stylist-settings"
+         data-lm-task-tabs-label="بخش‌های تنظیمات من"
+         aria-label="بخش‌های تنظیمات من"></div>
+
+    {% for group in stylist_settings_groups %}
+      <section id="stylist-settings-{{ group.key }}"
+               class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+               data-dashboard-workspace-panel
+               data-lm-direct-section
+               data-lm-task-panel="stylist-settings"
+               data-lm-task-key="{{ group.key }}"
+               data-lm-task-label="{{ group.title }}"
+               data-lm-task-order="{{ forloop.counter }}">
+
+        <header data-lm-direct-section-header
+                class="flex cursor-default items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm sm:px-5 lg:px-6 lg:py-4">
+          <div class="flex min-w-0 items-center gap-3">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="{{ group.icon }}" aria-hidden="true"></i>
+            </span>
             <div class="min-w-0">
               <p class="text-[11px] font-black text-loomera-primaryText">{{ group.eyebrow }}</p>
-              <h2 class="mt-1 text-base font-black text-loomera-textPrimary">{{ group.title }}</h2>
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ group.description }}</p>
+              <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">{{ group.title }}</h2>
             </div>
           </div>
-          <div class="mt-5 space-y-2 border-t border-loomera-borderSoft pt-4">
+        </header>
+
+        <div class="p-4 sm:p-5 lg:p-6">
+          {% if group.description %}
+            <p class="mb-4 text-xs font-bold leading-6 text-loomera-textMuted">{{ group.description }}</p>
+          {% endif %}
+
+          <div class="grid gap-3 sm:grid-cols-2">
             {% for item in group.items %}
-              <a href="{{ item.url }}" class="group/item flex min-w-0 items-center gap-3 rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 px-3.5 py-3.5 transition hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-soft">
-                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary group-hover/item:text-loomera-primaryText"><i class="{{ item.icon }} text-sm" aria-hidden="true"></i></span>
-                <span class="min-w-0 flex-1"><span class="block text-sm font-black text-loomera-textPrimary">{{ item.title }}</span><span class="mt-1 block text-xs leading-6 text-loomera-textMuted">{{ item.description }}</span></span>
-                <i class="fa-solid fa-arrow-left shrink-0 text-[10px] text-loomera-textMuted" aria-hidden="true"></i>
+              <a href="{{ item.url }}"
+                 class="group/item flex min-w-0 items-center gap-3 rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/65 p-3.5 transition hover:border-loomera-primary/25 hover:bg-white hover:shadow-lm-soft sm:p-4">
+                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary transition group-hover/item:text-loomera-primaryText">
+                  <i class="{{ item.icon }} text-sm" aria-hidden="true"></i>
+                </span>
+
+                <span class="min-w-0 flex-1">
+                  <strong class="block text-sm font-black text-loomera-textPrimary">{{ item.title }}</strong>
+                  {% if item.description %}
+                    <span class="mt-1 block line-clamp-2 text-[11px] font-bold leading-5 text-loomera-textMuted">{{ item.description }}</span>
+                  {% endif %}
+                </span>
+
+                <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-loomera-textMuted transition group-hover/item:bg-loomera-primarySoft group-hover/item:text-loomera-primaryText">
+                  <i class="fa-solid fa-arrow-left text-[10px]" aria-hidden="true"></i>
+                </span>
               </a>
+            {% empty %}
+              <div class="sm:col-span-2 rounded-[22px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/60 px-4 py-6 text-center text-sm font-bold leading-7 text-loomera-textMuted">
+                هنوز گزینه‌ای برای این بخش ثبت نشده است.
+              </div>
             {% endfor %}
           </div>
-        </article>
-      {% endfor %}
-    </section>
-
+        </div>
+      </section>
+    {% empty %}
+      <section class="rounded-[28px] border border-dashed border-loomera-borderSoft bg-white/90 px-4 py-8 text-center shadow-lm-card">
+        <span class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+          <i class="fa-solid fa-gear" aria-hidden="true"></i>
+        </span>
+        <p class="mt-3 text-sm font-black text-loomera-textPrimary">هنوز تنظیمی برای این حساب ثبت نشده است.</p>
+      </section>
+    {% endfor %}
 
   </section>
 {% endblock %}

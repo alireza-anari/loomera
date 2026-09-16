@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>{{ reports_dashboard.workspace.page_title }}</title>
+  <style>
+    {% if pdf_font_uri %}
+    @font-face { font-family: "YekanBakh"; src: url("{{ pdf_font_uri }}") format("woff2"); font-weight: 400; }
+    {% endif %}
+    {% if pdf_font_bold_uri %}
+    @font-face { font-family: "YekanBakh"; src: url("{{ pdf_font_bold_uri }}") format("woff2"); font-weight: 700 900; }
+    {% endif %}
+
+    @page {
+      size: A4;
+      margin: 14mm 13mm 16mm;
+      @bottom-left {
+        content: "loomera.ir";
+        color: #8a8198;
+        font-size: 8pt;
+      }
+      @bottom-right {
+        content: "صفحه " counter(page) " از " counter(pages);
+        color: #8a8198;
+        font-size: 8pt;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      direction: rtl;
+      color: #2f283d;
+      background: #fff;
+      font-family: "YekanBakh", "Tahoma", sans-serif;
+      font-size: 9.5pt;
+      line-height: 1.75;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid #e8e2f2;
+      border-top: 5px solid #735cbe;
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff 0%, #faf8fe 100%);
+    }
+    .brand img { width: 106px; height: auto; display: block; }
+    .title-wrap { flex: 1; text-align: right; }
+    .eyebrow { color: #735cbe; font-weight: 800; font-size: 8pt; margin-bottom: 2px; }
+    h1 { margin: 0; font-size: 16pt; line-height: 1.45; font-weight: 900; }
+    .subline { margin-top: 4px; color: #7d748d; font-size: 8.5pt; }
+
+    .meta-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+    .meta-box, .kpi, .panel {
+      border: 1px solid #e8e2f2;
+      border-radius: 11px;
+      background: #fff;
+    }
+    .meta-box { padding: 7px 9px; background: #f9f7fc; }
+    .meta-label { color: #8a8198; font-size: 7.5pt; }
+    .meta-value { margin-top: 1px; font-weight: 800; font-size: 9pt; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 13px 0 7px;
+      font-size: 11pt;
+      font-weight: 900;
+    }
+    .section-title::before {
+      content: "";
+      width: 4px;
+      height: 17px;
+      border-radius: 4px;
+      background: #735cbe;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .kpi { padding: 9px; break-inside: avoid; }
+    .kpi-label { color: #6d657a; font-size: 8pt; font-weight: 700; }
+    .kpi-value { margin-top: 3px; font-size: 12pt; font-weight: 900; color: #2f283d; }
+    .kpi-meta { margin-top: 2px; color: #93899f; font-size: 7pt; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .panel { padding: 10px; break-inside: avoid; }
+    .panel h3 { margin: 0 0 7px; font-size: 10pt; font-weight: 900; }
+
+    .rank-item { margin-bottom: 7px; }
+    .rank-head { display: flex; justify-content: space-between; gap: 8px; font-size: 8pt; }
+    .rank-title { font-weight: 800; max-width: 65%; }
+    .rank-value { color: #735cbe; font-weight: 900; white-space: nowrap; }
+    .bar { height: 6px; border-radius: 6px; background: #f0ecf7; overflow: hidden; margin-top: 3px; }
+    .bar > span { display: block; height: 100%; border-radius: inherit; background: #735cbe; }
+    .rank-meta { margin-top: 2px; color: #93899f; font-size: 7pt; }
+
+    .status-list { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+    .status-row { display: flex; align-items: center; justify-content: space-between; gap: 7px; padding: 5px 7px; border-radius: 8px; background: #faf9fc; }
+    .status-name { display: inline-flex; align-items: center; gap: 5px; font-size: 7.5pt; font-weight: 800; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .status-number { font-weight: 900; font-size: 8pt; }
+
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 7.4pt; }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; }
+    th {
+      padding: 6px 5px;
+      background: #735cbe;
+      color: #fff;
+      border: 1px solid #735cbe;
+      font-weight: 800;
+      text-align: right;
+    }
+    td { padding: 5px; border: 1px solid #e8e2f2; vertical-align: top; word-wrap: break-word; }
+    tbody tr:nth-child(even) td { background: #faf9fc; }
+    .muted { color: #8a8198; }
+    .empty { padding: 16px; text-align: center; color: #8a8198; background: #faf9fc; border-radius: 10px; }
+    .filter-chip { display: inline-block; margin: 0 0 4px 4px; padding: 3px 7px; border-radius: 999px; background: #f1edf9; color: #6748b7; font-size: 7pt; font-weight: 800; }
+    .footer-note { margin-top: 12px; padding-top: 7px; border-top: 1px solid #e8e2f2; color: #9a90a4; font-size: 7pt; text-align: center; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="title-wrap">
+      <div class="eyebrow">گزارش مدیریتی Loomera</div>
+      <h1>{{ salon.salon_name }}</h1>
+      <div class="subline">خلاصه عملکرد و جزئیات گزارش در بازه انتخاب‌شده</div>
+    </div>
+    {% if pdf_logo_uri %}<div class="brand"><img src="{{ pdf_logo_uri }}" alt="Loomera"></div>{% endif %}
+  </header>
+
+  <section class="meta-strip">
+    <div class="meta-box"><div class="meta-label">بازه گزارش</div><div class="meta-value">{{ reports_dashboard.active_range_label }}</div></div>
+    <div class="meta-box"><div class="meta-label">آخرین به‌روزرسانی</div><div class="meta-value">{{ reports_dashboard.filter_summary.last_updated }}</div></div>
+    <div class="meta-box"><div class="meta-label">تعداد رکورد</div><div class="meta-value">{{ reports_dashboard.workspace.result_count_label }}</div></div>
+  </section>
+
+  {% if reports_dashboard.active_filter_chips %}
+    <div>
+      {% for chip in reports_dashboard.active_filter_chips %}<span class="filter-chip">{{ chip.label }}: {{ chip.value }}</span>{% endfor %}
+    </div>
+  {% endif %}
+
+  <h2 class="section-title">خلاصه عملکرد</h2>
+  <section class="kpi-grid">
+    {% for card in reports_dashboard.stats %}
+      <article class="kpi">
+        <div class="kpi-label">{{ card.title }}</div>
+        <div class="kpi-value">{{ card.value }}</div>
+        {% if card.meta %}<div class="kpi-meta">{{ card.meta }}</div>{% endif %}
+      </article>
+    {% endfor %}
+  </section>
+
+  <h2 class="section-title">نگاه سریع</h2>
+  <section class="two-col">
+    <div class="panel">
+      <h3>خدمات پرفروش</h3>
+      {% if reports_dashboard.top_services.is_empty %}
+        <div class="empty">داده‌ای برای خدمات وجود ندارد.</div>
+      {% else %}
+        {% for item in reports_dashboard.top_services.items %}
+          <div class="rank-item">
+            <div class="rank-head"><span class="rank-title">{{ item.title }}</span><span class="rank-value">{{ item.value }}</span></div>
+            <div class="bar"><span style="width: {{ item.chart_end|default:0 }}%;"></span></div>
+            <div class="rank-meta">{{ item.meta }} - {{ item.chart_share_label }}</div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="panel">
+      <h3>عملکرد تیم</h3>
+      {% if reports_dashboard.top_team.is_empty %}
+        <div class="empty">داده‌ای برای تیم وجود ندارد.</div>
+      {% else %}
+        {% for item in reports_dashboard.top_team.items %}
+          <div class="rank-item">
+            <div class="rank-head"><span class="rank-title">{{ item.title }}</span><span class="rank-value">{{ item.value }}</span></div>
+            <div class="bar"><span style="width: {{ item.chart_end|default:0 }}%;"></span></div>
+            <div class="rank-meta">{{ item.meta }} - {{ item.chart_share_label }}</div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </section>
+
+  <h2 class="section-title">وضعیت رزروها</h2>
+  <section class="panel">
+    {% if reports_dashboard.status_breakdown.is_empty %}
+      <div class="empty">برای این بازه رزروی وجود ندارد.</div>
+    {% else %}
+      <div class="status-list">
+        {% for item in reports_dashboard.status_breakdown.items %}
+          {% if item.count %}
+            <div class="status-row">
+              <span class="status-name"><span class="dot" style="background: {{ item.color }};"></span>{{ item.label }}</span>
+              <span class="status-number">{{ item.count_label }} - {{ item.share_label }}</span>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+
+  <h2 class="section-title">جزئیات گزارش</h2>
+  {% if reports_dashboard.table.is_empty %}
+    <div class="empty">داده‌ای برای نمایش وجود ندارد.</div>
+  {% elif reports_dashboard.table.kind == 'sales' %}
+    <table>
+      <thead><tr><th>مشتری</th><th>خدمت و متخصص</th><th>تاریخ</th><th>وضعیت</th><th>مبلغ</th></tr></thead>
+      <tbody>
+        {% for row in reports_dashboard.table.rows %}
+          <tr><td>{{ row.title }}</td><td>{{ row.subtitle }}</td><td>{{ row.date_label }}</td><td>{{ row.status.label }}</td><td>{{ row.value_label }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <table>
+      <thead><tr><th>عنوان</th><th>توضیح</th><th>رزرو</th><th>درآمد</th><th>مشتری</th><th>تکمیل</th></tr></thead>
+      <tbody>
+        {% for row in reports_dashboard.table.rows %}
+          <tr><td>{{ row.title }}</td><td class="muted">{{ row.subtitle }}</td><td>{{ row.appointments_label }}</td><td>{{ row.revenue_label }}</td><td>{{ row.customers_label }}</td><td>{{ row.completion_label }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  <div class="footer-note">این گزارش بر اساس داده‌های ثبت‌شده در Loomera و فیلترهای فعال در زمان دریافت فایل تولید شده است.</div>
+</body>
+</html>

@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.views import View
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from apps.articles.forms import (
     validate_article_cover_image_upload,
     validate_staff_content_media_upload,
@@ -117,7 +117,9 @@ def _attach_new_tags(article: Article, raw_tags: str) -> None:
         article.tags.add(tag)
 
 
-def _build_story_link_suggestions(salon: Salon):
+def _build_story_link_suggestions(
+    salon: Salon, *, stylist: Stylist | None = None
+):
     suggestions = []
     try:
         if getattr(salon, "salon_slug", ""):
@@ -144,14 +146,16 @@ def _build_story_link_suggestions(salon: Salon):
             {"label": "صفحه مجموعه", "url": f"/detail_salon/{salon.pk}/"}
         )
     try:
-        services = salon.services.all().distinct().order_by("service_name")[:10]
+        services = salon.services.all()
+        if stylist is not None:
+            services = services.filter(stylists=stylist)
+        services = services.distinct().order_by("service_name")[:10]
     except Exception:
         try:
-            services = (
-                Services.objects.filter(services_of_salon=salon)
-                .distinct()
-                .order_by("service_name")[:10]
-            )
+            services = Services.objects.filter(services_of_salon=salon)
+            if stylist is not None:
+                services = services.filter(stylists=stylist)
+            services = services.distinct().order_by("service_name")[:10]
         except Exception:
             services = []
     service_ids = []
@@ -181,11 +185,10 @@ def _build_story_link_suggestions(salon: Salon):
             }
         )
     stylists = []
-    if hasattr(salon, "stylists"):
+    if stylist is None and hasattr(salon, "stylists"):
         try:
-            # Stylist.Meta ordering in older data can contain the invalid path ``user.id`` or ``id``.
-            # Always override ordering here so the content dashboard never crashes while
-            # building story link suggestions.
+            # Manager suggestions may include salon specialists; specialist suggestions
+            # intentionally exclude other specialists (LM-QA-053).
             stylists = salon.stylists.all().order_by("user_id")[:6]
         except Exception:
             stylists = []
@@ -270,6 +273,93 @@ def _unique_article_slug(title: str) -> str:
         suffix += 1
         candidate = f"{base}-{suffix}"[:220]
     return candidate
+
+
+def _publish_preauthorized_staff_submission(*, submission, salon, manager_user):
+    """Publish a specialist submission when the salon manager pre-authorized it.
+
+    The permission flag means "no per-item approval required"; it must not gate
+    the specialist's ability to submit content.  Keep publication fields aligned
+    with the existing manager-approval path without changing public query rules.
+    """
+
+    public_body = _public_submission_body(submission.body)
+    if not submission.title or not public_body:
+        raise ValidationError(
+            "برای انتشار مستقیم، عنوان و متن محتوا باید کامل باشد."
+        )
+
+    if submission.submission_type == StaffContentSubmission.SubmissionType.ARTICLE:
+        published_target = Article.objects.create(
+            title=submission.title,
+            slug=_unique_article_slug(submission.title),
+            summary=_summary_from_text(public_body),
+            content=public_body,
+            cover_image=submission.media if submission.media else None,
+            author_user=getattr(submission.stylist, "user", None),
+            author_stylist=submission.stylist,
+            author_salon=salon,
+            status=Article.Status.PUBLISHED,
+            visibility=Article.Visibility.PUBLIC,
+            contains_identifiable_client=submission.contains_identifiable_client,
+            client_consent_status=submission.client_consent_status or "not_required",
+            manager_approved_responsibility=True,
+            manager_approved_by=manager_user,
+            manager_approved_at=timezone.now(),
+            manager_terms_version="delegated-permission-v1",
+            professional_confirmed_responsibility=submission.professional_confirmed_responsibility,
+            professional_confirmed_at=submission.professional_confirmed_at,
+        )
+    elif submission.submission_type == StaffContentSubmission.SubmissionType.STORY:
+        published_target = SalonStory.objects.create(
+            salon=salon,
+            stylist=submission.stylist,
+            title=submission.title[:140],
+            summary=_summary_from_text(public_body),
+            cover_image=submission.media if submission.media else None,
+            status=SalonStory.Status.PUBLISHED,
+            visibility=SalonStory.Visibility.PUBLIC,
+            contains_identifiable_client=submission.contains_identifiable_client,
+            client_consent_status=submission.client_consent_status or "not_required",
+            manager_approved_responsibility=True,
+            manager_approved_by=manager_user,
+            manager_approved_at=timezone.now(),
+            manager_terms_version="delegated-permission-v1",
+            professional_confirmed_responsibility=submission.professional_confirmed_responsibility,
+            professional_confirmed_at=submission.professional_confirmed_at,
+        )
+        if submission.media:
+            SalonStoryItem.objects.create(
+                story=published_target,
+                image=submission.media.name,
+                caption=_summary_from_text(public_body, 260),
+                sort_order=1,
+            )
+    else:
+        raise ValidationError("نوع محتوا برای انتشار مستقیم پشتیبانی نمی‌شود.")
+
+    submission.status = StaffContentSubmission.Status.PUBLISHED
+    submission.manager_approved_responsibility = True
+    submission.reviewed_by = manager_user
+    submission.reviewed_at = timezone.now()
+    submission.review_note = "انتشار مستقیم بر اساس مجوز از پیش اعطاشده مدیر مجموعه."
+    submission.target_content_type = ContentType.objects.get_for_model(
+        published_target, for_concrete_model=False
+    )
+    submission.target_object_id = published_target.pk
+    submission.save(
+        update_fields=[
+            "status",
+            "manager_approved_responsibility",
+            "reviewed_by",
+            "reviewed_at",
+            "review_note",
+            "target_content_type",
+            "target_object_id",
+            "updated_at",
+        ]
+    )
+    return published_target
 
 
 def _record_content_event(
@@ -536,6 +626,8 @@ class ManagerStoryForm(forms.ModelForm):
         )
 
         super().__init__(*args, **kwargs)
+        if not getattr(self.instance, "pk", None):
+            self.fields["visibility"].initial = SalonStory.Visibility.PUBLIC
         if salon is not None:
             self.fields["related_article"].queryset = Article.objects.filter(
                 author_salon=salon
@@ -685,7 +777,9 @@ class StylistDashboardContentSubmissionForm(forms.ModelForm):
         ]
         widgets = {"body": forms.Textarea(attrs={"rows": 7})}
 
-    def __init__(self, *args, submission_type=None, salon=None, **kwargs):
+    def __init__(
+        self, *args, submission_type=None, salon=None, stylist=None, **kwargs
+    ):
         files = kwargs.get("files")
         if files is None and len(args) > 1:
             files = args[1]
@@ -706,11 +800,13 @@ class StylistDashboardContentSubmissionForm(forms.ModelForm):
             "title"
         )
         if salon is not None:
-            self.fields["suggested_services"].queryset = (
-                salon.services.all().distinct().order_by("service_name")
-            )
+            scoped_services = salon.services.all()
+            if stylist is not None:
+                scoped_services = scoped_services.filter(stylists=stylist)
+            scoped_services = scoped_services.distinct().order_by("service_name")
+            self.fields["suggested_services"].queryset = scoped_services
             self.fields["suggested_service_groups"].queryset = (
-                GroupServices.objects.filter(services_of_group__in=salon.services.all())
+                GroupServices.objects.filter(services_of_group__in=scoped_services)
                 .distinct()
                 .order_by("group_title")
             )
@@ -733,7 +829,12 @@ class StylistDashboardContentSubmissionForm(forms.ModelForm):
                 "متن کوتاه و قابل نمایش روی استوری بنویس؛ لینک یا دکمه پیشنهادی را هم در فیلدهای پایین مشخص کن."
             )
             self.fields["media"].required = True
-            self.fields["media"].help_text = "برای استوری، تصویر یا ویدیو الزامی است."
+            self.fields["media"].error_messages["required"] = (
+                "برای ارسال استوری یک تصویر JPG/PNG/WebP یا ویدیوی MP4 انتخاب کن."
+            )
+            self.fields["media"].help_text = (
+                "الزامی؛ تصویر JPG/PNG/WebP یا ویدیوی MP4 انتخاب کن."
+            )
             self.fields["visibility"].choices = SalonStory.Visibility.choices
         elif submission_type == StaffContentSubmission.SubmissionType.ARTICLE:
             self.fields["body"].label = "متن مقاله پیشنهادی"
@@ -813,15 +914,11 @@ class StylistDashboardContentSubmissionForm(forms.ModelForm):
         body = (cleaned.get("body") or "").strip()
         media = cleaned.get("media")
         if (
-            submission_type
-            in {
-                StaffContentSubmission.SubmissionType.STORY,
-                StaffContentSubmission.SubmissionType.PORTFOLIO,
-            }
+            submission_type == StaffContentSubmission.SubmissionType.PORTFOLIO
             and not media
         ):
             self.add_error(
-                "media", "برای استوری یا نمونه‌کار، یک تصویر یا فایل محتوا اضافه کن."
+                "media", "برای نمونه‌کار، یک تصویر یا فایل محتوا اضافه کن."
             )
         if (
             submission_type == StaffContentSubmission.SubmissionType.ARTICLE
@@ -1389,13 +1486,46 @@ class StylistContentHubView(LoginRequiredMixin, View):
 
         return stylist, salon
 
+    def _content_permissions(self, *, stylist, salon):
+        membership = (
+            SalonMembership.objects.filter(
+                stylist=stylist,
+                salon=salon,
+                status=SalonMembershipStatus.ACTIVE,
+            )
+            .select_related("dashboard_permissions")
+            .first()
+        )
+        if membership is None:
+            return None
+        return getattr(membership, "dashboard_permissions", None)
+
+    def _can_publish_directly(self, *, stylist, salon, submission_type):
+        permissions = self._content_permissions(stylist=stylist, salon=salon)
+        if permissions is None:
+            return False
+        if submission_type == StaffContentSubmission.SubmissionType.STORY:
+            return bool(permissions.can_submit_stories)
+        if submission_type == StaffContentSubmission.SubmissionType.ARTICLE:
+            return bool(permissions.can_submit_posts)
+        return False
+
+    def _can_submit_content(self, *, stylist, salon, submission_type):
+        # Submission itself is always available for an active membership.
+        # Permission flags control direct publication vs manager review.
+        return SalonMembership.objects.filter(
+            stylist=stylist,
+            salon=salon,
+            status=SalonMembershipStatus.ACTIVE,
+        ).exists()
+
     def _get_editable_submission_or_404(self, *, submission_id, stylist, salon):
         """
         فقط محتوای پیشنهادی خود همین متخصص در همین مجموعه قابل ویرایش است.
         اگر کاربر id مربوط به مقاله/محتوای مجموعه یا متخصص دیگر را بفرستد، 404 می‌گیرد.
         """
         if not submission_id:
-            raise Http404("Submission not found.")
+            raise Http404("درخواست محتوای موردنظر پیدا نشد.")
 
         return get_object_or_404(
             StaffContentSubmission.objects.select_related("stylist", "salon"),
@@ -1422,11 +1552,11 @@ class StylistContentHubView(LoginRequiredMixin, View):
         )
 
         if object_id and action in self.PROTECTED_ACTIONS:
-            raise Http404("Content object not found.")
+            raise Http404("محتوای موردنظر پیدا نشد.")
 
         # اگر بدون form_type معتبر ولی همراه object id ارسال شود، مشکوک است.
         if object_id and form_type not in {"article", "story", "submission_edit"}:
-            raise Http404("Content object not found.")
+            raise Http404("محتوای موردنظر پیدا نشد.")
 
     def _context(self, request, *, form=None):
         stylist, salon = self._get_objects(request)
@@ -1441,8 +1571,10 @@ class StylistContentHubView(LoginRequiredMixin, View):
             form
             if getattr(form, "submission_kind", "") == "article"
             else StylistDashboardContentSubmissionForm(
+                prefix="article",
                 submission_type=StaffContentSubmission.SubmissionType.ARTICLE,
                 salon=salon,
+                stylist=stylist,
             )
         )
 
@@ -1450,8 +1582,10 @@ class StylistContentHubView(LoginRequiredMixin, View):
             form
             if getattr(form, "submission_kind", "") == "story"
             else StylistDashboardContentSubmissionForm(
+                prefix="story",
                 submission_type=StaffContentSubmission.SubmissionType.STORY,
                 salon=salon,
+                stylist=stylist,
             )
         )
 
@@ -1475,6 +1609,7 @@ class StylistContentHubView(LoginRequiredMixin, View):
                     instance=item,
                     submission_type=item.submission_type,
                     salon=salon,
+                    stylist=stylist,
                 ),
             )
             for item in submissions
@@ -1513,7 +1648,29 @@ class StylistContentHubView(LoginRequiredMixin, View):
                 "stylist_story_service_group_options": story_form.fields[
                     "suggested_service_groups"
                 ].queryset,
-                "story_link_suggestions": _build_story_link_suggestions(salon),
+                "story_link_suggestions": _build_story_link_suggestions(
+                    salon, stylist=stylist
+                ),
+                "stylist_can_submit_posts": self._can_submit_content(
+                    stylist=stylist,
+                    salon=salon,
+                    submission_type=StaffContentSubmission.SubmissionType.ARTICLE,
+                ),
+                "stylist_can_submit_stories": self._can_submit_content(
+                    stylist=stylist,
+                    salon=salon,
+                    submission_type=StaffContentSubmission.SubmissionType.STORY,
+                ),
+                "stylist_posts_direct_publish": self._can_publish_directly(
+                    stylist=stylist,
+                    salon=salon,
+                    submission_type=StaffContentSubmission.SubmissionType.ARTICLE,
+                ),
+                "stylist_stories_direct_publish": self._can_publish_directly(
+                    stylist=stylist,
+                    salon=salon,
+                    submission_type=StaffContentSubmission.SubmissionType.STORY,
+                ),
             }
         )
 
@@ -1560,6 +1717,12 @@ class StylistContentHubView(LoginRequiredMixin, View):
                 )
                 return redirect("dashboards:stylist_content")
 
+            direct_publish = self._can_publish_directly(
+                stylist=stylist,
+                salon=salon,
+                submission_type=submission.submission_type,
+            )
+
             form = StylistDashboardContentSubmissionForm(
                 request.POST,
                 request.FILES,
@@ -1567,6 +1730,7 @@ class StylistContentHubView(LoginRequiredMixin, View):
                 instance=submission,
                 submission_type=submission.submission_type,
                 salon=salon,
+                stylist=stylist,
             )
 
             if form.is_valid():
@@ -1578,34 +1742,54 @@ class StylistContentHubView(LoginRequiredMixin, View):
                 updated.professional_confirmed_at = timezone.now()
                 updated.save()
 
+                if direct_publish:
+                    manager_user = getattr(
+                        getattr(salon, "salon_manager", None), "user", None
+                    )
+                    if manager_user is not None:
+                        _publish_preauthorized_staff_submission(
+                            submission=updated,
+                            salon=salon,
+                            manager_user=manager_user,
+                        )
+
                 _record_content_event(
                     updated,
-                    event_type="staff_content_updated",
+                    event_type=(
+                        "staff_content_auto_published"
+                        if updated.status == StaffContentSubmission.Status.PUBLISHED
+                        else "staff_content_updated"
+                    ),
                     actor=request.user,
                     old_status=old_status,
                     new_status=updated.status,
                 )
 
-                _notify_content_event(
-                    salon=salon,
-                    stylist=stylist,
-                    actor=request.user,
-                    event_type="staff_content_updated",
-                    title="محتوای پیشنهادی متخصص ویرایش شد",
-                    body=(
-                        f"{stylist.get_fullName()} محتوای "
-                        f"«{updated.title or updated.get_submission_type_display()}» "
-                        "را دوباره برای بررسی ارسال کرد."
-                    ),
-                    target=updated,
-                    action_url=reverse("dashboards:content_hub"),
-                    include_admins=False,
-                )
-
-                messages.success(
-                    request,
-                    "تغییرات محتوا ذخیره و دوباره برای بررسی ارسال شد.",
-                )
+                if updated.status == StaffContentSubmission.Status.PUBLISHED:
+                    messages.success(
+                        request,
+                        "تغییرات ذخیره و بر اساس مجوز مدیر مستقیماً منتشر شد.",
+                    )
+                else:
+                    _notify_content_event(
+                        salon=salon,
+                        stylist=stylist,
+                        actor=request.user,
+                        event_type="staff_content_updated",
+                        title="محتوای پیشنهادی متخصص ویرایش شد",
+                        body=(
+                            f"{stylist.get_fullName()} محتوای "
+                            f"«{updated.title or updated.get_submission_type_display()}» "
+                            "را دوباره برای بررسی ارسال کرد."
+                        ),
+                        target=updated,
+                        action_url=reverse("dashboards:content_hub"),
+                        include_admins=False,
+                    )
+                    messages.success(
+                        request,
+                        "تغییرات محتوا ذخیره و دوباره برای بررسی ارسال شد.",
+                    )
                 return redirect("dashboards:stylist_content")
 
             form.submission_kind = (
@@ -1633,11 +1817,29 @@ class StylistContentHubView(LoginRequiredMixin, View):
             else StaffContentSubmission.SubmissionType.ARTICLE
         )
 
+        if not self._can_submit_content(
+            stylist=stylist,
+            salon=salon,
+            submission_type=submission_type,
+        ):
+            return HttpResponseForbidden("عضویت فعال در این مجموعه پیدا نشد.")
+
+        direct_publish = self._can_publish_directly(
+            stylist=stylist,
+            salon=salon,
+            submission_type=submission_type,
+        )
         form = StylistDashboardContentSubmissionForm(
             request.POST,
             request.FILES,
+            prefix=(
+                "story"
+                if submission_type == StaffContentSubmission.SubmissionType.STORY
+                else "article"
+            ),
             submission_type=submission_type,
             salon=salon,
+            stylist=stylist,
         )
 
         form.submission_kind = (
@@ -1656,30 +1858,64 @@ class StylistContentHubView(LoginRequiredMixin, View):
             submission.professional_confirmed_at = timezone.now()
             submission.save()
 
+            if direct_publish:
+                manager_user = getattr(
+                    getattr(salon, "salon_manager", None), "user", None
+                )
+                if manager_user is not None:
+                    try:
+                        _publish_preauthorized_staff_submission(
+                            submission=submission,
+                            salon=salon,
+                            manager_user=manager_user,
+                        )
+                    except ValidationError as exc:
+                        form.add_error(None, user_error_message(exc))
+                        submission.delete()
+                        messages.error(
+                            request,
+                            "انتشار مستقیم کامل نشد. خطاهای فرم را اصلاح کن.",
+                        )
+                        ctx = self._context(request, form=form)
+                        if ctx is None:
+                            return redirect("dashboards:stylist_dashboard")
+                        return render(request, self.template_name, ctx)
+
             _record_content_event(
                 submission,
-                event_type="submitted",
+                event_type=(
+                    "staff_content_auto_published"
+                    if submission.status == StaffContentSubmission.Status.PUBLISHED
+                    else "submitted"
+                ),
                 actor=request.user,
                 new_status=submission.status,
             )
 
-            _notify_content_event(
-                salon=salon,
-                stylist=stylist,
-                actor=request.user,
-                event_type="staff_content_submitted",
-                title="محتوای پیشنهادی متخصص ثبت شد",
-                body=(
-                    f"{stylist.get_fullName()} محتوای "
-                    f"«{submission.title or submission.get_submission_type_display()}» "
-                    "را برای بررسی ارسال کرد."
-                ),
-                target=submission,
-                action_url=reverse("dashboards:content_hub"),
-                include_admins=False,
-            )
-
-            messages.success(request, "محتوای شما برای بررسی مدیر مجموعه ارسال شد.")
+            if submission.status == StaffContentSubmission.Status.PUBLISHED:
+                messages.success(
+                    request,
+                    "محتوا بر اساس مجوز از پیش اعطاشده مدیر مستقیماً منتشر شد.",
+                )
+            else:
+                _notify_content_event(
+                    salon=salon,
+                    stylist=stylist,
+                    actor=request.user,
+                    event_type="staff_content_submitted",
+                    title="محتوای پیشنهادی متخصص ثبت شد",
+                    body=(
+                        f"{stylist.get_fullName()} محتوای "
+                        f"«{submission.title or submission.get_submission_type_display()}» "
+                        "را برای بررسی ارسال کرد."
+                    ),
+                    target=submission,
+                    action_url=reverse("dashboards:content_hub"),
+                    include_admins=False,
+                )
+                messages.success(
+                    request, "محتوای شما برای بررسی مدیر مجموعه ارسال شد."
+                )
             return redirect("dashboards:stylist_content")
 
         messages.error(

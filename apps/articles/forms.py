@@ -87,7 +87,7 @@ def validate_article_cover_image_upload(uploaded_file, *, declared_content_type=
 
     if ext not in ARTICLE_COVER_ALLOWED_EXTENSIONS:
         raise ValidationError(
-            "پسوند تصویر مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "پسوند تصویر مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     name_without_last_ext = original_name[: -len(ext)] if ext else original_name
@@ -106,7 +106,7 @@ def validate_article_cover_image_upload(uploaded_file, *, declared_content_type=
 
     if content_type not in ARTICLE_COVER_ALLOWED_CONTENT_TYPES:
         raise ValidationError(
-            "فرمت فایل مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "فرمت فایل مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     try:
@@ -367,7 +367,7 @@ def _validate_staff_content_media_mp4(uploaded_file):
 
     # MP4 باید box ابتدایی ftyp داشته باشد. این بررسی سبک است و جلوی فایل متنی/جعلی را می‌گیرد.
     if b"ftyp" not in header[:32]:
-        raise ValidationError("فایل ویدیویی MP4 معتبر نیست.")
+        raise ValidationError("فایل ویدیویی اِم‌پی۴ معتبر نیست.")
 
 
 def validate_staff_content_media_upload(uploaded_file, *, declared_content_type=None):
@@ -382,7 +382,7 @@ def validate_staff_content_media_upload(uploaded_file, *, declared_content_type=
 
     if ext not in STAFF_CONTENT_MEDIA_ALLOWED_EXTENSIONS:
         raise ValidationError(
-            "پسوند فایل محتوا مجاز نیست. فقط JPG، PNG، WEBP یا MP4 قابل قبول است."
+            "پسوند فایل محتوا مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی، وِب‌پی یا اِم‌پی۴ قابل قبول است."
         )
 
     name_without_last_ext = original_name[: -len(ext)] if ext else original_name
@@ -401,7 +401,7 @@ def validate_staff_content_media_upload(uploaded_file, *, declared_content_type=
 
     if content_type not in STAFF_CONTENT_MEDIA_ALLOWED_CONTENT_TYPES:
         raise ValidationError(
-            "فرمت فایل محتوا مجاز نیست. فقط JPG، PNG، WEBP یا MP4 قابل قبول است."
+            "فرمت فایل محتوا مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی، وِب‌پی یا اِم‌پی۴ قابل قبول است."
         )
 
     if ext == ".mp4":

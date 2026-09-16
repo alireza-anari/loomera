@@ -60,7 +60,7 @@ class PlatformAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def handle_no_permission(self):
         if not self.request.user.is_authenticated:
             return redirect("accounts:login")
-        raise PermissionDenied("شما به این بخش از پنل ادمین Loomera دسترسی ندارید.")
+        raise PermissionDenied("شما به این بخش از پنل ادمین لومرا دسترسی ندارید.")
 
 
 def require_platform_role(*roles):

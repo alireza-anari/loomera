@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import user_error_message
 import logging
 from collections import Counter
 from urllib import request
@@ -38,6 +39,7 @@ from django.core.exceptions import FieldDoesNotExist, ValidationError
 from apps.articles.models import Article, SalonStory
 from apps.articles.services import build_story_payload, published_stories_queryset
 from apps.main.seo import build_breadcrumb_schema, build_salon_schema
+from apps.dashboards.jalali_utils import format_jalali_numeric
 from apps.stylists.profile_services import (
     build_salon_stylist_profile_context,
     can_show_stylist_on_salon_profile,
@@ -203,10 +205,26 @@ def _clean_public_salon_review_appointment_id(request, *, salon, customer):
 
     appointment_id = int(raw_value)
 
-    if not OrderDetail.objects.filter(
-        pk=appointment_id,
+    appointment = (
+        OrderDetail.objects.select_related("order")
+        .filter(
+            pk=appointment_id,
+            salon=salon,
+            order__customer=customer,
+            order__service_completed_at__isnull=False,
+            order__review_completed_at__isnull=True,
+        )
+        .exclude(order__status="cancelled")
+        .first()
+    )
+    if appointment is None:
+        return ""
+
+    if Comments.objects.filter(
+        comment_user=customer,
         salon=salon,
-        order__customer=customer,
+        stylist_id=appointment.stylist_id,
+        service_id=appointment.service_id,
     ).exists():
         return ""
 
@@ -961,7 +979,7 @@ class DetailSalonView(View):
         try:
             _validate_public_salon_query_size(request)
         except ValidationError as exc:
-            return HttpResponseBadRequest(str(exc))
+            return HttpResponseBadRequest(user_error_message(exc, "درخواست صفحه مجموعه معتبر نیست."))
         # =================================================================
         # ۱. واکشی آبجکت اصلی مجموعه به همراه روابط اولیه
         # =================================================================
@@ -1106,7 +1124,7 @@ class DetailSalonView(View):
             comments_list.append(
                 {
                     "user_full_name": user_full_name,
-                    "date": c.register_date,
+                    "date": format_jalali_numeric(c.register_date),
                     "comment_text": c.comment_text,
                     "score": score_val,
                     "avatar_url": avatar_url,
@@ -1143,7 +1161,7 @@ class DetailSalonView(View):
         # ۶. ساخت Context نهایی برای ارسال به Template
         # =================================================================
         review_is_allowed = (
-            current_customer is not None and form.fields["service"].queryset.exists()
+            current_customer is not None and form.eligible_order_details.exists()
         )
 
         review_appointment_id = _clean_public_salon_review_appointment_id(
@@ -1272,7 +1290,7 @@ class SalonStylistProfileView(View):
         try:
             _validate_public_salon_query_size(request)
         except ValidationError as exc:
-            return HttpResponseBadRequest(str(exc))
+            return HttpResponseBadRequest(user_error_message(exc, "درخواست صفحه مجموعه معتبر نیست."))
 
         salon_lookup = {"slug": salon_slug} if salon_slug else {"id": salon_id}
         salon = get_object_or_404(

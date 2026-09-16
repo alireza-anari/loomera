@@ -144,9 +144,11 @@ class Stage2SalonSetupTests(TestCase):
         self._complete_step3()
         self.assertTrue(_is_step3_complete(self.salon))
         self.assertFalse(_is_step7_complete(self.salon))
+        # LM-QA-042: supplementary features are optional; zero selection must
+        # not block onboarding progress or resume.
         self.assertEqual(
             _get_required_onboarding_view_name(self.user),
-            "dashboards:salon_profile_creator_step7",
+            "dashboards:salon_profile_creator_step8",
         )
 
         self._complete_step7()

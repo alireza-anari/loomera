@@ -2,7 +2,7 @@
 {% load static %}
 {% load jalali_extras %}
 
-{% block title %}درخواست دریافت درآمد{% endblock %}
+{% block title %}دریافت درآمد{% endblock %}
 {% block body_attrs %}data-page="stylist-withdrawals"{% endblock %}
 
 {% block head %}
@@ -12,42 +12,41 @@
 
 {% block content %}
   {% url 'dashboards:stylist_finance' as stylist_finance_url %}
-  {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
-  {% url 'dashboards:stylist_schedule' as stylist_schedule_url %}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-withdrawals">
-    {% include "dashboards/components/page_hero.html" with eyebrow="دریافت درآمد" eyebrow_icon="fa-solid fa-money-bill-transfer" title="درخواست دریافت درآمد" description="درخواست جدید و سابقه نتیجه درخواست‌ها را جدا ببین؛ تغییرات درآمد خدمات در صفحه «درآمد من» باقی می‌ماند." action_label="بازگشت به درآمد من" action_url=stylist_finance_url badges=page_meta.badges %}
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lm-stylist-workspace"
+           data-dashboard-workspace-root
+           data-dashboard-page="stylist-withdrawals">
 
+    <header class="rounded-[24px] border border-loomera-borderSoft bg-white px-4 py-3.5 shadow-lm-card sm:px-5 sm:py-4">
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">مالی من</p>
+          <h1 class="mt-1 text-xl font-black text-loomera-textPrimary sm:text-2xl">دریافت درآمد</h1>
+        </div>
 
-
-
+        <a href="{{ stylist_finance_url }}"
+           class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3.5 py-2 text-xs font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle hover:text-loomera-textPrimary">
+          <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
+          <span>درآمد من</span>
+        </a>
+      </div>
+    </header>
 
     <section id="stylist-withdrawals-section-summary"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section>
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">خلاصه دریافت</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مانده و درخواست‌های همین مجموعه</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            {{ salon.salon_name|default:"مجموعه فعال" }}
-          </p>
-        </div>
-</header>
-
-      <div class="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-5 lg:p-6">
+             class="rounded-[24px] border border-loomera-borderSoft bg-white p-3 shadow-lm-card sm:p-4"
+             data-dashboard-workspace-panel
+             data-lm-direct-section>
+      <div class="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
         {% for card in summary_cards %}
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <p class="truncate text-xs font-bold text-loomera-textMuted">{{ card.label }}</p>
-                <strong class="mt-3 block text-lg font-black text-loomera-textPrimary">{{ card.value|fa_digits }}</strong>
-              </div>
-
-              <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
-                <i class="{{ card.icon }}" aria-hidden="true"></i>
-              </span>
+          <article class="flex min-w-0 items-center justify-between gap-3 rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 px-3.5 py-3">
+            <div class="min-w-0">
+              <p class="truncate text-[11px] font-bold text-loomera-textMuted">{{ card.label }}</p>
+              <strong class="mt-1 block truncate text-base font-black text-loomera-textPrimary sm:text-lg">{{ card.value|fa_digits }}</strong>
             </div>
+
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText">
+              <i class="{{ card.icon }} text-sm" aria-hidden="true"></i>
+            </span>
           </article>
         {% empty %}
           <div class="sm:col-span-2 xl:col-span-3">
@@ -57,208 +56,137 @@
       </div>
     </section>
 
-    <div data-lm-task-tabs-anchor="stylist-withdrawals" data-lm-task-tabs-label="بخش‌های دریافت درآمد"></div>
+    <div data-lm-task-tabs-anchor="stylist-withdrawals"
+         data-lm-task-tabs-label="بخش‌های دریافت درآمد"></div>
 
     <section id="stylist-withdrawals-section-form"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             class="group scroll-mt-28 overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel
-             data-lm-direct-section data-lm-task-panel="stylist-withdrawals" data-lm-task-key="request" data-lm-task-label="درخواست دریافت" data-lm-task-default data-lm-task-order="1">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             data-lm-direct-section
+             data-lm-task-panel="stylist-withdrawals"
+             data-lm-task-key="request"
+             data-lm-task-label="درخواست جدید"
+             data-lm-task-default
+             data-lm-task-order="1">
+      <header data-lm-direct-section-header
+              class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 sm:px-5">
         <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">درخواست جدید</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ثبت درخواست دریافت درآمد</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            مبلغ درخواستی بعد از ثبت، از مانده قابل دریافت همین مجموعه رزرو می‌شود.
-          </p>
+          <h2 class="text-base font-black text-loomera-textPrimary">درخواست دریافت درآمد</h2>
+          <p class="mt-1 text-xs leading-5 text-loomera-textMuted">مبلغ و حساب مقصد را وارد کن.</p>
         </div>
-
-
+        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText">
+          <i class="fa-solid fa-money-bill-transfer text-sm" aria-hidden="true"></i>
+        </span>
       </header>
 
-      <div class="p-4 sm:p-5 lg:p-6">
-        <form method="post" class="space-y-5">
+      <div class="p-4 sm:p-5">
+        <form method="post" class="space-y-4">
           {% csrf_token %}
 
           {% if withdrawal_form.non_field_errors %}
-            <div class="rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-4 text-sm font-bold leading-7 text-rose-700" role="alert">
+            <div class="rounded-[20px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold leading-7 text-rose-700" role="alert">
               {% for error in withdrawal_form.non_field_errors %}
                 <p>{{ error }}</p>
               {% endfor %}
             </div>
           {% endif %}
 
-          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft">
-            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">مبلغ برداشت</p>
-                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">مبلغ دریافت</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                    مبلغ باید کمتر یا مساوی مانده قابل دریافت شما در همین مجموعه باشد.
-                  </p>
-                </div>
-
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                  <i class="fa-solid fa-coins" aria-hidden="true"></i>
-                </span>
-              </div>
-            </header>
-
-            <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
+          <section class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/45 p-4">
+            <div class="grid gap-4 md:grid-cols-2">
               <div>
-                <label for="{{ withdrawal_form.amount.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                  <i class="fa-solid fa-money-bill-wave text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                <label for="{{ withdrawal_form.amount.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textPrimary">
                   {{ withdrawal_form.amount.label }}
                 </label>
-
                 {{ withdrawal_form.amount }}
-
+                <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">حداکثر تا مانده قابل دریافت همین مجموعه.</p>
                 {% if withdrawal_form.amount.errors %}
                   <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                    {% for error in withdrawal_form.amount.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
+                    {% for error in withdrawal_form.amount.errors %}<p>{{ error }}</p>{% endfor %}
                   </div>
                 {% endif %}
               </div>
 
-              <div class="rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-7 text-amber-800">
-                <p class="font-black">نکته مهم</p>
-                <p class="mt-1">
-                  بعد از ثبت درخواست، مبلغ از مانده قابل دریافت شما رزرو می‌شود تا مدیر مجموعه آن را بررسی کند.
-                </p>
+              <div class="rounded-[18px] border border-amber-200 bg-amber-50 px-3.5 py-3 text-xs leading-6 text-amber-800">
+                <strong class="block font-black">بعد از ثبت درخواست</strong>
+                <span>مبلغ تا زمان بررسی مدیر مجموعه از مانده قابل دریافت شما رزرو می‌شود.</span>
               </div>
             </div>
           </section>
 
-          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft">
-            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">حساب بانکی</p>
-                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">اطلاعات حساب بانکی</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                    شماره شبا باید با IR شروع شود و ۲۶ کاراکتر باشد.
-                  </p>
-                </div>
-
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                  <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
-                </span>
-              </div>
-            </header>
-
-            <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
+          <section class="rounded-[22px] border border-loomera-borderSoft bg-white p-4">
+            <div class="mb-4 flex items-center justify-between gap-3">
               <div>
-                <label for="{{ withdrawal_form.iban.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                  <i class="fa-solid fa-hashtag text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                <h3 class="text-sm font-black text-loomera-textPrimary">حساب مقصد</h3>
+                <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">اطلاعات حسابی که مبلغ باید به آن واریز شود.</p>
+              </div>
+              <i class="fa-solid fa-building-columns text-sm text-loomera-primaryText" aria-hidden="true"></i>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2">
+              <div>
+                <label for="{{ withdrawal_form.iban.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textPrimary">
                   {{ withdrawal_form.iban.label }}
                 </label>
-
                 {{ withdrawal_form.iban }}
-
+                <p class="mt-2 text-[11px] leading-5 text-loomera-textMuted">شماره شبا با IR شروع می‌شود و ۲۶ کاراکتر دارد.</p>
                 {% if withdrawal_form.iban.errors %}
                   <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                    {% for error in withdrawal_form.iban.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
+                    {% for error in withdrawal_form.iban.errors %}<p>{{ error }}</p>{% endfor %}
                   </div>
                 {% endif %}
               </div>
 
               <div>
-                <label for="{{ withdrawal_form.account_holder_name.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                  <i class="fa-regular fa-user text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                <label for="{{ withdrawal_form.account_holder_name.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textPrimary">
                   {{ withdrawal_form.account_holder_name.label }}
                 </label>
-
                 {{ withdrawal_form.account_holder_name }}
-
                 {% if withdrawal_form.account_holder_name.errors %}
                   <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                    {% for error in withdrawal_form.account_holder_name.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
+                    {% for error in withdrawal_form.account_holder_name.errors %}<p>{{ error }}</p>{% endfor %}
                   </div>
                 {% endif %}
               </div>
 
               <div>
-                <label for="{{ withdrawal_form.bank_name.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                  <i class="fa-solid fa-building-columns text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                <label for="{{ withdrawal_form.bank_name.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textPrimary">
                   {{ withdrawal_form.bank_name.label }}
                 </label>
-
                 {{ withdrawal_form.bank_name }}
-
                 {% if withdrawal_form.bank_name.errors %}
                   <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                    {% for error in withdrawal_form.bank_name.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
+                    {% for error in withdrawal_form.bank_name.errors %}<p>{{ error }}</p>{% endfor %}
                   </div>
                 {% endif %}
               </div>
 
-              <div class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 text-sm leading-7 text-loomera-textSecondary">
-                <p class="font-black text-loomera-textPrimary">رسید پرداخت</p>
-                <p class="mt-1">
-                  رسید توسط مدیر مجموعه، بعد از پرداخت و بررسی درخواست بارگذاری می‌شود.
-                </p>
+              <div class="rounded-[18px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-3.5 py-3 text-xs leading-6 text-loomera-textSecondary">
+                <strong class="block font-black text-loomera-textPrimary">رسید پرداخت</strong>
+                <span>پس از پرداخت، مدیر مجموعه می‌تواند رسید را به همین درخواست اضافه کند.</span>
               </div>
             </div>
           </section>
 
-          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft">
-            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">توضیحات</p>
-                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">یادداشت اختیاری</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                    اگر توضیحی برای مدیر مجموعه داری، اینجا وارد کن.
-                  </p>
-                </div>
-
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                  <i class="fa-regular fa-note-sticky" aria-hidden="true"></i>
-                </span>
+          <section class="rounded-[22px] border border-loomera-borderSoft bg-white p-4">
+            <label for="{{ withdrawal_form.note.id_for_label }}" class="mb-2 block text-xs font-black text-loomera-textPrimary">
+              {{ withdrawal_form.note.label }} <span class="font-normal text-loomera-textMuted">(اختیاری)</span>
+            </label>
+            {{ withdrawal_form.note }}
+            {% if withdrawal_form.note.errors %}
+              <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                {% for error in withdrawal_form.note.errors %}<p>{{ error }}</p>{% endfor %}
               </div>
-            </header>
-
-            <div class="p-4 sm:p-5">
-              <label for="{{ withdrawal_form.note.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
-                {{ withdrawal_form.note.label }}
-              </label>
-
-              {{ withdrawal_form.note }}
-
-              {% if withdrawal_form.note.errors %}
-                <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                  {% for error in withdrawal_form.note.errors %}
-                    <p>{{ error }}</p>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
+            {% endif %}
           </section>
 
-          <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p class="text-xs leading-6 text-loomera-textMuted">
-                این درخواست فقط برای درآمد شما در مجموعه فعال فعلی ثبت می‌شود.
-              </p>
-
-              <div class="flex flex-col gap-2 sm:flex-row">
-                <a href="{{ stylist_finance_url }}" class="inline-flex items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
-                  بازگشت به مالی
-                </a>
-
-                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
-                  <i class="fa-solid fa-paper-plane text-xs" aria-hidden="true"></i>
-                  ثبت درخواست دریافت درآمد
-                </button>
-              </div>
+          <div data-mobile-primary-action
+               class="lm-dashboard-sticky-action sticky z-20 rounded-[18px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_10px_28px_rgba(46,42,60,0.12)] backdrop-blur">
+            <div class="flex items-center justify-end">
+              <button type="submit"
+                      class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-4 py-2 text-xs font-black text-white transition hover:bg-loomera-primaryHover sm:px-5 sm:text-sm">
+                <i class="fa-solid fa-paper-plane text-[10px]" aria-hidden="true"></i>
+                <span>ثبت درخواست</span>
+              </button>
             </div>
           </div>
         </form>
@@ -266,88 +194,95 @@
     </section>
 
     <section id="stylist-withdrawals-section-requests"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-withdrawals" data-lm-task-key="requests" data-lm-task-label="درخواست‌های من" data-lm-task-order="2">
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
+             class="group scroll-mt-28 overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel
+             data-lm-direct-section
+             data-lm-task-panel="stylist-withdrawals"
+             data-lm-task-key="requests"
+             data-lm-task-label="درخواست‌های من"
+             data-lm-task-order="2">
+      <header data-lm-direct-section-header
+              class="flex items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 sm:px-5">
         <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">درخواست‌های من</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">وضعیت درخواست‌های دریافت درآمد</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            آخرین درخواست‌های ثبت‌شده برای همین مجموعه.
-          </p>
+          <h2 class="text-base font-black text-loomera-textPrimary">درخواست‌های من</h2>
+          <p class="mt-1 text-xs leading-5 text-loomera-textMuted">وضعیت آخرین درخواست‌های دریافت درآمد.</p>
         </div>
-</header>
+        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText">
+          <i class="fa-regular fa-clock text-sm" aria-hidden="true"></i>
+        </span>
+      </header>
 
-      <div class="grid gap-3 p-4 sm:p-5 lg:grid-cols-2 xl:grid-cols-3 lg:p-6">
+      <div class="grid gap-3 p-4 sm:p-5 lg:grid-cols-2">
         {% for item in withdrawal_requests %}
-          <article class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
+          <article class="lm-compact-record rounded-[22px] border border-loomera-borderSoft bg-white p-4 shadow-lm-soft">
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
-                <p class="text-lg font-black text-loomera-textPrimary">
+                <p class="text-base font-black text-loomera-textPrimary sm:text-lg">
                   {{ item.amount|floatformat:0|fa_digits }} تومان
                 </p>
-                <p class="mt-1 text-xs text-loomera-textMuted">
-                  ثبت: {{ item.created_at|jalali_datetime }}
+                <p class="mt-1 text-[11px] text-loomera-textMuted">
+                  {{ item.created_at|jalali_datetime }}
                 </p>
-                {% if item.reviewed_at %}
-                  <p class="mt-1 text-xs text-loomera-textMuted">
-                    بررسی: {{ item.reviewed_at|jalali_datetime }}
-                  </p>
-                {% endif %}
               </div>
 
-              <span class="shrink-0 rounded-full px-3 py-1 text-xs font-black {% if item.status == 'approved' %}bg-emerald-50 text-emerald-700{% elif item.status == 'rejected' %}bg-rose-50 text-rose-700{% elif item.status == 'cancelled' %}bg-slate-100 text-slate-600{% else %}bg-amber-50 text-amber-700{% endif %}">
+              <span class="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black {% if item.status == 'approved' %}bg-emerald-50 text-emerald-700{% elif item.status == 'rejected' %}bg-rose-50 text-rose-700{% elif item.status == 'cancelled' %}bg-slate-100 text-slate-600{% else %}bg-amber-50 text-amber-700{% endif %}">
                 {{ item.get_status_display }}
               </span>
             </div>
 
-            <div class="mt-4 grid gap-2 text-xs text-loomera-textSecondary">
-              <div class="rounded-xl bg-loomera-bgSubtle px-3 py-3">
-                <span class="font-bold text-loomera-textMuted">شبا:</span>
+            <div class="mt-3 grid gap-2 sm:grid-cols-2">
+              <div class="rounded-xl bg-loomera-bgSubtle px-3 py-2.5 text-xs text-loomera-textSecondary sm:col-span-2">
+                <span class="font-bold text-loomera-textMuted">شماره شبا:</span>
                 <span dir="ltr" class="inline-block">{{ item.iban }}</span>
               </div>
 
-              <div class="rounded-xl bg-loomera-bgSubtle px-3 py-3">
+              <div class="rounded-xl bg-loomera-bgSubtle px-3 py-2.5 text-xs text-loomera-textSecondary">
                 <span class="font-bold text-loomera-textMuted">صاحب حساب:</span>
                 {{ item.account_holder_name }}
               </div>
 
               {% if item.bank_name %}
-                <div class="rounded-xl bg-loomera-bgSubtle px-3 py-3">
+                <div class="rounded-xl bg-loomera-bgSubtle px-3 py-2.5 text-xs text-loomera-textSecondary">
                   <span class="font-bold text-loomera-textMuted">بانک:</span>
                   {{ item.bank_name }}
                 </div>
               {% endif %}
             </div>
 
+            {% if item.reviewed_at %}
+              <p class="mt-3 text-[11px] text-loomera-textMuted">بررسی: {{ item.reviewed_at|jalali_datetime }}</p>
+            {% endif %}
+
             {% if item.note %}
-              <div class="mt-3 rounded-2xl px-3 py-3 text-xs leading-6 {% if item.status == 'rejected' %}bg-rose-50 text-rose-700{% elif item.status == 'cancelled' %}bg-slate-100 text-slate-600{% elif item.status == 'approved' %}bg-emerald-50 text-emerald-700{% else %}bg-amber-50 text-amber-700{% endif %}">
+              <div class="mt-3 rounded-xl px-3 py-2.5 text-xs leading-6 {% if item.status == 'rejected' %}bg-rose-50 text-rose-700{% elif item.status == 'cancelled' %}bg-slate-100 text-slate-600{% elif item.status == 'approved' %}bg-emerald-50 text-emerald-700{% else %}bg-amber-50 text-amber-700{% endif %}">
                 {{ item.note }}
               </div>
             {% endif %}
 
-            <div class="mt-4 flex flex-wrap items-center gap-2">
+            <div class="mt-3 flex flex-wrap items-center gap-2">
               {% if item.payment_receipt %}
-                <a href="{{ item.payment_receipt.url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700 transition hover:bg-emerald-100">
+                <a href="{{ item.payment_receipt.url }}"
+                   target="_blank"
+                   rel="noopener"
+                   class="inline-flex min-h-9 items-center gap-2 rounded-full bg-emerald-50 px-3.5 py-2 text-[11px] font-black text-emerald-700 transition hover:bg-emerald-100">
                   <i class="fa-solid fa-receipt text-[10px]" aria-hidden="true"></i>
-                  مشاهده رسید
+                  <span>مشاهده رسید</span>
                 </a>
               {% else %}
-                <span class="inline-flex items-center gap-2 rounded-full bg-loomera-bgSubtle px-4 py-2 text-xs font-bold text-loomera-textMuted">
+                <span class="inline-flex min-h-9 items-center gap-2 rounded-full bg-loomera-bgSubtle px-3.5 py-2 text-[11px] font-bold text-loomera-textMuted">
                   <i class="fa-regular fa-file-lines text-[10px]" aria-hidden="true"></i>
-                  بدون رسید / پرداخت نقدی
+                  <span>رسیدی ثبت نشده</span>
                 </span>
               {% endif %}
             </div>
           </article>
         {% empty %}
-          <div class="lg:col-span-2 xl:col-span-3">
-            {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-money-bill-transfer" title="هنوز درخواست دریافت درآمدی ثبت نکرده‌ای" description="از بخش ثبت درخواست، مبلغ و اطلاعات حساب را وارد کن تا مدیر مجموعه بررسی کند." %}
+          <div class="lg:col-span-2">
+            {% include "dashboards/components/empty_state.html" with icon="fa-solid fa-money-bill-transfer" title="هنوز درخواست دریافت درآمدی ثبت نکرده‌ای" description="از تب «درخواست جدید» مبلغ و اطلاعات حساب را وارد کن." %}
           </div>
         {% endfor %}
       </div>
     </section>
-
 
   </section>
 {% endblock %}

@@ -5,6 +5,8 @@ from typing import Any
 from django.conf import settings
 from rest_framework.response import Response
 
+from apps.main.ui_feedback import user_ui_message
+
 
 def api_version() -> str:
     return str(getattr(settings, "LOOMERA_API_VERSION", "v1") or "v1")
@@ -43,7 +45,7 @@ def api_error(
         "ok": False,
         "error": {
             "code": code,
-            "message": message,
+            "message": user_ui_message(message, "درخواست انجام نشد. لطفاً اطلاعات ارسالی را بررسی کنید."),
         },
         "meta": {
             "api_version": api_version(),

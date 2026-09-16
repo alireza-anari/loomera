@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import user_error_message
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
@@ -152,7 +153,7 @@ def _validate_finance_payment_receipt_pdf(uploaded_file):
     uploaded_file.seek(0)
 
     if not header.startswith(b"%PDF-"):
-        raise ValidationError("فایل PDF رسید معتبر نیست.")
+        raise ValidationError("فایل پی‌دی‌اِف رسید معتبر نیست.")
 
 
 def validate_finance_payment_receipt_upload(uploaded_file):
@@ -167,7 +168,7 @@ def validate_finance_payment_receipt_upload(uploaded_file):
 
     if ext not in FINANCE_PAYMENT_RECEIPT_ALLOWED_EXTENSIONS:
         raise ValidationError(
-            "پسوند رسید مجاز نیست. فقط JPG، PNG یا PDF قابل قبول است."
+            "پسوند رسید مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا پی‌دی‌اِف قابل قبول است."
         )
 
     name_without_last_ext = original_name[: -len(ext)] if ext else original_name
@@ -181,11 +182,11 @@ def validate_finance_payment_receipt_upload(uploaded_file):
     content_type = content_type.split(";")[0].strip().lower()
 
     if content_type not in FINANCE_PAYMENT_RECEIPT_ALLOWED_CONTENT_TYPES:
-        raise ValidationError("فرمت رسید مجاز نیست. فقط JPG، PNG یا PDF قابل قبول است.")
+        raise ValidationError("فرمت رسید مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا پی‌دی‌اِف قابل قبول است.")
 
     if ext == ".pdf":
         if content_type != "application/pdf":
-            raise ValidationError("فرمت PDF رسید معتبر نیست.")
+            raise ValidationError("فرمت پی‌دی‌اِف رسید معتبر نیست.")
         _validate_finance_payment_receipt_pdf(uploaded_file)
         return uploaded_file
 
@@ -430,7 +431,7 @@ class StylistWithdrawalRequestsView(LoginRequiredMixin, View):
                 )
                 return redirect("dashboards:stylist_withdrawals")
             except ValidationError as exc:
-                messages.error(request, str(exc))
+                messages.error(request, user_error_message(exc))
         else:
             messages.error(request, "اطلاعات درخواست دریافت معتبر نیست.")
 
@@ -608,6 +609,6 @@ class ManagerStylistWithdrawalRequestsView(_SalonFinanceOperationMixin, View):
                 messages.error(request, "عملیات انتخاب‌شده معتبر نیست.")
 
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
 
         return redirect("dashboards:finance_stylist_withdrawals")

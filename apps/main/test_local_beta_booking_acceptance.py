@@ -286,7 +286,7 @@ class LocalBetaBookingAcceptanceTests(TestCase):
         )
         self.assertEqual(
             order.status,
-            "pending",
+            "confirmed",
         )
         self.assertTrue(order.is_finally)
         self.assertFalse(order.is_paid)

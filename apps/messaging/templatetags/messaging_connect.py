@@ -12,6 +12,13 @@ from apps.messaging.services import messaging_enabled, provider_allowed
 register = template.Library()
 
 
+@register.inclusion_tag("messaging/components/loomi_links.html")
+def loomi_links(scope_type, target):
+    """Expose configured assistant entry points on already-public profiles."""
+    from apps.messaging.links import loomi_provider_links
+    return {"links": loomi_provider_links(scope_type, target)}
+
+
 @register.inclusion_tag("messaging/components/bale_connect_card.html", takes_context=True)
 def bale_connect_card(context, compact: bool = False):
     request = context.get("request")

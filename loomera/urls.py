@@ -37,6 +37,10 @@ from apps.main.sitemaps import StaticViewSitemap
 from apps.salons.sitemaps import SalonSitemap
 from apps.services.sitemaps import ServiceGroupSitemap, ServiceSitemap
 
+handler400 = "apps.main.views.bad_request_view"
+handler403 = "apps.main.views.permission_denied_view"
+
+
 sitemaps = {
     "static": StaticViewSitemap,
     "salons": SalonSitemap,
@@ -49,6 +53,13 @@ sitemaps = {
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path(
+        "help/",
+        include(
+            "apps.help_center.urls",
+            namespace="help_center",
+        ),
+    ),
     path("support/", SupportView.as_view(), name="support"),
     path("partners/", PartnerPageView.as_view(), name="partners"),
     path("join-loomera/", PartnerPageView.as_view(), name="join_loomera"),
@@ -84,6 +95,10 @@ urlpatterns = [
     ),
     path(
         "messaging/webhooks/bale/", include("apps.bale_bot.urls", namespace="bale_bot")
+    ),
+    path(
+        "messaging/webhooks/telegram/",
+        include("apps.telegram_bot.urls", namespace="telegram_bot"),
     ),
     path("messaging/", include("apps.messaging.urls", namespace="messaging")),
     path("platform/", include("apps.platform_admin.urls", namespace="platform_admin")),

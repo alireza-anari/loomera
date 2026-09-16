@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import csv
 from datetime import timedelta
+from pathlib import Path
 from urllib.parse import urlencode
 
+from django.contrib.staticfiles import finders
 from django.http import HttpResponse
 
 from django.db.models import Count, Q, Sum
@@ -197,37 +198,37 @@ def _build_stats(filtered_qs):
 
     return [
         {
-            "title": "درآمد بازه",
+            "title": "درآمد تأییدشده",
             "value": _currency(revenue),
-            "meta": "فقط رزروهای تایید، پرداخت یا انجام‌شده",
+            "meta": "تأیید، پرداخت یا تکمیل",
             "icon": "fa-solid fa-wallet",
             "tone": "primary",
         },
         {
-            "title": "تعداد رزروها",
+            "title": "کل رزروها",
             "value": to_persian_digits(appointments),
-            "meta": "همه رکوردهای مطابق فیلترها",
+            "meta": "طبق بازه و فیلتر فعلی",
             "icon": "fa-regular fa-calendar-check",
             "tone": "neutral",
         },
         {
-            "title": "مشتری یکتا",
+            "title": "مشتری جدید",
             "value": to_persian_digits(unique_customers),
-            "meta": "بر اساس مشتری‌های یکتای بازه",
+            "meta": "مشتری‌های این بازه",
             "icon": "fa-regular fa-user",
             "tone": "neutral",
         },
         {
-            "title": "میانگین ارزش رزرو",
+            "title": "میانگین مبلغ هر رزرو",
             "value": _currency(average_ticket),
-            "meta": "میانگین مبلغ هر رکورد در بازه",
+            "meta": "درآمد ÷ تعداد رزرو",
             "icon": "fa-solid fa-receipt",
             "tone": "success",
         },
         {
-            "title": "نرخ تکمیل",
+            "title": "درصد رزروهای تکمیل‌شده",
             "value": _percent(completion_rate),
-            "meta": "سهم رزروهای انجام‌شده از کل رکوردها",
+            "meta": "تکمیل‌شده ÷ کل رزروها",
             "icon": "fa-solid fa-chart-pie",
             "tone": "primary",
         },
@@ -462,6 +463,15 @@ def _build_chart(
 def _build_status_breakdown(filtered_qs):
     total = filtered_qs.count()
     rows = []
+    offset = 0
+    colors = {
+        "pending": "#f59e0b",
+        "confirmed": "#735cbe",
+        "paid": "#10b981",
+        "completed": "#0ea5e9",
+        "cancelled": "#f43f5e",
+    }
+
     for status, label in STATUS_LABELS.items():
         qs = filtered_qs.filter(order__status=status)
         count = qs.count()
@@ -469,16 +479,48 @@ def _build_status_breakdown(filtered_qs):
         share = (count / total * 100) if total else 0
         rows.append(
             {
+                "key": status,
                 "label": label,
                 "count": count,
                 "count_label": to_persian_digits(count),
                 "share": share,
                 "share_label": _percent(share),
+                "offset": offset,
+                "color": colors.get(status, "#94a3b8"),
                 "revenue_label": _currency(revenue),
                 "badge_class": STATUS_BADGES.get(status, "bg-slate-100 text-slate-700"),
             }
         )
-    return {"items": rows, "is_empty": total == 0}
+        offset += share
+
+    return {
+        "items": rows,
+        "is_empty": total == 0,
+        "total_label": to_persian_digits(total),
+    }
+
+
+def _decorate_ranking_donut(items):
+    palette = [
+        "#735cbe",
+        "#0ea5e9",
+        "#10b981",
+        "#f59e0b",
+        "#f43f5e",
+    ]
+    total = sum(max(int(item.get("chart_value") or 0), 0) for item in items)
+    cursor = 0.0
+
+    for index, item in enumerate(items):
+        value = max(int(item.get("chart_value") or 0), 0)
+        share = (value / total * 100) if total else 0
+        item["chart_color"] = palette[index % len(palette)]
+        item["chart_start"] = round(cursor, 3)
+        cursor += share
+        item["chart_end"] = round(cursor, 3)
+        item["chart_share_label"] = _percent(share)
+
+    return items
 
 
 def _build_top_services(filtered_qs):
@@ -497,10 +539,17 @@ def _build_top_services(filtered_qs):
             "title": row["service__service_name"] or "خدمت بدون نام",
             "meta": f"{to_persian_digits(row['appointments'])} رزرو",
             "value": _currency(row["revenue"] or 0),
+            "chart_value": int(row["revenue"] or 0),
         }
         for row in rows
     ]
-    return {"items": items, "is_empty": len(items) == 0}
+    items = _decorate_ranking_donut(items)
+    return {
+        "items": items,
+        "is_empty": len(items) == 0,
+        "count_label": to_persian_digits(len(items)),
+        "center_label": "خدمت برتر",
+    }
 
 
 def _build_top_team(filtered_qs):
@@ -523,9 +572,16 @@ def _build_top_team(filtered_qs):
                 "title": full_name or "عضو تیم",
                 "meta": f"{to_persian_digits(row['appointments'])} رزرو • {to_persian_digits(row['completed'])} انجام‌شده",
                 "value": _currency(row["revenue"] or 0),
+                "chart_value": int(row["revenue"] or 0),
             }
         )
-    return {"items": items, "is_empty": len(items) == 0}
+    items = _decorate_ranking_donut(items)
+    return {
+        "items": items,
+        "is_empty": len(items) == 0,
+        "count_label": to_persian_digits(len(items)),
+        "center_label": "عضو برتر",
+    }
 
 
 def _build_overview_rows(
@@ -782,137 +838,367 @@ def _build_filter_options(salon):
     }
 
 
-def _clean_csv_value(value):
-    if value is None:
+
+def _static_file_path(relative_path):
+    resolved = finders.find(relative_path)
+    if not resolved:
         return ""
-    return str(value).replace("\r", " ").replace("\n", " ").strip()
+    return str(Path(resolved).resolve())
 
 
-def _write_report_csv_rows(writer, reports_dashboard):
-    table = reports_dashboard.get("table", {})
-    filters = reports_dashboard.get("filters", {})
-    tab = filters.get("tab") or "overview"
-    rows = table.get("rows", [])
+def _hex_rgb(value, fallback=(115, 92, 190)):
+    raw = str(value or "").strip().lstrip("#")
+    if len(raw) != 6:
+        return fallback
+    try:
+        return tuple(int(raw[index : index + 2], 16) for index in (0, 2, 4))
+    except ValueError:
+        return fallback
 
-    if tab == "sales":
-        writer.writerow(["مشتری", "خدمت و متخصص", "تاریخ", "کد رزرو", "وضعیت", "مبلغ"])
-        for row in rows:
-            status = row.get("status") or {}
-            writer.writerow(
-                [
-                    _clean_csv_value(row.get("title")),
-                    _clean_csv_value(row.get("subtitle")),
-                    _clean_csv_value(row.get("date_label")),
-                    _clean_csv_value(row.get("code")),
-                    _clean_csv_value(status.get("label")),
-                    _clean_csv_value(row.get("value_label")),
-                ]
-            )
-        return
 
-    if tab == "team":
-        writer.writerow(
-            ["متخصص", "توضیح", "تعداد رزرو", "درآمد", "مشتری یکتا", "نرخ تکمیل"]
+def _report_pdf_dependencies():
+    try:
+        from fpdf import FPDF
+    except ImportError as exc:
+        raise RuntimeError(
+            "PDF report export requires fpdf2. "
+            "Install with: python -m pip install fpdf2==2.8.7 uharfbuzz==0.56.0 brotli==1.2.0"
+        ) from exc
+
+    try:
+        import uharfbuzz  # noqa: F401
+    except ImportError as exc:
+        raise RuntimeError(
+            "Persian PDF text shaping requires uharfbuzz. "
+            "Install with: python -m pip install uharfbuzz==0.56.0"
+        ) from exc
+
+    return FPDF
+
+
+def _report_pdf_font_paths():
+    regular = _static_file_path("fonts/yekan-bakh/YekanBakh-Regular.woff2")
+    bold = _static_file_path("fonts/yekan-bakh/YekanBakh-Bold.woff2")
+    if not regular or not bold:
+        raise RuntimeError(
+            "Yekan Bakh report fonts were not found in static/fonts/yekan-bakh/."
         )
-        for row in rows:
-            writer.writerow(
-                [
-                    _clean_csv_value(row.get("title")),
-                    _clean_csv_value(row.get("subtitle")),
-                    _clean_csv_value(row.get("appointments_label")),
-                    _clean_csv_value(row.get("revenue_label")),
-                    _clean_csv_value(row.get("customers_label")),
-                    _clean_csv_value(row.get("completion_label")),
-                ]
-            )
+    return regular, bold
+
+
+def _report_pdf_logo_path():
+    return _static_file_path(
+        "branding/logo/loomera-logo-horizontal-rtl-transparent-360.png"
+    )
+
+
+def _pdf_ensure_space(pdf, needed_mm):
+    if pdf.get_y() + needed_mm > pdf.h - 18:
+        pdf.add_page()
+
+
+def _pdf_section_title(pdf, title):
+    _pdf_ensure_space(pdf, 13)
+    pdf.set_font("Yekan", "B", 11)
+    pdf.set_text_color(47, 40, 61)
+    pdf.cell(0, 7, str(title or ""), align="R", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_draw_color(115, 92, 190)
+    pdf.set_line_width(0.8)
+    x_right = pdf.w - pdf.r_margin
+    pdf.line(x_right - 16, pdf.get_y(), x_right, pdf.get_y())
+    pdf.ln(3)
+
+
+def _pdf_kpi_grid(pdf, stats):
+    items = list(stats or [])
+    if not items:
         return
 
-    if tab == "services":
-        writer.writerow(
-            ["خدمت", "توضیح", "تعداد رزرو", "درآمد", "مشتری یکتا", "نرخ تکمیل"]
+    usable = pdf.w - pdf.l_margin - pdf.r_margin
+    gap = 4
+    card_w = (usable - gap) / 2
+    card_h = 23
+
+    for index in range(0, len(items), 2):
+        _pdf_ensure_space(pdf, card_h + 4)
+        y = pdf.get_y()
+        pair = items[index : index + 2]
+
+        for col, item in enumerate(pair):
+            x = pdf.w - pdf.r_margin - card_w if col == 0 else pdf.l_margin
+            pdf.set_fill_color(249, 247, 252)
+            pdf.set_draw_color(232, 226, 242)
+            pdf.rect(x, y, card_w, card_h, style="DF")
+
+            pdf.set_xy(x + 3, y + 3)
+            pdf.set_font("Yekan", "B", 8)
+            pdf.set_text_color(93, 86, 109)
+            pdf.cell(card_w - 6, 5, str(item.get("title") or ""), align="R")
+
+            pdf.set_xy(x + 3, y + 9)
+            pdf.set_font("Yekan", "B", 11)
+            pdf.set_text_color(47, 40, 61)
+            pdf.cell(card_w - 6, 6, str(item.get("value") or ""), align="R")
+
+            meta = str(item.get("meta") or "")
+            if meta:
+                pdf.set_xy(x + 3, y + 16)
+                pdf.set_font("Yekan", "", 6.7)
+                pdf.set_text_color(138, 129, 152)
+                pdf.cell(card_w - 6, 4, meta, align="R")
+
+        pdf.set_y(y + card_h + 4)
+
+
+def _pdf_rank_list(pdf, title, widget):
+    items = list((widget or {}).get("items") or [])
+    if not items:
+        return
+
+    _pdf_section_title(pdf, title)
+    max_value = max((int(item.get("chart_value") or 0) for item in items), default=1)
+    max_value = max(max_value, 1)
+
+    for item in items:
+        _pdf_ensure_space(pdf, 15)
+        y = pdf.get_y()
+        color = _hex_rgb(item.get("chart_color"))
+        pdf.set_fill_color(250, 249, 252)
+        pdf.set_draw_color(237, 233, 244)
+        pdf.rect(pdf.l_margin, y, pdf.w - pdf.l_margin - pdf.r_margin, 13, style="DF")
+
+        dot_x = pdf.w - pdf.r_margin - 3.3
+        pdf.set_fill_color(*color)
+        pdf.ellipse(dot_x - 2, y + 3.3, 2.4, 2.4, style="F")
+
+        pdf.set_xy(pdf.l_margin + 3, y + 2)
+        pdf.set_font("Yekan", "B", 7.5)
+        pdf.set_text_color(47, 40, 61)
+        pdf.cell(pdf.w - pdf.l_margin - pdf.r_margin - 10, 4.5, str(item.get("title") or ""), align="R")
+
+        pdf.set_xy(pdf.l_margin + 3, y + 6.4)
+        pdf.set_font("Yekan", "", 6.5)
+        pdf.set_text_color(125, 116, 141)
+        pdf.cell(
+            pdf.w - pdf.l_margin - pdf.r_margin - 10,
+            3.5,
+            f"{item.get('meta') or ''} - {item.get('value') or ''}",
+            align="R",
         )
-        for row in rows:
-            writer.writerow(
-                [
-                    _clean_csv_value(row.get("title")),
-                    _clean_csv_value(row.get("subtitle")),
-                    _clean_csv_value(row.get("appointments_label")),
-                    _clean_csv_value(row.get("revenue_label")),
-                    _clean_csv_value(row.get("customers_label")),
-                    _clean_csv_value(row.get("completion_label")),
-                ]
-            )
+
+        bar_w = (pdf.w - pdf.l_margin - pdf.r_margin - 12) * (
+            int(item.get("chart_value") or 0) / max_value
+        )
+        pdf.set_fill_color(239, 236, 247)
+        pdf.rect(pdf.l_margin + 3, y + 10.3, pdf.w - pdf.l_margin - pdf.r_margin - 12, 1.6, style="F")
+        pdf.set_fill_color(*color)
+        pdf.rect(
+            pdf.w - pdf.r_margin - 9 - bar_w,
+            y + 10.3,
+            max(bar_w, 0.8),
+            1.6,
+            style="F",
+        )
+
+        pdf.set_y(y + 15)
+
+
+def _pdf_status_breakdown(pdf, status_breakdown):
+    items = [item for item in (status_breakdown or {}).get("items", []) if item.get("count")]
+    if not items:
         return
 
-    writer.writerow(["بازه", "توضیح", "تعداد رزرو", "درآمد", "مشتری یکتا", "نرخ تکمیل"])
+    _pdf_section_title(pdf, "وضعیت رزروها")
+    for item in items:
+        _pdf_ensure_space(pdf, 10)
+        y = pdf.get_y()
+        color = _hex_rgb(item.get("color"), (115, 92, 190))
+        pdf.set_fill_color(250, 249, 252)
+        pdf.rect(pdf.l_margin, y, pdf.w - pdf.l_margin - pdf.r_margin, 8, style="F")
+        pdf.set_fill_color(*color)
+        pdf.ellipse(pdf.w - pdf.r_margin - 5, y + 2.4, 2.4, 2.4, style="F")
+
+        pdf.set_xy(pdf.l_margin + 3, y + 1.5)
+        pdf.set_font("Yekan", "B", 7.3)
+        pdf.set_text_color(47, 40, 61)
+        pdf.cell(
+            pdf.w - pdf.l_margin - pdf.r_margin - 10,
+            4.5,
+            f"{item.get('label') or ''} - {item.get('count_label') or ''} رزرو - {item.get('share_label') or ''}",
+            align="R",
+        )
+        pdf.set_y(y + 10)
+
+
+def _pdf_detail_rows(pdf, table):
+    rows = list((table or {}).get("rows") or [])
+    if not rows:
+        return
+
+    _pdf_section_title(pdf, "جزئیات گزارش")
+    kind = (table or {}).get("kind")
+
     for row in rows:
-        writer.writerow(
-            [
-                _clean_csv_value(row.get("title")),
-                _clean_csv_value(row.get("subtitle")),
-                _clean_csv_value(row.get("appointments_label")),
-                _clean_csv_value(row.get("revenue_label")),
-                _clean_csv_value(row.get("customers_label")),
-                _clean_csv_value(row.get("completion_label")),
-            ]
+        _pdf_ensure_space(pdf, 19)
+        y = pdf.get_y()
+        box_h = 16
+
+        pdf.set_fill_color(255, 255, 255)
+        pdf.set_draw_color(232, 226, 242)
+        pdf.rect(pdf.l_margin, y, pdf.w - pdf.l_margin - pdf.r_margin, box_h, style="DF")
+
+        pdf.set_xy(pdf.l_margin + 3, y + 2)
+        pdf.set_font("Yekan", "B", 7.7)
+        pdf.set_text_color(47, 40, 61)
+        pdf.cell(
+            pdf.w - pdf.l_margin - pdf.r_margin - 6,
+            4,
+            str(row.get("title") or ""),
+            align="R",
         )
+
+        subtitle = str(row.get("subtitle") or "")
+        if subtitle:
+            pdf.set_xy(pdf.l_margin + 3, y + 6)
+            pdf.set_font("Yekan", "", 6.4)
+            pdf.set_text_color(125, 116, 141)
+            pdf.cell(
+                pdf.w - pdf.l_margin - pdf.r_margin - 6,
+                3.5,
+                subtitle,
+                align="R",
+            )
+
+        if kind == "sales":
+            status = row.get("status") or {}
+            footer = (
+                f"{row.get('date_label') or ''}  |  "
+                f"{status.get('label') or ''}  |  "
+                f"{row.get('value_label') or ''}"
+            )
+        else:
+            footer = (
+                f"رزرو {row.get('appointments_label') or '-'}  |  "
+                f"درآمد {row.get('revenue_label') or '-'}  |  "
+                f"مشتری {row.get('customers_label') or '-'}  |  "
+                f"تکمیل {row.get('completion_label') or '-'}"
+            )
+
+        pdf.set_xy(pdf.l_margin + 3, y + 10.5)
+        pdf.set_font("Yekan", "", 6.2)
+        pdf.set_text_color(93, 86, 109)
+        pdf.cell(
+            pdf.w - pdf.l_margin - pdf.r_margin - 6,
+            3.2,
+            footer,
+            align="R",
+        )
+
+        pdf.set_y(y + box_h + 3)
+
+
+def _build_reports_pdf_bytes(reports_dashboard, salon):
+    FPDF = _report_pdf_dependencies()
+    regular_font, bold_font = _report_pdf_font_paths()
+    logo_path = _report_pdf_logo_path()
+
+    class LoomeraReportPDF(FPDF):
+        def footer(self):
+            self.set_y(-11)
+            self.set_font("Yekan", "", 6.5)
+            self.set_text_color(138, 129, 152)
+            self.cell(
+                0,
+                4,
+                f"loomera.ir  |  صفحه {to_persian_digits(self.page_no())}",
+                align="C",
+            )
+
+    pdf = LoomeraReportPDF(orientation="P", unit="mm", format="A4")
+    pdf.set_margins(12, 12, 12)
+    pdf.set_auto_page_break(auto=True, margin=16)
+    pdf.add_font("Yekan", "", regular_font)
+    pdf.add_font("Yekan", "B", bold_font)
+    pdf.set_font("Yekan", "", 9)
+    pdf.set_text_shaping(True, direction="rtl", script="arab")
+    pdf.set_title(str(reports_dashboard.get("workspace", {}).get("page_title") or "گزارش Loomera"))
+    pdf.set_author("Loomera")
+    pdf.add_page()
+
+    # Brand header.
+    header_y = 12
+    header_h = 29
+    pdf.set_fill_color(249, 247, 252)
+    pdf.set_draw_color(232, 226, 242)
+    pdf.rect(pdf.l_margin, header_y, pdf.w - pdf.l_margin - pdf.r_margin, header_h, style="DF")
+    pdf.set_fill_color(115, 92, 190)
+    pdf.rect(
+        pdf.w - pdf.r_margin - 2.5,
+        header_y,
+        2.5,
+        header_h,
+        style="F",
+    )
+
+    if logo_path:
+        try:
+            pdf.image(logo_path, x=pdf.l_margin + 4, y=header_y + 6, w=32)
+        except Exception:
+            pass
+
+    salon_name = str(getattr(salon, "salon_name", "") or "مجموعه Loomera")
+    pdf.set_xy(pdf.l_margin + 42, header_y + 5)
+    pdf.set_font("Yekan", "B", 14)
+    pdf.set_text_color(47, 40, 61)
+    pdf.cell(
+        pdf.w - pdf.l_margin - pdf.r_margin - 48,
+        7,
+        f"گزارش عملکرد {salon_name}",
+        align="R",
+    )
+
+    pdf.set_xy(pdf.l_margin + 42, header_y + 13)
+    pdf.set_font("Yekan", "", 7.4)
+    pdf.set_text_color(115, 92, 190)
+    pdf.cell(
+        pdf.w - pdf.l_margin - pdf.r_margin - 48,
+        5,
+        str(reports_dashboard.get("active_range_label") or ""),
+        align="R",
+    )
+
+    pdf.set_xy(pdf.l_margin + 42, header_y + 19)
+    pdf.set_font("Yekan", "", 6.7)
+    pdf.set_text_color(138, 129, 152)
+    pdf.cell(
+        pdf.w - pdf.l_margin - pdf.r_margin - 48,
+        4,
+        f"آخرین به‌روزرسانی: {reports_dashboard.get('filter_summary', {}).get('last_updated') or ''}",
+        align="R",
+    )
+    pdf.set_y(header_y + header_h + 7)
+
+    _pdf_section_title(pdf, "خلاصه عملکرد")
+    _pdf_kpi_grid(pdf, reports_dashboard.get("stats"))
+
+    _pdf_status_breakdown(pdf, reports_dashboard.get("status_breakdown"))
+    _pdf_rank_list(pdf, "خدمات پرفروش", reports_dashboard.get("top_services"))
+    _pdf_rank_list(pdf, "عملکرد تیم", reports_dashboard.get("top_team"))
+    _pdf_detail_rows(pdf, reports_dashboard.get("table"))
+
+    payload = pdf.output()
+    return bytes(payload)
 
 
 def build_reports_csv_response(request, salon):
+    """Legacy function name kept for view compatibility; returns branded PDF."""
     reports_dashboard = build_reports_context(request, salon)["reports_dashboard"]
+    payload = _build_reports_pdf_bytes(reports_dashboard, salon)
 
-    filename = f"loomera-salon-report-{salon.id}.csv"
-    response = HttpResponse(content_type="text/csv; charset=utf-8")
+    filename = f"loomera-salon-report-{salon.id}.pdf"
+    response = HttpResponse(payload, content_type="application/pdf")
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
-
-    # BOM برای اینکه Excel فارسی را درست‌تر باز کند.
-    response.write("\ufeff")
-
-    writer = csv.writer(response)
-
-    writer.writerow(
-        [
-            "گزارش",
-            _clean_csv_value(reports_dashboard.get("workspace", {}).get("page_title")),
-        ]
-    )
-    writer.writerow(
-        ["بازه", _clean_csv_value(reports_dashboard.get("active_range_label"))]
-    )
-    writer.writerow(
-        [
-            "آخرین به‌روزرسانی",
-            _clean_csv_value(
-                reports_dashboard.get("filter_summary", {}).get("last_updated")
-            ),
-        ]
-    )
-    writer.writerow(
-        [
-            "تعداد نتایج",
-            _clean_csv_value(
-                reports_dashboard.get("workspace", {}).get("result_count_label")
-            ),
-        ]
-    )
-    writer.writerow([])
-
-    active_chips = reports_dashboard.get("active_filter_chips") or []
-    if active_chips:
-        writer.writerow(["فیلترهای فعال"])
-        writer.writerow(["عنوان", "مقدار"])
-        for chip in active_chips:
-            writer.writerow(
-                [
-                    _clean_csv_value(chip.get("label")),
-                    _clean_csv_value(chip.get("value")),
-                ]
-            )
-        writer.writerow([])
-
-    writer.writerow([_clean_csv_value(reports_dashboard.get("table", {}).get("title"))])
-    _write_report_csv_rows(writer, reports_dashboard)
-
+    response["Content-Length"] = str(len(payload))
     return response
 
 

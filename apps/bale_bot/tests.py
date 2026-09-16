@@ -363,7 +363,7 @@ class BaleBotStartAndConnectStage3Tests(TestCase):
         outbound = MessagingMessageLog.objects.filter(
             direction=MessagingMessageDirection.OUTBOUND
         ).latest("id")
-        self.assertIn("با موفقیت به ربات بله وصل شد", outbound.text)
+        self.assertIn("حسابت به ربات وصل شد", outbound.text)
 
     @override_settings(
         MESSAGING_ENABLED=True,
@@ -388,7 +388,7 @@ class BaleBotStartAndConnectStage3Tests(TestCase):
         outbound = MessagingMessageLog.objects.filter(
             direction=MessagingMessageDirection.OUTBOUND
         ).latest("id")
-        self.assertIn("اتصال حساب انجام نشد", outbound.text)
+        self.assertIn("لینک اتصال معتبر نیست", outbound.text)
 
 
 @override_settings(
@@ -538,7 +538,8 @@ class BaleBotRoleMenusStage4Tests(TestCase):
         outbound = MessagingMessageLog.objects.filter(
             direction=MessagingMessageDirection.OUTBOUND
         ).latest("id")
-        self.assertIn("منوی مشتری", outbound.text)
+        self.assertIn("سالن پیدا کنی", outbound.text)
+        self.assertIn("نوبت‌هایت را ببینی", outbound.text)
         markup = outbound.payload.get("reply_markup", {})
         flat_buttons = [
             button for row in markup.get("inline_keyboard", []) for button in row
@@ -574,7 +575,7 @@ class BaleBotRoleMenusStage4Tests(TestCase):
         outbound = MessagingMessageLog.objects.filter(
             direction=MessagingMessageDirection.OUTBOUND
         ).latest("id")
-        self.assertIn("ابتدا حساب سایتت را به ربات وصل کن", outbound.text)
+        self.assertIn("اول حساب Loomera را به این ربات وصل کن", outbound.text)
 
 
 @override_settings(
@@ -657,7 +658,7 @@ class BaleBotActionCallbackStage6Tests(TestCase):
         outbound = MessagingMessageLog.objects.filter(
             direction=MessagingMessageDirection.OUTBOUND
         ).latest("id")
-        self.assertIn("دریافت شد", outbound.text)
+        self.assertIn("انجام شد", outbound.text)
 
     @override_settings(
         MESSAGING_ENABLED=True,
@@ -678,4 +679,4 @@ class BaleBotActionCallbackStage6Tests(TestCase):
         outbound = MessagingMessageLog.objects.filter(
             direction=MessagingMessageDirection.OUTBOUND
         ).latest("id")
-        self.assertIn("نامعتبر", outbound.text)
+        self.assertIn("دیگر قابل استفاده نیست", outbound.text)

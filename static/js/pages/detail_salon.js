@@ -132,9 +132,20 @@ function initFavoriteButton() {
     button.dataset.loading = "1";
 
     try {
-      const response = await fetch(`${endpoint}?salonId=${encodeURIComponent(salonId)}`, {
+      const csrfToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("csrftoken="))
+        ?.split("=")[1] || "";
+      const body = new URLSearchParams({ salonId: String(salonId) });
+      const response = await fetch(endpoint, {
+        method: "POST",
         credentials: "same-origin",
-        headers: { "X-Requested-With": "XMLHttpRequest" },
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": decodeURIComponent(csrfToken),
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        },
+        body: body.toString(),
       });
       const raw = (await response.text()).trim();
       let payload = null;
@@ -151,7 +162,7 @@ function initFavoriteButton() {
       }
 
       if (!response.ok) {
-        window.alert(payload?.message || raw || "ثبت علاقه‌مندی با خطا مواجه شد.");
+        window.LoomeraFeedback?.error?.(payload?.message || raw || "ثبت علاقه‌مندی با خطا مواجه شد.");
         return;
       }
 
@@ -162,7 +173,7 @@ function initFavoriteButton() {
       syncFavoriteButtonState(button, isFavorite);
     } catch (error) {
       console.error("[detail_salon] favorite toggle failed", error);
-      window.alert("در ثبت علاقه‌مندی مشکلی پیش آمد.");
+      window.LoomeraFeedback?.error?.("در ثبت علاقه‌مندی مشکلی پیش آمد.");
     } finally {
       delete button.dataset.loading;
     }
@@ -215,7 +226,7 @@ function initTopbarAndTabs() {
 
         const copied = await copyTextWithFallback(shareUrl);
         if (copied) {
-          window.alert("لینک صفحه کپی شد");
+          window.LoomeraFeedback?.success?.("لینک صفحه کپی شد.");
           return;
         }
 
@@ -225,7 +236,7 @@ function initTopbarAndTabs() {
 
         const copied = await copyTextWithFallback(shareUrl).catch(() => false);
         if (copied) {
-          window.alert("لینک صفحه کپی شد");
+          window.LoomeraFeedback?.success?.("لینک صفحه کپی شد.");
           return;
         }
 
@@ -669,7 +680,7 @@ function initServicesAndBookingBar() {
   function submitSelectedServices(trigger) {
     if (selectedServices.size === 0) {
       const servicesSection = document.getElementById("services");
-      window.alert("ابتدا باید یک خدمت انتخاب کنید.");
+      window.LoomeraFeedback?.error?.("ابتدا باید یک خدمت انتخاب کنید.");
       servicesSection?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }

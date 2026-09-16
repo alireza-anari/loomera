@@ -191,6 +191,24 @@ MESSAGING_ENABLED = env.bool("MESSAGING_ENABLED", default=False)
 MESSAGING_OUTBOUND_ENABLED = env.bool("MESSAGING_OUTBOUND_ENABLED", default=False)
 MESSAGING_ACTIONS_ENABLED = env.bool("MESSAGING_ACTIONS_ENABLED", default=False)
 MESSAGING_ALLOWED_PROVIDERS = env.list("MESSAGING_ALLOWED_PROVIDERS", default=[])
+LOOMI_MESSAGING_ENABLED = env.bool("LOOMI_MESSAGING_ENABLED", default=False)
+LOOMI_MESSAGING_ALLOWED_PROVIDERS = env.list(
+    "LOOMI_MESSAGING_ALLOWED_PROVIDERS",
+    default=["telegram", "bale"],
+)
+LOOMI_MESSAGING_HISTORY_LIMIT = env.int("LOOMI_MESSAGING_HISTORY_LIMIT", default=6)
+LOOMI_MESSAGING_USER_LIMIT = env.int("LOOMI_MESSAGING_USER_LIMIT", default=30)
+LOOMI_MESSAGING_GUEST_LIMIT = env.int("LOOMI_MESSAGING_GUEST_LIMIT", default=10)
+LOOMI_MESSAGING_RATE_WINDOW_SECONDS = env.int(
+    "LOOMI_MESSAGING_RATE_WINDOW_SECONDS", default=3600
+)
+LOOMI_MESSAGING_MAX_QUESTION_CHARS = env.int(
+    "LOOMI_MESSAGING_MAX_QUESTION_CHARS", default=1200
+)
+LOOMI_V2_INTENT_ENABLED = env.bool("LOOMI_V2_INTENT_ENABLED", default=False)
+LOOMI_V2_INTENT_MIN_CONFIDENCE = env.float(
+    "LOOMI_V2_INTENT_MIN_CONFIDENCE", default=0.65
+)
 BALE_BOT_ENABLED = env.bool("BALE_BOT_ENABLED", default=False)
 if BALE_BOT_ENABLED and "bale" not in MESSAGING_ALLOWED_PROVIDERS:
     MESSAGING_ALLOWED_PROVIDERS.append("bale")
@@ -200,6 +218,8 @@ BALE_BOT_API_BASE_URL = env(
 ).strip()
 BALE_BOT_REQUEST_TIMEOUT = env.int("BALE_BOT_REQUEST_TIMEOUT", default=10)
 BALE_BOT_USERNAME = env("BALE_BOT_USERNAME", default="").strip().lstrip("@")
+# Username selects this deployment's bot. Optional template may use {username},
+# {payload}, {raw_token}; a different bot/host is ignored by the link builder.
 BALE_BOT_START_URL_TEMPLATE = env("BALE_BOT_START_URL_TEMPLATE", default="").strip()
 BALE_WEBHOOK_SECRET = env("BALE_WEBHOOK_SECRET", default="").strip()
 BALE_WEBHOOK_REQUIRE_SECRET = env.bool("BALE_WEBHOOK_REQUIRE_SECRET", default=True)
@@ -216,6 +236,23 @@ BALE_POLLING_ENABLED = env.bool("BALE_POLLING_ENABLED", default=False)
 BALE_POLLING_LIMIT = env.int("BALE_POLLING_LIMIT", default=100)
 BALE_POLLING_TIMEOUT_SECONDS = env.int("BALE_POLLING_TIMEOUT_SECONDS", default=0)
 BALE_POLLING_LOCK_TTL_SECONDS = env.int("BALE_POLLING_LOCK_TTL_SECONDS", default=120)
+TELEGRAM_BOT_ENABLED = env.bool("TELEGRAM_BOT_ENABLED", default=False)
+if TELEGRAM_BOT_ENABLED and "telegram" not in MESSAGING_ALLOWED_PROVIDERS:
+    MESSAGING_ALLOWED_PROVIDERS.append("telegram")
+TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="").strip()
+TELEGRAM_BOT_API_BASE_URL = env(
+    "TELEGRAM_BOT_API_BASE_URL", default="https://api.telegram.org/bot"
+).strip()
+TELEGRAM_BOT_REQUEST_TIMEOUT = env.int("TELEGRAM_BOT_REQUEST_TIMEOUT", default=10)
+TELEGRAM_RELAY_URL = (
+    env("TELEGRAM_RELAY_URL", default="").strip().rstrip("/")
+)
+TELEGRAM_RELAY_SECRET = env("TELEGRAM_RELAY_SECRET", default="").strip()
+
+TELEGRAM_BOT_USERNAME = env("TELEGRAM_BOT_USERNAME", default="").strip().lstrip("@")
+TELEGRAM_WEBHOOK_SECRET = env("TELEGRAM_WEBHOOK_SECRET", default="").strip()
+TELEGRAM_WEBHOOK_MAX_BYTES = env.int("TELEGRAM_WEBHOOK_MAX_BYTES", default=256 * 1024)
+
 MESSAGING_PUBLIC_BASE_URL = (
     env("MESSAGING_PUBLIC_BASE_URL", default="").strip().rstrip("/")
 )
@@ -229,7 +266,7 @@ MESSAGING_ACTION_TOKEN_TTL_MINUTES = env.int(
     "MESSAGING_ACTION_TOKEN_TTL_MINUTES", default=60
 )
 MESSAGING_PRIVACY_TEXT_VERSION = env(
-    "MESSAGING_PRIVACY_TEXT_VERSION", default="1403-01"
+    "MESSAGING_PRIVACY_TEXT_VERSION", default="1405-06"
 ).strip()
 
 # Lightweight operational limits. More advanced rate limiting will be moved to
@@ -255,6 +292,7 @@ INSTALLED_APPS = [
     "django.contrib.sitemaps",
     "django.contrib.humanize",
     "apps.main.apps.MainConfig",
+    "apps.help_center.apps.HelpCenterConfig",
     "apps.accounts.apps.AccountsConfig",
     "apps.services.apps.ServicesConfig",
     "apps.stylists.apps.StylistsConfig",
@@ -271,6 +309,7 @@ INSTALLED_APPS = [
     "apps.notifications.apps.NotificationsConfig",
     "apps.messaging.apps.MessagingConfig",
     "apps.bale_bot.apps.BaleBotConfig",
+    "apps.telegram_bot.apps.TelegramBotConfig",
     "apps.platform_admin.apps.PlatformAdminConfig",
     "apps.analytics.apps.AnalyticsConfig",
     "apps.api.apps.ApiConfig",
@@ -299,6 +338,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "middlewares.middlewares.AuthenticatedHtmlNoStoreMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "middlewares.middlewares.RequestMiddleware",
@@ -343,6 +383,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.csrf",
+                "apps.main.context_processors.redirect_form_errors",
                 "apps.main.views.madia_admin",
             ],
         },
@@ -391,6 +432,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 AUTH_USER_MODEL = "accounts.CustomUser"
+CSRF_FAILURE_VIEW = "apps.main.views.csrf_failure_view"
 
 # ==============================================================================
 # INTERNATIONALIZATION
@@ -1273,4 +1315,97 @@ SMS_PUBLIC_BASE_URL = (
     )
     .strip()
     .rstrip("/")
+)
+
+
+HELP_AI_ENABLED = env.bool(
+    "HELP_AI_ENABLED",
+    default=True,
+)
+
+HELP_AI_PROVIDER = (
+    env(
+        "HELP_AI_PROVIDER",
+        default="groq",
+    )
+    .strip()
+    .lower()
+)
+
+GROQ_API_KEY = env(
+    "GROQ_API_KEY",
+    default="",
+).strip()
+
+OPENROUTER_API_KEY = env(
+    "OPENROUTER_API_KEY",
+    default="",
+).strip()
+
+HELP_AI_API_KEY = env(
+    "HELP_AI_API_KEY",
+    default="",
+).strip()
+
+HELP_AI_BASE_URL = (
+    env(
+        "HELP_AI_BASE_URL",
+        default="",
+    )
+    .strip()
+    .rstrip("/")
+)
+
+HELP_AI_SITE_URL = (
+    env(
+        "HELP_AI_SITE_URL",
+        default=PUBLIC_BASE_URL,
+    )
+    .strip()
+    .rstrip("/")
+)
+
+HELP_AI_MODEL = env(
+    "HELP_AI_MODEL",
+    default="",
+).strip()
+
+HELP_AI_TIMEOUT_SECONDS = env.int(
+    "HELP_AI_TIMEOUT_SECONDS",
+    default=15,
+)
+
+HELP_AI_MAX_COMPLETION_TOKENS = env.int(
+    "HELP_AI_MAX_COMPLETION_TOKENS",
+    default=750,
+)
+
+HELP_CHAT_GUEST_LIMIT = env.int(
+    "HELP_CHAT_GUEST_LIMIT",
+    default=10,
+)
+
+HELP_CHAT_USER_LIMIT = env.int(
+    "HELP_CHAT_USER_LIMIT",
+    default=30,
+)
+
+HELP_CHAT_RATE_WINDOW_SECONDS = env.int(
+    "HELP_CHAT_RATE_WINDOW_SECONDS",
+    default=3600,
+)
+
+HELP_SUPPORT_HANDOFF_LIMIT = env.int(
+    "HELP_SUPPORT_HANDOFF_LIMIT",
+    default=3,
+)
+
+HELP_SUPPORT_HANDOFF_WINDOW_SECONDS = env.int(
+    "HELP_SUPPORT_HANDOFF_WINDOW_SECONDS",
+    default=3600,
+)
+
+HELP_CONVERSATION_RETENTION_DAYS = env.int(
+    "HELP_CONVERSATION_RETENTION_DAYS",
+    default=30,
 )

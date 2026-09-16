@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import stash_form_errors, user_error_message
 import mimetypes
 from pathlib import PurePosixPath
 import logging
@@ -33,6 +34,24 @@ from .support_services import (
 from django.db.models import Prefetch
 
 logger = logging.getLogger(__name__)
+
+
+def bad_request_view(request, exception=None):
+    """Render a stable Persian page for malformed requests without exposing details."""
+
+    return render(request, "400.html", status=400)
+
+
+def permission_denied_view(request, exception=None):
+    """Render a stable Persian page for permission failures without exposing details."""
+
+    return render(request, "403.html", status=403)
+
+
+def csrf_failure_view(request, reason=""):
+    """Render CSRF failures in Persian while intentionally hiding the raw reason."""
+
+    return render(request, "403.html", {"is_csrf_failure": True}, status=403)
 
 
 class RobotsTxtView(View):
@@ -197,19 +216,19 @@ def _normalize_media_proxy_path(requested_path):
     )
 
     if not raw_path or len(raw_path) > max_length:
-        raise Http404("Invalid media path")
+        raise Http404("مسیر فایل رسانه معتبر نیست.")
 
     if "\x00" in raw_path or "\\" in raw_path:
-        raise Http404("Invalid media path")
+        raise Http404("مسیر فایل رسانه معتبر نیست.")
 
     clean_path = str(PurePosixPath(raw_path.lstrip("/")))
     path_parts = PurePosixPath(clean_path).parts
 
     if not path_parts or any(part in {"", ".", ".."} for part in path_parts):
-        raise Http404("Invalid media path")
+        raise Http404("مسیر فایل رسانه معتبر نیست.")
 
     if clean_path.startswith("../") or clean_path == "..":
-        raise Http404("Invalid media path")
+        raise Http404("مسیر فایل رسانه معتبر نیست.")
 
     return clean_path
 
@@ -274,15 +293,15 @@ def media_proxy(request, path=None):
     ext = PurePosixPath(clean_path).suffix.lower()
     allowed = getattr(settings, "MEDIA_PROXY_IMAGE_EXTENSIONS", set())
     if ext == ".svg" and not _media_proxy_svg_allowed():
-        raise Http404("Unsupported media type")
+        raise Http404("نوع فایل رسانه پشتیبانی نمی‌شود.")
 
     if allowed and ext not in allowed:
-        raise Http404("Unsupported media type")
+        raise Http404("نوع فایل رسانه پشتیبانی نمی‌شود.")
 
     try:
         file_obj = default_storage.open(clean_path, "rb")
     except Exception as exc:  # pragma: no cover - storage/network specific
-        raise Http404("Media file unavailable") from exc
+        raise Http404("فایل رسانه در دسترس نیست.") from exc
 
     content_type = _detect_image_content_type(clean_path, file_obj)
     response = FileResponse(file_obj, content_type=content_type)
@@ -327,7 +346,7 @@ class SupportView(View):
         try:
             _validate_support_post_size(request, _support_ticket_post_max_bytes())
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("main:contact")
 
         if _support_rate_limited(request):
@@ -438,7 +457,7 @@ class SupportTicketReplyView(View):
                 _support_ticket_reply_post_max_bytes(),
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("main:support_ticket_detail", pk=pk)
 
         with transaction.atomic():
@@ -456,7 +475,8 @@ class SupportTicketReplyView(View):
 
             form = SupportTicketReplyForm(request.POST, request.FILES)
             if not form.is_valid():
-                messages.error(request, "متن پیام را بررسی کنید.")
+                stash_form_errors(request, form)
+                messages.error(request, "اطلاعات پاسخ نیاز به اصلاح دارد. موارد مشخص‌شده را بررسی کنید.")
                 return redirect("main:support_ticket_detail", pk=ticket.pk)
 
             add_support_message(
@@ -479,7 +499,7 @@ class SupportTicketCloseView(View):
                 _support_ticket_reply_post_max_bytes(),
             )
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
             return redirect("main:support_ticket_detail", pk=pk)
 
         with transaction.atomic():

@@ -26,6 +26,19 @@ class SelectDateTimeAvailabilityContractStaticTests(SimpleTestCase):
         self.assertNotIn("service__is_active", helper_block)
         self.assertNotIn("service__is_platform_catalog", helper_block)
 
+    def test_selected_future_date_loads_its_exact_month_before_slot_calculation(self):
+        script = (ROOT / "static/js/select_datetime.js").read_text(encoding="utf-8")
+        load_month_block = script.split("async function loadAvailabilityForMonth", 1)[1].split("function getJalaliMonthForIsoDate", 1)[0]
+        load_times_block = script.split("async function loadTimesForDate", 1)[1].split("function renderTimeSlots", 1)[0]
+
+        self.assertIn("clearAvailabilityCache();", load_month_block)
+        self.assertIn("const targetMonth = getJalaliMonthForIsoDate(dateStr);", load_times_block)
+        self.assertIn("await loadAvailabilityForMonth(targetMonth.year, targetMonth.month);", load_times_block)
+        self.assertLess(
+            load_times_block.index("await loadAvailabilityForMonth"),
+            load_times_block.index("await getAvailabilityForDate"),
+        )
+
     def test_select_datetime_refreshes_before_accepting_or_submitting_slots(self):
         script = (ROOT / "static/js/select_datetime.js").read_text(encoding="utf-8")
         self.assertIn("cache: 'no-store'", script)

@@ -31,7 +31,7 @@
       </div>
       <div class="lm-booking-meta-row">
         <i class="fa-regular fa-clock text-loomera-primaryText" aria-hidden="true"></i>
-        <span>ساعت {{ appointment.time|persian_time }}{% if appointment.service.duration_minutes %} • {{ appointment.service.duration_minutes }} دقیقه{% endif %}</span>
+        <span>ساعت {{ appointment.time|persian_time }}{% if appointment.display_duration_minutes %} • {{ appointment.display_duration_minutes }} دقیقه{% endif %}</span>
       </div>
       {% if appointment.stylist %}
       <div class="lm-booking-meta-row">

@@ -12,140 +12,137 @@
 
 {% block content %}
   {% url 'dashboards:stylist_schedule' as stylist_schedule_url %}
-  {% url 'dashboards:stylist_add_time_off' as stylist_add_time_off_url %}
-  {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
   {{ salon_hours_map|json_script:"salon-hours-map" }}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-add-schedule">
-    {% include "dashboards/components/page_hero.html" with eyebrow="برنامه شخصی" eyebrow_icon="fa-regular fa-calendar-plus" title="درخواست برنامه کاری" description="درخواست برنامه کاری فقط برای مجموعه فعال فعلی ارسال می‌شود و بعد از تایید مدیر همان مجموعه به شیفت‌های شما اضافه خواهد شد." action_label="بازگشت به برنامه" action_url=stylist_schedule_url badges=page_meta.badges %}
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lm-stylist-workspace"
+           data-dashboard-workspace-root
+           data-dashboard-page="stylist-add-schedule">
 
+    <header class="rounded-[24px] border border-loomera-borderSoft bg-white px-4 py-3.5 shadow-lm-card sm:px-5 sm:py-4">
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black text-loomera-primaryText">برنامه کاری من</p>
+          <h1 class="mt-1 text-xl font-black text-loomera-textPrimary sm:text-2xl">درخواست برنامه کاری</h1>
+        </div>
 
+        <a href="{{ stylist_schedule_url }}"
+           class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-3.5 py-2 text-xs font-black text-loomera-textSecondary transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/30 hover:text-loomera-primaryText">
+          <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
+          <span class="hidden sm:inline">بازگشت به برنامه</span>
+          <span class="sm:hidden">بازگشت</span>
+        </a>
+      </div>
+    </header>
 
     <section id="stylist-add-schedule-section-form"
-             class="group scroll-mt-28 overflow-visible rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36 lm-stylist-form-shell"
-             data-dashboard-workspace-panel data-lm-direct-section>
-      <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 rounded-t-[28px] border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-        <div class="min-w-0">
-          <p class="text-[11px] font-black text-loomera-primaryText">درخواست برنامه کاری</p>
-          <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">جزئیات برنامه پیشنهادی</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            تاریخ شمسی، ساعت شروع و پایان ۲۴ ساعته و خدمت مرتبط را مشخص کن.
-          </p>
-        </div>
-</header>
+             class="group overflow-visible rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card"
+             data-dashboard-workspace-panel
+             data-lm-direct-section>
 
-      <div class="p-4 sm:p-5 lg:p-6">
-        <form method="post" class="space-y-5">
-          {% csrf_token %}
+      <form method="post" class="space-y-4 p-4 sm:p-5 lg:p-6">
+        {% csrf_token %}
 
-          {% if form.non_field_errors %}
-            <div class="rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-4 text-sm font-bold leading-7 text-rose-700" role="alert">
-              {% for error in form.non_field_errors %}
-                <p>{{ error }}</p>
-              {% endfor %}
-            </div>
-          {% endif %}
+        {% if form.non_field_errors %}
+          <div class="rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold leading-7 text-rose-700" role="alert">
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
 
-          <div data-lm-task-tabs-anchor="stylist-add-schedule-form" data-lm-task-tabs-label="بخش‌های درخواست برنامه"></div>
+        <div class="lm-task-tabs-anchor"
+             data-lm-task-tabs-anchor="stylist-add-schedule-form"
+             data-lm-task-tabs-label="بخش‌های درخواست برنامه"
+             aria-label="بخش‌های درخواست برنامه"></div>
 
-          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft" data-lm-task-panel="stylist-add-schedule-form" data-lm-task-key="service-date" data-lm-task-label="خدمت و تاریخ" data-lm-task-default data-lm-task-order="1">
-            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">خدمت و تاریخ</p>
-                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">خدمت و تاریخ</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                    خدمت انتخاب‌شده باید در مجموعه فعال فعلی برای شما فعال باشد.
-                  </p>
-                </div>
-
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                  <i class="fa-solid fa-scissors" aria-hidden="true"></i>
-                </span>
+        <section class="overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft"
+                 data-lm-task-panel="stylist-add-schedule-form"
+                 data-lm-task-key="service-date"
+                 data-lm-task-label="خدمت و تاریخ"
+                 data-lm-task-default
+                 data-lm-task-order="1">
+          <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/55 px-4 py-3.5 sm:px-5">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                <i class="fa-regular fa-calendar-check text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <p class="text-[11px] font-black text-loomera-primaryText">مرحله اول</p>
+                <h2 class="mt-0.5 text-base font-black text-loomera-textPrimary">خدمت و تاریخ</h2>
               </div>
-            </header>
-
-            <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
-              {% if form.service %}
-                <div>
-                  <label for="{{ form.service.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                    <i class="fa-solid fa-scissors text-xs text-loomera-primaryText" aria-hidden="true"></i>
-                    {{ form.service.label }}
-                  </label>
-
-                  {{ form.service }}
-
-                  {% if form.service.errors %}
-                    <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                      {% for error in form.service.errors %}
-                        <p>{{ error }}</p>
-                      {% endfor %}
-                    </div>
-                  {% endif %}
-
-                  {% if form.service.help_text %}
-                    <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ form.service.help_text }}</p>
-                  {% endif %}
-                </div>
-              {% endif %}
-
-              {% if form.date %}
-                <div>
-                  <label for="{{ form.date.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                    <i class="fa-regular fa-calendar text-xs text-loomera-primaryText" aria-hidden="true"></i>
-                    {{ form.date.label }}
-                  </label>
-
-                  {{ form.date }}
-
-                  {% if form.date.errors %}
-                    <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                      {% for error in form.date.errors %}
-                        <p>{{ error }}</p>
-                      {% endfor %}
-                    </div>
-                  {% endif %}
-
-                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">
-                    تاریخ باید با تقویم شمسی انتخاب شود.
-                  </p>
-                </div>
-              {% endif %}
             </div>
-          </section>
+          </header>
 
-          <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft" data-lm-task-panel="stylist-add-schedule-form" data-lm-task-key="time" data-lm-task-label="بازه زمانی" data-lm-task-order="2">
-            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="text-[11px] font-black text-loomera-primaryText">بازه زمانی</p>
-                  <h3 class="mt-1 text-base font-black text-loomera-textPrimary">بازه زمانی پیشنهادی</h3>
-                  <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                    بعد از انتخاب تاریخ، ساعت‌های قابل انتخاب بر اساس ساعت کاری همان روز مجموعه محدود می‌شود.
-                  </p>
-                </div>
+          <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
+            {% if form.service %}
+              <div>
+                <label for="{{ form.service.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
+                  {{ form.service.label }}
+                </label>
+                {{ form.service }}
 
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                  <i class="fa-regular fa-clock" aria-hidden="true"></i>
-                </span>
+                {% if form.service.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in form.service.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+
+                {% if form.service.help_text %}
+                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">{{ form.service.help_text }}</p>
+                {% else %}
+                  <p class="mt-2 text-xs leading-6 text-loomera-textMuted">خدمتی را انتخاب کن که این برنامه برای آن ثبت می‌شود.</p>
+                {% endif %}
               </div>
-            </header>
+            {% endif %}
 
-            <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
+            {% if form.date %}
+              <div>
+                <label for="{{ form.date.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
+                  {{ form.date.label }}
+                </label>
+                {{ form.date }}
+
+                {% if form.date.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in form.date.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">تاریخ را از تقویم شمسی انتخاب کن.</p>
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        <section class="overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft"
+                 data-lm-task-panel="stylist-add-schedule-form"
+                 data-lm-task-key="time"
+                 data-lm-task-label="ساعت کاری"
+                 data-lm-task-order="2">
+          <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/55 px-4 py-3.5 sm:px-5">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                <i class="fa-regular fa-clock text-sm" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <p class="text-[11px] font-black text-loomera-primaryText">مرحله دوم</p>
+                <h2 class="mt-0.5 text-base font-black text-loomera-textPrimary">ساعت شروع و پایان</h2>
+              </div>
+            </div>
+          </header>
+
+          <div class="space-y-4 p-4 sm:p-5">
+            <div class="grid gap-4 md:grid-cols-2">
               {% if form.start_time %}
                 <div>
-                  <label for="{{ form.start_time.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                    <i class="fa-regular fa-clock text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                  <label for="{{ form.start_time.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
                     {{ form.start_time.label }}
                   </label>
-
                   {{ form.start_time }}
 
                   {% if form.start_time.errors %}
                     <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                      {% for error in form.start_time.errors %}
-                        <p>{{ error }}</p>
-                      {% endfor %}
+                      {% for error in form.start_time.errors %}<p>{{ error }}</p>{% endfor %}
                     </div>
                   {% endif %}
                 </div>
@@ -153,92 +150,77 @@
 
               {% if form.end_time %}
                 <div>
-                  <label for="{{ form.end_time.id_for_label }}" class="mb-2 flex items-center gap-2 text-sm font-black text-loomera-textPrimary">
-                    <i class="fa-regular fa-clock text-xs text-loomera-primaryText" aria-hidden="true"></i>
+                  <label for="{{ form.end_time.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
                     {{ form.end_time.label }}
                   </label>
-
                   {{ form.end_time }}
 
                   {% if form.end_time.errors %}
                     <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                      {% for error in form.end_time.errors %}
-                        <p>{{ error }}</p>
-                      {% endfor %}
+                      {% for error in form.end_time.errors %}<p>{{ error }}</p>{% endfor %}
                     </div>
                   {% endif %}
                 </div>
               {% endif %}
             </div>
-          </section>
 
-          <div class="rounded-[24px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3 text-xs font-bold leading-6 text-loomera-textMuted" data-salon-hours-hint>
-            ابتدا تاریخ را انتخاب کن تا ساعت کاری همان روز مجموعه نمایش داده شود.
-          </div>
-
-          {% if form.note %}
-            <section class="overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white shadow-lm-soft" data-lm-task-panel="stylist-add-schedule-form" data-lm-task-key="note" data-lm-task-label="یادداشت" data-lm-task-order="3">
-              <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4 sm:px-5">
-                <div class="flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <p class="text-[11px] font-black text-loomera-primaryText">توضیحات</p>
-                    <h3 class="mt-1 text-base font-black text-loomera-textPrimary">یادداشت برای مدیر</h3>
-                    <p class="mt-1 text-xs leading-6 text-loomera-textMuted">
-                      اگر توضیحی درباره برنامه پیشنهادی داری، برای مدیر مجموعه بنویس.
-                    </p>
-                  </div>
-
-                  <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
-                    <i class="fa-regular fa-note-sticky" aria-hidden="true"></i>
-                  </span>
-                </div>
-              </header>
-
-              <div class="p-4 sm:p-5">
-                <label for="{{ form.note.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
-                  {{ form.note.label }}
-                </label>
-
-                {{ form.note }}
-
-                {% if form.note.errors %}
-                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                    {% for error in form.note.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </div>
-            </section>
-          {% endif %}
-
-          <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p class="text-xs leading-6 text-loomera-textMuted">
-                این درخواست مستقیم شیفت نمی‌سازد و فقط بعد از تایید مدیر همین مجموعه اعمال می‌شود.
-              </p>
-
-              <div class="flex justify-end">
-                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
-                  <i class="fa-solid fa-paper-plane text-xs" aria-hidden="true"></i>
-                  ارسال درخواست برنامه کاری
-                </button>
-              </div>
+            <div class="rounded-[18px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 px-3.5 py-2.5 text-xs font-bold leading-6 text-loomera-textMuted"
+                 data-salon-hours-hint>
+              ابتدا تاریخ را انتخاب کن تا ساعت کاری همان روز مجموعه نمایش داده شود.
             </div>
           </div>
-        </form>
-      </div>
+        </section>
+
+        {% if form.note %}
+          <section class="overflow-hidden rounded-[24px] border border-loomera-borderSoft bg-white shadow-lm-soft"
+                   data-lm-task-panel="stylist-add-schedule-form"
+                   data-lm-task-key="note"
+                   data-lm-task-label="یادداشت"
+                   data-lm-task-order="3">
+            <header class="border-b border-loomera-borderSoft bg-loomera-bgSubtle/55 px-4 py-3.5 sm:px-5">
+              <div class="flex items-center gap-3">
+                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-loomera-primaryText shadow-sm">
+                  <i class="fa-regular fa-note-sticky text-sm" aria-hidden="true"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black text-loomera-primaryText">اختیاری</p>
+                  <h2 class="mt-0.5 text-base font-black text-loomera-textPrimary">یادداشت برای مدیر</h2>
+                </div>
+              </div>
+            </header>
+
+            <div class="p-4 sm:p-5">
+              <label for="{{ form.note.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
+                {{ form.note.label }}
+              </label>
+              {{ form.note }}
+
+              {% if form.note.errors %}
+                <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                  {% for error in form.note.errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </section>
+        {% endif %}
+
+        <div class="rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/55 p-3 sm:flex sm:items-center sm:justify-between sm:gap-4">
+          <p class="mb-3 text-xs font-bold leading-6 text-loomera-textMuted sm:mb-0">
+            درخواست پس از تأیید مدیر به برنامه کاری تو اضافه می‌شود.
+          </p>
+
+          <button type="submit"
+                  class="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-xs font-black text-white shadow-[0_10px_24px_rgba(115,92,190,0.16)] transition hover:opacity-95 sm:w-auto">
+            <i class="fa-solid fa-paper-plane text-[10px]" aria-hidden="true"></i>
+            <span>ارسال درخواست</span>
+          </button>
+        </div>
+      </form>
     </section>
-
-
-
-
-
-
   </section>
 {% endblock %}
 
-{% block extra_js %}
+{% block js %}
   {{ block.super }}
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -281,14 +263,13 @@
         const jm = Number(parts[1]);
         const jd = Number(parts[2]);
 
-        if (!window.jalaliDatepicker || !Number.isFinite(jy) || !Number.isFinite(jm) || !Number.isFinite(jd)) {
+        if (!window.JalaliDate || !Number.isFinite(jy) || !Number.isFinite(jm) || !Number.isFinite(jd)) {
           return null;
         }
 
         try {
-          const g = window.jalaliDatepicker.toGregorian(jy, jm, jd);
-          const jsDate = new Date(g.gy, g.gm - 1, g.gd);
-          const weekday = jsDate.getDay(); // Sunday=0 ... Saturday=6
+          const gregorianDate = new window.JalaliDate(jy, jm, jd).toGregorian();
+          const weekday = gregorianDate.getDay();
           const map = { 6: 1, 0: 2, 1: 3, 2: 4, 3: 5, 4: 6, 5: 7 };
           return map[weekday] || null;
         } catch (error) {
@@ -296,28 +277,46 @@
         }
       }
 
-      function buildTimes(open, close) {
+      function timeToMinutes(value) {
+        const parts = (value || "").split(":").map(Number);
+        if (parts.length !== 2 || parts.some(Number.isNaN)) return null;
+        return parts[0] * 60 + parts[1];
+      }
+
+      function minutesToTime(value) {
+        const hour = String(Math.floor(value / 60)).padStart(2, "0");
+        const minute = String(value % 60).padStart(2, "0");
+        return `${hour}:${minute}`;
+      }
+
+      function buildTimes(open, close, mode) {
         const items = [];
-        const openParts = (open || "").split(":").map(Number);
-        const closeParts = (close || "").split(":").map(Number);
+        const openMinutes = timeToMinutes(open);
+        const closeMinutes = timeToMinutes(close);
 
-        if (openParts.length !== 2 || closeParts.length !== 2) return items;
+        if (openMinutes === null || closeMinutes === null || closeMinutes <= openMinutes) {
+          return items;
+        }
 
-        let current = openParts[0] * 60 + openParts[1];
-        const end = closeParts[0] * 60 + closeParts[1];
+        let current = mode === "end" ? openMinutes + 15 : openMinutes;
+        const last = mode === "start" ? closeMinutes - 15 : closeMinutes;
 
-        while (current <= end) {
-          const hour = String(Math.floor(current / 60)).padStart(2, "0");
-          const minute = String(current % 60).padStart(2, "0");
-          items.push(`${hour}:${minute}`);
+        while (current <= last) {
+          items.push(minutesToTime(current));
           current += 15;
         }
 
         return items;
       }
 
-      function renderOptions(select, values, previousValue) {
+      function renderOptions(select, values, previousValue, placeholder) {
         select.innerHTML = "";
+
+        const placeholderOption = document.createElement("option");
+        placeholderOption.value = "";
+        placeholderOption.textContent = placeholder;
+        select.appendChild(placeholderOption);
+
         values.forEach(function (value) {
           const option = document.createElement("option");
           option.value = value;
@@ -327,30 +326,85 @@
         });
       }
 
+      function resetTimeSelects(message) {
+        renderOptions(startSelect, [], "", message);
+        renderOptions(endSelect, [], "", message);
+        startSelect.disabled = true;
+        endSelect.disabled = true;
+      }
+
+      function syncEndOptions(info, preferredValue) {
+        const allEndTimes = buildTimes(info.open, info.close, "end");
+        const selectedStartMinutes = timeToMinutes(startSelect.value);
+        const endTimes = selectedStartMinutes === null
+          ? allEndTimes
+          : allEndTimes.filter(function (value) {
+              const minutes = timeToMinutes(value);
+              return minutes !== null && minutes > selectedStartMinutes;
+            });
+
+        renderOptions(
+          endSelect,
+          endTimes,
+          preferredValue,
+          "ساعت پایان را انتخاب کن"
+        );
+        endSelect.disabled = endTimes.length === 0;
+      }
+
       function syncTimeOptions() {
         const dayNumber = jalaliWeekdayToSalonDayNumber(dateInput.value);
         const info = dayNumber ? hoursMap[String(dayNumber)] : null;
 
+        if (!dayNumber) {
+          resetTimeSelects("ابتدا تاریخ را انتخاب کن");
+          if (hint) {
+            hint.textContent = "ابتدا تاریخ را انتخاب کن تا فقط ساعت کاری مجموعه فعال در همان روز نمایش داده شود.";
+          }
+          return;
+        }
+
         if (!info) {
-          if (hint) hint.textContent = "ابتدا تاریخ معتبر را انتخاب کن تا ساعت‌های قابل انتخاب نمایش داده شود.";
+          resetTimeSelects("ساعت کاری ثبت نشده است");
+          if (hint) {
+            hint.textContent = "برای مجموعه فعال در این روز ساعت کاری ثبت نشده است.";
+          }
           return;
         }
 
-        if (info.closed) {
-          startSelect.innerHTML = "";
-          endSelect.innerHTML = "";
-          if (hint) hint.textContent = "مجموعه در این تاریخ تعطیل است و امکان ثبت درخواست برنامه کاری وجود ندارد.";
+        if (info.closed || !info.open || !info.close) {
+          resetTimeSelects("مجموعه در این روز تعطیل است");
+          if (hint) {
+            hint.textContent = "مجموعه فعال در این تاریخ تعطیل است و امکان ثبت درخواست برنامه کاری وجود ندارد.";
+          }
           return;
         }
 
-        const values = buildTimes(info.open, info.close);
-        renderOptions(startSelect, values, startSelect.value || originalStartValue);
-        renderOptions(endSelect, values, endSelect.value || originalEndValue);
+        const startTimes = buildTimes(info.open, info.close, "start");
+        const previousStart = startSelect.value || originalStartValue;
+        const previousEnd = endSelect.value || originalEndValue;
+
+        renderOptions(
+          startSelect,
+          startTimes,
+          previousStart,
+          "ساعت شروع را انتخاب کن"
+        );
+        startSelect.disabled = startTimes.length === 0;
+
+        syncEndOptions(info, previousEnd);
 
         if (hint) {
-          hint.textContent = `ساعت کاری مجموعه در این روز: ${info.label}`;
+          hint.textContent = `ساعت کاری مجموعه فعال در این روز: ${info.label}`;
         }
       }
+
+      startSelect.addEventListener("change", function () {
+        const dayNumber = jalaliWeekdayToSalonDayNumber(dateInput.value);
+        const info = dayNumber ? hoursMap[String(dayNumber)] : null;
+        if (!info || info.closed) return;
+        syncEndOptions(info, endSelect.value || originalEndValue);
+      });
 
       dateInput.addEventListener("change", syncTimeOptions);
       dateInput.addEventListener("input", syncTimeOptions);

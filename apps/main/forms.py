@@ -110,7 +110,7 @@ def _validate_support_attachment_pdf(uploaded_file):
     uploaded_file.seek(0)
 
     if not header.startswith(b"%PDF-"):
-        raise ValidationError("فایل PDF پیوست معتبر نیست.")
+        raise ValidationError("فایل پی‌دی‌اِف پیوست معتبر نیست.")
 
 
 def validate_support_attachment_upload(uploaded_file):
@@ -125,7 +125,7 @@ def validate_support_attachment_upload(uploaded_file):
 
     if ext not in SUPPORT_ATTACHMENT_ALLOWED_EXTENSIONS:
         raise ValidationError(
-            "پسوند پیوست مجاز نیست. فقط JPG، PNG یا PDF قابل قبول است."
+            "پسوند پیوست مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا پی‌دی‌اِف قابل قبول است."
         )
 
     name_without_last_ext = original_name[: -len(ext)] if ext else original_name
@@ -140,12 +140,12 @@ def validate_support_attachment_upload(uploaded_file):
 
     if content_type not in SUPPORT_ATTACHMENT_ALLOWED_CONTENT_TYPES:
         raise ValidationError(
-            "فرمت پیوست مجاز نیست. فقط JPG، PNG یا PDF قابل قبول است."
+            "فرمت پیوست مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا پی‌دی‌اِف قابل قبول است."
         )
 
     if ext == ".pdf":
         if content_type != "application/pdf":
-            raise ValidationError("فرمت PDF پیوست معتبر نیست.")
+            raise ValidationError("فرمت پی‌دی‌اِف پیوست معتبر نیست.")
         _validate_support_attachment_pdf(uploaded_file)
         return uploaded_file
 

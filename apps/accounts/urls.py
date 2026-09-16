@@ -32,6 +32,7 @@ from .views import (
     customer_notifications_summary,
     mark_customer_notification_read,
     mark_all_customer_notifications_read,
+    DismissMessagingWelcomePromptView,
 )
 
 # ----------------------------------------------------------------
@@ -43,6 +44,11 @@ urlpatterns = [
     path("verify/", VerifyRegisterView.as_view(), name="verify"),
     path("login/", LoginUserView.as_view(), name="login"),
     path("logout/", LogoutUserView.as_view(), name="logout"),
+    path(
+        "api/messaging-welcome/dismiss/",
+        DismissMessagingWelcomePromptView.as_view(),
+        name="dismiss_messaging_welcome",
+    ),
     path("change_password/", ChangePasswordView.as_view(), name="change_password"),
     path(
         "remember_password/", RememberPasswordView.as_view(), name="remember_password"

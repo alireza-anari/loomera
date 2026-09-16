@@ -7,21 +7,133 @@
 {% block head %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'css/pages/stylist_workspace.css' %}">
+  <style>
+    body[data-page="stylist-profile"] #stylist-profile-section-portfolio select,
+    body[data-page="stylist-profile"] #stylist-profile-section-portfolio textarea,
+    body[data-page="stylist-profile"] #stylist-profile-section-edit input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    body[data-page="stylist-profile"] #stylist-profile-section-edit select,
+    body[data-page="stylist-profile"] #stylist-profile-section-edit textarea {
+      width: 100%;
+      max-width: 100%;
+      border: 1px solid var(--lm-border-soft, #e9e4f4);
+      border-radius: 1rem;
+      background: #fff;
+      color: var(--lm-text-primary, #211a33);
+      font: inherit;
+      font-size: 0.875rem;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    }
+
+    body[data-page="stylist-profile"] #stylist-profile-section-portfolio select,
+    body[data-page="stylist-profile"] #stylist-profile-section-edit select,
+    body[data-page="stylist-profile"] #stylist-profile-section-edit input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+      min-height: 48px;
+      padding: 0.7rem 0.9rem;
+    }
+
+    body[data-page="stylist-profile"] #stylist-profile-section-portfolio textarea,
+    body[data-page="stylist-profile"] #stylist-profile-section-edit textarea {
+      min-height: 112px;
+      padding: 0.8rem 0.9rem;
+      line-height: 1.9;
+      resize: vertical;
+    }
+
+    body[data-page="stylist-profile"] #stylist-profile-section-portfolio select:focus,
+    body[data-page="stylist-profile"] #stylist-profile-section-portfolio textarea:focus,
+    body[data-page="stylist-profile"] #stylist-profile-section-edit input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+    body[data-page="stylist-profile"] #stylist-profile-section-edit select:focus,
+    body[data-page="stylist-profile"] #stylist-profile-section-edit textarea:focus {
+      border-color: rgba(115, 92, 190, 0.42);
+      box-shadow: 0 0 0 4px rgba(115, 92, 190, 0.10);
+    }
+
+    body[data-page="stylist-profile"] .lm-profile-select-wrap {
+      position: relative;
+      min-width: 0;
+    }
+
+    body[data-page="stylist-profile"] .lm-profile-select-wrap select {
+      appearance: none;
+      padding-left: 2.7rem !important;
+    }
+
+    body[data-page="stylist-profile"] .lm-profile-select-icon {
+      pointer-events: none;
+      position: absolute;
+      inset-inline-start: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--lm-text-muted, #7d748d);
+      font-size: 0.7rem;
+    }
+
+    body[data-page="stylist-profile"] .lm-profile-file-native {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    body[data-page="stylist-profile"] .lm-profile-file-picker {
+      display: flex;
+      min-width: 0;
+      min-height: 62px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      border: 1px dashed rgba(115, 92, 190, 0.28);
+      border-radius: 1.15rem;
+      background: #fff;
+      padding: 0.75rem;
+      transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    body[data-page="stylist-profile"] .lm-profile-file-picker:hover {
+      border-color: rgba(115, 92, 190, 0.52);
+      background: rgba(243, 239, 252, 0.5);
+    }
+
+    body[data-page="stylist-profile"] .lm-profile-file-picker:focus-within {
+      box-shadow: 0 0 0 4px rgba(115, 92, 190, 0.10);
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
   {% url 'dashboards:stylist_schedule' as stylist_schedule_url %}
   {% url 'dashboards:stylist_appointments' as stylist_appointments_url %}
-  {% url 'dashboards:stylist_settings' as stylist_settings_url %}
 
-  <section class="min-w-0 max-w-full space-y-5 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-profile">
-    {% include "dashboards/components/page_hero.html" with eyebrow="پروفایل حرفه‌ای" eyebrow_icon="fa-regular fa-id-card" title="پروفایل من" description="اطلاعات پایه، تخصص، رزومه، تصویر حرفه‌ای، تماس اضطراری و همکاری‌های خودت را مدیریت کن." action_label="تنظیمات" action_url=stylist_settings_url badges=page_meta.badges %}
+  <section class="min-w-0 max-w-full space-y-4 overflow-visible lm-stylist-workspace" data-dashboard-workspace-root data-dashboard-page="stylist-profile">
+    <header class="rounded-[24px] border border-loomera-borderSoft bg-white px-4 py-3.5 shadow-lm-card sm:px-5 sm:py-4">
+      <div class="flex min-w-0 items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h1 class="text-xl font-black text-loomera-textPrimary sm:text-2xl">پروفایل من</h1>
+          <p class="mt-1 text-xs font-bold text-loomera-textMuted">اطلاعات حرفه‌ای، نمونه‌کارها و همکاری‌ها</p>
+        </div>
+        {% if stylist_profile_summary.profile_completion_label %}
+          <span class="inline-flex shrink-0 items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-2 text-[11px] font-black text-loomera-primaryText">
+            <i class="fa-regular fa-id-card" aria-hidden="true"></i>
+            {{ stylist_profile_summary.profile_completion_label }}
+          </span>
+        {% endif %}
+      </div>
+    </header>
 
-
+    <div data-lm-task-tabs-anchor="stylist-profile" data-lm-task-tabs-label="بخش‌های پروفایل"></div>
 
     <section id="stylist-profile-section-summary"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section>
+             class="group scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel data-lm-direct-section
+             data-lm-task-panel="stylist-profile" data-lm-task-key="overview" data-lm-task-label="نمای کلی" data-lm-task-default data-lm-task-order="1">
       <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">هویت حرفه‌ای</p>
@@ -51,22 +163,20 @@
             {% endif %}
           </div>
 
-          <div class="mt-5 grid gap-3 sm:grid-cols-3">
-            <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4">
-              <p class="text-xs text-loomera-textMuted">تکمیل پروفایل</p>
-              <p class="mt-2 text-sm font-black text-loomera-textPrimary">{{ stylist_profile_summary.profile_completion_label }}</p>
+          <div class="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
+            <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-3 py-3 text-center sm:px-4">
+              <p class="text-[10px] font-bold text-loomera-textMuted sm:text-xs">تکمیل پروفایل</p>
+              <p class="mt-1 text-xs font-black text-loomera-textPrimary sm:text-sm">{{ stylist_profile_summary.profile_completion_label }}</p>
             </div>
 
-            <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4">
-              <p class="text-xs text-loomera-textMuted">شیفت بعدی</p>
-              <p class="mt-2 text-sm font-black text-loomera-textPrimary">{{ stylist_profile_summary.next_shift_label }}</p>
-              <p class="mt-1 text-xs text-loomera-textMuted">{{ stylist_profile_summary.next_shift_meta }}</p>
+            <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-3 py-3 text-center sm:px-4">
+              <p class="text-[10px] font-bold text-loomera-textMuted sm:text-xs">خدمات فعال</p>
+              <p class="mt-1 text-xs font-black text-loomera-textPrimary sm:text-sm">{{ stylist_profile_summary.active_services|length }}</p>
             </div>
 
-            <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-4">
-              <p class="text-xs text-loomera-textMuted">مرخصی نزدیک</p>
-              <p class="mt-2 text-sm font-black text-loomera-textPrimary">{{ stylist_profile_summary.next_time_off_label }}</p>
-              <p class="mt-1 text-xs text-loomera-textMuted">{{ stylist_profile_summary.next_time_off_meta }}</p>
+            <div class="rounded-2xl border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-3 py-3 text-center sm:px-4">
+              <p class="text-[10px] font-bold text-loomera-textMuted sm:text-xs">همکاری فعال</p>
+              <p class="mt-1 text-xs font-black text-loomera-textPrimary sm:text-sm">{{ stylist_collaboration_workspace.active_count_label }}</p>
             </div>
           </div>
         </article>
@@ -109,8 +219,9 @@
     </section>
 
     <section id="stylist-profile-section-services"
-             class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-             data-dashboard-workspace-panel data-lm-direct-section>
+             class="group scroll-mt-28 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
+             data-dashboard-workspace-panel data-lm-direct-section
+             data-lm-task-panel="stylist-profile" data-lm-task-key="overview" data-lm-task-label="نمای کلی" data-lm-task-order="1">
       <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">خدمات مجموعه فعال</p>
@@ -138,19 +249,14 @@
       </div>
     </section>
 
-    <div data-lm-task-tabs-anchor="stylist-profile" data-lm-task-tabs-label="مدیریت پروفایل حرفه‌ای"></div>
-
     <details id="stylist-profile-section-portfolio"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel
-             data-lm-task-panel="stylist-profile" data-lm-task-key="portfolio" data-lm-task-label="نمونه‌کارها" data-lm-task-order="2">
+             data-lm-task-panel="stylist-profile" data-lm-task-key="portfolio" data-lm-task-label="نمونه‌کارها" data-lm-task-order="3">
       <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">گالری حرفه‌ای</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">نمونه‌کارهای من</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            تصویرهای منتشرشده این بخش در صفحه عمومی سالن، کنار نام متخصص نمایش داده می‌شود.
-          </p>
         </div>
         <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
           <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
@@ -159,47 +265,72 @@
 
       <div class="space-y-5 p-4 sm:p-5 lg:p-6">
         {% if stylist_can_manage_own_portfolio %}
-          <form method="post" enctype="multipart/form-data" class="grid gap-4 rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,0.9fr)_auto] lg:items-end">
+          <form method="post" enctype="multipart/form-data" class="min-w-0 space-y-4 overflow-hidden rounded-[26px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4 sm:p-5">
             {% csrf_token %}
             <input type="hidden" name="profile_action" value="add_work_sample">
 
-            <div>
-              <label for="{{ work_sample_form.service.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ work_sample_form.service.label }}</label>
-              {{ work_sample_form.service }}
-              {% if work_sample_form.service.errors %}
-                <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                  {% for error in work_sample_form.service.errors %}<p>{{ error }}</p>{% endfor %}
+            <div class="grid min-w-0 gap-4 lg:grid-cols-2">
+              <div class="min-w-0">
+                <label for="{{ work_sample_form.service.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
+                  {{ work_sample_form.service.label }}
+                </label>
+                <div class="lm-profile-select-wrap">
+                  {{ work_sample_form.service }}
+                  <span class="lm-profile-select-icon" aria-hidden="true">
+                    <i class="fa-solid fa-chevron-down"></i>
+                  </span>
                 </div>
-              {% endif %}
-            </div>
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">خدمتی را انتخاب کن که این تصویر مربوط به آن است.</p>
+                {% if work_sample_form.service.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in work_sample_form.service.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
 
-            <div>
-              <label for="{{ work_sample_form.sample_image.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ work_sample_form.sample_image.label }}</label>
-              {{ work_sample_form.sample_image }}
-              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">JPG، PNG یا WEBP تا ۲ مگابایت و حداکثر ۱۹۲۰×۱۰۸۰.</p>
-              {% if work_sample_form.sample_image.errors %}
-                <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
-                  {% for error in work_sample_form.sample_image.errors %}<p>{{ error }}</p>{% endfor %}
+              <div class="min-w-0">
+                <span class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ work_sample_form.sample_image.label }}</span>
+                <div class="relative min-w-0">
+                  <div class="lm-profile-file-native">{{ work_sample_form.sample_image }}</div>
+                  <label for="{{ work_sample_form.sample_image.id_for_label }}" class="lm-profile-file-picker">
+                    <span class="min-w-0">
+                      <span class="block text-sm font-black text-loomera-textPrimary">انتخاب تصویر نمونه‌کار</span>
+                      <span class="mt-1 block truncate text-[11px] font-bold text-loomera-textMuted" data-portfolio-file-name>هنوز تصویری انتخاب نشده است.</span>
+                    </span>
+                    <span class="inline-flex shrink-0 items-center gap-2 rounded-full bg-loomera-primary px-3 py-2 text-xs font-black text-white">
+                      <i class="fa-regular fa-image text-[11px]" aria-hidden="true"></i>
+                      انتخاب تصویر
+                    </span>
+                  </label>
                 </div>
-              {% endif %}
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">تصویر واضح با حجم حداکثر ۲ مگابایت انتخاب کن.</p>
+                {% if work_sample_form.sample_image.errors %}
+                  <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
+                    {% for error in work_sample_form.sample_image.errors %}<p>{{ error }}</p>{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
             </div>
 
-            <div class="lg:self-stretch">
-              <button type="submit" class="inline-flex h-full min-h-12 w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
-                <i class="fa-solid fa-cloud-arrow-up text-xs" aria-hidden="true"></i>
-                بارگذاری نمونه‌کار
-              </button>
-            </div>
-
-            <div class="lg:col-span-3">
-              <label for="{{ work_sample_form.description.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ work_sample_form.description.label }}</label>
+            <div class="min-w-0 lm-portfolio-description">
+              <label for="{{ work_sample_form.description.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">
+                {{ work_sample_form.description.label }}
+              </label>
               {{ work_sample_form.description }}
+              <p class="mt-2 text-xs leading-6 text-loomera-textMuted">در صورت نیاز، توضیح کوتاهی درباره نتیجه کار بنویس.</p>
               {% if work_sample_form.description.errors or work_sample_form.non_field_errors %}
                 <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
                   {% for error in work_sample_form.description.errors %}<p>{{ error }}</p>{% endfor %}
                   {% for error in work_sample_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
                 </div>
               {% endif %}
+            </div>
+
+            <div class="flex min-w-0 justify-end pt-1">
+              <button type="submit" class="inline-flex min-h-11 max-w-full items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2.5 text-sm font-black text-white shadow-[0_10px_24px_rgba(115,92,190,0.18)] transition hover:bg-loomera-primaryHover">
+                <i class="fa-solid fa-cloud-arrow-up text-xs" aria-hidden="true"></i>
+                بارگذاری نمونه‌کار
+              </button>
             </div>
           </form>
         {% else %}
@@ -262,14 +393,11 @@
 
     <section id="stylist-profile-section-edit"
          class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
-         data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-profile" data-lm-task-key="edit" data-lm-task-label="ویرایش پروفایل" data-lm-task-default data-lm-task-order="1">
+         data-dashboard-workspace-panel data-lm-direct-section data-lm-task-panel="stylist-profile" data-lm-task-key="edit" data-lm-task-label="ویرایش پروفایل" data-lm-task-order="2">
       <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">تکمیل اطلاعات متخصص</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">ویرایش اطلاعات پروفایل</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            اطلاعات حساب، هویت حرفه‌ای، شبکه‌های اجتماعی و تماس اضطراری را یک‌جا مدیریت کن.
-          </p>
         </div>
 </header>
 
@@ -435,10 +563,22 @@
                 {% endif %}
               </div>
 
-              <div>
-                <label for="{{ profile_form.profile_image.id_for_label }}" class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.profile_image.label }}</label>
-                {{ profile_form.profile_image }}
-                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">فرمت پیشنهادی: JPG یا PNG، تصویر واضح و مربعی.</p>
+              <div class="min-w-0">
+                <span class="mb-2 block text-sm font-black text-loomera-textPrimary">{{ profile_form.profile_image.label }}</span>
+                <div class="relative min-w-0">
+                  <div class="lm-profile-file-native">{{ profile_form.profile_image }}</div>
+                  <label for="{{ profile_form.profile_image.id_for_label }}" class="lm-profile-file-picker">
+                    <span class="min-w-0">
+                      <span class="block text-sm font-black text-loomera-textPrimary">انتخاب تصویر پروفایل</span>
+                      <span class="mt-1 block truncate text-[11px] font-bold text-loomera-textMuted" data-profile-file-name>در صورت نیاز تصویر تازه‌ای انتخاب کن.</span>
+                    </span>
+                    <span class="inline-flex shrink-0 items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText">
+                      <i class="fa-regular fa-image text-[11px]" aria-hidden="true"></i>
+                      انتخاب تصویر
+                    </span>
+                  </label>
+                </div>
+                <p class="mt-2 text-xs leading-6 text-loomera-textMuted">برای نمایش بهتر، تصویر واضح و مربعی انتخاب کن.</p>
                 {% if profile_form.profile_image.errors %}
                   <div class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-6 text-rose-600">
                     {% for error in profile_form.profile_image.errors %}<p>{{ error }}</p>{% endfor %}
@@ -586,22 +726,12 @@
             </div>
           </section>
 
-          <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[24px] border border-loomera-borderSoft bg-white/95 p-3 shadow-[0_18px_45px_rgba(46,42,60,0.16)] backdrop-blur">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p class="text-xs leading-6 text-loomera-textMuted">
-                تغییرات پروفایل فقط مربوط به حساب شخصی متخصص است و توسط مدیر سالن ویرایش نمی‌شود.
-              </p>
-
-              <div class="flex flex-col gap-2 sm:flex-row">
-                <a href="#stylist-profile-section-summary" class="inline-flex items-center justify-center rounded-full border border-loomera-borderSoft bg-white px-5 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle">
-                  بازگشت به خلاصه
-                </a>
-
-                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-3 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
-                  <i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>
-                  ذخیره تغییرات پروفایل
-                </button>
-              </div>
+          <div data-mobile-primary-action class="lm-dashboard-sticky-action sticky z-20 rounded-[20px] border border-loomera-borderSoft bg-white/95 p-2 shadow-[0_12px_30px_rgba(46,42,60,0.12)] backdrop-blur">
+            <div class="flex items-center justify-end">
+              <button type="submit" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 py-2 text-sm font-black text-white transition hover:bg-loomera-primaryHover">
+                <i class="fa-solid fa-floppy-disk text-xs" aria-hidden="true"></i>
+                ذخیره تغییرات
+              </button>
             </div>
           </div>
         </form>
@@ -611,14 +741,11 @@
     <details id="stylist-profile-section-collaboration"
              class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36"
              data-dashboard-workspace-panel
-             data-lm-task-panel="stylist-profile" data-lm-task-key="collaboration" data-lm-task-label="همکاری‌ها" data-lm-task-order="3">
+             data-lm-task-panel="stylist-profile" data-lm-task-key="collaboration" data-lm-task-label="همکاری‌ها" data-lm-task-order="4">
       <summary class="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/95 px-4 py-3 shadow-sm transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
         <div class="min-w-0">
           <p class="text-[11px] font-black text-loomera-primaryText">همکاری با سالن‌ها</p>
           <h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">درخواست‌ها و عضویت‌ها</h2>
-          <p class="mt-1 line-clamp-1 text-xs leading-6 text-loomera-textMuted">
-            اتصال شما به هر سالن مستقل است و روی سالن‌های دیگر اثر نمی‌گذارد.
-          </p>
         </div>
         <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primary transition group-open:rotate-180">
           <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
@@ -834,4 +961,48 @@
 
 
   </section>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      function bindFileName(inputId, targetSelector, emptyLabel) {
+        const input = document.getElementById(inputId);
+        const target = document.querySelector(targetSelector);
+        if (!input || !target || input.dataset.lmFileNameReady === "true") return;
+
+        input.dataset.lmFileNameReady = "true";
+        input.addEventListener("change", function () {
+          if (this.files && this.files.length) {
+            target.textContent = this.files[0].name;
+          } else {
+            target.textContent = emptyLabel;
+          }
+        });
+      }
+
+      function initStylistProfileFilePickers() {
+        bindFileName(
+          "{{ work_sample_form.sample_image.id_for_label }}",
+          "[data-portfolio-file-name]",
+          "هنوز تصویری انتخاب نشده است."
+        );
+        bindFileName(
+          "{{ profile_form.profile_image.id_for_label }}",
+          "[data-profile-file-name]",
+          "در صورت نیاز تصویر تازه‌ای انتخاب کن."
+        );
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initStylistProfileFilePickers, { once: true });
+      } else {
+        initStylistProfileFilePickers();
+      }
+
+      document.addEventListener("htmx:afterSwap", initStylistProfileFilePickers);
+      document.addEventListener("turbo:load", initStylistProfileFilePickers);
+    })();
+  </script>
 {% endblock %}

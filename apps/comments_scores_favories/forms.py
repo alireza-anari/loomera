@@ -98,10 +98,24 @@ class CommentScoringForm(forms.Form):
                 order__customer=self.customer,
                 salon=self.salon,
                 order__service_completed_at__isnull=False,
+                order__review_completed_at__isnull=True,
             )
             .exclude(order__status="cancelled")
             .select_related("stylist", "service")
         )
+
+        reviewed_pairs = list(
+            Comments.objects.filter(
+                comment_user=self.customer,
+                salon=self.salon,
+                stylist_id__isnull=False,
+                service_id__isnull=False,
+            ).values_list("stylist_id", "service_id")
+        )
+        for stylist_id, service_id in reviewed_pairs:
+            self.eligible_order_details = self.eligible_order_details.exclude(
+                stylist_id=stylist_id, service_id=service_id
+            )
 
         eligible_stylist_ids = self.eligible_order_details.values_list(
             "stylist_id", flat=True
@@ -110,13 +124,13 @@ class CommentScoringForm(forms.Form):
             "service_id", flat=True
         ).distinct()
 
+        # Historical review eligibility must not disappear if a specialist or
+        # service is deactivated after the completed appointment.
         self.fields["stylist"].queryset = Stylist.objects.filter(
             pk__in=eligible_stylist_ids,
-            is_active=True,
         ).distinct()
         self.fields["service"].queryset = Services.objects.filter(
             id__in=eligible_service_ids,
-            is_active=True,
         ).distinct()
 
     def clean(self):

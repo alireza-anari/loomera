@@ -321,18 +321,12 @@ function initStoryViewer() {
         return response.json();
       })
       .then(() => {
-        if (reportMessage) {
-          reportMessage.textContent = "گزارش ثبت شد.";
-          reportMessage.className = "mt-2 text-xs font-black text-emerald-300";
-        }
+        window.LoomeraFeedback?.success?.("گزارش ثبت شد و برای بررسی ارسال شد.");
         reportForm.reset();
         window.setTimeout(() => reportForm.classList.add("hidden"), 1200);
       })
       .catch(() => {
-        if (reportMessage) {
-          reportMessage.textContent = "ثبت گزارش انجام نشد. دوباره تلاش کن.";
-          reportMessage.className = "mt-2 text-xs font-black text-rose-300";
-        }
+        window.LoomeraFeedback?.error?.("ثبت گزارش انجام نشد. لطفاً دوباره تلاش کنید.");
       })
       .finally(() => {
         if (button) {

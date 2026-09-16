@@ -1,3 +1,4 @@
+from apps.main.ui_feedback import user_error_message
 from decimal import Decimal
 
 from django.contrib import messages
@@ -503,7 +504,7 @@ class AppointmentMaterialUsageView(_SalonFinanceOperationMixin, View):
                     f"محاسبات مالی این خدمت نهایی شد. سهم متخصص: {_money(snapshot.stylist_net_share)} | سهم مجموعه: {_money(snapshot.salon_net_share)}",
                 )
             except ValidationError as exc:
-                messages.error(request, str(exc))
+                messages.error(request, user_error_message(exc))
             return redirect(
                 "dashboards:appointment_material_usage",
                 salon_id=salon.id,
@@ -941,7 +942,7 @@ class ManagerFinalizeAppointmentFinanceView(_SalonFinanceOperationMixin, View):
                 messages.error(request, "عملیات مالی معتبر نیست.")
 
         except ValidationError as exc:
-            messages.error(request, str(exc))
+            messages.error(request, user_error_message(exc))
 
         return redirect(
             "dashboards:appointment_detail",

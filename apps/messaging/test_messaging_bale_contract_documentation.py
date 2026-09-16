@@ -276,7 +276,7 @@ class MessagingBaleContractDocumentationTests(SimpleTestCase):
                 "messaging_delivery_preference_enabled",
             ): (
                 "Preferences may change",
-                "Critical notifications bypass opt-out",
+                "External Bale and Telegram deliveries respect explicit opt-out",
                 "most specific",
             ),
             (

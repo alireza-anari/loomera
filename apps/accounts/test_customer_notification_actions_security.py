@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -198,3 +199,36 @@ class CustomerNotificationActionsSecurityTests(Stage1DomainFactoryMixin, TestCas
         self.assertTrue(own_one.is_read)
         self.assertTrue(own_two.is_read)
         self.assertFalse(other_notification.is_read)
+
+
+    def test_mark_customer_notification_read_syncs_unified_mirror(self):
+        from apps.accounts.notifications import create_customer_notification
+        from apps.notifications.models import NotificationRecipient
+
+        customer = self.make_customer()
+        notification = create_customer_notification(
+            customer=customer,
+            title="اعلان یکپارچه",
+            category=CustomerNotification.CATEGORY_BOOKING,
+        )
+        recipient = NotificationRecipient.objects.get(
+            user=customer.user,
+            notification__metadata__legacy_model="CustomerNotification",
+            notification__metadata__legacy_id=notification.pk,
+        )
+        self.assertFalse(recipient.is_read)
+
+        self.client.force_login(customer.user)
+        response = self.client.post(
+            reverse("accounts:notification_read", args=[notification.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        recipient.refresh_from_db()
+        self.assertTrue(recipient.is_read)
+        self.assertIsNotNone(recipient.read_at)
+    def test_customer_notification_page_syncs_header_badge_and_unread_text(self):
+        script = Path("static/js/pages/customer_notifications.js").read_text(encoding="utf-8")
+        self.assertIn('badge.classList.toggle("inline-flex", safeCount > 0);', script)
+        self.assertIn('[data-notification-unread-text]', script)

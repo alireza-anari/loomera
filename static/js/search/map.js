@@ -129,7 +129,10 @@ function focusSalonCard(salonId) {
   const list = document.getElementById("salonList");
   if (!list) return;
 
-  if (window.searchFiltersController?.setSheetOpen) {
+  const isDesktop = window.matchMedia?.("(min-width: 1024px)")?.matches;
+  if (isDesktop && window.searchFiltersController?.setDesktopResultsOpen) {
+    window.searchFiltersController.setDesktopResultsOpen(true);
+  } else if (window.searchFiltersController?.setSheetOpen) {
     window.searchFiltersController.setSheetOpen(true);
   }
 
@@ -140,7 +143,9 @@ function focusSalonCard(salonId) {
     card.classList.toggle("ring-loomera-primary", isTarget);
     card.classList.toggle("bg-loomera-primarySoft", isTarget);
     if (isTarget) {
-      card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      if (!card.hasAttribute("tabindex")) card.setAttribute("tabindex", "-1");
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      try { card.focus({ preventScroll: true }); } catch (error) { card.focus(); }
       window.setTimeout(() => {
         card.classList.remove("ring-2", "ring-loomera-primary", "bg-loomera-primarySoft");
       }, 2400);

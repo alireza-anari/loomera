@@ -1,56 +1,66 @@
 {% extends "base.html" %}
 
-{% block title %}حریم خصوصی ربات‌ها و پیام‌رسان‌ها | Loomera{% endblock %}
+{% block title %}حریم خصوصی پیام‌رسان‌ها | لومرا{% endblock %}
+{% block meta_description %}ببین هنگام اتصال بله، تلگرام یا پیام‌رسان پشتیبانی‌شده به لومرا چه اطلاعاتی استفاده می‌شود و چطور اتصال و پیام‌های تبلیغاتی را کنترل کنی.{% endblock %}
 {% block body_class %}lm-messaging-privacy-page{% endblock %}
 
 {% block content %}
 <section class="mx-auto max-w-4xl px-4 py-6 sm:py-10">
-    <article class="rounded-[2rem] border border-[color:var(--lm-border)] bg-[color:var(--lm-surface)] p-5 shadow-sm sm:p-8">
-        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--lm-muted)]">Messaging privacy</p>
-        <h1 class="mt-2 text-2xl font-bold text-[color:var(--lm-text)] sm:text-3xl">حریم خصوصی ربات‌ها و پیام‌رسان‌ها</h1>
-        <p class="mt-3 text-sm leading-7 text-[color:var(--lm-muted)]">نسخه متن: {{ privacy_version }}</p>
+  <article class="rounded-[2rem] border border-[color:var(--lm-border)] bg-[color:var(--lm-surface)] p-5 shadow-sm sm:p-8">
+    <a href="{% url 'help_center:legal_index' %}" class="text-xs font-bold text-[color:var(--lm-primary)]">قوانین و مقررات</a>
+    <p class="mt-3 text-xs font-semibold text-[color:var(--lm-muted)]">حریم خصوصی پیام‌رسان‌ها</p>
+    <h1 class="mt-2 text-2xl font-bold leading-9 text-[color:var(--lm-text)] sm:text-3xl">وقتی پیام‌رسان را به لومرا وصل می‌کنی، چه اتفاقی می‌افتد؟</h1>
+    <p class="mt-3 text-sm leading-7 text-[color:var(--lm-muted)]">نسخه {{ privacy_version }}</p>
+    <p class="mt-4 text-sm leading-8 text-[color:var(--lm-muted)]">
+      این صفحه فقط درباره اتصال پیام‌رسان است. برای حساب، رزرو، پرداخت و سایر اطلاعات شخصی،
+      <a href="{% url 'accounts:privacy_policy' %}" class="font-bold text-[color:var(--lm-primary)]">سیاست حفظ حریم خصوصی لومرا</a>
+      را ببین.
+    </p>
 
-        <div class="mt-6 space-y-5 text-sm leading-8 text-[color:var(--lm-text)]">
-            <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
-                <h2 class="text-base font-bold">چه داده‌هایی ذخیره می‌شود؟</h2>
-                <p class="mt-2 text-[color:var(--lm-muted)]">
-                    برای اتصال حساب Loomera به پیام‌رسان، شناسه پیام‌رسان، chat_id، نام نمایشی، نام کاربری، شماره موبایل در صورت ارسال توسط provider، وضعیت اتصال، رویدادهای webhook و لاگ ارسال/دریافت پیام ذخیره می‌شود.
-                </p>
-            </section>
+    <div class="mt-6 grid gap-3 sm:grid-cols-3">
+      <div class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4"><strong class="text-sm">اتصال اختیاری است</strong><p class="mt-2 text-xs leading-6 text-[color:var(--lm-muted)]">اگر این قابلیت برای حسابت فعال باشد، خودت اتصال را شروع و می‌توانی آن را قطع کنی.</p></div>
+      <div class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4"><strong class="text-sm">پیام‌ها جدا هستند</strong><p class="mt-2 text-xs leading-6 text-[color:var(--lm-muted)]">پیام کاری و امنیتی با پیام بازاریابی یک چیز نیست و تنظیمات جدا دارد.</p></div>
+      <div class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4"><strong class="text-sm">رمز را نفرست</strong><p class="mt-2 text-xs leading-6 text-[color:var(--lm-muted)]">پشتیبانی برای رسیدگی عادی به رمز عبور، رمز پویا یا اطلاعات کامل کارت نیاز ندارد.</p></div>
+    </div>
 
-            <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
-                <h2 class="text-base font-bold">توکن‌ها و دکمه‌های عملیاتی</h2>
-                <p class="mt-2 text-[color:var(--lm-muted)]">
-                    توکن اتصال و توکن دکمه‌های عملیاتی زمان‌دار و یک‌بارمصرف هستند. مقدار خام توکن اتصال در دیتابیس نگهداری نمی‌شود و هنگام کلیک روی هر دکمه، کاربر، پیام‌رسان، وضعیت آبجکت و دسترسی همان لحظه دوباره بررسی می‌شود.
-                </p>
-            </section>
+    <div class="mt-6 space-y-4 text-sm leading-8 text-[color:var(--lm-text)]">
+      <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+        <h2 class="text-base font-bold">چه اطلاعاتی برای اتصال لازم است؟</h2>
+        <p class="mt-2 text-[color:var(--lm-muted)]">برای اینکه پیام به حساب درست برسد، ممکن است شناسه حساب یا گفت‌وگو در پیام‌رسان، نام نمایشی یا نام کاربری، وضعیت اتصال و اطلاعات فنی لازم برای ارسال و دریافت پیام ثبت شود. اگر پیام‌رسان شماره موبایل را در اختیار اتصال قرار دهد، ممکن است برای تطبیق حساب استفاده شود.</p>
+      </section>
 
-            <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
-                <h2 class="text-base font-bold">پیام‌های عملیاتی و تبلیغاتی</h2>
-                <p class="mt-2 text-[color:var(--lm-muted)]">
-                    پیام‌های عملیاتی شامل نوبت، پرداخت، همکاری، مرخصی، پشتیبانی و پیام‌های سیستمی است. پیام‌های تبلیغاتی شامل پیشنهادها و کمپین‌هاست و جداگانه قابل خاموش‌کردن است. پیام‌های حیاتی امنیتی یا حقوقی ممکن است برای حفظ امنیت حساب و انجام تعهدات سرویس ارسال شوند.
-                </p>
-            </section>
+      <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+        <h2 class="text-base font-bold">لینک‌ها و دکمه‌های عملیاتی چطور کار می‌کنند؟</h2>
+        <p class="mt-2 text-[color:var(--lm-muted)]">لینک یا توکن مربوط به اتصال و اقدام‌های حساس محدود و زمان‌دار است. هنگام اجرای اقدام، لومرا دوباره هویت، دسترسی و وضعیت همان مورد را بررسی می‌کند؛ پس یک پیام یا دکمه قدیمی لزوماً قابل اجرا نیست.</p>
+      </section>
 
-            <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
-                <h2 class="text-base font-bold">قطع اتصال و حذف اثر ارسال</h2>
-                <p class="mt-2 text-[color:var(--lm-muted)]">
-                    هر زمان می‌توانی اتصال ربات را از صفحه وضعیت اتصال قطع کنی. بعد از قطع اتصال، پیام جدیدی از آن اتصال ارسال نمی‌شود؛ اما لاگ‌های لازم برای امنیت، رفع خطا، حسابرسی و جلوگیری از اجرای دوباره اکشن‌ها طبق سیاست نگهداری داده Loomera باقی می‌ماند.
-                </p>
-            </section>
+      <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+        <h2 class="text-base font-bold">پیام ضروری و پیام تبلیغاتی جداست</h2>
+        <p class="mt-2 text-[color:var(--lm-muted)]">پیام مربوط به نوبت، پرداخت، امنیت حساب، همکاری یا درخواست پشتیبانی برای انجام همان سرویس است. پیشنهادها و پیام‌های بازاریابی جدا هستند و اگر برای حسابت فعال باشند، می‌توانی دریافت آن‌ها را از تنظیمات ارتباطات کنترل کنی و انتخابت را بعداً تغییر بدهی.</p>
+      </section>
 
-            <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
-                <h2 class="text-base font-bold">محدودیت providerها</h2>
-                <p class="mt-2 text-[color:var(--lm-muted)]">
-                    هر پیام‌رسان ممکن است قوانین، API و محدودیت‌های خودش را داشته باشد. Loomera فقط قابلیت‌هایی را فعال می‌کند که provider به‌صورت امن و قابل اتکا پشتیبانی کند؛ انتشار خودکار استوری یا قابلیت‌های مشابه بدون API رسمی فعال نمی‌شود.
-                </p>
-            </section>
-        </div>
+      <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+        <h2 class="text-base font-bold">اگر اتصال را قطع کنی</h2>
+        <p class="mt-2 text-[color:var(--lm-muted)]">از صفحه وضعیت اتصال می‌توانی ارتباط پیام‌رسان را قطع کنی. بعد از قطع، پیام جدید از همان اتصال نباید ارسال شود. بعضی سوابق فنی یا امنیتی ممکن است تا زمانی که برای جلوگیری از اجرای تکراری، عیب‌یابی یا الزام قانونی لازم است باقی بمانند.</p>
+      </section>
 
-        <div class="mt-6 flex flex-wrap gap-2">
-            <a href="{% url 'messaging:preferences' %}" class="inline-flex rounded-2xl bg-[color:var(--lm-primary)] px-5 py-3 text-sm font-bold text-white shadow-sm hover:opacity-90">تنظیمات اعلان پیام‌رسان‌ها</a>
-            <a href="{% url 'messaging:status' %}" class="inline-flex rounded-2xl border border-[color:var(--lm-border)] px-5 py-3 text-sm font-bold text-[color:var(--lm-text)] hover:bg-[color:var(--lm-surface-soft)]">وضعیت اتصال</a>
-        </div>
-    </article>
+      <section class="rounded-3xl border border-[color:var(--lm-border)] bg-[color:var(--lm-surface-soft)] p-4">
+        <h2 class="text-base font-bold">خود پیام‌رسان هم سیاست خودش را دارد</h2>
+        <p class="mt-2 text-[color:var(--lm-muted)]">وقتی از بله، تلگرام یا هر پیام‌رسان دیگری استفاده می‌کنی، بخشی از پردازش داده در زیرساخت همان سرویس انجام می‌شود و تابع شرایط خود آن پیام‌رسان هم هست. لومرا فقط اتصال‌هایی را توضیح می‌دهد که واقعاً در محصول پشتیبانی شده‌اند.</p>
+      </section>
+
+      <section class="rounded-3xl border border-amber-200 bg-amber-50 p-4">
+        <h2 class="text-base font-bold text-amber-950">این اطلاعات را در پیام نفرست</h2>
+        <p class="mt-2 text-amber-900">رمز عبور، کد تأیید، رمز پویا، CVV2 یا اطلاعات کامل کارت بانکی را در پیام‌رسان، تیکت یا چت برای هیچ‌کس ارسال نکن. اگر کسی با نام پشتیبانی چنین اطلاعاتی خواست، درخواست را متوقف و از مسیر رسمی پشتیبانی گزارش کن.</p>
+      </section>
+    </div>
+
+    <div class="mt-6 flex flex-wrap gap-2">
+      <a href="{% url 'messaging:preferences' %}" class="inline-flex rounded-2xl bg-[color:var(--lm-primary)] px-5 py-3 text-sm font-bold text-white shadow-sm hover:opacity-90">تنظیم پیام‌ها</a>
+      <a href="{% url 'messaging:status' %}" class="inline-flex rounded-2xl border border-[color:var(--lm-border)] px-5 py-3 text-sm font-bold text-[color:var(--lm-text)] hover:bg-[color:var(--lm-surface-soft)]">وضعیت اتصال</a>
+      <a href="{% url 'accounts:privacy_policy' %}" class="inline-flex rounded-2xl border border-[color:var(--lm-border)] px-5 py-3 text-sm font-bold text-[color:var(--lm-text)] hover:bg-[color:var(--lm-surface-soft)]">حریم خصوصی کامل</a>
+      <a href="{% url 'support' %}" class="inline-flex rounded-2xl border border-[color:var(--lm-border)] px-5 py-3 text-sm font-bold text-[color:var(--lm-text)] hover:bg-[color:var(--lm-surface-soft)]">پشتیبانی</a>
+    </div>
+  </article>
 </section>
 {% endblock %}

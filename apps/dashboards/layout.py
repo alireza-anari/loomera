@@ -421,7 +421,13 @@ CREATE_ACTIONS = [
 ]
 
 MOBILE_NAV_KEYS = ["overview", "appointments"]
-MANAGER_MOBILE_MANAGEMENT_KEYS = ["services", "team", "schedule", "online_booking", "clients"]
+MANAGER_MOBILE_MANAGEMENT_KEYS = [
+    "services",
+    "team",
+    "schedule",
+    "online_booking",
+    "clients",
+]
 
 STYLIST_ALLOWED_NAV_KEYS = {
     "overview",
@@ -540,7 +546,10 @@ PAGE_ACTION_MAP = {
         "needs_salon": True,
     },
     "team": {"label": "افزودن عضو تیم", "url_name": "dashboards:add_stylist"},
-    "schedule": {"label": "افزودن برنامه کاری", "url_name": "dashboards:scheduled_shifts"},
+    "schedule": {
+        "label": "افزودن برنامه کاری",
+        "url_name": "dashboards:scheduled_shifts",
+    },
     "services": {"label": "افزودن خدمت", "url_name": "dashboards:add_service"},
     "reports": {
         "label": "تقویم مجموعه",
@@ -726,6 +735,53 @@ def get_primary_detail_id(order_id):
         return 0
 
 
+def _notification_action_url_for_recipient(recipient):
+    note = recipient.notification
+    if note.action_url:
+        return note.action_url
+
+    related = getattr(note, "related_object", None)
+    audience_role = str(getattr(recipient, "audience_role", "") or "")
+
+    if isinstance(related, OrderDetail):
+        if audience_role == "stylist":
+            return _safe_reverse(
+                "dashboards:stylist_appointment_detail",
+                kwargs={"appointment_id": related.id},
+                fallback=_safe_reverse("notifications:center"),
+            )
+        if audience_role == "manager":
+            return _safe_reverse(
+                "dashboards:appointment_detail",
+                kwargs={
+                    "salon_id": related.salon_id,
+                    "appointment_id": related.id,
+                },
+                fallback=_safe_reverse("notifications:center"),
+            )
+
+    if isinstance(related, Order):
+        detail_id = get_primary_detail_id(related.id)
+        if detail_id:
+            if audience_role == "stylist":
+                return _safe_reverse(
+                    "dashboards:stylist_appointment_detail",
+                    kwargs={"appointment_id": detail_id},
+                    fallback=_safe_reverse("notifications:center"),
+                )
+            if audience_role == "manager" and related.salon_id:
+                return _safe_reverse(
+                    "dashboards:appointment_detail",
+                    kwargs={
+                        "salon_id": related.salon_id,
+                        "appointment_id": detail_id,
+                    },
+                    fallback=_safe_reverse("notifications:center"),
+                )
+
+    return _safe_reverse("notifications:center")
+
+
 def _serialize_unified_notification_item(recipient):
     note = recipient.notification
     return {
@@ -733,7 +789,14 @@ def _serialize_unified_notification_item(recipient):
         "description": note.body,
         "meta": _notification_meta_from_datetime(note.created_at),
         "icon": note.icon or "fa-regular fa-bell",
-        "url": note.action_url or _safe_reverse("notifications:center"),
+        "url": _notification_action_url_for_recipient(recipient),
+        "read_url": _safe_reverse(
+            "notifications:read",
+            kwargs={"recipient_id": recipient.id},
+            fallback="",
+        ),
+        "recipient_id": recipient.id,
+        "is_persistent": True,
         "is_unread": not recipient.is_read,
         "event_type": note.event_type,
     }
@@ -758,6 +821,20 @@ def _dedupe_notification_items(items, *, limit=8):
     return deduped
 
 
+def _normalize_dashboard_notification_read_state(items):
+    """Only persisted recipient rows can be unread.
+
+    Contextual fallback rows (recent orders/notes/time-off) are useful for the
+    notification center, but they have no durable read state and therefore must
+    never inflate unread badges/counts.
+    """
+    for item in items:
+        if not item.get("read_url"):
+            item["is_unread"] = False
+            item["is_persistent"] = False
+    return items
+
+
 def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=None):
     if salon is None:
         return {
@@ -765,31 +842,54 @@ def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=
             "dropdown_items": [],
             "unread_count": 0,
             "tabs": _build_notification_tabs([]),
+            "dropdown_tabs": _build_notification_tabs([]),
             "panel_url": "#",
             "title": "اعلان‌های محیط کاری",
             "subtitle": "در این بخش اعلان فعالی ثبت نشده است.",
             "panel_label": "رفتن به صفحه مرتبط",
+            "audience_role": role,
         }
 
     if role == "stylist" and stylist is not None:
         items = []
+        persistent_unread_count = 0
+        mirrored_legacy_ids = set()
+        persistent_detail_ids = set()
         if NotificationRecipient is not None and user is not None:
-            for recipient in (
+            recipient_qs = (
                 NotificationRecipient.objects.filter(
                     user=user,
                     audience_role="stylist",
                     is_archived=False,
                 )
-                .select_related("notification")
-                .order_by("-created_at")[:4]
-            ):
+                .select_related(
+                    "notification",
+                    "notification__related_content_type",
+                )
+                .order_by("-created_at")
+            )
+            persistent_unread_count = recipient_qs.filter(is_read=False).count()
+            for recipient in recipient_qs[:12]:
+                metadata = dict(getattr(recipient.notification, "metadata", None) or {})
+                if metadata.get("legacy_model") == "AppointmentNotification":
+                    try:
+                        mirrored_legacy_ids.add(int(metadata.get("legacy_id")))
+                    except (TypeError, ValueError):
+                        pass
+                try:
+                    persistent_detail_ids.add(int(metadata.get("detail_id")))
+                except (TypeError, ValueError):
+                    pass
                 items.append(_serialize_unified_notification_item(recipient))
         today = timezone.localdate()
         dynamic_notifications = AppointmentNotification.objects.filter(
             salon=salon,
             audience_role="stylist",
             stylist=stylist,
-        ).order_by("-created_at")[:4]
+        )
+        if mirrored_legacy_ids:
+            dynamic_notifications = dynamic_notifications.exclude(pk__in=mirrored_legacy_ids)
+        dynamic_notifications = dynamic_notifications.order_by("-created_at")[:4]
         for note in dynamic_notifications:
             items.append(
                 _serialize_lifecycle_notification_item(
@@ -809,6 +909,10 @@ def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=
             .order_by("-date", "-time", "-id")[:8]
         )
         for detail in recent_details:
+            if detail.pk in persistent_detail_ids:
+                # A durable notification already represents this appointment.
+                # Do not add the contextual fallback row as a second "notification".
+                continue
             order = detail.order
             if order.status in ["cancelled", "payment_failed"]:
                 title = "نوبت لغوشده"
@@ -856,32 +960,41 @@ def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=
                 }
             )
         items = _attach_notification_categories(
-            _dedupe_notification_items(items, limit=12)
+            _normalize_dashboard_notification_read_state(
+                _dedupe_notification_items(items, limit=12)
+            )
         )
         dropdown_items = items[:6]
-        unread_count = sum(1 for item in items if item["is_unread"])
         return {
             "items": items,
             "dropdown_items": dropdown_items,
             "tabs": _build_notification_tabs(items),
-            "unread_count": unread_count,
+            "dropdown_tabs": _build_notification_tabs(dropdown_items),
+            "unread_count": persistent_unread_count,
             "panel_url": _safe_reverse("dashboards:stylist_notifications"),
             "title": "اعلان‌های کاری من",
             "subtitle": "نوبت‌ها، مالی و تغییرات مرتبط با خودت را یک‌جا پیگیری کن.",
             "panel_label": "باز کردن مرکز اعلان‌ها",
+            "audience_role": "stylist",
         }
 
     items = []
+    persistent_unread_count = 0
     if NotificationRecipient is not None and user is not None:
-        for recipient in (
+        recipient_qs = (
             NotificationRecipient.objects.filter(
                 user=user,
                 audience_role="manager",
                 is_archived=False,
             )
-            .select_related("notification")
-            .order_by("-created_at")[:4]
-        ):
+            .select_related(
+                "notification",
+                "notification__related_content_type",
+            )
+            .order_by("-created_at")
+        )
+        persistent_unread_count = recipient_qs.filter(is_read=False).count()
+        for recipient in recipient_qs[:12]:
             items.append(_serialize_unified_notification_item(recipient))
     seen_orders = set()
     today = timezone.localdate()
@@ -993,19 +1106,24 @@ def _build_dashboard_notifications(salon, *, role="manager", user=None, stylist=
             }
         )
 
-    items = _attach_notification_categories(_dedupe_notification_items(items, limit=12))
+    items = _attach_notification_categories(
+        _normalize_dashboard_notification_read_state(
+            _dedupe_notification_items(items, limit=12)
+        )
+    )
     dropdown_items = items[:6]
-    unread_count = sum(1 for item in items if item["is_unread"])
 
     return {
         "items": items,
         "dropdown_items": dropdown_items,
         "tabs": _build_notification_tabs(items),
-        "unread_count": unread_count,
+        "dropdown_tabs": _build_notification_tabs(dropdown_items),
+        "unread_count": persistent_unread_count,
         "panel_url": _safe_reverse("dashboards:notifications_center"),
         "title": "اعلان‌های محیط کاری",
         "subtitle": "مالی، رزروها، مشتری و متخصص را در یک سطح کاری دسته‌بندی‌شده ببین.",
         "panel_label": "باز کردن مرکز اعلان‌ها",
+        "audience_role": "manager",
     }
 
 
@@ -1224,6 +1342,7 @@ def _build_manager_shell_snapshot(
         "active_services_count": int(salon_metrics["active_services_count"] or 0),
         "active_team_count": int(salon_metrics["active_team_count"] or 0),
     }
+
 
 def _build_shell_metrics(
     salon,
@@ -1671,7 +1790,14 @@ def build_dashboard_mobile_nav_items(
                 "url": "#",
                 "is_available": True,
                 "is_locked": False,
-                "is_active": active_key in {"my_finance", "my_content", "my_profile", "my_settings", "quick_links"},
+                "is_active": active_key
+                in {
+                    "my_finance",
+                    "my_content",
+                    "my_profile",
+                    "my_settings",
+                    "quick_links",
+                },
                 "panel_items": panel_items,
             }
         )
@@ -1728,15 +1854,15 @@ def build_dashboard_mobile_nav_items(
     )
     items.append(
         {
-            "key": "account",
+            "key": "reports",
             "kind": "link",
-            "label": "حساب",
-            "short_label": "حساب",
-            "icon": "fa-regular fa-user",
-            "url": _safe_reverse("dashboards:manager_profile"),
-            "is_available": True,
-            "is_locked": False,
-            "is_active": active_key in {"profile", "settings"},
+            "label": "گزارش‌ها",
+            "short_label": "گزارش‌ها",
+            "icon": "fa-solid fa-chart-column",
+            "url": (f"/dashboards/reports/salon/{salon.id}/" if salon else "#"),
+            "is_available": salon is not None,
+            "is_locked": salon is None,
+            "is_active": active_key == "reports",
         }
     )
     return items
@@ -1986,8 +2112,7 @@ def build_dashboard_context(
         and hasattr(user, "salon_manager_profile")
     )
     has_stylist_workspace = bool(
-        getattr(user, "is_authenticated", False)
-        and hasattr(user, "stylist")
+        getattr(user, "is_authenticated", False) and hasattr(user, "stylist")
     )
     workspace_modes = []
     if has_manager_workspace and has_stylist_workspace:

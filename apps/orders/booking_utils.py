@@ -5,11 +5,11 @@ from datetime import date, datetime, time, timedelta
 from typing import Iterable
 
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Q
 from django.utils import timezone
 
 from apps.accounts.models import Stylist
-from apps.salons.models import Salon
+from apps.salons.models import Salon, SalonMembership, SalonMembershipStatus
 from apps.services.models import ServicePrice, Services
 from apps.stylists.models import StaffLeaveRequest, StylistSchedule
 
@@ -163,6 +163,46 @@ def get_service_occupied_minutes(service: Services) -> int:
     return get_service_duration_minutes(service) + get_service_buffer_minutes(service)
 
 
+def bookable_stylists_for_salon(*, salon: Salon):
+    """Return active salon stylists while honoring the membership layer.
+
+    Backward compatibility: legacy salon/stylist links that do not yet have a
+    SalonMembership row remain bookable. Once a membership row exists for this
+    salon, only ACTIVE membership is accepted. This prevents a PAUSED/ENDED
+    specialist from leaking into discovery or stale final validation without
+    globally disabling the stylist for other salons.
+    """
+
+    memberships = SalonMembership.objects.filter(
+        salon=salon,
+        stylist_id=OuterRef("pk"),
+    )
+    return (
+        salon.stylists.filter(is_active=True)
+        .annotate(
+            _has_salon_membership=Exists(memberships),
+            _has_active_salon_membership=Exists(
+                memberships.filter(status=SalonMembershipStatus.ACTIVE)
+            ),
+        )
+        .filter(
+            Q(_has_salon_membership=False)
+            | Q(_has_active_salon_membership=True)
+        )
+    )
+
+
+def stylist_is_bookable_for_salon(*, salon: Salon, stylist: Stylist) -> bool:
+    if not stylist or not getattr(stylist, "is_active", False):
+        return False
+
+    membership_qs = SalonMembership.objects.filter(salon=salon, stylist=stylist)
+    if membership_qs.exists():
+        return membership_qs.filter(status=SalonMembershipStatus.ACTIVE).exists()
+
+    return salon.stylists.filter(pk=stylist.pk, is_active=True).exists()
+
+
 def get_available_slots_for_service(
     *,
     salon: Salon,
@@ -291,7 +331,8 @@ def get_upcoming_available_stylists_for_service(
     horizon_days: int = 30,
 ) -> list[dict]:
     stylists = list(
-        salon.stylists.filter(services_of_stylist=service, is_active=True)
+        bookable_stylists_for_salon(salon=salon)
+        .filter(services_of_stylist=service)
         .select_related("user")
         .distinct()
         .order_by("user_id")
@@ -349,35 +390,22 @@ def get_candidate_stylists_for_service(
     requested_stylist_id: str | int | None,
     resolved_stylist_id: str | int | None = None,
 ) -> list[Stylist]:
+    base_qs = (
+        bookable_stylists_for_salon(salon=salon)
+        .filter(services_of_stylist=service)
+        .select_related("user")
+        .distinct()
+    )
+
     if resolved_stylist_id not in (None, "", "any"):
-        resolved = Stylist.objects.filter(
-            user_id=int(resolved_stylist_id),
-            stylists_of_salon=salon,
-            services_of_stylist=service,
-            is_active=True,
-        ).select_related("user")
+        resolved = base_qs.filter(user_id=int(resolved_stylist_id))
         if resolved.exists():
             return list(resolved)
 
     if requested_stylist_id not in (None, "", "any"):
-        return list(
-            Stylist.objects.filter(
-                user_id=int(resolved_stylist_id),
-                stylists_of_salon=salon,
-                services_of_stylist=service,
-                is_active=True,
-            ).select_related("user")[:1]
-        )
+        return list(base_qs.filter(user_id=int(requested_stylist_id))[:1])
 
-    return list(
-        salon.stylists.filter(
-            services_of_stylist=service,
-            is_active=True,
-        )
-        .select_related("user")
-        .distinct()
-        .order_by("user_id")
-    )
+    return list(base_qs.order_by("user_id"))
 
 
 def get_price_for_stylist_service(stylist: Stylist, service: Services) -> int:
@@ -416,11 +444,27 @@ def _get_schedule_windows(
     date_value: date,
     service: Services,
 ) -> list[tuple[time, time]]:
+    memberships = SalonMembership.objects.filter(
+        salon=salon,
+        stylist_id=OuterRef("stylist_id"),
+    )
     day_schedules = list(
         StylistSchedule.objects.filter(
             stylist=stylist,
+            stylist__is_active=True,
+            stylist__stylists_of_salon=salon,
             salon=salon,
             date=date_value,
+        )
+        .annotate(
+            _has_salon_membership=Exists(memberships),
+            _has_active_salon_membership=Exists(
+                memberships.filter(status=SalonMembershipStatus.ACTIVE)
+            ),
+        )
+        .filter(
+            Q(_has_salon_membership=False)
+            | Q(_has_active_salon_membership=True)
         )
         .select_related("service")
         .order_by("start_time")
@@ -586,11 +630,15 @@ def resolve_booking_sequence(
         current_stylist_id = selection.get("stylistId")
         resolved_stylist_id = selection.get("resolvedStylistId") or current_stylist_id
 
-        service = Services.objects.get(
+        service = Services.objects.filter(
             pk=service_id,
             services_of_salon=salon,
             is_active=True,
-        )
+        ).first()
+        if service is None:
+            raise ValidationError(
+                "یکی از خدمات انتخاب‌شده دیگر فعال یا قابل رزرو نیست. لطفاً خدمات را دوباره انتخاب کنید."
+            )
         duration_minutes = get_service_duration_minutes(service)
         buffer_minutes = get_service_buffer_minutes(service)
 

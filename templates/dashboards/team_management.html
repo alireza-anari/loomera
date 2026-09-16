@@ -5,7 +5,6 @@
   {% url 'dashboards:add_stylist' as add_stylist_url %}
   {% url 'dashboards:team_member' as team_member_url %}
   {% url 'dashboards:scheduled_shifts' as scheduled_shifts_url %}
-  {% url 'dashboards:service_menu' as service_menu_url %}
 
   <section class="min-w-0 max-w-full space-y-4 overflow-visible lg:space-y-5" data-dashboard-page="team-management" data-dashboard-workspace-root>
     <section class="relative min-w-0 overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:rounded-[34px] sm:p-6 lg:p-7" aria-labelledby="team-management-title">
@@ -24,7 +23,7 @@
                 تیم مجموعه
               </h1>
               <p class="mt-3 max-w-3xl text-sm leading-7 text-loomera-textSecondary sm:text-[15px]">
-                اعضای تیم، مرخصی‌ها و تقسیم خدمات بین اعضا را یک‌جا ببین و مدیریت کن.
+                اعضای تیم و وضعیت کاری هر عضو را ساده و یک‌جا مدیریت کن.
               </p>
             </div>
 
@@ -41,7 +40,7 @@
 
             <a href="{{ scheduled_shifts_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
               <i class="fa-regular fa-calendar-days text-xs text-loomera-primaryText" aria-hidden="true"></i>
-              <span class="truncate">شیفت‌ها و مرخصی</span>
+              <span class="truncate">شیفت‌ها</span>
             </a>
 
             <a href="{{ add_stylist_url }}" class="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-4 py-3 text-sm font-bold text-loomera-textSecondary transition hover:-translate-y-0.5 hover:border-loomera-primary/30 hover:bg-loomera-primarySoft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
@@ -93,14 +92,13 @@
                 <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-team-member-filter="inactive">غیرفعال</button>
                 <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-team-member-filter="upcoming">دارای نوبت</button>
                 <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-team-member-filter="no-service">بدون خدمت</button>
-                <button type="button" class="shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-team-member-filter="timeoff">مرخصی نزدیک</button>
               </div>
             </div>
           </div>
 
           <div class="grid min-w-0 gap-4 md:grid-cols-2" data-team-member-grid>
             {% for stylist in team_workspace.top_stylists %}
-              <details class="lm-compact-record min-w-0" data-team-member-card data-team-member-search-value="{{ stylist.full_name }} {{ stylist.expert }} {{ stylist.service_names|join:' ' }}" data-team-member-status="{{ stylist.status_label }}" data-team-member-has-services="{% if stylist.service_names %}true{% else %}false{% endif %}" data-team-member-upcoming="{{ stylist.upcoming_count_label }}" data-team-member-timeoff="{{ stylist.time_off_count_label }}" data-lm-compact-record data-lm-compact-group="team-management-members">
+              <details class="lm-compact-record min-w-0" data-team-member-card data-team-member-search-value="{{ stylist.full_name }} {{ stylist.expert }} {{ stylist.service_names|join:' ' }}" data-team-member-status="{{ stylist.status_label }}" data-team-member-has-services="{% if stylist.service_names %}true{% else %}false{% endif %}" data-team-member-upcoming="{{ stylist.upcoming_count_label }}" data-lm-compact-record data-lm-compact-group="team-management-members">
                 <summary class="lm-compact-record-summary">
                   {% if stylist.profile_image_url %}
                     <span class="lm-compact-record-avatar"><img src="{{ stylist.profile_image_url }}" alt="" class="h-full w-full object-cover"></span>
@@ -117,11 +115,10 @@
                   <span class="lm-compact-record-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
                 </summary>
                 <div class="lm-compact-record-body">
-                  <div class="grid gap-2 sm:grid-cols-4">
+                  <div class="grid gap-2 sm:grid-cols-3">
                     <div class="lm-compact-metric"><p class="text-[11px] font-bold text-loomera-textMuted">نوبت آینده</p><p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ stylist.upcoming_count_label }}</p></div>
                     <div class="lm-compact-metric"><p class="text-[11px] font-bold text-loomera-textMuted">خدمات</p><p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ stylist.services_count_label }}</p></div>
                     <div class="lm-compact-metric"><p class="text-[11px] font-bold text-loomera-textMuted">امتیاز</p><p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ stylist.avg_score_label }}</p></div>
-                    <div class="lm-compact-metric"><p class="text-[11px] font-bold text-loomera-textMuted">مرخصی آینده</p><p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ stylist.time_off_count_label }}</p></div>
                   </div>
                   {% if not stylist.service_names or stylist.status_label == 'غیرفعال' %}
                     <div class="mt-3 rounded-2xl border border-loomera-warning/20 bg-loomera-warningSoft px-3 py-3 text-xs leading-6 text-loomera-warning" data-team-member-action-needed>
@@ -148,39 +145,6 @@
 
     </div>
 
-    <div class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-      <section id="team-section-timeoff" data-dashboard-workspace-panel class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-lm-direct-section data-lm-task-panel="team-management" data-lm-task-key="timeoff" data-lm-task-label="مرخصی‌ها" data-lm-task-order="2">
-        <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">مرخصی‌ها</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">مرخصی‌های نزدیک</h2></div>
-</header>
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="mb-4 flex items-start justify-between gap-3"><p class="text-xs leading-6 text-loomera-textMuted">برای اینکه بدانی ظرفیت تیم در روزهای آینده چطور تغییر می‌کند.</p><a href="{{ scheduled_shifts_url }}" class="hidden shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/40 sm:inline-flex">برنامه شیفت</a></div>
-          <div class="space-y-3">
-            {% for item in team_workspace.upcoming_time_offs %}
-              <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4" data-team-secondary-card><div class="flex min-w-0 items-start justify-between gap-3"><a href="{{ item.profile_url }}" class="min-w-0 truncate text-sm font-black text-loomera-textPrimary transition hover:text-loomera-primaryText">{{ item.stylist_name }}</a><span class="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-bold text-loomera-textMuted">{{ item.date_label }}</span></div><p class="mt-2 text-xs font-bold text-loomera-primaryText">{{ item.time_label }}</p><p class="mt-2 text-sm leading-7 text-loomera-textSecondary">{{ item.reason }}</p></article>
-            {% empty %}
-              <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted">مرخصی آینده‌ای برای تیم ثبت نشده است.</div>
-            {% endfor %}
-          </div>
-        </div>
-      </section>
-
-      <section id="team-section-coverage" data-dashboard-workspace-panel class="group scroll-mt-28 overflow-hidden rounded-[28px] border border-loomera-borderSoft bg-white/95 shadow-lm-card lg:scroll-mt-36" data-lm-direct-section data-lm-task-panel="team-management" data-lm-task-key="coverage" data-lm-task-label="تقسیم خدمات" data-lm-task-order="3">
-        <header data-lm-direct-section-header class="flex cursor-default list-none items-center justify-between gap-3 border-b border-loomera-borderSoft bg-white/96 px-4 py-3 shadow-sm backdrop-blur transition hover:bg-loomera-primarySoft/25 sm:px-5 lg:px-6 lg:py-4">
-          <div class="min-w-0"><p class="text-[11px] font-black text-loomera-primaryText">تقسیم خدمات</p><h2 class="mt-1 truncate text-base font-black text-loomera-textPrimary sm:text-lg">تقسیم خدمات بین اعضا</h2></div>
-</header>
-        <div class="p-4 sm:p-5 lg:p-6">
-          <div class="mb-4 flex items-start justify-between gap-3"><p class="text-xs leading-6 text-loomera-textMuted">بررسی کن هر گروه خدمات چند خدمت و چند عضو پوشش‌دهنده دارد.</p><a href="{{ service_menu_url }}" class="hidden shrink-0 rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:bg-loomera-primarySoft/40 sm:inline-flex">منوی خدمات</a></div>
-          <div class="grid gap-3 md:grid-cols-2">
-            {% for group in team_workspace.service_coverage %}
-              <article class="rounded-[22px] border border-loomera-borderSoft bg-loomera-bgSubtle/60 p-4" data-team-secondary-card><div class="flex min-w-0 items-start justify-between gap-3"><h3 class="min-w-0 truncate text-sm font-black text-loomera-textPrimary">{{ group.group_title }}</h3><span class="inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[11px] font-bold {{ group.coverage_badge_class }}">{{ group.coverage_label }}</span></div><div class="mt-4 grid grid-cols-2 gap-3"><div class="rounded-2xl bg-white px-3 py-3"><p class="text-[11px] font-bold text-loomera-textMuted">تعداد خدمات</p><p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ group.services_count_label }}</p></div><div class="rounded-2xl bg-white px-3 py-3"><p class="text-[11px] font-bold text-loomera-textMuted">اعضای پوشش‌دهنده</p><p class="mt-1 text-sm font-black text-loomera-textPrimary">{{ group.stylists_count_label }}</p></div></div></article>
-            {% empty %}
-              <div class="rounded-[24px] border border-dashed border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-6 text-center text-sm leading-7 text-loomera-textMuted md:col-span-2">هنوز خدمتی بین اعضای تیم تقسیم نشده است.</div>
-            {% endfor %}
-          </div>
-        </div>
-      </section>
-    </div>
   </section>
 {% endblock %}
 
@@ -219,13 +183,11 @@
         const status = (card.dataset.teamMemberStatus || "").trim();
         const hasServices = card.dataset.teamMemberHasServices === "true";
         const hasUpcoming = hasNonZeroNumber(card.dataset.teamMemberUpcoming);
-        const hasTimeoff = hasNonZeroNumber(card.dataset.teamMemberTimeoff);
 
         if (activeMemberFilter === "active") return status.indexOf("غیرفعال") === -1;
         if (activeMemberFilter === "inactive") return status.indexOf("غیرفعال") !== -1;
         if (activeMemberFilter === "upcoming") return hasUpcoming;
         if (activeMemberFilter === "no-service") return !hasServices;
-        if (activeMemberFilter === "timeoff") return hasTimeoff;
         return true;
       };
 

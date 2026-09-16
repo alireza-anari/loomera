@@ -1,394 +1,313 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block body_class %}lm-public-home-body{% endblock %}
-{% block main_class %}lm-home-main-shell{% endblock %}
-{% block body_attrs %}data-page="home"{% endblock %}
-{% block title %}Loomera | رزرو آنلاین مجموعه و خدمات زیبایی{% endblock %}
-{% block meta_description %}Loomera پلتفرم رزرو آنلاین مراکز زیبایی، خدمات مراقبتی و متخصص های حرفه ای در ایران{% endblock %}
+{% block title %}لومرا | زیبایی، ساده‌تر{% endblock %}
+{% block body_attrs %}data-page="loomera-home"{% endblock %}
+
 {% block head %}
   {{ block.super }}
-  <style>
-    body[data-page="home"],
-    .lm-public-home-body {
-      overflow-x: hidden;
-    }
-
-    .lm-home-main-shell,
-    .lm-home-page,
-    .lm-home-shell {
-      width: 100%;
-      max-width: 100%;
-      overflow-x: clip;
-    }
-
-    .lm-home-page *,
-    .lm-home-page *::before,
-    .lm-home-page *::after {
-      box-sizing: border-box;
-    }
-
-    .lm-home-card,
-    .lm-home-hero,
-    .lm-home-services,
-    .lm-home-section,
-    .lm-home-app {
-      max-width: 100%;
-    }
-
-    .lm-home-services__rail,
-    .lm-home-services__grid,
-    .lm-home-salon-grid,
-    .lm-home-app-final__visual,
-    .lm-home-app-final__phones,
-    .lm-home-app-final__stats {
-      min-width: 0;
-      max-width: 100%;
-    }
-
-    .lm-home-search,
-    .lm-home-search__field,
-    .lm-home-search__field input,
-    .lm-home-search__field select {
-      min-width: 0;
-      max-width: 100%;
-    }
-
-    @media (max-width: 767px) {
-      .lm-home-shell {
-        padding-inline: 0;
-      }
-
-      .lm-home-card {
-        width: calc(100% - 24px);
-        margin-inline: auto;
-      }
-
-      .lm-home-services__rail {
-        overflow-x: hidden;
-      }
-
-      .lm-home-services__grid {
-        width: 100%;
-      }
-
-      .lm-home-salon-grid {
-        width: 100%;
-        overflow-x: hidden;
-      }
-
-      .lm-home-salon-card {
-        min-width: 0;
-        max-width: 100%;
-      }
-
-      .lm-home-app-final__phone-image,
-      .lm-home-app-final__qr-image {
-        max-width: 100%;
-        height: auto;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="{% static 'css/pages/home_reference.css' %}">
 {% endblock %}
-{% block content %}
-<section class="lm-home-page">
-  <div class="lm-home-shell">
-    <section class="lm-home-card lm-home-hero" style="--lm-home-hero-bg: url('{% static 'images/home/home-hero-portrait-reference.png' %}');">
-      <div class="lm-home-hero__content">
-        <p class="lm-home-hero__eyebrow">رزرو آنلاین خدمات زیبایی</p>
 
-        <h1 class="lm-home-hero__heading">
-          <span class="accent">زیبایی</span> و آرامش، همین نزدیکی شماست
+{% block content %}
+<main class="lm-home" data-lm-home>
+
+  <!-- HERO -->
+  <section class="lm-home-hero lm-reveal">
+    <div class="lm-home-container lm-hero-grid">
+
+      <div class="lm-hero-copy">
+        <span class="lm-kicker">
+          <i class="fa-solid fa-sparkles" aria-hidden="true"></i>
+          پلتفرم هوشمند زیبایی و مدیریت سالن
+        </span>
+
+        <h1>
+          زیبایی، ساده‌تر
+          <br>
+          وقتی <em>همه‌چیز</em>
+          <br>
+          سر جای خودش است
         </h1>
 
-        <p class="lm-home-hero__lead">
-          مجموعه مورد نظر خود را پیدا کنید، متخصص دلخواهتان را انتخاب کنید و در زمان مناسب، نوبت خود را با خیال راحت رزرو کنید
+        <p>
+          <span class="lm-brand-secondary">لومرا</span> مشتری‌ها، متخصص‌ها و سالن‌ها را در یک پلتفرم هوشمند
+          به هم متصل می‌کند تا تجربه‌ای بهتر برای همه بسازد.
         </p>
 
-       <form
-          action="{% url 'search:search_page' %}"
-          method="get"
-          class="lm-home-search"
-          data-lm-search-autocomplete
-          data-search-suggest-url="{% url 'search:search_suggestions' %}"
-          data-location-suggest-url="{% url 'search:location_suggestions' %}"
+        <div class="lm-hero-actions">
+          <a href="{% url 'accounts:customer_signup' %}" class="lm-btn lm-btn-primary">
+            شروع رایگان
+          </a>
+          <a href="#loomera-audiences" class="lm-btn lm-btn-ghost">
+            ببین چطور کار می‌کند
+            <i class="fa-regular fa-circle-play" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="lm-hero-media" aria-label="نمونه تجربه رزرو در لومرا">
+        <div class="lm-phone-glow"></div>
+        <img
+          src="{% static 'images/home/home-hero-v8.webp' %}"
+          alt="نمونه رابط رزرو لومرا"
+          class="lm-hero-phone"
         >
-          <input type="hidden" name="q_type" data-lm-q-type>
-          <input type="hidden" name="q_id" data-lm-q-id>
-          <input type="hidden" name="services" data-lm-services-hidden>
-
-          <label class="lm-home-search__field lm-search-autocomplete-wrap">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input
-              type="text"
-              name="q"
-              data-lm-search-query
-              placeholder="نام مجموعه، خدمات یا متخصص"
-              autocomplete="off"
-            >
-
-            <ul
-              class="lm-search-suggestions hidden"
-              data-lm-search-query-list
-            ></ul>
-          </label>
-
-          <label class="lm-home-search__field">
-            <i class="fa-solid fa-list-ul"></i>
-            <select name="group">
-              <option value="">انتخاب خدمات</option>
-              {% for group in service_search_groups %}
-                <option value="{{ group.id }}">{{ group.group_title }}</option>
-              {% endfor %}
-            </select>
-          </label>
-
-          <label class="lm-home-search__field lm-search-autocomplete-wrap">
-            <i class="fa-solid fa-location-dot"></i>
-            <input
-              type="text"
-              name="location"
-              data-lm-location-query
-              placeholder="موقعیت مکانی"
-              autocomplete="off"
-            >
-
-            <ul
-              class="lm-search-suggestions hidden"
-              data-lm-location-list
-            ></ul>
-          </label>
-
-          <button type="submit" class="lm-home-search__submit">جستجو</button>
-        </form>
-
-        <div class="lm-home-hero__features">
-          {% for item in hero_features %}
-            <div class="lm-home-feature">
-              <span class="lm-home-feature__icon">
-                <i class="{{ item.icon }}"></i>
-              </span>
-
-              <div>
-                <strong class="lm-home-feature__title">{{ item.title }}</strong>
-                <span class="lm-home-feature__text">{{ item.text }}</span>
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-
-    <section class="lm-home-card lm-home-services lm-home-services--dynamic" id="services">
-      <div class="lm-home-services__rail">
-        <div class="lm-home-services__grid" aria-label="دسته‌بندی خدمات لومرا">
-          {% for category in service_categories %}
-            <a
-              href="{% if category.services_url %}{{ category.services_url }}{% elif category.id %}{% url 'services:group_services' category.id %}{% else %}{% url 'services:all_services' %}{% endif %}"
-              class="lm-home-service-pill"
-            >
-              <span class="lm-home-service-pill__media" aria-hidden="true">
-                {% if category.image_url %}
-                  <img src="{{ category.image_url }}" alt="" loading="lazy" decoding="async">
-                {% else %}
-                  <i class="fa-solid fa-spa"></i>
-                {% endif %}
-              </span>
-
-              <span class="lm-home-service-pill__body">
-                <strong>{{ category.label }}</strong>
-
-                <span class="lm-home-service-pill__description">
-                  {{ category.description|truncatechars:58 }}
-                </span>
-
-                <span class="lm-home-service-pill__meta">
-                  {% if category.services_count_label %}
-                    {{ category.services_count_label }}
-                  {% else %}
-                    مشاهده خدمات
-                  {% endif %}
-                </span>
-              </span>
-
-              <span class="lm-home-service-pill__arrow" aria-hidden="true">
-                <i class="fa-solid fa-arrow-left"></i>
-              </span>
-            </a>
-          {% empty %}
-            <div class="lm-home-services__empty">
-              <i class="fa-solid fa-layer-group"></i>
-              <strong>هنوز دسته‌بندی فعالی ثبت نشده است</strong>
-              <span>بعد از ثبت گروه خدمات در پنل مدیریت، کارت‌ها به‌صورت خودکار اینجا نمایش داده می‌شوند.</span>
-            </div>
-          {% endfor %}
-        </div>
       </div>
 
-      <div class="lm-home-services__intro">
-        <span class="lm-home-services__eyebrow">دسته‌بندی خدمات</span>
+    </div>
+  </section>
 
-        <h2 class="lm-home-services__title">خدمات مورد نظر خود را سریع‌تر انتخاب کنید</h2>
-{% comment %}
-        <p class="lm-home-services__text">
-          این بخش از گروه‌های فعال بک‌اند خوانده می‌شود؛ تصویر، عنوان و توضیح هر دسته از مدل گروه خدمات مدیریت می‌شود.
-        </p> {% endcomment %}
 
-        <a href="{% url 'services:all_services' %}" class="lm-home-services__all-link">
-          مشاهده همه خدمات
-          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-        </a>
-      </div>
-    </section>
+  <!-- AUDIENCES -->
+  <section id="loomera-audiences" class="lm-home-section lm-reveal">
+    <div class="lm-home-container lm-section-panel">
 
-    <section class="lm-home-card lm-home-section" id="specialists">
-      <div class="lm-home-section__header">
-        <div>
-          <span class="lm-home-section__eyebrow">پیشنهاد Loomera</span>
-          <h2 class="lm-home-section__title">مراکز ویژه</h2>
-          <p class="lm-home-section__text">منتخب بر اساس امتیاز، کیفیت تجربه و استقبال کاربران</p>
-        </div>
+      <header class="lm-section-heading">
+        <h2>یک رزرو. سه تجربه. <em>یک جریان هماهنگ.</em></h2>
+      </header>
 
-        <a href="{% url 'salons:show_salons' %}" class="lm-home-link">مشاهده همه</a>
-      </div>
+      <div class="lm-audience-grid">
 
-      <div class="lm-home-salon-grid">
-        {% for salon in featured_salons %}
-          <article class="lm-home-salon-card">
-            <a href="{{ salon.get_absolute_url }}" class="block">
-              <div class="lm-home-salon-card__media">
-                {% if salon.banner_image %}
-                  <img src="{{ salon.banner_image.url }}" alt="{{ salon.salon_name }}">
-                {% endif %}
-
-                <span class="lm-home-salon-card__fav">
-                  <i class="fa-regular fa-heart"></i>
-                </span>
-
-                {% if salon.active_service_discount_label %}
-                  <span class="lm-home-salon-card__discount">
-                    {{ salon.active_service_discount_label }}
-                  </span>
-                {% endif %}
-              </div>
-
-              <div class="lm-home-salon-card__body">
-                <div class="lm-home-salon-card__title-row">
-                  <h3 class="lm-home-salon-card__title">{{ salon.salon_name }}</h3>
-
-                  <span class="lm-home-salon-card__rating">
-                    {% if salon.avg_score %}{{ salon.avg_score|floatformat:1 }}{% else %}۴.۸{% endif %}
-                    <i class="fa-solid fa-star"></i>
-                  </span>
-                </div>
-
-                <div class="lm-home-salon-card__meta-row">
-                  <span class="lm-home-salon-card__subtitle">
-                    {% if salon.num_scores %}({{ salon.num_scores }}){% else %}(۱۲۴){% endif %}
-                  </span>
-
-                  <span class="lm-home-salon-card__subtitle">
-                    {{ salon.neighborhood.name|default:'تهران' }}
-                  </span>
-                </div>
-
-                <div class="lm-home-salon-card__location">
-                  <i class="fa-solid fa-location-dot"></i>
-                  {% if salon.neighborhood %}تهران، {{ salon.neighborhood.name }}{% else %}تهران{% endif %}
-                </div>
-
-                <div class="lm-home-salon-card__tags">
-                  <span class="lm-home-salon-card__tag">رزرو آنلاین</span>
-                  <span class="lm-home-salon-card__tag">{{ salon.neighborhood.name|default:'زیبایی و مراقبت' }}</span>
-                </div>
-              </div>
-            </a>
-          </article>
-        {% empty %}
-          {% for i in "1234" %}
-            <article class="lm-home-salon-card">
-              <div class="lm-home-salon-card__media"></div>
-
-              <div class="lm-home-salon-card__body">
-                <div class="lm-home-salon-card__title-row">
-                  <h3 class="lm-home-salon-card__title">مجموعه نمونه</h3>
-                  <span class="lm-home-salon-card__rating">
-                    ۴.۸
-                    <i class="fa-solid fa-star"></i>
-                  </span>
-                </div>
-
-                <div class="lm-home-salon-card__location">تهران، الهیه</div>
-
-                <div class="lm-home-salon-card__tags">
-                  <span class="lm-home-salon-card__tag">مو</span>
-                  <span class="lm-home-salon-card__tag">پوست و مو</span>
-                </div>
-              </div>
-            </article>
-          {% endfor %}
-        {% endfor %}
-      </div>
-    </section>
-
-    <section class="lm-home-card lm-home-app lm-home-app--final" id="download-app">
-      <div class="lm-home-app-final__visual">
-        <div class="lm-home-app-final__qr">
-          <img
-            src="{% static 'images/home/loomera-app-qr.png' %}"
-            alt="کیو آر دانلود اپلیکیشن"
-            class="lm-home-app-final__qr-image"
-          >
-        </div>
-
-        <div class="lm-home-app-final__phones">
-          <img
-            src="{% static 'images/home/mobile-app-preview.png' %}"
-            alt="پیش نمایش اپلیکیشن لومرا"
-            class="lm-home-app-final__phone-image"
-          >
-        </div>
-      </div>
-
-      <div class="lm-home-app-final__content">
-        <span class="lm-home-app-final__brand">اپلیکیشن Loomera</span>
-
-        <h2 class="lm-home-app-final__title">
-          رزرو نوبت در هر زمان از هر کجا
-        </h2>
-
-        <p class="lm-home-app-final__text">
-          با اپلیکیشن لومرا می‌توانید مراکز زیبایی، متخصص ها و زمان های آزاد را سریع تر پیدا کنید و رزرو خود را راحت تر مدیریت کنید
-        </p>
-
-        <a href="{{ app_download_links.android.url }}" class="lm-home-app-final__download-btn">
-          <i class="fa-solid fa-download" aria-hidden="true"></i>
-          <span>{{ app_download_links.android.label }}</span>
-        </a>
-      </div>
-
-      <div class="lm-home-app-final__stats">
-        {% for item in homepage_stats %}
-          <div class="lm-home-app-final__stat">
-            <span class="lm-home-app-final__stat-icon">
-              <i class="{{ item.icon }}" aria-hidden="true"></i>
+        <article class="lm-audience-card lm-audience-customer">
+          <div class="lm-audience-copy">
+            <span class="lm-audience-icon">
+              <i class="fa-regular fa-user" aria-hidden="true"></i>
             </span>
-
-            <strong class="lm-home-app-final__stat-value">{{ item.value }}</strong>
-            <span class="lm-home-app-final__stat-label">{{ item.label }}</span>
+            <h3>مشتری</h3>
+            <p>راحت پیدا کن<br>مطمئن انتخاب کن<br>سریع رزرو کن</p>
           </div>
-        {% endfor %}
+          <img src="{% static 'images/home/audience-customer.webp' %}" alt="مشتری لومرا">
+        </article>
+
+        <article class="lm-audience-card lm-audience-stylist">
+          <div class="lm-audience-copy">
+            <span class="lm-audience-icon">
+              <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+            </span>
+            <h3>متخصص</h3>
+            <p>برنامه‌ات را ببین<br>مشتری‌هایت را مدیریت کن<br>روی کارت تمرکز کن</p>
+          </div>
+          <img src="{% static 'images/home/audience-stylist.webp' %}" alt="متخصص لومرا">
+        </article>
+
+        <article class="lm-audience-card lm-audience-manager">
+          <div class="lm-audience-copy">
+            <span class="lm-audience-icon">
+              <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
+            </span>
+            <h3>مدیر سالن</h3>
+            <p>تیم، نوبت‌ها و عملکرد<br>سالن را از یکجا<br>مدیریت کن</p>
+          </div>
+          <img src="{% static 'images/home/audience-manager.webp' %}" alt="مدیر سالن لومرا">
+        </article>
+
       </div>
-    </section>
-  </div>
-</section>
+    </div>
+  </section>
+
+
+  <!-- PRODUCT EXPERIENCES -->
+  <section class="lm-home-section lm-product-section lm-reveal">
+    <div class="lm-home-container">
+
+      <header class="lm-section-heading lm-product-heading">
+        <span class="lm-section-eyebrow">ساده برای هر نقش</span>
+        <h2>هرکس فقط چیزی را می‌بیند که <em>برای کار خودش لازم دارد</em></h2>
+        <p>
+          مسیر رزرو مشتری، برنامه متخصص و مدیریت سالن جدا و روشن طراحی شده‌اند
+          تا کارهای روزمره بدون شلوغی و رفت‌وبرگشت انجام شوند.
+        </p>
+      </header>
+
+      <div class="lm-product-showcase-grid">
+
+        <article class="lm-product-showcase lm-product-customer">
+          <div class="lm-product-copy">
+            <span class="lm-product-badge">
+              <i class="fa-regular fa-user" aria-hidden="true"></i>
+              تجربه مشتری
+            </span>
+            <h3>از انتخاب خدمت تا رزرو، همه‌چیز روشن است</h3>
+            <p>
+              مشتری سالن و خدمت مناسب را پیدا می‌کند، متخصص را انتخاب می‌کند
+              و در همان مسیر، زمان آزاد را می‌بیند و رزرو را تکمیل می‌کند.
+            </p>
+            <div class="lm-product-points">
+              <span><i class="fa-solid fa-magnifying-glass"></i> جستجو و کشف</span>
+              <span><i class="fa-solid fa-scissors"></i> انتخاب خدمت</span>
+              <span><i class="fa-regular fa-calendar-check"></i> رزرو نهایی</span>
+            </div>
+          </div>
+
+          <div class="lm-product-screen lm-product-screen-mobile">
+            <img
+              src="{% static 'images/home/customer-experience-v8.webp' %}"
+              alt="نمای تجربه رزرو مشتری در لومرا"
+            >
+          </div>
+        </article>
+
+
+        <article class="lm-product-showcase lm-product-stylist">
+          <div class="lm-product-copy">
+            <span class="lm-product-badge">
+              <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+              پنل متخصص
+            </span>
+            <h3>روز کاری منظم، بدون رفت‌وآمد بین چند ابزار</h3>
+            <p>
+              متخصص بدون جابه‌جایی بین چند ابزار، برنامه امروز، مراجعین پیش‌رو،
+              خدمات و عملکرد خودش را از یک داشبورد می‌بیند.
+            </p>
+            <div class="lm-product-points">
+              <span><i class="fa-regular fa-clock"></i> برنامه امروز</span>
+              <span><i class="fa-regular fa-user"></i> مراجعین</span>
+              <span><i class="fa-solid fa-chart-line"></i> عملکرد</span>
+            </div>
+          </div>
+
+          <div class="lm-product-screen lm-product-screen-dashboard">
+            <img
+              src="{% static 'images/home/stylist-experience-v8.webp' %}"
+              alt="نمای داشبورد متخصص لومرا"
+            >
+          </div>
+        </article>
+
+
+        <article class="lm-product-showcase lm-product-manager">
+          <div class="lm-product-copy">
+            <span class="lm-product-badge">
+              <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
+              داشبورد مدیر سالن
+            </span>
+            <h3>همه‌ی سالن، در یک نگاه</h3>
+            <p>
+              مدیر سالن وضعیت نوبت‌ها، درآمد، متخصص‌ها، خدمات و کانال‌های رزرو
+              را در یک نمای منسجم دنبال می‌کند.
+            </p>
+            <div class="lm-product-points">
+              <span><i class="fa-solid fa-users"></i> تیم و متخصصان</span>
+              <span><i class="fa-solid fa-chart-pie"></i> گزارش‌ها</span>
+              <span><i class="fa-regular fa-calendar"></i> نوبت‌ها</span>
+            </div>
+          </div>
+
+          <div class="lm-product-screen lm-product-screen-dashboard">
+            <img
+              src="{% static 'images/home/manager-experience-v8.webp' %}"
+              alt="نمای داشبورد مدیر سالن لومرا"
+            >
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FLOW -->
+  <section class="lm-home-section lm-reveal">
+    <div class="lm-home-container lm-flow-panel">
+      <header class="lm-section-heading">
+        <h2>یک جریان هماهنگ از اولین کلیک تا بازگشت مشتری</h2>
+      </header>
+
+      <div class="lm-flow">
+        <article>
+          <span><i class="fa-solid fa-magnifying-glass"></i></span>
+          <strong>کشف</strong>
+          <small>جستجو و پیدا کردن بهترین گزینه</small>
+        </article>
+
+        <i class="fa-solid fa-chevron-left lm-flow-separator"></i>
+
+        <article>
+          <span><i class="fa-regular fa-heart"></i></span>
+          <strong>انتخاب</strong>
+          <small>بررسی خدمات، متخصص و زمان</small>
+        </article>
+
+        <i class="fa-solid fa-chevron-left lm-flow-separator"></i>
+
+        <article>
+          <span><i class="fa-regular fa-calendar-check"></i></span>
+          <strong>رزرو</strong>
+          <small>انتخاب زمان و ثبت نوبت</small>
+        </article>
+
+        <i class="fa-solid fa-chevron-left lm-flow-separator"></i>
+
+        <article>
+          <span><i class="fa-solid fa-scissors"></i></span>
+          <strong>ارائه خدمت</strong>
+          <small>تجربه حرفه‌ای در سالن</small>
+        </article>
+
+        <i class="fa-solid fa-chevron-left lm-flow-separator"></i>
+
+        <article>
+          <span><i class="fa-solid fa-chart-simple"></i></span>
+          <strong>مدیریت</strong>
+          <small>مدیریت تیم و نوبت‌ها</small>
+        </article>
+
+        <i class="fa-solid fa-chevron-left lm-flow-separator"></i>
+
+        <article>
+          <span><i class="fa-regular fa-user"></i></span>
+          <strong>بازگشت مشتری</strong>
+          <small>تجربه بهتر و وفاداری</small>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FINAL CTA -->
+  <section class="lm-home-section lm-home-final lm-reveal">
+    <div class="lm-home-container lm-final-panel">
+      <header class="lm-section-heading">
+        <h2><span class="lm-brand-secondary">لومرا</span> برای تو از کجا شروع می‌شود؟</h2>
+        <p>نقش خودت را انتخاب کن تا با بهترین تجربه برای همان مسیر شروع کنی.</p>
+      </header>
+
+      <div class="lm-final-grid">
+        <a href="{% url 'accounts:customer_signup' %}" class="lm-final-option">
+          <span><i class="fa-regular fa-user"></i></span>
+          <div>
+            <strong>مشتری هستم</strong>
+            <small>سالن و متخصص مناسب را پیدا و رزرو می‌کنم</small>
+          </div>
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+
+        <a href="{% url 'accounts:stylist_signup' %}" class="lm-final-option">
+          <span><i class="fa-solid fa-scissors"></i></span>
+          <div>
+            <strong>متخصص هستم</strong>
+            <small>برنامه و نوبت‌هایم را ساده‌تر مدیریت می‌کنم</small>
+          </div>
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+
+        <a href="{% url 'accounts:register' %}" class="lm-final-option">
+          <span><i class="fa-solid fa-briefcase"></i></span>
+          <div>
+            <strong>مدیر سالن هستم</strong>
+            <small>تیم، نوبت‌ها و عملکرد سالن را یکجا می‌بینم</small>
+          </div>
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+{% endblock %}
 
 {% block js %}
   {{ block.super }}
-  <script type="module">
-    import { setupPublicSearchAutocomplete } from "{% static 'js/search/autocomplete.js' %}";
-    setupPublicSearchAutocomplete();
-  </script>
-{% endblock %}
-
+  <script src="{% static 'js/pages/home_reference.js' %}" defer></script>
 {% endblock %}

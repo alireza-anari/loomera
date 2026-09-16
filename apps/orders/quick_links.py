@@ -93,7 +93,7 @@ def normalize_booking_payload(payload: dict) -> dict:
         BookingQuickLink.Mode.SERVICE_STYLIST,
         BookingQuickLink.Mode.SERVICE_STYLIST_TIME,
     }:
-        raise ValidationError("mode لینک رزرو سریع معتبر نیست.")
+        raise ValidationError("حالت لینک رزرو سریع معتبر نیست.")
     if salon_id <= 0:
         raise ValidationError("سالن این لینک معتبر نیست.")
     if (

@@ -93,7 +93,7 @@ def validate_salon_gallery_image_upload(uploaded_file, *, declared_content_type=
 
     if ext not in SALON_GALLERY_ALLOWED_EXTENSIONS:
         raise forms.ValidationError(
-            "پسوند تصویر مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "پسوند تصویر مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     name_without_last_ext = original_name[: -len(ext)] if ext else original_name
@@ -112,7 +112,7 @@ def validate_salon_gallery_image_upload(uploaded_file, *, declared_content_type=
 
     if content_type not in SALON_GALLERY_ALLOWED_CONTENT_TYPES:
         raise forms.ValidationError(
-            "فرمت فایل مجاز نیست. فقط JPG، PNG یا WEBP قابل قبول است."
+            "فرمت فایل مجاز نیست. فقط جی‌پی‌جی، پی‌اِن‌جی یا وِب‌پی قابل قبول است."
         )
 
     try:
@@ -686,11 +686,11 @@ class SalonPayoutSettingsForm(forms.ModelForm):
             return ""
 
         if not value.startswith("IR"):
-            raise forms.ValidationError("شماره شبا باید با IR شروع شود.")
+            raise forms.ValidationError("شماره شبا باید با «آی‌آر» شروع شود.")
 
         if len(value) != 26 or not value[2:].isdigit():
             raise forms.ValidationError(
-                "شماره شبا باید با IR شروع شود و بعد از آن دقیقاً ۲۴ رقم داشته باشد."
+                "شماره شبا باید با «آی‌آر» شروع شود و بعد از آن دقیقاً ۲۴ رقم داشته باشد."
             )
 
         if not is_valid_iban_checksum(value):

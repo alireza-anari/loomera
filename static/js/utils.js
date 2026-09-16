@@ -33,32 +33,40 @@ export function formatNumber(number) {
  * نمایش Toast Notification
  */
 export function showToast(message, type = 'info', duration = 3000) {
-    const existingToasts = document.querySelectorAll('.toast-notification');
-    existingToasts.forEach(toast => toast.remove());
+    if (window.LoomeraFeedback?.show) {
+        return window.LoomeraFeedback.show(message, type, { duration });
+    }
+    return null;
+}
 
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification fixed top-4 right-4 z-[9999] px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full';
-    
-    const colors = {
-        success: 'bg-green-500 text-white',
-        error: 'bg-red-500 text-white',
-        warning: 'bg-yellow-500 text-white',
-        info: 'bg-blue-500 text-white'
-    };
-    
-    toast.className += ' ' + (colors[type] || colors.info);
-    toast.textContent = message;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.remove('translate-x-full');
-    }, 10);
-    
-    setTimeout(() => {
-        toast.classList.add('translate-x-full');
-        setTimeout(() => toast.remove(), 300);
-    }, duration);
+/** Copy text with a fallback for older/mobile browsers and denied permissions. */
+export async function copyText(text) {
+    try {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch (_error) {
+        // Try the legacy copy path before asking for manual selection.
+    }
+    const previousFocus = document.activeElement;
+    const helper = document.createElement('textarea');
+    helper.value = text;
+    helper.setAttribute('readonly', '');
+    helper.style.position = 'fixed';
+    helper.style.opacity = '0';
+    document.body.appendChild(helper);
+    try {
+        helper.focus();
+        helper.select();
+        helper.setSelectionRange(0, text.length);
+        return Boolean(document.execCommand('copy'));
+    } catch (_error) {
+        return false;
+    } finally {
+        helper.remove();
+        previousFocus?.focus();
+    }
 }
 
 /**
@@ -80,5 +88,6 @@ export default {
     getCookie,
     formatNumber,
     showToast,
+    copyText,
     debounce
 };

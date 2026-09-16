@@ -102,4 +102,21 @@
     </div>
   </div>
 </section>
+{% if clear_completed_booking_client_state %}
+<script>
+  // A completed booking must not repopulate a stale service draft when the
+  // customer returns to the salon page with browser Back.
+  (function () {
+    const keys = [
+      'loomera:booking:selection-draft', 'selected_services',
+      'loomera:booking:selected-services', 'selectedServices',
+      'loomera:booking:selected-services:data', 'selectedServicesData',
+      'loomera:booking:stylist-selections', 'stylistSelections',
+      'loomera:booking:salon-id', 'salonId',
+      'loomera:booking:total-price', 'totalPrice'
+    ];
+    keys.forEach((key) => { try { window.sessionStorage.removeItem(key); } catch (_) {} });
+  })();
+</script>
+{% endif %}
 {% endblock %}

@@ -92,6 +92,14 @@ function initForm(form) {
     form.addEventListener('change', refreshDirty);
   }
 
+  form.addEventListener('invalid', handleClientInvalid, true);
+  form.addEventListener('input', (event) => {
+    const field = event.target;
+    if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement) {
+      if (field.validity.valid) clearClientInvalid(field);
+    }
+  });
+
   form.addEventListener('submit', (event) => {
     const submitter = event.submitter;
     queueMicrotask(() => {
@@ -101,6 +109,148 @@ function initForm(form) {
       markSubmitterPending(submitter);
     });
   });
+}
+
+function localizedConstraintMessage(field) {
+  if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement)) {
+    return 'مقدار این فیلد معتبر نیست.';
+  }
+  const validity = field.validity;
+  if (validity.valueMissing) return 'تکمیل این فیلد الزامی است.';
+  if (validity.typeMismatch) {
+    if (field.type === 'email') return 'ایمیل را با قالب معتبر وارد کنید.';
+    if (field.type === 'url') return 'نشانی اینترنتی را با قالب معتبر وارد کنید.';
+    return 'مقدار واردشده با قالب این فیلد هماهنگ نیست.';
+  }
+  if (validity.patternMismatch) return 'مقدار واردشده با الگوی مورد انتظار هماهنگ نیست.';
+  if (validity.tooShort) return `حداقل ${field.minLength} کاراکتر وارد کنید.`;
+  if (validity.tooLong) return `حداکثر ${field.maxLength} کاراکتر مجاز است.`;
+  if (validity.rangeUnderflow) return `مقدار باید حداقل ${field.min} باشد.`;
+  if (validity.rangeOverflow) return `مقدار باید حداکثر ${field.max} باشد.`;
+  if (validity.stepMismatch) return 'مقدار واردشده با فاصله‌های مجاز این فیلد هماهنگ نیست.';
+  if (validity.badInput) return 'مقدار واردشده قابل پردازش نیست. آن را بررسی کنید.';
+  return 'مقدار این فیلد معتبر نیست. لطفاً آن را اصلاح کنید.';
+}
+
+function fieldShellFor(field) {
+  return field.closest('[data-form-field], .lm-field, .form-group, label') || field.parentElement;
+}
+
+function ensureInlineError(field, message, source = 'client') {
+  if (!(field instanceof HTMLElement)) return null;
+  const shell = fieldShellFor(field);
+  if (!(shell instanceof HTMLElement)) return null;
+
+  const selector = source === 'client' ? '[data-client-field-error]' : `[data-synthesized-error-for="${CSS.escape(field.getAttribute('name') || '')}"]`;
+  let node = shell.querySelector(selector);
+  if (!(node instanceof HTMLElement)) {
+    node = document.createElement('p');
+    node.className = 'lm-field-error mt-1 text-xs font-extrabold leading-6';
+    node.dataset.fieldError = 'true';
+    if (source === 'client') node.dataset.clientFieldError = 'true';
+    else node.dataset.synthesizedErrorFor = field.getAttribute('name') || '';
+    shell.appendChild(node);
+  }
+  node.textContent = message;
+  markFieldInvalid(field, node);
+  return node;
+}
+
+function formActionPath(form) {
+  if (!(form instanceof HTMLFormElement)) return '';
+  try {
+    return new URL(form.getAttribute('action') || window.location.href, window.location.href).pathname;
+  } catch (_) {
+    return '';
+  }
+}
+
+function formForErrorItem(item, root = document) {
+  const containingForm = item.closest('form');
+  if (containingForm instanceof HTMLFormElement) return containingForm;
+
+  const redirectContract = item.closest('[data-lm-redirect-form-errors]');
+  const actionPath = redirectContract?.dataset?.actionPath || '';
+  if (actionPath) {
+    const matchingForm = Array.from(root.querySelectorAll('form')).find((form) => formActionPath(form) === actionPath);
+    if (matchingForm instanceof HTMLFormElement) return matchingForm;
+  }
+  return null;
+}
+
+function revealFieldOnError(field) {
+  if (!(field instanceof HTMLElement)) return;
+  const revealTarget = field.closest('[data-lm-reveal-on-error]');
+  if (revealTarget instanceof HTMLElement) {
+    revealTarget.hidden = false;
+    revealTarget.classList.remove('hidden');
+  }
+}
+
+function hydrateSummaryFieldErrors(root = document) {
+  const selector = '[data-form-error-summary] [data-error-for], [data-lm-redirect-form-errors] [data-error-for]';
+  root.querySelectorAll(selector).forEach((item) => {
+    if (!(item instanceof HTMLElement)) return;
+    const form = formForErrorItem(item, root);
+    const name = item.dataset.errorFor || '';
+    if (!name || !(form instanceof HTMLFormElement)) return;
+    const field = form.querySelector(`[name="${CSS.escape(name)}"]`);
+    if (!(field instanceof HTMLElement)) return;
+
+    revealFieldOnError(field);
+    const shell = fieldShellFor(field);
+    const alreadyInline = shell?.querySelector?.('.errorlist, [data-field-error], .lm-field-error, .lm-auth-field-error, .lm-signup-error');
+    if (alreadyInline) {
+      markFieldInvalid(field, alreadyInline);
+      return;
+    }
+    ensureInlineError(field, item.dataset.errorMessage || item.textContent || 'مقدار این فیلد معتبر نیست.', 'server');
+  });
+}
+
+function hydrateRedirectNonFieldErrors(root = document) {
+  root.querySelectorAll('[data-lm-redirect-form-errors] [data-form-error-message]').forEach((item) => {
+    if (!(item instanceof HTMLElement)) return;
+    const form = formForErrorItem(item, root);
+    if (!(form instanceof HTMLFormElement)) return;
+
+    let node = form.querySelector('[data-lm-redirect-nonfield-error]');
+    if (!(node instanceof HTMLElement)) {
+      node = document.createElement('p');
+      node.className = 'lm-form-error mb-3 text-xs font-extrabold leading-6';
+      node.dataset.lmRedirectNonfieldError = 'true';
+      node.dataset.formError = 'true';
+      node.setAttribute('role', 'alert');
+      form.prepend(node);
+    }
+    node.textContent = item.dataset.errorMessage || 'اطلاعات فرم معتبر نیست. لطفاً آن را بررسی کنید.';
+  });
+}
+
+function handleClientInvalid(event) {
+  const field = event.target;
+  if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement)) return;
+  event.preventDefault();
+  ensureInlineError(field, localizedConstraintMessage(field), 'client');
+
+  const form = field.form;
+  if (form && form.dataset.lmClientValidationNotice !== 'true') {
+    form.dataset.lmClientValidationNotice = 'true';
+    window.LoomeraFeedback?.error?.('لطفاً موارد مشخص‌شده زیر فیلدها را اصلاح کنید.');
+    window.setTimeout(() => { delete form.dataset.lmClientValidationNotice; }, 500);
+  }
+}
+
+function clearClientInvalid(field) {
+  if (!(field instanceof HTMLElement)) return;
+  const shell = fieldShellFor(field);
+  const clientError = shell?.querySelector?.('[data-client-field-error]');
+  clientError?.remove();
+  if (!shell?.querySelector?.('.errorlist, [data-field-error]:not([data-client-field-error]), .lm-field-error:not([data-client-field-error]), .lm-auth-field-error, .lm-signup-error')) {
+    field.removeAttribute('aria-invalid');
+    field.classList.remove('is-invalid');
+    shell?.classList.remove('lm-field--invalid');
+  }
 }
 
 function markFieldInvalid(field, errorNode = null) {
@@ -177,6 +327,8 @@ function focusFirstInvalidField(root = document) {
 
 function hydrate(root = document) {
   root.querySelectorAll(FORM_SELECTOR).forEach(initForm);
+  hydrateSummaryFieldErrors(root);
+  hydrateRedirectNonFieldErrors(root);
   hydrateInvalidFields(root);
 }
 

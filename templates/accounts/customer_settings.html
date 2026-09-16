@@ -1,16 +1,194 @@
 {% extends "base.html" %}
+
 {% block title %}تنظیمات حساب{% endblock %}
+{% block body_attrs %}data-page="customer-settings"{% endblock %}
+
 {% block content %}
-<main class="min-h-dvh bg-loomera-bg pb-28 text-loomera-textPrimary">
-  <div class="mx-auto w-full max-w-5xl space-y-4 px-4 py-5 sm:px-6 lg:py-8">
-    <header class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card"><a href="{% url 'accounts:customer_panel' %}" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-loomera-borderSoft px-3 py-2 text-xs font-black text-loomera-textSecondary"><i class="fa-solid fa-arrow-right text-[10px]"></i>حساب من</a><h1 class="mt-4 text-2xl font-black">تنظیمات حساب</h1><p class="mt-2 text-sm leading-7 text-loomera-textMuted">فقط تنظیمات حساب، امنیت و ارتباطات؛ نوبت‌ها و کیف پول از صفحه‌های اصلی خودشان مدیریت می‌شوند.</p></header>
-    <section class="grid gap-3 sm:grid-cols-2">
-      <a href="{% url 'accounts:customerProfile' %}" class="rounded-[24px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card"><i class="fa-regular fa-user text-loomera-primary"></i><h2 class="mt-4 text-base font-black">پروفایل شخصی</h2><p class="mt-1 text-xs leading-6 text-loomera-textMuted">نام، تصویر، ایمیل و تاریخ تولد</p></a>
-      <a href="{% url 'accounts:customer_addresses' %}" class="rounded-[24px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card"><i class="fa-solid fa-location-dot text-loomera-primary"></i><h2 class="mt-4 text-base font-black">آدرس‌ها</h2><p class="mt-1 text-xs leading-6 text-loomera-textMuted">{{ address_count }} آدرس ثبت‌شده</p></a>
-      <a href="{% url 'accounts:change_password' %}" class="rounded-[24px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card"><i class="fa-solid fa-lock text-loomera-primary"></i><h2 class="mt-4 text-base font-black">رمز عبور</h2><p class="mt-1 text-xs leading-6 text-loomera-textMuted">تغییر رمز ورود به حساب</p></a>
-      <a href="{% url 'accounts:customer_communication_settings' %}" class="rounded-[24px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card"><i class="fa-regular fa-bell text-loomera-primary"></i><h2 class="mt-4 text-base font-black">اعلان‌ها و ارتباطات</h2><p class="mt-1 text-xs leading-6 text-loomera-textMuted">پیامک، ایمیل و اتصال بله</p></a>
+<main class="min-h-dvh bg-loomera-bg pb-20 text-loomera-textPrimary">
+  <header class="border-b border-loomera-borderSoft bg-white">
+    <div class="mx-auto w-full max-w-4xl px-4 py-5 sm:px-6 sm:py-7 xl:px-0">
+      <a
+        href="{% url 'accounts:customer_panel' %}"
+        class="inline-flex items-center gap-2 text-xs font-black text-loomera-primary"
+      >
+        <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i>
+        حساب من
+      </a>
+
+      <h1 class="mt-2 text-2xl font-black text-loomera-textPrimary sm:text-3xl">
+        تنظیمات حساب
+      </h1>
+
+      <p class="mt-1 text-xs font-bold leading-6 text-loomera-textMuted sm:text-sm">
+        اطلاعات شخصی، امنیت و روش‌های ارتباط با لومرا
+      </p>
+    </div>
+  </header>
+
+  <div class="mx-auto w-full max-w-4xl space-y-6 px-4 py-5 sm:px-6 sm:py-7 xl:px-0">
+    <section aria-labelledby="account-settings-title">
+      <h2 id="account-settings-title" class="mb-3 text-sm font-black text-loomera-textPrimary">
+        حساب کاربری
+      </h2>
+
+      <div class="overflow-hidden rounded-[1.5rem] border border-loomera-borderSoft bg-white">
+        <a
+          href="{% url 'accounts:customerProfile' %}"
+          class="group flex min-h-[76px] items-center gap-3 border-b border-loomera-borderSoft px-4 py-3.5 transition hover:bg-loomera-bgSubtle sm:px-5"
+        >
+          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm text-loomera-primary">
+            <i class="fa-regular fa-user" aria-hidden="true"></i>
+          </span>
+
+          <span class="min-w-0 flex-1">
+            <strong class="block text-sm font-black text-loomera-textPrimary">
+              پروفایل شخصی
+            </strong>
+            <small class="mt-1 block text-[11px] font-bold text-loomera-textMuted">
+              نام، تصویر، ایمیل و اطلاعات شخصی
+            </small>
+          </span>
+
+          <i class="fa-solid fa-chevron-left shrink-0 text-[10px] text-loomera-textMuted transition group-hover:text-loomera-primary" aria-hidden="true"></i>
+        </a>
+
+        <a
+          href="{% url 'accounts:customer_addresses' %}"
+          class="group flex min-h-[76px] items-center gap-3 border-b border-loomera-borderSoft px-4 py-3.5 transition hover:bg-loomera-bgSubtle sm:px-5"
+        >
+          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm text-loomera-primary">
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+          </span>
+
+          <span class="min-w-0 flex-1">
+            <span class="flex flex-wrap items-center gap-2">
+              <strong class="block text-sm font-black text-loomera-textPrimary">
+                آدرس‌ها
+              </strong>
+
+              {% if address_count %}
+                <span class="rounded-full bg-loomera-bgSubtle px-2 py-0.5 text-[9px] font-black text-loomera-textMuted">
+                  {{ address_count }}
+                </span>
+              {% endif %}
+            </span>
+
+            <small class="mt-1 block text-[11px] font-bold text-loomera-textMuted">
+              آدرس‌های ذخیره‌شده و آدرس پیش‌فرض
+            </small>
+          </span>
+
+          <i class="fa-solid fa-chevron-left shrink-0 text-[10px] text-loomera-textMuted transition group-hover:text-loomera-primary" aria-hidden="true"></i>
+        </a>
+
+        <a
+          href="{% url 'accounts:change_password' %}"
+          class="group flex min-h-[76px] items-center gap-3 border-b border-loomera-borderSoft px-4 py-3.5 transition hover:bg-loomera-bgSubtle sm:px-5"
+        >
+          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm text-loomera-primary">
+            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+          </span>
+
+          <span class="min-w-0 flex-1">
+            <strong class="block text-sm font-black text-loomera-textPrimary">
+              رمز عبور
+            </strong>
+            <small class="mt-1 block text-[11px] font-bold text-loomera-textMuted">
+              تغییر رمز ورود به حساب
+            </small>
+          </span>
+
+          <i class="fa-solid fa-chevron-left shrink-0 text-[10px] text-loomera-textMuted transition group-hover:text-loomera-primary" aria-hidden="true"></i>
+        </a>
+
+        <a
+          href="{% url 'accounts:customer_communication_settings' %}"
+          class="group flex min-h-[76px] items-center gap-3 px-4 py-3.5 transition hover:bg-loomera-bgSubtle sm:px-5"
+        >
+          <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-sm text-loomera-primary">
+            <i class="fa-regular fa-bell" aria-hidden="true"></i>
+          </span>
+
+          <span class="min-w-0 flex-1">
+            <strong class="block text-sm font-black text-loomera-textPrimary">
+              اعلان‌ها و ارتباطات
+            </strong>
+            <small class="mt-1 block text-[11px] font-bold text-loomera-textMuted">
+              پیامک، ایمیل و اتصال پیام‌رسان
+            </small>
+          </span>
+
+          <i class="fa-solid fa-chevron-left shrink-0 text-[10px] text-loomera-textMuted transition group-hover:text-loomera-primary" aria-hidden="true"></i>
+        </a>
+      </div>
     </section>
-    <section class="rounded-[24px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card"><div class="flex flex-wrap gap-x-5 gap-y-3 text-xs font-black"><a href="{% url 'accounts:privacy_policy' %}" class="text-loomera-textSecondary">حریم خصوصی</a><a href="{% url 'accounts:terms_of_use' %}" class="text-loomera-textSecondary">شرایط استفاده</a><a href="{% url 'messaging:privacy' %}" class="text-loomera-textSecondary">حریم خصوصی پیام‌رسان‌ها</a><a href="{% url 'accounts:delete_account' %}" class="mr-auto text-rose-600">حذف حساب</a></div></section>
+
+    <section aria-labelledby="legal-settings-title">
+      <h2 id="legal-settings-title" class="mb-3 text-sm font-black text-loomera-textPrimary">
+        حریم خصوصی و قوانین
+      </h2>
+
+      <div class="overflow-hidden rounded-[1.5rem] border border-loomera-borderSoft bg-white">
+        <a
+          href="{% url 'accounts:privacy_policy' %}"
+          class="group flex min-h-14 items-center justify-between gap-4 border-b border-loomera-borderSoft px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle hover:text-loomera-primary sm:px-5"
+        >
+          <span class="inline-flex items-center gap-3">
+            <i class="fa-solid fa-shield-halved w-4 text-center text-xs text-loomera-textMuted" aria-hidden="true"></i>
+            حریم خصوصی
+          </span>
+          <i class="fa-solid fa-chevron-left text-[9px] text-loomera-textMuted" aria-hidden="true"></i>
+        </a>
+
+        <a
+          href="{% url 'accounts:terms_of_use' %}"
+          class="group flex min-h-14 items-center justify-between gap-4 border-b border-loomera-borderSoft px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle hover:text-loomera-primary sm:px-5"
+        >
+          <span class="inline-flex items-center gap-3">
+            <i class="fa-regular fa-file-lines w-4 text-center text-xs text-loomera-textMuted" aria-hidden="true"></i>
+            شرایط استفاده
+          </span>
+          <i class="fa-solid fa-chevron-left text-[9px] text-loomera-textMuted" aria-hidden="true"></i>
+        </a>
+
+        <a
+          href="{% url 'messaging:privacy' %}"
+          class="group flex min-h-14 items-center justify-between gap-4 px-4 py-3 text-sm font-black text-loomera-textSecondary transition hover:bg-loomera-bgSubtle hover:text-loomera-primary sm:px-5"
+        >
+          <span class="inline-flex items-center gap-3">
+            <i class="fa-regular fa-message w-4 text-center text-xs text-loomera-textMuted" aria-hidden="true"></i>
+            حریم خصوصی پیام‌رسان‌ها
+          </span>
+          <i class="fa-solid fa-chevron-left text-[9px] text-loomera-textMuted" aria-hidden="true"></i>
+        </a>
+      </div>
+    </section>
+
+    <section aria-labelledby="danger-settings-title">
+      <h2 id="danger-settings-title" class="mb-3 text-sm font-black text-loomera-textPrimary">
+        مدیریت حساب
+      </h2>
+
+      <a
+        href="{% url 'accounts:delete_account' %}"
+        class="group flex min-h-[68px] items-center gap-3 rounded-[1.5rem] border border-rose-100 bg-white px-4 py-3.5 transition hover:bg-rose-50/50 sm:px-5"
+      >
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-sm text-rose-600">
+          <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+        </span>
+
+        <span class="min-w-0 flex-1">
+          <strong class="block text-sm font-black text-rose-700">
+            حذف حساب
+          </strong>
+          <small class="mt-1 block text-[11px] font-bold text-loomera-textMuted">
+            حذف دائمی حساب و اطلاعات قابل حذف
+          </small>
+        </span>
+
+        <i class="fa-solid fa-chevron-left shrink-0 text-[10px] text-rose-300 transition group-hover:text-rose-600" aria-hidden="true"></i>
+      </a>
+    </section>
   </div>
 </main>
 {% endblock %}

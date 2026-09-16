@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}دسترسی مجاز نیست | Loomera{% endblock %}
+{% block meta_description %}دسترسی به این بخش از لومرا برای این درخواست مجاز نیست.{% endblock %}
+{% block main_class %}bg-loomera-bg text-loomera-textPrimary{% endblock %}
+{% block body_attrs %}data-page="error_403"{% endblock %}
+
+{% block content %}
+<section class="flex min-h-[calc(100vh-10rem)] items-center px-4 py-10 sm:px-6 lg:py-16">
+  <div class="mx-auto w-full max-w-3xl overflow-hidden rounded-[2.25rem] border border-loomera-borderSoft bg-white shadow-lm-elevated">
+    <div class="bg-loomera-textPrimary px-6 py-9 text-white sm:px-8 lg:px-10">
+      <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-black text-white/85">
+        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+        خطای ۴۰۳
+      </span>
+      <h1 class="mt-5 text-3xl font-black leading-[1.5] sm:text-4xl">
+        {% if is_csrf_failure %}اعتبار این درخواست پایان یافته است{% else %}دسترسی به این بخش برای شما مجاز نیست{% endif %}
+      </h1>
+      <p class="mt-4 max-w-2xl text-sm leading-8 text-white/75 sm:text-base">
+        {% if is_csrf_failure %}
+          برای حفظ امنیت حساب، صفحه را تازه‌سازی کنید و عملیات را دوباره انجام دهید.
+        {% else %}
+          با حساب دارای دسترسی مناسب وارد شوید یا به بخش دیگری از لومرا برگردید. جزئیات فنی این خطا نمایش داده نمی‌شود.
+        {% endif %}
+      </p>
+    </div>
+    <div class="grid gap-3 p-5 sm:grid-cols-2 sm:p-6">
+      <a href="/" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-loomera-primary px-5 text-sm font-black text-white">
+        <i class="fa-solid fa-house" aria-hidden="true"></i>
+        بازگشت به خانه
+      </a>
+      <a href="{% url 'accounts:login' %}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-loomera-borderSoft bg-white px-5 text-sm font-black text-loomera-textPrimary">
+        <i class="fa-regular fa-user" aria-hidden="true"></i>
+        ورود به حساب کاربری
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

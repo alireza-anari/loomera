@@ -170,31 +170,46 @@
            data-lm-task-key="manage"
            data-lm-task-label="ویرایش پروفایل"
            data-lm-task-order="2">
-    <header class="border-b border-loomera-borderSoft px-4 py-4 sm:px-5 lg:px-6">
-      <p class="text-[11px] font-black text-loomera-primaryText">اطلاعات قابل ویرایش</p>
-      <h2 class="mt-1 text-base font-black text-loomera-textPrimary sm:text-lg">هر بخش از صفحه عمومی را از همین‌جا پیدا کن</h2>
-      <p class="mt-2 max-w-3xl text-xs leading-6 text-loomera-textMuted">اطلاعات عمومی مجموعه را اینجا ویرایش کن؛ مسیر خدمت، عضو تیم و برنامه کاری در بخش «شروع دریافت نوبت» همین صفحه همیشه جلوی دسترس است.</p>
+    <header class="border-b border-loomera-borderSoft px-4 py-3 sm:px-5 lg:px-6">
+      <h2 class="text-base font-black text-loomera-textPrimary sm:text-lg">ویرایش پروفایل مجموعه</h2>
+      <p class="mt-1 max-w-3xl text-xs leading-5 text-loomera-textMuted">بخشی را که می‌خواهید تغییر دهید انتخاب کنید.</p>
     </header>
 
-    <div class="grid gap-3 p-4 sm:grid-cols-2 sm:p-5 lg:p-6 xl:grid-cols-3">
+    <div class="grid gap-2.5 p-3 sm:grid-cols-2 sm:p-4 lg:p-5 xl:grid-cols-3">
       {% for item in profile_items %}
-        <article class="flex min-w-0 flex-col rounded-[24px] border border-loomera-borderSoft bg-white p-4 transition hover:border-loomera-primary/20 hover:shadow-lm-soft sm:p-5">
-          <div class="flex items-start justify-between gap-3">
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-loomera-primarySoft text-loomera-primaryText">
+        <article class="flex min-w-0 flex-col rounded-[20px] border border-loomera-borderSoft bg-white p-3 transition hover:border-loomera-primary/20 hover:shadow-lm-soft sm:p-3.5">
+          <div class="flex items-center justify-between gap-2.5">
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-sm text-loomera-primaryText">
               <i class="{{ item.icon }}" aria-hidden="true"></i>
             </span>
-            <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-black {% if item.is_ready %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
+            <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-black {% if item.is_ready %}bg-loomera-successSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
               <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>
-              {% if item.is_ready %}تکمیل شده{% else %}نیازمند تکمیل{% endif %}
+              {% if item.is_ready %}تکمیل{% else %}ناقص{% endif %}
             </span>
           </div>
 
-          <h3 class="mt-4 text-sm font-black text-loomera-textPrimary sm:text-base">{{ item.title }}</h3>
-          <p class="mt-2 min-h-12 text-xs leading-6 text-loomera-textMuted">{{ item.description }}</p>
-          <p class="mt-3 truncate rounded-2xl bg-loomera-bgSubtle/75 px-3 py-2.5 text-xs font-black text-loomera-textSecondary" title="{{ item.meta }}">{{ item.meta }}</p>
+          <h3 class="mt-2.5 text-sm font-black text-loomera-textPrimary">{{ item.title }}</h3>
+          <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">
+            {% if item.key == "identity" %}
+              نام و راه تماس مجموعه
+            {% elif item.key == "location" %}
+              آدرس و موقعیت روی نقشه
+            {% elif item.key == "hours" %}
+              روزها و ساعات فعالیت
+            {% elif item.key == "gallery" %}
+              تصاویر صفحه عمومی
+            {% elif item.key == "features" %}
+              امکانات قابل نمایش به مشتری
+            {% elif item.key == "description" %}
+              متن معرفی مجموعه
+            {% else %}
+              {{ item.description }}
+            {% endif %}
+          </p>
+          <p class="mt-2 truncate rounded-xl bg-loomera-bgSubtle/75 px-2.5 py-1.5 text-[11px] font-black text-loomera-textSecondary" title="{{ item.meta }}">{{ item.meta }}</p>
 
           <a href="{{ item.url }}"
-             class="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-primaryText transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/40">
+             class="mt-2.5 inline-flex min-h-9 items-center justify-center gap-2 rounded-xl border border-loomera-borderSoft bg-white px-3 py-1.5 text-xs font-black text-loomera-primaryText transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/40">
             {{ item.cta_label }}
             <i class="fa-solid fa-arrow-left-long text-[10px]" aria-hidden="true"></i>
           </a>

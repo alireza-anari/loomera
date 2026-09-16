@@ -51,28 +51,8 @@ function setupDashboardLayout() {
   const mobileManagementPanel = document.querySelector("[data-mobile-management-panel]");
   const mobileManagementClose = document.querySelector("[data-mobile-management-close]");
 
-  let comingSoonToastTimer = null;
-
   const showComingSoonToast = (message = "به‌زودی فعال می‌شود") => {
-    document.querySelector("[data-dashboard-coming-soon-toast]")?.remove();
-
-    const toast = document.createElement("div");
-    toast.className = "lm-dashboard-coming-soon-toast";
-    toast.dataset.dashboardComingSoonToast = "true";
-    toast.setAttribute("role", "status");
-    toast.setAttribute("aria-live", "polite");
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    window.requestAnimationFrame(() => {
-      toast.classList.add("is-visible");
-    });
-
-    if (comingSoonToastTimer) window.clearTimeout(comingSoonToastTimer);
-    comingSoonToastTimer = window.setTimeout(() => {
-      toast.classList.remove("is-visible");
-      window.setTimeout(() => toast.remove(), 220);
-    }, 2400);
+    window.LoomeraFeedback?.info?.(message, { duration: 2400 });
   };
 
   if (!sidebar || !overlay || !content) return;
@@ -224,7 +204,6 @@ function setupDashboardLayout() {
     if (!notificationPanel) return;
 
     const tabButtons = Array.from(notificationPanel.querySelectorAll("[data-notification-tab]"));
-    const items = Array.from(notificationPanel.querySelectorAll("[data-notification-item]"));
     const emptyState = notificationPanel.querySelector("[data-notification-empty]");
 
     if (!tabButtons.length) return;
@@ -233,6 +212,7 @@ function setupDashboardLayout() {
     const inactiveClasses = ["bg-white", "text-loomera-textSecondary", "border-loomera-borderSoft"];
 
     const activateTab = (key) => {
+      const items = Array.from(notificationPanel.querySelectorAll("[data-notification-item]"));
       let visibleItems = 0;
 
       tabButtons.forEach((button) => {
@@ -283,24 +263,124 @@ function setupDashboardLayout() {
   };
 
 
-  const markDashboardNotificationsSeen = () => {
-    if (!notificationRoot) return;
+  const setupNotificationReadActions = () => {
+    if (!notificationPanel) return;
 
-    const badge = notificationRoot.querySelector("[data-dashboard-notification-badge]");
-    const unreadCounter = notificationRoot.querySelector("[data-dashboard-notification-unread-count]");
-    const unreadDots = notificationRoot.querySelectorAll("[data-dashboard-notification-unread-dot]");
+    const csrfToken = () => {
+      const cookie = document.cookie
+        .split(";")
+        .map((part) => part.trim())
+        .find((part) => part.startsWith("csrftoken="));
+      return cookie ? decodeURIComponent(cookie.slice("csrftoken=".length)) : "";
+    };
 
-    badge?.classList.add("hidden");
+    notificationPanel.querySelectorAll("[data-notification-item]").forEach((item) => {
+      if (item.dataset.readBound === "true") return;
+      item.dataset.readBound = "true";
 
-    if (unreadCounter) {
-      unreadCounter.textContent = "۰ خوانده‌نشده";
-      unreadCounter.classList.remove("bg-loomera-primarySoft", "text-loomera-primaryText");
-      unreadCounter.classList.add("bg-loomera-bgSubtle", "text-loomera-textMuted");
-    }
+      item.addEventListener("click", async (event) => {
+        if (
+          event.defaultPrevented
+          || event.button !== 0
+          || event.metaKey
+          || event.ctrlKey
+          || event.shiftKey
+          || event.altKey
+        ) {
+          return;
+        }
 
-    unreadDots.forEach((dot) => {
-      dot.classList.add("hidden");
+        const readUrl = item.dataset.notificationReadUrl || "";
+        const isUnread = item.dataset.notificationUnread === "true";
+        if (!isUnread || !readUrl) return;
+
+        event.preventDefault();
+        const destination = item.href;
+
+        try {
+          await fetch(readUrl, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "X-CSRFToken": csrfToken(),
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+            },
+          });
+        } catch (error) {
+          console.warn("Unable to mark dashboard notification as read.", error);
+        } finally {
+          window.location.assign(destination);
+        }
+      });
     });
+  };
+
+
+  const refreshDashboardNotifications = async () => {
+    if (!notificationRoot || !notificationPanel) return;
+    const summaryUrl = notificationRoot.dataset.notificationSummaryUrl || "";
+    if (!summaryUrl) return;
+
+    try {
+      const response = await fetch(summaryUrl, {
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { "X-Requested-With": "XMLHttpRequest", "Accept": "application/json" },
+      });
+      if (!response.ok) return;
+      const payload = await response.json();
+      const unread = Math.max(0, Number(payload.unread_count) || 0);
+      const badge = notificationRoot.querySelector("[data-dashboard-notification-badge]");
+      const toggle = notificationRoot.querySelector("[data-notification-toggle]");
+      let nextBadge = badge;
+      if (!nextBadge && unread > 0 && toggle) {
+        nextBadge = document.createElement("span");
+        nextBadge.dataset.dashboardNotificationBadge = "";
+        nextBadge.className = "absolute -right-1.5 -top-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-loomera-primary px-1 text-[10px] font-black leading-none text-white shadow-lm-soft";
+        toggle.appendChild(nextBadge);
+      }
+      if (nextBadge) {
+        nextBadge.textContent = unread > 99 ? "+99" : String(unread);
+        nextBadge.classList.toggle("hidden", unread === 0);
+      }
+      const unreadLabel = notificationPanel.querySelector("[data-dashboard-notification-unread-count]");
+      if (unreadLabel) unreadLabel.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-rose-500" aria-hidden="true"></span>${unread} خوانده‌نشده`;
+
+      const list = notificationPanel.querySelector("[data-notification-list]");
+      if (!list || !Array.isArray(payload.notifications)) return;
+      list.innerHTML = "";
+      payload.notifications.forEach((note) => {
+        const item = document.createElement("a");
+        item.href = note.action_url || "#";
+        item.dataset.notificationItem = "";
+        item.dataset.notificationCategory = note.category || "appointments";
+        item.dataset.notificationUnread = note.is_read ? "false" : "true";
+        item.dataset.notificationReadUrl = `/notifications/api/${note.id}/read/`;
+        item.className = "group flex items-start gap-2.5 rounded-[18px] border border-loomera-borderSoft bg-white px-2.5 py-2.5 transition hover:border-loomera-primary/20 hover:bg-loomera-primarySoft/15";
+        const safeTitle = document.createElement("p");
+        safeTitle.className = "min-w-0 flex-1 truncate text-xs font-black leading-5 text-loomera-textPrimary";
+        safeTitle.textContent = note.title || "اعلان";
+        const body = document.createElement("div");
+        body.className = "min-w-0 flex-1";
+        body.appendChild(safeTitle);
+        const meta = document.createElement("p");
+        meta.className = "mt-1.5 truncate text-[10px] font-semibold text-loomera-textMuted";
+        meta.textContent = note.created_at_label || "";
+        body.appendChild(meta);
+        const icon = document.createElement("span");
+        icon.className = "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText";
+        const i = document.createElement("i");
+        i.className = note.icon || "fa-regular fa-bell";
+        icon.appendChild(i);
+        item.append(icon, body);
+        list.appendChild(item);
+      });
+      setupNotificationTabs();
+      setupNotificationReadActions();
+    } catch (error) {
+      console.warn("Unable to refresh dashboard notifications.", error);
+    }
   };
 
   const openNotificationPanel = () => {
@@ -312,7 +392,8 @@ function setupDashboardLayout() {
     notificationPanel.classList.remove("hidden");
     setExpanded(notificationToggle, true);
     setupNotificationTabs();
-    markDashboardNotificationsSeen();
+    setupNotificationReadActions();
+    refreshDashboardNotifications();
   };
 
   const openMobileCreatePanel = () => {
@@ -379,6 +460,12 @@ function setupDashboardLayout() {
     event.stopPropagation();
     closeMobileManagementPanel();
   });
+
+  window.setInterval(() => {
+    if (document.visibilityState === "visible") {
+      refreshDashboardNotifications();
+    }
+  }, 10000);
 
   notificationPanel?.addEventListener("click", (event) => event.stopPropagation());
   mobileCreatePanel?.addEventListener("click", (event) => event.stopPropagation());

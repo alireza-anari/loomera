@@ -241,7 +241,7 @@ def notify_booking_cancelled(*, user=None, customer=None, order=None, refund_amo
     except (TypeError, ValueError):
         amount = 0
     if amount:
-        refund_text = f" مبلغ {amount:,} تومان به کیف پول شما برگشت داده شد."
+        refund_text = f" مبلغ {amount:,} تومان برای بازگشت وجه ثبت شد."
 
     return create_customer_notification(
         user=user,
@@ -249,10 +249,39 @@ def notify_booking_cancelled(*, user=None, customer=None, order=None, refund_amo
         category=CustomerNotification.CATEGORY_BOOKING,
         title="نوبت شما لغو شد",
         body=f"لغو نوبت شما با موفقیت ثبت شد.{refund_text}",
-        action_url=action_url or _reverse_or_fallback("orders:appointments", fallback="/orders/appointments/"),
+        action_url=action_url or _order_detail_action_url(order),
         priority=CustomerNotification.PRIORITY_HIGH,
         metadata={"order_id": order_id, "refund_amount": amount},
         dedupe_key=f"booking-cancelled:{order_id}" if order_id else "",
+    )
+
+
+def notify_booking_rescheduled(*, user=None, customer=None, order=None, order_detail=None, action_url: str = ""):
+    detail_id = _safe_getattr(order_detail, "id") or _first_order_detail_id(order)
+    order_id = _safe_getattr(order, "id")
+    if not action_url:
+        action_url = (
+            _reverse_or_fallback(
+                "orders:appointment_detail",
+                kwargs={"pk": detail_id},
+                fallback=f"/orders/appointment_detail/{detail_id}/",
+            )
+            if detail_id
+            else _order_detail_action_url(order)
+        )
+    return create_customer_notification(
+        user=user,
+        customer=customer,
+        category=CustomerNotification.CATEGORY_BOOKING,
+        title="زمان نوبت شما تغییر کرد",
+        body="زمان جدید نوبت ثبت شد. جزئیات به‌روز رزرو را بررسی کنید.",
+        action_url=action_url,
+        priority=CustomerNotification.PRIORITY_HIGH,
+        metadata={"order_id": order_id, "detail_id": detail_id},
+        dedupe_key=(
+            f"booking-rescheduled:{order_id}:{detail_id}:"
+            f"{_safe_getattr(order_detail, 'date', '')}:{_safe_getattr(order_detail, 'time', '')}"
+        ),
     )
 
 

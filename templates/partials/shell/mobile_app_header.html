@@ -40,7 +40,15 @@
           {% endif %}
         </a>
       {% elif request.user.is_authenticated %}
-        {% include "partials/shell/customer_notification_button.html" with variant="mobile" %}
+        {% if request.user.salon_manager_profile %}
+          <a href="{% url 'dashboards:salon_manager_dashboard' %}" class="lm-icon-button" aria-label="داشبورد من"><i class="fa-regular fa-user"></i></a>
+        {% elif request.user.stylist %}
+          <a href="{% url 'dashboards:stylist_dashboard' %}" class="lm-icon-button" aria-label="داشبورد من"><i class="fa-regular fa-user"></i></a>
+        {% elif request.user.customer_profile %}
+          {% include "partials/shell/customer_notification_button.html" with variant="mobile" %}
+        {% else %}
+          <a href="{% url 'salons:home' %}" class="lm-icon-button" aria-label="خانه"><i class="fa-regular fa-user"></i></a>
+        {% endif %}
       {% else %}
         <a href="{% url 'accounts:login' %}" class="lm-icon-button" aria-label="ورود">
           <i class="fa-regular fa-user"></i>

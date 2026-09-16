@@ -417,7 +417,7 @@
       if (step === 1) {
         const reasonSelected = form.querySelector('input[name="reason"]:checked');
         if (!reasonSelected) {
-          window.alert("لطفاً یک دلیل انتخاب کنید.");
+          window.LoomeraFeedback?.error?.("لطفاً یک دلیل انتخاب کنید.");
           return false;
         }
       }
@@ -426,7 +426,7 @@
         const confirmAppointments = form.querySelector('input[name="confirm_appointments"]')?.checked;
         const confirmBookings = form.querySelector('input[name="confirm_bookings"]')?.checked;
         if (!confirmAppointments || !confirmBookings) {
-          window.alert("لطفاً تمام موارد را تأیید کنید.");
+          window.LoomeraFeedback?.error?.("لطفاً تمام موارد را تأیید کنید.");
           return false;
         }
       }
@@ -461,7 +461,7 @@
         return;
       }
       if (deleteBlocked) {
-        window.alert("حذف حساب فعلاً ممکن نیست. ابتدا موارد مانع حذف را تعیین تکلیف کنید.");
+        window.LoomeraFeedback?.error?.("حذف حساب فعلاً ممکن نیست. ابتدا موارد مانع حذف را تعیین تکلیف کنید.");
         return;
       }
       form.requestSubmit ? form.requestSubmit(submitButton) : form.submit();
@@ -470,7 +470,7 @@
     form.addEventListener("submit", (event) => {
       if (deleteBlocked) {
         event.preventDefault();
-        window.alert("حذف حساب فعلاً ممکن نیست. ابتدا موارد مانع حذف را تعیین تکلیف کنید.");
+        window.LoomeraFeedback?.error?.("حذف حساب فعلاً ممکن نیست. ابتدا موارد مانع حذف را تعیین تکلیف کنید.");
         return;
       }
       if (!submitButton) return;

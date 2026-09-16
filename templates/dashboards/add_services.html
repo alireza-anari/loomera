@@ -3,6 +3,16 @@
 {% block body_attrs %}data-page="add-service"{% endblock %}
 
 {% block content %}
+<style>
+  @media (hover: hover) {
+    [data-dashboard-page="add-service"] :is(button:not(:disabled), a.inline-flex):hover {
+      background-color: rgb(var(--lm-accent-rgb) / 1) !important;
+      border-color: rgb(var(--lm-accent-rgb) / 0.72) !important;
+      color: rgb(var(--lm-text-primary-rgb) / 1) !important;
+      opacity: 1 !important;
+    }
+  }
+</style>
 <section class="min-w-0 max-w-full space-y-5" data-dashboard-page="add-service">
   <section class="overflow-hidden rounded-[30px] border border-loomera-borderSoft bg-white/95 p-4 shadow-lm-card sm:p-6 lg:p-7">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -126,9 +136,8 @@
           <p class="mt-1 text-xs leading-6 text-loomera-textMuted">اگر قیمت اختصاصی خالی بماند، قیمت پایه مجموعه برای همان عضو استفاده می‌شود.</p>
         </div>
         <div class="flex flex-wrap gap-2">
-          <button type="button" class="rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-select-all-stylists>انتخاب همه</button>
-          <button type="button" class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-clear-all-stylists>پاک‌سازی</button>
-          <button type="button" class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary" data-copy-base-price>درج قیمت پایه</button>
+          <button type="button" class="rounded-full border border-loomera-primary/15 bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText transition" data-select-all-stylists aria-pressed="false">انتخاب همه</button>
+          <button type="button" class="rounded-full border border-loomera-borderSoft bg-white px-3 py-2 text-xs font-black text-loomera-textSecondary transition" data-copy-base-price>درج قیمت پایه</button>
         </div>
       </header>
       <div class="grid gap-4 p-4 md:grid-cols-2 xl:grid-cols-3 lg:p-6">
@@ -303,13 +312,35 @@
       if(input) input.value = base;
     });
   }));
-  root.querySelectorAll('[data-clear-all-stylists]').forEach(btn => btn.addEventListener('click', () => {
-    root.querySelectorAll('[data-stylist-checkbox]').forEach(cb => cb.checked = false);
-    root.querySelectorAll('[data-stylist-price]').forEach(input => input.value = '');
-  }));
-  root.querySelectorAll('[data-select-all-stylists]').forEach(btn => btn.addEventListener('click', () => {
-    root.querySelectorAll('[data-stylist-checkbox]').forEach(cb => cb.checked = true);
-  }));
+  const stylistCheckboxes = Array.from(root.querySelectorAll('[data-stylist-checkbox]'));
+  const selectAllStylistsButton = root.querySelector('[data-select-all-stylists]');
+
+  function allStylistsSelected(){
+    return stylistCheckboxes.length > 0 && stylistCheckboxes.every(cb => cb.checked);
+  }
+
+  function syncSelectAllStylistsButton(){
+    if(!selectAllStylistsButton) return;
+    const selected = allStylistsSelected();
+    selectAllStylistsButton.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    selectAllStylistsButton.textContent = selected ? 'لغو انتخاب همه' : 'انتخاب همه';
+    selectAllStylistsButton.classList.toggle('border-loomera-accent/50', selected);
+    selectAllStylistsButton.classList.toggle('bg-loomera-accentSoft', selected);
+    selectAllStylistsButton.classList.toggle('border-loomera-primary/15', !selected);
+    selectAllStylistsButton.classList.toggle('bg-loomera-primarySoft', !selected);
+  }
+
+  selectAllStylistsButton?.addEventListener('click', () => {
+    const shouldSelect = !allStylistsSelected();
+    stylistCheckboxes.forEach(cb => { cb.checked = shouldSelect; });
+    if(!shouldSelect){
+      root.querySelectorAll('[data-stylist-price]').forEach(input => { input.value = ''; });
+    }
+    syncSelectAllStylistsButton();
+  });
+
+  stylistCheckboxes.forEach(cb => cb.addEventListener('change', syncSelectAllStylistsButton));
+  syncSelectAllStylistsButton();
 })();
 </script>
 {% endblock %}

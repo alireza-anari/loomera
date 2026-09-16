@@ -90,7 +90,7 @@
 
           <label class="lm-signup-terms" for="id_agree_to_terms">
             <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms" {% if form.agree_to_terms.value %}checked{% endif %} required>
-            <span>با <a href="{% url 'accounts:terms_of_use' %}">قوانین استفاده</a> و <a href="{% url 'accounts:privacy_policy' %}">حریم خصوصی</a> موافقم.</span>
+            <span>با <a href="{% url 'accounts:terms_of_use' %}">شرایط استفاده</a> و <a href="{% url 'accounts:privacy_policy' %}">حریم خصوصی</a> موافقم.</span>
           </label>
           {% if form.agree_to_terms.errors %}<small class="lm-signup-error">{{ form.agree_to_terms.errors.0 }}</small>{% endif %}
 

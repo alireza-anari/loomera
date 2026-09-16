@@ -2,6 +2,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from apps.messaging.loomi import (
+    answer_loomi_message,
+    clear_loomi_context,
+    try_apply_loomi_start_context,
+    try_handle_loomi_callback,
+)
+
+from apps.messaging.constants import MessagingMessageStatus
 from apps.messaging.services import (
     connect_identity_with_raw_token,
     disconnect_identity,
@@ -34,6 +42,7 @@ from .menus import (
     MENU_MANAGER_SLOTS,
     MENU_MANAGER_SUMMARY,
     MENU_MANAGER_TODAY,
+    MENU_MANAGER_SALON,
     connected_text,
     disconnected_required_text,
     guest_main_menu,
@@ -41,6 +50,8 @@ from .menus import (
     help_menu,
     help_text,
     menu_for_role,
+    manager_menu,
+    manager_menu_text,
     menu_for_user,
     quick_links_menu,
     quick_links_text,
@@ -88,13 +99,31 @@ def _send(
     text: str,
     reply_markup: dict | None = None,
 ):
-    return client.send_message(
+    """Send one user-visible reply and remember explicit delivery failures.
+
+    Provider clients intentionally return an audit log instead of raising when a
+    send fails. The dispatcher records explicit FAILED deliveries on the client
+    so the webhook service does not silently report the inbound event as processed.
+    Intentional SKIPPED sends (for example a disabled outbound feature flag) keep
+    their historical behavior. Mock/custom clients that do not return a real
+    message-log status keep the historical test/adapter behaviour.
+    """
+    delivery = client.send_message(
         provider=provider,
         identity=identity,
         chat_id=chat_id,
         text=text,
         reply_markup=reply_markup,
     )
+    status = getattr(delivery, "status", None)
+    if status == MessagingMessageStatus.FAILED:
+        error = str(getattr(delivery, "error_message", "") or status)[:240]
+        setattr(
+            client,
+            "_loomera_outbound_failure",
+            {"status": str(status), "error": error},
+        )
+    return delivery
 
 
 def _identity_is_connected(identity) -> bool:
@@ -124,7 +153,10 @@ def _show_guest_menu(
         identity=identity,
         chat_id=chat_id,
         text=guest_welcome_text(display_name),
-        reply_markup=guest_main_menu(base_url),
+        reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
     )
     return "guest_menu"
 
@@ -166,6 +198,21 @@ def _handle_menu_callback(
     chat_id = parsed.chat_id or getattr(identity, "chat_id", "")
     callback_data = parsed.callback_data or ""
     menu_key = callback_data[len(MENU_CALLBACK_PREFIX) :].strip()
+    scoped_salon_id = None
+    if ":" in menu_key:
+        base_key, _, raw_scope = menu_key.partition(":")
+        manager_scoped_keys = {
+            MENU_MANAGER_SALON,
+            MENU_MANAGER_TODAY,
+            MENU_MANAGER_SUMMARY,
+            MENU_MANAGER_SHIFTS,
+            MENU_MANAGER_SLOTS,
+            MENU_MANAGER_REQUESTS,
+            MENU_MANAGER_PROMOTION,
+        }
+        if base_key in manager_scoped_keys and raw_scope.isdigit():
+            menu_key = base_key
+            scoped_salon_id = int(raw_scope)
 
     if parsed.callback_query_id:
         client.answer_callback_query(
@@ -187,6 +234,29 @@ def _handle_menu_callback(
     if menu_key == MENU_CUSTOMER_SEARCH:
         from apps.messaging.customer_bot import render_customer_salon_search
 
+        user = _identity_user(identity)
+        text, markup = render_customer_salon_search(user, base_url)
+        _send(
+            client,
+            provider=provider,
+            identity=identity,
+            chat_id=chat_id,
+            text=text,
+            reply_markup=markup,
+        )
+        return "customer_search"
+
+    if menu_key == MENU_HELP:
+        _send(
+            client,
+            provider=provider,
+            identity=identity,
+            chat_id=chat_id,
+            text=help_text(),
+            reply_markup=help_menu(base_url),
+        )
+        return "help_menu"
+
     user = _identity_user(identity)
     if not user:
         _send(
@@ -195,7 +265,10 @@ def _handle_menu_callback(
             identity=identity,
             chat_id=chat_id,
             text=disconnected_required_text(),
-            reply_markup=guest_main_menu(base_url),
+            reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
         )
         return "menu_requires_connection"
 
@@ -221,7 +294,10 @@ def _handle_menu_callback(
             identity=identity,
             chat_id=chat_id,
             text=disconnected_required_text(),
-            reply_markup=guest_main_menu(base_url),
+            reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
         )
         return "menu_requires_connection"
 
@@ -239,17 +315,6 @@ def _handle_menu_callback(
             reply_markup=role_selector_menu(base_url, context),
         )
         return "role_selector"
-
-    if menu_key == MENU_HELP:
-        _send(
-            client,
-            provider=provider,
-            identity=identity,
-            chat_id=chat_id,
-            text=help_text(),
-            reply_markup=help_menu(base_url),
-        )
-        return "help_menu"
 
     if menu_key == MENU_QUICK_LINKS:
         _send(
@@ -298,7 +363,9 @@ def _handle_menu_callback(
         )
 
         if menu_key == MENU_STYLIST_TODAY:
-            text, markup = render_stylist_today(user, base_url)
+            text, markup = render_stylist_today(
+                user, base_url, provider=provider, identity=identity
+            )
             result_key = "stylist_today"
         elif menu_key == MENU_STYLIST_SLOTS:
             text, markup = render_stylist_available_slots(user, base_url)
@@ -309,6 +376,36 @@ def _handle_menu_callback(
         else:
             text, markup = render_stylist_booking_link(user, base_url)
             result_key = "stylist_booking_link"
+        _send(
+            client,
+            provider=provider,
+            identity=identity,
+            chat_id=chat_id,
+            text=text,
+            reply_markup=markup,
+        )
+        return result_key
+
+    if menu_key == MENU_MANAGER_SALON:
+        from apps.messaging.roles import detect_user_bot_roles
+        from apps.messaging.manager_bot import manager_salons
+
+        context = detect_user_bot_roles(user)
+        role = context.get_role("manager")
+        salons = manager_salons(user)
+        selected = next(
+            (salon for salon in salons if scoped_salon_id and int(salon.pk) == scoped_salon_id),
+            None,
+        )
+        if role is None or selected is None:
+            text, markup = menu_for_role(base_url, user, "manager")
+            result_key = "manager_salon_invalid"
+        else:
+            text = manager_menu_text(
+                user, role, selected_salon_name=selected.salon_name
+            )
+            markup = manager_menu(base_url, role, salon_id=selected.pk)
+            result_key = f"manager_salon:{selected.pk}"
         _send(
             client,
             provider=provider,
@@ -337,22 +434,34 @@ def _handle_menu_callback(
         from apps.messaging.promotion_bot import render_manager_promotion_pack
 
         if menu_key == MENU_MANAGER_TODAY:
-            text, markup = render_manager_today_calendar(user, base_url)
+            text, markup = render_manager_today_calendar(
+                user, base_url, salon_id=scoped_salon_id, provider=provider, identity=identity
+            )
             result_key = "manager_today"
         elif menu_key == MENU_MANAGER_SUMMARY:
-            text, markup = render_manager_today_summary(user, base_url)
+            text, markup = render_manager_today_summary(
+                user, base_url, salon_id=scoped_salon_id, provider=provider, identity=identity
+            )
             result_key = "manager_summary"
         elif menu_key == MENU_MANAGER_SHIFTS:
-            text, markup = render_manager_shifts_overview(user, base_url)
+            text, markup = render_manager_shifts_overview(
+                user, base_url, salon_id=scoped_salon_id, provider=provider, identity=identity
+            )
             result_key = "manager_shifts"
         elif menu_key == MENU_MANAGER_SLOTS:
-            text, markup = render_manager_available_slots(user, base_url)
+            text, markup = render_manager_available_slots(
+                user, base_url, salon_id=scoped_salon_id, provider=provider, identity=identity
+            )
             result_key = "manager_slots"
         elif menu_key == MENU_MANAGER_PROMOTION:
-            text, markup = render_manager_promotion_pack(user, base_url)
+            text, markup = render_manager_promotion_pack(
+                user, base_url, salon_id=scoped_salon_id
+            )
             result_key = "manager_promotion"
         else:
-            text, markup = render_manager_pending_requests(user, base_url)
+            text, markup = render_manager_pending_requests(
+                user, base_url, salon_id=scoped_salon_id, provider=provider, identity=identity
+            )
             result_key = "manager_requests"
         _send(
             client,
@@ -393,9 +502,17 @@ def _handle_action_callback(
     )
 
     if parsed.callback_query_id:
+        if result.status in {"succeeded"}:
+            callback_text = (
+                "جزئیات آماده شد."
+                if (result.result or {}).get("preview")
+                else "انجام شد."
+            )
+        else:
+            callback_text = (result.user_message or "انجام نشد.")[:180]
         client.answer_callback_query(
             callback_query_id=parsed.callback_query_id,
-            text=result.user_message,
+            text=callback_text,
             show_alert=result.status not in {"succeeded"},
         )
 
@@ -420,7 +537,10 @@ def _handle_disconnect_command(
             identity=identity,
             chat_id=chat_id,
             text=already_disconnected_text(),
-            reply_markup=guest_main_menu(base_url),
+            reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
         )
         return "already_disconnected"
 
@@ -433,13 +553,16 @@ def _handle_disconnect_command(
         identity=identity,
         chat_id=chat_id,
         text=disconnected_text(),
-        reply_markup=guest_main_menu(base_url),
+        reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
     )
     return "disconnected"
 
 
 def handle_bale_update_stage10(
-    *, parsed: ParsedBaleUpdate, identity, provider, base_url: str = ""
+    *, parsed: ParsedBaleUpdate, identity, provider, base_url: str = "", client=None
 ) -> str:
     """
     Stage 10 dispatcher.
@@ -454,7 +577,7 @@ def handle_bale_update_stage10(
     Every product-changing handler still re-checks object ownership, salon scope
     and permissions before changing anything.
     """
-    client = BaleBotClient()
+    client = client or BaleBotClient()
     chat_id = parsed.chat_id or getattr(identity, "chat_id", "")
     if not chat_id:
         return "ignored_missing_chat"
@@ -477,6 +600,29 @@ def handle_bale_update_stage10(
                 provider=provider,
                 base_url=base_url,
             )
+        if callback_data.startswith("loomi:") and parsed.raw_chat.get("type", "private") == "private":
+            loomi_callback = try_handle_loomi_callback(
+                identity=identity,
+                provider=provider,
+                callback_data=callback_data,
+                base_url=base_url,
+            )
+            if loomi_callback:
+                if parsed.callback_query_id:
+                    client.answer_callback_query(
+                        callback_query_id=parsed.callback_query_id,
+                        text="زمان‌های آزاد آماده شد.",
+                        show_alert=False,
+                    )
+                _send(
+                    client,
+                    provider=provider,
+                    identity=identity,
+                    chat_id=chat_id,
+                    text=loomi_callback["text"],
+                    reply_markup=loomi_callback.get("reply_markup"),
+                )
+                return "loomi_callback"
         _send(
             client,
             provider=provider,
@@ -484,7 +630,10 @@ def handle_bale_update_stage10(
             chat_id=chat_id,
             text=unsupported_action_text(),
             reply_markup=(
-                guest_main_menu(base_url)
+                guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            )
                 if not getattr(identity, "user_id", None)
                 else menu_for_user(base_url, identity.user)[1]
             ),
@@ -531,7 +680,10 @@ def handle_bale_update_stage10(
                 connection, token = connect_identity_with_raw_token(
                     identity=identity,
                     raw_token=connect_token,
-                    metadata={"provider": "bale", "start_payload": payload},
+                    metadata={
+                        "provider": str(getattr(provider, "key", "") or ""),
+                        "start_payload": payload,
+                    },
                 )
             except ValueError as exc:
                 _send(
@@ -540,7 +692,10 @@ def handle_bale_update_stage10(
                     identity=identity,
                     chat_id=chat_id,
                     text=token_error_text(str(exc)),
-                    reply_markup=guest_main_menu(base_url),
+                    reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
                 )
                 return f"connect_failed:{exc}"
 
@@ -554,6 +709,14 @@ def handle_bale_update_stage10(
             )
             return "connected"
 
+        loomi_start = try_apply_loomi_start_context(
+            identity=identity, provider=provider, payload=payload, base_url=base_url,
+        ) if parsed.raw_chat.get("type", "private") == "private" else None
+        if loomi_start:
+            _send(client, provider=provider, identity=identity, chat_id=chat_id,
+                  text=loomi_start["text"], reply_markup=loomi_start.get("reply_markup"))
+            return "loomi_context_started"
+
         if payload:
             _send(
                 client,
@@ -561,9 +724,16 @@ def handle_bale_update_stage10(
                 identity=identity,
                 chat_id=chat_id,
                 text=unknown_start_payload_text(),
-                reply_markup=guest_main_menu(base_url),
+                reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
             )
             return "unknown_payload"
+
+        # A plain /start intentionally leaves any old salon/stylist conversation
+        # and returns the bot to its normal global menu.
+        clear_loomi_context(identity=identity)
 
         if getattr(identity, "user_id", None):
             return _show_connected_menu(
@@ -607,7 +777,10 @@ def handle_bale_update_stage10(
                 identity=identity,
                 chat_id=chat_id,
                 text=disconnected_required_text(),
-                reply_markup=guest_main_menu(base_url),
+                reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
             )
             return "promotion_requires_connection"
 
@@ -701,7 +874,10 @@ def handle_bale_update_stage10(
                 identity=identity,
                 chat_id=chat_id,
                 text=disconnected_required_text(),
-                reply_markup=guest_main_menu(base_url),
+                reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
             )
             return "appointments_requires_connection"
 
@@ -718,6 +894,132 @@ def handle_bale_update_stage10(
         )
         return "customer_appointments_text"
 
+    stylist_today_phrases = {
+        "نوبت های امروز",
+        "نوبت‌های امروز",
+        "نوبت امروز",
+        "برنامه امروز من",
+        "کارهای امروز من",
+        "امروز متخصص",
+    }
+    stylist_slot_phrases = {
+        "وقت خالی",
+        "وقت های خالی",
+        "وقت‌های خالی",
+        "زمان آزاد",
+        "زمان های آزاد",
+        "زمان‌های آزاد",
+    }
+    stylist_booking_phrases = {
+        "لینک رزرو",
+        "لینک رزرو من",
+        "رزرو من",
+    }
+    manager_summary_phrases = {
+        "خلاصه امروز",
+        "خلاصه سالن",
+        "وضعیت امروز سالن",
+        "وضعیت سالن",
+        "گزارش امروز",
+    }
+    manager_request_phrases = {
+        "درخواست همکاری",
+        "درخواست های همکاری",
+        "درخواست‌های همکاری",
+        "همکاری های جدید",
+        "همکاری‌های جدید",
+    }
+    manager_shift_phrases = {
+        "شیفت و مرخصی",
+        "درخواست مرخصی",
+        "مرخصی ها",
+        "مرخصی‌ها",
+        "درخواست برنامه کاری",
+        "برنامه کاری تیم",
+    }
+
+    if normalized_text in (
+        stylist_today_phrases | stylist_slot_phrases | stylist_booking_phrases
+        | manager_summary_phrases | manager_request_phrases | manager_shift_phrases
+    ):
+        user = _identity_user(identity)
+        if not user:
+            _send(
+                client,
+                provider=provider,
+                identity=identity,
+                chat_id=chat_id,
+                text=disconnected_required_text(),
+                reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
+            )
+            return "operator_text_requires_connection"
+
+        from apps.messaging.roles import BotRoleKey, detect_user_bot_roles
+
+        context = detect_user_bot_roles(user)
+        if normalized_text in stylist_today_phrases and context.has_role(BotRoleKey.STYLIST):
+            from apps.messaging.stylist_bot import render_stylist_today
+
+            text, markup = render_stylist_today(
+                user, base_url, provider=provider, identity=identity
+            )
+            result_key = "stylist_today_text"
+        elif normalized_text in stylist_slot_phrases and context.has_role(BotRoleKey.STYLIST):
+            from apps.messaging.stylist_bot import render_stylist_available_slots
+
+            text, markup = render_stylist_available_slots(user, base_url)
+            result_key = "stylist_slots_text"
+        elif normalized_text in stylist_booking_phrases and context.has_role(BotRoleKey.STYLIST):
+            from apps.messaging.stylist_bot import render_stylist_booking_link
+
+            text, markup = render_stylist_booking_link(user, base_url)
+            result_key = "stylist_booking_link_text"
+        elif normalized_text in (manager_summary_phrases | manager_request_phrases | manager_shift_phrases) and context.has_role(BotRoleKey.MANAGER):
+            from apps.messaging.manager_bot import (
+                manager_salons,
+                render_manager_pending_requests,
+                render_manager_shifts_overview,
+                render_manager_today_summary,
+            )
+
+            salons = manager_salons(user)
+            if len(salons) != 1:
+                text, markup = menu_for_role(base_url, user, BotRoleKey.MANAGER)
+                result_key = "manager_text_choose_salon"
+            else:
+                salon_id = salons[0].pk
+                if normalized_text in manager_summary_phrases:
+                    text, markup = render_manager_today_summary(
+                        user, base_url, salon_id=salon_id, provider=provider, identity=identity
+                    )
+                    result_key = "manager_summary_text"
+                elif normalized_text in manager_request_phrases:
+                    text, markup = render_manager_pending_requests(
+                        user, base_url, salon_id=salon_id, provider=provider, identity=identity
+                    )
+                    result_key = "manager_requests_text"
+                else:
+                    text, markup = render_manager_shifts_overview(
+                        user, base_url, salon_id=salon_id, provider=provider, identity=identity
+                    )
+                    result_key = "manager_shifts_text"
+        else:
+            text, markup = menu_for_user(base_url, user)
+            result_key = "operator_text_wrong_role"
+
+        _send(
+            client,
+            provider=provider,
+            identity=identity,
+            chat_id=chat_id,
+            text=text,
+            reply_markup=markup,
+        )
+        return result_key
+
     if normalized_text in {
         "تبلیغ",
         "استوری",
@@ -733,7 +1035,10 @@ def handle_bale_update_stage10(
                 identity=identity,
                 chat_id=chat_id,
                 text=disconnected_required_text(),
-                reply_markup=guest_main_menu(base_url),
+                reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
             )
             return "promotion_requires_connection"
 
@@ -783,15 +1088,64 @@ def handle_bale_update_stage10(
             base_url=base_url,
         )
 
-    return "ignored_unknown_message"
+    # Commands, callbacks and authenticated menu flows above retain priority.
+    loomi_reply = answer_loomi_message(
+        identity=identity, provider=provider, text=parsed.text, base_url=base_url,
+    ) if parsed.raw_chat.get("type", "private") == "private" else None
+    if loomi_reply:
+        _send(client, provider=provider, identity=identity, chat_id=chat_id,
+              text=loomi_reply["text"], reply_markup=loomi_reply.get("reply_markup"))
+        return "loomi_message"
+
+    user = _identity_user(identity)
+    if user:
+        text, markup = menu_for_user(base_url, user)
+        text = f"این پیام را متوجه نشدم. از گزینه‌های زیر انتخاب کن.\n\n{text}"
+        _send(
+            client,
+            provider=provider,
+            identity=identity,
+            chat_id=chat_id,
+            text=text,
+            reply_markup=markup,
+        )
+        return "unknown_message_menu"
+
+    _send(
+        client,
+        provider=provider,
+        identity=identity,
+        chat_id=chat_id,
+        text="این پیام را متوجه نشدم. از گزینه‌های زیر انتخاب کن.",
+        reply_markup=guest_main_menu(
+                base_url,
+                provider_key=str(getattr(provider, "key", "bale") or "bale"),
+            ),
+    )
+    return "unknown_guest_message_menu"
 
 
 def handle_bale_update_stage11(
-    *, parsed: ParsedBaleUpdate, identity, provider, base_url: str = ""
+    *, parsed: ParsedBaleUpdate, identity, provider, base_url: str = "", client=None
 ) -> str:
-    return handle_bale_update_stage10(
-        parsed=parsed, identity=identity, provider=provider, base_url=base_url
+    # Create the client here (rather than only inside stage10) so the outer
+    # boundary can inspect whether a user-visible outbound send failed.
+    active_client = client or BaleBotClient()
+    if hasattr(active_client, "_loomera_outbound_failure"):
+        delattr(active_client, "_loomera_outbound_failure")
+    result = handle_bale_update_stage10(
+        parsed=parsed,
+        identity=identity,
+        provider=provider,
+        base_url=base_url,
+        client=active_client,
     )
+    failure = getattr(active_client, "_loomera_outbound_failure", None)
+    if isinstance(failure, dict):
+        status = str(failure.get("status") or "failed")
+        error = str(failure.get("error") or "outbound_delivery_failed")[:160]
+        return f"outbound_failed:{result}:{status}:{error}"
+    return result
 
 
 # Backward-compatible aliases kept for imports created in previous stages.

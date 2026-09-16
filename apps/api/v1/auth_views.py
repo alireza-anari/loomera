@@ -1,4 +1,5 @@
 from __future__ import annotations
+from apps.main.ui_feedback import user_error_message
 
 import json
 
@@ -232,7 +233,7 @@ class ApiOtpRequestAPIView(APIView):
         except ValueError as exc:
             return api_error(
                 "invalid_mobile_number",
-                str(exc) or "شماره موبایل معتبر نیست.",
+                user_error_message(exc, "شماره موبایل معتبر نیست."),
                 status=400,
             )
 
@@ -359,7 +360,7 @@ class ApiOtpVerifyAPIView(APIView):
         except ValueError as exc:
             return api_error(
                 "invalid_mobile_number",
-                str(exc) or "شماره موبایل معتبر نیست.",
+                user_error_message(exc, "شماره موبایل معتبر نیست."),
                 status=400,
             )
 

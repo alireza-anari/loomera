@@ -456,7 +456,7 @@
         renderAvailability([], "", "", false);
         timeEmpty?.classList.remove("hidden");
         if (timeEmpty) {
-          timeEmpty.textContent = error.message || "بررسی زمان‌های آزاد ممکن نشد.";
+          timeEmpty.textContent = window.LoomeraFeedback?.safeMessage?.(error.message, "error") || "بررسی زمان‌های آزاد ممکن نشد.";
         }
       } finally {
         if (serial === requestSerial) loadingLabel?.classList.add("hidden");
