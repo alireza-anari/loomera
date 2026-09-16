@@ -4,6 +4,7 @@ from pathlib import Path
 from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
+import re
 
 from apps.dashboards.views import (
     _apply_stylist_lifecycle_action,
@@ -75,10 +76,7 @@ class StylistFastFlowBackendTests(Stage1DomainFactoryMixin, TestCase):
     def test_today_happy_path_exposes_start_not_confirm_or_arrival(self):
         _, detail = self.make_pending_today()
 
-        keys = [
-            item["key"]
-            for item in _get_allowed_stylist_lifecycle_actions(detail)
-        ]
+        keys = [item["key"] for item in _get_allowed_stylist_lifecycle_actions(detail)]
 
         self.assertIn("start_service", keys)
         self.assertIn("reject", keys)
@@ -121,9 +119,13 @@ class StylistFastFlowBackendTests(Stage1DomainFactoryMixin, TestCase):
         order.selected_payment_method = "pay_in_salon"
         order.save(update_fields=["selected_payment_method", "update_date"])
 
-        _apply_stylist_lifecycle_action(detail, "start_service", actor=self.stylist.user)
+        _apply_stylist_lifecycle_action(
+            detail, "start_service", actor=self.stylist.user
+        )
         detail.refresh_from_db()
-        _apply_stylist_lifecycle_action(detail, "complete_service", actor=self.stylist.user)
+        _apply_stylist_lifecycle_action(
+            detail, "complete_service", actor=self.stylist.user
+        )
         detail.refresh_from_db()
         order.refresh_from_db()
 
@@ -143,9 +145,13 @@ class StylistFastFlowBackendTests(Stage1DomainFactoryMixin, TestCase):
         self.assertTrue(order.is_paid)
         self.assertTrue(order.is_finally)
         self.assertEqual(order.status, "completed")
-        payment = order.payment_order.filter(
-            provider="manual", meta__source="pay_in_salon_cash"
-        ).order_by("-id").first()
+        payment = (
+            order.payment_order.filter(
+                provider="manual", meta__source="pay_in_salon_cash"
+            )
+            .order_by("-id")
+            .first()
+        )
         self.assertIsNotNone(payment)
         self.assertTrue(payment.is_finally)
         self.assertEqual(payment.state, "success")
@@ -177,9 +183,9 @@ class StylistFastFlowBackendTests(Stage1DomainFactoryMixin, TestCase):
 class StylistFastFlowStaticTests(TestCase):
     def test_today_surfaces_show_actions_without_opening_detail(self):
         base = Path(settings.BASE_DIR)
-        home = (
-            base / "templates/dashboards/stylist_dashboard.html"
-        ).read_text(encoding="utf-8")
+        home = (base / "templates/dashboards/stylist_dashboard.html").read_text(
+            encoding="utf-8"
+        )
         appointments = (
             base / "templates/dashboards/stylist_appointments.html"
         ).read_text(encoding="utf-8")
@@ -192,13 +198,13 @@ class StylistFastFlowStaticTests(TestCase):
             self.assertIn('data-lm-form-ux="off"', template)
 
     def test_happy_path_action_builder_has_no_manual_confirm_or_arrival(self):
-        views = (
-            Path(settings.BASE_DIR) / "apps/dashboards/views.py"
-        ).read_text(encoding="utf-8")
+        views = (Path(settings.BASE_DIR) / "apps/dashboards/views.py").read_text(
+            encoding="utf-8"
+        )
 
-        allowed_block = views.split(
-            "def _get_allowed_stylist_lifecycle_actions", 1
-        )[1].split("def _apply_stylist_lifecycle_action", 1)[0]
+        allowed_block = views.split("def _get_allowed_stylist_lifecycle_actions", 1)[
+            1
+        ].split("def _apply_stylist_lifecycle_action", 1)[0]
 
         self.assertNotIn('"key": "confirm"', allowed_block)
         self.assertNotIn('"key": "arrived"', allowed_block)
@@ -207,20 +213,20 @@ class StylistFastFlowStaticTests(TestCase):
         self.assertIn('"key": "complete_service"', allowed_block)
 
     def test_completion_attempts_financial_finalization_automatically(self):
-        views = (
-            Path(settings.BASE_DIR) / "apps/dashboards/views.py"
-        ).read_text(encoding="utf-8")
+        views = (Path(settings.BASE_DIR) / "apps/dashboards/views.py").read_text(
+            encoding="utf-8"
+        )
 
-        complete_block = views.split(
-            'if action == "complete_service":', 1
-        )[1].split('raise ValidationError("این عملیات معتبر نیست.")', 1)[0]
+        complete_block = views.split('if action == "complete_service":', 1)[1].split(
+            'raise ValidationError("این عملیات معتبر نیست.")', 1
+        )[0]
         self.assertIn("finalize_order_financials(", complete_block)
         self.assertIn("Automatic financial finalization failed", complete_block)
 
     def test_customer_booking_copy_no_longer_promises_manual_confirmation(self):
-        lifecycle = (
-            Path(settings.BASE_DIR) / "apps/orders/lifecycle.py"
-        ).read_text(encoding="utf-8")
+        lifecycle = (Path(settings.BASE_DIR) / "apps/orders/lifecycle.py").read_text(
+            encoding="utf-8"
+        )
 
         self.assertIn(
             "قطعی ثبت شد و در برنامه کاری متخصص قرار گرفت",
@@ -232,19 +238,20 @@ class StylistFastFlowStaticTests(TestCase):
         )
 
     def test_dashboard_manual_bookings_create_confirmed_details(self):
-        views = (
-            Path(settings.BASE_DIR) / "apps/dashboards/views.py"
-        ).read_text(encoding="utf-8")
+        views = (Path(settings.BASE_DIR) / "apps/dashboards/views.py").read_text(
+            encoding="utf-8"
+        )
 
-        self.assertGreaterEqual(
-            views.count(
-                "confirmation_status=OrderDetail.ConfirmationStatus.CONFIRMED"
-            ),
-            2,
+        confirmed_status_matches = re.findall(
+            r"confirmation_status\s*=\s*\(?\s*"
+            r"OrderDetail\.ConfirmationStatus\.CONFIRMED",
+            views,
         )
-        self.assertGreaterEqual(
-            views.count(
-                "lifecycle_status=OrderDetail.ServiceLifecycleStatus.CONFIRMED"
-            ),
-            2,
+        confirmed_lifecycle_matches = re.findall(
+            r"lifecycle_status\s*=\s*\(?\s*"
+            r"OrderDetail\.ServiceLifecycleStatus\.CONFIRMED",
+            views,
         )
+
+        self.assertGreaterEqual(len(confirmed_status_matches), 2)
+        self.assertGreaterEqual(len(confirmed_lifecycle_matches), 2)
