@@ -12,36 +12,14 @@ class LiaraDeploymentConfigTests(SimpleTestCase):
         config_path = Path(settings.BASE_DIR) / "liara.json"
         return json.loads(config_path.read_text(encoding="utf-8"))
 
-    def test_health_check_is_environment_neutral(self):
+    def test_custom_liara_health_check_is_disabled(self):
         config = self._load_config()
-        command = config["healthCheck"]["command"]
-
-        self.assertIn(
-            "-H 'Host: localhost'",
-            command,
-        )
-        self.assertIn(
-            "http://127.0.0.1:8000/health/?live=1",
-            command,
-        )
 
         self.assertNotIn(
-            "staging.loomera.ir",
-            command,
-        )
-
-        self.assertNotIn(
-            "-H 'Host: loomera.ir'",
-            command,
-        )
-
-    def test_health_check_keeps_forwarded_https_header(self):
-        config = self._load_config()
-        command = config["healthCheck"]["command"]
-
-        self.assertIn(
-            "-H 'X-Forwarded-Proto: https'",
-            command,
+            "healthCheck",
+            config,
+            "Custom Liara healthCheck must remain disabled; "
+            "it caused production releases to be marked unhealthy.",
         )
 
     def test_notification_delivery_cron_policy(self):
