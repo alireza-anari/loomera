@@ -94,10 +94,10 @@ jobs:
         run: |
           echo "=== liara.json ==="
           cat liara.json || true
-      
+
           echo "=== liara_pre_start.sh ==="
           cat liara_pre_start.sh || true
-      
+
       - name: Deploy to Liara
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
@@ -106,4 +106,4 @@ jobs:
           liara deploy \
             --app="$LIARA_APP_NAME" \
             --api-token="$LIARA_TOKEN" \
-            --debug
+            --no-app-logs
