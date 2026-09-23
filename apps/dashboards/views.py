@@ -57,6 +57,7 @@ from apps.accounts.models import (
     WorkSamples,
 )
 from apps.orders.booking_utils import (
+    bookable_stylists_for_salon,
     get_available_slots_for_service,
     get_blocking_order_details_queryset,
 )
@@ -3789,13 +3790,8 @@ def _build_created_service_setup_handoff(*, request, salon):
     if service is None:
         return None
 
-    has_public_active_stylist = service.stylists.filter(
-        stylists_of_salon=salon,
-        is_active=True,
-        public_visibility__in=(
-            Stylist.PublicVisibility.PUBLIC,
-            Stylist.PublicVisibility.SALON_ONLY,
-        ),
+    has_active_stylist = bookable_stylists_for_salon(salon=salon).filter(
+        services_of_stylist=service,
     ).exists()
 
     edit_service_url = reverse(
@@ -3806,13 +3802,13 @@ def _build_created_service_setup_handoff(*, request, salon):
     scheduled_shifts_url = reverse("dashboards:scheduled_shifts")
     service_menu_url = reverse("dashboards:service_menu")
 
-    if has_public_active_stylist:
+    if has_active_stylist:
         return {
             "service_id": service.pk,
             "service_name": service.service_name,
             "title": "خدمت اضافه شد؛ حالا برنامه کاری را تکمیل کن",
             "description": (
-                "حداقل یک متخصص قابل‌نمایش به این خدمت متصل است. "
+                "حداقل یک متخصص فعال به این خدمت متصل است. "
                 "برای قابل رزرو شدن خدمت، برای همان متخصص در این سالن "
                 "شیفت جاری یا آینده ثبت کن."
             ),
@@ -3830,7 +3826,7 @@ def _build_created_service_setup_handoff(*, request, salon):
         "service_name": service.service_name,
         "title": "خدمت اضافه شد؛ حالا متخصص ارائه‌دهنده را مشخص کن",
         "description": (
-            "این خدمت هنوز متخصص فعال و قابل‌نمایشی ندارد. "
+            "این خدمت هنوز متخصص فعال متصل‌شده‌ای ندارد. "
             "ابتدا متخصص ارائه‌دهنده و قیمت او را به خدمت متصل کن؛ "
             "بعد از آن برنامه کاری همان متخصص را بساز."
         ),
@@ -5308,23 +5304,6 @@ def _build_created_stylist_setup_handoff(*, request, salon):
         "dismiss_url": team_member_url,
     }
 
-    if not stylist.is_visible_on_salon_pages:
-        return {
-            **base,
-            "title": "عضو اضافه شد؛ وضعیت نمایش او را بررسی کن",
-            "description": (
-                "این عضو اکنون در صفحات عمومی سالن قابل‌نمایش نیست. "
-                "برای اینکه مشتری بتواند او را هنگام رزرو انتخاب کند، "
-                "وضعیت نمایش پروفایل را اصلاح کن."
-            ),
-            "status_label": "پروفایل عمومی غیرفعال",
-            "status_tone": "warning",
-            "primary_label": "ویرایش وضعیت نمایش",
-            "primary_url": edit_url,
-            "secondary_label": "مشاهده عضو",
-            "secondary_url": overview_url,
-        }
-
     bookable_services = stylist.services_of_stylist.filter(
         services_of_salon=salon,
         is_active=True,
@@ -5380,7 +5359,7 @@ def _build_created_stylist_setup_handoff(*, request, salon):
         **base,
         "title": "راه‌اندازی اولیه عضو کامل است",
         "description": (
-            "عضو قابل‌نمایش است، خدمت قابل رزرو دارد و برنامه کاری جاری "
+            "عضو فعال است، خدمت قابل رزرو دارد و برنامه کاری جاری "
             "یا آینده برای او ثبت شده است."
         ),
         "status_label": "آماده رزرو",
@@ -7545,9 +7524,10 @@ def _build_manager_schedule_requests(salon):
 def _build_team_capacity_setup_workspace(*, salon):
     """Build persistent setup gaps for active members of one salon.
 
-    A member is considered ready for public booking only when the same active
-    and visible stylist has at least one bookable service in this salon and a
-    current or future general/service-specific schedule in the same salon.
+    A member is considered ready for salon booking only when the same active
+    stylist has at least one bookable service in this salon and a current or
+    future general/service-specific schedule in the same salon. Independent
+    resume visibility does not affect this state.
     """
     bookable_services_qs = Services.objects.filter(
         services_of_salon=salon,
@@ -7617,24 +7597,6 @@ def _build_team_capacity_setup_workspace(*, salon):
             "edit_url": edit_url,
             "regular_shift_url": regular_shift_url,
         }
-
-        if not stylist.is_visible_on_salon_pages:
-            gaps.append(
-                {
-                    **base,
-                    "key": "visibility",
-                    "title": "پروفایل برای رزرو عمومی قابل‌نمایش نیست",
-                    "description": (
-                        "وضعیت نمایش این عضو را روی «فقط در سالن‌های فعال» "
-                        "یا «عمومی در Loomera» قرار بده."
-                    ),
-                    "status_label": "نمایش غیرفعال",
-                    "status_tone": "warning",
-                    "action_label": "اصلاح وضعیت نمایش",
-                    "action_url": edit_url,
-                }
-            )
-            continue
 
         bookable_services = list(
             getattr(

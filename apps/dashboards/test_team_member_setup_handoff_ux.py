@@ -65,7 +65,7 @@ class TeamMemberSetupHandoffUxTests(
         self.assertContains(response, "اتصال خدمات عضو")
         self.assertContains(response, "data-stylist-setup-handoff")
 
-    def test_hidden_member_shows_visibility_handoff_before_services(self):
+    def test_hidden_resume_member_with_service_shows_schedule_handoff(self):
         stylist = self._activate_member(
             self.make_stylist(
                 public_visibility=Stylist.PublicVisibility.HIDDEN,
@@ -84,9 +84,12 @@ class TeamMemberSetupHandoffUxTests(
 
         handoff = response.context["stylist_setup_handoff"]
 
-        self.assertEqual(handoff["status_tone"], "warning")
-        self.assertContains(response, "وضعیت نمایش")
-        self.assertContains(response, "پروفایل عمومی غیرفعال")
+        self.assertEqual(handoff["status_tone"], "primary")
+        self.assertEqual(
+            handoff["primary_url"],
+            reverse("dashboards:scheduled_shifts"),
+        )
+        self.assertContains(response, "تنظیم برنامه کاری")
 
     def test_member_with_service_but_without_schedule_shows_schedule_handoff(self):
         stylist = self._activate_member(self.make_stylist())

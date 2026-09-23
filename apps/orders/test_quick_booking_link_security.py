@@ -128,12 +128,14 @@ class QuickBookingLinkSecurityTests(TestCase):
         self.assertEqual(response.status_code, 410)
         self.assertNotIn("stylist_selections", request.session)
 
-    def test_quick_entry_rejects_hidden_stylist(self):
+    def test_quick_entry_accepts_active_stylist_with_hidden_resume(self):
         salon = self._salon(is_active=True)
+
         stylist = self._stylist(
             mobile="09122000101",
             public_visibility=Stylist.PublicVisibility.HIDDEN,
         )
+
         salon.stylists.add(stylist)
 
         response, request = self._call_quick_entry(
@@ -145,8 +147,20 @@ class QuickBookingLinkSecurityTests(TestCase):
             }
         )
 
-        self.assertEqual(response.status_code, 410)
-        self.assertNotIn("stylist_selections", request.session)
+        self.assertEqual(response.status_code, 302)
+
+        expected_url = (
+            f"{reverse('orders:quick_link_stylist_services')}"
+            f"?salon_id={salon.pk}"
+            f"&stylist_id={stylist.user_id}"
+        )
+
+        self.assertEqual(response.url, expected_url)
+
+        self.assertNotIn(
+            "stylist_selections",
+            request.session,
+        )
 
     def test_quick_entry_rejects_service_not_offered_by_stylist(self):
         salon = self._salon(is_active=True)
@@ -223,13 +237,18 @@ class QuickBookingLinkSecurityTests(TestCase):
         self.assertIn("stylist_selections", request.session)
         self.assertIn("datetime_selections", request.session)
 
-    def test_quick_link_stylist_services_rejects_hidden_stylist(self):
+    def test_quick_link_stylist_services_accepts_active_stylist_with_hidden_resume(
+        self,
+    ):
         salon = self._salon(is_active=True)
         stylist = self._stylist(
             mobile="09122000105",
             public_visibility=Stylist.PublicVisibility.HIDDEN,
         )
         salon.stylists.add(stylist)
+        group = self._group()
+        service = self._service("خدمت تست رزرو", group=group)
+        self._connect(salon=salon, service=service, stylist=stylist)
 
         response = self.client.get(
             reverse("orders:quick_link_stylist_services"),
@@ -239,7 +258,7 @@ class QuickBookingLinkSecurityTests(TestCase):
             },
         )
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
 
     def test_quick_link_stylist_services_post_rejects_private_service(self):
         salon = self._salon(is_active=True)

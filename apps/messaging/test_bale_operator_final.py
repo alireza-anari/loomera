@@ -179,6 +179,7 @@ class BaleOperatorFinalTests(TestCase):
         self.assertIn("نیازمند پیگیری عملیاتی", text)
         self.assertNotIn("منتظر تأیید متخصص", text)
 
+    @override_settings(MESSAGING_ENABLED=True, BALE_BOT_ENABLED=True)
     def test_staff_review_notification_is_queued_for_stylist_on_bale(self):
         leave = StaffLeaveRequest.objects.create(
             salon=self.salon,
@@ -215,6 +216,7 @@ class BaleOperatorFinalTests(TestCase):
         self.assertIn("درخواست مرخصی شما تأیید شد", text)
         self.assertIn("سالن تست نهایی بله", text)
 
+    @override_settings(MESSAGING_ENABLED=True, BALE_BOT_ENABLED=True)
     def test_booking_created_queues_customer_bale_with_useful_details(self):
         order, _ = self._appointment()
 

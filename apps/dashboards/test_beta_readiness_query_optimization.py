@@ -1,10 +1,14 @@
-from django.test import TestCase
+from datetime import time, timedelta
 
+from django.test import TestCase
+from django.utils import timezone
+
+from apps.accounts.models import Stylist
 from apps.dashboards.beta_readiness import (
     serialize_beta_salon_readiness,
     with_beta_readiness_annotations,
 )
-from apps.salons.models import Salon
+from apps.salons.models import Salon, SalonMembership, SalonMembershipStatus
 from tests_stage1_helpers import Stage1DomainFactoryMixin
 
 
@@ -64,3 +68,112 @@ class BetaReadinessQueryOptimizationTests(
         self.assertEqual(result["salon_id"], self.salon.pk)
         self.assertIn("beta_ready", result)
         self.assertIn("has_bookable_path", result)
+
+    def test_paused_membership_is_not_bookable_in_fallback_or_annotations(self):
+        stylist = self.make_stylist(public_visibility=Stylist.PublicVisibility.HIDDEN)
+        service = self.make_service()
+        self.connect_service(salon=self.salon, stylist=stylist, service=service)
+        membership = SalonMembership.objects.create(
+            salon=self.salon,
+            stylist=stylist,
+            status=SalonMembershipStatus.PAUSED,
+        )
+        self.add_schedule(
+            stylist=stylist,
+            salon=self.salon,
+            service=service,
+            date_value=timezone.localdate() + timedelta(days=1),
+            start=time(10, 0),
+            end=time(12, 0),
+        )
+
+        fallback = serialize_beta_salon_readiness(
+            Salon.objects.get(pk=self.salon.pk)
+        )
+        annotated = serialize_beta_salon_readiness(
+            with_beta_readiness_annotations(
+                Salon.objects.filter(pk=self.salon.pk)
+            ).get()
+        )
+
+        self.assertFalse(fallback["has_bookable_path"])
+        self.assertFalse(annotated["has_bookable_path"])
+        self.assertEqual(annotated, fallback)
+
+        membership.status = SalonMembershipStatus.ACTIVE
+        membership.save(update_fields=["status"])
+
+        active_fallback = serialize_beta_salon_readiness(
+            Salon.objects.get(pk=self.salon.pk)
+        )
+        active_annotated = serialize_beta_salon_readiness(
+            with_beta_readiness_annotations(
+                Salon.objects.filter(pk=self.salon.pk)
+            ).get()
+        )
+
+        self.assertTrue(active_fallback["has_bookable_path"])
+        self.assertTrue(active_annotated["has_bookable_path"])
+        self.assertEqual(active_annotated, active_fallback)
+
+    def test_schedule_for_invalid_service_cannot_borrow_another_valid_service(self):
+        stylist = self.make_stylist(public_visibility=Stylist.PublicVisibility.HIDDEN)
+        invalid_service = self.make_service(is_active=False)
+        valid_service = self.make_service()
+        self.connect_service(
+            salon=self.salon,
+            stylist=stylist,
+            service=invalid_service,
+        )
+        self.connect_service(
+            salon=self.salon,
+            stylist=stylist,
+            service=valid_service,
+        )
+        self.add_schedule(
+            stylist=stylist,
+            salon=self.salon,
+            service=invalid_service,
+            date_value=timezone.localdate() + timedelta(days=1),
+            start=time(10, 0),
+            end=time(12, 0),
+        )
+
+        fallback = serialize_beta_salon_readiness(
+            Salon.objects.get(pk=self.salon.pk)
+        )
+        annotated = serialize_beta_salon_readiness(
+            with_beta_readiness_annotations(
+                Salon.objects.filter(pk=self.salon.pk)
+            ).get()
+        )
+
+        self.assertFalse(fallback["has_bookable_path"])
+        self.assertFalse(annotated["has_bookable_path"])
+        self.assertEqual(annotated, fallback)
+
+    def test_zero_base_price_with_stylist_price_remains_a_bookable_path(self):
+        stylist = self.make_stylist(public_visibility=Stylist.PublicVisibility.HIDDEN)
+        service = self.make_service(base_price=0)
+        self.connect_service(salon=self.salon, stylist=stylist, service=service)
+        self.add_schedule(
+            stylist=stylist,
+            salon=self.salon,
+            service=service,
+            date_value=timezone.localdate() + timedelta(days=1),
+            start=time(10, 0),
+            end=time(12, 0),
+        )
+
+        fallback = serialize_beta_salon_readiness(
+            Salon.objects.get(pk=self.salon.pk)
+        )
+        annotated = serialize_beta_salon_readiness(
+            with_beta_readiness_annotations(
+                Salon.objects.filter(pk=self.salon.pk)
+            ).get()
+        )
+
+        self.assertTrue(fallback["has_bookable_path"])
+        self.assertTrue(annotated["has_bookable_path"])
+        self.assertEqual(annotated, fallback)

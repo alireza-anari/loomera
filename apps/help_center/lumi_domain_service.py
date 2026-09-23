@@ -96,11 +96,11 @@ def _booking_scope(*, salon_id: int, service_id: int):
 
 
 def get_service_price(*, salon_id: int, service_id: int, stylist_id: int | None = None) -> dict[str, Any]:
-    from apps.help_center.actions.customer_booking import (
-        PUBLIC_BOOKING_STYLIST_VISIBILITIES,
-        _eligible_stylist,
+    from apps.help_center.actions.customer_booking import _eligible_stylist
+    from apps.orders.booking_utils import (
+        bookable_stylists_for_salon,
+        get_price_for_stylist_service,
     )
-    from apps.orders.booking_utils import get_price_for_stylist_service
 
     salon, service = _booking_scope(salon_id=salon_id, service_id=service_id)
 
@@ -115,9 +115,7 @@ def get_service_price(*, salon_id: int, service_id: int, stylist_id: int | None 
         ]
     else:
         stylists = list(
-            salon.stylists.filter(
-                is_active=True,
-                public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
+            bookable_stylists_for_salon(salon=salon).filter(
                 services_of_stylist=service,
             )
             .select_related("user")

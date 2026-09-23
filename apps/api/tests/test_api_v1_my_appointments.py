@@ -130,18 +130,43 @@ class ApiV1MyAppointmentsTests(Stage1DomainFactoryMixin, TestCase):
         payload = response.json()
 
         self.assertTrue(payload["ok"])
+        self.assertEqual(set(payload), {"ok", "data", "meta"})
+        self.assertEqual(payload["meta"], {"api_version": "v1"})
+        self.assertEqual(set(payload["data"]), {"results", "pagination"})
+        self.assertEqual(
+            set(payload["data"]["pagination"]),
+            {"limit", "offset", "count", "total_count", "has_next"},
+        )
         self.assertEqual(payload["data"]["pagination"]["total_count"], 1)
         self.assertEqual(len(payload["data"]["results"]), 1)
 
         item = payload["data"]["results"][0]
+        self.assertEqual(
+            set(item),
+            {
+                "id",
+                "order",
+                "salon",
+                "service",
+                "stylist",
+                "slot",
+                "status",
+                "price",
+                "payment",
+            },
+        )
         self.assertEqual(item["id"], appointment.pk)
         self.assertEqual(item["order"]["id"], order.pk)
         self.assertEqual(item["salon"]["id"], salon.pk)
         self.assertEqual(item["service"]["id"], service.pk)
         self.assertEqual(item["stylist"]["id"], stylist.pk)
+        appointment_ids = {
+            result["id"] for result in payload["data"]["results"]
+        }
+        self.assertEqual(appointment_ids, {appointment.pk})
+        self.assertNotIn(other_appointment.pk, appointment_ids)
 
         body = response.content.decode("utf-8")
-        self.assertNotIn(str(other_appointment.pk), body)
         self.assertNotIn("09128880001", body)
         self.assertNotIn("my-appointments-customer@example.com", body)
         self.assertNotIn("09128880002", body)

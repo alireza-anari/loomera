@@ -1024,17 +1024,19 @@ class DetailSalonView(View):
             if not profile_access.allowed:
                 continue
             stylist.salon_membership = profile_access.membership
-            stylist.salon_profile_url = reverse(
-                "salons:stylist_profile_slug",
-                args=[salon.slug, stylist.pk],
+            stylist.salon_profile_url = (
+                reverse("salons:stylist_profile_slug", args=[salon.slug, stylist.pk])
+                if stylist.is_visible_on_salon_pages
+                else ""
             )
             stylist.profile_image_url = _safe_media_url(stylist.profile_image)
 
             public_samples = []
-            for sample in stylist.work_samples_of_stylist.all():
-                sample.image_url = _safe_media_url(sample.sample_image)
-                if sample.image_url:
-                    public_samples.append(sample)
+            if stylist.is_visible_on_salon_pages:
+                for sample in stylist.work_samples_of_stylist.all():
+                    sample.image_url = _safe_media_url(sample.sample_image)
+                    if sample.image_url:
+                        public_samples.append(sample)
 
             stylist.public_work_samples = public_samples
             salon_portfolio_count += len(stylist.public_work_samples)
@@ -1302,7 +1304,7 @@ class SalonStylistProfileView(View):
             is_active=True,
         )
         access = can_show_stylist_on_salon_profile(salon=salon, stylist=stylist)
-        if not access.allowed:
+        if not access.allowed or not stylist.is_visible_on_salon_pages:
             raise Http404("این پروفایل در این مجموعه قابل نمایش نیست.")
 
         if request.user.is_authenticated:

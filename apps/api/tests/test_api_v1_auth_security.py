@@ -139,11 +139,11 @@ class ApiV1AuthSecurityRegressionTests(Stage1DomainFactoryMixin, TestCase):
         self.assertIn(me_response.status_code, [401, 403])
 
     def test_otp_for_one_mobile_cannot_login_another_mobile(self):
-        first_user = self._make_existing_user(
+        self._make_existing_user(
             mobile_number="09121234567",
             email="first-auth-security@example.com",
         )
-        second_user = self._make_existing_user(
+        self._make_existing_user(
             mobile_number="09129876543",
             email="second-auth-security@example.com",
         )
@@ -153,14 +153,22 @@ class ApiV1AuthSecurityRegressionTests(Stage1DomainFactoryMixin, TestCase):
         response = self._verify_otp(mobile_number="09129876543", code="123456")
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["error"]["code"], "otp_not_found")
+        payload = response.json()
+        self.assertEqual(set(payload), {"ok", "error", "meta"})
+        self.assertFalse(payload["ok"])
+        self.assertEqual(payload["meta"], {"api_version": "v1"})
+        self.assertEqual(
+            payload["error"],
+            {
+                "code": "otp_not_found",
+                "message": "کد تایید معتبر یا فعالی برای این شماره وجود ندارد.",
+            },
+        )
 
         me_response = self.client.get(self.me_url)
         self.assertIn(me_response.status_code, [401, 403])
 
         body = response.content.decode("utf-8")
-        self.assertNotIn(str(first_user.pk), body)
-        self.assertNotIn(str(second_user.pk), body)
         self.assertNotIn("first-auth-security@example.com", body)
         self.assertNotIn("second-auth-security@example.com", body)
 
@@ -230,13 +238,22 @@ class ApiV1AuthSecurityRegressionTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         payload = response.json()
 
+        self.assertEqual(set(payload), {"ok", "data", "meta"})
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["meta"], {"api_version": "v1"})
         self.assertTrue(payload["data"]["logged_out"])
         self.assertTrue(payload["data"]["was_authenticated"])
+        self.assertEqual(
+            set(payload["data"]),
+            {"logged_out", "was_authenticated", "session"},
+        )
+        self.assertEqual(set(payload["data"]["session"]), {"active", "type"})
+        self.assertFalse(payload["data"]["session"]["active"])
+        self.assertEqual(payload["data"]["session"]["type"], "django_session")
 
         body = response.content.decode("utf-8")
         self.assertNotIn("09121234567", body)
         self.assertNotIn("logout-private-security@example.com", body)
-        self.assertNotIn(str(user.pk), body)
 
     def test_logout_only_clears_current_client_session(self):
         first_user = self._make_existing_user(

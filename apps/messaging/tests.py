@@ -395,6 +395,7 @@ class MessagingNotificationDeliveryStage5Tests(TestCase):
         )
 
 
+@override_settings(MESSAGING_ACTIONS_ENABLED=True)
 class MessagingActionDispatcherStage6Tests(TestCase):
     def setUp(self):
         self.providers = ensure_default_providers()
@@ -741,6 +742,11 @@ class MessagingCustomerBotStage9Tests(TestCase):
         self.assertIn("پرداخت در سالن", text)
         self.assertIn("جزئیات نوبت", str(markup))
 
+    @override_settings(
+        MESSAGING_ENABLED=True,
+        BALE_BOT_ENABLED=True,
+        LOOMERA_SEND_NOTIFICATIONS_IMMEDIATELY=False,
+    )
     def test_customer_booking_notification_queues_simple_bale_delivery(self):
         from apps.notifications.services import create_notification
 

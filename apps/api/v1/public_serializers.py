@@ -109,11 +109,14 @@ def serialize_public_salon_detail(
 
 
 def serialize_public_stylist(stylist, *, request=None) -> dict[str, Any]:
+    public_headline = (
+        stylist.resume_headline if stylist.is_visible_on_salon_pages else ""
+    )
     return {
         "id": stylist.pk,
         "display_name": stylist.professional_display_name,
         "expert": stylist.expert or "",
-        "headline": stylist.resume_headline or stylist.expert or "",
+        "headline": public_headline or stylist.expert or "",
         "is_verified_professional": bool(stylist.is_verified_professional),
         "profile_image_url": _safe_media_url(stylist.profile_image, request=request),
     }

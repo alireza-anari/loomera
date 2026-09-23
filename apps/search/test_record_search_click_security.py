@@ -29,6 +29,7 @@ class RecordSearchClickSecurityTests(TestCase):
         self.assertEqual(response.status_code, 413)
         self.assertEqual(response.json()["error"], "payload_too_large")
 
+    @override_settings(ALLOWED_HOSTS=["testserver", "127.0.0.1"])
     def test_record_search_click_rejects_external_target_url(self):
         response = self.client.post(
             reverse("search:record_search_click"),
