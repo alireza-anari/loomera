@@ -149,10 +149,12 @@ class ApiV1NextAvailableTests(Stage1DomainFactoryMixin, TestCase):
         self.assertNotIn("09127770002", body)
         self.assertNotIn("second-next@example.com", body)
 
-    def test_next_available_hides_hidden_stylist(self):
-        salon, service, visible_stylist = self._setup_base()
+    def test_next_available_includes_hidden_resume_stylist(self):
+        salon, service, _visible_stylist = self._setup_base()
         hidden_stylist = self.make_stylist(
             public_visibility=Stylist.PublicVisibility.HIDDEN,
+            resume_headline="PRIVATE_HIDDEN_NEXT_HEADLINE",
+            resume_summary="PRIVATE_HIDDEN_NEXT_SUMMARY",
         )
         self.connect_service(salon=salon, stylist=hidden_stylist, service=service)
 
@@ -179,13 +181,24 @@ class ApiV1NextAvailableTests(Stage1DomainFactoryMixin, TestCase):
         payload = response.json()
 
         stylist_ids = {item["id"] for item in payload["data"]["stylists"]}
-        self.assertNotIn(hidden_stylist.pk, stylist_ids)
-        self.assertIsNone(payload["data"]["next_available"])
+        self.assertIn(hidden_stylist.pk, stylist_ids)
+        self.assertEqual(
+            payload["data"]["next_available"]["stylist"]["id"],
+            hidden_stylist.pk,
+        )
+        self.assertEqual(payload["data"]["next_available"]["start_time"], "09:00")
+        self.assertTrue(payload["data"]["summary"]["has_available_slot"])
 
-    def test_next_available_returns_404_for_explicit_hidden_stylist(self):
-        salon, service, visible_stylist = self._setup_base()
+        body = response.content.decode("utf-8")
+        self.assertNotIn("PRIVATE_HIDDEN_NEXT_HEADLINE", body)
+        self.assertNotIn("PRIVATE_HIDDEN_NEXT_SUMMARY", body)
+
+    def test_explicit_hidden_resume_stylist_without_schedule_returns_null(self):
+        salon, service, _visible_stylist = self._setup_base()
         hidden_stylist = self.make_stylist(
             public_visibility=Stylist.PublicVisibility.HIDDEN,
+            resume_headline="PRIVATE_EXPLICIT_NEXT_HEADLINE",
+            resume_summary="PRIVATE_EXPLICIT_NEXT_SUMMARY",
         )
         self.connect_service(salon=salon, stylist=hidden_stylist, service=service)
 
@@ -201,8 +214,18 @@ class ApiV1NextAvailableTests(Stage1DomainFactoryMixin, TestCase):
             },
         )
 
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json()["error"]["code"], "stylist_not_found")
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertIsNone(payload["data"]["next_available"])
+        self.assertFalse(payload["data"]["summary"]["has_available_slot"])
+        self.assertEqual(payload["data"]["summary"]["total_stylists"], 1)
+        self.assertEqual(len(payload["data"]["stylists"]), 1)
+        self.assertEqual(payload["data"]["stylists"][0]["id"], hidden_stylist.pk)
+        self.assertIsNone(payload["data"]["stylists"][0]["next_available"])
+
+        body = response.content.decode("utf-8")
+        self.assertNotIn("PRIVATE_EXPLICIT_NEXT_HEADLINE", body)
+        self.assertNotIn("PRIVATE_EXPLICIT_NEXT_SUMMARY", body)
 
     def test_next_available_ignores_blocked_slot_and_finds_later_slot(self):
         salon, service, stylist = self._setup_base()

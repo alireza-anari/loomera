@@ -50,7 +50,7 @@ class TeamCapacitySetupWorkspaceTests(
             and item["key"] == key
         )
 
-    def test_hidden_member_is_reported_as_visibility_gap(self):
+    def test_hidden_resume_member_is_reported_by_next_real_service_gap(self):
         stylist = self._activate_member(
             self.make_stylist(
                 public_visibility=Stylist.PublicVisibility.HIDDEN,
@@ -62,13 +62,16 @@ class TeamCapacitySetupWorkspaceTests(
         self.assertEqual(response.status_code, 200)
 
         workspace = response.context["team_capacity_setup"]
-        gap = self._gap_for(workspace, stylist, "visibility")
+        self._gap_for(workspace, stylist, "service")
+        member_gap_keys = {
+            item["key"]
+            for item in workspace["gaps"]
+            if item["stylist_id"] == stylist.pk
+        }
 
-        self.assertEqual(gap["action_url"], reverse(
-            "dashboards:edit_stylist",
-            kwargs={"stylist_id": stylist.user_id},
-        ))
-        self.assertContains(response, 'data-team-capacity-gap="visibility"')
+        self.assertNotIn("visibility", member_gap_keys)
+        self.assertContains(response, "بدون خدمت")
+        self.assertNotContains(response, 'data-team-capacity-gap="visibility"')
 
     def test_visible_member_without_bookable_service_is_reported(self):
         stylist = self._activate_member(self.make_stylist())

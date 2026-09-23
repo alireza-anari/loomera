@@ -108,7 +108,9 @@ class ApiV1PublicCatalogTests(Stage1DomainFactoryMixin, TestCase):
         self.assertNotIn(inactive_service.pk, service_ids)
         self.assertNotIn(private_service.pk, service_ids)
 
-    def test_public_salon_stylists_hide_private_inactive_and_foreign_stylists(self):
+    def test_public_salon_stylists_include_hidden_resume_but_exclude_inactive_and_foreign(
+        self,
+    ):
         manager = self.make_salon_manager()
         salon = self.make_salon(manager=manager)
 
@@ -162,7 +164,7 @@ class ApiV1PublicCatalogTests(Stage1DomainFactoryMixin, TestCase):
         stylist_ids = {item["id"] for item in payload["data"]}
 
         self.assertIn(visible_stylist.pk, stylist_ids)
-        self.assertNotIn(hidden_stylist.pk, stylist_ids)
+        self.assertIn(hidden_stylist.pk, stylist_ids)
         self.assertNotIn(inactive_stylist.pk, stylist_ids)
         self.assertNotIn(foreign_stylist.pk, stylist_ids)
 

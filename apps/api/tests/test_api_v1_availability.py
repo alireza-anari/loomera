@@ -143,7 +143,7 @@ class ApiV1AvailabilityTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json()["error"]["code"], "service_not_found")
 
-    def test_availability_hides_hidden_inactive_and_foreign_stylists(self):
+    def test_availability_includes_hidden_resume_but_not_inactive_or_foreign(self):
         salon, service, visible_stylist, target_date = self._setup_available_stylist()
 
         hidden_stylist = self.make_stylist(
@@ -154,6 +154,8 @@ class ApiV1AvailabilityTests(Stage1DomainFactoryMixin, TestCase):
                 "email": "hidden-availability@example.com",
             },
             public_visibility=Stylist.PublicVisibility.HIDDEN,
+            resume_headline="PRIVATE_HIDDEN_AVAILABILITY_HEADLINE",
+            resume_summary="PRIVATE_HIDDEN_AVAILABILITY_SUMMARY",
         )
         inactive_stylist = self.make_stylist(
             user_kwargs={
@@ -197,20 +199,35 @@ class ApiV1AvailabilityTests(Stage1DomainFactoryMixin, TestCase):
         stylist_ids = {item["id"] for item in payload["data"]["stylists"]}
 
         self.assertIn(visible_stylist.pk, stylist_ids)
-        self.assertNotIn(hidden_stylist.pk, stylist_ids)
+        self.assertIn(hidden_stylist.pk, stylist_ids)
         self.assertNotIn(inactive_stylist.pk, stylist_ids)
         self.assertNotIn(foreign_stylist.pk, stylist_ids)
+
+        hidden_payload = next(
+            item
+            for item in payload["data"]["stylists"]
+            if item["id"] == hidden_stylist.pk
+        )
+        self.assertTrue(hidden_payload["has_available_slots"])
+        self.assertIn(
+            {"start_time": "10:00", "end_time": "10:30"},
+            hidden_payload["slots"],
+        )
 
         body = response.content.decode("utf-8")
         self.assertNotIn("09124440002", body)
         self.assertNotIn("hidden-availability@example.com", body)
+        self.assertNotIn("PRIVATE_HIDDEN_AVAILABILITY_HEADLINE", body)
+        self.assertNotIn("PRIVATE_HIDDEN_AVAILABILITY_SUMMARY", body)
         self.assertNotIn("09124440003", body)
         self.assertNotIn("inactive-availability@example.com", body)
 
-    def test_availability_for_explicit_hidden_stylist_returns_404(self):
-        salon, service, visible_stylist, target_date = self._setup_available_stylist()
+    def test_explicit_hidden_resume_stylist_without_schedule_returns_empty_slots(self):
+        salon, service, _visible_stylist, target_date = self._setup_available_stylist()
         hidden_stylist = self.make_stylist(
             public_visibility=Stylist.PublicVisibility.HIDDEN,
+            resume_headline="PRIVATE_EXPLICIT_AVAILABILITY_HEADLINE",
+            resume_summary="PRIVATE_EXPLICIT_AVAILABILITY_SUMMARY",
         )
         self.connect_service(salon=salon, stylist=hidden_stylist, service=service)
 
@@ -223,8 +240,20 @@ class ApiV1AvailabilityTests(Stage1DomainFactoryMixin, TestCase):
             },
         )
 
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json()["error"]["code"], "stylist_not_found")
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["data"]["summary"]["total_stylists"], 1)
+        self.assertEqual(payload["data"]["summary"]["total_slots"], 0)
+        self.assertEqual(len(payload["data"]["stylists"]), 1)
+
+        stylist_payload = payload["data"]["stylists"][0]
+        self.assertEqual(stylist_payload["id"], hidden_stylist.pk)
+        self.assertFalse(stylist_payload["has_available_slots"])
+        self.assertEqual(stylist_payload["slots"], [])
+
+        body = response.content.decode("utf-8")
+        self.assertNotIn("PRIVATE_EXPLICIT_AVAILABILITY_HEADLINE", body)
+        self.assertNotIn("PRIVATE_EXPLICIT_AVAILABILITY_SUMMARY", body)
 
     def test_availability_blocks_existing_booking_with_buffer(self):
         salon, service, stylist, target_date = self._setup_available_stylist()

@@ -167,7 +167,7 @@ class PublicBookingApiSecurityTests(TestCase):
         data = response.json()
 
         self.assertIn(str(public_stylist.user_id), data["schedules"])
-        self.assertNotIn(str(hidden_stylist.user_id), data["schedules"])
+        self.assertIn(str(hidden_stylist.user_id), data["schedules"])
 
     def test_availability_hides_non_catalog_service_schedule(self):
         salon = self._salon(is_active=True)
@@ -282,6 +282,6 @@ class PublicBookingApiSecurityTests(TestCase):
 
         stylist_ids = {item["id"] for item in data["stylists"]}
         self.assertIn(public_stylist.user_id, stylist_ids)
-        self.assertNotIn(hidden_stylist.user_id, stylist_ids)
+        self.assertIn(hidden_stylist.user_id, stylist_ids)
 
         self.assertEqual(data["best_available"]["id"], public_stylist.user_id)

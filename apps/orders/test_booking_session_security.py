@@ -134,7 +134,7 @@ class BookingSessionSecurityTests(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-    def test_select_stylists_post_rejects_hidden_stylist(self):
+    def test_select_stylists_post_accepts_active_stylist_with_hidden_resume(self):
         salon = self._salon(is_active=True)
         group = self._group()
         service = self._service("خدمت عمومی", group=group)
@@ -155,7 +155,7 @@ class BookingSessionSecurityTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertNotIn("stylist_selections", self.client.session)
+        self.assertIn("stylist_selections", self.client.session)
 
     def test_select_stylists_post_accepts_public_stylist(self):
         salon = self._salon(is_active=True)

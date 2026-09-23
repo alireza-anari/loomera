@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from django.db.models import Count, Exists, F, OuterRef, Q
+from django.db.models import Count, Exists, IntegerField, OuterRef, Q, Subquery
 from django.utils import timezone
 
 from apps.accounts.models import Stylist
-from apps.dashboards.readiness import (
-    PUBLIC_BOOKING_STYLIST_VISIBILITIES,
-    build_salon_readiness_checklist,
+from apps.dashboards.readiness import build_salon_readiness_checklist
+from apps.salons.models import (
+    SalonMembership,
+    SalonMembershipStatus,
+    SalonOpeningHours,
+    SalonsGallery,
 )
-from apps.salons.models import SalonOpeningHours, SalonsGallery
 from apps.services.models import Services
 from apps.stylists.models import StylistSchedule
 
@@ -57,31 +59,76 @@ def with_beta_readiness_annotations(queryset):
 
     today = timezone.localdate()
 
-    stylist_service_link_exists = Services.objects.filter(
-        services_of_salon__pk=OuterRef("pk"),
+    stylist_memberships = SalonMembership.objects.filter(
+        salon_id=OuterRef(OuterRef("pk")),
+        stylist_id=OuterRef("pk"),
+    )
+    eligible_stylists = (
+        Stylist.objects.filter(
+            stylists_of_salon__pk=OuterRef("pk"),
+            is_active=True,
+        )
+        .annotate(
+            _has_salon_membership=Exists(stylist_memberships),
+            _has_active_salon_membership=Exists(
+                stylist_memberships.filter(status=SalonMembershipStatus.ACTIVE)
+            ),
+        )
+        .filter(
+            Q(_has_salon_membership=False)
+            | Q(_has_active_salon_membership=True)
+        )
+    )
+    eligible_stylist_count = (
+        eligible_stylists.order_by()
+        .values("stylists_of_salon__pk")
+        .annotate(total=Count("pk", distinct=True))
+        .values("total")[:1]
+    )
+
+    stylist_service_link_exists = eligible_stylists.filter(
+        services_of_stylist__is_active=True,
+        services_of_stylist__services_of_salon__pk=OuterRef("pk"),
+    )
+
+    schedule_memberships = SalonMembership.objects.filter(
+        salon_id=OuterRef("salon_id"),
+        stylist_id=OuterRef("stylist_id"),
+    )
+    eligible_schedules = (
+        StylistSchedule.objects.filter(
+            salon_id=OuterRef("pk"),
+            date__gte=today,
+            stylist__is_active=True,
+            stylist__stylists_of_salon__pk=OuterRef("pk"),
+        )
+        .annotate(
+            _has_salon_membership=Exists(schedule_memberships),
+            _has_active_salon_membership=Exists(
+                schedule_memberships.filter(status=SalonMembershipStatus.ACTIVE)
+            ),
+        )
+        .filter(
+            Q(_has_salon_membership=False)
+            | Q(_has_active_salon_membership=True)
+        )
+    )
+    future_schedule_exists = eligible_schedules
+
+    valid_services_for_schedule = Services.objects.filter(
+        stylists__pk=OuterRef("stylist_id"),
+        services_of_salon__pk=OuterRef("salon_id"),
         is_active=True,
-        stylists__is_active=True,
-        stylists__stylists_of_salon__pk=OuterRef("pk"),
+        duration_minutes__gt=0,
     )
-
-    future_schedule_exists = StylistSchedule.objects.filter(
-        salon_id=OuterRef("pk"),
-        date__gte=today,
-        stylist__is_active=True,
-        stylist__public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
-    )
-
-    bookable_path_exists = StylistSchedule.objects.filter(
-        salon_id=OuterRef("pk"),
-        date__gte=today,
-        stylist__is_active=True,
-        stylist__public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
-        stylist__services_of_stylist__is_active=True,
-        stylist__services_of_stylist__base_price__gt=0,
-        stylist__services_of_stylist__duration_minutes__gt=0,
-        stylist__services_of_stylist__services_of_salon__pk=OuterRef("pk"),
+    bookable_path_exists = eligible_schedules.annotate(
+        _has_any_bookable_service=Exists(valid_services_for_schedule),
+        _has_scheduled_bookable_service=Exists(
+            valid_services_for_schedule.filter(pk=OuterRef("service_id"))
+        ),
     ).filter(
-        Q(service__isnull=True) | Q(service_id=F("stylist__services_of_stylist__id"))
+        Q(service_id__isnull=True, _has_any_bookable_service=True)
+        | Q(service_id__isnull=False, _has_scheduled_bookable_service=True)
     )
 
     return queryset.annotate(
@@ -94,15 +141,13 @@ def with_beta_readiness_annotations(queryset):
             "services",
             filter=Q(
                 services__is_active=True,
-                services__base_price__gt=0,
                 services__duration_minutes__gt=0,
             ),
             distinct=True,
         ),
-        _beta_active_stylists_count=Count(
-            "stylists",
-            filter=Q(stylists__is_active=True),
-            distinct=True,
+        _beta_active_stylists_count=Subquery(
+            eligible_stylist_count,
+            output_field=IntegerField(),
         ),
         _beta_has_stylist_service_link=Exists(stylist_service_link_exists),
         _beta_schedule_exists=Exists(future_schedule_exists),

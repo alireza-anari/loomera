@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from apps.accounts.models import Stylist
 from apps.dashboards.views import AddServicesView
+from apps.salons.models import SalonMembership, SalonMembershipStatus
 from tests_stage1_helpers import Stage1DomainFactoryMixin
 
 
@@ -71,7 +72,29 @@ class ServiceSetupHandoffUxTests(
         self.assertEqual(handoff["status_tone"], "success")
         self.assertContains(response, "تنظیم برنامه کاری")
 
-    def test_hidden_stylist_does_not_count_as_public_service_coverage(self):
+    def test_paused_membership_does_not_count_as_service_coverage(self):
+        service = self.make_service(name="خدمت عضو متوقف")
+        stylist = self.make_stylist(
+            public_visibility=Stylist.PublicVisibility.HIDDEN,
+        )
+        self.connect_service(
+            salon=self.salon,
+            stylist=stylist,
+            service=service,
+        )
+        SalonMembership.objects.create(
+            salon=self.salon,
+            stylist=stylist,
+            status=SalonMembershipStatus.PAUSED,
+        )
+
+        response = self._get_service_menu({"created_service": str(service.pk)})
+
+        handoff = response.context["service_setup_handoff"]
+        self.assertEqual(handoff["status_tone"], "warning")
+        self.assertContains(response, "بدون پوشش تیم")
+
+    def test_hidden_resume_stylist_counts_as_service_coverage(self):
         service = self.make_service(name="فیشال")
         stylist = self.make_stylist(
             public_visibility=Stylist.PublicVisibility.HIDDEN,
@@ -85,8 +108,12 @@ class ServiceSetupHandoffUxTests(
         response = self._get_service_menu({"created_service": str(service.pk)})
 
         handoff = response.context["service_setup_handoff"]
-        self.assertEqual(handoff["status_tone"], "warning")
-        self.assertContains(response, "بدون پوشش تیم")
+        self.assertEqual(handoff["status_tone"], "success")
+        self.assertEqual(
+            handoff["primary_url"],
+            reverse("dashboards:scheduled_shifts"),
+        )
+        self.assertContains(response, "تنظیم برنامه کاری")
 
     def test_foreign_salon_service_is_not_exposed_in_handoff(self):
         other_manager = self.make_salon_manager()

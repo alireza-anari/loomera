@@ -194,7 +194,7 @@ class LoomiConversationTests(TestCase):
         self.assertIn(self.salon.mobile_phone, self.answer("شماره تماس؟")["text"])
         self.assertNotIn(self.manager_user.mobile_number, self.answer("شماره تماس؟")["text"])
 
-    def test_stylist_price_override_and_hidden_price_filter(self):
+    def test_hidden_resume_stylist_price_override_remains_bookable_in_salon(self):
         from apps.services.models import ServicePrice
         ServicePrice.objects.create(service=self.service, stylist=self.stylist, price=320000)
         self.start(f"loomi_p_{self.stylist.pk}")
@@ -202,10 +202,16 @@ class LoomiConversationTests(TestCase):
         self.start()
         self.assertIn("320,000", self.answer("قیمت رنگ مو؟")["text"])
         self.stylist.public_visibility = "hidden"
-        self.stylist.save(update_fields=["public_visibility"])
+        self.stylist.resume_headline = "PRIVATE_LOOMI_PRICE_HEADLINE"
+        self.stylist.resume_summary = "PRIVATE_LOOMI_PRICE_SUMMARY"
+        self.stylist.save(
+            update_fields=["public_visibility", "resume_headline", "resume_summary"]
+        )
         reply = self.answer("قیمت رنگ مو؟")["text"]
-        self.assertNotIn("320,000", reply)
-        self.assertIn("250,000", reply)
+        self.assertIn("320,000", reply)
+        self.assertNotIn("250,000", reply)
+        self.assertNotIn("PRIVATE_LOOMI_PRICE_HEADLINE", reply)
+        self.assertNotIn("PRIVATE_LOOMI_PRICE_SUMMARY", reply)
 
     def test_price_range_includes_base_price_for_stylist_without_override(self):
         from apps.services.models import ServicePrice
@@ -304,15 +310,21 @@ class LoomiConversationTests(TestCase):
             "https://loomera.test/orders/quick-link/"
         ))
 
-    def test_hidden_stylist_is_not_used_for_salon_availability(self):
+    def test_hidden_resume_stylist_is_used_for_salon_availability(self):
         self.add_schedule()
         self.start()
         self.stylist.public_visibility = "hidden"
-        self.stylist.save(update_fields=["public_visibility"])
+        self.stylist.resume_headline = "PRIVATE_LOOMI_AVAILABILITY_HEADLINE"
+        self.stylist.resume_summary = "PRIVATE_LOOMI_AVAILABILITY_SUMMARY"
+        self.stylist.save(
+            update_fields=["public_visibility", "resume_headline", "resume_summary"]
+        )
         answer = self.answer("فردا برای رنگ مو وقت دارید؟")
-        self.assertIn("زمان آزادی", answer["text"])
+        self.assertIn("زمان‌های آزاد واقعی", answer["text"])
         first_button = answer["reply_markup"]["inline_keyboard"][0][0]
-        self.assertNotIn("/orders/quick-link/", first_button.get("url", ""))
+        self.assertIn("/orders/quick-link/", first_button.get("url", ""))
+        self.assertNotIn("PRIVATE_LOOMI_AVAILABILITY_HEADLINE", answer["text"])
+        self.assertNotIn("PRIVATE_LOOMI_AVAILABILITY_SUMMARY", answer["text"])
 
     def test_multiple_services_are_selected_with_loomi_callback(self):
         second = Services.objects.create(

@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from apps.accounts.models import Stylist
 from apps.dashboards.readiness import build_salon_readiness_checklist
+from apps.salons.models import SalonMembership, SalonMembershipStatus
 from tests_stage1_helpers import Stage1DomainFactoryMixin
 
 
@@ -118,7 +119,7 @@ class BetaSalonBookabilityReadinessTests(
         self.assertFalse(self._item(readiness, "schedule")["is_done"])
         self.assertFalse(self._item(readiness, "bookable_path")["is_done"])
 
-    def test_hidden_stylist_does_not_make_public_booking_path_ready(self):
+    def test_hidden_resume_stylist_makes_salon_booking_path_ready(self):
         stylist = self.make_stylist(public_visibility=Stylist.PublicVisibility.HIDDEN)
         service = self.make_service()
 
@@ -126,6 +127,34 @@ class BetaSalonBookabilityReadinessTests(
             salon=self.salon,
             stylist=stylist,
             service=service,
+        )
+        self.add_schedule(
+            stylist=stylist,
+            salon=self.salon,
+            service=service,
+            date_value=self.future_date,
+            start=timezone.datetime.strptime("10:00", "%H:%M").time(),
+            end=timezone.datetime.strptime("12:00", "%H:%M").time(),
+        )
+
+        readiness = build_salon_readiness_checklist(self.salon)
+
+        self.assertTrue(self._item(readiness, "schedule")["is_done"])
+        self.assertTrue(self._item(readiness, "bookable_path")["is_done"])
+
+    def test_paused_membership_does_not_make_salon_booking_path_ready(self):
+        stylist = self.make_stylist(public_visibility=Stylist.PublicVisibility.HIDDEN)
+        service = self.make_service()
+
+        self.connect_service(
+            salon=self.salon,
+            stylist=stylist,
+            service=service,
+        )
+        SalonMembership.objects.create(
+            salon=self.salon,
+            stylist=stylist,
+            status=SalonMembershipStatus.PAUSED,
         )
         self.add_schedule(
             stylist=stylist,
