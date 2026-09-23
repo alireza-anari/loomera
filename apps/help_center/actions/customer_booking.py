@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from apps.accounts.models import Customer, Stylist
 from apps.orders.booking_utils import (
+    bookable_stylists_for_salon,
     get_available_slots_for_service,
     get_upcoming_available_stylists_for_service,
     resolve_booking_sequence,
@@ -19,11 +20,6 @@ from apps.orders.forms import AppointmentCheckoutForm
 from apps.salons.models import Salon
 from apps.services.models import Services
 
-
-PUBLIC_BOOKING_STYLIST_VISIBILITIES = (
-    Stylist.PublicVisibility.PUBLIC,
-    Stylist.PublicVisibility.SALON_ONLY,
-)
 
 PERIOD_WINDOWS = {
     "morning": (6 * 60, 11 * 60 + 59),
@@ -117,10 +113,8 @@ def _eligible_stylist(salon: Salon, service: Services, stylist_user_id) -> Styli
     if stylist_id is None:
         raise ValidationError("متخصص انتخاب‌شده معتبر نیست.")
     stylist = (
-        salon.stylists.filter(
+        bookable_stylists_for_salon(salon=salon).filter(
             user_id=stylist_id,
-            is_active=True,
-            public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
             services_of_stylist=service,
         )
         .select_related("user")
@@ -215,9 +209,7 @@ def _provider_rows(*, salon: Salon, service: Services, start_date: date) -> list
         horizon_days=30,
     )
     eligible_ids = set(
-        salon.stylists.filter(
-            is_active=True,
-            public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
+        bookable_stylists_for_salon(salon=salon).filter(
             services_of_stylist=service,
         ).values_list("pk", flat=True)
     )

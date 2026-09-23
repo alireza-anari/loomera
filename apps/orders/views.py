@@ -72,11 +72,6 @@ from apps.comments_scores_favories.review_service import (
 
 logger = logging.getLogger(__name__)
 
-PUBLIC_BOOKING_STYLIST_VISIBILITIES = (
-    Stylist.PublicVisibility.PUBLIC,
-    Stylist.PublicVisibility.SALON_ONLY,
-)
-
 APPOINTMENT_CHECKOUT_FORM_ACTIONS = {
     "apply_coupon",
     "clear_coupon",
@@ -196,9 +191,8 @@ def _public_booking_service_or_response(salon, service_id):
 
 
 def _public_booking_stylist_queryset(salon):
-    return bookable_stylists_for_salon(salon=salon).filter(
-        public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
-    ).distinct()
+    # Salon booking eligibility is independent of resume visibility.
+    return bookable_stylists_for_salon(salon=salon).distinct()
 
 
 def _public_booking_service_queryset(salon):
@@ -1166,21 +1160,12 @@ class BookingStylistSelectPerService(View):
         for service_id in service_ids:
             service = services_map[service_id]
 
-            available_stylists = [
-                item
-                for item in (
-                    get_upcoming_available_stylists_for_service(
-                        salon=salon,
-                        service=service,
-                        start_date=timezone.localdate(),
-                        horizon_days=(self.availability_horizon_days),
-                    )
-                )
-                if (
-                    item["stylist"].public_visibility
-                    in PUBLIC_BOOKING_STYLIST_VISIBILITIES
-                )
-            ]
+            available_stylists = get_upcoming_available_stylists_for_service(
+                salon=salon,
+                service=service,
+                start_date=timezone.localdate(),
+                horizon_days=self.availability_horizon_days,
+            )
 
             best_available = available_stylists[0] if available_stylists else None
 
@@ -1486,12 +1471,14 @@ class StylistAvailabilityAPI(View):
         except ValueError:
             return _json_error("پارامترهای تقویم معتبر نیست", status=400)
 
+        eligible_stylist_ids = _public_booking_stylist_queryset(salon).values_list(
+            "pk", flat=True
+        )
         schedules = list(
             StylistSchedule.objects.filter(
                 salon=salon,
                 date__range=[start_date, end_date],
-                stylist__is_active=True,
-                stylist__public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
+                stylist_id__in=eligible_stylist_ids,
             )
             .filter(
                 Q(service__isnull=True)
@@ -1529,8 +1516,7 @@ class StylistAvailabilityAPI(View):
                 salon=salon,
                 status=StaffLeaveRequest.Status.APPROVED,
                 date__range=[start_date, end_date],
-                stylist__is_active=True,
-                stylist__public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES,
+                stylist_id__in=eligible_stylist_ids,
             )
             .select_related("stylist")
             .order_by("date", "start_time")

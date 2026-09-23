@@ -2,8 +2,8 @@ from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 
-from apps.accounts.models import Stylist
 from apps.dashboards.jalali_utils import to_persian_digits
+from apps.orders.booking_utils import bookable_stylists_for_salon
 from apps.salons.models import SalonVerificationStatus
 from apps.stylists.models import StylistSchedule
 
@@ -33,12 +33,6 @@ def _safe_exists(queryset_or_manager, **filters):
         return False
 
 
-PUBLIC_BOOKING_STYLIST_VISIBILITIES = (
-    Stylist.PublicVisibility.PUBLIC,
-    Stylist.PublicVisibility.SALON_ONLY,
-)
-
-
 def _has_bookable_service_schedule_path(
     salon,
     *,
@@ -47,9 +41,9 @@ def _has_bookable_service_schedule_path(
 ):
     """بررسی وجود حداقل یک مسیر واقعی برای رزرو عمومی سالن.
 
-    متخصص باید در همین سالن فعال و قابل‌نمایش باشد، به یک خدمت فعال و
-    قیمت‌گذاری‌شده متصل باشد و برای همان خدمت یا به‌صورت عمومی، برنامه کاری
-    امروز یا آینده در همین سالن داشته باشد.
+    متخصص باید عضو فعال همین سالن باشد، به یک خدمت فعال با مدت معتبر
+    متصل باشد و برای همان خدمت یا به‌صورت عمومی، برنامه کاری امروز یا آینده
+    در همین سالن داشته باشد. وضعیت انتشار رزومه در این مسیر نقشی ندارد.
     """
     if salon is None:
         return False
@@ -68,11 +62,7 @@ def _has_bookable_service_schedule_path(
 
     stylists_qs = active_stylists_qs
     if stylists_qs is None:
-        stylists_qs = salon.stylists.filter(is_active=True)
-
-    stylists_qs = stylists_qs.filter(
-        public_visibility__in=PUBLIC_BOOKING_STYLIST_VISIBILITIES
-    )
+        stylists_qs = bookable_stylists_for_salon(salon=salon)
 
     stylist_ids = set(stylists_qs.values_list("pk", flat=True))
     if not stylist_ids:
@@ -159,7 +149,7 @@ def build_salon_readiness_checklist(
         return factory()
 
     active_services_qs = salon.services.filter(is_active=True)
-    active_stylists_qs = salon.stylists.filter(is_active=True)
+    active_stylists_qs = bookable_stylists_for_salon(salon=salon)
 
     active_services_count = int(
         fact_or_default(
@@ -205,10 +195,7 @@ def build_salon_readiness_checklist(
                 "schedule_exists",
                 lambda: StylistSchedule.objects.filter(
                     salon=salon,
-                    stylist__is_active=True,
-                    stylist__public_visibility__in=(
-                        PUBLIC_BOOKING_STYLIST_VISIBILITIES
-                    ),
+                    stylist_id__in=active_stylists_qs.values("pk"),
                     date__gte=timezone.localdate(),
                 ).exists(),
             )
@@ -331,7 +318,7 @@ def build_salon_readiness_checklist(
             key="bookable_path",
             title="حداقل یک مسیر رزرو واقعی وجود دارد",
             description=(
-                "یک متخصص قابل‌نمایش باید هم‌زمان به خدمت فعال و قیمت‌گذاری‌شده "
+                "یک متخصص عضو فعال سالن باید هم‌زمان به خدمت فعال با مدت معتبر "
                 "متصل باشد و برای همان متخصص در همین سالن برنامه کاری جاری یا آینده ثبت شود."
             ),
             is_done=has_bookable_path,

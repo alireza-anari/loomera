@@ -114,6 +114,7 @@ class BaleOperatorUxPhase4Tests(TestCase):
         )
         return order, detail
 
+    @override_settings(MESSAGING_ENABLED=True, BALE_BOT_ENABLED=True)
     def test_new_auto_confirmed_booking_queues_bale_for_stylist(self):
         order, detail = self._appointment(
             date_value=timezone.localdate() + timedelta(days=2)

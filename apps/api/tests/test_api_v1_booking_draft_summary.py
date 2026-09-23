@@ -263,14 +263,18 @@ class ApiV1BookingDraftSummaryTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json()["error"]["code"], "service_not_found")
 
-    def test_booking_draft_summary_rejects_hidden_stylist(self):
+    def test_draft_summary_accepts_hidden_resume_and_reports_unavailable_slot(self):
         customer, salon, service, stylist, target_date = self._setup_available_slot()
         self.client.force_login(customer.user)
 
         hidden_stylist = self.make_stylist(
             public_visibility=Stylist.PublicVisibility.HIDDEN,
+            resume_headline="PRIVATE_HIDDEN_SUMMARY_HEADLINE",
+            resume_summary="PRIVATE_HIDDEN_SUMMARY_TEXT",
         )
         self.connect_service(salon=salon, stylist=hidden_stylist, service=service)
+        Order = apps.get_model("orders", "Order")
+        before_order_count = Order.objects.count()
 
         response = self.client.post(
             self.url,
@@ -284,8 +288,17 @@ class ApiV1BookingDraftSummaryTests(Stage1DomainFactoryMixin, TestCase):
             content_type="application/json",
         )
 
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json()["error"]["code"], "stylist_not_found")
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(set(payload["data"]), {"valid", "reason", "message"})
+        self.assertFalse(payload["data"]["valid"])
+        self.assertEqual(payload["data"]["reason"], "slot_unavailable")
+        self.assertEqual(Order.objects.count(), before_order_count)
+
+        body = response.content.decode("utf-8")
+        self.assertNotIn("PRIVATE_HIDDEN_SUMMARY_HEADLINE", body)
+        self.assertNotIn("PRIVATE_HIDDEN_SUMMARY_TEXT", body)
 
     def test_booking_draft_summary_rejects_invalid_date_and_time(self):
         customer, salon, service, stylist, target_date = self._setup_available_slot()

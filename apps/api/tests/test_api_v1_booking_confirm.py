@@ -301,7 +301,7 @@ class ApiV1BookingConfirmTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json()["error"]["code"], "service_not_found")
 
-    def test_booking_confirm_rejects_hidden_stylist(self):
+    def test_booking_confirm_accepts_available_stylist_with_hidden_resume(self):
         customer, salon, service, stylist, target_date = self._setup_available_slot()
         self.client.force_login(customer.user)
 
@@ -309,6 +309,14 @@ class ApiV1BookingConfirmTests(Stage1DomainFactoryMixin, TestCase):
             public_visibility=Stylist.PublicVisibility.HIDDEN,
         )
         self.connect_service(salon=salon, stylist=hidden_stylist, service=service)
+        self.add_schedule(
+            stylist=hidden_stylist,
+            salon=salon,
+            service=service,
+            date_value=target_date,
+            start=time(10, 0),
+            end=time(12, 0),
+        )
 
         response = self.client.post(
             self.url,
@@ -322,9 +330,27 @@ class ApiV1BookingConfirmTests(Stage1DomainFactoryMixin, TestCase):
             },
             content_type="application/json",
         )
+        self.assertEqual(response.status_code, 201)
 
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json()["error"]["code"], "stylist_not_found")
+        data = response.json()["data"]
+        self.assertTrue(data["confirmed"])
+        self.assertEqual(data["stylist"]["id"], hidden_stylist.pk)
+        self.assertEqual(data["service"]["id"], service.pk)
+        self.assertEqual(data["slot"]["status"], "booked")
+
+        order_id = data["order"]["id"]
+        appointment_id = data["appointment"]["id"]
+
+        Order = apps.get_model("orders", "Order")
+        OrderDetail = apps.get_model("orders", "OrderDetail")
+
+        self.assertTrue(Order.objects.filter(pk=order_id).exists())
+        self.assertTrue(
+            OrderDetail.objects.filter(
+                pk=appointment_id,
+                order_id=order_id,
+            ).exists()
+        )
 
     def test_booking_confirm_rejects_invalid_date_and_time(self):
         customer, salon, service, stylist, target_date = self._setup_available_slot()

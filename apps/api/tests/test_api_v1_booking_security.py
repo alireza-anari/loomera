@@ -191,7 +191,9 @@ class ApiV1BookingSecurityRegressionTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(response.json()["error"]["code"], "service_not_found")
         self.assertEqual(self._model_counts(), before)
 
-    def test_confirm_rejects_hidden_stylist_and_creates_nothing(self):
+    def test_confirm_rejects_unavailable_stylist_with_hidden_resume_and_creates_nothing(
+        self,
+    ):
         customer, salon, service, stylist, target_date = self._setup_available_slot()
         self.client.force_login(customer.user)
 
@@ -215,8 +217,8 @@ class ApiV1BookingSecurityRegressionTests(Stage1DomainFactoryMixin, TestCase):
             content_type="application/json",
         )
 
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json()["error"]["code"], "stylist_not_found")
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["error"]["code"], "slot_unavailable")
         self.assertEqual(self._model_counts(), before)
 
     def test_confirm_double_submit_creates_only_one_booking(self):
@@ -377,14 +379,23 @@ class ApiV1BookingSecurityRegressionTests(Stage1DomainFactoryMixin, TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json()["error"]["code"], "appointment_not_found")
+        payload = response.json()
+        self.assertEqual(set(payload), {"ok", "error", "meta"})
+        self.assertFalse(payload["ok"])
+        self.assertEqual(payload["meta"], {"api_version": "v1"})
+        self.assertEqual(
+            payload["error"],
+            {
+                "code": "appointment_not_found",
+                "message": "رزرو پیدا نشد.",
+            },
+        )
 
         body = response.content.decode("utf-8")
         self.assertNotIn(owner_customer.user.mobile_number, body)
         self.assertNotIn(owner_customer.user.email, body)
         self.assertNotIn(stylist.user.mobile_number, body)
         self.assertNotIn(stylist.user.email, body)
-        self.assertNotIn(str(appointment_id), body)
 
     def test_my_appointments_get_is_read_only(self):
         customer, salon, service, stylist, target_date = self._setup_available_slot()

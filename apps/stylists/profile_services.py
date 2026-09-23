@@ -105,9 +105,6 @@ def can_show_stylist_on_salon_profile(
     if not getattr(stylist, "is_active", False):
         return StylistProfileAccess(False, "stylist_inactive")
 
-    if not getattr(stylist, "is_visible_on_salon_pages", False):
-        return StylistProfileAccess(False, "profile_hidden")
-
     membership = get_salon_membership(salon=salon, stylist=stylist)
     if membership:
         if membership.status != SalonMembershipStatus.ACTIVE:
