@@ -130,4 +130,3 @@ class MultiroleCustomerAppointmentsTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(response.request["PATH_INFO"], reverse("orders:appointments"))
         self.assertEqual(Order.objects.filter(customer__user=user).count(), 1)
         mock_sync_settlement.assert_called_once()
-
