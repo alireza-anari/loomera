@@ -27,16 +27,15 @@
     <div class="lm-shell-desktop-actions">
       {% if request.user.is_authenticated %}
         <div class="inline-flex items-center gap-2">
-          {% if request.user.salon_manager_profile %}
-            <a href="{% url 'dashboards:salon_manager_dashboard' %}" class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30" aria-label="داشبورد من" title="داشبورد من">
-          {% elif request.user.stylist %}
-            <a href="{% url 'dashboards:stylist_dashboard' %}" class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30" aria-label="داشبورد من" title="داشبورد من">
-          {% elif request.user.customer_profile %}
+          {% include "partials/shell/workspace_switcher.html" with variant="desktop" %}
+
+          {% if request.user.customer_profile %}
             {% include "partials/shell/customer_notification_button.html" with variant="desktop" %}
-            <a href="{% url 'accounts:customer_panel' %}" class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30" aria-label="حساب من" title="حساب من">
-          {% else %}
-            <a href="{% url 'salons:home' %}" class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft" aria-label="خانه" title="خانه">
           {% endif %}
+
+          <a href="{% url 'accounts:customer_panel' %}"
+             class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-loomera-borderSoft bg-white text-loomera-textPrimary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft hover:text-loomera-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30"
+             aria-label="حساب من" title="حساب من">
             <i class="fa-regular fa-user text-base" aria-hidden="true"></i>
             <span class="sr-only">حساب من</span>
           </a>

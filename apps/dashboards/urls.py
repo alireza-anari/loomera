@@ -143,9 +143,41 @@ from .quick_link_print_views import (
 
 # ----------------------------------------------------------------
 from .manager_settings_views import ManagerCommunicationSettingsView, StylistCommunicationSettingsView
+from .multirole_manager_views import (
+    MultiroleManagerSalonOverviewView,
+    ScopedManagerServicesView,
+    ScopedManagerTeamView,
+    ScopedManagerBookingsView,
+    ScopedManagerServiceStatusView,
+    ScopedManagerServiceAddView,
+    ScopedManagerServiceEditView,
+    ScopedManagerTeamInviteView,
+    ScopedManagerTeamInviteCancelView,
+    ScopedManagerTeamMemberEditView,
+)
 
+from .multirole_manual_booking import ScopedManagerManualBookingView
+from .multirole_manual_booking_cancel import ScopedManagerManualBookingCancelView
+from .multirole_finance_preview import ScopedManagerFinancePreviewView
+from .multirole_settlement_ledger import ScopedManagerSettlementLedgerView
+from .multirole_manager_customers import ScopedManagerCustomersView
 app_name = "dashboards"
 urlpatterns = [
+    path("manager/salons/<int:salon_id>/", MultiroleManagerSalonOverviewView.as_view(), name="multirole_manager_salon_overview"),
+    path("manager/salons/<int:salon_id>/customers/", ScopedManagerCustomersView.as_view(), name="multirole_manager_salon_customers"),
+    path("manager/salons/<int:salon_id>/services/", ScopedManagerServicesView.as_view(), name="multirole_manager_salon_services"),
+    path("manager/salons/<int:salon_id>/services/<int:service_id>/toggle/", ScopedManagerServiceStatusView.as_view(), name="multirole_manager_service_toggle"),
+    path("manager/salons/<int:salon_id>/services/add/", ScopedManagerServiceAddView.as_view(), name="multirole_manager_service_add"),
+    path("manager/salons/<int:salon_id>/services/<int:service_id>/edit/", ScopedManagerServiceEditView.as_view(), name="multirole_manager_service_edit"),
+    path("manager/salons/<int:salon_id>/team/", ScopedManagerTeamView.as_view(), name="multirole_manager_salon_team"),
+    path("manager/salons/<int:salon_id>/team/invite/", ScopedManagerTeamInviteView.as_view(), name="multirole_manager_team_invite"),
+    path("manager/salons/<int:salon_id>/team/invites/<int:membership_id>/cancel/", ScopedManagerTeamInviteCancelView.as_view(), name="multirole_manager_team_invite_cancel"),
+    path("manager/salons/<int:salon_id>/team/members/<int:membership_id>/edit/", ScopedManagerTeamMemberEditView.as_view(), name="multirole_manager_team_member_edit"),
+    path("manager/salons/<int:salon_id>/bookings/", ScopedManagerBookingsView.as_view(), name="multirole_manager_salon_bookings"),
+    path("manager/salons/<int:salon_id>/bookings/add/", ScopedManagerManualBookingView.as_view(), name="multirole_manager_manual_booking"),
+    path("manager/salons/<int:salon_id>/bookings/<int:appointment_id>/cancel/", ScopedManagerManualBookingCancelView.as_view(), name="multirole_manager_manual_booking_cancel"),
+    path("manager/salons/<int:salon_id>/finance/preview/", ScopedManagerFinancePreviewView.as_view(), name="multirole_manager_salon_finance_preview"),
+    path("manager/salons/<int:salon_id>/finance/settlements/", ScopedManagerSettlementLedgerView.as_view(), name="multirole_manager_salon_settlements"),
     path(
         "notifications/",
         ManagerNotificationCenterView.as_view(),

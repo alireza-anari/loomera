@@ -11851,8 +11851,25 @@ def _respond_to_manager_invite(request, stylist, *, accepted):
         ),
         Q(pk=int(membership_id)),
         Q(status=SalonMembershipStatus.INVITED),
+        # A bound invitation must still address this account's verified
+        # mobile. Older invitations without a stored phone remain valid for
+        # their explicitly bound stylist; never accept a different phone.
+        Q(invited_phone__in=["", mobile]),
         Q(stylist=stylist) | Q(stylist__isnull=True, invited_phone=mobile),
     )
+
+    # An expired invitation cannot create or restore an active membership.
+    # The legacy acceptance path previously checked INVITED but not expires_at.
+    if membership.expires_at and membership.expires_at <= timezone.now():
+        change_membership_status(
+            membership=membership,
+            new_status=SalonMembershipStatus.EXPIRED,
+            actor=request.user,
+            reason="انقضای دعوت همکاری",
+            request=request,
+        )
+        messages.error(request, "مهلت پذیرش این دعوت به پایان رسیده است.")
+        return redirect("dashboards:stylist_profile")
 
     metadata = dict(membership.metadata or {})
     if not metadata.get("invited_by_manager"):

@@ -5,6 +5,8 @@ from .customer_communication_views import CustomerCommunicationSettingsView
 
 from .views import (
     CustomerSignupView,
+    AddRoleView,
+    WorkspaceChooseView,
     StylistSignupView,
     RegisterUserView,
     VerifyRegisterView,
@@ -39,10 +41,12 @@ from .views import (
 app_name = "accounts"
 urlpatterns = [
     path("customer-signup/", CustomerSignupView.as_view(), name="customer_signup"),
+    path("add-role/<str:kind>/", AddRoleView.as_view(), name="add_role"),
     path("stylist-signup/", StylistSignupView.as_view(), name="stylist_signup"),
     path("register/", RegisterUserView.as_view(), name="register"),
     path("verify/", VerifyRegisterView.as_view(), name="verify"),
     path("login/", LoginUserView.as_view(), name="login"),
+    path("workspaces/", WorkspaceChooseView.as_view(), name="workspace_choose"),
     path("logout/", LogoutUserView.as_view(), name="logout"),
     path(
         "api/messaging-welcome/dismiss/",

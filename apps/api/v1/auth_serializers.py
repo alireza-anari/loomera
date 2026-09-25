@@ -5,6 +5,8 @@ from typing import Any
 
 from django.conf import settings
 
+from apps.accounts.services.access import capabilities_for
+
 _IRAN_MOBILE_RE = re.compile(r"^09\d{9}$")
 
 
@@ -44,10 +46,12 @@ def user_display_name(user) -> str:
 
 
 def user_role_flags(user) -> dict[str, bool]:
+    """Present current capabilities; related-object caches cannot resurrect roles."""
+    capabilities = capabilities_for(user)
     return {
-        "is_customer": hasattr(user, "customer_profile"),
-        "is_stylist": hasattr(user, "stylist_profile"),
-        "is_salon_manager": hasattr(user, "salon_manager_profile"),
+        "is_customer": "customer" in capabilities,
+        "is_stylist": "stylist" in capabilities,
+        "is_salon_manager": "manager" in capabilities,
         "is_staff": bool(getattr(user, "is_staff", False)),
         "is_superuser": bool(getattr(user, "is_superuser", False)),
     }

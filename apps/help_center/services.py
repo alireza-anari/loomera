@@ -8,6 +8,7 @@ from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.db import OperationalError, ProgrammingError, transaction
 from django.urls import NoReverseMatch, Resolver404, resolve, reverse
 from django.utils import timezone
@@ -15,6 +16,7 @@ from django.utils import timezone
 from .ai import AIProviderError, get_ai_provider
 from .content import resolve_page_context
 from .models import HelpConversation, HelpFeedback, HelpMessage
+from .multirole_scope import SCOPE_KEY, conversation_scope_matches, help_workspace_scope
 from .retrieval import (
     mentions_audience_as_actor,
     normalize_persian,
@@ -297,26 +299,39 @@ def get_owned_conversation(request, public_id) -> Optional[HelpConversation]:
         conversation = HelpConversation.objects.select_related("user", "support_ticket").filter(
             public_id=public_id
         ).first()
-    except DB_ERRORS:
+    except DB_ERRORS + (TypeError, ValueError, ValidationError):
         return None
 
     if not conversation:
         return None
 
     session_hash = _session_hash(request)
+    current_scope = help_workspace_scope(request)
     if request.user.is_authenticated:
         if conversation.user_id == request.user.pk:
-            return conversation
+            return conversation if conversation_scope_matches(
+                conversation, current_scope, user=request.user
+            ) else None
         if conversation.user_id is None and conversation.session_key_hash == session_hash:
+            if not conversation_scope_matches(
+                conversation, current_scope, user=request.user
+            ):
+                return None
             conversation.user = request.user
-            conversation.role = detect_user_role(request.user)
-            conversation.save(update_fields=["user", "role", "updated_at"])
+            conversation.role = current_scope["role"]
+            conversation.metadata = {**(conversation.metadata or {}), SCOPE_KEY: {
+                "v": 1, **current_scope,
+            }}
+            conversation.save(update_fields=["user", "role", "metadata", "updated_at"])
             return conversation
         return None
 
     if conversation.user_id is not None:
         return None
-    return conversation if conversation.session_key_hash == session_hash else None
+    return conversation if (
+        conversation.session_key_hash == session_hash
+        and conversation_scope_matches(conversation, current_scope, user=request.user)
+    ) else None
 
 
 def get_or_create_conversation(request, *, conversation_id=None, page_path: str, page_key: str, route_name: str = ""):
@@ -338,10 +353,12 @@ def get_or_create_conversation(request, *, conversation_id=None, page_path: str,
         return existing
 
     try:
+        scope = help_workspace_scope(request)
         return HelpConversation.objects.create(
             user=request.user if request.user.is_authenticated else None,
             session_key_hash=_session_hash(request),
-            role=detect_user_role(request.user),
+            role=scope["role"],
+            metadata={SCOPE_KEY: {"v": 1, **scope}},
             page_key=page_key[:140],
             page_path=page_path[:500],
             page_route_name=(route_name or "")[:220],

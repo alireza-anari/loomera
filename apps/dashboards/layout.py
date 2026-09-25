@@ -1,3 +1,4 @@
+import re
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 from datetime import timedelta
@@ -19,6 +20,7 @@ from apps.salons.models import (
 )
 from apps.services.models import Services
 from apps.accounts.models import Stylist
+from apps.accounts.services.workspaces import available_workspaces
 from apps.stylists.models import JobDetails, StylistSchedule, StylistTimeOff
 
 from .jalali_utils import (
@@ -1486,6 +1488,200 @@ def _infer_sidebar_active(request_path="", explicit_key=None):
     return explicit_key or "overview"
 
 
+_SCOPED_MANAGER_PATH_RE = re.compile(r"/manager/salons/(?P<salon_id>\d+)(?:/|$)")
+
+_SCOPED_MANAGER_ROUTE_NAMES = {
+    "overview": "dashboards:multirole_manager_salon_overview",
+    "appointments": "dashboards:multirole_manager_salon_bookings",
+    "clients": "dashboards:multirole_manager_salon_customers",
+    "services": "dashboards:multirole_manager_salon_services",
+    "team": "dashboards:multirole_manager_salon_team",
+    "finance": "dashboards:multirole_manager_salon_finance_preview",
+}
+
+
+def _scoped_manager_path_salon(user, request_path):
+    """Resolve the explicit salon encoded in a scoped manager URL.
+
+    This is shell-only context. Authorization still belongs to the target view;
+    the lookup deliberately repeats ownership instead of trusting workspace
+    preference or selecting the manager's first salon.
+    """
+    if not getattr(user, "is_authenticated", False):
+        return False, None
+    match = _SCOPED_MANAGER_PATH_RE.search(request_path or "")
+    if not match:
+        return False, None
+    salon = (
+        Salon.objects.select_related("salon_manager__user")
+        .prefetch_related("opening_hours", "stylists")
+        .filter(
+            pk=int(match.group("salon_id")),
+            salon_manager__user_id=user.pk,
+        )
+        .first()
+    )
+    return True, salon
+
+
+def _scoped_manager_active_key(request_path):
+    normalized = (request_path or "").lower()
+    if "/services" in normalized:
+        return "services"
+    if "/team" in normalized:
+        return "team"
+    if "/bookings" in normalized:
+        return "appointments"
+    if "/customers" in normalized:
+        return "clients"
+    if "/finance" in normalized or "/settlements" in normalized:
+        return "finance"
+    return "overview"
+
+
+def _scoped_manager_url(key, salon):
+    if salon is None:
+        return "#"
+    route_name = _SCOPED_MANAGER_ROUTE_NAMES.get(key)
+    if not route_name:
+        return "#"
+    return _safe_reverse(route_name, fallback="#", kwargs={"salon_id": salon.pk})
+
+
+def _scope_manager_nav_item(item, salon):
+    """Rewrite manager-shell navigation to audited scoped routes only.
+
+    Unsupported legacy manager destinations remain visible as locked entries;
+    no shared shell link is allowed to reintroduce implicit single-salon routing.
+    """
+    item = dict(item)
+    key = item.get("key")
+    scoped_url = _scoped_manager_url(key, salon)
+    if scoped_url != "#":
+        item.update({
+            "url": scoped_url,
+            "is_available": True,
+            "is_locked": False,
+        })
+    else:
+        item.update({
+            "url": "#",
+            "is_available": False,
+            "is_locked": True,
+        })
+        if not item.get("lock_reason"):
+            item["lock_reason"] = "در محیط چندسالنی هنوز فعال نیست"
+    return item
+
+
+def _scoped_manager_sidebar(sections, salon):
+    scoped_sections = []
+    flat_items = []
+    for section in sections:
+        section_copy = dict(section)
+        scoped_items = []
+        for item in section.get("items", []):
+            # Keep explicitly coming-soon product items as coming-soon rather
+            # than relabelling them as a multi-salon authorization decision.
+            if item.get("is_coming_soon"):
+                scoped = dict(item)
+                scoped["url"] = "#"
+                scoped["is_available"] = False
+            else:
+                scoped = _scope_manager_nav_item(item, salon)
+            scoped_items.append(scoped)
+            flat_items.append(scoped)
+        section_copy["items"] = scoped_items
+        scoped_sections.append(section_copy)
+    return scoped_sections, flat_items
+
+
+def _scoped_manager_mobile_items(items, salon):
+    result = []
+    for item in items:
+        current = dict(item)
+        if current.get("kind") == "panel":
+            current["panel_items"] = [
+                _scope_manager_nav_item(child, salon)
+                for child in current.get("panel_items", [])
+            ]
+            current["is_available"] = True
+            current["is_locked"] = False
+        else:
+            current = _scope_manager_nav_item(current, salon)
+        result.append(current)
+    return result
+
+
+def _scoped_manager_actions(salon):
+    if salon is None:
+        return []
+    return [
+        {
+            "label": "افزودن خدمت",
+            "icon": "fa-solid fa-sparkles",
+            "url": _safe_reverse(
+                "dashboards:multirole_manager_service_add",
+                fallback="#",
+                kwargs={"salon_id": salon.pk},
+            ),
+            "style": "primary",
+            "is_available": True,
+            "is_locked": False,
+            "lock_reason": "",
+        },
+        {
+            "label": "افزودن رزرو دستی",
+            "icon": "fa-regular fa-calendar-plus",
+            "url": _safe_reverse(
+                "dashboards:multirole_manager_manual_booking",
+                fallback="#",
+                kwargs={"salon_id": salon.pk},
+            ),
+            "style": "primary",
+            "is_available": True,
+            "is_locked": False,
+            "lock_reason": "",
+        },
+    ]
+
+
+def _scoped_manager_notifications():
+    # Legacy manager notification destinations can infer a salon implicitly.
+    # Keep the scoped shell fail-closed until those destinations are migrated.
+    return {
+        "items": [],
+        "dropdown_items": [],
+        "tabs": [],
+        "dropdown_tabs": [],
+        "unread_count": 0,
+        "panel_url": "#",
+        "title": "اعلان‌های محیط کاری",
+        "subtitle": "اعلان‌های چندسالنی پس از تکمیل مهاجرت این بخش فعال می‌شوند.",
+        "panel_label": "اعلان‌ها",
+        "audience_role": "manager",
+    }
+
+
+def _scoped_manager_primary_action(active_key, salon):
+    if salon is None:
+        return None
+    mapping = {
+        "overview": ("نوبت‌های این سالن", "dashboards:multirole_manager_salon_bookings"),
+        "appointments": ("افزودن رزرو دستی", "dashboards:multirole_manager_manual_booking"),
+        "services": ("افزودن خدمت", "dashboards:multirole_manager_service_add"),
+        "team": ("تیم این سالن", "dashboards:multirole_manager_salon_team"),
+        "clients": ("مشتریان این سالن", "dashboards:multirole_manager_salon_customers"),
+        "finance": ("اسناد تسویه", "dashboards:multirole_manager_salon_settlements"),
+    }
+    config = mapping.get(active_key)
+    if not config:
+        return None
+    label, route_name = config
+    url = _safe_reverse(route_name, fallback="#", kwargs={"salon_id": salon.pk})
+    return {"label": label, "url": url} if url != "#" else None
+
+
 def _build_primary_action(active_key, salon, *, role="manager"):
     if role == "stylist":
         stylist_actions = {
@@ -1933,7 +2129,18 @@ def build_dashboard_context(
     stylist_override=None,
 ):
     resolved_role = role or get_dashboard_role(user)
-    salon = salon_override if salon_override is not None else get_dashboard_salon(user)
+    scoped_manager_path = False
+    scoped_manager_salon = None
+    if resolved_role == "manager" and salon_override is None:
+        scoped_manager_path, scoped_manager_salon = _scoped_manager_path_salon(
+            user, request_path
+        )
+    if salon_override is not None:
+        salon = salon_override
+    elif scoped_manager_path:
+        salon = scoped_manager_salon
+    else:
+        salon = get_dashboard_salon(user)
     stylist = (
         stylist_override
         if stylist_override is not None
@@ -1956,9 +2163,13 @@ def build_dashboard_context(
         )
 
     salon_manager = getattr(salon, "salon_manager", None) if salon else None
-    active_key = _infer_sidebar_active(
-        request_path=request_path,
-        explicit_key=sidebar_active,
+    active_key = (
+        _scoped_manager_active_key(request_path)
+        if scoped_manager_path
+        else _infer_sidebar_active(
+            request_path=request_path,
+            explicit_key=sidebar_active,
+        )
     )
 
     if resolved_role == "stylist" and active_key == "overview":
@@ -1984,6 +2195,11 @@ def build_dashboard_context(
         salon=salon,
         role=resolved_role,
     )
+    if scoped_manager_path:
+        sidebar_sections, sidebar_items = _scoped_manager_sidebar(
+            sidebar_sections, salon
+        )
+
     page_meta = _build_page_meta(
         active_key,
         salon,
@@ -1991,15 +2207,28 @@ def build_dashboard_context(
         stylist=stylist,
         manager_snapshot=manager_snapshot,
     )
-    notifications = _build_dashboard_notifications(
-        salon,
-        role=resolved_role,
-        user=user,
-        stylist=stylist,
+    if scoped_manager_path:
+        page_meta["primary_action"] = _scoped_manager_primary_action(
+            active_key, salon
+        )
+
+    notifications = (
+        _scoped_manager_notifications()
+        if scoped_manager_path
+        else _build_dashboard_notifications(
+            salon,
+            role=resolved_role,
+            user=user,
+            stylist=stylist,
+        )
     )
-    create_actions = build_dashboard_create_actions(
-        salon=salon,
-        role=resolved_role,
+    create_actions = (
+        _scoped_manager_actions(salon)
+        if scoped_manager_path
+        else build_dashboard_create_actions(
+            salon=salon,
+            role=resolved_role,
+        )
     )
 
     if resolved_role == "stylist":
@@ -2059,13 +2288,17 @@ def build_dashboard_context(
         dashboard_profile_label = "پروفایل من"
 
     else:
-        profile_url = _safe_reverse("dashboards:salon_profile") if salon else "#"
-        manager_profile_url = (
-            _safe_reverse("dashboards:manager_profile")
-            if getattr(user, "is_authenticated", False)
-            and hasattr(user, "salon_manager_profile")
-            else profile_url
-        )
+        if scoped_manager_path and salon is not None:
+            profile_url = _scoped_manager_url("overview", salon)
+            manager_profile_url = profile_url
+        else:
+            profile_url = _safe_reverse("dashboards:salon_profile") if salon else "#"
+            manager_profile_url = (
+                _safe_reverse("dashboards:manager_profile")
+                if getattr(user, "is_authenticated", False)
+                and hasattr(user, "salon_manager_profile")
+                else profile_url
+            )
 
         manager_name = (
             salon_manager.user.get_fullName() if salon_manager else "مدیر مجموعه"
@@ -2105,35 +2338,72 @@ def build_dashboard_context(
             "pending_approvals_label": "مورد در انتظار",
             "team_count_label": "عضو فعال",
         }
-        dashboard_profile_label = "پروفایل مجموعه"
+        dashboard_profile_label = (
+            "نمای کلی سالن" if scoped_manager_path else "پروفایل مجموعه"
+        )
 
-    has_manager_workspace = bool(
-        getattr(user, "is_authenticated", False)
-        and hasattr(user, "salon_manager_profile")
+    workspace_options = []
+    if getattr(user, "is_authenticated", False):
+        account_workspaces = available_workspaces(user)
+
+        for workspace in account_workspaces:
+            if workspace.kind == "customer":
+                label = "حساب مشتری"
+                description = "رزروها، علاقه‌مندی‌ها و فعالیت شخصی"
+                icon = "fa-regular fa-user"
+                is_active = False
+            elif workspace.kind == "stylist":
+                label = "پنل متخصص"
+                description = "نوبت‌ها و برنامه کاری شخصی"
+                icon = "fa-solid fa-scissors"
+                is_active = resolved_role == "stylist"
+            else:
+                label = "مدیریت سالن"
+                description = (
+                    workspace.label if workspace.salon_id is not None
+                    else "راه‌اندازی مجموعه"
+                )
+                icon = "fa-solid fa-store"
+                is_active = bool(
+                    resolved_role == "manager"
+                    and (
+                        (salon and workspace.salon_id == salon.pk)
+                        or (salon is None and workspace.salon_id is None)
+                    )
+                )
+
+            display_label = label
+            if workspace.kind == "manager" and description:
+                display_label = f"{label} · {description}"
+
+            workspace_options.append({
+                "kind": workspace.kind,
+                "salon_id": workspace.salon_id,
+                "label": label,
+                "display_label": display_label,
+                "description": description,
+                "icon": icon,
+                "is_active": is_active,
+            })
+
+    active_workspace = next(
+        (item for item in workspace_options if item["is_active"]),
+        None,
     )
-    has_stylist_workspace = bool(
-        getattr(user, "is_authenticated", False) and hasattr(user, "stylist")
+
+    nav_items = build_dashboard_nav_items(
+        active_key, salon=salon, role=resolved_role
     )
-    workspace_modes = []
-    if has_manager_workspace and has_stylist_workspace:
-        workspace_modes = [
-            {
-                "key": "manager",
-                "label": "مدیریت سالن",
-                "description": "نوبت‌ها، تیم، خدمات و تنظیمات کل سالن",
-                "icon": "fa-solid fa-store",
-                "url": _safe_reverse("dashboards:salon_manager_dashboard"),
-                "is_active": resolved_role == "manager",
-            },
-            {
-                "key": "stylist",
-                "label": "کارهای من",
-                "description": "نوبت‌ها و برنامه شخصی من به‌عنوان متخصص",
-                "icon": "fa-regular fa-user",
-                "url": _safe_reverse("dashboards:stylist_dashboard"),
-                "is_active": resolved_role == "stylist",
-            },
-        ]
+    mobile_nav_items = build_dashboard_mobile_nav_items(
+        active_key, salon=salon, role=resolved_role
+    )
+    quick_actions = build_dashboard_quick_actions(
+        salon=salon, role=resolved_role
+    )
+    if scoped_manager_path:
+        nav_items = [_scope_manager_nav_item(item, salon) for item in nav_items]
+        mobile_nav_items = _scoped_manager_mobile_items(mobile_nav_items, salon)
+        quick_actions = _scoped_manager_actions(salon)
 
     return {
         "page_title": page_title or page_meta["title"],
@@ -2142,33 +2412,24 @@ def build_dashboard_context(
         "salon_manager": salon_manager,
         "stylist": stylist,
         "dashboard_role": resolved_role,
-        "dashboard_nav_items": build_dashboard_nav_items(
-            active_key,
-            salon=salon,
-            role=resolved_role,
-        ),
+        "dashboard_nav_items": nav_items,
         "dashboard_sidebar_sections": sidebar_sections,
         "dashboard_sidebar_items": sidebar_items,
-        "dashboard_mobile_nav_items": build_dashboard_mobile_nav_items(
-            active_key,
-            salon=salon,
-            role=resolved_role,
-        ),
+        "dashboard_mobile_nav_items": mobile_nav_items,
         "dashboard_create_actions": create_actions,
         "dashboard_notifications": notifications,
         "dashboard_profile_url": profile_url,
         "dashboard_manager_profile_url": manager_profile_url,
         "dashboard_active_key": active_key,
-        "dashboard_quick_actions": build_dashboard_quick_actions(
-            salon=salon,
-            role=resolved_role,
-        ),
+        "dashboard_quick_actions": quick_actions,
         "dashboard_header": header,
         "dashboard_profile_label": dashboard_profile_label,
         "stylist_active_memberships": (
             stylist_active_memberships if resolved_role == "stylist" else []
         ),
         "stylist_salon": salon if resolved_role == "stylist" else None,
-        "dashboard_workspace_modes": workspace_modes,
-        "dashboard_has_workspace_switch": len(workspace_modes) > 1,
+        "dashboard_workspace_options": workspace_options,
+        "dashboard_workspace_active": active_workspace,
+        "dashboard_has_workspace_switch": len(workspace_options) > 1,
+        "dashboard_is_scoped_manager_shell": scoped_manager_path,
     }

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from apps.accounts.models import Stylist
+from apps.accounts.services.access import ensure_customer
 from django.conf import settings
 from django.contrib.auth import get_user
 from rest_framework.permissions import AllowAny
@@ -319,12 +320,7 @@ class ApiBookingDraftValidateAPIView(APIView):
                 status=401,
             )
 
-        if not hasattr(user, "customer_profile"):
-            return api_error(
-                "customer_profile_required",
-                "فقط کاربر مشتری می‌تواند رزرو ایجاد کند.",
-                status=403,
-            )
+        ensure_customer(user)
 
         payload = request.data
         if not isinstance(payload, dict):
@@ -445,12 +441,7 @@ class ApiBookingDraftSummaryAPIView(APIView):
                 status=401,
             )
 
-        if not hasattr(user, "customer_profile"):
-            return api_error(
-                "customer_profile_required",
-                "فقط کاربر مشتری می‌تواند رزرو ایجاد کند.",
-                status=403,
-            )
+        ensure_customer(user)
 
         payload = request.data
         if not isinstance(payload, dict):
@@ -571,13 +562,7 @@ class ApiBookingConfirmAPIView(APIView):
                 status=401,
             )
 
-        customer = getattr(user, "customer_profile", None)
-        if customer is None:
-            return api_error(
-                "customer_profile_required",
-                "فقط کاربر مشتری می‌تواند رزرو ایجاد کند.",
-                status=403,
-            )
+        customer = ensure_customer(user)
 
         payload = request.data
         if not isinstance(payload, dict):

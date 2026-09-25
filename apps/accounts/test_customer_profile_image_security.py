@@ -8,6 +8,7 @@ from django.urls import reverse
 from PIL import Image
 
 from tests_stage1_helpers import Stage1DomainFactoryMixin
+from apps.accounts.models import Customer
 
 
 def _animated_gif_upload():
@@ -73,7 +74,7 @@ class CustomerProfileImageSecurityTests(Stage1DomainFactoryMixin, TestCase):
 
         self.assertEqual(response.status_code, 405)
 
-    def test_customer_profile_image_forbids_non_customer_user(self):
+    def test_manager_can_update_personal_customer_profile_image(self):
         manager = self.make_salon_manager()
         self.client.force_login(manager.user)
 
@@ -83,7 +84,8 @@ class CustomerProfileImageSecurityTests(Stage1DomainFactoryMixin, TestCase):
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Customer.objects.filter(user=manager.user).exists())
 
     def test_customer_profile_image_rejects_missing_file(self):
         customer = self.make_customer()

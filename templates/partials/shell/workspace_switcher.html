@@ -1,0 +1,130 @@
+{% if request.user.is_authenticated %}
+  {% if request.user.stylist or request.user.salon_manager_profile %}
+    <details class="lm-workspace-switch lm-workspace-switch--shell {% if variant == 'mobile' %}lm-workspace-switch--mobile{% endif %}" data-shell-workspace-switch>
+      <summary
+        data-multirole-workspace-entry
+        class="{% if variant == 'mobile' %}lm-icon-button{% else %}inline-flex min-h-12 cursor-pointer list-none items-center gap-2 rounded-full border border-loomera-primary/15 bg-loomera-primarySoft/35 px-2.5 py-1.5 text-loomera-primaryText shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-loomera-focusRing/30{% endif %}"
+        aria-label="تغییر محیط کاری"
+        title="تغییر محیط کاری">
+        <span class="inline-flex {% if variant == 'mobile' %}h-5 w-5{% else %}h-8 w-8{% endif %} shrink-0 items-center justify-center rounded-full {% if variant != 'mobile' %}bg-white shadow-sm ring-1 ring-loomera-primary/10{% endif %}">
+          <i class="fa-solid fa-layer-group {% if variant == 'mobile' %}text-sm{% else %}text-xs{% endif %}" aria-hidden="true"></i>
+        </span>
+        {% if variant != 'mobile' %}
+          <span class="min-w-0 text-right">
+            <span class="block text-[10px] font-bold text-loomera-textMuted">محیط کاری</span>
+            <span class="lm-workspace-switch__trigger-label text-xs font-black text-loomera-primaryText">
+              {% if request.resolver_match.url_name == 'customer_panel' %}حساب مشتری{% elif request.user.workspace_preference.kind == 'manager' %}مدیریت سالن{% elif request.user.workspace_preference.kind == 'stylist' %}پنل متخصص{% else %}حساب مشتری{% endif %}
+            </span>
+          </span>
+          <i class="fa-solid fa-chevron-down text-[10px] text-loomera-primary" aria-hidden="true"></i>
+        {% endif %}
+      </summary>
+
+      <div class="lm-workspace-switch__menu" data-workspace-switch-menu>
+        <div class="lm-workspace-switch__intro">
+          <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText">
+            <i class="fa-solid fa-layer-group text-xs" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-black text-loomera-textPrimary">تغییر محیط کاری</p>
+            <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">همین‌جا بین حساب مشتری، متخصص و سالن‌ها جابه‌جا شو.</p>
+          </div>
+        </div>
+
+        <div class="lm-workspace-switch__options" role="list" aria-label="محیط‌های کاری در دسترس">
+          {% if request.user.workspace_preference.kind == 'customer' or request.resolver_match.url_name == 'customer_panel' %}
+            <div class="lm-workspace-switch__option is-active" role="listitem" aria-current="page" data-workspace-active>
+              <span class="lm-workspace-switch__option-icon"><i class="fa-regular fa-user" aria-hidden="true"></i></span>
+              <span class="lm-workspace-switch__option-copy">
+                <span class="lm-workspace-switch__option-title">حساب مشتری</span>
+                <span class="lm-workspace-switch__option-description">رزروها، علاقه‌مندی‌ها و حساب شخصی</span>
+              </span>
+              <span class="lm-workspace-switch__check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+            </div>
+          {% else %}
+            <form method="post" action="{% url 'accounts:workspace_choose' %}" class="lm-workspace-switch__form" role="listitem" data-workspace-option-form>
+              {% csrf_token %}
+              <input type="hidden" name="kind" value="customer">
+              <button type="submit" class="lm-workspace-switch__option">
+                <span class="lm-workspace-switch__option-icon"><i class="fa-regular fa-user" aria-hidden="true"></i></span>
+                <span class="lm-workspace-switch__option-copy">
+                  <span class="lm-workspace-switch__option-title">حساب مشتری</span>
+                  <span class="lm-workspace-switch__option-description">رزروها، علاقه‌مندی‌ها و حساب شخصی</span>
+                </span>
+                <span class="lm-workspace-switch__arrow"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></span>
+              </button>
+            </form>
+          {% endif %}
+
+          {% if request.user.stylist %}
+            {% if request.user.workspace_preference.kind == 'stylist' and request.resolver_match.url_name != 'customer_panel' %}
+              <div class="lm-workspace-switch__option is-active" role="listitem" aria-current="page" data-workspace-active>
+                <span class="lm-workspace-switch__option-icon"><i class="fa-solid fa-scissors" aria-hidden="true"></i></span>
+                <span class="lm-workspace-switch__option-copy">
+                  <span class="lm-workspace-switch__option-title">پنل متخصص</span>
+                  <span class="lm-workspace-switch__option-description">نوبت‌ها و برنامه کاری شخصی</span>
+                </span>
+                <span class="lm-workspace-switch__check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+              </div>
+            {% else %}
+              <form method="post" action="{% url 'accounts:workspace_choose' %}" class="lm-workspace-switch__form" role="listitem" data-workspace-option-form>
+                {% csrf_token %}
+                <input type="hidden" name="kind" value="stylist">
+                <button type="submit" class="lm-workspace-switch__option">
+                  <span class="lm-workspace-switch__option-icon"><i class="fa-solid fa-scissors" aria-hidden="true"></i></span>
+                  <span class="lm-workspace-switch__option-copy">
+                    <span class="lm-workspace-switch__option-title">پنل متخصص</span>
+                    <span class="lm-workspace-switch__option-description">نوبت‌ها و برنامه کاری شخصی</span>
+                  </span>
+                  <span class="lm-workspace-switch__arrow"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></span>
+                </button>
+              </form>
+            {% endif %}
+          {% endif %}
+
+          {% if request.user.salon_manager_profile %}
+            {% for owned_salon in request.user.salon_manager_profile.salon_manager.all %}
+              {% if request.user.workspace_preference.kind == 'manager' and request.user.workspace_preference.salon_id == owned_salon.pk and request.resolver_match.url_name != 'customer_panel' %}
+                <div class="lm-workspace-switch__option is-active" role="listitem" aria-current="page" data-workspace-active>
+                  <span class="lm-workspace-switch__option-icon"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
+                  <span class="lm-workspace-switch__option-copy">
+                    <span class="lm-workspace-switch__option-title">مدیریت سالن</span>
+                    <span class="lm-workspace-switch__option-description">{{ owned_salon.salon_name }}</span>
+                  </span>
+                  <span class="lm-workspace-switch__check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                </div>
+              {% else %}
+                <form method="post" action="{% url 'accounts:workspace_choose' %}" class="lm-workspace-switch__form" role="listitem" data-workspace-option-form>
+                  {% csrf_token %}
+                  <input type="hidden" name="kind" value="manager">
+                  <input type="hidden" name="salon_id" value="{{ owned_salon.pk }}">
+                  <button type="submit" class="lm-workspace-switch__option">
+                    <span class="lm-workspace-switch__option-icon"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
+                    <span class="lm-workspace-switch__option-copy">
+                      <span class="lm-workspace-switch__option-title">مدیریت سالن</span>
+                      <span class="lm-workspace-switch__option-description">{{ owned_salon.salon_name }}</span>
+                    </span>
+                    <span class="lm-workspace-switch__arrow"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></span>
+                  </button>
+                </form>
+              {% endif %}
+            {% empty %}
+              <form method="post" action="{% url 'accounts:workspace_choose' %}" class="lm-workspace-switch__form" role="listitem" data-workspace-option-form>
+                {% csrf_token %}
+                <input type="hidden" name="kind" value="manager">
+                <button type="submit" class="lm-workspace-switch__option">
+                  <span class="lm-workspace-switch__option-icon"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
+                  <span class="lm-workspace-switch__option-copy">
+                    <span class="lm-workspace-switch__option-title">مدیریت سالن</span>
+                    <span class="lm-workspace-switch__option-description">راه‌اندازی مجموعه</span>
+                  </span>
+                  <span class="lm-workspace-switch__arrow"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></span>
+                </button>
+              </form>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </details>
+  {% endif %}
+{% endif %}

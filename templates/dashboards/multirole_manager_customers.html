@@ -1,0 +1,15 @@
+{% extends "dashboard_template.html" %}
+{% block title %}مشتریان {{ salon.salon_name }} | لومرا{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <header class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6"><p class="text-xs font-black text-loomera-primary">مشتریان سالن</p><h1 class="mt-1 text-xl font-black">مشتریان {{ salon.salon_name }}</h1><p class="mt-2 text-sm leading-7 text-loomera-textMuted">این فهرست در محیط چندسالنی فعلاً فقط خواندنی است.</p></header>
+  <div class="overflow-hidden rounded-2xl border border-loomera-borderSoft bg-white shadow-lm-card">
+    <ul class="divide-y divide-loomera-borderSoft">{% for customer in page_obj %}<li class="px-4 py-3 text-sm font-bold">{{ customer.user.name }} {{ customer.user.family }}</li>{% empty %}<li class="px-4 py-8 text-center text-sm text-loomera-textMuted">مشتری‌ای برای این سالن ثبت نشده است.</li>{% endfor %}</ul>
+  </div>
+  <nav class="flex items-center justify-between gap-3 text-xs font-bold" aria-label="صفحه‌بندی مشتریان">
+    <span>{% if page_obj.has_previous %}<a class="rounded-xl border border-loomera-borderSoft px-3 py-2" href="?page={{ page_obj.previous_page_number }}">صفحه قبل</a>{% endif %}</span>
+    <span class="text-loomera-textMuted">صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+    <span>{% if page_obj.has_next %}<a class="rounded-xl border border-loomera-borderSoft px-3 py-2" href="?page={{ page_obj.next_page_number }}">صفحه بعد</a>{% endif %}</span>
+  </nav>
+</div>
+{% endblock %}

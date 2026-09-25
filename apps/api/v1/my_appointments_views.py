@@ -4,6 +4,7 @@ from django.contrib.auth import get_user
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
+from apps.accounts.services.access import ensure_customer
 from apps.orders.models import OrderDetail
 
 from .public_views import _clean_limit, _clean_offset, _query_string_too_large
@@ -31,15 +32,7 @@ def _customer_from_request(request):
             status=401,
         )
 
-    customer = getattr(user, "customer_profile", None)
-    if customer is None:
-        return None, api_error(
-            "customer_profile_required",
-            "فقط کاربر مشتری می‌تواند رزروهای خودش را مشاهده کند.",
-            status=403,
-        )
-
-    return customer, None
+    return ensure_customer(user), None
 
 
 def _safe_time_value(value):

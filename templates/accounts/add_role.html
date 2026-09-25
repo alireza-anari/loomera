@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}افزودن نقش | لومرا{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-lg px-4 py-12" dir="rtl">
+  <h1 class="text-2xl font-bold mb-3">{% if kind == 'stylist' %}افزودن نقش متخصص{% else %}افزودن نقش مدیر سالن{% endif %}</h1>
+  <p class="mb-6">این نقش به حساب فعلی شما اضافه می‌شود. رمز عبور و اطلاعات نقش‌های موجود تغییر نمی‌کنند.</p>
+  <form method="post" class="space-y-5">
+    {% csrf_token %}
+    {% if kind == 'stylist' %}
+    <label class="block" for="id_expert">تخصص اصلی</label>
+    <input class="w-full rounded-xl border p-3" id="id_expert" name="expert" maxlength="100" required value="{{ expert|default:'' }}" autocomplete="off">
+    {% endif %}
+    {% if error %}<p role="alert" class="text-red-700">{{ error }}</p>{% endif %}
+    <button class="rounded-xl p-3 bg-loomera-primary text-white" type="submit">تأیید و ادامه</button>
+  </form>
+</section>
+{% endblock %}

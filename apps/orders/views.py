@@ -16,6 +16,7 @@ from django.views import View
 from django.views.decorators.http import require_GET
 from khayyam import JalaliDate
 from apps.accounts.models import Customer, Stylist
+from apps.accounts.services.access import ensure_customer
 from apps.salons.models import Salon
 from apps.services.models import ServicePrice, Services
 from apps.stylists.models import StaffLeaveRequest, StylistSchedule
@@ -2513,14 +2514,9 @@ class AppointmentsView(LoginRequiredMixin, View):
     template_name = "orders/appointments.html"
 
     def get(self, request, *args, **kwargs):
-        if hasattr(request.user, "salon_manager_profile") or hasattr(
-            request.user, "stylist"
-        ):
-            return redirect("dashboards:salon_manager_dashboard")
-
-        customer = get_object_or_404(
-            Customer.objects.select_related("user"), user=request.user
-        )
+        # Customer is a baseline capability for every active identity. Professional
+        # profiles must never divert a user away from their personal appointments.
+        customer = ensure_customer(request.user)
 
         base_qs = OrderDetail.objects.filter(order__customer=customer).select_related(
             "order", "service", "salon", "stylist__user"
@@ -3700,7 +3696,7 @@ def _build_checkout_payload(*, request, coupon_code=""):
     )
     from apps.discounts.utils import calculate_best_service_discount_for_items
 
-    customer = get_object_or_404(Customer, user=request.user)
+    customer = ensure_customer(request.user)
     salon, resolved_items, stylist_selections, datetime_selections = (
         _get_session_booking_context(request)
     )

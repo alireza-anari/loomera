@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}انتخاب محیط فعالیت | لومرا{% endblock %}
+{% block head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/pages/workspace_choose.css' %}?v=20260925-workspace-ui2">
+{% endblock %}
+{% block body_class %}lm-workspace-body{% endblock %}
+{% block main_class %}lm-workspace-main{% endblock %}
+
+{% block content %}
+<section class="lm-workspace-page" data-multirole-workspace-chooser dir="rtl" aria-labelledby="workspace-title">
+  <div class="lm-workspace-page__ambient lm-workspace-page__ambient--one" aria-hidden="true"></div>
+  <div class="lm-workspace-page__ambient lm-workspace-page__ambient--two" aria-hidden="true"></div>
+
+  <div class="lm-workspace-shell">
+    <header class="lm-workspace-hero">
+      <div class="lm-workspace-hero__copy">
+        <a href="{% url 'accounts:customer_panel' %}" class="lm-workspace-brand" aria-label="لومرا — حساب من">
+          <img src="{% static 'branding/logo/loomera-logo-horizontal-rtl-transparent-240.png' %}" alt="لومرا" class="lm-workspace-brand__logo">
+        </a>
+
+        <span class="lm-workspace-eyebrow">
+          <i class="fa-solid fa-shuffle" aria-hidden="true"></i>
+          حساب واحد، محیط‌های مختلف
+        </span>
+        <h1 id="workspace-title">کجا می‌خواهی ادامه بدهی؟</h1>
+        <p>بدون خروج از حساب، بین رزروهای شخصی، پنل متخصص و سالن‌هایی که مدیریت می‌کنی جابه‌جا شو.</p>
+      </div>
+
+      <div class="lm-workspace-hero__visual" aria-hidden="true">
+        <span class="lm-workspace-hero__orb">
+          <i class="fa-solid fa-user" aria-hidden="true"></i>
+        </span>
+        <span class="lm-workspace-hero__mini lm-workspace-hero__mini--top">
+          <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+        </span>
+        <span class="lm-workspace-hero__mini lm-workspace-hero__mini--bottom">
+          <i class="fa-solid fa-store" aria-hidden="true"></i>
+        </span>
+      </div>
+    </header>
+
+    <div class="lm-workspace-layout">
+      <section class="lm-workspace-panel" aria-labelledby="available-workspaces-title">
+        <div class="lm-workspace-section-heading">
+          <div>
+            <span class="lm-workspace-section-heading__kicker">محیط‌های فعال</span>
+            <h2 id="available-workspaces-title">یک محیط را برای ورود انتخاب کن</h2>
+          </div>
+          <span class="lm-workspace-section-heading__hint">انتخابت هر زمان قابل تغییر است</span>
+        </div>
+
+        <div class="lm-workspace-grid" role="list" aria-label="محیط‌های مجاز">
+          {% for workspace in workspaces %}
+            <form
+              role="listitem"
+              method="post"
+              action="{% url 'accounts:workspace_choose' %}"
+              class="lm-workspace-card lm-workspace-card--{{ workspace.kind }}"
+              data-workspace-card
+              data-workspace-kind="{{ workspace.kind }}"
+            >
+              {% csrf_token %}
+              <input type="hidden" name="kind" value="{{ workspace.kind }}">
+              {% if workspace.salon_id %}<input type="hidden" name="salon_id" value="{{ workspace.salon_id }}">{% endif %}
+
+              <button type="submit" class="lm-workspace-card__button">
+                <span class="lm-workspace-card__icon" aria-hidden="true">
+                  {% if workspace.kind == 'customer' %}
+                    <i class="fa-solid fa-user"></i>
+                  {% elif workspace.kind == 'stylist' %}
+                    <i class="fa-solid fa-scissors"></i>
+                  {% else %}
+                    <i class="fa-solid fa-store"></i>
+                  {% endif %}
+                </span>
+
+                <span class="lm-workspace-card__copy">
+                  {% if workspace.kind == 'customer' %}
+                    <strong>حساب مشتری</strong>
+                    <small>رزروها، علاقه‌مندی‌ها و پرداخت‌های شخصی</small>
+                  {% elif workspace.kind == 'stylist' %}
+                    <strong>پنل متخصص</strong>
+                    <small>برنامه کاری، نوبت‌ها و فعالیت حرفه‌ای</small>
+                  {% else %}
+                    <strong>{% if workspace.salon_id %}مدیریت {{ workspace.label }}{% else %}راه‌اندازی سالن{% endif %}</strong>
+                    <small>{% if workspace.salon_id %}مدیریت همین سالن و عملیات مرتبط با آن{% else %}تکمیل اطلاعات و شروع مدیریت سالن{% endif %}</small>
+                  {% endif %}
+                </span>
+
+                <span class="lm-workspace-card__action" aria-hidden="true">
+                  <span>ورود</span>
+                  <i class="fa-solid fa-arrow-left"></i>
+                </span>
+              </button>
+            </form>
+          {% empty %}
+            <div role="alert" class="lm-workspace-empty">
+              <span class="lm-workspace-empty__icon" aria-hidden="true"><i class="fa-regular fa-circle-question"></i></span>
+              <div>
+                <strong>فعلاً محیط فعالی برای این حساب وجود ندارد</strong>
+                <p>می‌توانی از بخش افزودن نقش، فعالیت حرفه‌ای خودت را در لومرا شروع کنی.</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      {% if not request.user.stylist or not request.user.salon_manager_profile %}
+        <aside class="lm-workspace-growth" data-multirole-add-role aria-labelledby="add-workspace-title">
+          <div class="lm-workspace-growth__icon" aria-hidden="true">
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <span class="lm-workspace-growth__kicker">گسترش فعالیت</span>
+          <h2 id="add-workspace-title">نقش حرفه‌ای دیگری هم داری؟</h2>
+          <p>همین حساب را نگه دار و نقش جدیدت را به آن اضافه کن؛ نیازی به ساخت حساب جدا نیست.</p>
+
+          <div class="lm-workspace-growth__actions">
+            {% if not request.user.stylist %}
+              <a href="{% url 'accounts:add_role' kind='stylist' %}" class="lm-workspace-growth__link">
+                <span class="lm-workspace-growth__link-icon" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+                <span><strong>افزودن نقش متخصص</strong><small>برای ارائه خدمات و مدیریت نوبت‌ها</small></span>
+                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+              </a>
+            {% endif %}
+
+            {% if not request.user.salon_manager_profile %}
+              <a href="{% url 'accounts:add_role' kind='manager' %}" class="lm-workspace-growth__link">
+                <span class="lm-workspace-growth__link-icon" aria-hidden="true"><i class="fa-solid fa-store"></i></span>
+                <span><strong>افزودن نقش مدیر سالن</strong><small>برای ساخت یا مدیریت مجموعه</small></span>
+                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+              </a>
+            {% endif %}
+          </div>
+        </aside>
+      {% endif %}
+    </div>
+
+    <div class="lm-workspace-footnote">
+      <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+      <span>هر محیط فقط دسترسی‌های مجاز همان نقش و همان سالن را نمایش می‌دهد.</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

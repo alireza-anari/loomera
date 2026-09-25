@@ -1,0 +1,25 @@
+{% extends "dashboard_template.html" %}
+{% block title %}نمای کلی {{ salon.salon_name }} | لومرا{% endblock %}
+{% block content %}
+<div data-multirole-salon-overview class="space-y-5" aria-labelledby="salon-title">
+  <header class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
+    <p class="mb-1 text-xs font-black text-loomera-primary">داشبورد مدیریت سالن</p>
+    <h1 id="salon-title" class="text-2xl font-black">{{ salon.salon_name }}</h1>
+    <p class="mt-2 text-sm leading-7 text-loomera-textMuted">همه اطلاعات و عملیات این صفحه به همین سالن محدود است. مسیرهای قدیمی که هنوز برای محیط چندسالنی بازبینی نشده‌اند در ناوبری غیرفعال می‌مانند.</p>
+  </header>
+
+  <dl class="grid gap-3 sm:grid-cols-3">
+    <div class="rounded-2xl border border-loomera-borderSoft bg-white p-4 shadow-lm-card"><dt class="text-sm text-loomera-textMuted">خدمات</dt><dd class="mt-2 text-2xl font-black">{{ services_count }}</dd></div>
+    <div class="rounded-2xl border border-loomera-borderSoft bg-white p-4 shadow-lm-card"><dt class="text-sm text-loomera-textMuted">متخصصان</dt><dd class="mt-2 text-2xl font-black">{{ team_count }}</dd></div>
+    <div class="rounded-2xl border border-loomera-borderSoft bg-white p-4 shadow-lm-card"><dt class="text-sm text-loomera-textMuted">سوابق نوبت</dt><dd class="mt-2 text-2xl font-black">{{ booking_count }}</dd></div>
+  </dl>
+
+  <nav class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="بخش‌های همین سالن">
+    <a class="rounded-2xl border border-loomera-borderSoft bg-white p-4 text-sm font-black shadow-lm-card transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/25" href="{% url 'dashboards:multirole_manager_salon_services' salon_id=salon.pk %}">خدمات این سالن</a>
+    <a class="rounded-2xl border border-loomera-borderSoft bg-white p-4 text-sm font-black shadow-lm-card transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/25" href="{% url 'dashboards:multirole_manager_salon_team' salon_id=salon.pk %}">تیم این سالن</a>
+    <a class="rounded-2xl border border-loomera-borderSoft bg-white p-4 text-sm font-black shadow-lm-card transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/25" href="{% url 'dashboards:multirole_manager_salon_bookings' salon_id=salon.pk %}">نوبت‌های این سالن</a>
+    <a class="rounded-2xl border border-loomera-borderSoft bg-white p-4 text-sm font-black shadow-lm-card transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/25" href="{% url 'dashboards:multirole_manager_salon_customers' salon_id=salon.pk %}">مشتریان این سالن</a>
+    <a class="rounded-2xl border border-loomera-borderSoft bg-white p-4 text-sm font-black shadow-lm-card transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/25" href="{% url 'dashboards:multirole_manager_salon_finance_preview' salon_id=salon.pk %}">نمای مالی خواندنی</a>
+  </nav>
+</div>
+{% endblock %}

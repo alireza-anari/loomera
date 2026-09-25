@@ -71,6 +71,8 @@ def _active_memberships(stylist: Stylist | None) -> list[SalonMembership]:
 
 
 def _manager_salons(user) -> list[Salon]:
+    if not user or not getattr(user, "is_authenticated", False) or not getattr(user, "is_active", False):
+        return []
     manager = _manager_profile(user)
     if manager is None:
         return []
@@ -405,10 +407,21 @@ def render_manager_promotion_pack(user, base_url: str, *, salon_id: int | None =
             {"inline_keyboard": [[{"text": "منوی مدیر", "callback_data": "menu:manager"}]]},
         )
 
+    # Never silently generate a booking quick-link for the first salon of a
+    # multi-salon manager, or fall back after an invalid/foreign salon ID.
     salon = None
-    if salon_id:
-        salon = next((item for item in salons if int(item.pk) == int(salon_id)), None)
-    salon = salon or salons[0]
+    if salon_id is None:
+        if len(salons) == 1:
+            salon = salons[0]
+    elif not isinstance(salon_id, bool) and str(salon_id).isascii() and str(salon_id).isdecimal():
+        parsed_id = int(salon_id)
+        if parsed_id > 0 and str(parsed_id) == str(salon_id):
+            salon = next((item for item in salons if item.pk == parsed_id), None)
+    if salon is None:
+        return (
+            "برای ساخت متن تبلیغاتی، ابتدا سالن مجاز موردنظر را از منوی مدیر انتخاب کنید.",
+            {"inline_keyboard": [[{"text": "انتخاب سالن", "callback_data": "menu:manager"}]]},
+        )
 
     salon_url = _salon_url(base_url, salon)
     service = _first_active_service(salon)

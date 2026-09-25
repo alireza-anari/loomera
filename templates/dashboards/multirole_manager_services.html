@@ -1,0 +1,36 @@
+{% extends "dashboard_template.html" %}
+{% block title %}خدمات {{ salon.salon_name }} | لومرا{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <header class="flex flex-col gap-3 rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="text-xs font-black text-loomera-primary">خدمات سالن</p>
+      <h1 class="mt-1 text-xl font-black">خدمات {{ salon.salon_name }}</h1>
+      <p class="mt-2 text-sm leading-7 text-loomera-textMuted">افزودن و ویرایش فقط برای نسخه اختصاصی همین سالن از خدمات کاتالوگ مجاز است.</p>
+    </div>
+    <a class="inline-flex min-h-11 items-center justify-center rounded-2xl bg-loomera-primary px-4 py-2 text-sm font-black text-white" href="{% url 'dashboards:multirole_manager_service_add' salon_id=salon.pk %}">افزودن خدمت</a>
+  </header>
+
+  <div class="space-y-3">
+    {% for service in services %}
+      <article class="flex flex-col gap-3 rounded-2xl border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:flex-row sm:items-center sm:justify-between">
+        <div class="min-w-0">
+          <h2 class="truncate text-sm font-black">{{ service.service_name }}</h2>
+          <p class="mt-1 text-xs text-loomera-textMuted">{% if service.is_active %}فعال{% else %}غیرفعال{% endif %}</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          {% if not service.is_platform_catalog and service.services_of_salon.count == 1 %}
+            {% if service.catalog_source_id %}<a class="rounded-xl border border-loomera-borderSoft px-3 py-2 text-xs font-black" href="{% url 'dashboards:multirole_manager_service_edit' salon_id=salon.pk service_id=service.pk %}">ویرایش</a>{% endif %}
+            <form method="post" action="{% url 'dashboards:multirole_manager_service_toggle' salon_id=salon.pk service_id=service.pk %}">
+              {% csrf_token %}<input type="hidden" name="salon_id" value="{{ salon.pk }}">
+              <button class="rounded-xl border border-loomera-borderSoft px-3 py-2 text-xs font-black" type="submit">{% if service.is_active %}غیرفعال کردن{% else %}فعال کردن{% endif %}</button>
+            </form>
+          {% else %}<span class="text-xs text-loomera-textMuted">خدمت مشترک/کاتالوگ؛ ویرایش غیرفعال است.</span>{% endif %}
+        </div>
+      </article>
+    {% empty %}
+      <div class="rounded-2xl border border-dashed border-loomera-border bg-white p-8 text-center text-sm text-loomera-textMuted">خدمتی در این سالن ثبت نشده است.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -141,6 +141,40 @@ class ManagerCommunicationSettingsView(LoginRequiredMixin, View):
         }
 
     def _dashboard_context(self, request):
+        from apps.accounts.services.access import managed_salons
+
+        if managed_salons(request.user).count() > 1:
+            # All owned-salon share links are authorized in _loomi_share_targets.
+            # Never build the legacy dashboard context: it silently picks the
+            # manager's first salon and can display unrelated operational data.
+            chooser_url = reverse("accounts:workspace_choose")
+            header = {
+                "salon_name": "مدیریت چند سالن",
+                "manager_name": request.user.get_fullName(),
+                "notifications_count": 0,
+            }
+            safe_shell = {
+                "dashboard_nav_items": [],
+                "dashboard_sidebar_sections": [],
+                "dashboard_sidebar_items": [],
+                "dashboard_mobile_nav_items": [],
+                "dashboard_quick_actions": [],
+                "dashboard_header": header,
+                "page_meta": {"title": "اعلان‌ها و ارتباطات", "icon": "fa-regular fa-bell"},
+                "page_title": "اعلان‌ها و ارتباطات",
+                "dashboard_role": "manager",
+                "dashboard_profile_url": chooser_url,
+                "dashboard_notifications": {"audience_role": "manager", "unread_count": 0, "tabs": [], "dropdown_items": []},
+                "dashboard_has_workspace_switch": True,
+                "dashboard_workspace_modes": [{
+                    "key": "workspace", "label": "انتخاب سالن و نقش",
+                    "url": chooser_url, "icon": "fa-solid fa-arrows-rotate",
+                    "description": "بازگشت به انتخاب محیط فعالیت", "is_active": False,
+                }],
+                "request": request,
+            }
+            return {"_dashboard_shell_context": safe_shell, **safe_shell}
+
         return build_dashboard_context(
             request.user,
             nav_active="home",

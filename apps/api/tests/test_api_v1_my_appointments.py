@@ -5,6 +5,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from apps.accounts.models import Customer
 from apps.accounts.models import Stylist
 from tests_stage1_helpers import Stage1DomainFactoryMixin
 
@@ -89,14 +90,16 @@ class ApiV1MyAppointmentsTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.json()["error"]["code"], "authentication_required")
 
-    def test_my_appointments_requires_customer_profile(self):
+    def test_my_appointments_creates_customer_profile_for_manager(self):
         manager = self.make_salon_manager()
         self.client.force_login(manager.user)
 
         response = self.client.get(self.list_url)
 
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.json()["error"]["code"], "customer_profile_required")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])
+        self.assertEqual(response.json()["data"]["pagination"]["total_count"], 0)
+        self.assertTrue(Customer.objects.filter(user=manager.user).exists())
 
     def test_my_appointments_lists_only_current_customer_appointments(self):
         customer, salon, service, stylist, order, appointment = (
