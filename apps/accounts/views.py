@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Avg, Sum, F, Q, Value, Case, When, IntegerField
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -42,7 +43,14 @@ from .forms import (
     StylistSignupForm,
     VerifyRegisterForm,
     validate_customer_profile_image_upload,
+    normalize_digits,
 )
+from .services.access import ensure_customer
+from .services.role_intents import set_role_intent, consume_role_intent
+from .services.workspaces import (
+    available_workspaces, login_workspace_destination, select_workspace,
+)
+
 from .models import (
     AccountDeletionRequest,
     Customer,
@@ -425,9 +433,8 @@ def _role_redirect_name(user):
         return "dashboards:salon_manager_dashboard"
     if hasattr(user, "stylist"):
         return "dashboards:stylist_dashboard"
-    if hasattr(user, "customer_profile"):
-        return "accounts:customer_panel"
-    return "salons:show_salons"
+    # Any active logged-in account can become a customer on first use.
+    return "accounts:customer_panel"
 
 
 def _redirect_user_by_role(user):
@@ -493,11 +500,38 @@ def _auth_context(request, **extra):
 
 def _redirect_after_auth(request, user, next_url=""):
     safe_next_url = next_url or _clean_next_url(request)
-
     if safe_next_url:
+        # A legitimate deep link is more specific than a signup continuation.
         return redirect(safe_next_url)
+    kind = consume_role_intent(request, user)
+    if kind == "customer":
+        return redirect("accounts:customer_panel")
+    if kind in ("stylist", "manager"):
+        return redirect("accounts:add_role", kind=kind)
+    destination = login_workspace_destination(user)
+    return redirect(destination or "accounts:workspace_choose")
 
-    return _redirect_user_by_role(user)
+
+class WorkspaceChooseView(LoginRequiredMixin, View):
+    """Safe workspace switcher; choice does not grant permission."""
+
+    template_name = "accounts/workspace_choose.html"
+    http_method_names = ["get", "post"]
+
+    def get(self, request, *args, **kwargs):
+        spaces = available_workspaces(request.user)
+        return render(request, self.template_name, {
+            "workspaces": spaces,
+            "hide_navbar": True,
+        })
+
+    def post(self, request, *args, **kwargs):
+        target = select_workspace(
+            request.user,
+            kind=request.POST.get("kind", ""),
+            salon_id=request.POST.get("salon_id", ""),
+        )
+        return redirect(target)
 
 
 def _now_ts():
@@ -804,6 +838,61 @@ def _start_verification(request, *, user, signup_kind):
     )
 
 
+
+def _redirect_active_existing_signup(request, *, kind):
+    """Move an existing active mobile to login, never call BaseSignupForm.save()."""
+    mobile = normalize_digits(request.POST.get("mobile_number", ""))
+    mobile = "".join(ch for ch in mobile if "0" <= ch <= "9")
+    if len(mobile) != 11 or not mobile.startswith("09"):
+        return None
+    if not CustomUser.objects.filter(mobile_number=mobile, is_active=True).exists():
+        return None
+    set_role_intent(request, mobile=mobile, kind=kind)
+    messages.info(request, "برای ادامه، با حساب کاربری خود وارد شوید.", "info")
+    return redirect("accounts:login")
+
+
+class AddRoleView(LoginRequiredMixin, View):
+    """Explicit role attachment to request.user; never touches the signup save path."""
+    http_method_names = ["get", "post"]
+
+    def dispatch(self, request, *args, **kwargs):
+        self.kind = kwargs.get("kind")
+        if self.kind not in ("stylist", "manager"):
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return render(request, "accounts/add_role.html", {"kind": self.kind})
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_active:
+            raise PermissionDenied
+        if self.kind == "stylist":
+            expert = (request.POST.get("expert") or "").strip()
+            if not expert or len(expert) > 100:
+                return render(request, "accounts/add_role.html", {
+                    "kind": self.kind, "expert": expert[:100],
+                    "error": "لطفاً تخصص خود را وارد کنید (حداکثر ۱۰۰ کاراکتر).",
+                }, status=400)
+            with transaction.atomic():
+                Stylist.objects.get_or_create(
+                    user=request.user,
+                    defaults={
+                        "expert": expert,
+                        "display_name": request.user.get_fullName(),
+                        "resume_headline": expert,
+                        "public_visibility": Stylist.PublicVisibility.RESUME_ONLY,
+                        "is_active": True,
+                    },
+                )
+            messages.success(request, "نقش متخصص به حساب شما اضافه شد.")
+            return redirect("dashboards:stylist_profile")
+        with transaction.atomic():
+            SalonManager.objects.get_or_create(user=request.user)
+        messages.success(request, "اکنون می‌توانید مدیریت سالن خود را آغاز کنید.")
+        return redirect("dashboards:salon_manager_dashboard")
+
 # ----------------------------------------------------------------------------------------------------
 class CustomerSignupView(View):
     def dispatch(self, request, *args, **kwargs):
@@ -820,6 +909,9 @@ class CustomerSignupView(View):
         )
 
     def post(self, request):
+        existing_account = _redirect_active_existing_signup(request, kind="customer")
+        if existing_account is not None:
+            return existing_account
         form = CustomerSignupForm(request.POST)
         if form.is_valid():
             user = form.save()
@@ -853,7 +945,7 @@ class CustomerSignupView(View):
 class StylistSignupView(View):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return _redirect_user_by_role(request.user)
+            return redirect("accounts:add_role", kind="stylist")
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
@@ -865,6 +957,9 @@ class StylistSignupView(View):
         )
 
     def post(self, request):
+        existing_account = _redirect_active_existing_signup(request, kind="stylist")
+        if existing_account is not None:
+            return existing_account
         form = StylistSignupForm(request.POST)
         if form.is_valid():
             user = form.save()
@@ -911,7 +1006,7 @@ class StylistSignupView(View):
 class RegisterUserView(View):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return _redirect_after_auth(request, request.user)
+            return redirect("accounts:add_role", kind="manager")
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -923,6 +1018,9 @@ class RegisterUserView(View):
         )
 
     def post(self, request, *args, **kwargs):
+        existing_account = _redirect_active_existing_signup(request, kind="manager")
+        if existing_account is not None:
+            return existing_account
         form = RegisterUserForm(request.POST)
         if form.is_valid():
             user = form.save()
@@ -1373,23 +1471,13 @@ class RememberPasswordView(View):
 
 
 def _redirect_if_non_customer_user(request):
-    if hasattr(request.user, "stylist") or hasattr(
-        request.user, "salon_manager_profile"
-    ):
-        _add_wrong_area_message(
-            request,
-            target_area="پنل مشتری",
-            redirect_area="داشبورد مناسب حساب خود",
-        )
-        return _redirect_user_by_role(request.user)
+    # Every authenticated, active identity has the customer capability.
+    # LoginRequiredMixin/decorators guard the views calling this helper.
     return None
 
 
 def _get_customer_profile(user):
-    try:
-        return user.customer_profile
-    except Customer.DoesNotExist as exc:
-        raise Http404("پروفایل مشتری یافت نشد") from exc
+    return ensure_customer(user)
 
 
 def _bootstrap_customer_addresses(customer):
@@ -1694,14 +1782,6 @@ def validate_uploaded_profile_image(uploaded_file):
 @login_required
 @require_POST
 def customer_update_profile_image(request):
-    try:
-        customer = Customer.objects.get(user=request.user)
-    except Customer.DoesNotExist:
-        return JsonResponse(
-            {"status": "error", "error": "کاربر مربوطه یافت نشد."},
-            status=404,
-        )
-
     image = request.FILES.get("image")
 
     try:
@@ -1713,6 +1793,7 @@ def customer_update_profile_image(request):
             status=400,
         )
 
+    customer = _get_customer_profile(request.user)
     customer.profile_image = image
     customer.save(update_fields=["profile_image"])
 
@@ -2010,10 +2091,7 @@ class NotificationSettingsView(LoginRequiredMixin, View):
     """Notification Settings Page"""
 
     def get(self, request):
-        try:
-            customer = request.user.customer_profile
-        except Customer.DoesNotExist:
-            raise Http404("پروفایل مشتری یافت نشد")
+        customer = _get_customer_profile(request.user)
 
         context = {
             "customer": customer,
@@ -2026,11 +2104,6 @@ class NotificationSettingsView(LoginRequiredMixin, View):
 @require_POST
 def update_notification_settings(request):
     """API endpoint to update customer notification settings via AJAX."""
-    try:
-        customer = request.user.customer_profile
-    except Customer.DoesNotExist:
-        return JsonResponse({"error": "access_denied"}, status=403)
-
     try:
         data = _load_notification_settings_payload(request)
     except NotificationSettingsPayloadTooLarge:
@@ -2047,19 +2120,19 @@ def update_notification_settings(request):
         "notify_marketing_whatsapp",
     ]
 
-    changed_fields = []
+    validated_changes = {}
     try:
         for field, value in data.items():
-            if field not in valid_fields:
-                continue
-
-            setattr(customer, field, _coerce_notification_boolean(value))
-            changed_fields.append(field)
+            if field in valid_fields:
+                validated_changes[field] = _coerce_notification_boolean(value)
     except NotificationSettingsValueInvalid:
         return JsonResponse({"error": "invalid_notification_value"}, status=400)
 
-    if changed_fields:
-        customer.save(update_fields=changed_fields)
+    if validated_changes:
+        customer = _get_customer_profile(request.user)
+        for field, value in validated_changes.items():
+            setattr(customer, field, value)
+        customer.save(update_fields=list(validated_changes))
 
     return JsonResponse({"status": "success"})
 

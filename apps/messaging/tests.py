@@ -249,12 +249,15 @@ class MessagingRoleDetectionStage4Tests(TestCase):
             family="چندگانه",
             password="pass12345",
         )
+        self.user.is_active = True
+        self.user.save(update_fields=["is_active"])
 
-    def test_user_without_profile_has_no_bot_roles(self):
+    def test_active_user_without_profile_has_customer_bot_capability(self):
         context = detect_user_bot_roles(self.user)
 
-        self.assertFalse(context.has_roles)
-        self.assertEqual(context.roles, ())
+        self.assertTrue(context.has_roles)
+        self.assertEqual([role.key for role in context.roles], [BotRoleKey.CUSTOMER])
+        self.assertFalse(Customer.objects.filter(user=self.user).exists())
 
     def test_customer_stylist_manager_roles_are_detected_from_real_models(self):
         Customer.objects.create(user=self.user)
@@ -785,6 +788,8 @@ class MessagingPromotionStage10Tests(TestCase):
             family="متخصص",
             password="pass12345",
         )
+        self.user.is_active = True
+        self.user.save(update_fields=["is_active"])
         self.stylist = Stylist.objects.create(
             user=self.user, expert="پوست", is_active=True
         )
@@ -795,6 +800,8 @@ class MessagingPromotionStage10Tests(TestCase):
             family="پرومو",
             password="pass12345",
         )
+        self.manager_user.is_active = True
+        self.manager_user.save(update_fields=["is_active"])
         self.manager = SalonManager.objects.create(
             user=self.manager_user, is_active=True
         )

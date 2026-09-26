@@ -1,0 +1,18 @@
+{% extends "dashboard_template.html" %}
+{% block title %}نوبت‌های {{ salon.salon_name }} | لومرا{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <header class="flex flex-col gap-3 rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:flex-row sm:items-center sm:justify-between">
+    <div><p class="text-xs font-black text-loomera-primary">نوبت‌های سالن</p><h1 class="mt-1 text-xl font-black">نوبت‌های پیشِ‌رو — {{ salon.salon_name }}</h1><p class="mt-2 text-sm leading-7 text-loomera-textMuted">حداکثر ۵۰ نوبت؛ فقط لغو رزرو دستیِ پرداخت‌نشده و واجد شرایط از این مسیر فعال است.</p></div>
+    <a class="inline-flex min-h-11 items-center justify-center rounded-2xl bg-loomera-primary px-4 py-2 text-sm font-black text-white" href="{% url 'dashboards:multirole_manager_manual_booking' salon_id=salon.pk %}">افزودن رزرو دستی</a>
+  </header>
+  <div class="space-y-3">
+    {% for booking in bookings %}
+      <article class="flex flex-col gap-3 rounded-2xl border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:flex-row sm:items-center sm:justify-between">
+        <div><strong class="text-sm">{{ booking.service.service_name }}</strong><p class="mt-1 text-xs text-loomera-textMuted">{{ booking.date }} — {{ booking.time }} — {{ booking.order.get_status_display }}</p></div>
+        {% if booking.can_cancel_scoped %}<a class="rounded-xl border border-rose-200 px-3 py-2 text-xs font-black text-rose-700" href="{% url 'dashboards:multirole_manager_manual_booking_cancel' salon_id=salon.pk appointment_id=booking.pk %}">لغو این رزرو دستی</a>{% endif %}
+      </article>
+    {% empty %}<div class="rounded-2xl border border-dashed border-loomera-border bg-white p-8 text-center text-sm text-loomera-textMuted">نوبتی برای نمایش وجود ندارد.</div>{% endfor %}
+  </div>
+</div>
+{% endblock %}

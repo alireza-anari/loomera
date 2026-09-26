@@ -8,6 +8,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views import View
 
+from apps.accounts.services.access import ensure_customer
 from apps.messaging.constants import MessagingConnectionStatus, MessagingProviderKey
 from apps.messaging.models import MessagingAccountConnection, MessagingProvider
 from apps.messaging.preferences import (
@@ -36,11 +37,6 @@ class CustomerCommunicationSettingsView(LoginRequiredMixin, View):
     """
 
     template_name = "accounts/customer_communication_settings.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        if not hasattr(request.user, "customer_profile"):
-            return redirect("accounts:customer_panel")
-        return super().dispatch(request, *args, **kwargs)
 
     def _audience_role(self, user):
         roles = {item["key"]: item["label"] for item in user_messaging_roles(user)}
@@ -115,7 +111,7 @@ class CustomerCommunicationSettingsView(LoginRequiredMixin, View):
         }
 
     def _context(self, request):
-        customer = request.user.customer_profile
+        customer = ensure_customer(request.user)
         audience_role, audience_role_label = self._audience_role(request.user)
 
         context = {
@@ -150,7 +146,7 @@ class CustomerCommunicationSettingsView(LoginRequiredMixin, View):
         return render(request, self.template_name, self._context(request))
 
     def post(self, request, *args, **kwargs):
-        customer = request.user.customer_profile
+        customer = ensure_customer(request.user)
         audience_role, _audience_role_label = self._audience_role(request.user)
 
         customer.notify_appointment_email = normalize_bool(

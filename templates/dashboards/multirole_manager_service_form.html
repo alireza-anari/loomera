@@ -1,0 +1,20 @@
+{% extends "dashboard_template.html" %}
+{% block title %}{% if service %}ویرایش{% else %}افزودن{% endif %} خدمت | لومرا{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl space-y-5">
+  <header class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
+    <p class="text-xs font-black text-loomera-primary">خدمات {{ salon.salon_name }}</p>
+    <h1 class="mt-1 text-xl font-black">{% if service %}ویرایش{% else %}افزودن{% endif %} خدمت</h1>
+    <p class="mt-2 text-sm leading-7 text-loomera-textMuted">این فرم فقط خدمت اختصاصی همین سالن را تغییر می‌دهد و به خدمات کاتالوگ یا سالن‌های دیگر دست نمی‌زند.</p>
+  </header>
+  <form method="post" class="space-y-4 rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
+    {% csrf_token %}
+    <input type="hidden" name="salon_id" value="{{ salon.pk }}">
+    {{ form.as_p }}
+    <div class="flex flex-wrap gap-2 pt-2">
+      <button class="inline-flex min-h-11 items-center justify-center rounded-2xl bg-loomera-primary px-5 py-2 text-sm font-black text-white" type="submit">{% if service %}ذخیره تغییرات{% else %}افزودن خدمت{% endif %}</button>
+      <a class="inline-flex min-h-11 items-center justify-center rounded-2xl border border-loomera-borderSoft px-4 py-2 text-sm font-black" href="{% url 'dashboards:multirole_manager_salon_services' salon_id=salon.pk %}">بازگشت به خدمات</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

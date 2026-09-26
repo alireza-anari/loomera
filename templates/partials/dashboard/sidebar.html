@@ -43,9 +43,8 @@
         </button>
       </div>
 
-  {% if dashboard_role == "stylist" or dashboard_has_workspace_switch %}
+  {% if dashboard_role == "stylist" %}
   <div class="shrink-0 border-b border-loomera-borderSoft px-3 py-4 lg:px-4" data-sidebar-label>
-    {% if dashboard_role == "stylist" %}
       <div class="rounded-[26px] border border-loomera-borderSoft bg-gradient-to-br from-white via-loomera-primarySoft/35 to-loomera-bgSubtle p-4 shadow-lm-soft">
         <div class="flex items-start gap-3">
           <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl {% if dashboard_header.is_active %}bg-loomera-accentSoft text-loomera-success{% else %}bg-loomera-warningSoft text-loomera-warning{% endif %}">
@@ -91,39 +90,6 @@
           </div>
         </div>
       </div>
-    {% endif %}
-
-    {% if dashboard_has_workspace_switch %}
-      <div class="{% if dashboard_role == 'stylist' %}mt-3 {% endif %}rounded-[22px] border border-loomera-primary/10 bg-white/70 p-2 shadow-sm" data-workspace-switch>
-        <p class="px-2 pb-2 text-[10px] font-black text-loomera-textMuted">فضای کاری</p>
-        <div class="space-y-1.5">
-          {% for mode in dashboard_workspace_modes %}
-            {% if mode.is_active %}
-              <div class="flex items-center gap-3 rounded-2xl bg-loomera-primary px-3 py-2.5 text-white" aria-current="page">
-                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15">
-                  <i class="{{ mode.icon }} text-xs" aria-hidden="true"></i>
-                </span>
-                <div class="min-w-0">
-                  <p class="truncate text-xs font-black">{{ mode.label }}</p>
-                  <p class="mt-0.5 truncate text-[10px] text-white/75">فضای فعال</p>
-                </div>
-              </div>
-            {% else %}
-              <a href="{{ mode.url }}" class="group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-loomera-textSecondary transition hover:bg-loomera-primarySoft hover:text-loomera-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30">
-                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-loomera-primary shadow-sm ring-1 ring-loomera-primary/10">
-                  <i class="{{ mode.icon }} text-xs" aria-hidden="true"></i>
-                </span>
-                <div class="min-w-0">
-                  <p class="truncate text-xs font-black">{{ mode.label }}</p>
-                  <p class="mt-0.5 truncate text-[10px] text-loomera-textMuted">{{ mode.description }}</p>
-                </div>
-                <i class="fa-solid fa-arrow-left mr-auto text-[10px] text-loomera-textMuted" aria-hidden="true"></i>
-              </a>
-            {% endif %}
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
   </div>
   {% endif %}
 

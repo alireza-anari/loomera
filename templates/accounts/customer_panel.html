@@ -40,6 +40,24 @@
       </a>
     </section>
 
+    {% if not request.user.stylist or not request.user.salon_manager_profile %}
+      <section data-multirole-account-actions class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5" aria-labelledby="account-growth-title">
+        <div class="mb-3">
+          <p class="text-xs font-black text-loomera-primary">گسترش فعالیت</p>
+          <h2 id="account-growth-title" class="mt-1 text-lg font-black">نقش جدیدی به همین حساب اضافه کن</h2>
+          <p class="mt-1 text-xs leading-5 text-loomera-textMuted">تغییر محیط کاری از نوار بالای صفحه انجام می‌شود؛ این بخش فقط برای فعال‌کردن نقش‌های جدید است.</p>
+        </div>
+        <div class="grid gap-2 sm:grid-cols-2">
+          {% if not request.user.stylist %}
+            <a href="{% url 'accounts:add_role' kind='stylist' %}" class="flex min-h-12 items-center justify-between rounded-2xl border border-loomera-borderSoft px-4 py-3 text-sm font-bold transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/30">فعالیت به‌عنوان متخصص <i class="fa-solid fa-plus" aria-hidden="true"></i></a>
+          {% endif %}
+          {% if not request.user.salon_manager_profile %}
+            <a href="{% url 'accounts:add_role' kind='manager' %}" class="flex min-h-12 items-center justify-between rounded-2xl border border-loomera-borderSoft px-4 py-3 text-sm font-bold transition hover:border-loomera-primary/25 hover:bg-loomera-primarySoft/30">مدیریت سالن <i class="fa-solid fa-plus" aria-hidden="true"></i></a>
+          {% endif %}
+        </div>
+      </section>
+    {% endif %}
+
     <section class="rounded-[28px] border border-loomera-borderSoft bg-white p-4 shadow-lm-card sm:p-5" aria-labelledby="customer-account-details-title">
       <div class="mb-4"><p class="text-xs font-black text-loomera-primary">حساب و تنظیمات</p><h2 id="customer-account-details-title" class="mt-1 text-lg font-black">اطلاعات شخصی و ارتباطات</h2></div>
       <div class="grid gap-2 sm:grid-cols-2">

@@ -334,6 +334,8 @@ def manager_salon_selector_menu(base_url: str, role=None) -> dict:
 
 def manager_menu(base_url: str, role=None, *, salon_id: int | None = None) -> dict:
     if salon_id is None and role:
+        if len(_manager_role_salons(role)) > 1:
+            return manager_salon_selector_menu(base_url, role)
         salon_id = role.metadata.get("first_salon_id")
     calendar_url = _safe_url(base_url, "dashboards:salon_manager_dashboard")
     reports_url = _safe_url(base_url, "dashboards:salon_manager_dashboard")

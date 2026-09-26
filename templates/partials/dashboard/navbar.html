@@ -30,6 +30,72 @@
     </div>
 
     <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+      {% if dashboard_has_workspace_switch %}
+        <details class="lm-workspace-switch lm-workspace-switch--dashboard group" data-dashboard-workspace-switch>
+          <summary
+            class="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-2xl border border-loomera-primary/15 bg-loomera-primarySoft/45 px-2.5 py-1.5 text-loomera-primaryText shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-primarySoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"
+            aria-label="تغییر محیط کاری"
+            title="تغییر محیط کاری"
+            data-workspace-switch-toggle>
+            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-loomera-primary shadow-sm ring-1 ring-loomera-primary/10">
+              <i class="{{ dashboard_workspace_active.icon|default:'fa-solid fa-layer-group' }} text-xs" aria-hidden="true"></i>
+            </span>
+            <span class="hidden min-w-0 text-right md:block">
+              <span class="block text-[10px] font-bold text-loomera-textMuted">محیط کاری</span>
+              <span class="lm-workspace-switch__trigger-label text-xs font-black text-loomera-primaryText">{{ dashboard_workspace_active.display_label|default:'انتخاب محیط' }}</span>
+            </span>
+            <i class="fa-solid fa-chevron-down hidden text-[10px] text-loomera-primary transition group-open:rotate-180 sm:block" aria-hidden="true"></i>
+          </summary>
+
+          <div class="lm-workspace-switch__menu" data-workspace-switch-menu>
+            <div class="lm-workspace-switch__intro">
+              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-loomera-primarySoft text-loomera-primaryText">
+                <i class="fa-solid fa-layer-group text-xs" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-black text-loomera-textPrimary">تغییر محیط کاری</p>
+                <p class="mt-1 text-[11px] leading-5 text-loomera-textMuted">بدون خروج از حساب، نقش یا سالن موردنظر را انتخاب کن.</p>
+              </div>
+            </div>
+
+            <div class="lm-workspace-switch__options" role="list" aria-label="محیط‌های کاری در دسترس">
+              {% for workspace in dashboard_workspace_options %}
+                {% if workspace.is_active %}
+                  <div class="lm-workspace-switch__option is-active" role="listitem" aria-current="page" data-workspace-option data-workspace-active>
+                    <span class="lm-workspace-switch__option-icon">
+                      <i class="{{ workspace.icon }}" aria-hidden="true"></i>
+                    </span>
+                    <span class="lm-workspace-switch__option-copy">
+                      <span class="lm-workspace-switch__option-title">{{ workspace.label }}</span>
+                      <span class="lm-workspace-switch__option-description">{{ workspace.description }}</span>
+                    </span>
+                    <span class="lm-workspace-switch__check" title="محیط فعال">
+                      <i class="fa-solid fa-check" aria-hidden="true"></i>
+                    </span>
+                  </div>
+                {% else %}
+                  <form method="post" action="{% url 'accounts:workspace_choose' %}" class="lm-workspace-switch__form" role="listitem" data-workspace-option-form>
+                    {% csrf_token %}
+                    <input type="hidden" name="kind" value="{{ workspace.kind }}">
+                    {% if workspace.salon_id %}<input type="hidden" name="salon_id" value="{{ workspace.salon_id }}">{% endif %}
+                    <button type="submit" class="lm-workspace-switch__option">
+                      <span class="lm-workspace-switch__option-icon">
+                        <i class="{{ workspace.icon }}" aria-hidden="true"></i>
+                      </span>
+                      <span class="lm-workspace-switch__option-copy">
+                        <span class="lm-workspace-switch__option-title">{{ workspace.label }}</span>
+                        <span class="lm-workspace-switch__option-description">{{ workspace.description }}</span>
+                      </span>
+                      <span class="lm-workspace-switch__arrow"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></span>
+                    </button>
+                  </form>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </details>
+      {% endif %}
+
       <div class="relative" data-notification-root data-notification-summary-url="{% url 'notifications:summary' %}?role={{ dashboard_notifications.audience_role|default:'manager' }}">
         <button type="button"
                 class="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-loomera-borderSoft bg-white text-loomera-textSecondary shadow-lm-soft transition hover:border-loomera-primary/30 hover:bg-loomera-surfaceSoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loomera-primary/30"

@@ -5,6 +5,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from apps.accounts.models import Customer
 from apps.accounts.models import Stylist
 from tests_stage1_helpers import Stage1DomainFactoryMixin
 
@@ -374,7 +375,7 @@ class ApiV1BookingDraftValidationTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(response.status_code, 413)
         self.assertEqual(response.json()["error"]["code"], "payload_too_large")
 
-    def test_booking_draft_validate_requires_customer_profile(self):
+    def test_booking_draft_validate_creates_customer_profile_for_manager(self):
         customer, salon, service, stylist, target_date = self._setup_available_slot()
         manager = self.make_salon_manager()
         self.client.force_login(manager.user)
@@ -390,5 +391,7 @@ class ApiV1BookingDraftValidationTests(Stage1DomainFactoryMixin, TestCase):
             content_type="application/json",
         )
 
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.json()["error"]["code"], "customer_profile_required")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])
+        self.assertTrue(response.json()["data"]["valid"])
+        self.assertTrue(Customer.objects.filter(user=manager.user).exists())

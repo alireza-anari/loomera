@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.decorators.http import require_POST
 from apps.accounts.models import Customer
+from apps.accounts.services.access import ensure_customer
 from apps.salons.models import Salon
 from apps.services.models import Services
 from .forms import CommentScoringForm
@@ -63,11 +64,7 @@ class SalonCommentScoreView(View):
             messages.error(request, "برای نوشتن نظر و امتیاز ابتدا وارد شوید.")
             return redirect(salon.get_absolute_url())
 
-        try:
-            customer = Customer.objects.get(user=request.user)
-        except Customer.DoesNotExist:
-            messages.error(request, "شما به عنوان مشتری شناسایی نشده‌اید.")
-            return redirect(salon.get_absolute_url())
+        customer = ensure_customer(request.user)
 
         form = CommentScoringForm(salon=salon, customer=customer)
         return redirect(salon.get_absolute_url())
@@ -77,11 +74,7 @@ class SalonCommentScoreView(View):
             messages.error(request, "برای نوشتن نظر و امتیاز ابتدا وارد شوید.")
             return None, redirect(salon.get_absolute_url())
 
-        try:
-            customer = Customer.objects.get(user=request.user)
-        except Customer.DoesNotExist:
-            messages.error(request, "شما به عنوان مشتری شناسایی نشده‌اید.")
-            return None, redirect(salon.get_absolute_url())
+        customer = ensure_customer(request.user)
 
         return customer, None
 
@@ -292,18 +285,7 @@ def addFavorite(request):
         messages.error(request, message, "danger")
         return redirect(request.META.get("HTTP_REFERER") or "search:search_page")
 
-    customer = Customer.objects.filter(user=request.user).first()
-    if not customer:
-        message = "برای استفاده از علاقه‌مندی‌ها باید با حساب مشتری وارد شوید."
-        if is_ajax:
-            return JsonResponse(
-                {"ok": False, "message": message},
-                status=403,
-                json_dumps_params={"ensure_ascii": False},
-            )
-
-        messages.error(request, message, "danger")
-        return redirect("accounts:customer_panel")
+    customer = ensure_customer(request.user)
 
     favorite = Favorits.objects.filter(favorite_user=customer, salon=salon).first()
 
@@ -339,15 +321,7 @@ def get_favorite_salons(request):
         messages.error(request, "ابتدا وارد حساب کاربری شوید.", "danger")
         return redirect("accounts:login")
 
-    if not hasattr(request.user, "customer_profile"):
-        messages.error(
-            request,
-            "برای مشاهده علاقه‌مندی‌ها ابتدا پروفایل مشتری خود را تکمیل کنید.",
-            "danger",
-        )
-        return redirect("accounts:customer_panel")
-
-    customer = request.user.customer_profile
+    customer = ensure_customer(request.user)
 
     favorite_salon_ids = Favorits.objects.filter(
         favorite_user=customer,

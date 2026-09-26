@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from django.core.exceptions import ValidationError
 from django.urls import reverse
+from apps.help_center.multirole_scope import assistant_roles_for_request
 
-from .common import normalize_text, read_confirmation, resolve_current_path, user_roles
+from .common import normalize_text, read_confirmation, resolve_current_path
 from .customer_operations import (
     execute_customer_confirmation,
     is_customer_appointment_operation_candidate,
@@ -59,7 +60,7 @@ def _wants_navigation(text: str) -> bool:
 
 
 def _capabilities(request) -> dict:
-    roles = user_roles(request.user)
+    roles = assistant_roles_for_request(request)
     groups = []
     if "customer" in roles or "guest" in roles:
         groups.append(
@@ -215,7 +216,7 @@ def is_assistant_action_candidate(request, *, message: str = "", action_state: d
         return False
     if any(term in text for term in CAPABILITY_TERMS):
         return True
-    roles = user_roles(request.user)
+    roles = assistant_roles_for_request(request)
     state = action_state or {}
     if state.get("mode") in {"stylist_schedule", "stylist_leave", "stylist_payout", "manager_invite"}:
         return True
@@ -242,7 +243,7 @@ def is_assistant_action_candidate(request, *, message: str = "", action_state: d
 
 def run_assistant_action(request, *, message: str, action_state: dict | None, current_path: str = "") -> dict:
     text = normalize_text(message)
-    roles = user_roles(request.user)
+    roles = assistant_roles_for_request(request)
 
     if any(term in text for term in CAPABILITY_TERMS):
         return _capabilities(request)

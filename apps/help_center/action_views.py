@@ -21,6 +21,8 @@ from .actions.router import (
     is_assistant_action_candidate,
     run_assistant_action,
 )
+from .actions.common import read_confirmation
+from .multirole_scope import action_in_workspace
 
 
 logger = logging.getLogger(__name__)
@@ -181,6 +183,14 @@ def assistant_action_api(request):
     current_path = str(payload.get("current_path") or request.path or "")[:2048]
     message = str(payload.get("message") or "").strip()
 
+    if action_state and not action_in_workspace(
+        request, action_state.get("mode"), action_state.get("salon_id"),
+    ):
+        return JsonResponse(
+            {"error": "محیط فعالیت تغییر کرده است. گفتگو را دوباره شروع کن.",
+             "workspace_changed": True}, status=409,
+        )
+
     if command == "message":
         if not message or len(message) > 1200:
             return JsonResponse({"error": "پیام معتبر نیست."}, status=400)
@@ -209,6 +219,22 @@ def assistant_action_api(request):
 
     try:
         if command == "execute":
+            # A token is bound to the user by its signature, but also needs the
+            # *current* workspace: an earlier salon selection can be revoked.
+            from apps.accounts.models import CustomUser
+            if isinstance(request.user, CustomUser):
+                token_data = read_confirmation(
+                    user=request.user, token=str(payload.get("confirmation_token") or ""),
+                    consume=False,
+                )
+                if not action_in_workspace(
+                    request, token_data.get("action"),
+                    (token_data.get("data") or {}).get("salon_id"),
+                ):
+                    return JsonResponse(
+                        {"error": "محیط فعالیت تغییر کرده است. عملیات را دوباره آماده کن.",
+                         "workspace_changed": True}, status=409,
+                    )
             result = execute_assistant_confirmation(
                 request,
                 str(payload.get("confirmation_token") or ""),

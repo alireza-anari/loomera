@@ -37,7 +37,7 @@ class FavoriteToggleSecurityTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertFalse(Favorits.objects.filter(salon=salon).exists())
 
-    def test_add_favorite_forbids_non_customer_user(self):
+    def test_add_favorite_allows_manager_as_customer(self):
         manager = self.make_salon_manager()
         salon = self.make_salon(manager=manager)
 
@@ -48,8 +48,8 @@ class FavoriteToggleSecurityTests(Stage1DomainFactoryMixin, TestCase):
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
 
-        self.assertEqual(response.status_code, 403)
-        self.assertFalse(Favorits.objects.filter(salon=salon).exists())
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Favorits.objects.filter(salon=salon, favorite_user__user=manager.user).exists())
 
     def test_add_favorite_rejects_invalid_salon_id(self):
         customer = self.make_customer()

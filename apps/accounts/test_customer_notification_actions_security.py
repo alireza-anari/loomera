@@ -52,7 +52,7 @@ class CustomerNotificationActionsSecurityTests(Stage1DomainFactoryMixin, TestCas
         notification.refresh_from_db()
         self.assertFalse(notification.is_read)
 
-    def test_mark_customer_notification_read_forbids_non_customer_user(self):
+    def test_manager_cannot_read_another_users_customer_notification(self):
         customer = self.make_customer()
         manager = self.make_salon_manager()
         notification = self._create_notification(customer=customer)
@@ -63,8 +63,7 @@ class CustomerNotificationActionsSecurityTests(Stage1DomainFactoryMixin, TestCas
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
 
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.json()["error"], "not_customer")
+        self.assertEqual(response.status_code, 404)
 
         notification.refresh_from_db()
         self.assertFalse(notification.is_read)
@@ -136,7 +135,7 @@ class CustomerNotificationActionsSecurityTests(Stage1DomainFactoryMixin, TestCas
         notification.refresh_from_db()
         self.assertFalse(notification.is_read)
 
-    def test_mark_all_customer_notifications_read_forbids_non_customer_user(self):
+    def test_manager_cannot_bulk_read_another_users_customer_notifications(self):
         customer = self.make_customer()
         manager = self.make_salon_manager()
         notification = self._create_notification(customer=customer)
@@ -147,8 +146,8 @@ class CustomerNotificationActionsSecurityTests(Stage1DomainFactoryMixin, TestCas
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
 
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.json()["error"], "not_customer")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["updated"], 0)
 
         notification.refresh_from_db()
         self.assertFalse(notification.is_read)

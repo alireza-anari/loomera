@@ -1,0 +1,12 @@
+{% extends "dashboard_template.html" %}
+{% load l10n %}
+{% block title %}اسناد تسویه {{ salon.salon_name }} | لومرا{% endblock %}
+{% block content %}
+<div class="space-y-5" aria-labelledby="ledger-title">
+  <header class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6"><p class="text-xs font-black text-loomera-primary">دفتر تسویه خواندنی</p><h1 id="ledger-title" class="mt-1 text-xl font-black">اسناد تسویه {{ salon.salon_name }}</h1><p class="mt-2 text-sm leading-7 text-loomera-textMuted">فقط اسناد ثبت‌شده همین سالن نمایش داده می‌شوند و هیچ عملیات مالی از این صفحه انجام نمی‌شود.</p></header>
+  <div class="overflow-x-auto rounded-2xl border border-loomera-borderSoft bg-white shadow-lm-card">
+    {% if page_obj.object_list %}<table class="min-w-full text-right text-sm"><caption class="sr-only">فهرست اسناد تسویه سالن</caption><thead class="bg-loomera-bgSubtle text-xs text-loomera-textMuted"><tr><th class="px-4 py-3">شماره سند</th><th class="px-4 py-3">تاریخ ثبت</th><th class="px-4 py-3">وضعیت</th><th class="px-4 py-3">ناخالص خدمات</th><th class="px-4 py-3">خالص سهم سالن</th></tr></thead><tbody class="divide-y divide-loomera-borderSoft">{% for settlement in page_obj %}<tr><td class="px-4 py-3">{{ settlement.pk }}</td><td class="px-4 py-3">{{ settlement.created_at|date:"Y/m/d H:i" }}</td><td class="px-4 py-3">{{ settlement.get_payout_state_display }}</td><td class="px-4 py-3">{{ settlement.gross_services_amount|unlocalize }}</td><td class="px-4 py-3">{{ settlement.net_amount_due_to_salon|unlocalize }}</td></tr>{% endfor %}</tbody></table>{% else %}<p class="p-8 text-center text-sm text-loomera-textMuted">سند تسویه‌ای برای این سالن ثبت نشده است.</p>{% endif %}
+  </div>
+  <nav class="flex items-center justify-between gap-3 text-xs font-bold" aria-label="صفحه‌های اسناد تسویه"><span>{% if page_obj.has_previous %}<a class="rounded-xl border border-loomera-borderSoft px-3 py-2" href="?page={{ page_obj.previous_page_number }}">صفحه قبل</a>{% endif %}</span><span class="text-loomera-textMuted">صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span><span>{% if page_obj.has_next %}<a class="rounded-xl border border-loomera-borderSoft px-3 py-2" href="?page={{ page_obj.next_page_number }}">صفحه بعد</a>{% endif %}</span></nav>
+</div>
+{% endblock %}

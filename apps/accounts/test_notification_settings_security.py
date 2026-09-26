@@ -6,6 +6,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from tests_stage1_helpers import Stage1DomainFactoryMixin
+from apps.accounts.models import Customer
 
 
 @override_settings(CUSTOMER_NOTIFICATION_SETTINGS_MAX_BYTES=64)
@@ -28,7 +29,7 @@ class CustomerNotificationSettingsSecurityTests(Stage1DomainFactoryMixin, TestCa
 
         self.assertEqual(response.status_code, 405)
 
-    def test_notification_settings_forbids_non_customer_user(self):
+    def test_notification_settings_creates_customer_profile_for_manager(self):
         manager = self.make_salon_manager()
         self.client.force_login(manager.user)
 
@@ -38,8 +39,9 @@ class CustomerNotificationSettingsSecurityTests(Stage1DomainFactoryMixin, TestCa
             content_type="application/json",
         )
 
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.json()["error"], "access_denied")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Customer.objects.filter(user=manager.user).exists())
+        self.assertFalse(Customer.objects.get(user=manager.user).notify_marketing_sms)
 
     def test_notification_settings_rejects_oversized_payload(self):
         customer = self.make_customer()

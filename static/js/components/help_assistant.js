@@ -1281,6 +1281,10 @@ async function sendAssistantAction(root, { message = "", actionState = null, com
     ? await fetch(root.dataset.assistantActionUrl, requestOptions)
     : await fetchWithTimeout(root.dataset.assistantActionUrl, requestOptions);
   const payload = await response.json().catch(() => ({}));
+  if (payload.workspace_changed) {
+    setStoredActionState(null);
+    root.dispatchEvent(new CustomEvent("loomera:help:workspace-changed"));
+  }
   if (!response.ok) throw new Error(lumiApiError(response, payload, "الان نتونستم این کار رو انجام بدم. دوباره امتحان کن."));
   return payload;
 }
@@ -1447,6 +1451,9 @@ async function sendChat(root, message, history, conversationId) {
   });
 
   const payload = await response.json().catch(() => ({}));
+  if (payload.workspace_changed) {
+    root.dispatchEvent(new CustomEvent("loomera:help:workspace-changed"));
+  }
   if (!response.ok) throw new Error(lumiApiError(response, payload, "الان نتونستم پاسخ بدم. دوباره امتحان کن."));
   return payload;
 }
@@ -1599,6 +1606,8 @@ function init() {
     autoGrow(input);
   }
 
+  root.addEventListener("loomera:help:workspace-changed", () => resetConversationUi());
+
   async function loadContext() {
     if (contextLoaded) return;
     contextLoaded = true;
@@ -1650,8 +1659,9 @@ function init() {
       const payload = await getConversation(root, conversationId);
       if (!payload?.messages?.length) {
         if (!payload) {
-          conversationId = null;
-          setStoredConversationId(null);
+          // The server also returns 404 when the previous workspace or salon
+          // is no longer authorized. Clear stale action state and the UI too.
+          resetConversationUi();
         }
         return;
       }
@@ -1672,8 +1682,7 @@ function init() {
 
       handoffBox.hidden = true;
     } catch (_) {
-      conversationId = null;
-      setStoredConversationId(null);
+      resetConversationUi();
     } finally {
       if (liveMuted) {
         requestAnimationFrame(() => {
@@ -2131,6 +2140,13 @@ function init() {
 
       const payload = await sendChat(root, text, history, conversationId);
       typing.remove();
+
+      if (payload.scope_reset) {
+        resetConversationUi();
+        welcome.hidden = true;
+        addMessage(messages, "user", text);
+        history.push({ role: "user", content: text });
+      }
 
       conversationId = payload.conversation_id || conversationId;
       setStoredConversationId(conversationId);

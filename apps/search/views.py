@@ -366,21 +366,37 @@ def _manager_customer_search_forbidden():
 
 
 def _get_manager_owned_salon_from_request(request):
+    """Resolve customer-search scope without silently selecting salon #1.
+
+    For a one-salon manager preserve the legacy no-id request. A manager of
+    several salons must identify the salon explicitly, and every supplied
+    query/form target must match. The URL/session preference is not permission.
+    """
     salon_manager = getattr(request.user, "salon_manager_profile", None)
     if salon_manager is None:
         return None
 
     salons = Salon.objects.filter(salon_manager=salon_manager)
-    requested_salon_id = (
-        request.GET.get("salon_id") or request.POST.get("salon_id") or ""
-    ).strip()
-
-    if requested_salon_id:
-        if not requested_salon_id.isdigit():
+    targets = request.GET.getlist("salon_id") + request.POST.getlist("salon_id")
+    if targets:
+        # Reject duplicate/conflicting query and POST values instead of letting
+        # one browser tab or a forged parameter silently retarget customer PII.
+        if len(set(targets)) != 1:
             return None
-        salons = salons.filter(pk=int(requested_salon_id))
+        target = targets[0]
+        if (
+            not target.isascii()
+            or not target.isdecimal()
+            or len(target) > 20
+            or str(int(target)) != target
+            or int(target) <= 0
+        ):
+            return None
+        return salons.filter(pk=int(target)).first()
 
-    return salons.order_by("pk").first()
+    # Legacy no-id callers are safe only when there is exactly one owned salon.
+    owned = list(salons.order_by("pk")[:2])
+    return owned[0] if len(owned) == 1 else None
 
 
 @login_required
@@ -1233,9 +1249,17 @@ def _safe_search_click_target(request, target_url):
 
 
 def _model_field_names(model):
-    return {
-        field.name for field in model._meta.get_fields() if hasattr(field, "attname")
-    }
+    names = set()
+    for field in model._meta.get_fields():
+        if not hasattr(field, "attname"):
+            continue
+        names.add(field.name)
+        # ForeignKey payloads are commonly assigned through their concrete
+        # ``<field>_id`` attribute. Include that attname as well as the model
+        # field name so the generic analytics recorder can populate required
+        # foreign keys without instantiating related objects.
+        names.add(field.attname)
+    return names
 
 
 def _first_payload_value(request, *keys, default=""):

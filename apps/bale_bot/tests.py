@@ -409,6 +409,8 @@ class BaleBotRoleMenusStage4Tests(TestCase):
             family="چندنقشی",
             password="pass12345",
         )
+        self.user.is_active = True
+        self.user.save(update_fields=["is_active"])
         Customer.objects.create(user=self.user)
         Stylist.objects.create(user=self.user, expert="مو", is_active=True)
         SalonManager.objects.create(user=self.user, is_active=True)

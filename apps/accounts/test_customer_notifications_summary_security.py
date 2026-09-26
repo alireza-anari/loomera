@@ -40,14 +40,15 @@ class CustomerNotificationsSummarySecurityTests(Stage1DomainFactoryMixin, TestCa
 
         self.assertEqual(response.status_code, 405)
 
-    def test_notifications_summary_forbids_non_customer_user(self):
+    def test_notifications_summary_accepts_manager_without_customer_profile(self):
         manager = self.make_salon_manager()
         self.client.force_login(manager.user)
 
         response = self.client.get(self._url())
 
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.json()["error"], "not_customer")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["unread_count"], 0)
+        self.assertEqual(response.json()["notifications"], [])
 
     def test_notifications_summary_returns_only_current_user_notifications(self):
         customer = self.make_customer()

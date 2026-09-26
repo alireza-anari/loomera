@@ -28,6 +28,7 @@ from .content import (
     search_articles,
 )
 from .models import HelpConversation
+from .multirole_scope import conversation_history, help_workspace_scope
 from .services import (
     answer_help_question,
     consume_handoff_limit,
@@ -44,7 +45,7 @@ from .services import (
 
 
 def _role(request) -> str:
-    return detect_user_role(request.user)
+    return help_workspace_scope(request)["role"]
 
 
 def help_home(request):
@@ -200,9 +201,14 @@ def chat_api(request):
             status=429,
         )
 
-    role = _role(request)
+    scope_before_answer = help_workspace_scope(request)
+    role = scope_before_answer["role"]
     path = str(payload.get("path") or "/")[:500]
-    history = payload.get("history") if isinstance(payload.get("history"), list) else []
+    # Browser-provided history may belong to another workspace, another tab or
+    # a revoked salon. Use only server-persisted messages from a conversation
+    # whose identity, role and salon have just been reauthorized.
+    scoped_conversation = get_owned_conversation(request, payload.get("conversation_id"))
+    history = conversation_history(scoped_conversation)
     route_name = str(payload.get("route_name") or "")[:220]
     result = answer_help_question(
         question=question,
@@ -211,6 +217,14 @@ def chat_api(request):
         history=history,
         route_name=route_name,
     )
+
+    # Access can be revoked in another tab while the response is being built.
+    # Do not return or persist a response prepared using the old conversation.
+    if help_workspace_scope(request) != scope_before_answer:
+        return JsonResponse(
+            {"error": "محیط فعالیت تغییر کرده است. دوباره گفتگو را شروع کن.",
+             "workspace_changed": True}, status=409,
+        )
 
     conversation = get_or_create_conversation(
         request,
@@ -230,6 +244,9 @@ def chat_api(request):
 
     result.pop("redacted_question", None)
     result["remaining"] = remaining
+    # Inform the browser that its old conversation and local action state must
+    # be cleared before showing the new scoped conversation.
+    result["scope_reset"] = bool(payload.get("conversation_id") and scoped_conversation is None)
     result["conversation_id"] = str(conversation.public_id) if conversation else None
     result["assistant_message_id"] = str(assistant_message.public_id) if assistant_message else None
     return JsonResponse(result)
@@ -348,7 +365,7 @@ def support_handoff_api(request):
         "manager": "salon_manager",
         "stylist": "stylist",
         "customer": "customer",
-    }.get(detect_user_role(request.user), "customer")
+    }.get(_role(request), "customer")
 
     with transaction.atomic():
         conversation = HelpConversation.objects.select_for_update().get(pk=conversation.pk)

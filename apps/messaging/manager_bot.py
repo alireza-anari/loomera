@@ -14,7 +14,6 @@ from apps.salons.models import Salon, SalonMembership, SalonMembershipStatus
 from apps.services.models import Services
 from apps.stylists.models import StaffLeaveRequest, StaffScheduleRequest
 
-from .actions import build_action_callback_data, issue_action_token
 from .bale_presenters import (
     appointment_block,
     leave_request_block,
@@ -49,11 +48,12 @@ def _manager_profile(user):
 
 
 def manager_salons(user) -> list[Salon]:
-    manager = _manager_profile(user)
-    if manager is None:
+    if not user or not getattr(user, "is_authenticated", False) or not getattr(user, "is_active", False):
         return []
+    # Query the real owner relationship; an old cached manager profile cannot
+    # retain access after the profile/ownership has been revoked.
     return list(
-        Salon.objects.filter(salon_manager=manager)
+        Salon.objects.filter(salon_manager__user_id=user.pk)
         .order_by("-is_active", "salon_name", "id")
     )
 
@@ -62,12 +62,14 @@ def _resolve_salon(user, salon_id: int | None = None) -> Salon | None:
     salons = manager_salons(user)
     if not salons:
         return None
-    if salon_id:
-        for salon in salons:
-            if int(salon.pk) == int(salon_id):
-                return salon
+    if salon_id is None:
+        return salons[0] if len(salons) == 1 else None
+    if isinstance(salon_id, bool) or not str(salon_id).isascii() or not str(salon_id).isdecimal():
         return None
-    return salons[0]
+    parsed_id = int(salon_id)
+    if parsed_id <= 0 or str(parsed_id) != str(salon_id):
+        return None
+    return next((salon for salon in salons if salon.pk == parsed_id), None)
 
 
 def _status_label(detail: OrderDetail) -> str:
@@ -107,7 +109,9 @@ def _manager_base_markup(base_url: str, salon: Salon | None = None) -> dict:
     return {"inline_keyboard": rows}
 
 
-def _not_manager_text() -> str:
+def _not_manager_text(user=None) -> str:
+    if len(manager_salons(user)) > 1:
+        return "برای ادامه، ابتدا سالن موردنظر را از منوی مدیر انتخاب کنید."
     return "برای استفاده از امکانات مدیر سالن، نقش مدیر باید روی حساب شما فعال باشد."
 
 
@@ -116,6 +120,9 @@ def _manager_action_button(*, provider, identity, user, related_object, action_k
         return None
     if not bool(getattr(settings, "MESSAGING_ACTIONS_ENABLED", False)):
         return None
+    # Avoid actions -> manager_actions -> manager_bot circular import at module load.
+    from .actions import build_action_callback_data, issue_action_token
+
     raw_token, _ = issue_action_token(
         provider=provider,
         identity=identity,
@@ -208,7 +215,7 @@ def render_manager_today_calendar(
 ) -> tuple[str, dict]:
     salon = _resolve_salon(user, salon_id)
     if salon is None:
-        return _not_manager_text(), _manager_base_markup(base_url)
+        return _not_manager_text(user), _manager_base_markup(base_url)
 
     today = timezone.localdate()
     appointments = list(
@@ -245,7 +252,7 @@ def render_manager_today_summary(
 ) -> tuple[str, dict]:
     salon = _resolve_salon(user, salon_id)
     if salon is None:
-        return _not_manager_text(), _manager_base_markup(base_url)
+        return _not_manager_text(user), _manager_base_markup(base_url)
 
     today = timezone.localdate()
     qs = OrderDetail.objects.filter(salon=salon, date=today).select_related("order")
@@ -344,7 +351,7 @@ def render_manager_shifts_overview(
 ) -> tuple[str, dict]:
     salon = _resolve_salon(user, salon_id)
     if salon is None:
-        return _not_manager_text(), _manager_base_markup(base_url)
+        return _not_manager_text(user), _manager_base_markup(base_url)
 
     leaves = list(
         StaffLeaveRequest.objects.select_related("stylist__user")
@@ -392,7 +399,7 @@ def render_manager_pending_requests(
 ) -> tuple[str, dict]:
     salon = _resolve_salon(user, salon_id)
     if salon is None:
-        return _not_manager_text(), _manager_base_markup(base_url)
+        return _not_manager_text(user), _manager_base_markup(base_url)
 
     memberships = list(
         SalonMembership.objects.select_related("stylist__user")
@@ -502,7 +509,7 @@ def render_manager_available_slots(
 ) -> tuple[str, dict]:
     salon = _resolve_salon(user, salon_id)
     if salon is None:
-        return _not_manager_text(), _manager_base_markup(base_url)
+        return _not_manager_text(user), _manager_base_markup(base_url)
 
     memberships = list(
         SalonMembership.objects.select_related("stylist__user")

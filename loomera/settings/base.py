@@ -338,6 +338,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.dashboards.multirole_scope_middleware.UnscopedMultiSalonManagerGuard",
     "middlewares.middlewares.AuthenticatedHtmlNoStoreMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",

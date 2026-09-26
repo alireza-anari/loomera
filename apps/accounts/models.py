@@ -114,6 +114,36 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         db_table = "A_CustomUser"
 
 
+# The last selected workspace is a UI preference, not an authorization grant.
+# Do not use this row to authorize access to a salon or a specialist action.
+class UserWorkspacePreference(models.Model):
+    KIND_CUSTOMER = "customer"
+    KIND_STYLIST = "stylist"
+    KIND_MANAGER = "manager"
+    KIND_CHOICES = [
+        (KIND_CUSTOMER, "مشتری"),
+        (KIND_STYLIST, "متخصص"),
+        (KIND_MANAGER, "مدیر سالن"),
+    ]
+
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.CASCADE, related_name="workspace_preference"
+    )
+    kind = models.CharField(max_length=12, choices=KIND_CHOICES, blank=True, default="")
+    salon = models.ForeignKey(
+        "salons.Salon", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="+",
+    )
+    has_chosen_multirole_workspace = models.BooleanField(default=False)
+    # Distinguishes a deleted selected salon (SET_NULL) from intentionally
+    # selecting manager onboarding, which also has salon=None.
+    was_salon_workspace = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "ترجیح محیط فعالیت"
+        verbose_name_plural = "ترجیحات محیط فعالیت"
+
+
 # ----------------------------------------------------------------------------
 # Customer
 class Customer(models.Model):

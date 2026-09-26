@@ -1,0 +1,12 @@
+{% extends "dashboard_template.html" %}
+{% block title %}تأیید لغو رزرو دستی | لومرا{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-2xl">
+  <section class="rounded-[28px] border border-rose-100 bg-white p-5 shadow-lm-card sm:p-6">
+    <p class="text-xs font-black text-rose-600">تأیید لغو رزرو دستی</p><h1 class="mt-1 text-xl font-black">{{ salon.salon_name }}</h1>
+    <p class="mt-4 text-sm leading-7">آیا رزرو <strong>{{ booking.service.service_name }}</strong> در تاریخ {{ booking.date }} و ساعت {{ booking.time }} لغو شود؟</p>
+    <p class="mt-2 text-xs leading-6 text-loomera-textMuted">این عملیات فقط برای رزرو دستی پرداخت‌نشده و قابل‌لغو همین سالن فعال است.</p>
+    <form class="mt-5 flex flex-wrap gap-2" method="post" action="{% url 'dashboards:multirole_manager_manual_booking_cancel' salon_id=salon.pk appointment_id=booking.pk %}">{% csrf_token %}<input type="hidden" name="salon_id" value="{{ salon.pk }}"><input type="hidden" name="appointment_id" value="{{ booking.pk }}"><button class="rounded-2xl bg-rose-600 px-5 py-3 text-sm font-black text-white" type="submit">تأیید لغو رزرو</button><a class="rounded-2xl border border-loomera-borderSoft px-4 py-3 text-sm font-black" href="{% url 'dashboards:multirole_manager_salon_bookings' salon_id=salon.pk %}">بازگشت بدون لغو</a></form>
+  </section>
+</div>
+{% endblock %}

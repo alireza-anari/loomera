@@ -48,7 +48,7 @@ class Stage1AuthAndAccessTests(Stage1DomainFactoryMixin, TestCase):
         self.assertEqual(
             _role_redirect_name(stylist.user), "dashboards:stylist_dashboard"
         )
-        self.assertEqual(_role_redirect_name(neutral), "salons:show_salons")
+        self.assertEqual(_role_redirect_name(neutral), "accounts:customer_panel")
 
     @patch("apps.accounts.views.utils.send_otp_sms")
     @patch("apps.accounts.views.utils.create_random_code", return_value=12345)
@@ -183,7 +183,7 @@ class Stage1AuthAndAccessTests(Stage1DomainFactoryMixin, TestCase):
 
         self.assertIsNotNone(_get_valid_password_reset_session(request))
 
-    def test_customer_panel_redirects_manager_user_to_manager_dashboard(self):
+    def test_customer_panel_accepts_manager_user_without_previous_customer_profile(self):
         manager = self.make_salon_manager(password="StrongPass123!")
         self.client.force_login(manager.user)
 
@@ -192,8 +192,5 @@ class Stage1AuthAndAccessTests(Stage1DomainFactoryMixin, TestCase):
             secure=True,
         )
 
-        self.assertRedirects(
-            response,
-            reverse("dashboards:salon_manager_dashboard"),
-            fetch_redirect_response=False,
-        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Customer.objects.filter(user=manager.user).exists())

@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="{% static 'css/fontawesome/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/jalalidatepicker/jalalidatepicker.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/components/unified_sliders.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/workspace_switcher.css' %}">
 
     {% block vendor_css %}{% endblock %}
 
@@ -41,11 +42,11 @@
     {% include "partials/redirect_form_errors.html" %}
 
     <main id="main-content"
-          class="lm-shell-main lm-app-container {% if not hide_navbar and not request.user.salon_manager_profile and not request.user.stylist %}lm-shell-main--with-mobile-nav{% endif %} {% block main_class %}{% endblock %}">
+          class="lm-shell-main lm-app-container {% if not hide_navbar %}lm-shell-main--with-mobile-nav{% endif %} {% block main_class %}{% endblock %}">
         {% block content %}{% endblock %}
     </main>
 
-    {% if not hide_navbar and not request.user.salon_manager_profile and not request.user.stylist %}
+    {% if not hide_navbar %}
         {% include "partials/shell/customer_mobile_nav.html" %}
     {% endif %}
 

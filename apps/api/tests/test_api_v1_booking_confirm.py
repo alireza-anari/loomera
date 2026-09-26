@@ -6,6 +6,7 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from apps.accounts.models import Customer
 from apps.accounts.models import Stylist
 from tests_stage1_helpers import Stage1DomainFactoryMixin
 
@@ -387,7 +388,7 @@ class ApiV1BookingConfirmTests(Stage1DomainFactoryMixin, TestCase):
             "invalid_start_time",
         )
 
-    def test_booking_confirm_requires_customer_profile(self):
+    def test_booking_confirm_creates_customer_profile_for_manager(self):
         customer, salon, service, stylist, target_date = self._setup_available_slot()
         manager = self.make_salon_manager()
         self.client.force_login(manager.user)
@@ -403,8 +404,10 @@ class ApiV1BookingConfirmTests(Stage1DomainFactoryMixin, TestCase):
             content_type="application/json",
         )
 
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.json()["error"]["code"], "customer_profile_required")
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(response.json()["ok"])
+        self.assertTrue(response.json()["data"]["confirmed"])
+        self.assertTrue(Customer.objects.filter(user=manager.user).exists())
 
     @override_settings(LOOMERA_API_BOOKING_DRAFT_MAX_BYTES=16)
     def test_booking_confirm_rejects_large_payload(self):

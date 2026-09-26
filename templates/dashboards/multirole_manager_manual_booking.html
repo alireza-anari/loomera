@@ -1,0 +1,14 @@
+{% extends "dashboard_template.html" %}
+{% block title %}رزرو دستی {{ salon.salon_name }} | لومرا{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl space-y-5">
+  <header class="rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6"><p class="text-xs font-black text-loomera-primary">رزرو دستی</p><h1 class="mt-1 text-xl font-black">{{ salon.salon_name }}</h1><p class="mt-2 text-sm leading-7 text-loomera-textMuted">مشتری، خدمت، متخصص و زمان آزاد را برای همین سالن انتخاب کنید؛ مبلغ هنگام مراجعه پرداخت می‌شود.</p></header>
+  <form method="post" action="{% url 'dashboards:multirole_manager_manual_booking' salon_id=salon.pk %}" class="space-y-4 rounded-[28px] border border-loomera-borderSoft bg-white p-5 shadow-lm-card sm:p-6">
+    {% csrf_token %}<input type="hidden" name="salon_id" value="{{ salon.pk }}">
+    {% if form.non_field_errors %}<div role="alert" class="rounded-2xl bg-rose-50 p-3 text-sm text-rose-700">{{ form.non_field_errors }}</div>{% endif %}
+    {% for field in form %}<label class="block" for="{{ field.id_for_label }}"><span class="mb-1 block text-sm font-black">{{ field.label }}</span>{{ field }}{% if field.help_text %}<small class="mt-1 block text-xs text-loomera-textMuted">{{ field.help_text }}</small>{% endif %}{% if field.errors %}<span role="alert" class="mt-1 block text-xs text-rose-700">{{ field.errors }}</span>{% endif %}</label>{% endfor %}
+    <p class="text-xs leading-6 text-loomera-textMuted">تاریخ را به صورت ۱۴۰۵/۰۷/۰۳ یا 2026-09-25 وارد کنید. زمان باید در برنامه کاری متخصص آزاد باشد.</p>
+    <div class="flex flex-wrap gap-2"><button class="rounded-2xl bg-loomera-primary px-5 py-3 text-sm font-black text-white" type="submit">ثبت رزرو</button><a class="rounded-2xl border border-loomera-borderSoft px-4 py-3 text-sm font-black" href="{% url 'dashboards:multirole_manager_salon_bookings' salon_id=salon.pk %}">بازگشت</a></div>
+  </form>
+</div>
+{% endblock %}

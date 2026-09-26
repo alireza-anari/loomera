@@ -17,6 +17,7 @@ from apps.stylists.dashboard_services import review_leave_request, review_schedu
 from apps.stylists.models import StaffLeaveRequest, StaffScheduleRequest
 
 from .common import date_label, issue_confirmation, normalize_text, resolve_current_path, serialize_time
+from apps.help_center.multirole_scope import help_workspace_scope
 from .work_queries import is_manager_read_query_candidate, run_manager_read_query
 
 CANCEL_TERMS = ("بیخیال", "بی خیال", "بی‌خیال", "ولش کن", "انصراف")
@@ -40,6 +41,27 @@ def _manager_salon(
         .filter(salon_manager__user=request.user)
         .order_by("pk")
     )
+
+    # For a real, signed-in multi-salon manager, the selected workspace is a
+    # conversation boundary. A different *owned* salon is not the current
+    # context until the manager explicitly switches to it. Continue to check
+    # ownership in the queryset: the preference is never an authorization grant.
+    if getattr(request.user, "is_active", False) and queryset.count() > 1:
+        scope = help_workspace_scope(request)
+        if scope["role"] != "manager" or scope["salon_id"] is None:
+            raise ValidationError("ابتدا مجموعه موردنظر را از بخش انتخاب محیط فعالیت مشخص کن.")
+        chosen = queryset.filter(pk=scope["salon_id"]).first()
+        if chosen is None:
+            raise ValidationError("دسترسی به مجموعه انتخاب‌شده معتبر نیست.")
+        if salon_id is not None and str(salon_id) != str(chosen.pk):
+            raise ValidationError("محیط فعالیت تغییر کرده؛ ابتدا مجموعه درست را انتخاب کن.")
+        text = normalize_text(message)
+        if text:
+            for other in queryset.exclude(pk=chosen.pk):
+                name = normalize_text(other.salon_name)
+                if name and re.search(rf"(?<!\w){re.escape(name)}(?!\w)", text):
+                    raise ValidationError("برای اطلاعات این مجموعه ابتدا محیط فعالیت را تغییر بده.")
+        return chosen
 
     if salon_id:
         salon = queryset.filter(pk=salon_id).first()
@@ -102,7 +124,15 @@ def _current_manager_appointment(
     if not appointment_id:
         return None
 
-    item = (
+    selected_salon_id = None
+    if (getattr(request.user, "is_active", False)
+            and Salon.objects.filter(salon_manager__user=request.user).count() > 1):
+        scope = help_workspace_scope(request)
+        if scope["role"] != "manager" or scope["salon_id"] is None:
+            return None
+        selected_salon_id = scope["salon_id"]
+
+    items = (
         OrderDetail.objects.select_related(
             "order",
             "order__customer__user",
@@ -115,8 +145,10 @@ def _current_manager_appointment(
             pk=appointment_id,
             salon__salon_manager__user=request.user,
         )
-        .first()
     )
+    if selected_salon_id is not None:
+        items = items.filter(salon_id=selected_salon_id)
+    item = items.first()
     if item is None:
         return None
     return item.salon, item

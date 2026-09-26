@@ -50,6 +50,10 @@ class BaleOperatorUxTests(TestCase):
             family="مشتری",
             password="pass12345",
         )
+        # Scenarios exercise verified, active accounts; create_user defaults inactive.
+        for user in (self.manager_user, self.stylist_user, self.customer_user):
+            user.is_active = True
+            user.save(update_fields=["is_active"])
         self.manager = SalonManager.objects.create(user=self.manager_user, is_active=True)
         self.stylist = Stylist.objects.create(
             user=self.stylist_user,

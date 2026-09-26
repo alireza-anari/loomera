@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Iterable
 
+from apps.accounts.services.access import capabilities_for
+
 
 
 class BotRoleKey:
@@ -78,10 +80,13 @@ def detect_user_bot_roles(user) -> UserBotRoleContext:
     itself; operational permissions must still be checked in action handlers.
     """
     roles: list[UserBotRole] = []
-    if not user or getattr(user, "is_anonymous", False):
+    capabilities = capabilities_for(user)
+    if not capabilities:
         return UserBotRoleContext(user=user, roles=())
 
-    if _has_related(user, "customer_profile"):
+    # Customer is a capability of every active identity; this does not create
+    # a Customer record or silently opt a user into marketing notifications.
+    if "customer" in capabilities:
         roles.append(
             UserBotRole(
                 key=BotRoleKey.CUSTOMER,
@@ -90,7 +95,7 @@ def detect_user_bot_roles(user) -> UserBotRoleContext:
             )
         )
 
-    if _has_related(user, "stylist"):
+    if "stylist" in capabilities:
         stylist = getattr(user, "stylist", None)
         metadata = {}
         try:
@@ -176,7 +181,7 @@ def detect_user_bot_roles(user) -> UserBotRoleContext:
             )
         )
 
-    if _has_related(user, "salon_manager_profile"):
+    if "manager" in capabilities:
         manager = getattr(user, "salon_manager_profile", None)
         metadata = {}
         try:

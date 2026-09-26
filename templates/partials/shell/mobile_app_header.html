@@ -31,6 +31,10 @@
     </div>
 
     <div class="lm-shell-mobile-header__actions">
+      {% if request.user.is_authenticated %}
+        {% include "partials/shell/workspace_switcher.html" with variant="mobile" %}
+      {% endif %}
+
       {% if header_action_label and header_action_url %}
         <a href="{{ header_action_url }}" class="lm-icon-button" aria-label="{{ header_action_label }}">
           {% if header_action_icon %}
@@ -40,14 +44,8 @@
           {% endif %}
         </a>
       {% elif request.user.is_authenticated %}
-        {% if request.user.salon_manager_profile %}
-          <a href="{% url 'dashboards:salon_manager_dashboard' %}" class="lm-icon-button" aria-label="داشبورد من"><i class="fa-regular fa-user"></i></a>
-        {% elif request.user.stylist %}
-          <a href="{% url 'dashboards:stylist_dashboard' %}" class="lm-icon-button" aria-label="داشبورد من"><i class="fa-regular fa-user"></i></a>
-        {% elif request.user.customer_profile %}
+        {% if request.user.customer_profile %}
           {% include "partials/shell/customer_notification_button.html" with variant="mobile" %}
-        {% else %}
-          <a href="{% url 'salons:home' %}" class="lm-icon-button" aria-label="خانه"><i class="fa-regular fa-user"></i></a>
         {% endif %}
       {% else %}
         <a href="{% url 'accounts:login' %}" class="lm-icon-button" aria-label="ورود">
