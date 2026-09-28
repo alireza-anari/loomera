@@ -39,10 +39,16 @@
           <a href="{% url 'accounts:customer_signup' %}" class="lm-btn lm-btn-primary">
             شروع رایگان
           </a>
-          <a href="#loomera-audiences" class="lm-btn lm-btn-ghost">
+          <button
+            type="button"
+            class="lm-btn lm-btn-ghost lm-intro-video-trigger"
+            data-lm-intro-video-open
+            aria-haspopup="dialog"
+            aria-controls="loomera-intro-video-dialog"
+          >
             ببین چطور کار می‌کند
             <i class="fa-regular fa-circle-play" aria-hidden="true"></i>
-          </a>
+          </button>
         </div>
       </div>
 
@@ -305,6 +311,46 @@
   </section>
 
 </main>
+
+<dialog
+  id="loomera-intro-video-dialog"
+  class="lm-intro-video-dialog"
+  aria-labelledby="loomera-intro-video-title"
+>
+  <div class="lm-intro-video-shell">
+
+    <h2 id="loomera-intro-video-title" class="sr-only">
+      معرفی لومرا و نحوه کار با پلتفرم
+    </h2>
+
+    <button
+      type="button"
+      class="lm-intro-video-close"
+      data-lm-intro-video-close
+      aria-label="بستن ویدیو"
+    >
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+
+    <video
+      class="lm-intro-video-player"
+      data-lm-intro-video
+      controls
+      playsinline
+      preload="metadata"
+      poster="{% static 'videos/loomera-intro-poster.webp' %}"
+    >
+      <source
+        src="{% static 'videos/loomera-intro-web.mp4' %}"
+        type="video/mp4"
+      >
+
+      مرورگر شما از پخش این ویدیو پشتیبانی نمی‌کند.
+    </video>
+
+  </div>
+</dialog>
+
 {% endblock %}
 
 {% block js %}
