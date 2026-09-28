@@ -5,28 +5,112 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
+  /* Homepage intro video modal. */
+  const introOpenButton = root.querySelector("[data-lm-intro-video-open]");
+  const introDialog = document.getElementById("loomera-intro-video-dialog");
+  const introVideo = introDialog
+    ? introDialog.querySelector("[data-lm-intro-video]")
+    : null;
+  const introCloseButton = introDialog
+    ? introDialog.querySelector("[data-lm-intro-video-close]")
+    : null;
+
+  let introLastFocusedElement = null;
+
+  const closeIntroVideo = function () {
+    if (!introDialog) {
+      return;
+    }
+
+    if (introVideo) {
+      introVideo.pause();
+      introVideo.currentTime = 0;
+    }
+
+    document.body.classList.remove("lm-intro-video-open");
+
+    if (introDialog.open) {
+      introDialog.close();
+    }
+
+    if (
+      introLastFocusedElement &&
+      typeof introLastFocusedElement.focus === "function"
+    ) {
+      introLastFocusedElement.focus({ preventScroll: true });
+    }
+  };
+
+  if (introOpenButton && introDialog && introVideo) {
+    introOpenButton.addEventListener("click", function () {
+      introLastFocusedElement = document.activeElement;
+
+      document.body.classList.add("lm-intro-video-open");
+
+      if (!introDialog.open) {
+        introDialog.showModal();
+      }
+
+      introVideo.currentTime = 0;
+
+      const playPromise = introVideo.play();
+
+      if (playPromise !== undefined) {
+        playPromise.catch(function () {
+          /*
+           * If the browser blocks automatic playback for any reason,
+           * native video controls remain available to the user.
+           */
+        });
+      }
+    });
+
+    if (introCloseButton) {
+      introCloseButton.addEventListener("click", closeIntroVideo);
+    }
+
+    introDialog.addEventListener("click", function (event) {
+      if (event.target === introDialog) {
+        closeIntroVideo();
+      }
+    });
+
+    introDialog.addEventListener("cancel", function (event) {
+      event.preventDefault();
+      closeIntroVideo();
+    });
+
+    introDialog.addEventListener("close", function () {
+      document.body.classList.remove("lm-intro-video-open");
+
+      introVideo.pause();
+    });
+  }
+
   const reduceMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
+    "(prefers-reduced-motion: reduce)",
   ).matches;
 
   const finePointer = window.matchMedia("(pointer: fine)").matches;
   const sections = Array.from(root.querySelectorAll(".lm-reveal"));
   const hero = root.querySelector(".lm-home-hero");
-  const productCards = Array.from(root.querySelectorAll(".lm-product-showcase"));
+  const productCards = Array.from(
+    root.querySelectorAll(".lm-product-showcase"),
+  );
 
   root.classList.add("lm-motion-ready");
 
   /* Product stories enter from alternating directions on desktop. */
   productCards.forEach(function (card, index) {
     card.classList.add(
-      index % 2 === 0 ? "lm-enter-inline-start" : "lm-enter-inline-end"
+      index % 2 === 0 ? "lm-enter-inline-start" : "lm-enter-inline-end",
     );
   });
 
   const staggerSelectors = [
     ".lm-audience-card",
     ".lm-flow article",
-    ".lm-final-option"
+    ".lm-final-option",
   ];
 
   const staggerItems = [];
@@ -117,8 +201,8 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     {
       threshold: 0.11,
-      rootMargin: "0px 0px -8% 0px"
-    }
+      rootMargin: "0px 0px -8% 0px",
+    },
   );
 
   sections.forEach(function (section) {
@@ -138,8 +222,8 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     {
       threshold: 0.18,
-      rootMargin: "0px 0px -8% 0px"
-    }
+      rootMargin: "0px 0px -8% 0px",
+    },
   );
 
   staggerItems.forEach(function (item) {
@@ -159,8 +243,8 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     {
       threshold: 0.18,
-      rootMargin: "0px 0px -10% 0px"
-    }
+      rootMargin: "0px 0px -10% 0px",
+    },
   );
 
   productCards.forEach(function (card) {
@@ -173,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const parallaxTargets = [
     root.querySelector(".lm-hero-phone"),
-    ...Array.from(root.querySelectorAll(".lm-product-screen"))
+    ...Array.from(root.querySelectorAll(".lm-product-screen")),
   ].filter(Boolean);
 
   let ticking = false;
@@ -188,7 +272,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.documentElement.style.setProperty(
       "--lm-scroll-percent",
-      percent.toFixed(2)
+      percent.toFixed(2),
     );
 
     /*
@@ -208,10 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const distance = rect.top + rect.height * 0.5 - viewportCenter;
       const shift = Math.max(Math.min(distance * -0.028, 10), -10);
 
-      target.style.setProperty(
-        "--lm-scroll-shift",
-        shift.toFixed(2) + "px"
-      );
+      target.style.setProperty("--lm-scroll-shift", shift.toFixed(2) + "px");
     });
   };
 
