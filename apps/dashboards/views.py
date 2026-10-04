@@ -2393,16 +2393,22 @@ def _get_or_create_auto_neighborhood(name, *, latitude=None, longitude=None):
     if not name:
         return None
 
-    neighborhood = Neighborhood.objects.filter(name__iexact=name).first()
-    if neighborhood:
-        return neighborhood
-
+    candidates = list(Neighborhood.objects.filter(name__iexact=name).order_by("pk"))
     try:
         lat = float(latitude)
         lon = float(longitude)
     except (TypeError, ValueError):
-        lat = 35.699739
-        lon = 51.338097
+        return candidates[0] if candidates else None
+
+    point = Point(lon, lat, srid=4326)
+    for neighborhood in candidates:
+        polygon = getattr(neighborhood, "polygon", None)
+        if polygon is not None:
+            try:
+                if polygon.contains(point) or polygon.touches(point):
+                    return neighborhood
+            except Exception:
+                continue
 
     delta = 0.002
     polygon = Polygon(

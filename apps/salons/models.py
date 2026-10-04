@@ -76,6 +76,8 @@ class Salon(models.Model):
         upload_to=file_upload, blank=True, null=True, verbose_name="ویدیو"
     )
     zone = models.PositiveIntegerField(verbose_name="منطقه ", null=True, blank=True)
+    city = models.CharField(max_length=100, blank=True, default="", db_index=True, verbose_name="شهر")
+    zone_label = models.CharField(max_length=100, blank=True, default="", verbose_name="منطقه / ناحیه")
     location = gis_models.PointField(geography=True, verbose_name="موقعیت جغرافیایی", null=True)
     neighborhood = models.ForeignKey(
         Neighborhood,

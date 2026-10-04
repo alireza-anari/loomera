@@ -249,6 +249,7 @@ class SalonProfileStep1Form(forms.ModelForm):
 class SalonProfileStep2Form(forms.ModelForm):
     latitude = forms.FloatField(required=False, widget=forms.HiddenInput())
     longitude = forms.FloatField(required=False, widget=forms.HiddenInput())
+    city = forms.CharField(required=False, max_length=100, widget=forms.HiddenInput())
     neighborhood_name = forms.CharField(required=False, widget=forms.HiddenInput())
     zone_label = forms.CharField(required=False, widget=forms.HiddenInput())
 
@@ -306,12 +307,19 @@ class SalonProfileStep2Form(forms.ModelForm):
         if instance and getattr(instance, "pk", None):
             if getattr(instance, "neighborhood_id", None):
                 self.fields["neighborhood_name"].initial = instance.neighborhood.name
-            if getattr(instance, "zone", None):
+            self.fields["city"].initial = getattr(instance, "city", "") or ""
+            stored_zone_label = getattr(instance, "zone_label", "") or ""
+            if stored_zone_label:
+                self.fields["zone_label"].initial = stored_zone_label
+            elif getattr(instance, "zone", None):
                 self.fields["zone_label"].initial = f"منطقه {instance.zone}"
 
         self.fields["address"].error_messages.update({"required": "وارد کردن آدرس دقیق الزامی است."})
         self.fields["address_plaque"].error_messages.update({"required": "وارد کردن پلاک الزامی است."})
         self.fields["address_unit"].error_messages.update({"required": "وارد کردن واحد الزامی است."})
+
+    def clean_city(self):
+        return (self.cleaned_data.get("city") or "").strip()
 
     def clean_neighborhood_name(self):
         return (self.cleaned_data.get("neighborhood_name") or "").strip()
@@ -334,6 +342,15 @@ class SalonProfileStep2Form(forms.ModelForm):
             raise forms.ValidationError("لطفاً موقعیت مجموعه را روی نقشه انتخاب کنید.")
 
         return cleaned_data
+
+    def save(self, commit=True):
+        salon = super().save(commit=False)
+        salon.city = self.cleaned_data.get("city") or ""
+        salon.zone_label = self.cleaned_data.get("zone_label") or ""
+        if commit:
+            salon.save()
+            self.save_m2m()
+        return salon
 
 
 # -----------------------------------------------------------------

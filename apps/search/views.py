@@ -1381,3 +1381,18 @@ def record_search_click(request):
         return JsonResponse(
             {"ok": True, "recorded": False, "reason": "recording_failed"}
         )
+
+
+# Nationwide onboarding location overrides
+from apps.search.location_geo import (
+    _extract_reverse_geocode_city as _nationwide_extract_city,
+    _extract_reverse_geocode_neighborhood as _nationwide_extract_neighborhood,
+    _extract_reverse_geocode_zone as _nationwide_extract_zone,
+    city_search_proxy,
+    reverse_geocode_proxy as _nationwide_reverse_geocode_proxy,
+)
+
+_extract_reverse_geocode_city = _nationwide_extract_city
+_extract_reverse_geocode_neighborhood = _nationwide_extract_neighborhood
+_extract_reverse_geocode_zone = _nationwide_extract_zone
+reverse_geocode_proxy = _nationwide_reverse_geocode_proxy

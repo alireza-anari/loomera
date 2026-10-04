@@ -86,12 +86,16 @@ export default function initSalonLocationStep() {
   const body = document.body;
   const mapEnabled = String(body.dataset.mapEnabled || "").toLowerCase() === "true";
   const reverseGeocodeUrl = body.dataset.reverseGeocodeUrl || "";
+  const citySearchUrl = body.dataset.citySearchUrl || "";
   const mapTileUrlTemplate = body.dataset.mapTileUrlTemplate || "";
   const markerIconUrl = body.dataset.markerIconUrl || "";
   const markerIcon = createMarkerIcon(markerIconUrl);
 
   const mapRoot = document.getElementById("salon-location-map");
   const form = document.getElementById("salonLocationForm");
+  const cityInput = document.getElementById("id_city");
+  const citySearchInput = document.getElementById("id_city_search");
+  const citySearchResults = document.getElementById("citySearchResults");
   const submitBtn = document.getElementById("submitStepBtn");
   const useCurrentLocationBtn = document.getElementById("useCurrentLocationBtn");
   const clearLocationBtn = document.getElementById("clearLocationBtn");
@@ -172,6 +176,10 @@ export default function initSalonLocationStep() {
     const zoneValue = normalizeDigits(data.zone || "").replace(/[^0-9]/g, "");
     const zoneLabel = normalizeText(data.zone_label) || (zoneValue ? `منطقه ${zoneValue}` : "");
     const neighborhood = normalizeText(data.neighborhood);
+    const city = normalizeText(data.city);
+
+    if (city && cityInput) cityInput.value = city;
+    if (city && citySearchInput) citySearchInput.value = city;
 
     if (zoneInput) zoneInput.value = zoneValue;
     if (zoneLabelInput) zoneLabelInput.value = zoneLabel;
@@ -216,7 +224,7 @@ export default function initSalonLocationStep() {
           plaqueInput.value = data.plaque;
         }
         applyReverseArea(data);
-        const missingArea = !normalizeText(data.neighborhood) || !normalizeText(data.zone);
+        const missingArea = !normalizeText(data.neighborhood) || !(normalizeText(data.zone_label) || normalizeText(data.zone));
         setMessageState(
             addressMessageBox,
             missingArea ? "warning" : "success",
@@ -294,6 +302,105 @@ export default function initSalonLocationStep() {
     syncSubmitState();
   }
 
+  let citySearchTimer = null;
+  let cityLookupCounter = 0;
+
+  function hideCityResults() {
+    if (!citySearchResults) return;
+    citySearchResults.classList.add("hidden");
+    citySearchResults.replaceChildren();
+  }
+
+  function focusCityOnMap(lat, lon, city) {
+    const latitude = Number(lat);
+    const longitude = Number(lon);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+
+    const cityName = normalizeText(city);
+    if (cityInput) cityInput.value = cityName;
+    if (citySearchInput) citySearchInput.value = cityName;
+    hideCityResults();
+
+    if (mapInstance) {
+      mapInstance.setView([latitude, longitude], 12);
+    }
+  }
+
+  async function searchCities(query, { autoFocusFirst = false } = {}) {
+    const normalizedQuery = normalizeText(query);
+    if (!citySearchUrl || normalizedQuery.length < 2) {
+      hideCityResults();
+      return;
+    }
+
+    const requestId = ++cityLookupCounter;
+    try {
+      const url = new URL(citySearchUrl, window.location.origin);
+      url.searchParams.set("q", normalizedQuery);
+      const response = await fetch(url.toString(), {
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      const payload = await response.json();
+      if (requestId !== cityLookupCounter) return;
+
+      const results = response.ok && payload.ok && Array.isArray(payload.results)
+        ? payload.results
+        : [];
+
+      if (autoFocusFirst && results.length) {
+        const first = results[0];
+        focusCityOnMap(first.lat, first.lon, first.city || first.label || normalizedQuery);
+        return;
+      }
+
+      if (!citySearchResults) return;
+      citySearchResults.replaceChildren();
+      if (!results.length) {
+        citySearchResults.classList.add("hidden");
+        return;
+      }
+
+      results.forEach((item) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "flex w-full items-center justify-between gap-3 rounded-2xl px-3 py-2.5 text-right text-sm font-bold text-loomera-textPrimary transition hover:bg-loomera-primarySoft";
+        button.setAttribute("role", "option");
+        const title = document.createElement("span");
+        title.textContent = item.label || item.city || normalizedQuery;
+        const meta = document.createElement("span");
+        meta.className = "text-[11px] font-bold text-loomera-textMuted";
+        meta.textContent = item.province || "";
+        button.append(title, meta);
+        button.addEventListener("click", () => {
+          focusCityOnMap(item.lat, item.lon, item.city || item.label || normalizedQuery);
+        });
+        citySearchResults.appendChild(button);
+      });
+      citySearchResults.classList.remove("hidden");
+    } catch (error) {
+      if (requestId === cityLookupCounter) hideCityResults();
+    }
+  }
+
+  citySearchInput?.addEventListener("input", () => {
+    if (cityInput) cityInput.value = "";
+    window.clearTimeout(citySearchTimer);
+    citySearchTimer = window.setTimeout(() => searchCities(citySearchInput.value), 300);
+  });
+
+  citySearchInput?.addEventListener("focus", () => {
+    if (normalizeText(citySearchInput.value).length >= 2) {
+      searchCities(citySearchInput.value);
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!citySearchResults || !citySearchInput) return;
+    if (!citySearchResults.contains(event.target) && event.target !== citySearchInput) {
+      hideCityResults();
+    }
+  });
+
   async function initMap() {
     if (!mapEnabled) {
       showMapWarning("سرویس نقشه داخلی هنوز فعال نشده است. می‌توانی فعلاً آدرس را دستی وارد کنی و بعداً لوکیشن را تکمیل کنی.");
@@ -310,7 +417,7 @@ export default function initSalonLocationStep() {
         zoomControl: true,
         attributionControl: true,
         scrollWheelZoom: false,
-      }).setView([35.699739, 51.338097], 12);
+      }).setView([32.4279, 53.6880], 5);
 
       const tileLayer = window.L.tileLayer(tileUrl, {
         attribution: "© Map.ir",
@@ -346,6 +453,9 @@ export default function initSalonLocationStep() {
             '<i class="fa-solid fa-check ml-1"></i> آدرس ذخیره‌شده قبلی نمایش داده شده است.'
           );
         }
+      }
+      else if (cityInput && normalizeText(cityInput.value)) {
+        searchCities(cityInput.value, { autoFocusFirst: true });
       }
 
       window.requestAnimationFrame(() => {

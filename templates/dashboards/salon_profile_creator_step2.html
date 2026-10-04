@@ -8,6 +8,7 @@ data-page="dashboard-layout"
 data-dashboard-page="salon-location-step"
 data-map-enabled="{{ map_provider_enabled|yesno:'true,false' }}"
 data-reverse-geocode-url="{% url 'search:reverse_geocode_proxy' %}"
+data-city-search-url="{% url 'search:city_search_proxy' %}"
 data-map-tile-seed-url="{% url 'search:map_tile_proxy' z=0 x=0 y=0 %}"
 data-map-tile-url-template="{% url 'search:map_tile_proxy' z=987654 x=876543 y=765432 %}"
 data-marker-icon-url="{% static 'vendor/mapp/dist/assets/images/marker-icon.png' %}"
@@ -55,6 +56,7 @@ data-marker-icon-url="{% static 'vendor/mapp/dist/assets/images/marker-icon.png'
       {% csrf_token %}
       {{ form.latitude }}
       {{ form.longitude }}
+      {{ form.city }}
       {{ form.zone }}
       {{ form.neighborhood }}
       {{ form.neighborhood_name }}
@@ -70,12 +72,21 @@ data-marker-icon-url="{% static 'vendor/mapp/dist/assets/images/marker-icon.png'
         <div class="mb-4 flex items-center justify-between gap-3">
           <div>
             <h2 class="text-base font-black text-loomera-textPrimary sm:text-lg">موقعیت مکانی روی نقشه</h2>
-            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">روی نقشه بزن یا از موقعیت فعلی استفاده کن.</p>
+            <p class="mt-1 text-xs leading-6 text-loomera-textMuted">اول شهر را انتخاب کن؛ سپس محل دقیق مجموعه را روی نقشه مشخص کن.</p>
           </div>
           <span class="inline-flex shrink-0 items-center gap-2 rounded-full bg-loomera-primarySoft px-3 py-2 text-xs font-black text-loomera-primaryText" data-location-step-coordinate-status>
             <i class="fa-solid fa-circle-info text-[10px]" aria-hidden="true"></i>
             مکانی انتخاب نشده
           </span>
+        </div>
+
+        <div class="mb-4">
+          <label for="id_city_search" class="mb-2 block text-xs font-black text-loomera-textMuted">شهر</label>
+          <div class="relative">
+            <input id="id_city_search" type="search" value="{{ form.city.value|default:'' }}" autocomplete="off" class="w-full rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/70 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary outline-none transition focus:border-loomera-primary/40 focus:bg-white focus:ring-4 focus:ring-loomera-primary/10" placeholder="نام شهر را بنویس؛ مثلاً اصفهان">
+            <div id="citySearchResults" class="absolute inset-x-0 top-[calc(100%+0.5rem)] z-30 hidden max-h-64 overflow-y-auto rounded-[20px] border border-loomera-borderSoft bg-white p-2 shadow-lm-elevated" role="listbox" aria-label="نتایج جستجوی شهر"></div>
+          </div>
+          <p class="mt-2 text-xs leading-6 text-loomera-textMuted">با انتخاب شهر، نقشه روی همان شهر زوم می‌شود؛ انتخاب شهر به‌تنهایی محل مجموعه را ثبت نمی‌کند.</p>
         </div>
 
         <div id="mapWarning" class="mb-4 hidden rounded-2xl border border-loomera-danger/20 bg-loomera-dangerSoft px-4 py-3 text-sm font-bold leading-7 text-loomera-danger"></div>
@@ -96,8 +107,8 @@ data-marker-icon-url="{% static 'vendor/mapp/dist/assets/images/marker-icon.png'
         <h2 class="text-base font-black text-loomera-textPrimary sm:text-lg">آدرس قابل نمایش برای مشتری</h2>
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <label for="id_zone_display" class="mb-2 block text-xs font-black text-loomera-textMuted">منطقه</label>
-            <input id="id_zone_display" type="text" value="{% if form.zone.value %}منطقه {{ form.zone.value }}{% endif %}" readonly class="w-full cursor-not-allowed rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary" placeholder="با انتخاب موقعیت پر می‌شود">
+            <label for="id_zone_display" class="mb-2 block text-xs font-black text-loomera-textMuted">منطقه / ناحیه</label>
+            <input id="id_zone_display" type="text" value="{% if form.zone_label.value %}{{ form.zone_label.value }}{% elif form.zone.value %}منطقه {{ form.zone.value }}{% endif %}" readonly class="w-full cursor-not-allowed rounded-[20px] border border-loomera-borderSoft bg-loomera-bgSubtle/80 px-4 py-3.5 text-sm font-bold text-loomera-textPrimary" placeholder="با انتخاب موقعیت پر می‌شود">
           </div>
           <div>
             <label for="id_neighborhood_display" class="mb-2 block text-xs font-black text-loomera-textMuted">محله</label>
