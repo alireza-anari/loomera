@@ -23,6 +23,7 @@ jobs:
       MESSAGING_ENABLED: "False"
       MESSAGING_OUTBOUND_ENABLED: "False"
       BALE_BOT_ENABLED: "False"
+      SPATIALITE_LIBRARY_PATH: mod_spatialite
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,7 +35,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install --yes gdal-bin libgdal-dev libgeos-dev
+          sudo apt-get install --yes gdal-bin libgdal-dev libgeos-dev libsqlite3-mod-spatialite
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
