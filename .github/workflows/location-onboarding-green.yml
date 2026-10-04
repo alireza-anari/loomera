@@ -1,0 +1,70 @@
+name: Location onboarding GREEN
+
+on:
+  push:
+    branches:
+      - fix/onboarding-location-outside-tehran
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-verify:
+    if: github.event.head_commit.message != 'fix: support nationwide onboarding locations'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SECRET_KEY: ci-only-secret-key-not-for-runtime
+      DATABASE_URL: sqlite:///ci.sqlite3
+      DEBUG: "False"
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      CSRF_TRUSTED_ORIGINS: http://localhost,http://127.0.0.1
+      ONLINE_PAYMENT_ENABLED: "False"
+      MESSAGING_ENABLED: "False"
+      MESSAGING_OUTBOUND_ENABLED: "False"
+      BALE_BOT_ENABLED: "False"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes gdal-bin libgdal-dev libgeos-dev
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Apply bounded production patch
+        run: python scripts/apply_onboarding_location_fix.py
+      - name: Migration drift check
+        run: python manage.py makemigrations --check --dry-run --settings=loomera.settings.test
+      - name: Run focused regression tests
+        run: |
+          python manage.py test \
+            apps.search.test_onboarding_location_outside_tehran \
+            apps.search.test_mapir_proxy_security \
+            apps.dashboards.test_onboarding_smoke_fixes \
+            --settings=loomera.settings.test --noinput -v 2
+      - name: Diff hygiene
+        run: git diff --check
+      - name: Commit verified production changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            apps/salons/models.py \
+            apps/salons/forms.py \
+            apps/dashboards/views.py \
+            apps/search/views.py \
+            apps/search/urls.py \
+            loomera/settings/base.py \
+            templates/dashboards/salon_profile_creator_step2.html \
+            static/js/pages/salon_location_step.js
+          git diff --cached --check
+          git commit -m "fix: support nationwide onboarding locations"
+          git push origin HEAD:fix/onboarding-location-outside-tehran
