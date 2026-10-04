@@ -1,0 +1,41 @@
+name: Location optional area TDD
+
+on:
+  push:
+    branches:
+      - fix/onboarding-location-area-optional
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SECRET_KEY: ci-only-secret-key-not-for-runtime
+      DATABASE_URL: sqlite:///ci.sqlite3
+      DEBUG: "False"
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      CSRF_TRUSTED_ORIGINS: http://localhost,http://127.0.0.1
+      ONLINE_PAYMENT_ENABLED: "False"
+      MESSAGING_ENABLED: "False"
+      MESSAGING_OUTBOUND_ENABLED: "False"
+      BALE_BOT_ENABLED: "False"
+      SPATIALITE_LIBRARY_PATH: mod_spatialite
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes gdal-bin libgdal-dev libgeos-dev libsqlite3-mod-spatialite
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run optional-area regression
+        run: python manage.py test apps.dashboards.test_optional_location_area_fields --settings=loomera.settings.test --noinput -v 2
