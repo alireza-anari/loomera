@@ -21,6 +21,14 @@ class NationwideOnboardingLocationRegressionTests(SimpleTestCase):
         self.assertEqual(zone, "")
         self.assertEqual(zone_label, "بخش مرکزی")
 
+    def test_numeric_zone_remains_backward_compatible(self):
+        zone, zone_label = _extract_reverse_geocode_zone(
+            {"address_compound": {"municipal_zone": "منطقه ۵"}}
+        )
+
+        self.assertEqual(zone, 5)
+        self.assertEqual(zone_label, "منطقه ۵")
+
     def test_specific_neighborhood_wins_over_city_locality(self):
         neighborhood = _extract_reverse_geocode_neighborhood(
             {
@@ -62,10 +70,13 @@ class NationwideOnboardingLocationRegressionTests(SimpleTestCase):
         payload = response.json()
         self.assertTrue(payload["ok"])
         self.assertEqual(payload.get("city"), "اصفهان")
+        self.assertEqual(payload["zone_label"], "ناحیه ۵")
         self.assertEqual(payload["neighborhood"], "جلفا")
 
-    def test_salon_has_persistent_location_metadata_relation(self):
-        self.assertTrue(hasattr(Salon, "location_metadata"))
+    def test_salon_persists_city_and_textual_zone(self):
+        field_names = {field.name for field in Salon._meta.get_fields()}
+        self.assertIn("city", field_names)
+        self.assertIn("zone_label", field_names)
 
     def test_onboarding_location_ui_exposes_city_search_and_zoom_wiring(self):
         base_dir = Path(settings.BASE_DIR)
