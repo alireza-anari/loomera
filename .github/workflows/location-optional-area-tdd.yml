@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   apply-and-verify:
-    if: github.event.head_commit.message == 'ci: apply optional location area fix'
+    if: "github.event.head_commit.message == 'ci: apply optional location area fix'"
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
