@@ -227,9 +227,9 @@ export default function initSalonLocationStep() {
         const missingArea = !normalizeText(data.neighborhood) || !(normalizeText(data.zone_label) || normalizeText(data.zone));
         setMessageState(
             addressMessageBox,
-            missingArea ? "warning" : "success",
+            "success",
             missingArea
-              ? '<i class="fa-solid fa-triangle-exclamation ml-1"></i> آدرس دریافت شد، اما منطقه یا محله کامل نبود. پین را کمی جابه‌جا کن یا دوباره تلاش کن.'
+              ? '<i class="fa-solid fa-check ml-1"></i> آدرس دریافت شد. منطقه یا محله در این موقعیت تشخیص داده نشد؛ این دو مورد اختیاری هستند و مانع ذخیره نمی‌شوند.'
               : '<i class="fa-solid fa-check ml-1"></i> آدرس، منطقه و محله بر اساس لوکیشن انتخاب شده وارد شدند. پلاک را بررسی کن و واحد را در فیلد جداگانه وارد کن.'
             );
         clearMapWarning();

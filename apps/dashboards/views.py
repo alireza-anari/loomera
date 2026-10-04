@@ -753,9 +753,7 @@ def _is_step2_complete(salon):
     if salon is None:
         return False
     return bool(
-        salon.zone
-        and salon.neighborhood_id
-        and (salon.address or "").strip()
+        (salon.address or "").strip()
         and salon.location
     )
 
